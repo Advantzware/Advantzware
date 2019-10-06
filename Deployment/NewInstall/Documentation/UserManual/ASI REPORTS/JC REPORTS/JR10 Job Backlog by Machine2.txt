@@ -1,0 +1,41 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:59pm                                                 JOB BACKLOG BY MACHINE
+
+                              FOR OPEN JOBS ONLY  Thru:10/17/00  Machine:PR - PR  Job #:-00 - zzzzzz-99
+Machine: PR
+
+PROMISED/                                                                                                   BOARD
+JOB DATE  CUSTOMER CUSTOMER PART #     JOB #    JOB QTY BOARD           SHEET SIZE          VENDOR       RECEIVED GL/ST   FG SHIPPED
+--------- -------- --------------- --------- ---------- --------------- ------------------- -------- ------------ ----- ------------
+01/23/98  ATT10    Cordless           109-00    110,000 SBS-18          W: 21.875 L: 33.969                     0   X              0
+02/04/98  SMI10    Suntan No10          8-00    100,000 SBS-18          W: 17.00 L: 30.438                      0   X              0
+02/25/98  ORA10    ORA-RT 3x5x5       117-00    110,000 SBS18-117       W: 27.875 L: 34.188               148,000   X         25,400
+03/06/98  IBM10    IBM-Mouse Pad      118-00     55,000 SBS-20          W: 25.50 L: 30.188                      0   X              0
+03/25/98  HER10    HER XMAS KISS      124-00     25,000 SBS-18          W: 19.875 L: 35.375                     0   X         12,500
+04/10/98  ATT10    ATT Wallplate      128-00     82,500 SBS28-18Pt      W: 28.00 L: 38.281  2               8,464   X              0
+04/10/98  ATT10    ATT Wallplate      128-00     82,500 SBS28-18Pt      W: 28.00 L: 38.281  2               8,464   X              0
+04/10/98  ORA10    Mint Floss         127-00    275,000 SBS28-18Pt      W: 28.00 L: 41.844  2               7,743   X              0
+04/16/98  ATT10    ATT Wallplate      129-00    275,000 SBS-18          W: 18.375 L: 38.281                     0   X              0
+04/16/98  ATT10    ATT Wallplate      129-00    275,000 SBS-18          W: 18.375 L: 38.281                     0   X              0
+04/16/98  HER10    HER XMAS KISS      125-00     55,000 SBS1820X36      W: 19.875 L: 35.375 2              88,000   X              0
+04/23/98  ATT10    ATT RT             235-00    100,000 SBS-18          W: 24.00 L: 38.281                      0   X              0
+04/23/98  HER10    HER 3x3x3          236-00     50,000 SBS16-25        W: 25.00 L: 38.281                 14,106   X              0
+05/23/98  HER10    HER 3x3x3          132-00    100,000 SBS-18          W: 24.00 L: 38.281                      0   X              0
+05/23/98  HER10    HER 3x3x3          131-00     50,000 SBS-18          W: 24.00 L: 38.281  2              89,991   X              0
+06/17/98  ATT10    ATT Cell Phone     134-00    250,000 SBS-18          W: 18.875 L: 21.594                     0   X              0
+06/25/98  SMI10    SMITH 061598       136-00    200,000 SBS-18          W: 21.875 L: 28.188 2             268,178   X              0
+07/03/98  ATT10    ATT 3x3x7          139-00     50,000 SBS-18          W: 25.875 L: 38.781                     0   X              0
+07/23/98  HER10    HER 3x2x5          140-00    250,000 SBS18-140       W: 26.50 L: 32.781  2                   0   X              0
+09/17/98  ATT10    ATT Cell Phone   F1924-00    150,000 SBS-18          W: 18.875 L: 21.594                     0   X              0
+09/22/99  SMI10    Suntan No10        300-01    100,000 SBS-18          W: 27.75 L: 29.938                      0   X              0
+10/08/99  ATT10    1002-1             302-00     25,000 SBS-18          W: 52.00 L: 35.00                       0   X              0
+10/08/99  ATT10    1002-2             302-00     50,000 SBS-18          W: 52.00 L: 35.00                       0   X              0
+10/08/99  ATT10    1002-3             302-00     25,000 SBS-18          W: 52.00 L: 35.00                       0                  0
+11/26/99  HER10    HER 6 Box          305-00    100,000 BC20            W: 24.625 L: 36.875                     0   X              0
+12/31/99  ATT10    ATT-1014           308-00     50,000 SBS-20          W: 23.625 L: 41.75                      0   X              0
+03/02/00  SMI10    Suntan No10        310-00    100,000 SBS-18          W: 27.75 L: 29.938                      0   X              0
+03/15/00  ATT10    Cordless 110       313-00     25,000 SBS-18          W: 40.00 L: 50.00                       0   X              0
+03/15/00  ATT10    Cordless 210       313-00     50,000 SBS-18          W: 40.00 L: 50.00                       0   X              0
+10/16/00  STOCK    Facial Box          18-00     25,000 SBS-16          W: 17.50 L: 20.52                       0   X              0
+

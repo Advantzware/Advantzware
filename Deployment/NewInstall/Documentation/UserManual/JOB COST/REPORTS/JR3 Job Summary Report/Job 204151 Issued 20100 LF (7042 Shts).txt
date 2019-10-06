@@ -1,0 +1,32 @@
+
+03/14/12                                     Advanced Box Company 001 V10 - Main Office                                   Page   1
+ 3:27pm                                                   Raw Material Post                                               M-U-6
+
+
+
+
+WHSE:   MAIN
+DATE       ITEM       DESCRIPTION    P.O.#     VENDOR   Job #     T TAG#                  QUANTITY BIN      UOM      COST TOTAL COST
+---------- ---------- -------------- --------- -------- ------ -- - -------------------- --------- -------- --- --------- ----------
+03/14/2012 SBS18-24.5 SBS 18 24.5" R                    204151-00 I 01003150050000001     20100.00 FLOOR    LF       1.39  27,918.90
+                                                                                         ---------              ---------
+                        Total for Issues:                                                20,100.00              27,918.90
+                        Total Number of Lines to Post:                                           1
+
+                                                                                         -----------            ----------
+                  Grand Total for Issues:                                                20,100.00              27,918.90
+                  Grand Total Number of Lines to Post:                                           1
+
+
+
+03/14/12                                     Advanced Box Company 001 V10 - Main Office                                   Page   2
+ 3:27pm                                                   Raw Material Post                                               M-U-6
+
+
+
+
+G/L ACCOUNT NUMBER        DESCRIPTION                                   DATE                AMOUNT
+------------------------- --------------------------------------------- ---------- ---------------
+11301-00                  Inventory - Raw Materials                     03/14/2012     27,918.90cr
+11302-01                  Inventory - WIP Mat'l                         03/14/2012     27,918.90
+

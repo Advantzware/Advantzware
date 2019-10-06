@@ -1,0 +1,2173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema asi.costHeader</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="corrxref.html">corrxref</a></td>
+    <td class="navbar" style="width:20%;">  <a href="costtype.html">costtype</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>asi.costHeader</h1>
+<p>Header tables for estimate and job cost calculations</p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> costHeader      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> Cost Header      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td>       </td></tr>
+    </table>
+  </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/costHeader.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg/costHeader.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg/costHeader.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>465</td>
+    <td>actCostBoard</td>
+    <td><a href="00-cross-a.html#actCostBoard"><small>X</small></a></td>
+    <td>Board Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Board Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>655</td>
+    <td>actCostBrokerComm</td>
+    <td><a href="00-cross-a.html#actCostBrokerComm"><small>X</small></a></td>
+    <td>Broker Comm Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Broker Commission Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>695</td>
+    <td>actCostCommission</td>
+    <td><a href="00-cross-a.html#actCostCommission"><small>X</small></a></td>
+    <td>Commission Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Commission Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>515</td>
+    <td>actCostDirectFactory</td>
+    <td><a href="00-cross-a.html#actCostDirectFactory"><small>X</small></a></td>
+    <td>Direct Factory Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Direct Factory Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>485</td>
+    <td>actCostDirectLabor</td>
+    <td><a href="00-cross-a.html#actCostDirectLabor"><small>X</small></a></td>
+    <td>Direct Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Direct Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>475</td>
+    <td>actCostDirectMaterial</td>
+    <td><a href="00-cross-a.html#actCostDirectMaterial"><small>X</small></a></td>
+    <td>Direct Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Direct Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>505</td>
+    <td>actCostFixedOverhead</td>
+    <td><a href="00-cross-a.html#actCostFixedOverhead"><small>X</small></a></td>
+    <td>Fixed Overhead Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Fixed Overhead Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>585</td>
+    <td>actCostFreight</td>
+    <td><a href="00-cross-a.html#actCostFreight"><small>X</small></a></td>
+    <td>Freight Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Freight Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>705</td>
+    <td>actCostFull</td>
+    <td><a href="00-cross-a.html#actCostFull"><small>X</small></a></td>
+    <td>Full Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Full Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>615</td>
+    <td>actCostGSABoard</td>
+    <td><a href="00-cross-a.html#actCostGSABoard"><small>X</small></a></td>
+    <td>GS&A Board Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual GS&A Board Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>605</td>
+    <td>actCostGSALabor</td>
+    <td><a href="00-cross-a.html#actCostGSALabor"><small>X</small></a></td>
+    <td>GS&A Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual GS&A Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>595</td>
+    <td>actCostGSAMaterial</td>
+    <td><a href="00-cross-a.html#actCostGSAMaterial"><small>X</small></a></td>
+    <td>GS&A Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual GS&A Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>555</td>
+    <td>actCostMiscLabor</td>
+    <td><a href="00-cross-a.html#actCostMiscLabor"><small>X</small></a></td>
+    <td>Misc Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Miscellaneous Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>565</td>
+    <td>actCostMiscMaterial</td>
+    <td><a href="00-cross-a.html#actCostMiscMaterial"><small>X</small></a></td>
+    <td>Misc Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Miscellaneous Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>535</td>
+    <td>actCostPrepLabor</td>
+    <td><a href="00-cross-a.html#actCostPrepLabor"><small>X</small></a></td>
+    <td>Prep Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Prep Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>545</td>
+    <td>actCostPrepMaterial</td>
+    <td><a href="00-cross-a.html#actCostPrepMaterial"><small>X</small></a></td>
+    <td>Prep Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Prep Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>635</td>
+    <td>actCostRoyalty</td>
+    <td><a href="00-cross-a.html#actCostRoyalty"><small>X</small></a></td>
+    <td>Royalty Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Royalty Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>665</td>
+    <td>actCostSpecial1</td>
+    <td><a href="00-cross-a.html#actCostSpecial1"><small>X</small></a></td>
+    <td>Special Cost 1 - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Special Custom Cost 1</td>
+  </tr>
+  <tr class="oddrow">
+    <td>675</td>
+    <td>actCostSpecial2</td>
+    <td><a href="00-cross-a.html#actCostSpecial2"><small>X</small></a></td>
+    <td>Special Cost 2 - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Special Custom Cost 2</td>
+  </tr>
+  <tr class="evenrow">
+    <td>685</td>
+    <td>actCostSpecial3</td>
+    <td><a href="00-cross-a.html#actCostSpecial3"><small>X</small></a></td>
+    <td>Special Cost 3 - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Special Custom Cost 3</td>
+  </tr>
+  <tr class="oddrow">
+    <td>525</td>
+    <td>actCostTotalFactory</td>
+    <td><a href="00-cross-a.html#actCostTotalFactory"><small>X</small></a></td>
+    <td>Total Factory Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Total Factory Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>625</td>
+    <td>actCostTotalGSA</td>
+    <td><a href="00-cross-a.html#actCostTotalGSA"><small>X</small></a></td>
+    <td>Total GS&A Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Total GS&A Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>575</td>
+    <td>actCostTotalOther</td>
+    <td><a href="00-cross-a.html#actCostTotalOther"><small>X</small></a></td>
+    <td>Total Other Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Total Other Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>495</td>
+    <td>actCostVariableOverhead</td>
+    <td><a href="00-cross-a.html#actCostVariableOverhead"><small>X</small></a></td>
+    <td>Variable Overhead Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Variable Overhead Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>645</td>
+    <td>actCostWarehousing</td>
+    <td><a href="00-cross-a.html#actCostWarehousing"><small>X</small></a></td>
+    <td>Warehousing Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Warehousing Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>725</td>
+    <td>actProfitGross</td>
+    <td><a href="00-cross-a.html#actProfitGross"><small>X</small></a></td>
+    <td>Gross Profit - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Gross Profit</td>
+  </tr>
+  <tr class="oddrow">
+    <td>715</td>
+    <td>actProfitNet</td>
+    <td><a href="00-cross-a.html#actProfitNet"><small>X</small></a></td>
+    <td>Net Profit - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Net Profit</td>
+  </tr>
+  <tr class="evenrow">
+    <td>735</td>
+    <td>actSellPrice</td>
+    <td><a href="00-cross-a.html#actSellPrice"><small>X</small></a></td>
+    <td>Sell Price - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Sell Price</td>
+  </tr>
+  <tr class="oddrow">
+    <td>115</td>
+    <td>blankNo</td>
+    <td><a href="00-cross-b.html#blankNo"><small>X</small></a></td>
+    <td>Blank</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Blank number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>855</td>
+    <td>blankSquareFeet</td>
+    <td><a href="00-cross-b.html#blankSquareFeet"><small>X</small></a></td>
+    <td>Blank Square Feet</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;&gt;9.999&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank square feet</td>
+  </tr>
+  <tr class="oddrow">
+    <td>155</td>
+    <td>calculatedBy</td>
+    <td><a href="00-cross-c.html#calculatedBy"><small>X</small></a></td>
+    <td>Calculated By</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User ID for the user who initiated the calculation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>145</td>
+    <td>calculationTime</td>
+    <td><a href="00-cross-c.html#calculationTime"><small>X</small></a></td>
+    <td>Calculation Date-time</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Date and time that calculation was started</td>
+  </tr>
+  <tr class="oddrow">
+    <td>5</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Company code</td>
+  </tr>
+  <tr class="evenrow">
+    <td>165</td>
+    <td>customerPartID</td>
+    <td><a href="00-cross-c.html#customerPartID"><small>X</small></a></td>
+    <td>Customer Part #</td>
+    <td>character</td>
+    <td>x(15)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Customer Part # for Header Item</td>
+  </tr>
+  <tr class="oddrow">
+    <td>795</td>
+    <td>depthGross</td>
+    <td><a href="00-cross-d.html#depthGross"><small>X</small></a></td>
+    <td>Gross Sheet Depth</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Gross sheet depth</td>
+  </tr>
+  <tr class="evenrow">
+    <td>805</td>
+    <td>depthNet</td>
+    <td><a href="00-cross-d.html#depthNet"><small>X</small></a></td>
+    <td>Net Sheet Depth</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Net sheet depth</td>
+  </tr>
+  <tr class="oddrow">
+    <td>55</td>
+    <td>estimateNo</td>
+    <td><a href="00-cross-e.html#estimateNo"><small>X</small></a></td>
+    <td>Estimate #</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Estimate number for header</td>
+  </tr>
+  <tr class="evenrow">
+    <td>75</td>
+    <td>estimateType</td>
+    <td><a href="00-cross-e.html#estimateType"><small>X</small></a></td>
+    <td>Estimate Type</td>
+    <td>integer</td>
+    <td>9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimate Type: 1 = Single Fold, 2 = Set Fold, 3/4 = Combo Fold
+5 = Single Corr, 6 = Set Corr, 8 = Combo Corr</td>
+  </tr>
+  <tr class="oddrow">
+    <td>865</td>
+    <td>factorForm</td>
+    <td><a href="00-cross-f.html#factorForm"><small>X</small></a></td>
+    <td>Factor - Form</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Factor for blank area on combo form</td>
+  </tr>
+  <tr class="evenrow">
+    <td>875</td>
+    <td>factorSet</td>
+    <td><a href="00-cross-f.html#factorSet"><small>X</small></a></td>
+    <td>Factor - Set</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Factor for item within set</td>
+  </tr>
+  <tr class="oddrow">
+    <td>175</td>
+    <td>fgItemID</td>
+    <td><a href="00-cross-f.html#fgItemID"><small>X</small></a></td>
+    <td>FG Item #</td>
+    <td>character</td>
+    <td>x(15)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Finished Good Item Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>105</td>
+    <td>formNo</td>
+    <td><a href="00-cross-f.html#formNo"><small>X</small></a></td>
+    <td>Form</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Form/Sheet Number</td>
+  </tr>
+  <tr class="oddrow">
+    <td>95</td>
+    <td>headerDescription</td>
+    <td><a href="00-cross-h.html#headerDescription"><small>X</small></a></td>
+    <td>Header Description</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Description for the header cost calculation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>65</td>
+    <td>industry</td>
+    <td><a href="00-cross-i.html#industry"><small>X</small></a></td>
+    <td>Industry</td>
+    <td>integer</td>
+    <td>9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Holds an indicator for industry 1=Fold 2=Corr 3=Foam</td>
+  </tr>
+  <tr class="oddrow">
+    <td>45</td>
+    <td>isItem</td>
+    <td><a href="00-cross-i.html#isItem"><small>X</small></a></td>
+    <td>Is FG Item</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Does the header represent the costs for a finished good item</td>
+  </tr>
+  <tr class="evenrow">
+    <td>125</td>
+    <td>jobNo</td>
+    <td><a href="00-cross-j.html#jobNo"><small>X</small></a></td>
+    <td>Job #</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Job Number</td>
+  </tr>
+  <tr class="oddrow">
+    <td>135</td>
+    <td>jobNo2</td>
+    <td><a href="00-cross-j.html#jobNo2"><small>X</small></a></td>
+    <td>Job Run #</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Job sub number to track reorders, etc.</td>
+  </tr>
+  <tr class="evenrow">
+    <td>835</td>
+    <td>lengthBlank</td>
+    <td><a href="00-cross-l.html#lengthBlank"><small>X</small></a></td>
+    <td>Blank Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank length</td>
+  </tr>
+  <tr class="oddrow">
+    <td>775</td>
+    <td>lengthGross</td>
+    <td><a href="00-cross-l.html#lengthGross"><small>X</small></a></td>
+    <td>Gross Sheet Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Gross sheet length</td>
+  </tr>
+  <tr class="evenrow">
+    <td>815</td>
+    <td>lengthNet</td>
+    <td><a href="00-cross-l.html#lengthNet"><small>X</small></a></td>
+    <td>Net Sheet Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Net sheet length</td>
+  </tr>
+  <tr class="oddrow">
+    <td>85</td>
+    <td>quantityMaster</td>
+    <td><a href="00-cross-q.html#quantityMaster"><small>X</small></a></td>
+    <td>Quantity</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Estimate Quantity for cost calculation (Single, Set, Total Combo & Tandem)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>745</td>
+    <td>quantityPerSet</td>
+    <td><a href="00-cross-q.html#quantityPerSet"><small>X</small></a></td>
+    <td>Qty Per Set</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity Per Set</td>
+  </tr>
+  <tr class="oddrow">
+    <td>755</td>
+    <td>quantityRequest</td>
+    <td><a href="00-cross-q.html#quantityRequest"><small>X</small></a></td>
+    <td>Request Qty</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Request Quantity</td>
+  </tr>
+  <tr class="evenrow">
+    <td>765</td>
+    <td>quantityYield</td>
+    <td><a href="00-cross-q.html#quantityYield"><small>X</small></a></td>
+    <td>Yield Qty</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Yield Quantity</td>
+  </tr>
+  <tr class="oddrow">
+    <td>15</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique identifier for header record</td>
+  </tr>
+  <tr class="evenrow">
+    <td>25</td>
+    <td>rec_keyParentForm</td>
+    <td><a href="00-cross-r.html#rec_keyParentForm"><small>X</small></a></td>
+    <td>Rec Key Form</td>
+    <td>character</td>
+    <td>X(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique identifier for parent form</td>
+  </tr>
+  <tr class="oddrow">
+    <td>35</td>
+    <td>rec_keyParentSet</td>
+    <td><a href="00-cross-r.html#rec_keyParentSet"><small>X</small></a></td>
+    <td>Rec Key Set</td>
+    <td>character</td>
+    <td>X(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique identifier for parent set</td>
+  </tr>
+  <tr class="evenrow">
+    <td>185</td>
+    <td>stdCostBoard</td>
+    <td><a href="00-cross-s.html#stdCostBoard"><small>X</small></a></td>
+    <td>Board Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Board Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>375</td>
+    <td>stdCostBrokerComm</td>
+    <td><a href="00-cross-s.html#stdCostBrokerComm"><small>X</small></a></td>
+    <td>Broker Comm Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Broker Commission Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>415</td>
+    <td>stdCostCommission</td>
+    <td><a href="00-cross-s.html#stdCostCommission"><small>X</small></a></td>
+    <td>Commission Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Commission Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>235</td>
+    <td>stdCostDirectFactory</td>
+    <td><a href="00-cross-s.html#stdCostDirectFactory"><small>X</small></a></td>
+    <td>Direct Factory Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Direct Factory Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>205</td>
+    <td>stdCostDirectLabor</td>
+    <td><a href="00-cross-s.html#stdCostDirectLabor"><small>X</small></a></td>
+    <td>Direct Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Direct Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>195</td>
+    <td>stdCostDirectMaterial</td>
+    <td><a href="00-cross-s.html#stdCostDirectMaterial"><small>X</small></a></td>
+    <td>Direct Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Direct Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>225</td>
+    <td>stdCostFixedOverhead</td>
+    <td><a href="00-cross-s.html#stdCostFixedOverhead"><small>X</small></a></td>
+    <td>Fixed Overhead Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Fixed Overhead Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>305</td>
+    <td>stdCostFreight</td>
+    <td><a href="00-cross-s.html#stdCostFreight"><small>X</small></a></td>
+    <td>Freight Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Freight Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>425</td>
+    <td>stdCostFull</td>
+    <td><a href="00-cross-s.html#stdCostFull"><small>X</small></a></td>
+    <td>Full Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Full Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>335</td>
+    <td>stdCostGSABoard</td>
+    <td><a href="00-cross-s.html#stdCostGSABoard"><small>X</small></a></td>
+    <td>GS&A Board Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard GS&A Board Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>325</td>
+    <td>stdCostGSALabor</td>
+    <td><a href="00-cross-s.html#stdCostGSALabor"><small>X</small></a></td>
+    <td>GS&A Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard GS&A Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>315</td>
+    <td>stdCostGSAMaterial</td>
+    <td><a href="00-cross-s.html#stdCostGSAMaterial"><small>X</small></a></td>
+    <td>GS&A Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard GS&A Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>275</td>
+    <td>stdCostMiscLabor</td>
+    <td><a href="00-cross-s.html#stdCostMiscLabor"><small>X</small></a></td>
+    <td>Misc Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Miscellaneous Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>285</td>
+    <td>stdCostMiscMaterial</td>
+    <td><a href="00-cross-s.html#stdCostMiscMaterial"><small>X</small></a></td>
+    <td>Misc Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Miscellaneous Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>255</td>
+    <td>stdCostPrepLabor</td>
+    <td><a href="00-cross-s.html#stdCostPrepLabor"><small>X</small></a></td>
+    <td>Prep Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Prep Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>265</td>
+    <td>stdCostPrepMaterial</td>
+    <td><a href="00-cross-s.html#stdCostPrepMaterial"><small>X</small></a></td>
+    <td>Prep Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Prep Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>355</td>
+    <td>stdCostRoyalty</td>
+    <td><a href="00-cross-s.html#stdCostRoyalty"><small>X</small></a></td>
+    <td>Royalty Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Royalty Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>385</td>
+    <td>stdCostSpecial1</td>
+    <td><a href="00-cross-s.html#stdCostSpecial1"><small>X</small></a></td>
+    <td>Special Cost 1 - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Special Custom Cost 1</td>
+  </tr>
+  <tr class="evenrow">
+    <td>395</td>
+    <td>stdCostSpecial2</td>
+    <td><a href="00-cross-s.html#stdCostSpecial2"><small>X</small></a></td>
+    <td>Special Cost 2 - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Special Custom Cost 2</td>
+  </tr>
+  <tr class="oddrow">
+    <td>405</td>
+    <td>stdCostSpecial3</td>
+    <td><a href="00-cross-s.html#stdCostSpecial3"><small>X</small></a></td>
+    <td>Special Cost 3 - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Special Custom Cost 3</td>
+  </tr>
+  <tr class="evenrow">
+    <td>245</td>
+    <td>stdCostTotalFactory</td>
+    <td><a href="00-cross-s.html#stdCostTotalFactory"><small>X</small></a></td>
+    <td>Total Factory Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Total Factory Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>345</td>
+    <td>stdCostTotalGSA</td>
+    <td><a href="00-cross-s.html#stdCostTotalGSA"><small>X</small></a></td>
+    <td>Total GS&A Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Total GS&A Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>295</td>
+    <td>stdCostTotalOther</td>
+    <td><a href="00-cross-s.html#stdCostTotalOther"><small>X</small></a></td>
+    <td>Total Other Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Total Other Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>215</td>
+    <td>stdCostVariableOverhead</td>
+    <td><a href="00-cross-s.html#stdCostVariableOverhead"><small>X</small></a></td>
+    <td>Variable Overhead Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Variable Overhead Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>365</td>
+    <td>stdCostWarehousing</td>
+    <td><a href="00-cross-s.html#stdCostWarehousing"><small>X</small></a></td>
+    <td>Warehousing Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Warehousing Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>445</td>
+    <td>stdProfitGross</td>
+    <td><a href="00-cross-s.html#stdProfitGross"><small>X</small></a></td>
+    <td>Gross Profit - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Gross Profit</td>
+  </tr>
+  <tr class="evenrow">
+    <td>435</td>
+    <td>stdProfitNet</td>
+    <td><a href="00-cross-s.html#stdProfitNet"><small>X</small></a></td>
+    <td>Net Profit - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Net Profit</td>
+  </tr>
+  <tr class="oddrow">
+    <td>455</td>
+    <td>stdSellPrice</td>
+    <td><a href="00-cross-s.html#stdSellPrice"><small>X</small></a></td>
+    <td>Sell Price - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Sell Price</td>
+  </tr>
+  <tr class="evenrow">
+    <td>845</td>
+    <td>widthBlank</td>
+    <td><a href="00-cross-w.html#widthBlank"><small>X</small></a></td>
+    <td>Blank Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank width</td>
+  </tr>
+  <tr class="oddrow">
+    <td>785</td>
+    <td>widthGross</td>
+    <td><a href="00-cross-w.html#widthGross"><small>X</small></a></td>
+    <td>Gross Sheet Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Gross sheet width</td>
+  </tr>
+  <tr class="evenrow">
+    <td>825</td>
+    <td>widthNet</td>
+    <td><a href="00-cross-w.html#widthNet"><small>X</small></a></td>
+    <td>Net Sheet Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Net sheet width</td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>5</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Company code</td>
+  </tr>
+  <tr class="evenrow">
+    <td>15</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique identifier for header record</td>
+  </tr>
+  <tr class="oddrow">
+    <td>25</td>
+    <td>rec_keyParentForm</td>
+    <td><a href="00-cross-r.html#rec_keyParentForm"><small>X</small></a></td>
+    <td>Rec Key Form</td>
+    <td>character</td>
+    <td>X(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique identifier for parent form</td>
+  </tr>
+  <tr class="evenrow">
+    <td>35</td>
+    <td>rec_keyParentSet</td>
+    <td><a href="00-cross-r.html#rec_keyParentSet"><small>X</small></a></td>
+    <td>Rec Key Set</td>
+    <td>character</td>
+    <td>X(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique identifier for parent set</td>
+  </tr>
+  <tr class="oddrow">
+    <td>45</td>
+    <td>isItem</td>
+    <td><a href="00-cross-i.html#isItem"><small>X</small></a></td>
+    <td>Is FG Item</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Does the header represent the costs for a finished good item</td>
+  </tr>
+  <tr class="evenrow">
+    <td>55</td>
+    <td>estimateNo</td>
+    <td><a href="00-cross-e.html#estimateNo"><small>X</small></a></td>
+    <td>Estimate #</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Estimate number for header</td>
+  </tr>
+  <tr class="oddrow">
+    <td>65</td>
+    <td>industry</td>
+    <td><a href="00-cross-i.html#industry"><small>X</small></a></td>
+    <td>Industry</td>
+    <td>integer</td>
+    <td>9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Holds an indicator for industry 1=Fold 2=Corr 3=Foam</td>
+  </tr>
+  <tr class="evenrow">
+    <td>75</td>
+    <td>estimateType</td>
+    <td><a href="00-cross-e.html#estimateType"><small>X</small></a></td>
+    <td>Estimate Type</td>
+    <td>integer</td>
+    <td>9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimate Type: 1 = Single Fold, 2 = Set Fold, 3/4 = Combo Fold
+5 = Single Corr, 6 = Set Corr, 8 = Combo Corr</td>
+  </tr>
+  <tr class="oddrow">
+    <td>85</td>
+    <td>quantityMaster</td>
+    <td><a href="00-cross-q.html#quantityMaster"><small>X</small></a></td>
+    <td>Quantity</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Estimate Quantity for cost calculation (Single, Set, Total Combo & Tandem)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>95</td>
+    <td>headerDescription</td>
+    <td><a href="00-cross-h.html#headerDescription"><small>X</small></a></td>
+    <td>Header Description</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Description for the header cost calculation</td>
+  </tr>
+  <tr class="oddrow">
+    <td>105</td>
+    <td>formNo</td>
+    <td><a href="00-cross-f.html#formNo"><small>X</small></a></td>
+    <td>Form</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Form/Sheet Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>115</td>
+    <td>blankNo</td>
+    <td><a href="00-cross-b.html#blankNo"><small>X</small></a></td>
+    <td>Blank</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>1</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Blank number</td>
+  </tr>
+  <tr class="oddrow">
+    <td>125</td>
+    <td>jobNo</td>
+    <td><a href="00-cross-j.html#jobNo"><small>X</small></a></td>
+    <td>Job #</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Job Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>135</td>
+    <td>jobNo2</td>
+    <td><a href="00-cross-j.html#jobNo2"><small>X</small></a></td>
+    <td>Job Run #</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Job sub number to track reorders, etc.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>145</td>
+    <td>calculationTime</td>
+    <td><a href="00-cross-c.html#calculationTime"><small>X</small></a></td>
+    <td>Calculation Date-time</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Date and time that calculation was started</td>
+  </tr>
+  <tr class="evenrow">
+    <td>155</td>
+    <td>calculatedBy</td>
+    <td><a href="00-cross-c.html#calculatedBy"><small>X</small></a></td>
+    <td>Calculated By</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: User ID for the user who initiated the calculation</td>
+  </tr>
+  <tr class="oddrow">
+    <td>165</td>
+    <td>customerPartID</td>
+    <td><a href="00-cross-c.html#customerPartID"><small>X</small></a></td>
+    <td>Customer Part #</td>
+    <td>character</td>
+    <td>x(15)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Customer Part # for Header Item</td>
+  </tr>
+  <tr class="evenrow">
+    <td>175</td>
+    <td>fgItemID</td>
+    <td><a href="00-cross-f.html#fgItemID"><small>X</small></a></td>
+    <td>FG Item #</td>
+    <td>character</td>
+    <td>x(15)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Finished Good Item Number</td>
+  </tr>
+  <tr class="oddrow">
+    <td>185</td>
+    <td>stdCostBoard</td>
+    <td><a href="00-cross-s.html#stdCostBoard"><small>X</small></a></td>
+    <td>Board Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Board Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>195</td>
+    <td>stdCostDirectMaterial</td>
+    <td><a href="00-cross-s.html#stdCostDirectMaterial"><small>X</small></a></td>
+    <td>Direct Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Direct Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>205</td>
+    <td>stdCostDirectLabor</td>
+    <td><a href="00-cross-s.html#stdCostDirectLabor"><small>X</small></a></td>
+    <td>Direct Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Direct Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>215</td>
+    <td>stdCostVariableOverhead</td>
+    <td><a href="00-cross-s.html#stdCostVariableOverhead"><small>X</small></a></td>
+    <td>Variable Overhead Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Variable Overhead Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>225</td>
+    <td>stdCostFixedOverhead</td>
+    <td><a href="00-cross-s.html#stdCostFixedOverhead"><small>X</small></a></td>
+    <td>Fixed Overhead Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Fixed Overhead Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>235</td>
+    <td>stdCostDirectFactory</td>
+    <td><a href="00-cross-s.html#stdCostDirectFactory"><small>X</small></a></td>
+    <td>Direct Factory Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Direct Factory Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>245</td>
+    <td>stdCostTotalFactory</td>
+    <td><a href="00-cross-s.html#stdCostTotalFactory"><small>X</small></a></td>
+    <td>Total Factory Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Total Factory Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>255</td>
+    <td>stdCostPrepLabor</td>
+    <td><a href="00-cross-s.html#stdCostPrepLabor"><small>X</small></a></td>
+    <td>Prep Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Prep Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>265</td>
+    <td>stdCostPrepMaterial</td>
+    <td><a href="00-cross-s.html#stdCostPrepMaterial"><small>X</small></a></td>
+    <td>Prep Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Prep Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>275</td>
+    <td>stdCostMiscLabor</td>
+    <td><a href="00-cross-s.html#stdCostMiscLabor"><small>X</small></a></td>
+    <td>Misc Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Miscellaneous Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>285</td>
+    <td>stdCostMiscMaterial</td>
+    <td><a href="00-cross-s.html#stdCostMiscMaterial"><small>X</small></a></td>
+    <td>Misc Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Miscellaneous Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>295</td>
+    <td>stdCostTotalOther</td>
+    <td><a href="00-cross-s.html#stdCostTotalOther"><small>X</small></a></td>
+    <td>Total Other Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Total Other Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>305</td>
+    <td>stdCostFreight</td>
+    <td><a href="00-cross-s.html#stdCostFreight"><small>X</small></a></td>
+    <td>Freight Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Freight Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>315</td>
+    <td>stdCostGSAMaterial</td>
+    <td><a href="00-cross-s.html#stdCostGSAMaterial"><small>X</small></a></td>
+    <td>GS&A Material Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard GS&A Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>325</td>
+    <td>stdCostGSALabor</td>
+    <td><a href="00-cross-s.html#stdCostGSALabor"><small>X</small></a></td>
+    <td>GS&A Labor Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard GS&A Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>335</td>
+    <td>stdCostGSABoard</td>
+    <td><a href="00-cross-s.html#stdCostGSABoard"><small>X</small></a></td>
+    <td>GS&A Board Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard GS&A Board Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>345</td>
+    <td>stdCostTotalGSA</td>
+    <td><a href="00-cross-s.html#stdCostTotalGSA"><small>X</small></a></td>
+    <td>Total GS&A Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Total GS&A Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>355</td>
+    <td>stdCostRoyalty</td>
+    <td><a href="00-cross-s.html#stdCostRoyalty"><small>X</small></a></td>
+    <td>Royalty Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Royalty Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>365</td>
+    <td>stdCostWarehousing</td>
+    <td><a href="00-cross-s.html#stdCostWarehousing"><small>X</small></a></td>
+    <td>Warehousing Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Warehousing Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>375</td>
+    <td>stdCostBrokerComm</td>
+    <td><a href="00-cross-s.html#stdCostBrokerComm"><small>X</small></a></td>
+    <td>Broker Comm Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Broker Commission Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>385</td>
+    <td>stdCostSpecial1</td>
+    <td><a href="00-cross-s.html#stdCostSpecial1"><small>X</small></a></td>
+    <td>Special Cost 1 - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Special Custom Cost 1</td>
+  </tr>
+  <tr class="evenrow">
+    <td>395</td>
+    <td>stdCostSpecial2</td>
+    <td><a href="00-cross-s.html#stdCostSpecial2"><small>X</small></a></td>
+    <td>Special Cost 2 - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Special Custom Cost 2</td>
+  </tr>
+  <tr class="oddrow">
+    <td>405</td>
+    <td>stdCostSpecial3</td>
+    <td><a href="00-cross-s.html#stdCostSpecial3"><small>X</small></a></td>
+    <td>Special Cost 3 - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Special Custom Cost 3</td>
+  </tr>
+  <tr class="evenrow">
+    <td>415</td>
+    <td>stdCostCommission</td>
+    <td><a href="00-cross-s.html#stdCostCommission"><small>X</small></a></td>
+    <td>Commission Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Commission Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>425</td>
+    <td>stdCostFull</td>
+    <td><a href="00-cross-s.html#stdCostFull"><small>X</small></a></td>
+    <td>Full Cost - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Full Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>435</td>
+    <td>stdProfitNet</td>
+    <td><a href="00-cross-s.html#stdProfitNet"><small>X</small></a></td>
+    <td>Net Profit - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Net Profit</td>
+  </tr>
+  <tr class="oddrow">
+    <td>445</td>
+    <td>stdProfitGross</td>
+    <td><a href="00-cross-s.html#stdProfitGross"><small>X</small></a></td>
+    <td>Gross Profit - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Gross Profit</td>
+  </tr>
+  <tr class="evenrow">
+    <td>455</td>
+    <td>stdSellPrice</td>
+    <td><a href="00-cross-s.html#stdSellPrice"><small>X</small></a></td>
+    <td>Sell Price - Standard</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimated/Standard Sell Price</td>
+  </tr>
+  <tr class="oddrow">
+    <td>465</td>
+    <td>actCostBoard</td>
+    <td><a href="00-cross-a.html#actCostBoard"><small>X</small></a></td>
+    <td>Board Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Board Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>475</td>
+    <td>actCostDirectMaterial</td>
+    <td><a href="00-cross-a.html#actCostDirectMaterial"><small>X</small></a></td>
+    <td>Direct Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Direct Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>485</td>
+    <td>actCostDirectLabor</td>
+    <td><a href="00-cross-a.html#actCostDirectLabor"><small>X</small></a></td>
+    <td>Direct Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Direct Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>495</td>
+    <td>actCostVariableOverhead</td>
+    <td><a href="00-cross-a.html#actCostVariableOverhead"><small>X</small></a></td>
+    <td>Variable Overhead Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Variable Overhead Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>505</td>
+    <td>actCostFixedOverhead</td>
+    <td><a href="00-cross-a.html#actCostFixedOverhead"><small>X</small></a></td>
+    <td>Fixed Overhead Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Fixed Overhead Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>515</td>
+    <td>actCostDirectFactory</td>
+    <td><a href="00-cross-a.html#actCostDirectFactory"><small>X</small></a></td>
+    <td>Direct Factory Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Direct Factory Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>525</td>
+    <td>actCostTotalFactory</td>
+    <td><a href="00-cross-a.html#actCostTotalFactory"><small>X</small></a></td>
+    <td>Total Factory Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Total Factory Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>535</td>
+    <td>actCostPrepLabor</td>
+    <td><a href="00-cross-a.html#actCostPrepLabor"><small>X</small></a></td>
+    <td>Prep Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Prep Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>545</td>
+    <td>actCostPrepMaterial</td>
+    <td><a href="00-cross-a.html#actCostPrepMaterial"><small>X</small></a></td>
+    <td>Prep Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Prep Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>555</td>
+    <td>actCostMiscLabor</td>
+    <td><a href="00-cross-a.html#actCostMiscLabor"><small>X</small></a></td>
+    <td>Misc Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Miscellaneous Labor Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>565</td>
+    <td>actCostMiscMaterial</td>
+    <td><a href="00-cross-a.html#actCostMiscMaterial"><small>X</small></a></td>
+    <td>Misc Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Miscellaneous Material Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>575</td>
+    <td>actCostTotalOther</td>
+    <td><a href="00-cross-a.html#actCostTotalOther"><small>X</small></a></td>
+    <td>Total Other Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Total Other Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>585</td>
+    <td>actCostFreight</td>
+    <td><a href="00-cross-a.html#actCostFreight"><small>X</small></a></td>
+    <td>Freight Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Freight Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>595</td>
+    <td>actCostGSAMaterial</td>
+    <td><a href="00-cross-a.html#actCostGSAMaterial"><small>X</small></a></td>
+    <td>GS&A Material Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual GS&A Material Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>605</td>
+    <td>actCostGSALabor</td>
+    <td><a href="00-cross-a.html#actCostGSALabor"><small>X</small></a></td>
+    <td>GS&A Labor Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual GS&A Labor Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>615</td>
+    <td>actCostGSABoard</td>
+    <td><a href="00-cross-a.html#actCostGSABoard"><small>X</small></a></td>
+    <td>GS&A Board Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual GS&A Board Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>625</td>
+    <td>actCostTotalGSA</td>
+    <td><a href="00-cross-a.html#actCostTotalGSA"><small>X</small></a></td>
+    <td>Total GS&A Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Total GS&A Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>635</td>
+    <td>actCostRoyalty</td>
+    <td><a href="00-cross-a.html#actCostRoyalty"><small>X</small></a></td>
+    <td>Royalty Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Royalty Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>645</td>
+    <td>actCostWarehousing</td>
+    <td><a href="00-cross-a.html#actCostWarehousing"><small>X</small></a></td>
+    <td>Warehousing Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Warehousing Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>655</td>
+    <td>actCostBrokerComm</td>
+    <td><a href="00-cross-a.html#actCostBrokerComm"><small>X</small></a></td>
+    <td>Broker Comm Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Broker Commission Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>665</td>
+    <td>actCostSpecial1</td>
+    <td><a href="00-cross-a.html#actCostSpecial1"><small>X</small></a></td>
+    <td>Special Cost 1 - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Special Custom Cost 1</td>
+  </tr>
+  <tr class="evenrow">
+    <td>675</td>
+    <td>actCostSpecial2</td>
+    <td><a href="00-cross-a.html#actCostSpecial2"><small>X</small></a></td>
+    <td>Special Cost 2 - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Special Custom Cost 2</td>
+  </tr>
+  <tr class="oddrow">
+    <td>685</td>
+    <td>actCostSpecial3</td>
+    <td><a href="00-cross-a.html#actCostSpecial3"><small>X</small></a></td>
+    <td>Special Cost 3 - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Special Custom Cost 3</td>
+  </tr>
+  <tr class="evenrow">
+    <td>695</td>
+    <td>actCostCommission</td>
+    <td><a href="00-cross-a.html#actCostCommission"><small>X</small></a></td>
+    <td>Commission Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Commission Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>705</td>
+    <td>actCostFull</td>
+    <td><a href="00-cross-a.html#actCostFull"><small>X</small></a></td>
+    <td>Full Cost - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Full Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>715</td>
+    <td>actProfitNet</td>
+    <td><a href="00-cross-a.html#actProfitNet"><small>X</small></a></td>
+    <td>Net Profit - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Net Profit</td>
+  </tr>
+  <tr class="oddrow">
+    <td>725</td>
+    <td>actProfitGross</td>
+    <td><a href="00-cross-a.html#actProfitGross"><small>X</small></a></td>
+    <td>Gross Profit - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Gross Profit</td>
+  </tr>
+  <tr class="evenrow">
+    <td>735</td>
+    <td>actSellPrice</td>
+    <td><a href="00-cross-a.html#actSellPrice"><small>X</small></a></td>
+    <td>Sell Price - Actual</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Actual Sell Price</td>
+  </tr>
+  <tr class="oddrow">
+    <td>745</td>
+    <td>quantityPerSet</td>
+    <td><a href="00-cross-q.html#quantityPerSet"><small>X</small></a></td>
+    <td>Qty Per Set</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity Per Set</td>
+  </tr>
+  <tr class="evenrow">
+    <td>755</td>
+    <td>quantityRequest</td>
+    <td><a href="00-cross-q.html#quantityRequest"><small>X</small></a></td>
+    <td>Request Qty</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Request Quantity</td>
+  </tr>
+  <tr class="oddrow">
+    <td>765</td>
+    <td>quantityYield</td>
+    <td><a href="00-cross-q.html#quantityYield"><small>X</small></a></td>
+    <td>Yield Qty</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Yield Quantity</td>
+  </tr>
+  <tr class="evenrow">
+    <td>775</td>
+    <td>lengthGross</td>
+    <td><a href="00-cross-l.html#lengthGross"><small>X</small></a></td>
+    <td>Gross Sheet Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Gross sheet length</td>
+  </tr>
+  <tr class="oddrow">
+    <td>785</td>
+    <td>widthGross</td>
+    <td><a href="00-cross-w.html#widthGross"><small>X</small></a></td>
+    <td>Gross Sheet Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Gross sheet width</td>
+  </tr>
+  <tr class="evenrow">
+    <td>795</td>
+    <td>depthGross</td>
+    <td><a href="00-cross-d.html#depthGross"><small>X</small></a></td>
+    <td>Gross Sheet Depth</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Gross sheet depth</td>
+  </tr>
+  <tr class="oddrow">
+    <td>805</td>
+    <td>depthNet</td>
+    <td><a href="00-cross-d.html#depthNet"><small>X</small></a></td>
+    <td>Net Sheet Depth</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Net sheet depth</td>
+  </tr>
+  <tr class="evenrow">
+    <td>815</td>
+    <td>lengthNet</td>
+    <td><a href="00-cross-l.html#lengthNet"><small>X</small></a></td>
+    <td>Net Sheet Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Net sheet length</td>
+  </tr>
+  <tr class="oddrow">
+    <td>825</td>
+    <td>widthNet</td>
+    <td><a href="00-cross-w.html#widthNet"><small>X</small></a></td>
+    <td>Net Sheet Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Net sheet width</td>
+  </tr>
+  <tr class="evenrow">
+    <td>835</td>
+    <td>lengthBlank</td>
+    <td><a href="00-cross-l.html#lengthBlank"><small>X</small></a></td>
+    <td>Blank Length</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank length</td>
+  </tr>
+  <tr class="oddrow">
+    <td>845</td>
+    <td>widthBlank</td>
+    <td><a href="00-cross-w.html#widthBlank"><small>X</small></a></td>
+    <td>Blank Width</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;9.9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank width</td>
+  </tr>
+  <tr class="evenrow">
+    <td>855</td>
+    <td>blankSquareFeet</td>
+    <td><a href="00-cross-b.html#blankSquareFeet"><small>X</small></a></td>
+    <td>Blank Square Feet</td>
+    <td>decimal-6</td>
+    <td>&gt;&gt;&gt;9.999&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank square feet</td>
+  </tr>
+  <tr class="oddrow">
+    <td>865</td>
+    <td>factorForm</td>
+    <td><a href="00-cross-f.html#factorForm"><small>X</small></a></td>
+    <td>Factor - Form</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Factor for blank area on combo form</td>
+  </tr>
+  <tr class="evenrow">
+    <td>875</td>
+    <td>factorSet</td>
+    <td><a href="00-cross-f.html#factorSet"><small>X</small></a></td>
+    <td>Factor - Set</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Factor for item within set</td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>rec_key</td>
+    <td>P U     </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>CalcBy</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>calculatedBy (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>Calculation</td>
+    <td>        </td>
+    <td>calculationTime (+)</td>
+    <td>datetime</td>
+  </tr>
+  <tr class="evenrow">
+    <td>Estimate</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>estimateNo (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>Job</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>jobNo (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>jobNo2 (+)</td>
+    <td>integer</td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Child tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,153 @@
+
+06/26/08                                       Advanced Box Company V5.0 - Main Office                                    Page   1
+12:49pm                                                 GL Transaction Report
+
+
+
+Journal  Vendor   Name                           Date       Invoice#      Check# Order#       Quantity    Amt MSF   Discount       Amount
+-------- -------- ------------------------------ ---------- ------------ ------- ------ -------------- ---------- ---------- ------------
+
+11209-00                  - Accounts Receivable - Trade                  
+OEINV             ORDER ENTRY INVOICE            06/02/2008                                                                     15,010.00
+OEINV             ORDER ENTRY INVOICE            06/03/2008                                                                         10.00
+OEINV             ORDER ENTRY INVOICE            06/03/2008                                                                      1,075.30
+OEINV             ORDER ENTRY INVOICE            06/05/2008                                                                      1,135.00
+OEINV             ORDER ENTRY INVOICE            06/05/2008                                                                         10.00
+OEINV             ORDER ENTRY INVOICE            06/05/2008                                                                         10.00
+OEINV             ORDER ENTRY INVOICE            06/05/2008                                                                      7,010.00
+OEINV             ORDER ENTRY INVOICE            06/11/2008                                                                        887.40
+OEINV             ORDER ENTRY INVOICE            06/12/2008                                                                        173.40
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00    25,321.10
+11303-00                  - Inventory - Finished Goods                   
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                        0.0       0.00       0.00    -9,119.10
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00    -9,119.10
+11303-01                  - Inventory - FG Mat'l                         
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00    -8,398.89
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                       -182.22
+OEINV             ABC SHOES Inv# 00001502 FG     06/12/2008                                                                     -1,392.90
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00    -9,974.01
+11303-02                  - Inventory - FG Labor                         
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00      -160.62
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                        -29.24
+OEINV             ABC SHOES Inv# 00001502 FG     06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00      -189.86
+11303-03                  - Inventory - FG Var O/H                       
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00       -32.13
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                        -14.34
+OEINV             ABC SHOES Inv# 00001502 FG     06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00       -46.47
+11303-04                  - Inventory - FG Fix O/H                       
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00       -64.26
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                        -35.84
+OEINV             ABC SHOES Inv# 00001502 FG     06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00      -100.10
+20140-00                  - Sales Tax Payable                            
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                        0.0       0.00       0.00       -60.30
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                        -47.40
+OEINV             ABC SHOES Inv# 00001502 TAX    06/12/2008                                                                         -8.40
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00      -116.10
+30000-00                  - REVENUE                                      
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                        0.0       0.00       0.00        -5.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00        -5.00
+31100-00                  - Sales Boxes                                  
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00   -15,000.00
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                                                        -10.00
+OEINV             Iggle Corportation Inv# 000014 06/03/2008                                                                        -10.00
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                     -1,000.00
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                        -10.00
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                                                        -10.00
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                                                        -10.00
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                                                        -10.00
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                                                        -10.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                       -750.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                        -50.00
+OEINV             ABC SHOES Inv# 00001502 LINE   06/12/2008                                                                        -25.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00   -16,895.00
+31300-00                  - SALES - OTHER                                
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                        0.0       0.00       0.00    -1,125.00
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                                                     -7,000.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00    -8,125.00
+31900-00                  - Sales - Freight                              
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/02/2008                                        0.0       0.00       0.00         0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/03/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/03/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/11/2008                                                                        -40.00
+OEINV             ORDER ENTRY INVOICE FREIGHT    06/12/2008                                                                       -140.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00      -180.00
+36000-00                  - (Returns & Allowances)                       
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/02/2008                                        0.0       0.00       0.00         0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/03/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/03/2008                                                                          0.00
+
+06/26/08                                       Advanced Box Company V5.0 - Main Office                                    Page   2
+12:49pm                                                 GL Transaction Report
+
+
+
+Journal  Vendor   Name                           Date       Invoice#      Check# Order#       Quantity    Amt MSF   Discount       Amount
+-------- -------- ------------------------------ ---------- ------------ ------- ------ -------------- ---------- ---------- ------------
+
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/05/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/11/2008                                                                          0.00
+OEINV             ORDER ENTRY INVOICE DISCOUNT   06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00         0.00
+41000-01                  - COGS Mat'l                                   
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00     8,398.89
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                        182.22
+OEINV             ABC SHOES Inv# 00001502 COGS   06/12/2008                                                                      1,392.90
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00     9,974.01
+41000-03                  - COGS Labor                                   
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00       160.62
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                         29.24
+OEINV             ABC SHOES Inv# 00001502 COGS   06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00       189.86
+41000-05                  - COGS Var O/H                                 
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00        32.13
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                         14.34
+OEINV             ABC SHOES Inv# 00001502 COGS   06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00        46.47
+41000-07                  - COGS Fix O/H                                 
+OEINV             Iggle Corportation Inv# 000014 06/02/2008                                        0.0       0.00       0.00        64.26
+OEINV             Hershey Foods Corporation Inv# 06/03/2008                                                                          0.00
+OEINV             AT&T Communications Corp. Inv# 06/11/2008                                                                         35.84
+OEINV             ABC SHOES Inv# 00001502 COGS   06/12/2008                                                                          0.00
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00       100.10
+41010-01                  - Actual Material Consumption                  
+OEINV             Iggle Corportation Inv# 000014 06/05/2008                                        0.0       0.00       0.00     9,119.10
+                                                                                        -------------- ---------- ---------- ------------
+                                                                                                   0.0       0.00       0.00     9,119.10
+                                                                                                                             ------------
+
+
+                                                                                                                                     0.00
+

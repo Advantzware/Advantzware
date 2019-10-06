@@ -1,0 +1,24 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:30pm                                                     J O B   L O G
+
+                                                            By Job Number
+
+
+Job         Order                                                             PO                 Quantity  Order
+Number     Number  Customer  Item Number      Item Name                       Number              Ordered  Date
+---------  ------  --------  ---------------  ------------------------------  ---------------  ----------  --------
+310-00        310  SMI10     SUNTAN LOTION    SUN TANNING LOTION                                  100,000  02/01/00
+311-00        311  HER10     HER-1017         RT 5x2x8                        02102000             25,000  02/10/00
+312-00        312  ATT10     ATT-1018         RT 3-1/4 x 6-1/8 x 1-3/4        021200               25,000  02/24/00
+313-00        313  ATT10     Cordless 210     Cordless 210                    030100               50,000  03/01/00
+313-00        313  ATT10     Cordless 110     Cordless 110                    030100               25,000  03/01/00
+314-00        314  HER10     Hershey Bar      Heershey Chocolate Bar 40 Pak                        25,000  03/01/00
+314-00        314  HER10     Choc Kiss        Chocolate Kiss                                       50,000  03/01/00
+314-00        314  HER10     Raisinette       Raisinetts Box                                      100,000  03/01/00
+314-00        314  HER10     Reese Cup        Reese Cup 20 Pack                                    50,000  03/01/00
+315-00        315  HER10     Godiva           Godiva Chocolatier                                   50,000  10/09/00
+317-00        317  HER10     HER-1021         RT 5x4x8                        101600               75,000  10/16/00
+318-00        318  HER10     HER-1021         RT 5x4x8                                             50,000  10/16/00
+319-00        319  HER10     HER-1022         RSC 10x10x10                    101700                5,000  10/17/00
+

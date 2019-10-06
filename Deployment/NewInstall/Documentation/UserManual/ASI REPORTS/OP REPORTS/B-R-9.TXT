@@ -1,0 +1,21 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:43pm                                       S H I P M E N T S    D U E    R E P O R T
+
+                                                         By Date By Customer
+
+                     Release   PO                        Part                                                     Release
+Customer Name        Date      Number          Job No    Number          Item            Description             Quantity     MSF
+-------------------- --------- --------------- --------- --------------- --------------- -------------------- ----------- -------
+Hershey Chocolate Co 10/17/00S 101700          319-00    HER-1022        HER-1022        RSC 10x10x10               5,000  30.078
+AT&T Corp            10/11/00S PO# 1020        316-00    ATT-1020        ATT-1020        RT 4x5x8                  24,000  42.294
+AT&T Corp            10/11/00C PO# 1020        316-00    ATT-1020        ATT-1020        RT 4x5x8                  24,000  42.294
+Hershey Chocolate Co 11/15/00S                 318-00    HER-1021        HER-1021        RT 5x4x8                  50,000  81.646
+Hershey Chocolate Co 11/16/00I 101600          317-00    HER-1021        HER-1021        RT 5x4x8                  25,000  40.823
+Hershey Chocolate Co 12/16/00I 101600          317-00    HER-1021        HER-1021        RT 5x4x8                  25,000  40.823
+
+                                                                                                        TOTAL MSF:         277.959
+
+                                                                                         TOTAL NUMBER OF RELEASES:               6
+
+

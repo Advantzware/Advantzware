@@ -1,0 +1,21 @@
+ 10/18/00               ADVANCED CARTON COMPANY - MAIN                 10:17am
+       M A I N    M E N U
+¦                               PURCHASE   ORDERS
+¦  A. Cost Estimating   ¦                      +    PURCHASE ORDER REPORTS     +
+¦  B. Order Processing  ¦  1. PO Processing    ¦                               ¦
+¦  C. Raw Materials     ¦  2.                  ¦  1. Sheets On Order           ¦
+¦  D. Finished Goods    ¦  3.                  ¦  2. Scheduled Receipts        ¦
+¦  E. Sales Analysis    ¦  4.                  ¦  3. PO FG/RM History          ¦
+¦  F. Production Control¦  5.                  ¦  4. Material Required for Job ¦
+¦  G. Plant Data Collect¦  I. Inquiries        ¦  5. PO Purchased Variance     ¦
+¦  H. Job Costing       ¦  R. Reports          ¦  6. Vendor Analysis           ¦
+¦  I. Purchasing        ¦  F. File Maintenance ¦  7. PO Receipts Not Vouchered ¦
+¦  J. Accounts Receivabl¦                      ¦  8. Shipment Approval Report  ¦
+¦  K. Accounts Payable  +----------------------+-------------------------------+
+¦  L. General Ledger           ¦
+¦  M. EDI                      ¦
+¦  S. System Administration    ¦
+¦  X. EXIT                     ¦
+¦                              ¦
++------------------------------+
+

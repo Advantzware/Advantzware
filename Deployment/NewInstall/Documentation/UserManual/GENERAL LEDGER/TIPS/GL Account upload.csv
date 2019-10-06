@@ -1,0 +1,213 @@
+Full ASI GL,Description,Type
+1110-000,Cash - Checking - US Bank - AP Clearing,A
+1200-000,Accounts Receivable - Customers,A
+1210-000,Allowance for Doubtful Accounts,A
+1225-000,Accounts Receivable - Employees,A
+1230-000,Accounts Receivable - Misc,A
+1300-000,Inventory - Raw Material,A
+1320-000,Inventory - Work in Process,A
+1350-000,Inventory - Finished Goods,A
+1360-000,Inventory - Supplies,A
+1400-000,Prepaid Insurance,A
+1420-000,Prepaid Income Taxes,A
+1430-000,Prepaid Expenses - Miscellaneous,A
+1460-000,Income Tax Receivable - Federal,A
+1470-000,Income Tax Receivable - State,A
+1500-000,Land,A
+1510-000,Building - Plant and Office,A
+1515-000,Allowance for Depr - Building,A
+1520-000,Machinery and Equipment,A
+1525-000,Allowance for Depr- Machinery and Equip,A
+1530-000,Computer Software,A
+1535-000,Allowance for Depr - Computer Software,A
+1540-000,Computer Hardware,A
+1545-000,Allowance for Depr - Computer Hardware,A
+1550-000,Furniture & Fixtures,A
+1555-000,Allowance for Depr-Furniture & Fixtures,A
+1560-000,Office Machines,A
+1565-000,Allowance for Depr - Office Machines,A
+1570-000,Automobiles,A
+1575-000,Allowance for Depr - Automobiles,A
+1800-000,Deferred Income Tax Credits,A
+1805-000,Deferred Tax Asset,A
+1807-000,Deferred Tax Asset - Long Term,A
+1810-000,Investment - Other,A
+1900-000,Capital Assets - Deposits,A
+1910-000,Security Deposit - Warehouse,A
+2100-000,Accounts Payable,L
+2120-000,Due to Loy-Lange Box Company,L
+2125-000,Due to Previous Owner,L
+2200-000,Accrued Accounts Payable,L
+2210-000,Accrued Wages,L
+2220-000,Accrued Vacation,L
+2230-000,Accrued Bonuses,L
+2240-000,Accrued Profit Sharing Contribution,L
+2250-000,Accrued Income Taxes,L
+2260-000,Accrued Taxes- RE  PPrp  Mnf & Bus Lic,L
+2270-000,Accrued Customer Rebates,L
+2301-000,Payroll Taxes W/H - Fed Inc & FICA,L
+2302-000,Payroll Taxes W/H - State Income,L
+2303-000,Payroll Taxes W/H - City Income,L
+2304-000,Payroll Taxes - FUTA - Federal Unemployment,L
+2305-000,Payroll Taxes - SUTA - State Unemployment,L
+2310-000,Income W/H Orders and Garnishments,L
+2330-000,United Way,L
+2350-000,401-K Withholding,L
+2355-000,401K- Loan Repayment,L
+2360-000,Cafe Plan-Unreimbursed Medical Expenses,L
+2365-000,Cafe Plan Deduction - Dependent Care,L
+2400-000,Missouri Sales Tax Payable,L
+2410-000,Illinois Sales Tax Payable,L
+2450-000,Deferred Taxes,L
+2775-000,Deferred Taxes-Long Term,L
+2999-000,ROOF/STORM (07192006) RELATED PURCHASES,L
+3110-000,Capital Stock - Class A Voting,C
+3130-000,Treasury Stock,C
+3200-000,Retained Earnings,C
+3220-000,Dividends Paid,C
+3999-999,Current Period Earnings Per ASI,C
+4110-000,Sales - Corrugated Containters,R
+4120-000,Sales - Die Cutting,R
+4130-000,Sales - Mounting,R
+4140-000,Sales - Shrink,R
+4200-000,Sales - Cutting Dies,R
+4300-000,Sales - Displays,R
+4325-000,Sales - Fulfillment Services,R
+4350-000,Sales - Resale of outside purchased FG,R
+4500-000,Sales - Freight & Delivery Charges,R
+4550-000,Sales - Scrap,R
+4600-000,Sales - Miscellaneous,R
+4700-000,Discounts Allowed,R
+4900-000,Sales Returns and Allowances,R
+5010-000,Purchases - Board - Corrugated,E
+5011-000,Purchases - Cartons,E
+5012-000,Purchases - Board - Chip,E
+5013-000,Purchases - Board - Other,E
+5014-000,Purchases - Discounts Earned,E
+5015-000,Purchases - Backliner,E
+5031-000,Shrink Supplies & Sleeves,E
+5032-000,Labels/Digital Printing,E
+5033-000,Resellable Components-Foam/Handles/Soundboard,E
+5034-000,Fullfillment Labor-Outsourced non temp labor,E
+5035-000,Temporary Labor/Contract Labor,E
+5036-000,Sub-Contractors Expense,E
+5037-000,Graphic Design Work,E
+5041-000,Ink,E
+5042-000,Glue,E
+5051-000,Strapping,E
+5052-000,Pallets,E
+5060-000,Printing Dies,E
+5070-000,Cutting Dies,E
+5080-000,Die Repair and Rework,E
+5090-000,Inventory Adj - Roll Stock (FIFO Basis),E
+5100-100,Labor - Guillotine Cutter,E
+5100-125,Labor - Spot Mount,E
+5100-150,Labor - Pot Devan,E
+5100-175,Labor - Full Mount,E
+5100-200,Labor - Die Cut Small,E
+5100-225,Labor - Young shin Die Cutter,E
+5100-250,Labor - Die Cut Large,E
+5100-300,Labor - Assemble,E
+5100-400,Labor - Strip ,E
+5100-450,Labor - Strip/Skid,E
+5100-500,Labor - Double Sided Tape Applicator,E
+5100-525,Labor - Haire Glue,E
+5100-550,Labor - Drill,E
+5100-575,Labor - Shrink Tunnel,E
+5100-600,Labor - Round Corner,E
+5100-650,Labor - Eyelet,E
+5100-700,Labor - Easel,E
+5100-725,Labor - Handwork,E
+5100-750,Labor - Hand Glue,E
+5100-800,Labor - Strip/Pack,E
+5100-825,Labor - Material Handling,E
+5100-850,Labor - Ship,E
+5100-900,Labor - CAD Table,E
+5100-925,Labor - Supervisor,E
+5100-950,Labor - Die Maker,E
+5200-000,Employee Benefits,E
+5250-000,Profit Sharing Plan,E
+5255-000,Employer 401K Matching,E
+5300-000,Payroll Taxes,E
+5400-000,Repairs & Maintenance,E
+5475-000,Production Machinery & Equip - Leasing ,E
+5500-000,Supplies,E
+5600-000,Utilities,E
+5700-000,Depreciation,E
+5900-000,Pest Control Expenses,E
+5910-000,Sewer & Water,E
+5920-000,Garbage,E
+5925-000,Hazardous Waste,E
+5930-000,Factory Insurance,E
+5940-000,Taxes & Licenses,E
+5950-000,Safety,E
+5960-000,Plant Security,E
+5970-000,Miscellaneous,E
+6100-000,Salaries - Salesmen,E
+6150-000,Commissions,E
+6175-000,Commissions-Non Employee,E
+6200-000,Employee Benefits - Salesmen,E
+6250-000,Profit Sharing Plan  - Salesmen,E
+6255-000,Employer 401K Matching  - Salesmen,E
+6300-000,Payroll Taxes - Salesmen,E
+6525-000,Advertising,E
+6550-000,Customer Sales Rebate,E
+6555-000,Home Office Expense,E
+6705-000,Depreciation - Automobiles,E
+6800-000,Freight,E
+6810-000,Fuel Surcharge Offset,E
+6850-970,Auto Expense - Witzel,E
+6850-980,Auto Expense - Ruhe,E
+6850-990,Auto Expense - Struck,E
+6850-000,Auto Expense - Misc Selling,E
+6875-970,Meal & Entertainment - Witzel,E
+6875-980,Meal & Entertainment - Ruhe,E
+6875-990,Meal & Entertainment - Struck,E
+6875-000,Meal & Entertainment - Misc Selling,E
+6930-000,Insurance Expense,E
+6940-000,Taxes & Licenses,E
+6970-000,Miscellaneous Selling Expense,E
+7150-000,Office Salaries,E
+7170-000,Temporary Staffing Expense,E
+7200-000,Employee Benefits,E
+7250-000,Profit Sharing Plan Contribution,E
+7255-000,Employer 401K Matching  - Admin,E
+7300-000,Payroll Taxes,E
+7325-000,Bank / Merchant Card Service Charges,E
+7350-000,Payroll Services,E
+7375-000,Legal & Professional,E
+7400-000,Building Expense-Repair,E
+7425-000,Cleaning Supplies & Expenses,E
+7450-000,Office Equipment Maintenance,E
+7500-000,Computer Maintenance & Supplies,E
+7525-000,Toner Cartridges for Desktop Printers,E
+7550-000,Office Supplies,E
+7560-000,Leased Office Equipment Payments,E
+7580-000,Postage,E
+7600-000,Utilities- LLB Office,E
+7650-000,Telephone,E
+7700-000,Depreciation - Building Improvements,E
+7720-000,Depreciation - Computer Software,E
+7725-000,Depreciation - Computer Hardware,E
+7750-000,Depreciation - Furniture & Fixtures,E
+7775-000,Depreciation - Office Machines,E
+7850-000,Auto Expense,E
+7875-000,Meal & Entertainment,E
+7880-000,Travel & Lodging,E
+7885-000,Donation,E
+7890-000,Dues & Subscriptions,E
+7930-000,Insurance Expense,E
+7940-000,Taxes & Licenses,E
+7970-000,Miscellaneous,E
+7980-000,Rent,E
+8111-000,Administrative Fee - Printers Finishing,E
+8120-000,Interest Income,E
+8130-000,Gain (Loss) on Sale of Assets,E
+8140-000,Recovery of Bad Debts,E
+8210-000,Interest Expense,E
+8220-000,Discounts Allowed,E
+8230-000,Bad Debts,E
+8510-000,Deferred Income Tax Expense,E
+8520-000,Income Tax Expense,E
+8970-000,Miscellaneous Income,E
+9999-999,profit contra per ASI,E

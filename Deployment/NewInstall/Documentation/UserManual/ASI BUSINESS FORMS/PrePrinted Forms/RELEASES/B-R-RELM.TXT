@@ -1,0 +1,37 @@
+
+                                                            RELEASE
+                                                             Date      Number
+                                                           10/18/00    1-00
+
+
+
+
+
+
+
+          SOLD TO:                               SHIP TO:
+          Hershey Chocolate Corp                 Hershey Chocolate Corp
+          123 Chocolate Blvd                     123 Chocolate Lane
+
+          Hershey         PA 19888               Hershey         PA 19888
+
+--------------------------------------------------------------------------------
+ORDER#:    319 PAY TERMS:  Net 30             DUE ON: 10/18/00
+CUST PO#: 101700                              Page          1 OF          1
+Ship Via: COMMON CARRIER       F.O.B.: DEST   FREIGHT TERMS: Prepaid
+--------------------------------------------------------------------------------
+
+Item                                            Order     Rel
+BinNo           Description                     Qty     Qty              Shipped
+-----           ------------------------------  --------- ---------     --------
+101700         
+HER-1021        HER-1021
+FLOOR           RT 5x4x8 Candy Box
+                SBS 5 Color Process                50,000    50,000     ________
+
+101700         
+HER-1022        HER-1022
+FLOOR           RSC 10x10x10
+                                                    5,000     5,000     ________
+
+

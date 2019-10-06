@@ -1,0 +1,20 @@
+*** Currency File Field Definition ***           As of 4/26/2007
+
+Table		Field		Label			Format
+-----		--------------	---------------		-----------------
+currency	c-code		Code			X(3)
+currency	c-num		C. Num			>>9
+currency	company		Company			x(3)
+currency	c-desc		description		x(30)
+currency	minor-unit	Minor Unit		xx
+currency	ex-rate		?			->>,>>9.99<<<<<
+currency	country		Country			X(30)
+currency	is-base	Base 	?			yes/no
+currency	rate-var-act	Rate Var. Account	x(25)
+currency	rec_key		Rec Key			X(20)
+currency	ap-lia-acct	A/P Liability Account	x(25)
+currency	ar-ast-acct	A/R Asset Account	x(25)
+currency	pd-aprate-acct	Paid A/P Invoice Rate	x(25)
+currency	pd-arrate-acct	Paid A/R Invoice Rate	x(25)
+currency	un-aprate-acct	UnPaid A/P Invoice Rat	x(25)
+currency	un-arrate-acct	UnPaid A/R Invoice Rat	x(25)

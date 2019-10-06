@@ -1,0 +1,35 @@
+*** G/L Journal File Field Definition ***       As of 4/26/2007
+
+HEADER
+
+Table	Field		Label			Format
+-----	-------------	-----------------	-----------------
+gl-jrn	company		Company			x(3)
+gl-jrn	j-no		Internal Journal#	>>>>>>9
+gl-jrn	journal		Journal #		>>>>>>9
+gl-jrn	tr-date		Trx Date		99/99/9999
+gl-jrn	tr-amt		Amount			->>,>>>,>>9.99
+gl-jrn	tcred		Credits			->>,>>>,>>9.99
+gl-jrn	tdeb		Debits			->>,>>>,>>9.99
+gl-jrn	period		?			99
+gl-jrn	posted		Posted			y/n
+gl-jrn	user-id		?			x(8)
+gl-jrn	freq-code	?			x(8)
+gl-jrn	recur		Recurring Entry		yes/no
+gl-jrn	rec_key		Rec Key			X(20)
+gl-jrn	reverse		Reverse			yes/no
+gl-jrn	from-reverse	Reserved		yes/no
+gl-jrn	orig-jnl	Orig. Journal #		>>>>>>9
+gl-jrn	cleared		Cleared Bank?		Yes/No
+gl-jrn	reconciled	Reconciled		yes/no
+
+TRAILER
+
+Table	Field		Label			Format
+-----	-------------	-----------------	-----------------
+gl-jrnl	j-no		Internal Journal#	>>>>>>9
+gl-jrnl	line		?			999
+gl-jrnl	actnum		Account			x(25)
+gl-jrnl	dscr		Description		x(30)
+gl-jrnl	tr-amt		Amount			->>,>>>,>>9.99
+gl-jrnl	rec_key		Rec Key			X(20)

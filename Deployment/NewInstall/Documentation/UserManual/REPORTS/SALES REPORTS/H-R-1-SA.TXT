@@ -1,0 +1,15 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 8:02pm                        S A L E S   A N A L Y S I S  -  H I G H   S A L E S   T R A C K I N G
+
+                                                 Year: 2000    Sorted by Period: 10
+
+Customer Name                                    Period 8          Period 9         Period 10                             YTD Amt
+------------------------------------------------------------------------------------------------------------------------------------
+ATT10    AT&T Corp                                   0.00              0.00         21,700.00                           35,651.23
+
+HER10    Hershey Chocolate Corp                      0.00              0.00         10,775.00                           30,425.00
+
+         ------------------------------ ----------------- ----------------- -----------------                   -----------------
+         Totals                                      0.00              0.00         32,475.00                           66,076.23
+

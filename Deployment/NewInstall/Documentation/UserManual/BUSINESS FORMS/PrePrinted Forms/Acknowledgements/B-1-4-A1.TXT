@@ -1,0 +1,28 @@
+
+   Hershey Chocolate Corp           Hershey Chocolate Corp          Destination    Prepaid             319          10/17/00
+   123 Chocolate Blvd               123 Chocolate Lane
+                                                                    Net 30                          101700          10.0-10.0
+   Hershey, PA  19888               Hershey, PA  19888
+   (215) 687-5000                                                   COMMON CARRIER                  Saleperson #10  1 OF 1
+
+
+
+HER-1022                       RSC 10x10x10                                                    5,000   $617.58M      $3,087.90
+HER-1022        101700         10.0 x 10.0 x 10.0                                 RSC
+Scheduled Releases:
+ 1       5,000   101700          10/17/00 123 Chocolate Lane                                  Hershey         PA 19888
+
+HER-1021                       RT 5x4x8 Candy Box             5 Color, Varn                   50,000   $400.00M     $20,000.00
+HER-1021        101700         5.0 x 4.0 x 8.0                CCN 16 Pt           RT
+Scheduled Releases:
+ 1      50,000   101700          10/17/00 123 Chocolate Lane                                  Hershey         PA 19888
+
+                               ** Miscellaneous Items **                                           Taxable
+
+  1 PLATE                      Plate Charge                                                           N                $300.00
+
+  2 PLATE                      Plate Charge                                                           N                $900.00
+
+                                                                                              Total Order Value:     24,287.90
+
+

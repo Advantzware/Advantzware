@@ -1,0 +1,13 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:37pm                                  C O M M I S S I O N   R E P O R T  -  S U M M A R Y
+
+                                          PTD (10/01/00-10/17/00) - By Salesman By Customer
+
+Salesman  Customer  Name                           Total Sales $        Comm $    Comm %        Cost $      GP %
+----------------------------------------------------------------------------------------------------------------
+001       ATT10     AT&T Corp                           21700.00          0.00      0.00       6963.32     67.91
+          HER10     Hershey Chocolate Corp              10775.00          0.00      0.00       7568.25     29.76
+
+Grand Totals:                                           32475.00          0.00      0.00      14531.57     55.25
+

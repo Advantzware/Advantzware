@@ -1,0 +1,146 @@
+
+*** Estimate Header is the GRANDPARENT of RECORDS
+
+================================================================================
+Header file
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+est        company         Company                   x(3)
+est        entered-date    Entered Date              99/99/99
+est        entered-id      Entered by                X(8)
+est        est-date        Est Date                  99/99/9999
+
+
+
+Die / Form file  (There can be up to 99 Forms per Estimate)
+For example, Sets/Displays may have 30 parts with just 1 part per form.  Hence 30 forms
+
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+ef         adder           Adder                     x(10)   (Up to 5 per Form)
+ef         board           Paperboard Code           x(10)
+ef         brd-dscr        Description               x(20)
+ef         test            Board Test                x(6)
+ef         cad-image       CAD Image File            x(80)
+ef         die-in          Die Inches                >>>>9
+ef         f-coat          Form coatings             >9
+ef         f-coat-p        Number of Coating Passes  >9
+ef         f-col           # Colors/Form             >9
+ef         f-pass          Form Printing Passes      >9
+ef         flute           Flute                     x(10)
+ef         form-no         FORM                      >9
+ef         gsh-dep         Gross Sheet Depth         >>9.9999  (Only used for FOAM Material)
+ef         gsh-len         Gross Sheet Length        >>9.9999
+ef         gsh-wid         Gross Sheet Width         >>9.9999
+ef         lsh-dep         Die Layout Sheet Depth    >>9.9999  (Only used for FOAM Material)
+ef         lsh-len         Die Layout Sheet Length   >>9.9999
+ef         lsh-wid         Die Layout Sheet Width    >>9.9999
+ef         n-cuts          Total Cuts Gross Sheet    >9
+ef         n-other-cut     Total Cuts Net Sheet      >9
+ef         n-out           # Out Gross Sheet Total   >9
+ef         n-out-d         # Out Gross Sht Depth     >9
+ef         n-out-l         # out Gross Sht Length    >9
+ef         nsh-dep         Net Sheet Depth           >>9.9999  	(Only used for FOAM Material)
+ef         nsh-len         Net Sheet Length          >>9.9999  	(Die Layout + Machine Trim)
+ef         nsh-wid         Net Sheet Width           >>9.9999  	(Die Layout + Machine Trim)
+ef         roll-wid        Width                     >>9.9999
+ef         trim-d          Trim Depth                >>9.9999
+ef         trim-l          Trim Length               >>9.99<<
+ef         trim-pen        Trim Pen%                 >>9.99
+ef         trim-w          Trim Width                >>9.99<<
+ef         xgrain          Board Cross Grain         X          (Sheet Cross Grain or Blank Cross Grain) 
+
+
+Cusotmer Part Number / Blank file  (Can Repeat up to 99 per Form)
+
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+eb         sman            Salesman Code             x(3)
+eb         cust-no         Customer Code             x(8)
+eb         contact         Contact Name              x(30)
+eb         set-i-no        Parent FG Item#           x(15)
+eb         set-is-assemble Assembled/Unassembled     x(1)
+eb         set-part-no     Set Cust Part #           x(15)
+eb         is-a-set        Set                       Y/N        
+eb         part-no         Item Customer Part #      x(15)      (Mandatory Customer Part# is the KEY to Costing)
+eb         part-dscr1      Item Description          x(30)
+eb         part-dscr2      Item Description          x(30)
+eb         stock-no        Finished Goods Stock I.D. x(15)      (Box Plants Item Code is created when Order is Placed)
+eb         form-no         FORM / DIe Number         >9         (A Part# may be on multiple Die Forms on an Estimate)
+eb         blank-no        BLANK Number              >9         (A Part# may have differnt Blank# on each Die Layout)
+eb         bl-qty          Estimate Blank Qty        >>>>>>9  	(Up to 28 Estimated Quantities)
+eb         style           Box Style Code            x(6)
+eb         len             Box Inside Length         >9.99999
+eb         wid             Box Insde Width           >9.99999
+eb         dep             Box Inside Depth          >9.99999
+eb         fpanel          Box Hangtab/5th PanelSize >9.99999
+eb         dust            Box Dust Flap             >9.99999
+eb         lock            Box Lock Tab Size         >9.99999
+eb         gluelap         Box Glue Lap Length       >9.99999
+eb         tab-in          Box Joint Tab             In/Out
+eb         k-len           Box Double Knife Length   >9.99999
+eb         k-wid           Box DK Width              >9.99999
+eb         tuck            Box Tuck Flap Inches      >9.99999
+eb         adhesive        Box Glue / Adhesive Code  x(10)       (Joint Material on Box) 
+eb         lin-in          Box Glue Lineal Inches    9.9999
+eb         die-no          Die Number                x(15)
+eb         num-dep         Box Die # on Depth        >9       (Used for 3d Foam Only)    
+eb         num-len         Box Die # on Length       >9       (Blanks Die #Up on Length)
+eb         num-wid         Box Die # on Width        >9       (Blanks Die #Up on Width)
+eb         num-up          box Die Total # UP on Die >>9      (Blank Die # Up W x L )
+eb         die-in          Die Inches                >>9.99
+eb         procat          Box Category              x(5)
+eb         plate-no        Plate #                   x(15)
+eb         cad-no          Cad-Cam Number            x(15)
+eb         k-len-array     Score Panel               >>9.999999 (Up to 20 Length Scores)
+eb         k-len-array2                              >>9.999999 (Up to 99 more Length Scores)
+eb         k-len-scr-type2 Length Score Type         X          (1 Score Type for Each Box Length Score)
+eb         k-wid-array                               >>9.999999 (Up to 20 Width Scores)
+eb         k-wid-array2                              >>9.999999 (Up to 99 more Length Scores)
+eb         k-wid-scr-type  Width Score Type          X          (1 Score Type for Each Box Width Score)
+eb         k-wid-scr-type2 Width Score Type          X          (1 Score Type for Each Box Width Score)
+eb         t-len           Blank Length Total        >>>9.999<<  (Total Length of all Box Length Dimensions)
+eb         t-sqin          Blank Square Inches       >>>9.999<<  (Total Width of all Box Length Dimensions)
+eb         t-wid           Blank Width               >>>9.999<<  (Total Width of all Box Length Dimensions)
+eb         t-dep           Blank Depth               >>>9.999<<   (Only used for 3D Foam)
+
+
+THE FOLLOWING BLANK DATA IS NOT MANDATORY BUT iF AVAILABLE, THE INTERFACE IS MORE AUTOMATED
+THE FOLLOWING BLANK DATA IS NOT MANDATORY BUT iF AVAILABLE, THE INTERFACE IS MORE AUTOMATED
+
+eb         ship-addr       Ship To Address           x(30)
+eb         ship-city       Ship ToCity               x(15)
+eb         ship-id         Ship To ID                x(8)
+eb         ship-name       Ship ToCust. Name         x(30)
+eb         ship-no         Ship To #                 >>9
+eb         ship-state      Ship ToState              x(2)
+eb         ship-zip        Ship ToPostal Code        x(10)
+eb         carrier         Truck / Carrier           x(5)        (Truck or Common Carrier Code)
+eb         cas-no          Bundle or Case Code       x(10)
+eb         cas-cnt         Bundle/Case Quantity      >>>>9
+eb         cas-pal         Cases per Pallet          >>9
+eb         cas-wt          Lbs/Case Weight           >>9.99
+eb         dest-code       Truck Delivery Code       x(5)         (FOB or Origin)
+eb         i-coat          INk Coating               >9
+eb         i-coat-p        Number of Coating Passes  >9
+eb         i-code          Ink Code                  x(10)    (Up to 10 Inks per Blank)
+eb         i-code2         Ink Coating Code          x(10)    
+eb         i-col           Ink Total Colors          >9
+eb         i-coldscr       INk Color Desc.           x(20)
+eb         i-dscr          Ink Desc                  x(19)
+eb         i-dscr2         Ink Desc                  x(19)
+eb         i-pass          INk Passes                >9       (There may be multiple Ink Passes per Blank)
+eb         i-ps            Ink PS                    >9
+eb         i-ps2           Ink PS                    >9       (INk Pass may be Front or Backside of Paper)
+eb         stack-code      Stack Pattern Code        x
+eb         stacks          Stacks Total Levels       >9
+eb         t-win           Window area               >>9.99<<
+eb         tr-cas          Stack Number of Layers    >>9
+eb         tr-cnt          Count                     >>>>9
+eb         tr-cost         Cost/ea.                  >9.99
+eb         tr-dep          Pallet Height             >9.9999
+eb         tr-len          Pallet Length             >9.9999
+eb         tr-no           Pallet Code               x(10)
+eb         tr-wid          Pallet Width              >9.9999
+
+

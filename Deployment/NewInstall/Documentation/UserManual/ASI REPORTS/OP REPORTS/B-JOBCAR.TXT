@@ -1,0 +1,50 @@
+                                                   F A C T O R Y   T I C K E T                                      DATE: 10/17/00
+                                                   ===========================
+
+    [  ] JACKET          [  ] PRODUCTION          [  ] PLATE ROOM          [  ] DIE ROOM          [  ] PURCHASING
+JOB NUMBER:    317-00          COMPLETION DATE:          BOARD P.O. #:          VENDOR #:                       DUE DATE: 10/16/00
+====================================================================================================================================
+ Item # / Qty         Description                Size / Style          Est # Case Cnt Code               Layout # On Per Form
+--------------   ------------------------- -------------------------   ----- -------- --------------- ------------------------------
+HER-1021        RT 5x4x8                   5x4x8                        1021      500 CASE-CNT        F1/2
+Job:      75,000   Standard Box               Reverse Tuck Carton            Case Count
+Ord:      75,000   Req Date: 10/16/00   Prm Date: 10/16/00   P.O.: 101600
+Customer Name:  Hershey Chocolate Corp         Sold To:  HER10    Order#:     317   Cust Part#:  HER-1021
+Plate#:                  Die#:                  CAD#:                  UPC#:                  SPC#:
+Overrun/Underrun %:  10.00/10.00
+====================================================================================================================================
+1-01     Item #: P-BLACK     PROCESS INK - BLACK    16.290                                 P-CYAN      PROCESS INK - CYAN     32.340
+                 P-MAGENTA   PROCESS INK - MAGEN    16.290                                 PMS-185     PMS INK, 185 RED       25.130
+                 VARN        VARNISH                66.040
+
+====================================================================================================================================
+Form: 1/01  Prep Material: BURN   Burn Die Charge                  Form: 1/01  Prep Material: WOOD   Die Lumber          
+Form: 1/01  Prep Material: PLATE  Plate Charge                     
+====================================================================================================================================
+Sheets Required:  41,757     Size: 18.25x38.25                     Caliper: 0.01600     Board: CCN 16 Pt                  Form:  1
+====================================================================================================================================
+Form: 1/00  Prep Labor: MISL1                                   Form: 1/01  Prep Labor: PREMR  Pre MR Plates       
+====================================================================================================================================
+PRINTING Instructions:       Plates must be ordered                                                
+DIE CUTTING Instructions:    Die Must be reknifed.                                                 
+====================================================================================================================================
+Machine Description   Form   1   Form   2   Form   3   Form   4   Form   5   Form   6   Form   7   Form   8   Form   9   Form  10
+                    M I N I M U M   R E Q U I R E D   S T A R T I N G  C O U N T   P E R   O P E R A T I O N
+
+55" HARRIS               41,757                                                                                                   
+BOBST                    39,922                                                                                                   
+STRIPPING                39,275                                                                                                   
+GLUER                    76,782                                                                                                   
+
+
+Machine Description   Form   1   Form   2   Form   3   Form   4   Form   5   Form   6   Form   7   Form   8   Form   9   Form  10
+                    E S T I M A T E D   M A K E   R E A D Y   H O U R  S   A N D   R U N   S P E E D
+
+55" HARRIS           7.50  2860                                                                                                   
+BOBST                4.00  1862                                                                                                   
+STRIPPING            0.25  2500                                                                                                   
+GLUER                2.00  3900                                                                                                   
+
+
+==================================================  Miscellaneous - Subcontract  ==================================================
+Form: 1  Outside Work                        

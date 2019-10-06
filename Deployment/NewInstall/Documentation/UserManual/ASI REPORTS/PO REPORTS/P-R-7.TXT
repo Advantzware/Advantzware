@@ -1,0 +1,54 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:15pm                                              PO Receipts Not Vouchered
+
+
+                            P.O. Date     Item                            Prod       Quantity                          Amt To
+G/L Account               Number Received Number          Description     Cat      To Invoice Whse   Cost Each        Invoice
+------------------------- ------ -------- --------------- --------------- ----- ------------- ----- ---------- --------------
+                              58 06/08/98 SBS18-135       SBS 18 Pt Board SBS             1.0 MAIN   43,874.22      43,874.22
+                              65 09/15/98 SBS1824X18      SBS 18 Pt Board SBS        55,000.0 MAIN      0.0838       4,611.53
+                                                                                -------------                  --------------
+                                                                                     55,001.0                       48,485.75
+
+01-3010                        1 10/17/95 SBS.021-28      SBS .021 28" CC SBS            20.0 MAIN    1,000.00      20,000.00
+                               2 10/17/95 SBS.021-28      SBS .021 28" CC SBS            10.0 MAIN    1,000.00      10,000.00
+                               3 11/27/95 SBS.021-28      SBS .021 28" CC SBS            33.0 MAIN    1,000.00      33,000.00
+                               7 02/23/96 ccn20-38.5      CCN 20 Pt 38.5" CCN            50.0 MAIN      500.00      25,000.00
+                               8 06/06/96 SBS28x40        SBS 18 Pt 28 x  BOARD       5,500.0 MAIN      0.1557         856.35
+                               8 06/06/96 SBS25x36        SBS 18 Pt 25 x  SBS         5,000.0 MAIN        0.25       1,250.00
+                               9 09/13/96 CCN20-38.5      CCN 20 Pt 38.5" CCN            30.0 MAIN      340.00      10,200.00
+                              10 09/18/96 CCN20-38.5      CCN 20 Pt 38.5" CCN            25.0 MAIN      350.00       8,750.00
+                              11 09/26/96 SBS28x40        SBS 18 Pt 28 x  BOARD      32,000.0 MAIN      0.1401       4,483.20
+                              13 11/19/96 SBS28x40        SBS 18 Pt 28 x  BOARD       9,250.0 MAIN      0.1557       1,440.23
+                              14 12/19/96 SBS25x36        SBS 18 Pt 25 x  SBS         1,000.0 MAIN      0.1959         195.90
+                              15 12/19/96 SBS25x36        SBS 18 Pt 25 x  SBS        12,600.0 MAIN      0.1959       2,468.34
+                              16 12/19/96 SBS25x36        SBS 18 Pt 25 x  SBS         9,000.0 MAIN        0.25       2,250.00
+                              17 12/30/96 SBS28x40        SBS 18 Pt 28 x  BOARD       8,600.0 MAIN      0.1401       1,204.86
+                              18 01/17/97 sbs41x51        SBS 16 41 x 51  SBS         5,500.0 MAIN      0.3195       1,757.25
+                              20 01/24/97 sbs1632x51      SBS 16 Pt Board SBS         6,159.5 MAIN      0.3247       2,000.00
+                              29 05/19/97 SBS18-42.5      SBS 18 42.5" Ro SBS             1.0 MAIN       40.00          40.00
+                              35 07/28/97 CCN-MAILER      CCN 18 Pt MAILE CCN            22.0 MAIN      600.00      13,200.00
+                              38 01/06/98 SBS28x40        SBS 18 Pt 28 x  BOARD       5,000.0 MAIN      0.1323         661.50
+                              42 01/13/98 SBS28x40        SBS 18 Pt 28 x  BOARD      15,500.0 MAIN      0.1401       2,171.55
+                              44 02/23/98 SBS1822x35      SBS 18 Pt 22 x  SBS             1.0 MAIN       0.055           0.06
+                              46 03/05/98 SBS23x30.5      SBS 18 Pt 23.5  SBS        21,500.0 MAIN      0.1231       2,646.65
+                              46 03/05/98 SBS18-42.5      SBS 18 42.5" Ro SBS        25,000.0 MAIN       25.00     625,000.00
+                              47 03/06/98 S1820x34        SBS 18 Pt 20 7/ SBS         6,000.0 MAIN      0.1487         892.20
+                              48 03/25/98 sbs1820x36      SBS 18 Pt 20 x  SBS        11,000.0 MAIN        0.25       2,750.00
+                              50 04/02/98 SBS28-18Pt      SBS 28" Roll 18 SBS        27,341.1 MAIN      0.0933       2,550.92
+                              53 04/02/98 SBS28-18Pt      SBS 28" Roll 18 SBS        27,341.1 MAIN       0.084       2,296.65
+                              61 06/16/98 PK22 26.5       Pearlkote .022  BOARD      10,000.0 MAIN        0.50       5,000.00
+                              64 07/10/98 CCN20-38.5      CCN 20 Pt 38.5" CCN             2.0 MAIN      350.00         700.00
+                              65 09/15/98 SBS1823.75      SBS 18Pt 23.75" SBS        20,000.0 MAIN      0.4839       9,678.00
+                              67 09/15/98 SBS18-28P       SBS 18 28" Roll SBS       126,925.0 MAIN      0.0603       7,653.58
+                              70 10/05/98 s1828x35        SBS 18 28 x 35  SBS         9,250.0 MAIN        0.25       2,312.50
+                              71 10/27/98 sbs18-147       SBS 18 Pt Board SBS        60,000.0 MAIN      0.0728       4,368.00
+                              72 10/29/98 sbs16-25        SBS 16 25" Roll BOARD      25,000.0 MAIN      0.0625       1,562.50
+                              74 02/08/99 SBS18-28P       SBS 18 28" Roll SBS        20,000.0 MAIN      0.2156       4,312.30
+                              76 03/11/99 SBS2018x30      SBS20 18 x 35   SBS         2,000.0 MAIN      0.1352         270.39
+                              83 10/24/99 SBS18-53        SBS 18 53" Roll SBS        20,000.0 MAIN        0.40       8,000.00
+                                                                                -------------                  --------------
+                                                                                    526,660.7                      820,922.93
+
+

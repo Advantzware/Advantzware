@@ -1,0 +1,63 @@
+1526 NROCMS          32222          Rocky Mountain Ski / Patio    5323 Rosewell Road                                          Atlanta          GA30342
+1526 IROCMS          32222          00001        12               16.5EA                                                                                CVR TRON-WEVE CHR LNGE CHAS BG
+1526 IROCMS          32222          00002        12              25.75EA                                                                                CVR TRON-WEVE CHR SOFA WICK BG
+1526 IROCMS          32222          00003        12              16.25EA                                                                                CVR TRON-WEVE LRG WCKR CHR BGE
+1526 IROCMS          32222          00004        12               22.5EA                                                                                CVR TRON-WEVE FS LOVESEAT BGE
+1526 IROCMS          32222          00005        24               8.25EA                                                                                CVR TRON-WEVE CHR OTTO WICK BG
+1526 IROCMS          32222          00006        16              48.25EA                                                                                CVR TRON-WEVE TABL/HB CHR 48"
+1526 IROCMS          32222          00007         6                 55EA                                                                                CVR TRON-WEVE TABL/HB CHR 60"
+1526 IROCMS          32222          00008         8              48.25EA                                                                                CVR TRON-WEVE TABL OVAL 110X84
+1526 IROCMS          32222          00009        24                 13EA                                                                                CVR TRON-WEVE TABLE MULTI SZ B
+1526 IROCMS          32222          00010        48               12.5EA                                                                                CVR TRON-WEVE UMB DLX ROD 10'
+1526 IROCMS          32222          00011        24              10.25EA                                                                                BAG STOR TRON-WEVE CUSH BGE
+1526 DROCMS          32222          000110000381600101402                  6  EB=15% 60 Days                                                                                                     0
+1526 NFLOCS          32227          Flower City - SSF, Inc.       15155 Carol Lane                                            Wayzata          MN55391
+1526 IFLOCS          32227          00001        12              13.25EA                                                                                CVR VINYL CHR LOUNGE CHAIS GRY
+1526 IFLOCS          32227          00002        12              38.75EA                                                                                CVR VINYL TABL/CHR 48"-54" GRY
+1526 IFLOCS          32227          00003         6               38.5EA                                                                                CVR VINYL TABL OVAL 110X84 GRY
+1526 DFLOCS          32227          000030000091314101402                  30 Net 30 Days                                  2325-30                                                            5814
+1526 NFLOCS          32228          Flower City - SSF, Inc.       15155 Carol Lane                                            Wayzata          MN55391
+1526 IFLOCS          32228          00001        12              13.25EA                                                                                CVR VINYL CHR LOUNGE CHAIS GRY
+1526 IFLOCS          32228          00002         4               31.5EA                                                                                CVR TABL OVAL 92" X 60" GRY
+1526 IFLOCS          32228          00003         4               38.5EA                                                                                CVR VINYL TABL OVAL 110X84 GRY
+1526 DFLOCS          32228          000030000047056101402                  30 Net 30 Days                                  2325-82                                                            3156
+1526 NFLOCS          32229          Flower City - SSF, Inc.       15155 Carol Lane                                            Wayzata          MN55391
+1526 IFLOCS          32229          00001        24               9.75EA                                                                                CVR VINYL CHR HI BACK GRY W/EL
+1526 IFLOCS          32229          00002        12              13.25EA                                                                                CVR VINYL CHR LOUNGE CHAIS GRY
+1526 IFLOCS          32229          00003         4               31.5EA                                                                                CVR TABL OVAL 92" X 60" GRY
+1526 IFLOCS          32229          00004         4              44.25EA                                                                                CVR VINYL TABL OVAL 125" GRY
+1526 IFLOCS          32229          00005        12                 10EA                                                                                CVR VINYL UMB DLX 10' GRY
+1526 DFLOCS          32229          000050000087473101402                  30 Net 30 Days                                  2325-65                                                            5873
+1526 NFLOCS          32230          Flower City - SSF, Inc.       15155 Carol Lane                                            Wayzata          MN55391
+1526 IFLOCS          32230          00001        24                8.5EA                                                                                CVR VINYL CHR LRG SZ GRY W/ELA
+1526 IFLOCS          32230          00002        12              13.25EA                                                                                CVR VINYL CHR LOUNGE CHAIS GRY
+1526 IFLOCS          32230          00003         6               31.5EA                                                                                CVR TABL OVAL 92" X 60" GRY
+1526 IFLOCS          32230          00004         6              44.25EA                                                                                CVR VINYL TABL OVAL 125" GRY
+1526 IFLOCS          32230          00005        12               13.5EA                                                                                CVR VINYL CHR GLIDER 50" GRY
+1526 DFLOCS          32230          000050000104205101402                  30 Net 30 Days                                  2325-40                                                            6255
+1526 NJANEC          32242          Janus et Cie                  8687 Melrose Avenue, B146                                   West Hollywood   CA90069
+1526 IJANEC          32242          00001         2                449EA                                                                                HEATER PATIO PROPANE STAINLESS
+1526 IJANEC          32242          00002         2                 55EA                                                                                HEATER TANK PROP 20LB.
+1526 DJANEC          32242          000020000107150101402                  30 Net 30 Days                                  14929                                                              6350
+1526 NPATFIR         32250          Patio & Fireplace, The        3426 Camino Tassajara                                       Danville         CA94506-4680
+1526 IPATFIR         32250          00001        12               30.5EA                                                                                CVR VINYL CHR LOUNGE GRY
+1526 DPATFIR         32250          000010000038272101402                  30 Net 30 Days                                  816787                                                             1672
+1526 S00000700000700000000000085707000000000000001811015020
+1526 NOLDHH          32225          Olde Hadleigh Hearth & Home   119 Willimansett Street                                     South Hadley     MA1075
+1526 IOLDHH          32225          00001         5               9.75EA                                                                                CVR VINYL CHR HI BACK GRY W/EL
+1526 DOLDHH          32225          000010000007022101402                  30 Net 30 Days                                  13658                                                              2147
+1526 NBER            32219          Berk's                        2520 Santa Monica Blvd.                                     Santa Monica     CA90404
+1526 IBER            32219          00001         2              11.25EA                                                                                CVR TRON-WEVE UMB DLX ROD 10'
+1526 IBER            32219          00002         2               7.43EA                                                                                CVR TRON-WEVE CHR OTTO WICK BG
+1526 IBER            32219          00003        12              10.13EA                                                                                CVR WHT TRON-WEVE CHR LG  W/EL
+1526 IBER            32219          00004         1              40.28EA                                                                                CVR WHT TRON-WEVE CHR HI BACK
+1526 DBER            32219          000040000019920101402                  30 Net 30 Days                                  101202                                                                0
+1526 NFIRCL18        32223          Firehouse Casual Living/Green Joelle Inc.                                                 Greenville       SC29607
+1526 IFIRCL18        32223          00001         1              48.25EA                                                                                CVR TRON-WEVE TABL/HB CHR 48"
+1526 IFIRCL18        32223          00002         1              18.25EA                                                                                CVR TRON-WEVE BBQ CART 65X35 B
+1526 DFIRCL18        32223          000020000007228101402                  30 Net 30 Days                                  9367                                                                578
+1526 NABSF           32226          Absco Fireplaces              416 S. 28th Street                                          Birmingham       AL35233
+1526 IABSF           32226          00001         1               6.25EA                                                                                CVR VINYL CHR OTTO WICK GRY
+1526 DABSF           32226          000010000001121101402                  30 Net 30 Days                                  22313                                                               496
+1526 S00000400000400000000000003529100000000000001791015020
+9999 T000011000011000000000000892361000000000000101502

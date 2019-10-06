@@ -1,0 +1,44 @@
+                                                             ACKNOWLEDGEMENT
+                                                           Order No. Order Date
+                                                           --------- ----------
+                                                              2455     12/13/05
+         ADVANCED BOX 400, INC.
+         301 Oxford Valley                                  Salesman: 001
+
+         Yardley         PA 19067                           Customer PO#
+                                                            ------------
+                                                            VerbalPO
+
+
+   F.O.B.                      Terms                     Ship VIA
+   ------                      -----                     --------
+   Destination                 2% 10, Net 30
+
+
+    Bill To:                                    Sold To:
+    --------                                    --------
+         AT&T Communications Corp.                   AT&T Communications Corp.
+         ATT 1000 Blvd                               123 Your Blvd
+
+         Yardley, PA                                 Yardley, PA  19067
+         (215)555-1212
+
+No. Item Number      Description                           Ordered   Price Per M
+--------------------------------------------------------------------------------
+  1 8x8x8            RSC 8x8x8 Stock Box                     1,000       0.85EA
+                     200 C Kraft                   
+ 
+  2 CATT10000041A    RSC 8x8x13                                500   3,250.00M
+    5239             ECT32 PaperBoard              
+ 
+  3 FATT10000003A    Sealed End 10x5x8                     125,000     300.00M
+    ATT-2977         5 Color + Coating             
+ 
+                      ** Miscellaneous Items **
+
+  4 PLATE                 PLATE                                         111.11
+
+  5 PLATE                 Plates                                        900.00
+
+                                               Total Order Value:     40,986.11
+

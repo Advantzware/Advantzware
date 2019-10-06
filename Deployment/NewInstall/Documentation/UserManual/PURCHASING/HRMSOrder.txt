@@ -1,0 +1,256 @@
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459852 01       01             BY         10100000280308 28:060001200308120:060001SCORED SHEET  01470000055001/29/2004   
+C  0050.25000.00001.0000000000.00000013046                                              XX                                      
+                                                                                                                                
+  5:04  17:14   5:04                                             1.00   28:06 28:060002372000013046                        9019 
+                                                                459852-01                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459807 01       01             BY         10100000430304 43:120000771516 77:150001SCORED SHEET  01630000014001/28/2004   
+BC 0069.42013.50001.0000000000.00000003315                                              XX                                      
+                                                                                                                                
+  5:03  33:06   5:03                                             1.00   43:12 43:120002367800003315                        9025 
+                                                                459807-02                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459854 01       01             BY         10100000180304 18:120000240116 24:010002TRIMMED SHEET 01030000043201/30/2004   
+C  0042.50013.50001.0000000000.00000001354                                              XX                                      
+                                                                                                                                
+                                                                 1.00   18:12 18:120000313400001354                        9017 
+                                                                459854-02                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459849 01       01             BY         10100000530708 53:140001130304113:120001SCORED SHEET  01710000088001/28/2004   
+C  0054.23000.00001.0000000000.00000037451                                              XX                                      
+                                                                                                                                
+ 40:04  13:10                                                    1.00   53:14 53:140004255700037451                        0019 
+                                                                459849-11                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459856 01       01             BY         10100000590516 59:050001090102109:080001SCORED SHEET  01710000066001/30/2004   
+C  0054.23000.00001.0000000000.00000029767                                              XX                                      
+                                                                                                                                
+ 46:00  13:05                                                    1.00   59:05 59:050004510100029767                        0019 
+                                                                459856-11                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459860 01       01             BY         10100000410108 41:020000780308 78:060001SCORED SHEET  01770000100001/28/2004   
+BC 0063.03000.00001.0000000000.00000022383                                              XX                                      
+                                                                                                                                
+  7:12  25:10   7:12                                             1.00   41:02 41:020002238300022383                        0023 
+1ST PULL                                                        459860-19                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459858 01       01             BY         10100000280104 28:040000750104 75:040001SCORED SHEET  01030000036001/28/2004   
+C  0040.39013.50001.0000000000.00000005315                                              XX                                      
+                                                                                                                                
+  7:07  13:06   7:07                                             1.00   28:04 28:040001476300005315                        9017 
+                                                                459858-19                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459786 01       01             BY         10100000220102 22:08000071     71:000001SCORED SHEET  01470000044001/29/2004   
+C  0052.47013.50001.0000000000.00000004881                                              XX                                      
+                                                                                                                                
+  6:10   9:04   6:10                                             1.00   22:08 22:080001109300004881                        9019 
+                                                                459786-19                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459850 01       01             BY         10100000380716 38:070000370916 37:090002TRIMMED SHEET 01630000098001/28/2004   
+BC 0065.93000.00001.0000000000.00000009826                                              XX                                      
+                                                                                                                                
+                                                                 1.00   38:07 38:070001002600009826                        9025 
+                                                                459850-20                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459812 01       01             BY         10100000301516 30:150000810304 81:120002TRIMMED SHEET 01470000044001/28/2004   
+C  0052.47000.00001.0000000000.00000007728                                              XX                                      
+                                                                                                                                
+                                                                 1.00   30:15 30:150001756300007728                        9019 
+                                                                459812-20                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459846 01       01             BY         1010000032     32:000000490508 49:100001SCORED SHEET  01030000024001/29/2004   
+C  0042.50013.50001.0000000000.00000002647                                              XX                                      
+                                                                                                                                
+  5:11   7:05   5:13   7:07   5:12                               1.00   32:00 32:000001102900002647                        9017 
+                                                                459846-20                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459742 01       01             BY         10100000470108 47:020000460102 46:080002TRIMMED SHEET 01030000170001/29/2004   
+C  0056.33000.00001.0000000000.00000025870                                              XX                                      
+                                                                                                                                
+                                                                 1.00   47:02 47:020001521700025870                086608569017 
+GM NOMAR 70 2-SIDE                                              4597420321                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459742 01       01             BY         10100000150316 15:030000400102 40:080002TRIMMED SHEET 01030000133301/28/2004   
+C  0059.39053.50001.0000000000.00000005694                                              XX                                      
+                                                                                                                                
+                                                                 1.00   15:03 15:030000427100005694                086608569017 
+GM NOMAR 70 2-SIDE                                              4597420223                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501458679 01       01             BY         1010000017     17:000000260308 26:060002TRIMMED SHEET 01030000025001/29/2004   
+C  0042.50013.50001.0000000000.00000000778                                              XX                                      
+                                                                                                                                
+                                                                 1.00   17:00 17:000000311200000778                        9017 
+                                                                458679-23                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501458694 01       01             BY         10100000361316 36:130000481316 48:130002TRIMMED SHEET 01720000017501/29/2004   
+BC 0071.47013.50001.0000000000.00000002184                                              XX                                      
+                                                                                                                                
+                                                                 1.00   36:13 36:130001248000002184                        9026 
+                                                                4586940223                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459867 01       01             BY         10000000290308 29:060001020108102:020001SCORED SHEET  01030000012001/29/2004   
+C  0042.50013.50001.0000000000.00000002500                                              XX                                      
+                                                                                                                                
+  2:04  24:14   2:04                                             1.00   29:06 29:060002083300002500                        9017 
+                                                                459867-02                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459800 01       01             BY         10100000090104  9:040000240102 24:080001SCORED SHEET  01010000010001/28/2004   
+C  0054.09053.50001.0000000000.00000000157                                              XX                                      
+                                                                                                                                
+  4:00   1:04   4:00                                             1.00    9:04  9:040000157000000157                086808589016 
+1ST PULL                                                        459800-40                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459728 01       01             BY         10100000210108 21:02000022     22:000002TRIMMED SHEET 01470000125001/28/2004   
+C  0052.47013.50001.0000000000.00000004034                                              XX                                      
+                                                                                                                                
+                                                                 1.00   21:02 21:020000322700004034                        9019 
+1ST PULL                                                        4597280342                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459728 01       01             BY         10100000210108 21:020000420508 42:100002TRIMMED SHEET 01470000025001/28/2004   
+C  0053.99013.50001.0000000000.00000001563                                              XX                                      
+                                                                                                                                
+                                                                 1.00   21:02 21:020000625200001563                        9019 
+1ST PULL                                                        4597280242                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459584 01       01             BY         10100000080102  8:080000220116 22:010002TRIMMED SHEET 01030000075001/28/2004   
+C  0042.50013.50001.0000000000.00000000977                                              XX                                      
+                                                                                                                                
+                                                                 1.00    8:08  8:080000130200000977                        9017 
+                                                                4595840242                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459873 01       01             BY         10100000141316 14:130000230102 23:080002TRIMMED SHEET 01010000017501/28/2004   
+B  0046.75013.50001.0000000000.00000000423                                              XX                                      
+                                                                                                                                
+                                                                 1.00   14:13 14:130000241700000423                    00489006 
+1ST PULL                                                        459873-23                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459632 01       01             BY         1010000045     45:00000060     60:000002TRIMMED SHEET 00990000400001/28/2004   
+C  0033.54000.00001.0000000000.00000075000                                              XX                                      
+                                                                                                                                
+                                                                 1.00   45:00 45:000001875000075000                        0014 
+280/UNIT; 1ST PULL                                              459632-E                                                        
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459633 01       01             BY         1010000045     45:00000104    104:000002TRIMMED SHEET 00990000400001/28/2004   
+C  0032.20000.00001.0000000000.00000130000                                              XX                                      
+                                                                                                                                
+                                                                 1.00   45:00 45:000003250000130000                        0014 
+280/UNIT; 1ST PULL                                              459633-E                                                        
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459869 01       01             BY         10100000400102 40:080000420102 42:080002TRIMMED SHEET 01030000024001/28/2004   
+C  0042.50013.50001.0000000000.00000002869                                              XX                                      
+                                                                                                                                
+                                                                 1.00   40:08 40:080001195400002869                        9017 
+240/UNIT                                                        459869-E                                                        
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459876 01       01             BY         10100000140316 14:030000221316 22:130002TRIMMED SHEET 01010000080001/28/2004   
+B  0042.50013.50001.0000000000.00000001798                                              XX                                      
+                                                                                                                                
+                                                                 1.00   14:03 14:030000224700001798                        9006 
+800/UNIT                                                        459876-E                                                        
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459870 01       01             BY         1010000040     40:00000087     87:000001SCORED SHEET  01030000012001/28/2004   
+C  0042.50013.50001.0000000000.00000002900                                              XX                                      
+                                                                                                                                
+  2:10   1:00  32:12   1:00   2:10                               1.00   40:00 40:000002416600002900                        9017 
+                                                                459870-02                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459871 01       01             BY         1010000040     40:00000075     75:000001SCORED SHEET  01030000012001/28/2004   
+C  0042.50013.50001.0000000000.00000002500                                              XX                                      
+                                                                                                                                
+  2:10   1:00  32:12   1:00   2:10                               1.00   40:00 40:000002083300002500                        9017 
+                                                                459871-02                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459874 01       01             BY         10100000270304 27:120001031316103:130001SCORED SHEET  01540000100001/28/2004   
+BC 0058.23000.00001.0000000000.00000020006                                              XX                                      
+                                                                                                                                
+  7:12  12:04   7:12                                             1.00   27:12 27:120002000600020006                        9024 
+                                                                459874-19                                                       
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501458573 01       01             BY         05000000160104 16:040000310102 31:080002TRIMMED SHEET 01470000005001/28/2004   
+C  0059.99033.50001.0000000000.00000000178                                              XX                                      
+                                                                                                                                
+                                                                 1.00   16:04 16:040000356000000178                    08559019 
+50/UNIT; NO UNDER                                               458573-E                                                        
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459110 01       01             BY         1010000027     27:00000027     27:000002TRIMMED SHEET 01470000176001/28/2004   
+C  0053.47010.00001.0000000000.00000008910                                              XX                                      
+                                                                                                                                
+                                                                 1.00   27:00 27:000000506200008910                    00879019 
+220/UNIT; PRINT PART #178855                                    459110-WHS                                                      
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459207 01       01             BY         10100000440102 44:080000470102 47:080002TRIMMED SHEET 01030000024001/28/2004   
+C  0042.50013.50001.0000000000.00000003523                                              XX                                      
+                                                                                                                                
+                                                                 1.00   44:08 44:080001467900003523                        9017 
+240/UNIT                                                        459207-E                                                        
+1085501000000616-399-208849422-1993  YOUR TRUCK     DESTINATION    01/27/2004 10855                                             
+SHORELINE CONTAINER INC.      4450 N. 136TH AVENUE          PO BOX 1993                   HOLLAND MI                            
+SHORELINE CONTAINER           4450 N. 136TH AVENUE                                        HOLLAND MI                            
+1085501459875 01       01             BY         10100000190104 19:040000670708 67:140001SCORED SHEET  01470000027501/29/2004   
+C  0053.99013.50001.0000000000.00000002495                                              XX                                      
+                                                                                                                                
+  6:15   5:06   6:15                                             1.00   19:04 19:040000907200002495                        9019 
+                                                                459875-19                                                       

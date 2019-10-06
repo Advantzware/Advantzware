@@ -1,0 +1,26 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:54pm                                               MACHINE COST BY JOB SUMMARY
+
+                         Open Jobs  Machine #: - zzzzzz  Job #:317-00 - 317-99  Date:01/01/001 - 12/31/9999
+MACH
+CODE       JOB # FG DESCRIPTION          EST M/R    ACT M/R %VAR M/R    EST RUN    ACT RUN %VAR RUN    EST BRD    ACT BRD %VAR MAT
+------ --------- -------------------- ---------- ---------- -------- ---------- ---------- -------- ---------- ---------- --------
+DC        317-00 RT 5x4x8                 400.00     300.00    25.00    2183.14     500.00    77.10    3399.24    3344.00     1.63
+                 Direct Labor             200.00     150.00             1091.57     250.00
+                 Fixed Overhead           100.00      75.00              545.78     125.00
+                 Variable Overhead        100.00      75.00              545.78     125.00
+
+
+PR2       317-00 RT 5x4x8                2325.00    1860.00    20.00    4530.77    1860.00    58.95    3495.40    3998.92   -14.41
+                 Direct Labor             450.00     360.00              876.92     360.00
+                 Fixed Overhead          1125.00     900.00             2192.31     900.00
+                 Variable Overhead        750.00     600.00             1461.54     600.00
+
+
+
+                 Grand Totals            2725.00    2160.00    20.73    6713.91    2360.00    64.85    6894.64    7342.92    -6.50
+                 Direct Labor             650.00     510.00             1968.49     610.00
+                 Fixed Overhead          1225.00     975.00             2738.09    1025.00
+                 Variable Overhead        850.00     675.00             2007.32     725.00
+

@@ -1,0 +1,60 @@
+
+
+
+
+
+
+
+
+
+
+                                                      1815              1
+
+                          12/16/2005
+
+      AT&T Communications Corp.
+
+      ATT Blvd  Warehouse B  Yardley, PA  19067
+
+
+
+      Our Truck
+
+
+
+
+
+   10     100    2455 8x8x8                                               BILL
+
+                      Whs: Main Office
+                      10 Case(s): 10@100
+
+                      PO #                  PO Rel # 0-00
+                      Shipped: 1,000  Released: 1,000
+ -------------------------------------------------------------------------------
+    1     500    2455 CATT10000041A                                       BILL
+
+                      Whs: Main Office
+                      1 Case(s): 1@500
+
+                      PO #                  PO Rel # 0-00
+                      Shipped: 500  Released: 500
+ -------------------------------------------------------------------------------
+   10   12500    2455 FATT10000003A                                       BILL
+
+                      Whs: Main Office
+                      250 Case(s): 250@500
+
+                      PO #                  PO Rel # 0-00
+                      Shipped: 125,000  Released: 125,000
+ -------------------------------------------------------------------------------
+
+
+
+
+
+
+                                           26857                    # Pkgs: 261
+
+     21 Total Pallet(s)
+

@@ -1,0 +1,137 @@
+
+*** Customer File Field Definition ***           As of  01/04/06     Page:   1
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+cust       acc-bal         Account Balance           ->>>,>>>,>>9.99
+cust       active          Customer Status           !
+cust       addr            Customer Address          x(30)
+cust       an-edi-cust     EDI Cust                  yes/no
+cust       area-code       Area Code                 (999)
+cust       auto-reprice    Auto Reprice              yes/no
+cust       avg-pay         Avg to Pay                >>9
+cust       carrier         Carrier                   x(5)
+cust       case-bundle     Case/Bundle               x(10)
+cust       cc-addr         CC Address                x(30)
+cust       cc-bank         CC Bank Name              x(30)
+cust       cc-city         CC City                   x(15)
+cust       cc-company      CC Company Name           x(30)
+cust       cc-country      CC Country                x(10)
+cust       cc-cvv-code     CC CVV Code               X(3)
+cust       cc-expiration   CC Expiration             99/99/9999
+cust       cc-name         CC Name                   x(30)
+cust       cc-num          CC Number                 x(20)
+cust       cc-phone        CC Phone#                 (999) 999-9999
+cust       cc-state        CC State                  x(2)
+cust       cc-type         CC Type                   x(8)
+cust       cc-zip          CC Zip Code               x(10)
+cust       ch-type         Credit Hold Type          x(5)
+cust       char-field      ?                         x(8)
+cust       char-label      ?                         x(8)
+cust       city            City                      x(15)
+cust       comm            Commissions               ->>,>>>,>>9.99
+cust       company         Company                   x(3)
+cust       contact         Contact Name              x(25)
+cust       convert-currenc Convert Currency?         yes/no
+cust       cost            Costs                     ->>>,>>>,>>9.99
+cust       country         Country                   x(10)
+cust       cr-hold         Customer On Hold          Yes/No
+cust       cr-hold-invdays Crdt Hld Days             >>9
+cust       cr-lim          Credit Limit              >>>,>>>,>>9.99
+cust       cr-rating       Credit Rating             x(3)
+cust       cr-use          Use for Credit            x(10)
+cust       curr-code       Currency Code             X(3)
+cust       cust-level      Cust Level                >9
+cust       cust-no         Cust. #                   x(8)
+cust       cyr-bud         Current Year Budget       ->>>,>>>,>>>,>>9.99
+cust       date-field      ?                         99/99/9999
+cust       date-label      ?                         x(8)
+cust       dec-field       ?                         >>,>>9.99<<<
+cust       dec-label       ?                         x(8)
+cust       def-loc         Warehouse                 x(8)
+cust       def-loc-bin     Bin                       x(8)
+cust       del-zone        Delivery Zone             x(5)
+cust       disc            Customer Discount         >>9.99
+cust       email           Email Address             x(40)
+cust       factored        Factored?                 yes/no
+cust       fax             Fax #                     (999) 999-9999
+cust       fax-country     Fax Country Prefix        X(8)
+cust       fax-prefix      Fax Prefix                x(3)
+cust       fin-chg         Finance Charges           Yes/No
+
+*** Customer File Field Definition ***           As of  01/04/06     Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+cust       fob-code        FOB Code                  x(5)
+cust       frt-pay         FR PAY CD                 x(1)
+cust       group-bol       Group BOL                 yes/no
+cust       hibal           Hi Balance                ->>,>>>,>>9.99
+cust       hibal-date      Hi Balance Date           99/99/9999
+cust       imported        Created Externally?       yes/no
+cust       int-field       ?                         ->,>>>,>>9
+cust       int-label       ?                         x(8)
+cust       inv-meth        Invoice Method            yes/no
+cust       inv-meth2       Invoice Method            x(8)
+cust       loc             Warehouse                 x(5)
+cust       log-field       ?                         yes/no
+cust       log-label       ?                         x(8)
+cust       lpay            Last Payment              ->>,>>>,>>9.99
+cust       lpay-date       Last Pay Date             99/99/9999
+cust       lyptd-msf       LY PTD MSF                ->>>,>>>,>>9.99
+cust       lyr-bud         Last Year Budget          ->>>,>>>,>>>,>>9.99
+cust       lyr-sales       LYR Sales                 ->>>,>>>,>>9.99
+cust       lyytd-msf       LY YTD MSF                ->>>,>>>,>>9.99
+cust       manf-day        Manf Days                 >>9
+cust       markup          Mark-Up                   >>9.99
+cust       markups         Mark-Up                   ->>9.99
+cust       markups-desc    Mark-Up Description       X(20)
+cust       memo            Memo On Customer          x(30)
+cust       n-sales         #Sales by Period          ->>>,>>>,>>9.99
+cust       name            Customer Name             x(30)
+cust       notes           Notes                     x(60)
+cust       num-inv         Number of Invoices        >>>>9
+cust       nyr-bud         next Year Budget          ->>>,>>>,>>>,>>9.99
+cust       on-account      On Account                ->>,>>>,>>9.99
+cust       ord-bal         Open Orders Balance       ->>,>>>,>>9.99
+cust       ord-lim         Order Limit               >>,>>>,>>9.99
+cust       ord-meth        Order Entry Method        x(8)
+cust       over-pct        Overrun %                 >>9.99%
+cust       p-sep           Seperate Invoices         yes/no
+cust       pallet          Pallet                    x(10)
+cust       phone           Phone Number              999-9999
+cust       phone-country   Phone Country Prefix      X(8)
+cust       phone-prefix    Phone Prefix              x(3)
+cust       postal          Postal Code               x(11)
+cust       prof-mrkup      Profit % Mark Up          >>9.99
+cust       ptd-msf         PTD MSF                   ->>>,>>>,>>9.99
+cust       rec_key         Rec Key                   X(20)
+cust       sales           Sales by period           ->>>,>>>,>>9.99
+cust       sell-by         Sell by Net or Gross %    !
+cust       ship-days       Must Ship Days            >>9
+cust       ship-meth       Shipping Method           Case/Pallet
+cust       ship-part       Part Ship                 yes/no
+cust       sman            Salesman                  x(3)
+cust       sort            Taxable?                  X
+cust       stat-grp        Statement Group           X
+cust       stat-type       Statement Type            O/F
+cust       state           State                     x(2)
+cust       tax-gr          Sales Tax Group           x(3)
+cust       tax-id          Tax Exempt No.            x(15)
+
+*** Customer File Field Definition ***           As of  01/04/06     Page:   3
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+cust       terms           Terms Code                x(5)
+cust       terr            Sales Territory           x(3)
+cust       type            Customer Type             x(8)
+cust       under-pct       Underrun %                >>9.99%
+cust       upch-amt        Upcharge$                 ->>,>>9.99
+cust       upch-code       Upcharge                  X(8)
+cust       upch-dscr       Upcharge Description      X(30)
+cust       upch-pct        Upcharge%                 ->>,>>9.99
+cust       ytd-msf         YTD MSF                   ->>>,>>>,>>9.99
+cust       ytd-sales       YTD Sales                 ->>,>>>,>>9.99
+cust       zip             Zip Code                  x(10)
+

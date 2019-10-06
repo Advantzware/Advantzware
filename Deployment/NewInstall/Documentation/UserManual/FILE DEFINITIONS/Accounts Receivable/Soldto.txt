@@ -1,0 +1,22 @@
+
+*** Soldto File Field Definition ***           As of  10/15/06       Page:   1
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+soldto     company         Company                   x(3)
+soldto     country         Country                   x(10)
+soldto     cust-no         Customer Number           x(8)
+soldto     Postal          Postal Code               x(11)
+soldto     rec_key         Rec Key                   X(20)
+soldto     sold-addr       Address                   x(30)
+soldto     sold-city       City                      x(15)
+soldto     sold-id         Sold To ID                x(8)
+soldto     sold-name       Name                      x(30)
+soldto     sold-no         Sold To #                 >>9
+soldto     sold-state      State                     x(2)
+soldto     sold-zip        Zip                       x(10)
+soldto     upch-amt        Upcharge$                 ->>,>>9.99
+soldto     upch-code       Upcharge                  X(8)
+soldto     upch-dscr       Upcharge Description      X(30)
+soldto     upch-pct        Upcharge%                 ->>,>>9.99
+

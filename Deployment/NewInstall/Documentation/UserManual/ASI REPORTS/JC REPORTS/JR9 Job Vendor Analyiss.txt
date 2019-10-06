@@ -1,0 +1,15 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:57pm                                                   JOB/VENDOR ANALYSIS
+
+                           Open Jobs  Job #:317-00 - 317-99  Cust: - zzzzzzzz  Date:01/01/001 - 12/31/9999
+
+                                                                                                  P&P QTY              VEND $ $ PER
+    JOB # FG ITEM         QUANTITY      PRICE UOM VENDOR NAME     INVOICE       INV QTY  REC QTY PRODUCED     DIFF  W/O SETUP SHEET
+-----------------------------------------------------------------------------------------------------------------------------------
+
+Customer: HER10    Hershey Chocolate Corp        
+
+   317-00 HER-1021           75000     395.00 M   INTERNATIONAL P 101600          47834        8    50400   -25192    4000.00  0.16
+
+
