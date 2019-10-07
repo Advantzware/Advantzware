@@ -266,7 +266,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
         display ap-chk.check-date ap-chk.check-no ctot with frame b3.
                /*max-per-chk = 12 */
         put skip(12 - lv-line-cnt ).
-        MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
+        
         assign
          stnum  = stnum + 1
          ctot   = 0
