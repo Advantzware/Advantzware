@@ -212,14 +212,14 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       end.
      
       else DO:
-           display skip(9)
+           display skip(8)
                 "V   V      OOO       III      DDDD"   at 10 skip
                 "V   V     O   O       I       D   D"  at 10 skip
                 "V   V     O   O       I       D   D"  at 10 skip
                 " V V      O   O       I       D   D"  at 10 skip
                 " V V      O   O       I       D   D"  at 10 skip
                 "  V        OOO       III      DDDD "  at 10
-                skip(10)
+                skip(9)
                 with frame u no-box no-labels stream-io no-attr-space.
             ll-void = YES.
       END.
@@ -266,7 +266,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
         display ap-chk.check-date ap-chk.check-no ctot with frame b3.
                /*max-per-chk = 12 */
         put skip(12 - lv-line-cnt ).
-        
+        MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
         assign
          stnum  = stnum + 1
          ctot   = 0
