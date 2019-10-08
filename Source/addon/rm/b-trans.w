@@ -494,7 +494,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* From!Tag */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN 
+  DO:
+    RUN new-bin.
     RUN leave-tag NO-ERROR.
     RETURN NO-APPLY.
   END.
@@ -503,15 +505,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* From!Tag */
-DO:
-  RUN new-bin.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME rm-rctd.loc

@@ -705,12 +705,14 @@ DO:
   DEF BUFFER b-rm-rctd-2 FOR rm-rctd.
 
   IF LASTKEY NE -1 THEN DO:
-
+      IF adm-new-record OR
+          rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} THEN
+          RUN new-bin.
     lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
     {addon/loadtags/disptagr2.i "RMItem" lvTag}
     ASSIGN
       rm-rctd.po-no:SCREEN-VALUE = ''
-      /*rm-rctd.job-no:READ-ONLY = loadtag.job-no NE ''*/.
+          /*rm-rctd.job-no:READ-ONLY = loadtag.job-no NE ''*/.
 
     RUN valid-loc-bin-tag (3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -819,17 +821,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
-DO:
-   IF adm-new-record OR
-      rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} THEN
-      RUN new-bin.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME rm-rctd.loc
