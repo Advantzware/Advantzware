@@ -118,6 +118,12 @@ ELSE IF ls-cur-val = 'BolPrint' THEN DO:
   {&tableName}.char-fld:SCREEN-VALUE = ENTRY(1,char-val).
   RETURN NO-APPLY.
 END.
+ELSE IF ls-cur-val = 'JobCardPrintScores' THEN DO:
+  RUN windows/l-style.w (gcompany,"",OUTPUT char-val).
+  IF char-val NE '' THEN
+  {&tableName}.char-fld:SCREEN-VALUE = ENTRY(1,char-val).
+  RETURN NO-APPLY.
+END.
 ELSE DO:
   RUN windows/l-syschr.w (gcompany,ls-cur-val,FOCUS:SCREEN-VALUE,OUTPUT char-val).
   IF char-val NE '' THEN
