@@ -218,9 +218,10 @@ PROCEDURE Get_Procedure :
                 ELSE RUN VALUE(run-proc).
                 RUN running_procedures(run-proc, OUTPUT lDummy).
                 run-proc = "".
-            END.
-        END.
-    END.
+            END. /* if run-now */
+            RUN spTtPermissions (BUFFER buf-prgrms).
+        END. /* else do */
+    END. /* avail buf-prgrms */
     ELSE IF NOT SESSION:BATCH-MODE THEN DO:
         RUN Set_Cursor ("").
         MESSAGE "Program :" proc-name SKIP(1)
