@@ -2073,9 +2073,11 @@ PROCEDURE local-create-record :
          item.industry = "2"
          item.mat-type = ""
          fi_mat-type:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = item.mat-type
-         fi_cas-pal-w:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(item.basis-w)
-         fi_flute:SCREEN-VALUE IN FRAME {&FRAME-NAME}     = item.flute
-         fi_reg-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = item.reg-no.
+         fi_cas-pal-w:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(item.basis-w) .
+       IF adm-new-record and adm-adding-record THEN
+           ASSIGN
+           fi_flute:SCREEN-VALUE IN FRAME {&FRAME-NAME}     = item.flute
+           fi_reg-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = item.reg-no.
 
   {custom/newkey.i item.i-no}
 
