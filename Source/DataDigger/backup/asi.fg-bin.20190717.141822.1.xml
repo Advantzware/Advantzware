@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<fg-bin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <fg-binRow>
+    <company>002</company>
+    <loc>COMM</loc>
+    <i-no/>
+    <loc-bin>FLOOR</loc-bin>
+    <tag/>
+    <qty>0.000</qty>
+    <std-var-cost>0.0000</std-var-cost>
+    <last-cost>0.0000</last-cost>
+    <avg-cost>0.0000</avg-cost>
+    <last-count>0.000</last-count>
+    <job-no2>0</job-no2>
+    <last-date xsi:nil="true"/>
+    <std-mat-cost>0.0000</std-mat-cost>
+    <std-lab-cost>0.0000</std-lab-cost>
+    <std-fix-cost>0.0000</std-fix-cost>
+    <std-tot-cost>0.0000</std-tot-cost>
+    <pur-uom/>
+    <case-count>0</case-count>
+    <job-no/>
+    <aging-date xsi:nil="true"/>
+    <ord-no>0</ord-no>
+    <cases-unit>0</cases-unit>
+    <unit-count>0</unit-count>
+    <units-pallet>0</units-pallet>
+    <stack-code/>
+    <ship-default>false</ship-default>
+    <po-no/>
+    <rec_key>0901201700111772</rec_key>
+    <partial-count>0</partial-count>
+    <partial-total>0</partial-total>
+    <cases>0</cases>
+    <bol-no>0</bol-no>
+    <cust-no/>
+    <inv-no>0</inv-no>
+    <last-rct-date xsi:nil="true"/>
+    <tot-wt>0.0000</tot-wt>
+    <spare-char-1/>
+    <spare-char-2/>
+    <spare-char-3/>
+    <spare-char-4/>
+    <spare-char-5/>
+    <spare-dec-1>0.000000</spare-dec-1>
+    <spare-dec-2>0.000000</spare-dec-2>
+    <spare-dec-3>0.000000</spare-dec-3>
+    <spare-dec-4>0.000000</spare-dec-4>
+    <spare-dec-5>0.000000</spare-dec-5>
+    <spare-int-1>0</spare-int-1>
+    <spare-int-2>0</spare-int-2>
+    <spare-int-3>0</spare-int-3>
+    <spare-int-4>0</spare-int-4>
+    <spare-int-5>0</spare-int-5>
+    <active>true</active>
+  </fg-binRow>
+</fg-bin>
