@@ -798,7 +798,6 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
               
-             
               "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
               "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
