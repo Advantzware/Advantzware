@@ -46,7 +46,19 @@ ASSIGN cocode = g_company
  DEF BUFFER bf-misc FOR inv-misc.
  DEF VAR v-tax AS DEC NO-UNDO.
  DEFINE VARIABLE rRowidNew AS ROWID NO-UNDO .
- DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+ DEFINE VARIABLE lUpdateMiscItem AS LOGICAL NO-UNDO.
+ DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+ DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+
+ RUN methods/prgsecur.p
+    (INPUT "p-invmis.",
+     INPUT "Update", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lUpdateMiscItem, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -119,18 +131,6 @@ fi_AutoFindLabel
 
 
 /* ************************  Function Prototypes ********************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxableMisc B-table-Win
-FUNCTION fGetTaxableMisc RETURNS LOGICAL 
-  ( ipcCompany AS CHARACTER,
-    ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER,
-   ipcPrepCode AS CHARACTER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -432,66 +432,18 @@ ASSIGN
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON HELP OF Browser-Table IN FRAME F-Main
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-  def var char-val as cha no-undo.
-  def var look-recid as recid no-undo.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
-
-     lw-focus = FOCUS.
-
-     case lw-focus:name :
-          when "charge" then do:
-               run windows/l-prep.w (inv-head.company, lw-focus:screen-value, output char-val).
-               if lw-focus:screen-value ne entry(1,char-val) then do:
-                 lw-focus:screen-value = entry(1,char-val).
-                 run new-charge.
-               end.
-          end.
-          when "actnum" then do:
-               run windows/l-acct2.w (inv-head.company, "", lw-focus:screen-value, output char-val).
-               if char-val <> "" then assign lw-focus:screen-value = entry(1,char-val).
-          end.
-          WHEN "inv-i-no" THEN RUN job-help.
-          WHEN "inv-line" THEN RUN job-help.
-          when "s-man" then do:
-              li = frame-index.
-              run windows/l-sman.w (inv-head.company, output char-val).
-              if char-val ne "" then do:
-                if li eq 1 and inv-misc.s-man[1]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
-                  inv-misc.s-man[1]:screen-value = entry(1,char-val).
-                else
-                if li eq 2 and inv-misc.s-man[2]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
-                  inv-misc.s-man[2]:screen-value = entry(1,char-val).
-                else
-                if li eq 3 and inv-misc.s-man[3]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
-                  inv-misc.s-man[3]:screen-value = entry(1,char-val).
-                else li = 0.
-                if li ne 0 then run new-s-man (li).
-              end.
-          end.
-          when "po-no-po" then do:
-              run windows/l-ponopo.w (inv-head.company,yes,lw-focus:screen-value, output char-val).
-              if char-val <> "" then assign lw-focus:screen-value = entry(1,char-val) .         
-         end.
-         when "spare-char-2" then do:
-           run windows/l-itemfg.w (inv-misc.company,"",inv-misc.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
-           if char-val <> "" then assign inv-misc.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
-         end.
-         when "spare-char-1" then do:
-           RUN windows/l-stax.w (inv-misc.company,inv-misc.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-           if char-val <> "" then assign inv-misc.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
-      end.
-     end case.
-
-     APPLY "entry" TO lw-focus.
-     return no-apply.
+   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+   IF AVAIL inv-misc AND lUpdateMiscItem THEN do:
+       RUN oe/d-inmisc.w (ROWID(inv-misc),ROWID(inv-head), "update", OUTPUT lv-rowid) .
+       RUN reopen-query (lv-rowid).
+   END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
@@ -500,10 +452,13 @@ ANYWHERE
 DO:
    APPLY "tab" TO SELF.
    RETURN NO-APPLY.
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
@@ -542,197 +497,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME inv-misc.charge
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.charge Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.charge IN BROWSE Browser-Table /* Charge */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-charge NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.     
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.charge Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF inv-misc.charge IN BROWSE Browser-Table /* Charge */
-DO:
-  RUN new-charge.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.actnum
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.actnum Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.actnum IN BROWSE Browser-Table /* Account# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-actnum NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.inv-i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.inv-i-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.inv-i-no IN BROWSE Browser-Table /* Job# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-inv-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.inv-line
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.inv-line Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.inv-line IN BROWSE Browser-Table
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-inv-line NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.po-no-po
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.po-no-po Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.po-no-po IN BROWSE Browser-Table /* Vendor PO# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-po-no-po NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.s-man[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.s-man[1] Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.s-man[1] IN BROWSE Browser-Table /* Slsmn */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-man (1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.s-man[1] Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF inv-misc.s-man[1] IN BROWSE Browser-Table /* Slsmn */
-DO:
-  RUN new-s-man (1).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.s-man[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.s-man[2] Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.s-man[2] IN BROWSE Browser-Table /* Slsmn */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-man (2) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.s-man[2] Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF inv-misc.s-man[2] IN BROWSE Browser-Table /* Slsmn */
-DO:
-  RUN new-s-man (2).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.s-man[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.s-man[3] Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.s-man[3] IN BROWSE Browser-Table /* Slsrep */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-man (3) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.s-man[3] Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF inv-misc.s-man[3] IN BROWSE Browser-Table /* Slsrep */
-DO:
-  RUN new-s-man (3).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME inv-misc.tax
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.tax Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF inv-misc.tax IN BROWSE Browser-Table /* Tax */
-DO:
-  IF inv-head.tax-gr EQ "" THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.tax Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.tax IN BROWSE Browser-Table /* Tax */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-tax NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.spare-char-1 Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF inv-misc.spare-char-1 IN BROWSE Browser-Table /* Tax */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-tax-gr NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &UNDEFINE SELF-NAME
@@ -833,25 +597,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
-PROCEDURE local-assign-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF adm-new-record AND inv-misc.cost EQ 0 THEN inv-misc.cost = inv-misc.amt.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
 PROCEDURE local-cancel-record :
@@ -877,68 +623,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER bf-misc FOR inv-misc.
-  DEF VAR z AS INT NO-UNDO.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  FIND LAST bf-misc WHERE bf-misc.r-no = inv-head.r-no NO-LOCK NO-ERROR.
-  z = IF AVAIL bf-misc THEN bf-misc.LINE + 1 ELSE 1.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   inv-misc.r-no = inv-head.r-no
-   inv-misc.company = inv-head.company
-   inv-misc.LINE = z
-   inv-misc.bill = "Y"
-   inv-misc.s-man[1]  = inv-head.sman[1]
-   inv-misc.s-pct[1]  = inv-head.s-pct[1]
-   inv-misc.s-comm[1] = inv-head.s-comm[1]
-   inv-misc.s-man[2]  = inv-head.sman[2]
-   inv-misc.s-pct[2]  = inv-head.s-pct[2]
-   inv-misc.s-comm[2] = inv-head.s-comm[2]
-   inv-misc.s-man[3]  = inv-head.sman[3]
-   inv-misc.s-pct[3]  = inv-head.s-pct[3]
-   inv-misc.s-comm[3] = inv-head.s-comm[3].
-
-  FIND FIRST ar-ctrl WHERE ar-ctrl.company = inv-head.company
-                             NO-LOCK NO-ERROR.
-  IF AVAIL ar-ctrl THEN inv-misc.actnum = ar-ctrl.sales.
-  FIND FIRST cust OF inv-head NO-LOCK NO-ERROR.
-  inv-misc.tax = cust.SORT = "Y" AND inv-head.tax-gr <> "".
-  
-  FIND FIRST prep NO-LOCK 
-            WHERE prep.company EQ cocode 
-            AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-            NO-ERROR.
-    IF AVAILABLE prep AND NOT prep.commissionable THEN
-        ASSIGN 
-            inv-misc.s-comm[1] = 0 
-            inv-misc.s-comm[2] = 0
-            inv-misc.s-comm[3] = 0
-            .
-        
-    ASSIGN inv-misc.spare-char-1 = inv-head.tax-gr
-           inv-misc.tax          = fGetTaxableMisc(cocode, inv-head.cust-no, inv-head.sold-no, inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}) .
-
-  IF AVAIL inv-line THEN
-      ASSIGN inv-misc.spare-char-2 = inv-line.i-no
-             inv-misc.est-no = inv-line.est-no.
-  ASSIGN rRowidNew = ROWID(inv-misc) . /* strang error in validation */
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -985,210 +669,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-  IF NOT AVAIL inv-misc AND adm-new-record AND  adm-adding-record  THEN
-      FIND FIRST inv-misc WHERE ROWID(inv-misc) EQ rRowidNew NO-ERROR .
-  
-  /* Code placed here will execute PRIOR to standard behavior. */
-  /* ====== validation ========== */
-  RUN valid-charge NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-actnum NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-tax NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  RUN valid-tax-gr NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-inv-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  RUN valid-inv-line NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  RUN valid-po-no-po NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  RUN valid-s-man (0) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  RUN valid-s-pct (0) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-  
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN refresh-value.
-
-  IF NOT v-oecomm-log THEN RUN show-comm (NO).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-charge B-table-Win 
-PROCEDURE new-charge :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST prep
-        WHERE prep.company EQ cocode
-          AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-    IF AVAIL prep THEN DO:
-      inv-misc.tax:SCREEN-VALUE = STRING(prep.taxable).
-      inv-misc.dscr:SCREEN-VALUE IN BROWSE {&browse-name} = prep.dscr.
-
-      FIND FIRST account
-          WHERE account.company EQ prep.company
-            AND account.actnum  EQ prep.actnum
-            AND account.type    EQ "R"
-          NO-LOCK NO-ERROR.
-       IF AVAIL account THEN inv-misc.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = prep.actnum.
-       RUN new-comm (0).
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-comm B-table-Win 
-PROCEDURE new-comm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR ld AS DEC NO-UNDO.
-  DEF VAR lv AS CHAR NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST prep
-        WHERE prep.company EQ inv-head.company 
-          AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-  IF AVAILABLE prep AND prep.commissionable THEN 
-        DO:
-
-    DO li = 1 TO IF ip-int EQ 0 THEN 3 ELSE ip-int:
-      lv = IF li EQ 1 THEN inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} ELSE
-           IF li EQ 2 THEN inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} ELSE
-                           inv-misc.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-      IF lv NE "" THEN DO:
-        RUN sys/inc/getsmncm.p (inv-head.cust-no,
-                                INPUT-OUTPUT lv,
-                                IF AVAIL prep THEN prep.fgcat ELSE "",
-                                0,
-                                OUTPUT ld).          
-
-        CASE li:
-          WHEN 1 THEN inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
-          WHEN 2 THEN inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
-          WHEN 3 THEN inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
-        END CASE.
-      END.
-    END.
-   END.  /*IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN do:  */           
-   ELSE
-       ASSIGN 
-           inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = '0'
-           inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = '0'
-           inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = '0'
-           . 
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-s-man B-table-Win 
-PROCEDURE new-s-man :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    lv-sman = IF ip-int EQ 3 THEN inv-misc.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} 
-              ELSE
-              IF ip-int EQ 2 THEN inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name}
-                             ELSE inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-    IF lv-sman NE "" THEN DO:
-      FIND FIRST sman
-          WHERE sman.company EQ cocode
-            AND sman.sman    EQ lv-sman
-          NO-LOCK NO-ERROR.
-      IF AVAIL sman THEN DO:
-          FIND FIRST prep NO-LOCK
-              WHERE prep.company EQ cocode 
-              AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-              NO-ERROR.
-        IF ip-int EQ 3 THEN DO:
-          IF DEC(inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DEC(inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
-              IF AVAILABLE prep AND prep.commissionable THEN 
-                  inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-          END.
-          RUN new-comm (3).
-        END.
-        ELSE
-        IF ip-int EQ 2 THEN DO:
-          IF DEC(inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DEC(inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
-              IF AVAILABLE prep AND prep.commissionable THEN 
-                  inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-          END.
-          RUN new-comm (2).
-        END.
-        ELSE DO:
-          IF DEC(inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DEC(inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
-              IF AVAILABLE prep AND prep.commissionable THEN 
-                  inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-          END.
-          RUN new-comm (1).
-        END.
-      END.
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE refresh-value B-table-Win 
 PROCEDURE refresh-value :
@@ -1232,6 +713,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query B-table-Win 
+PROCEDURE reopen-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+
+  RUN dispatch ('open-query').
+
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    RUN dispatch ('row-changed').
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -1247,310 +750,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-actnum B-table-Win 
-PROCEDURE valid-actnum :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST account WHERE account.company EQ cocode
-                                    AND account.actnum  EQ inv-misc.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
-                                    /*AND account.type    EQ "R"*/) THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO inv-misc.actnum IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-charge B-table-Win 
-PROCEDURE valid-charge :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" /*OR 
-       NOT CAN-FIND(FIRST prep WHERE prep.company EQ cocode
-                                 AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name})*/
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO inv-misc.charge IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est B-table-Win 
-PROCEDURE valid-est :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
-  DEF VAR lv-est-no LIKE oe-ordm.est-no NO-UNDO.
-  DEF BUFFER bf-inv-line FOR inv-line .
- DO WITH FRAME {&FRAME-NAME}:
-  IF AVAIL inv-misc THEN do:
-    ASSIGN 
-        lv-est-no = TRIM(inv-misc.est-no:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-est-no = FILL(" ", 8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
-     inv-misc.est-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-est-no.
-
-   IF inv-misc.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN do:
-    FIND FIRST bf-inv-line WHERE bf-inv-line.company EQ inv-misc.company
-        AND bf-inv-line.r-no EQ inv-misc.r-no 
-       AND bf-inv-line.est-no EQ inv-misc.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
-
-        IF NOT AVAIL bf-inv-line THEN DO:
-            MESSAGE "Estimate is not on Invoice..."
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO ip-focus.
-            RETURN ERROR.
-        END.
-   END.
-  END.
- END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-i-no B-table-Win 
-PROCEDURE valid-inv-i-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-job-no LIKE job.job-no NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     lv-job-no = inv-misc.inv-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
-     inv-misc.inv-i-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
-
-    IF lv-job-no NE "" THEN DO:
-      FIND FIRST job
-          WHERE job.company EQ cocode
-            AND job.job-no  EQ lv-job-no
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL job THEN DO:
-        MESSAGE TRIM(inv-misc.inv-i-no:LABEL IN BROWSE {&browse-name}) +
-                " is invalid..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO inv-misc.inv-i-no IN BROWSE {&browse-name}.
-        RETURN ERROR.
-      END.
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-line B-table-Win 
-PROCEDURE valid-inv-line :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-job-no LIKE job.job-no NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     lv-job-no = inv-misc.inv-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
-     inv-misc.inv-i-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
-
-    IF lv-job-no NE "" THEN DO:
-      FIND FIRST job
-          WHERE job.company EQ cocode
-            AND job.job-no  EQ lv-job-no
-            AND job.job-no2 EQ INT(inv-misc.inv-line:SCREEN-VALUE IN BROWSE {&browse-name})
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL job THEN DO:
-        MESSAGE TRIM(inv-misc.inv-i-no:LABEL IN BROWSE {&browse-name}) +
-                " is invalid..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO inv-misc.inv-line IN BROWSE {&browse-name}.
-        RETURN ERROR.
-      END.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no-po B-table-Win 
-PROCEDURE valid-po-no-po :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INT(inv-misc.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
-       NOT CAN-FIND(FIRST po-ord
-                    WHERE po-ord.company EQ inv-head.company 
-                      AND po-ord.po-no   EQ INT(inv-misc.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO inv-misc.po-no-po IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-man B-table-Win 
-PROCEDURE valid-s-man :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
-
-
-  li = ip-int.
-
-  IF li EQ 0 THEN
-    ASSIGN
-     ip-int = 1
-     li     = 3.
-
-  DO ip-int = ip-int TO li WITH FRAME {&FRAME-NAME}:
-    lv-sman = IF ip-int EQ 3 THEN inv-misc.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name}
-              ELSE
-              IF ip-int EQ 2 THEN inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name}
-                             ELSE inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
-    
-    IF lv-sman NE "" THEN DO:
-      IF NOT CAN-FIND(FIRST sman
-                      WHERE sman.company EQ cocode
-                        AND sman.sman    EQ lv-sman) THEN DO:
-        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
-        IF ip-int EQ 3 THEN APPLY "entry" TO inv-misc.s-man[3] IN BROWSE {&browse-name}.
-        ELSE
-        IF ip-int EQ 2 THEN APPLY "entry" TO inv-misc.s-man[2] IN BROWSE {&browse-name}.
-                       ELSE APPLY "entry" TO inv-misc.s-man[1] IN BROWSE {&browse-name}.
-        RETURN ERROR.
-      END.
-    END.
-
-    ELSE DO:
-      IF ip-int EQ 3 THEN
-        ASSIGN
-         inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}  = "0"
-         inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-      ELSE
-      IF ip-int EQ 2 THEN
-        ASSIGN
-         inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}  = "0"
-         inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-      ELSE
-        ASSIGN
-         inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}  = "0"
-         inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-pct B-table-Win 
-PROCEDURE valid-s-pct :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-  DEF VAR ld-pct AS DEC NO-UNDO.
-
-   
-  DO WITH FRAME {&FRAME-NAME}:
-    ld-pct = IF ip-int EQ 1 THEN DEC(inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE
-             IF ip-int EQ 2 THEN DEC(inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE
-             IF ip-int EQ 3 THEN DEC(inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE (DEC(inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) +
-                   DEC(inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) +
-                   DEC(inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})).
-
-    IF (inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
-        inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
-        inv-misc.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} NE "")   AND
-       ((ip-int EQ 0 AND ld-pct LT 100) OR
-        (ip-int NE 0 AND ld-pct GT 100)) THEN DO:
-      MESSAGE "% of Sales for all sales reps must total 100..." VIEW-AS ALERT-BOX INFO.
-      IF ip-int EQ 3 THEN APPLY "entry" TO inv-misc.s-pct[3] IN BROWSE {&browse-name}.
-      ELSE
-      IF ip-int EQ 2 THEN APPLY "entry" TO inv-misc.s-pct[2] IN BROWSE {&browse-name}.
-                     ELSE APPLY "entry" TO inv-misc.s-pct[1] IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax B-table-Win 
-PROCEDURE valid-tax :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF inv-misc.tax:SCREEN-VALUE IN BROWSE {&browse-name} EQ "Y" AND
-       inv-head.tax-gr EQ ""                                     THEN DO:
-      MESSAGE "Invoice has no tax group! " VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO inv-misc.tax.
-      RETURN ERROR.     
-    END.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1581,56 +780,106 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-gr V-table-Win 
-PROCEDURE valid-tax-gr :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord V-table-Win 
+PROCEDURE pUpdateRecord :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF inv-misc.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-       NOT CAN-FIND(FIRST stax
-                    WHERE stax.company   EQ cocode
-                      AND stax.tax-group EQ inv-misc.spare-char-1:SCREEN-VALUE)
-    THEN DO:
-      MESSAGE TRIM(inv-misc.spare-char-1:LABEL) + " is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO inv-misc.spare-char-1.
-      RETURN ERROR.
-    END.
-  END.
-
-  {methods/lValidateError.i NO}
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+    IF AVAIL inv-misc THEN do:
+        RUN oe/d-inmisc.w (ROWID(inv-misc),ROWID(inv-head), "update", OUTPUT lv-rowid) .
+        RUN reopen-query (lv-rowid).
+   END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-/* ************************  Function Implementations ***************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyRecord V-table-Win 
+PROCEDURE pCopyRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE z AS INTEGER NO-UNDO.
+   DEFINE BUFFER bf-misc FOR inv-misc.
+   DEFINE BUFFER bf-inv-misc FOR inv-misc.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxableMisc V-table-Win
-FUNCTION fGetTaxableMisc RETURNS LOGICAL 
-  ( ipcCompany AS CHARACTER,
-    ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER, 
-    ipcPrepCode AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+   IF AVAIL inv-head AND AVAIL inv-misc THEN do:
 
-    IF NOT VALID-HANDLE(hdTaxProcs) THEN 
-        RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
- 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+       FIND LAST bf-misc WHERE bf-misc.r-no = inv-head.r-no NO-LOCK NO-ERROR.
+       z = IF AVAIL bf-misc THEN bf-misc.LINE + 1 ELSE 1.
 
-END FUNCTION.
-	
+       CREATE bf-inv-misc.
+       BUFFER-COPY inv-misc EXCEPT rec_key line TO bf-inv-misc.
+       bf-inv-misc.line = z .
+
+       RUN oe/d-inmisc.w (ROWID(bf-inv-misc), ROWID(inv-head), "Copy",OUTPUT lv-rowid).
+        FIND FIRST bf-inv-misc NO-LOCK
+            WHERE rowid(bf-inv-misc) EQ  lv-rowid  NO-ERROR .
+        IF AVAIL bf-inv-misc THEN
+            RUN reopen-query (lv-rowid).
+   END.
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord V-table-Win 
+PROCEDURE pViewRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+   IF AVAIL inv-misc THEN do:
+       RUN oe/d-inmisc.w (ROWID(inv-misc),ROWID(inv-head), "view", OUTPUT lv-rowid) .
+       RUN reopen-query (lv-rowid).
+   END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord V-table-Win 
+PROCEDURE pAddRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE BUFFER bf-inv-misc FOR inv-misc.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+  
+  IF AVAILABLE inv-head THEN DO:
+
+      RUN oe/d-inmisc.w (?, ROWID(inv-head), "add",OUTPUT lv-rowid).
+
+      FIND FIRST bf-inv-misc  NO-LOCK
+          WHERE bf-inv-misc.company EQ inv-head.company
+          AND ROWID(bf-inv-misc) EQ  lv-rowid NO-ERROR .
+           
+      IF AVAIL bf-inv-misc THEN DO:
+          RUN reopen-query (lv-rowid).
+      END.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
