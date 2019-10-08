@@ -112,7 +112,6 @@ DEFINE RECTANGLE RECT-17
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
     SIZE 89 BY 8.57.
 
-
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
@@ -146,7 +145,6 @@ DEFINE FRAME FRAME-B
     AT COL 1 ROW 1
     SIZE 89.2 BY 3.81
     BGCOLOR 11 .
-
 
 /* *********************** Procedure Settings ************************ */
 

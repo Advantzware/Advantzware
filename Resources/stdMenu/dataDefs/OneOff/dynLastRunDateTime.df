@@ -1,0 +1,23 @@
+ADD FIELD "lastRunDateTime" OF "dynParamValue" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Last Run Date/Time"
+  POSITION 38
+  MAX-WIDTH 8
+  HELP "Enter Last Run Date/Time"
+  ORDER 350
+
+ADD FIELD "lastRunDateTime" OF "dynSubject" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Last Run Date/Time"
+  POSITION 19
+  MAX-WIDTH 8
+  HELP "Enter Last Run Date/Time"
+  ORDER 150
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000012918
