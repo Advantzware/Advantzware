@@ -69,6 +69,9 @@ DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lARAutoReleaseCreditHold AS LOGICAL NO-UNDO .
 
 DO TRANSACTION:
   {sys/inc/postdate.i}
@@ -85,6 +88,12 @@ find first sys-ctrl
           and sys-ctrl.name    eq "INVPRINT"
         no-lock no-error.
 v-print-fmt = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "ARAutoReleaseCreditHold", "L" /* Logical */, NO /* check by cust */, 
+                          INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+   IF lRecFound THEN
+       lARAutoReleaseCreditHold = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1411,7 +1420,7 @@ END PROCEDURE.
              ASSIGN lRelHold = YES . 
          ELSE lRelHold = NO .
 
-              IF lRelHold THEN  DO:  
+              IF lRelHold AND lARAutoReleaseCreditHold THEN  DO:  
                   ASSIGN cust.cr-hold = NO .
                   
                   FOR EACH oe-ord EXCLUSIVE-LOCK
