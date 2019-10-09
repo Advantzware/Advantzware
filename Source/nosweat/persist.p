@@ -159,8 +159,9 @@ PROCEDURE Get_Procedure :
     IF NOT SESSION:BATCH-MODE THEN
         RUN Set_Cursor ("WAIT").
   
-    FIND buf-prgrms NO-LOCK WHERE buf-prgrms.prgmname = proc-name NO-ERROR.
-
+    FIND FIRST buf-prgrms NO-LOCK
+         WHERE buf-prgrms.prgmname EQ proc-name
+         NO-ERROR.
     IF AVAILABLE buf-prgrms THEN DO:
         run-proc = buf-prgrms.dir_group + "/" + proc-name + "r".
         IF SEARCH(run-proc) EQ ? THEN
@@ -218,9 +219,10 @@ PROCEDURE Get_Procedure :
                 ELSE RUN VALUE(run-proc).
                 RUN running_procedures(run-proc, OUTPUT lDummy).
                 run-proc = "".
-            END.
-        END.
-    END.
+            END. /* if run-now */
+            RUN spTtPermissions (ROWID(buf-prgrms)).
+        END. /* else do */
+    END. /* avail buf-prgrms */
     ELSE IF NOT SESSION:BATCH-MODE THEN DO:
         RUN Set_Cursor ("").
         MESSAGE "Program :" proc-name SKIP(1)

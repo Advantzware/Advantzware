@@ -78,7 +78,8 @@ DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
-
+DEFINE        VARIABLE dRoundup      AS DECIMAL   NO-UNDO .
+DEFINE        VARIABLE dLineHeight   AS DECIMAL   NO-UNDO .
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
 DEFINE BUFFER b-rt              FOR reftable.
@@ -326,6 +327,7 @@ DO v-local-loop = 1 TO v-local-copies:
               DO:
                   PUT SKIP(1)
                       "<=BoxImageStart>"   .
+                  PUT "<R22><P10><C43>MACHINE DIRECTION<-------  <P8>" .
                   RUN cec/desprntL20.p (RECID(xef),
                       INPUT-OUTPUT v-lines,
                       RECID(xest),
@@ -371,7 +373,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=QuantityStart><R+5><RIGHT=C+10>Set Quantity: <#SetQuantity> "
             "<=QuantityStart><R+6><RIGHT=C+10>Parts Per Set: <#QtyPerSet>"
             /*"<=BoardStart><R+1><RIGHT=C+5>Board: <#Board>"*/
-              "<=BoardStart><R+2><RIGHT=C+13><b>Qty Off Panel Line: </b> <#SheetsRequired>"
+              "<=BoardStart><R+2><RIGHT=C+18><b>CUTS OFF PANEL LINE: </b> <#SheetsRequired>"
 /*              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"*/
               /*"<=BoardStart><R+3><RIGHT=C+5>Size: <#SheetsSize>"*/
              /* "<=BoardStart><R+3><RIGHT=C+23>MSF: <#SheetsMSF>"*/
@@ -795,8 +797,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+12><#SpecNotes4>"
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
-              "<=NotesStart><R+27><RIGHT=C+35>Core Cart #: "
-             
+              
               "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
               "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
@@ -811,7 +812,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
-              PUT "<R48><C45>MACHINE DIRECTION<-------  " .
+              PUT "<R45><C82><P10><b>Core Cart #: <P8></b>" .
         
         PAGE.
 
@@ -838,6 +839,9 @@ DO v-local-loop = 1 TO v-local-copies:
        IF AVAILABLE bf-eb  THEN
            FIND FIRST stackPattern NO-LOCK 
             WHERE stackPattern.stackcode EQ bf-eb.stack-code NO-ERROR .
+
+       dRoundup = job-hdr.qty / bf-eb.tr-cnt . 
+       {sys/inc/roundup.i dRoundup} 
 
         PUT  "<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
@@ -937,7 +941,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingBL><FROM><R49><C108><RECT><|1> "
              
               "<=Pallet>" IF AVAILABLE bf-eb THEN bf-eb.tr-no ELSE "" FORMAT "x(10)" SPACE(3) 
-              "<=OfUnits>" SPACE(1) TRIM(STRING(job-hdr.qty / bf-eb.tr-cnt,">>>>>>>9")) FORMAT "x(10)"
+              "<=OfUnits>" SPACE(1) TRIM(STRING(dRoundup,">>>>>>>9")) FORMAT "x(10)"
               "<=PalletLength>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
               "<=PalletWidth>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
               "<B>"
@@ -976,31 +980,31 @@ DO v-local-loop = 1 TO v-local-copies:
                 PUT "<R16><C70><b>                             Operator  </b>" .
                 PUT "<R17><C70><b> Machine              Initials                      Frequency              Quantity <b>" .
 
-            j = 17 .
-            DO i = 1 TO 12:
-                j = j + 1. 
-                PUT "<FArial><=5><R" STRING(j) "><C68><FROM><R+1><C78><RECT> ". 
-                PUT "<FArial><=5><R" STRING(j) "><C78><FROM><R+1><C88><RECT> " .
-                PUT "<FArial><=5><R" STRING(j) "><C88><FROM><R+1><C98><RECT> " .
-                PUT "<FArial><=5><R" STRING(j) "><C98><FROM><R+1><C107><RECT> " SKIP.
+            dLineHeight = 16.5 .
+            DO i = 1 TO 11:
+                dLineHeight = dLineHeight + 1.5  . 
+                PUT "<FArial><=5><R" STRING(dLineHeight) "><C68><FROM><R+1.5><C78><RECT> ". 
+                PUT "<FArial><=5><R" STRING(dLineHeight) "><C78><FROM><R+1.5><C88><RECT> " .
+                PUT "<FArial><=5><R" STRING(dLineHeight) "><C88><FROM><R+1.5><C98><RECT> " .
+                PUT "<FArial><=5><R" STRING(dLineHeight) "><C98><FROM><R+1.5><C107><RECT> " SKIP.
              END. /* i 1 to 12*/
 
 
-             PUT "<R31><C70><b> Strapper Qc   ________________" .
-             PUT "<R32><C70><b> Shipper Qc    ________________" .
-             PUT "<FArial><=51><R34><C68><FROM><R+1><C78><RECT> ". 
-                   PUT "<FArial><=51><R34><C78><FROM><R+1><C88><RECT> " .
-                   PUT "<FArial><=51><R34><C88><FROM><R+1><C98><RECT> " .
-                   PUT "<FArial><=51><R34><C98><FROM><R+1><C107><RECT> " SKIP .
-                   PUT "<R34><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
+             PUT "<R37><C70><b> Strapper Qc   ________________" .
+             PUT "<R38><C70><b> Shipper Qc    ________________" .
+             PUT "<FArial><=51><R40><C68><FROM><R+1><C78><RECT> ". 
+                   PUT "<FArial><=51><R40><C78><FROM><R+1><C88><RECT> " .
+                   PUT "<FArial><=51><R40><C88><FROM><R+1><C98><RECT> " .
+                   PUT "<FArial><=51><R40><C98><FROM><R+1><C107><RECT> " SKIP .
+                   PUT "<R40><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
 
-               j = 34 .
-               DO i = 1 TO 12:
-                   j = j + 1. 
-                   PUT "<FArial><=5><R" STRING(j) "><C68><FROM><R+1><C78><RECT> ". 
-                   PUT "<FArial><=5><R" STRING(j) "><C78><FROM><R+1><C88><RECT> " .
-                   PUT "<FArial><=5><R" STRING(j) "><C88><FROM><R+1><C98><RECT> " .
-                   PUT "<FArial><=5><R" STRING(j) "><C98><FROM><R+1><C107><RECT> " SKIP.
+               dLineHeight = 39.5 .
+               DO i = 1 TO 4:
+                   dLineHeight = dLineHeight + 1.5 . 
+                   PUT "<FArial><=5><R" STRING(dLineHeight) "><C68><FROM><R+1.5><C78><RECT> ". 
+                   PUT "<FArial><=5><R" STRING(dLineHeight) "><C78><FROM><R+1.5><C88><RECT> " .
+                   PUT "<FArial><=5><R" STRING(dLineHeight) "><C88><FROM><R+1.5><C98><RECT> " .
+                   PUT "<FArial><=5><R" STRING(dLineHeight) "><C98><FROM><R+1.5><C107><RECT> " SKIP.
                 END. /* i 1 to 12*/
 
 

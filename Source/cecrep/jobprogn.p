@@ -678,7 +678,8 @@ do v-local-loop = 1 to v-local-copies:
 
               SKIP                            
               SUBSTRING(v-len-score,ind-j + 1,36) AT 3 FORM "x(36)"              
-              "PM:" AT 39 v-dept-note[42] FORMAT "x(30)"
+              /*"PM:" AT 39 v-dept-note[42] FORMAT "x(30)"*/
+              "CSR:" AT 39 job.csrUser_id FORMAT "x(30)"
               "Impressions:" AT 80 trim(string(v-dc-qty))    format "x(7)" "   Die Inch:" xef.die-in SKIP
               WITH FRAME job1 NO-LABEL NO-BOX WIDTH 200 STREAM-IO.                
         
@@ -990,11 +991,8 @@ do v-local-loop = 1 to v-local-copies:
                 "<C30>" v-dept-note[2] "<=11><R+4>" SKIP                 
                 .
               
-            /*run cec/desprntL.p (recid(xef),
-                               input-output v-lines,
-                               recid(xest)).            */
             v-out1-id = RECID(xeb).
-            run cec/desprnL2.p (recid(xef),
+            run cec/desprnPro.p (recid(xef),
                                input-output v-lines,
                                recid(xest)).   
             PAGE.

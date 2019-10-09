@@ -337,9 +337,15 @@ PROCEDURE pRunSubject :
     SESSION:SET-WAIT-STATE("General").
     IF AVAILABLE dynParamValue THEN
     DO TRANSACTION:
+        FIND CURRENT dynSubject EXCLUSIVE-LOCK.
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
-        dynParamValue.outputFormat = ipcType.
+        ASSIGN
+            dynParamValue.outputFormat    = ipcType
+            dynParamValue.lastRunDateTime = NOW
+            dynSubject.lastRunDateTime    = NOW
+            .
         FIND CURRENT dynParamValue NO-LOCK.
+        FIND CURRENT dynSubject NO-LOCK.
     END. /* do trans */
     RUN pSetDynParamValue (dynSubject.subjectID, ipcUserID, ipcPrgmName, 0).
     IF iplRun THEN

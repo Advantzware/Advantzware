@@ -24,7 +24,10 @@ DEFINE VARIABLE dQtyTotal  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cQtyHash   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iQtyHash   AS INTEGER NO-UNDO.
 DEFINE VARIABLE cXMLOutputfile AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cXMLOutputTmp AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFullLine AS CHARACTER NO-UNDO.
+DEFINE STREAM s1.
+DEFINE STREAM s2.
 
     
 FUNCTION getDate RETURNS CHARACTER (ipDate AS DATE):
@@ -36,6 +39,17 @@ FUNCTION getDate RETURNS CHARACTER (ipDate AS DATE):
             + string(MONTH(ipDate), "99")
             + string(DAY(ipDate), "99").
   RETURN cDate.
+END FUNCTION.
+
+FUNCTION getTime RETURNS CHARACTER (ipTime AS INTEGER):
+  DEFINE VARIABLE cTime AS CHARACTER.
+  IF ipTime EQ ? THEN 
+    cTime = "0100".
+  ELSE 
+    ASSIGN cTime = STRING(ipTime, "HH:MM") 
+           cTime = SUBSTRING(cTime, 1, 2)
+                     +  SUBSTRING(cTime, 4, 2).
+  RETURN cTime.
 END FUNCTION.
 
 FUNCTION numericPart RETURNS INTEGER (ipcNumStr AS CHARACTER):
@@ -66,12 +80,13 @@ IF AVAILABLE edmast THEN
 cXMLOutputfile = (IF AVAILABLE edcode AND edcode.path-out GT "" THEN EDCode.Path-out ELSE "c:\tmp:\").
 IF SUBSTRING(cXmlOutputFile, LENGTH(cXmlOutputFile), 1) NE "\" THEN 
   cXmlOutputFile = cXmloutputFile + "\".
+cXMLOutputTmp  = cXmlOutputFile + "GE856_BOL#_" + string(ipBOLNumber) + ".tmp".
 cXmlOutputfile = cXmlOutputFile + "GE856_BOL#_" + string(ipBOLNumber) + ".xml".
     
 CREATE SAX-WRITER hSAXWriter.
 hSAXWriter:FORMATTED = TRUE.
 
-lOK = hSAXWriter:SET-OUTPUT-DESTINATION("file", cXmlOutputfile).
+lOK = hSAXWriter:SET-OUTPUT-DESTINATION("file", cXmlOutputTmp).
 lOK = hSAXWriter:START-DOCUMENT( ).
 lOK = hSAXWriter:START-ELEMENT("TransactionSet").
 iHlCnt = 0.
@@ -94,6 +109,7 @@ FOR EACH edshtran WHERE edshTran.seq = ipSeq:
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("BSN01", "00")
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("BSN02", STRING(edShTran.bol-no))
     lOK = hSAXWriter:WRITE-DATA-ELEMENT("BSN03", getDate(TODAY))
+    lOK = hSAXWriter:WRITE-DATA-ELEMENT("BSN04", getTime(TIME))
     lOK = hSAXWriter:END-ELEMENT("BSN")
     
     lOK = hSAXWriter:START-ELEMENT("DTM")
@@ -260,3 +276,16 @@ lOK = hSAXWriter:END-ELEMENT("TransactionSet").
 lOK = hSAXWriter:END-DOCUMENT( ).
 
 DELETE OBJECT hSAXWriter.
+
+INPUT STREAM s1 FROM VALUE(cXMLOutputTmp).
+OUTPUT STREAM s2 TO VALUE(cXMLOutputFile).
+/* Skip the XML tag on the first line for RSSBus Compatibility */
+IMPORT STREAM s1 UNFORMATTED cFullLine.
+REPEAT:
+    IMPORT STREAM s1 UNFORMATTED cFullLine.
+    PUT STREAM s2 UNFORMATTED cFullLine SKIP.
+END.
+INPUT STREAM s1 CLOSE.
+OUTPUT STREAM s2 CLOSE.
+OS-DELETE VALUE(cXMLOutputTmp).
+

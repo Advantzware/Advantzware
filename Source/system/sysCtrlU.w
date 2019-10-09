@@ -76,7 +76,7 @@ SESSION:SET-WAIT-STATE ("").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnClearSysCtrlUsage btnStackTrace ~
-sysCtrlUsage 
+btnPermissions sysCtrlUsage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -98,6 +98,10 @@ DEFINE BUTTON btnAPIConfig
 
 DEFINE BUTTON btnClearSysCtrlUsage 
      LABEL "Clear SysCtrl Usage" 
+     SIZE 24 BY 1.
+
+DEFINE BUTTON btnPermissions 
+     LABEL "Permissions" 
      SIZE 24 BY 1.
 
 DEFINE BUTTON btnStackTrace 
@@ -126,6 +130,7 @@ DEFINE FRAME DEFAULT-FRAME
      btnClearSysCtrlUsage AT ROW 1 COL 1 WIDGET-ID 2
      btnStackTrace AT ROW 1 COL 26 WIDGET-ID 4
      btnAPIConfig AT ROW 1 COL 51 WIDGET-ID 6
+     btnPermissions AT ROW 1 COL 76 WIDGET-ID 8
      sysCtrlUsage AT ROW 1.95 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -178,7 +183,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB sysCtrlUsage btnAPIConfig DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlUsage btnPermissions DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnAPIConfig IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -259,6 +264,18 @@ ON CHOOSE OF btnClearSysCtrlUsage IN FRAME DEFAULT-FRAME /* Clear SysCtrl Usage 
 DO:
     DYNAMIC-FUNCTION("sfClearTtSysCtrlUsage").
     RUN pGetSysCtrlUsage.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPermissions
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPermissions C-Win
+ON CHOOSE OF btnPermissions IN FRAME DEFAULT-FRAME /* Permissions */
+DO:  
+    RUN system/permissions.w.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,7 +375,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnClearSysCtrlUsage btnStackTrace sysCtrlUsage 
+  ENABLE btnClearSysCtrlUsage btnStackTrace btnPermissions sysCtrlUsage 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

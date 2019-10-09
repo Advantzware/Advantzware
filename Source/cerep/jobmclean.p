@@ -273,6 +273,9 @@ DEFINE        VARIABLE dRunCrew          AS DECIMAL   NO-UNDO .
 DEFINE        VARIABLE dBeginQty         AS INTEGER   NO-UNDO .
 DEFINE VARIABLE iYieldQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE iDisYieldQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE iEbTotalYldQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE iEbTotalblQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE iEbTotalUpQty AS INTEGER NO-UNDO .
 DEFINE SHARED VARIABLE s-prt-fgimage     AS LOG       NO-UNDO.
 DEFINE BUFFER bf-ttSoule FOR ttSoule .
 
@@ -543,12 +546,12 @@ FOR EACH job-hdr NO-LOCK
 
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         ELSE PUT SKIP
-                "<FCalibri><B>   MCLEAN PACKAGING INC. </B><P10>"
+                "<FCalibri><B><C2>MCLEAN PACKAGING INC. </B><P10>"
                 "<C30><B><P11>Factory Order: <P11>" (IF cRdOptionMclean EQ "M" THEN "Moorestown" ELSE "Nazareth") FORMAT "x(12)"  "<C65>Report Date: " TODAY "</B><P10>" SKIP
                 v-fill SKIP.
 
-        PUT "   <B>Customer:<P10>" v-cust-name  "<P10>"
-            "<B><C43>Delivery Date: " ( IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  "<C68>Order # :" TRIM(STRING(iOrderNo,">>>>>>9")) FORMAT "x(8)" SKIP
+        PUT "<C2><B>Customer:<P10>" v-cust-name  "<P10>"
+            "<B><C39>Delivery Date: " ( IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  "<C68>Order # :" TRIM(STRING(iOrderNo,">>>>>>9")) FORMAT "x(8)" SKIP
             "  " cLabelSetItem FORMAT "x(14)" cSetItemName FORMAT "x(15)"  .
        
         PUT "<C68>Job #: </B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
@@ -1133,25 +1136,34 @@ FOR EACH job-hdr NO-LOCK
 
                             IF FIRST-OF(eb.form-no) THEN 
                             DO:
-                                k = 1 .
-                                PUT "<||><R+0><C2><#5><FROM><R+1><C10><RECT>" SKIP.
+                                ASSIGN iEbTotalYldQty = 0
+                                       iEbTotalblQty  = 0
+                                       iEbTotalUpQty  = 0 .
 
-                                PUT "<=5><P10><B> Form " TRIM(STRING(eb.form-no,"99")) "<P10><C12>Customer Part: </B>" eb.part-no FORMAT "x(15)"   "<C40><b>FG#: </b>" eb.stock-no     "<C75><B><P10>QTY:" TRIM(STRING(bf-jobhdr.qty))  "</B>" SKIP.
-                                
+                                FOR EACH bff-eb NO-LOCK
+                                    WHERE bff-eb.est-no EQ eb.est-no
+                                      AND bff-eb.form-no EQ eb.form-no ,
+                                    FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
+                                     AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
+                                    AND  bf-ttSoule.runForm EQ YES NO-LOCK :
+                                    ASSIGN
+                                        iEbTotalYldQty = iEbTotalYldQty + bff-eb.yld-qty
+                                        iEbTotalblQty  = iEbTotalblQty + bff-eb.bl-qty
+                                        iEbTotalUpQty  = iEbTotalUpQty + bff-eb.num-up  .
+                                END.
+
+
+                                k = 1 .
                                 PUT 
-                                    "<P10> <C12>Descr.: </b>" eb.part-dscr1 FORMAT "x(30)"  "<C40><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
-                                    "<C62><b>#Out:</b>" ef.n-out "<C71><b>Xgrain:</b>" (IF ef.xgrain EQ "N" THEN "Normal" ELSE IF ef.xgrain EQ "B" THEN "Blank" ELSE "Sheet")  SKIP
-             
-                                    "<C2>" "<C12><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-name ELSE "") FORMAT "x(30)" 
-                                    "<C40><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C69><b>Cad Id: </b>" eb.cad-no FORMAT "x(12)" SKIP
-                                    "<C12><b>Adhesive: </b>" eb.adhesive FORMAT "x(15)"  
-                                    "<C40><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C62><b>#Up:</b>" eb.num-up 
-                                    "<C69><b>Plate#: </b>" eb.plate-no FORMAT "x(12)" SKIP
-                                    "<C40><b>Blank:</b>" eb.t-wid FORMAT ">>9.9999" SPACE(3) eb.t-len FORMAT ">>9.9999" SPACE(3) /*eb.t-sqin FORMAT ">>9.9999"*/
-                                    "<C69>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP .
+                                    "<P10><C30><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
+                                    "<C54><b># Out:</b>" ef.n-out  "<C66><b>Total Yield Qty: </b>" STRING(iEbTotalYldQty) SKIP
+                                    "<C2><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-name ELSE "") FORMAT "x(20)"
+                                    "<C30><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C66><b>Total Req. Qty: </b>" STRING(iEbTotalblQty)  SKIP
+                                    "<C30><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C54><b>Total # Up: </b>" STRING(iEbTotalUpQty)  
+                                     "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP(1) .
                                 
-                                PUT "<b><C5>Operation             <c22>R Crw.  <c29>R Hrs.    <c35>MR Crw.   <c42>MR Hrs.   <c50>Speed    <c55.5>Mr Wst.   <c63.5>R Wst.  <c70>Beginning   <c79>Yield </b>" SKIP
-                                    v-fill2 SKIP .
+                                PUT "<b><C2>Operation             <c20>R Crw.  <c27>R Hrs.    <c33>MR Crw.   <c40>MR Hrs.   <c48>Speed    <c53.5>Mr Wst.   <c61.5>R Wst.  <c68>Beginning   <c77>Yield </b>" SKIP
+                                    v-fill SKIP .
 
                                 IF LINE-COUNTER > 70 THEN 
                                     DO:
@@ -1253,19 +1265,19 @@ FOR EACH job-hdr NO-LOCK
                                           iYieldQty =   wrk-op.num-sh[wrk-op.s-num]  * wrk-op.waste-per[wrk-op.s-num] / 100 .
                                           iDisYieldQty = wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num] - iYieldQty .
                                         END.
-
-                                        PUT "<C5>" wrk-op.m-dscr   SPACE(1)
-                                            "<C22>" dRunCrew FORMAT ">>>9.99"   
-                                            "<C29>" wrk-op.run-hr[wrk-op.s-num]    
-                                            "<C36>" dMRCrew FORMAT ">>>9.99"   
-                                            "<C43>" wrk-op.mr[wrk-op.s-num]         
-                                            "<C50>" wrk-op.speed[wrk-op.s-num]      
-                                            "<C57>" wrk-op.mr-waste[wrk-op.s-num]   
-                                            "<C64>" dRunWaste FORMAT ">>>>.99" 
-                                            "<C71>" wrk-op.num-sh[wrk-op.s-num] FORMAT ">>>>>>>9"   
-                                            "<C78>" iDisYieldQty FORMAT ">>>>>>>9" SKIP.
+                                        dRunWaste = (wrk-op.speed[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num]) * wrk-op.waste-per[wrk-op.s-num] / 100 .
+                                        PUT "<C2>" wrk-op.m-dscr   SPACE(1)
+                                            "<C20>" dRunCrew FORMAT ">>>9.99"   
+                                            "<C27>" wrk-op.run-hr[wrk-op.s-num]    
+                                            "<C34>" dMRCrew FORMAT ">>>9.99"   
+                                            "<C41>" wrk-op.mr[wrk-op.s-num]         
+                                            "<C48>" wrk-op.speed[wrk-op.s-num]      
+                                            "<C55>" wrk-op.mr-waste[wrk-op.s-num]   
+                                            "<C62>" dRunWaste FORMAT ">>>>.99" 
+                                            "<C69>" wrk-op.num-sh[wrk-op.s-num] FORMAT ">>>>>>>9"   
+                                            "<C76>" iDisYieldQty FORMAT ">>>>>>>9" SKIP.
                                     END.
-                                    ELSE PUT SPACE(10) "  " wrk-op.m-dscr   SPACE(3) SKIP .
+                                    ELSE PUT "<C2>" wrk-op.m-dscr   SPACE(3) SKIP .
                                     i = i + 1.
                     
                                     IF LINE-COUNTER > 70 THEN 
@@ -1275,13 +1287,32 @@ FOR EACH job-hdr NO-LOCK
                                     END.
                                     FIND NEXT tt-size USE-INDEX tt-size WHERE tt-size.frm = int(tt-reftable.val[12]) NO-LOCK NO-ERROR.
                                 END. /* each wrk-op*/
-                            
-                            PUT "<||3><C15><FROM><C83><LINE><||3>"
-                                "<C18>Packing: " Eb.cas-no FORMAT "x(15)"  "<C48>Shipped As: " eb.tr-no FORMAT "x(15)" SKIP
-                                "<c18>Size: " STRING(eb.cas-len,"99.9999") SPACE(2) STRING(eb.cas-wid,"99.9999") SPACE(2) STRING(eb.cas-dep,"99.9999")
-                                "<C48>Ctn./Bdl.Per: " STRING(eb.cas-pal) SKIP
-                                "<C18>Count: " STRING(eb.tr-cnt) "<C48>Label: " (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" ) SKIP 
-                                /*"<C18>P.O.#: " STRING(iBoardPO) "<C28>Due: " (IF dtPoDueDate NE ? THEN STRING(dtPoDueDate) ELSE "") "<C48>Vendor: " (IF cVendor NE ? THEN cVendor ELSE "") SKIP*/ .
+                                
+                              PUT v-fill SKIP 
+                                "<B><C2><R-1> Form " TRIM(STRING(eb.form-no,"99")) "</B>" SKIP
+                                   v-fill SKIP .
+                              PUT 
+                                  "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
+                                  "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)"     
+                                  "<C70><B><P10>Yield QTY: </B>" TRIM(STRING(eb.yld-qty))   skip 
+
+                                  "<P10><C20><b>Descr.: </B>" eb.part-dscr1 FORMAT "x(30)"  
+                                  "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(12)"
+                                  "<C70><B><P10>Req QTY: </B>" TRIM(STRING(eb.bl-qty))  skip
+
+                                  "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
+                                  "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(12)" SKIP
+
+                                  "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up) 
+                                  "<P10><C20><b>Packing: </B>" eb.cas-no FORMAT "x(15)"  
+                                  "<C45><b>Shipped As: </b>" eb.tr-no FORMAT "x(15)" SKIP
+
+                                  "<P10><C20><b>Size: </B>" STRING(eb.cas-len,"99.9999") SPACE(2) STRING(eb.cas-wid,"99.9999") SPACE(2) STRING(eb.cas-dep,"99.9999")  
+                                  "<C45><b>Ctn/Bdl.Per: </b>" STRING(eb.cas-pal) SKIP
+
+                                  "<P10><C20><b>Count: </B>" STRING(eb.tr-cnt)  
+                                  "<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" ) SKIP v-fill SKIP .
+                                 
 
                              FOR EACH bff-eb NO-LOCK
                                     WHERE bff-eb.est-no EQ eb.est-no
@@ -1295,12 +1326,29 @@ FOR EACH job-hdr NO-LOCK
                                          RUN pPrintHeader .
                                      END.
                                      k = K + 1 .
-                                     PUT "<||3><C15><FROM><C83><LINE><||3>" .
-                                     PUT "<P10><C16><b>Customer Part" STRING(k,">>") ": </B>" bff-eb.part-no FORMAT "x(15)" "<C42><b>FG #: </b>" bff-eb.stock-no  FORMAT "x(15)"  "<C58><b>Descr.: </b>" bff-eb.part-dscr1 FORMAT "x(30)"  SKIP
-                                         "<C18>Packing: " bff-eb.cas-no FORMAT "x(15)"  "<C48>Shipped As: " bff-eb.tr-no FORMAT "x(15)" SKIP
-                                         "<c18>Size: " STRING(bff-eb.cas-len,"99.9999") SPACE(2) STRING(bff-eb.cas-wid,"99.9999") SPACE(2) STRING(bff-eb.cas-dep,"99.9999")
-                                         "<C48>Ctn./Bdl.Per: " STRING(bff-eb.cas-pal) SKIP
-                                         "<C18>Count: " STRING(bff-eb.tr-cnt) "<C48>Label: " (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" ) SKIP .
+
+                                     PUT 
+                                         "<R-1><P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
+                                         "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    
+                                         "<C70><B><P10>Yield QTY: </B>" TRIM(STRING(bff-eb.yld-qty))   skip 
+                                         
+                                         "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
+                                         "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(12)"
+                                         "<C70><B><P10>Req QTY: </B>" TRIM(STRING(bff-eb.bl-qty))   skip
+                                         
+                                         "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
+                                         "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)" SKIP
+                                         
+                                         "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up) 
+                                         "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
+                                         "<C45><b>Shipped As: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
+
+                                         "<P10><C20><b>Size: </B>" STRING(bff-eb.cas-len,"99.9999") SPACE(2) STRING(bff-eb.cas-wid,"99.9999") SPACE(2) STRING(bff-eb.cas-dep,"99.9999")  
+                                         "<C45><b>Ctn/Bdl.Per: </b>" STRING(bff-eb.cas-pal) SKIP
+
+                                         "<P10><C20><b>Count: </B>" STRING(bff-eb.tr-cnt)  
+                                         "<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" ) SKIP v-fill SKIP .
+                                    
                                 END.
             
                             IF LINE-COUNTER > 70 THEN 
@@ -1314,14 +1362,14 @@ FOR EACH job-hdr NO-LOCK
                     v-itm-printed = v-itm-printed + 1.    
                 END. /* eb */
             END.   /*ef */
-            IF NOT LAST(tt-reftable.val[12]) 
-                OR tt-reftable.est-type = 4  THEN  PUT v-fill3  SKIP .
+            /*IF NOT LAST(tt-reftable.val[12]) 
+                OR tt-reftable.est-type = 4  THEN  PUT v-fill3  SKIP .*/
         END. /*first-of(tt-reftable.val[12]*/
     END. /*tt-reftable*/
         
 END. /* last-of(bf-jobhdr.frm) */
 END. /* each bf-jobhdr*/
-PUT v-fill SKIP.
+
      
     
 FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
@@ -1665,12 +1713,12 @@ PROCEDURE pPrintHeader :
       Notes:       
     ------------------------------------------------------------------------------*/
     PUT
-        "<FCalibri><B>    MCLEAN PACKAGING INC.<P10>"
+        "<FCalibri><B><C2>MCLEAN PACKAGING INC.<P10>"
         "<C30><B><P11>Factory Order: <P11>" (IF cRdOptionMclean EQ "M" THEN "Moorestown" ELSE "Nazareth") FORMAT "x(12)"
         "<C65>Report Date: "  TODAY /*"  PRINTED DATE:" TODAY*/  "</B><P10>" SKIP
         v-fill SKIP
-        "   <B>Customer: <P10>" v-cust-name  "<P10>"
-        "<B><C43>Delivery Date: "  (IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  " <C68>Order #: " TRIM(STRING(iOrderNo,">>>>>>9"))  SKIP
+        "<C2><B>Customer: <P10>" v-cust-name  "<P10>"
+        "<B><C39>Delivery Date: "  (IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  " <C68>Order #: " TRIM(STRING(iOrderNo,">>>>>>9"))  SKIP
         "  " cLabelSetItem FORMAT "x(14)" cSetItemName FORMAT "x(15)"
         "<C68>Job #: " v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
         "  " cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP

@@ -39,7 +39,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
-           + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold"
+           + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
+           + "JobCardPrintScores"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -751,6 +752,11 @@ CASE ip-nk1-value:
         INPUT "Automatically remove a customer from credit hold",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT YES /* Logical value */, INPUT 0 /* dec value*/). 
+    WHEN "JobCardPrintScores" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Styles separated by comma (Blank means applies to all styles)",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE
 CASE ip-nk1-value:

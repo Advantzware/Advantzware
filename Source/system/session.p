@@ -40,6 +40,7 @@ DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionValue AS CHARACTER
         INDEX sessionParam IS PRIMARY UNIQUE sessionParam
         .
+{system/ttPermissions.i}
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -75,6 +76,19 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetBeginSearch Procedure
 FUNCTION sfGetBeginSearch RETURNS CHARACTER 
   ( INPUT ipcString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtPermissionsHandle Procedure
+FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE 
+  (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -414,6 +428,54 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spCreatettPermissions) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreatettPermissions Procedure
+PROCEDURE spCreateTtPermissions:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID    AS ROWID     NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcParent   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder    AS INTEGER   NO-UNDO.
+
+    FIND FIRST prgrms NO-LOCK
+         WHERE ROWID(prgrms) EQ iprRowID
+         NO-ERROR.
+    IF NOT AVAILABLE prgrms THEN RETURN.
+    FIND FIRST ttPermissions
+         WHERE ttPermissions.sortMnemonic EQ ipcMnemonic
+           AND ttPermissions.sortOrder    EQ ipiOrder
+           AND ttPermissions.parentPrgm   EQ ipcParent
+           AND ttPermissions.prgmName     EQ prgrms.prgmName
+         NO-ERROR.
+    IF AVAILABLE ttPermissions THEN RETURN.
+    CREATE ttPermissions.
+    ASSIGN
+        ttPermissions.sortMnemonic = ipcMnemonic
+        ttPermissions.sortOrder    = ipiOrder
+        ttPermissions.mnemonic     = prgrms.mnemonic
+        ttPermissions.parentPrgm   = ipcParent
+        ttPermissions.prgmName     = prgrms.prgmName
+        ttPermissions.prgTitle     = prgrms.prgTitle
+        ttPermissions.can_run      = prgrms.can_run
+        ttPermissions.can_create   = prgrms.can_create
+        ttPermissions.can_delete   = prgrms.can_delete
+        ttPermissions.can_update   = prgrms.can_update
+        ttPermissions.groups       = ""
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spCueCardClose) = 0 &THEN
 
@@ -1415,6 +1477,46 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spTtPermissions) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spTtPermissions Procedure
+PROCEDURE spTtPermissions:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE cMnemonic AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParent   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE ROWID(prgrms) EQ iprRowID
+         NO-ERROR.
+    IF NOT AVAILABLE prgrms OR CAN-DO("primflds.,sysCtrlU.,user_dir.",prgrms.prgmName) THEN
+    RETURN.
+    ASSIGN
+        cMnemonic = prgrms.mnemonic
+        cParent   = prgrms.prgmName
+        .
+    RUN spCreateTtPermissions (ROWID(prgrms), cMnemonic, cParent, idx).
+    FOR EACH prgrms NO-LOCK
+        WHERE CAN-DO(prgrms.mfgroup, cParent)
+        :
+        idx = idx + 1.
+        RUN spCreateTtPermissions (ROWID(prgrms), cMnemonic, cParent, idx).
+    END. /* each bprgrms */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
@@ -1456,6 +1558,26 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
   RETURN cResult.
 
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetTtPermissionsHandle Procedure
+FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN TEMP-TABLE ttPermissions:HANDLE.
+    
 END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1595,7 +1717,7 @@ FUNCTION sfGetTtSysCtrlUsageHandle RETURNS HANDLE
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-        RETURN TEMP-TABLE ttSysCtrlUsage:HANDLE.
+    RETURN TEMP-TABLE ttSysCtrlUsage:HANDLE.
 
 END FUNCTION.
 
