@@ -347,16 +347,20 @@ PROCEDURE pPrintCheckHeaderRecords:
          NO-ERROR.
     IF AVAILABLE vend THEN
         ASSIGN
-            cCheckVendorNumber  = vend.vend-no
-            cCheckPayeeName1    = vend.name
-            cCheckPayeeName2    = vend.remit
-            cCheckPayeeAddress1 = vend.r-add1
-            cCheckPayeeAddress2 = vend.r-add2
-            cCheckPayeeCity     = vend.city
-            cCheckPayeeState    = vend.state
-            cCheckPayeeZipCode  = vend.zip
-            cCheckPayeeCountry  = vend.r-country
-            cCheckPaymentData   = vend.check-memo
+            cCheckVendorNumber    = vend.vend-no
+            cCheckPayeeName1      = vend.name
+            cCheckPayeeName2      = vend.remit
+            cCheckPayeeAddress1   = vend.r-add1
+            cCheckPayeeAddress2   = vend.r-add2
+            cCheckPayeeCity       = vend.city
+            cCheckPayeeState      = vend.state
+            cCheckPayeeZipCode    = vend.zip
+            cCheckPayeeCountry    = vend.r-country
+            cCheckPaymentData     = vend.check-memo
+            cCheckMailInstruction = IF vend.country BEGINS "CA" THEN /* country validation for Canada */
+                                        "CN"
+                                    ELSE
+                                        "UM"
             .
         
     FIND FIRST bank NO-LOCK
@@ -427,7 +431,7 @@ PROCEDURE pPrintCheckDetailRecords:
 
     ASSIGN
         cCheckDetailRecordIdentifier    = "070"                            /* Check Remittance Detail record identifier */
-        cCheckDetailSubRecordIdentifier = "08"                             /* Check Remittance Detail sub-record identifier */
+        cCheckDetailSubRecordIdentifier = "06"                             /* Check Remittance Detail sub-record identifier */
         cCheckDetailInvoiceDate         = STRING(bfttPaymentData.invDate)
         cCheckDetailInvoiceNumber       = STRING(bfttPaymentData.invNo)
         cCheckDetailDescriptiveText     = STRING(bfttPaymentData.description)
@@ -564,7 +568,7 @@ PROCEDURE pPrintACHHeaderRecords:
             cACHReceiverABA           = STRING(vend.bank-rtn)
             cACHReceiverAccountNumber = vend.bank-acct
             cACHDiscretionaryData     = vend.check-memo
-            cACHCanadianIndicator     = IF vend.country EQ "CAD" OR vend.country EQ "CA" THEN
+            cACHCanadianIndicator     = IF vend.country BEGINS "CA" THEN
                                             "C"
                                         ELSE
                                             ""
