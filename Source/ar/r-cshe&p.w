@@ -59,6 +59,9 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR ld-curr AS DEC NO-UNDO.
 DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lARAutoReleaseCreditHold AS LOGICAL NO-UNDO .
 DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id AS ROWID
                                FIELD ex-rate LIKE currency.ex-rate INIT 1
                                FIELD curr-amt LIKE ar-cash.check-amt
@@ -87,6 +90,12 @@ DO TRANSACTION:
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
 
    RELEASE sys-ctrl.
+
+   RUN sys/ref/nk1look.p (INPUT cocode, "ARAutoReleaseCreditHold", "L" /* Logical */, NO /* check by cust */, 
+                          INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+   IF lRecFound THEN
+       lARAutoReleaseCreditHold = LOGICAL(cRtnChar) NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1514,7 +1523,7 @@ END PROCEDURE.
              ASSIGN lRelHold = YES . 
          
 
-              IF lRelHold THEN  DO:  
+              IF lRelHold AND lARAutoReleaseCreditHold THEN  DO:  
                   ASSIGN cust.cr-hold = NO .
                   
                   FOR EACH oe-ord EXCLUSIVE-LOCK
