@@ -1,0 +1,1370 @@
+<?xml version="1.0"?>
+<dsFields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>company</cFieldName>
+    <cFullName>company</cFullName>
+    <cXmlNodeName>company</cXmlNodeName>
+    <iOrder>1.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>6</iWidth>
+    <cLabel>Company</cLabel>
+    <iOrderOrg>1.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>6</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the company code.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>cust-no</cFieldName>
+    <cFullName>cust-no</cFullName>
+    <cXmlNodeName>cust-no</cXmlNodeName>
+    <iOrder>2.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Cust Num</cLabel>
+    <iOrderOrg>2.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>2</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ref-date</cFieldName>
+    <cFullName>ref-date</cFullName>
+    <cXmlNodeName>ref-date</cXmlNodeName>
+    <iOrder>3.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>date</cDataType>
+    <cInitial xsi:nil="true"/>
+    <cFormat>99/99/9999</cFormat>
+    <cFormatOrg>99/99/9999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Trans Date</cLabel>
+    <iOrderOrg>3.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>3</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ref-num</cFieldName>
+    <cFullName>ref-num</cFullName>
+    <cXmlNodeName>ref-num</cXmlNodeName>
+    <iOrder>4.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(20)</cFormat>
+    <cFormatOrg>x(20)</cFormatOrg>
+    <iWidth>40</iWidth>
+    <cLabel>Number</cLabel>
+    <iOrderOrg>4.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>4</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>amt</cFieldName>
+    <cFullName>amt</cFullName>
+    <cXmlNodeName>amt</cXmlNodeName>
+    <iOrder>5.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>(&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99)</cFormat>
+    <cFormatOrg>(&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99)</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>Amount</cLabel>
+    <iOrderOrg>5.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>5</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>tr-num</cFieldName>
+    <cFullName>tr-num</cFullName>
+    <cXmlNodeName>tr-num</cXmlNodeName>
+    <iOrder>6.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>999999</cFormat>
+    <cFormatOrg>999999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>6.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>7</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>tr-date</cFieldName>
+    <cFullName>tr-date</cFullName>
+    <cXmlNodeName>tr-date</cXmlNodeName>
+    <iOrder>7.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>date</cDataType>
+    <cInitial xsi:nil="true"/>
+    <cFormat>99/99/9999</cFormat>
+    <cFormatOrg>99/99/9999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Trx Date</cLabel>
+    <iOrderOrg>7.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>8</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <cFullName>rec_key</cFullName>
+    <cXmlNodeName>rec_key</cXmlNodeName>
+    <iOrder>8.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(21)</cFormat>
+    <cFormatOrg>X(21)</cFormatOrg>
+    <iWidth>40</iWidth>
+    <cLabel>Rec Key</cLabel>
+    <iOrderOrg>8.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>9</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Rec Key</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>curr-code</cFieldName>
+    <cFullName>curr-code</cFullName>
+    <cXmlNodeName>curr-code</cXmlNodeName>
+    <iOrder>9.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(3)</cFormat>
+    <cFormatOrg>X(3)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Currency Code</cLabel>
+    <iOrderOrg>9.0</iOrderOrg>
+    <iExtent>2</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>10</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ex-rate</cFieldName>
+    <cFullName>ex-rate</cFullName>
+    <cXmlNodeName>ex-rate</cXmlNodeName>
+    <iOrder>10.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99&lt;&lt;&lt;&lt;&lt;</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99&lt;&lt;&lt;&lt;&lt;</cFormatOrg>
+    <iWidth>22</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>10.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>7</iDecimals>
+    <iFieldRpos>11</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-1</cFieldName>
+    <cFullName>spare-char-1</cFullName>
+    <cXmlNodeName>spare-char-1</cXmlNodeName>
+    <iOrder>11.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>11.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>12</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-2</cFieldName>
+    <cFullName>spare-char-2</cFullName>
+    <cXmlNodeName>spare-char-2</cXmlNodeName>
+    <iOrder>12.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>12.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>13</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-3</cFieldName>
+    <cFullName>spare-char-3</cFullName>
+    <cXmlNodeName>spare-char-3</cXmlNodeName>
+    <iOrder>13.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>13.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>14</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-4</cFieldName>
+    <cFullName>spare-char-4</cFullName>
+    <cXmlNodeName>spare-char-4</cXmlNodeName>
+    <iOrder>14.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>14.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>15</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-5</cFieldName>
+    <cFullName>spare-char-5</cFullName>
+    <cXmlNodeName>spare-char-5</cXmlNodeName>
+    <iOrder>15.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>15.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>16</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-1</cFieldName>
+    <cFullName>spare-dec-1</cFullName>
+    <cXmlNodeName>spare-dec-1</cXmlNodeName>
+    <iOrder>16.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>16.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>17</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-2</cFieldName>
+    <cFullName>spare-dec-2</cFullName>
+    <cXmlNodeName>spare-dec-2</cXmlNodeName>
+    <iOrder>17.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>17.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>18</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-3</cFieldName>
+    <cFullName>spare-dec-3</cFullName>
+    <cXmlNodeName>spare-dec-3</cXmlNodeName>
+    <iOrder>18.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>18.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>19</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-4</cFieldName>
+    <cFullName>spare-dec-4</cFullName>
+    <cXmlNodeName>spare-dec-4</cXmlNodeName>
+    <iOrder>19.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>19.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>20</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-5</cFieldName>
+    <cFullName>spare-dec-5</cFullName>
+    <cXmlNodeName>spare-dec-5</cXmlNodeName>
+    <iOrder>20.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>20.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>21</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-1</cFieldName>
+    <cFullName>spare-int-1</cFullName>
+    <cXmlNodeName>spare-int-1</cXmlNodeName>
+    <iOrder>21.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>21.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>22</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-2</cFieldName>
+    <cFullName>spare-int-2</cFullName>
+    <cXmlNodeName>spare-int-2</cXmlNodeName>
+    <iOrder>22.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>22.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>23</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-3</cFieldName>
+    <cFullName>spare-int-3</cFullName>
+    <cXmlNodeName>spare-int-3</cXmlNodeName>
+    <iOrder>23.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>23.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>24</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-4</cFieldName>
+    <cFullName>spare-int-4</cFullName>
+    <cXmlNodeName>spare-int-4</cXmlNodeName>
+    <iOrder>24.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>24.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>25</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-5</cFieldName>
+    <cFullName>spare-int-5</cFullName>
+    <cXmlNodeName>spare-int-5</cXmlNodeName>
+    <iOrder>25.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>25.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>26</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <cFullName>RECID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>26.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(14)</cFormat>
+    <cFormatOrg>X(14)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>RECID</cLabel>
+    <iOrderOrg>26.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <cFullName>ROWID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>27.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(30)</cFormat>
+    <cFormatOrg>X(30)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>ROWID</cLabel>
+    <iOrderOrg>27.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>company</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>company</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>1.0</iOrder>
+    <cLabel>Company</cLabel>
+    <iColumnNr>1</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>cust-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>cust-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>2.0</iOrder>
+    <cLabel>Cust Num</cLabel>
+    <iColumnNr>2</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ref-date</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ref-date</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>3.0</iOrder>
+    <cLabel>Trans Date</cLabel>
+    <iColumnNr>3</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ref-num</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ref-num</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number</cLabel>
+    <iColumnNr>4</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>amt</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>amt</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Amount</cLabel>
+    <iColumnNr>5</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>tr-num</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>tr-num</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>6.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>6</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>tr-date</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>tr-date</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>7.0</iOrder>
+    <cLabel>Trx Date</cLabel>
+    <iColumnNr>7</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rec_key</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>8.0</iOrder>
+    <cLabel>Rec Key</cLabel>
+    <iColumnNr>8</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>curr-code</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>curr-code[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>9.0</iOrder>
+    <cLabel>Currency Code</cLabel>
+    <iColumnNr>9</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>curr-code</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>curr-code[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>9.0</iOrder>
+    <cLabel>Currency Code</cLabel>
+    <iColumnNr>10</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ex-rate</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ex-rate</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>10.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>11</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-1</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-1</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>11.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>12</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>12.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>13</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-3</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-3</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>13.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>14</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-4</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-4</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>14.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>15</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-char-5</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-5</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>15.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>16</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-1</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-1</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>16.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>17</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>17.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>18</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-3</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-3</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>18.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>19</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-4</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-4</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>19.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>20</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-dec-5</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-5</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>20.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>21</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-1</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-1</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>21.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>22</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>22.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>23</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-3</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-3</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>23.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>24</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-4</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-4</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>24.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>25</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>spare-int-5</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-5</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>25.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>26</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>RECID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>26.0</iOrder>
+    <cLabel>RECID</cLabel>
+    <iColumnNr>27</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.ar-ledger.61539</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>ar-ledger</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ROWID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>27.0</iOrder>
+    <cLabel>ROWID</cLabel>
+    <iColumnNr>28</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+</dsFields>

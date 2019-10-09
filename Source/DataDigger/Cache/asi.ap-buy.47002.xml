@@ -1,0 +1,911 @@
+<?xml version="1.0"?>
+<dsFields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>company</cFieldName>
+    <cFullName>company</cFullName>
+    <cXmlNodeName>company</cXmlNodeName>
+    <iOrder>1.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>6</iWidth>
+    <cLabel>Company</cLabel>
+    <iOrderOrg>1.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>3</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>buyer-i</cFieldName>
+    <cFullName>buyer-i</cFullName>
+    <cXmlNodeName>buyer-i</cXmlNodeName>
+    <iOrder>2.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>6</iWidth>
+    <cLabel>Buyer Initials</cLabel>
+    <iOrderOrg>2.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>2</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the Buyer&apos;s Initials</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>buyer-n</cFieldName>
+    <cFullName>buyer-n</cFullName>
+    <cXmlNodeName>buyer-n</cXmlNodeName>
+    <iOrder>3.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(30)</cFormat>
+    <cFormatOrg>x(30)</cFormatOrg>
+    <iWidth>60</iWidth>
+    <cLabel>Buyer&apos;s Name</cLabel>
+    <iOrderOrg>3.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>4</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the Buyer&apos;s Name</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <cFullName>n-purch</cFullName>
+    <cXmlNodeName>n-purch</cXmlNodeName>
+    <iOrder>4.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>416</iWidth>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iOrderOrg>4.0</iOrderOrg>
+    <iExtent>13</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel>No. Purch. / Period</cColLabel>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>5</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Number of purchases by period</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <cFullName>purch</cFullName>
+    <cXmlNodeName>purch</cXmlNodeName>
+    <iOrder>5.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>416</iWidth>
+    <cLabel>Purchases by period</cLabel>
+    <iOrderOrg>5.0</iOrderOrg>
+    <iExtent>13</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>6</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Purchases by period</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>dlast-p</cFieldName>
+    <cFullName>dlast-p</cFullName>
+    <cXmlNodeName>dlast-p</cXmlNodeName>
+    <iOrder>6.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>date</cDataType>
+    <cInitial xsi:nil="true"/>
+    <cFormat>99/99/9999</cFormat>
+    <cFormatOrg>99/99/9999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Last Purchase Date</cLabel>
+    <iOrderOrg>6.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>7</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Date of Last Purchase</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>last-amt</cFieldName>
+    <cFullName>last-amt</cFullName>
+    <cXmlNodeName>last-amt</cXmlNodeName>
+    <iOrder>7.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>Last Purchase Amount</cLabel>
+    <iOrderOrg>7.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>8</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Amount of Last Purchase</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <cFullName>rec_key</cFullName>
+    <cXmlNodeName>rec_key</cXmlNodeName>
+    <iOrder>8.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(21)</cFormat>
+    <cFormatOrg>X(21)</cFormatOrg>
+    <iWidth>40</iWidth>
+    <cLabel>Rec Key</cLabel>
+    <iOrderOrg>8.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>9</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Rec Key</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <cFullName>RECID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>9.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(14)</cFormat>
+    <cFormatOrg>X(14)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>RECID</cLabel>
+    <iOrderOrg>9.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <cFullName>ROWID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>10.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(30)</cFormat>
+    <cFormatOrg>X(30)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>ROWID</cLabel>
+    <iOrderOrg>10.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>company</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>company</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>1.0</iOrder>
+    <cLabel>Company</cLabel>
+    <iColumnNr>1</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>buyer-i</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>buyer-i</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>2.0</iOrder>
+    <cLabel>Buyer Initials</cLabel>
+    <iColumnNr>2</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>buyer-n</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>buyer-n</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>3.0</iOrder>
+    <cLabel>Buyer&apos;s Name</cLabel>
+    <iColumnNr>3</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>n-purch[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>4</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>n-purch[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>5</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>n-purch[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>6</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>4</iExtent>
+    <cFullName>n-purch[4]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>7</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>5</iExtent>
+    <cFullName>n-purch[5]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>8</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>6</iExtent>
+    <cFullName>n-purch[6]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>9</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>7</iExtent>
+    <cFullName>n-purch[7]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>10</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>8</iExtent>
+    <cFullName>n-purch[8]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>11</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>9</iExtent>
+    <cFullName>n-purch[9]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>12</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>10</iExtent>
+    <cFullName>n-purch[10]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>13</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>11</iExtent>
+    <cFullName>n-purch[11]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>14</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>12</iExtent>
+    <cFullName>n-purch[12]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>15</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>n-purch</cFieldName>
+    <iExtent>13</iExtent>
+    <cFullName>n-purch[13]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Number of Purchases by period</cLabel>
+    <iColumnNr>16</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>purch[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>17</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>purch[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>18</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>purch[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>19</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>4</iExtent>
+    <cFullName>purch[4]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>20</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>5</iExtent>
+    <cFullName>purch[5]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>21</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>6</iExtent>
+    <cFullName>purch[6]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>22</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>7</iExtent>
+    <cFullName>purch[7]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>23</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>8</iExtent>
+    <cFullName>purch[8]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>24</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>9</iExtent>
+    <cFullName>purch[9]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>25</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>10</iExtent>
+    <cFullName>purch[10]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>26</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>11</iExtent>
+    <cFullName>purch[11]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>27</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>12</iExtent>
+    <cFullName>purch[12]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>28</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>purch</cFieldName>
+    <iExtent>13</iExtent>
+    <cFullName>purch[13]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Purchases by period</cLabel>
+    <iColumnNr>29</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>dlast-p</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>dlast-p</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>6.0</iOrder>
+    <cLabel>Last Purchase Date</cLabel>
+    <iColumnNr>30</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>last-amt</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>last-amt</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>7.0</iOrder>
+    <cLabel>Last Purchase Amount</cLabel>
+    <iColumnNr>31</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rec_key</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>8.0</iOrder>
+    <cLabel>Rec Key</cLabel>
+    <iColumnNr>32</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>RECID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>9.0</iOrder>
+    <cLabel>RECID</cLabel>
+    <iColumnNr>33</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.ap-buy.47002</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>ap-buy</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ROWID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>10.0</iOrder>
+    <cLabel>ROWID</cLabel>
+    <iColumnNr>34</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+</dsFields>
