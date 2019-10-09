@@ -46,6 +46,18 @@ DEFINE VARIABLE efbrowse1 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE efbrowse2 AS CHARACTER NO-UNDO.
 
 DEFINE NEW SHARED BUFFER xquo FOR quotehd.
+DEFINE VARIABLE lAccessCreateEB AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+RUN methods/prgsecur.p
+	    (INPUT "p-fest1.",
+	     INPUT "CREATE", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessCreateEB, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1441,11 +1453,11 @@ PROCEDURE Select_Add :
 ------------------------------------------------------------------------------*/
 
   def var char-hdl as cha no-undo.
-  
-  run select-page(2).
-  run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
-  run add-estimate in widget-handle(char-hdl).
-  
+  IF lAccessCreateEB THEN do:
+      run select-page(2).
+      run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
+      run add-estimate in widget-handle(char-hdl).
+  END.
     
 END PROCEDURE.
 

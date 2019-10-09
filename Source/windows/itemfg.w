@@ -41,6 +41,19 @@ CREATE WIDGET-POOL.
 
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 
+DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+RUN methods/prgsecur.p
+	    (INPUT "p-upditm.",
+	     INPUT "CREATE", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1431,10 +1444,11 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
-  run select-page(2).
-  run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-  run add-item in widget-handle(char-hdl).
+  IF lAccessCreateFG THEN do:
+      run select-page(2).
+      run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
+      run add-item in widget-handle(char-hdl).
+  END.
 
 END PROCEDURE.
 
