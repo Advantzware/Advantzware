@@ -117,7 +117,18 @@ DO:
    END.
 END.
 
-
+DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+RUN methods/prgsecur.p
+	    (INPUT "p-upditm.",
+	     INPUT "CREATE", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -1977,9 +1988,11 @@ DO:
 
     if not avail itemfg and eb.stock-no:screen-value <> "" then do:
     {&methods/lValidateError.i YES}
-    /*   message "Invalid FG Item#. Try Help.".
+     IF NOT lAccessCreateFG THEN do:
+       message "Invalid FG Item#. Try Help." VIEW-AS ALERT-BOX INFO .
        return no-apply.
-     */
+     END.
+     ELSE do:
        message "This item does not exist, would you like to add it?" view-as alert-box question
                button yes-no update ll-ans as log.  
        if ll-ans then do:
@@ -1989,6 +2002,7 @@ DO:
           run crt-itemfg (input self:screen-value).
        end.   
        return no-apply. 
+     END.
    {&methods/lValidateError.i NO}       
     end.  
 

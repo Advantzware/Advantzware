@@ -145,6 +145,19 @@ END.
 
 DEF VAR viEQtyPrev AS INT NO-UNDO.
 DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+RUN methods/prgsecur.p
+	    (INPUT "p-upditm.",
+	     INPUT "CREATE", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -5855,7 +5868,8 @@ PROCEDURE valid-stock-no :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&frame-name}:
-    IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+    IF lAccessCreateFG                                         AND
+       eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        NOT ll-crt-itemfg                                       AND
        NOT CAN-FIND(FIRST itemfg
                     WHERE itemfg.company EQ gcompany
@@ -5868,6 +5882,18 @@ PROCEDURE valid-stock-no :
       ELSE DO:
         APPLY "entry" TO eb.stock-no IN BROWSE {&browse-name}.
         RETURN ERROR.
+      END.
+    END.
+    IF NOT lAccessCreateFG THEN DO:
+      IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       NOT CAN-FIND(FIRST itemfg
+                    WHERE itemfg.company EQ gcompany
+                      AND itemfg.i-no    EQ eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name})
+    THEN DO:
+          MESSAGE "Invalid FG Item#. Try Help."
+              VIEW-AS ALERT-BOX INFO .
+          APPLY "entry" TO eb.stock-no IN BROWSE {&browse-name}.
+          RETURN ERROR.
       END.
     END.
   END.
