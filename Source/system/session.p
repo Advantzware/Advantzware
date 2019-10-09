@@ -437,30 +437,34 @@ PROCEDURE spCreateTtPermissions:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER bPrgrms FOR prgrms.
+    DEFINE INPUT PARAMETER iprRowID    AS ROWID     NO-UNDO.
     DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcParent   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiOrder    AS INTEGER   NO-UNDO.
 
+    FIND FIRST prgrms NO-LOCK
+         WHERE ROWID(prgrms) EQ iprRowID
+         NO-ERROR.
+    IF NOT AVAILABLE prgrms THEN RETURN.
     FIND FIRST ttPermissions
          WHERE ttPermissions.sortMnemonic EQ ipcMnemonic
            AND ttPermissions.sortOrder    EQ ipiOrder
            AND ttPermissions.parentPrgm   EQ ipcParent
-           AND ttPermissions.prgmName     EQ bPrgrms.prgmName
+           AND ttPermissions.prgmName     EQ prgrms.prgmName
          NO-ERROR.
     IF AVAILABLE ttPermissions THEN RETURN.
     CREATE ttPermissions.
     ASSIGN
         ttPermissions.sortMnemonic = ipcMnemonic
         ttPermissions.sortOrder    = ipiOrder
-        ttPermissions.mnemonic     = bPrgrms.mnemonic
+        ttPermissions.mnemonic     = prgrms.mnemonic
         ttPermissions.parentPrgm   = ipcParent
-        ttPermissions.prgmName     = bPrgrms.prgmName
-        ttPermissions.prgTitle     = bPrgrms.prgTitle
-        ttPermissions.can_run      = bPrgrms.can_run
-        ttPermissions.can_create   = bPrgrms.can_create
-        ttPermissions.can_delete   = bPrgrms.can_delete
-        ttPermissions.can_update   = bPrgrms.can_update
+        ttPermissions.prgmName     = prgrms.prgmName
+        ttPermissions.prgTitle     = prgrms.prgTitle
+        ttPermissions.can_run      = prgrms.can_run
+        ttPermissions.can_create   = prgrms.can_create
+        ttPermissions.can_delete   = prgrms.can_delete
+        ttPermissions.can_update   = prgrms.can_update
         ttPermissions.groups       = ""
         .
 
@@ -1481,23 +1485,27 @@ PROCEDURE spTtPermissions:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER bPrgrms FOR prgrms.
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
     
     DEFINE VARIABLE cMnemonic AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParent   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
     
-    IF CAN-DO("primflds.,sysCtrlU.,user_dir.",bPrgrms.prgmName) THEN RETURN.
+    FIND FIRST prgrms NO-LOCK
+         WHERE ROWID(prgrms) EQ iprRowID
+         NO-ERROR.
+    IF NOT AVAILABLE prgrms OR CAN-DO("primflds.,sysCtrlU.,user_dir.",prgrms.prgmName) THEN
+    RETURN.
     ASSIGN
-        cMnemonic = bPrgrms.mnemonic
-        cParent   = bPrgrms.prgmName
+        cMnemonic = prgrms.mnemonic
+        cParent   = prgrms.prgmName
         .
-    RUN spCreateTtPermissions (BUFFER bPrgrms, cMnemonic, cParent, idx).
-    FOR EACH bPrgrms NO-LOCK
-        WHERE CAN-DO(bPrgrms.mfgroup, cParent)
+    RUN spCreateTtPermissions (ROWID(prgrms), cMnemonic, cParent, idx).
+    FOR EACH prgrms NO-LOCK
+        WHERE CAN-DO(prgrms.mfgroup, cParent)
         :
         idx = idx + 1.
-        RUN spCreateTtPermissions (BUFFER bPrgrms, cMnemonic, cParent, idx).
+        RUN spCreateTtPermissions (ROWID(prgrms), cMnemonic, cParent, idx).
     END. /* each bprgrms */
 
 END PROCEDURE.
