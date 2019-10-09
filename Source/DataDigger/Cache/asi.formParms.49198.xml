@@ -1,0 +1,653 @@
+<?xml version="1.0"?>
+<dsFields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>formType</cFieldName>
+    <cFullName>formType</cFullName>
+    <cXmlNodeName>formType</cXmlNodeName>
+    <iOrder>1.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Form Type</cLabel>
+    <iOrderOrg>1.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>2</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>formID</cFieldName>
+    <cFullName>formID</cFullName>
+    <cXmlNodeName>formID</cXmlNodeName>
+    <iOrder>2.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(12)</cFormat>
+    <cFormatOrg>x(12)</cFormatOrg>
+    <iWidth>24</iWidth>
+    <cLabel>Form ID</cLabel>
+    <iOrderOrg>2.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>3</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>company</cFieldName>
+    <cFullName>company</cFullName>
+    <cXmlNodeName>company</cXmlNodeName>
+    <iOrder>3.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>6</iWidth>
+    <cLabel>Company</cLabel>
+    <iOrderOrg>3.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>4</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the company code.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>cust-no</cFieldName>
+    <cFullName>cust-no</cFullName>
+    <cXmlNodeName>cust-no</cXmlNodeName>
+    <iOrder>4.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Customer</cLabel>
+    <iOrderOrg>4.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>5</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter customer number.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>ship-no</cFieldName>
+    <cFullName>ship-no</cFullName>
+    <cXmlNodeName>ship-no</cXmlNodeName>
+    <iOrder>5.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Ship To #</cLabel>
+    <iOrderOrg>5.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>6</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>vend-no</cFieldName>
+    <cFullName>vend-no</cFullName>
+    <cXmlNodeName>vend-no</cXmlNodeName>
+    <iOrder>6.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Vendor No.</cLabel>
+    <iOrderOrg>6.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>7</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Vendor number</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>programName</cFieldName>
+    <cFullName>programName</cFullName>
+    <cXmlNodeName>programName</cXmlNodeName>
+    <iOrder>7.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(24)</cFormat>
+    <cFormatOrg>x(24)</cFormatOrg>
+    <iWidth>48</iWidth>
+    <cLabel>Program Name</cLabel>
+    <iOrderOrg>7.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>8</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>parmNames</cFieldName>
+    <cFullName>parmNames</cFullName>
+    <cXmlNodeName>parmNames</cXmlNodeName>
+    <iOrder>8.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(360)</cFormat>
+    <cFormatOrg>x(360)</cFormatOrg>
+    <iWidth>120</iWidth>
+    <cLabel>Parameter Names</cLabel>
+    <iOrderOrg>8.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>9</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>parmDefaultValues</cFieldName>
+    <cFullName>parmDefaultValues</cFullName>
+    <cXmlNodeName>parmDefaultValues</cXmlNodeName>
+    <iOrder>9.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(360)</cFormat>
+    <cFormatOrg>x(360)</cFormatOrg>
+    <iWidth>720</iWidth>
+    <cLabel>Default Values</cLabel>
+    <iOrderOrg>9.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>10</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>parmLastValues</cFieldName>
+    <cFullName>parmLastValues</cFullName>
+    <cXmlNodeName>parmLastValues</cXmlNodeName>
+    <iOrder>10.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(360)</cFormat>
+    <cFormatOrg>x(360)</cFormatOrg>
+    <iWidth>720</iWidth>
+    <cLabel>Last Values</cLabel>
+    <iOrderOrg>10.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>11</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>user-id</cFieldName>
+    <cFullName>user-id</cFullName>
+    <cXmlNodeName>user-id</cXmlNodeName>
+    <iOrder>11.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(8)</cFormat>
+    <cFormatOrg>X(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>User-Id</cLabel>
+    <iOrderOrg>11.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>12</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the User ID</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <cFullName>RECID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>12.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(14)</cFormat>
+    <cFormatOrg>X(14)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>RECID</cLabel>
+    <iOrderOrg>12.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <cFullName>ROWID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>13.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(30)</cFormat>
+    <cFormatOrg>X(30)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>ROWID</cLabel>
+    <iOrderOrg>13.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>formType</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>formType</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>1.0</iOrder>
+    <cLabel>Form Type</cLabel>
+    <iColumnNr>1</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>formID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>formID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>2.0</iOrder>
+    <cLabel>Form ID</cLabel>
+    <iColumnNr>2</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>company</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>company</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>3.0</iOrder>
+    <cLabel>Company</cLabel>
+    <iColumnNr>3</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>cust-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>cust-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Customer</cLabel>
+    <iColumnNr>4</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>ship-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Ship To #</cLabel>
+    <iColumnNr>5</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>vend-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>vend-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>6.0</iOrder>
+    <cLabel>Vendor No.</cLabel>
+    <iColumnNr>6</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>programName</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>programName</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>7.0</iOrder>
+    <cLabel>Program Name</cLabel>
+    <iColumnNr>7</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>parmNames</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>parmNames</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>8.0</iOrder>
+    <cLabel>Parameter Names</cLabel>
+    <iColumnNr>8</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>parmDefaultValues</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>parmDefaultValues</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>9.0</iOrder>
+    <cLabel>Default Values</cLabel>
+    <iColumnNr>9</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>parmLastValues</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>parmLastValues</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>10.0</iOrder>
+    <cLabel>Last Values</cLabel>
+    <iColumnNr>10</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>user-id</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>user-id</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>11.0</iOrder>
+    <cLabel>User-Id</cLabel>
+    <iColumnNr>11</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>RECID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>12.0</iOrder>
+    <cLabel>RECID</cLabel>
+    <iColumnNr>12</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>asi.formParms.49198</cTableCacheId>
+    <cDatabase>asi</cDatabase>
+    <cTableName>formParms</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ROWID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>13.0</iOrder>
+    <cLabel>ROWID</cLabel>
+    <iColumnNr>13</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+</dsFields>

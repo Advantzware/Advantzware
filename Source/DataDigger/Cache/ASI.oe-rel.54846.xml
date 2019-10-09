@@ -1,0 +1,3857 @@
+<?xml version="1.0"?>
+<dsFields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-no</cFieldName>
+    <cFullName>ship-no</cFullName>
+    <cXmlNodeName>ship-no</cXmlNodeName>
+    <iOrder>1.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Ship To #</cLabel>
+    <iOrderOrg>1.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>23</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sold-no</cFieldName>
+    <cFullName>sold-no</cFullName>
+    <cXmlNodeName>sold-no</cXmlNodeName>
+    <iOrder>2.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Sold To #</cLabel>
+    <iOrderOrg>2.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>7</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter &apos;sold to&apos; code for this billing customer.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>qty</cFieldName>
+    <cFullName>qty</cFullName>
+    <cXmlNodeName>qty</cXmlNodeName>
+    <iOrder>3.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>18</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>3.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>3</iDecimals>
+    <iFieldRpos>5</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter quantity received.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>po-no</cFieldName>
+    <cFullName>po-no</cFullName>
+    <cXmlNodeName>po-no</cXmlNodeName>
+    <iOrder>4.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(15)</cFormat>
+    <cFormatOrg>x(15)</cFormatOrg>
+    <iWidth>30</iWidth>
+    <cLabel>P.O. Num</cLabel>
+    <iOrderOrg>4.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>3</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the customer&apos;s Purchase order number for this order.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>i-no</cFieldName>
+    <cFullName>i-no</cFullName>
+    <cXmlNodeName>i-no</cXmlNodeName>
+    <iOrder>5.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(15)</cFormat>
+    <cFormatOrg>x(15)</cFormatOrg>
+    <iWidth>30</iWidth>
+    <cLabel>Item No</cLabel>
+    <iOrderOrg>5.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>4</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Finished Goods Item Number</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rel-date</cFieldName>
+    <cFullName>rel-date</cFullName>
+    <cXmlNodeName>rel-date</cXmlNodeName>
+    <iOrder>6.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>date</cDataType>
+    <cInitial xsi:nil="true"/>
+    <cFormat>99/99/9999</cFormat>
+    <cFormatOrg>99/99/9999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Date Last Counted</cLabel>
+    <iOrderOrg>6.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>6</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>enter Release dates for line items by ship-to by date</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>partial</cFieldName>
+    <cFullName>partial</cFullName>
+    <cXmlNodeName>partial</cXmlNodeName>
+    <iOrder>7.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>18</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>7.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>3</iDecimals>
+    <iFieldRpos>20</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter partial case quantity received.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>cust-no</cFieldName>
+    <cFullName>cust-no</cFullName>
+    <cXmlNodeName>cust-no</cXmlNodeName>
+    <iOrder>8.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Cust. #</cLabel>
+    <iOrderOrg>8.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>8</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Customer Number or Lookup by description</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>line</cFieldName>
+    <cFullName>line</cFullName>
+    <cXmlNodeName>line</cXmlNodeName>
+    <iOrder>9.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>99</cFormat>
+    <cFormatOrg>99</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Line</cLabel>
+    <iOrderOrg>9.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>9</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>o-no</cFieldName>
+    <cFullName>o-no</cFullName>
+    <cXmlNodeName>o-no</cXmlNodeName>
+    <iOrder>10.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>99999999</cFormat>
+    <cFormatOrg>99999999</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Order #</cLabel>
+    <iOrderOrg>10.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>10</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the number of the next valid Order</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>w-ord</cFieldName>
+    <cFullName>w-ord</cFullName>
+    <cXmlNodeName>w-ord</cXmlNodeName>
+    <iOrder>11.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>logical</cDataType>
+    <cInitial>no</cInitial>
+    <cFormat>yes/no</cFormat>
+    <cFormatOrg>yes/no</cFormatOrg>
+    <iWidth>1</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>11.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>11</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Release on order entry orders.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-date</cFieldName>
+    <cFullName>ship-date</cFullName>
+    <cXmlNodeName>ship-date</cXmlNodeName>
+    <iOrder>12.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>date</cDataType>
+    <cInitial xsi:nil="true"/>
+    <cFormat>99/99/9999</cFormat>
+    <cFormatOrg>99/99/9999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>12.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel>Ship Date</cColLabel>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>12</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>loc</cFieldName>
+    <cFullName>loc</cFullName>
+    <cXmlNodeName>loc</cXmlNodeName>
+    <iOrder>13.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(5)</cFormat>
+    <cFormatOrg>x(5)</cFormatOrg>
+    <iWidth>10</iWidth>
+    <cLabel>Warehouse</cLabel>
+    <iOrderOrg>13.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>13</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the plant/warehouse location</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>loc-bin</cFieldName>
+    <cFullName>loc-bin</cFullName>
+    <cXmlNodeName>loc-bin</cXmlNodeName>
+    <iOrder>14.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Primary Bin Loc.</cLabel>
+    <iOrderOrg>14.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>14</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Bin Location where Item is Stocked</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>tag</cFieldName>
+    <cFullName>tag</cFullName>
+    <cXmlNodeName>tag</cXmlNodeName>
+    <iOrder>15.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>15.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>15</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter tag identification.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>cases</cFieldName>
+    <cFullName>cases</cFullName>
+    <cXmlNodeName>cases</cXmlNodeName>
+    <iOrder>16.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>18</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>16.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>3</iDecimals>
+    <iFieldRpos>16</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter number of cases received.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>qty-case</cFieldName>
+    <cFullName>qty-case</cFullName>
+    <cXmlNodeName>qty-case</cXmlNodeName>
+    <iOrder>17.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>18</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>17.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>3</iDecimals>
+    <iFieldRpos>17</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter quantity received.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rel-no</cFieldName>
+    <cFullName>rel-no</cFullName>
+    <cXmlNodeName>rel-no</cXmlNodeName>
+    <iOrder>18.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>18.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>18</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>tot-qty</cFieldName>
+    <cFullName>tot-qty</cFullName>
+    <cXmlNodeName>tot-qty</cXmlNodeName>
+    <iOrder>19.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>18</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>19.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>3</iDecimals>
+    <iFieldRpos>19</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter quantity received.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>company</cFieldName>
+    <cFullName>company</cFullName>
+    <cXmlNodeName>company</cXmlNodeName>
+    <iOrder>20.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>6</iWidth>
+    <cLabel>Company</cLabel>
+    <iOrderOrg>20.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>21</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the company code.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sman</cFieldName>
+    <cFullName>sman</cFullName>
+    <cXmlNodeName>sman</cXmlNodeName>
+    <iOrder>21.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>24</iWidth>
+    <cLabel>Salesman Code</cLabel>
+    <iOrderOrg>21.0</iOrderOrg>
+    <iExtent>3</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>27</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Salesman&apos;s Intitials or Number</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-pct</cFieldName>
+    <cFullName>s-pct</cFullName>
+    <cXmlNodeName>s-pct</cXmlNodeName>
+    <iOrder>22.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;9.99</cFormat>
+    <cFormatOrg>&gt;&gt;9.99</cFormatOrg>
+    <iWidth>42</iWidth>
+    <cLabel>Percentage</cLabel>
+    <iOrderOrg>22.0</iOrderOrg>
+    <iExtent>3</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>26</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-name</cFieldName>
+    <cFullName>s-name</cFullName>
+    <cXmlNodeName>s-name</cXmlNodeName>
+    <iOrder>23.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(20)</cFormat>
+    <cFormatOrg>x(20)</cFormatOrg>
+    <iWidth>126</iWidth>
+    <cLabel>Salesman Name</cLabel>
+    <iOrderOrg>23.0</iOrderOrg>
+    <iExtent>3</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>25</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Salesmans Full Name</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>r-no</cFieldName>
+    <cFullName>r-no</cFullName>
+    <cXmlNodeName>r-no</cXmlNodeName>
+    <iOrder>24.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>24.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>22</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ord-no</cFieldName>
+    <cFullName>ord-no</cFullName>
+    <cXmlNodeName>ord-no</cXmlNodeName>
+    <iOrder>25.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Order#</cLabel>
+    <iOrderOrg>25.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>2</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>carrier</cFieldName>
+    <cFullName>carrier</cFullName>
+    <cXmlNodeName>carrier</cXmlNodeName>
+    <iOrder>26.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(5)</cFormat>
+    <cFormatOrg>x(5)</cFormatOrg>
+    <iWidth>10</iWidth>
+    <cLabel>Carrier</cLabel>
+    <iOrderOrg>26.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>28</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the common carrier code</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-addr</cFieldName>
+    <cFullName>ship-addr</cFullName>
+    <cXmlNodeName>ship-addr</cXmlNodeName>
+    <iOrder>27.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(30)</cFormat>
+    <cFormatOrg>x(30)</cFormatOrg>
+    <iWidth>124</iWidth>
+    <cLabel>Address</cLabel>
+    <iOrderOrg>27.0</iOrderOrg>
+    <iExtent>2</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>29</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-city</cFieldName>
+    <cFullName>ship-city</cFullName>
+    <cXmlNodeName>ship-city</cXmlNodeName>
+    <iOrder>28.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(15)</cFormat>
+    <cFormatOrg>x(15)</cFormatOrg>
+    <iWidth>30</iWidth>
+    <cLabel>City</cLabel>
+    <iOrderOrg>28.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>30</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-state</cFieldName>
+    <cFullName>ship-state</cFullName>
+    <cXmlNodeName>ship-state</cXmlNodeName>
+    <iOrder>29.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(2)</cFormat>
+    <cFormatOrg>x(2)</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>State</cLabel>
+    <iOrderOrg>29.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>31</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-zip</cFieldName>
+    <cFullName>ship-zip</cFullName>
+    <cXmlNodeName>ship-zip</cXmlNodeName>
+    <iOrder>30.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(10)</cFormat>
+    <cFormatOrg>x(10)</cFormatOrg>
+    <iWidth>20</iWidth>
+    <cLabel>Postal Code</cLabel>
+    <iOrderOrg>30.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>32</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the postal code for this Customer.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-comm</cFieldName>
+    <cFullName>s-comm</cFullName>
+    <cXmlNodeName>s-comm</cXmlNodeName>
+    <iOrder>31.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;9.99</cFormat>
+    <cFormatOrg>&gt;&gt;9.99</cFormatOrg>
+    <iWidth>42</iWidth>
+    <cLabel>Commission</cLabel>
+    <iOrderOrg>31.0</iOrderOrg>
+    <iExtent>3</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>24</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Salesman Normal Commission Percentage</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-i</cFieldName>
+    <cFullName>ship-i</cFullName>
+    <cXmlNodeName>ship-i</cXmlNodeName>
+    <iOrder>32.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(60)</cFormat>
+    <cFormatOrg>x(60)</cFormatOrg>
+    <iWidth>488</iWidth>
+    <cLabel>Shipping Instructions</cLabel>
+    <iOrderOrg>32.0</iOrderOrg>
+    <iExtent>4</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>33</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Shipping Instructions for each released item.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>deleted</cFieldName>
+    <cFullName>deleted</cFullName>
+    <cXmlNodeName>deleted</cXmlNodeName>
+    <iOrder>33.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>logical</cDataType>
+    <cInitial>no</cInitial>
+    <cFormat>Y/N</cFormat>
+    <cFormatOrg>Y/N</cFormatOrg>
+    <iWidth>1</iWidth>
+    <cLabel>Deleted?</cLabel>
+    <iOrderOrg>33.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>34</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-id</cFieldName>
+    <cFullName>ship-id</cFullName>
+    <cXmlNodeName>ship-id</cXmlNodeName>
+    <iOrder>34.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Ship To ID</cLabel>
+    <iOrderOrg>34.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>35</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Ship To Id, Maybe a Billable Customer Id.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>link-no</cFieldName>
+    <cFullName>link-no</cFullName>
+    <cXmlNodeName>link-no</cXmlNodeName>
+    <iOrder>35.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Link Number</cLabel>
+    <iOrderOrg>35.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>36</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>R-NO number of actual releases to link to planned releases.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>b-ord-no</cFieldName>
+    <cFullName>b-ord-no</cFullName>
+    <cXmlNodeName>b-ord-no</cXmlNodeName>
+    <iOrder>36.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>36.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>37</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <cFullName>rec_key</cFullName>
+    <cXmlNodeName>rec_key</cXmlNodeName>
+    <iOrder>37.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(21)</cFormat>
+    <cFormatOrg>X(21)</cFormatOrg>
+    <iWidth>40</iWidth>
+    <cLabel>Rec Key</cLabel>
+    <iOrderOrg>37.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>38</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Rec Key</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>upd-date</cFieldName>
+    <cFullName>upd-date</cFullName>
+    <cXmlNodeName>upd-date</cXmlNodeName>
+    <iOrder>38.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>date</cDataType>
+    <cInitial xsi:nil="true"/>
+    <cFormat>99/99/9999</cFormat>
+    <cFormatOrg>99/99/9999</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Updated Date</cLabel>
+    <iOrderOrg>38.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>39</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc>Last Updated Date</cDesc>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>upd-time</cFieldName>
+    <cFullName>upd-time</cFullName>
+    <cXmlNodeName>upd-time</cXmlNodeName>
+    <iOrder>39.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Updated Time</cLabel>
+    <iOrderOrg>39.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>40</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc>Last Updated Time</cDesc>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rel-time</cFieldName>
+    <cFullName>rel-time</cFullName>
+    <cXmlNodeName>rel-time</cXmlNodeName>
+    <iOrder>40.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Rel. Time</cLabel>
+    <iOrderOrg>40.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>41</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Release Time</cHelp>
+    <cDesc>Used by SB</cDesc>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>po-no2</cFieldName>
+    <cFullName>po-no2</cFullName>
+    <cXmlNodeName>po-no2</cXmlNodeName>
+    <iOrder>41.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(15)</cFormat>
+    <cFormatOrg>x(15)</cFormatOrg>
+    <iWidth>30</iWidth>
+    <cLabel>Misc PO#</cLabel>
+    <iOrderOrg>41.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>42</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-code</cFieldName>
+    <cFullName>s-code</cFullName>
+    <cXmlNodeName>s-code</cXmlNodeName>
+    <iOrder>42.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x</cFormat>
+    <cFormatOrg>x</cFormatOrg>
+    <iWidth>2</iWidth>
+    <cLabel>Ship Code</cLabel>
+    <iOrderOrg>42.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>43</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter (I)nvoice only, (S)hip only, or (B)oth invoice &amp; ship.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>opened</cFieldName>
+    <cFullName>opened</cFullName>
+    <cXmlNodeName>opened</cXmlNodeName>
+    <iOrder>43.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>logical</cDataType>
+    <cInitial>Open</cInitial>
+    <cFormat>Open/Closed</cFormat>
+    <cFormatOrg>Open/Closed</cFormatOrg>
+    <iWidth>1</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>43.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>44</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>stat</cFieldName>
+    <cFullName>stat</cFullName>
+    <cXmlNodeName>stat</cXmlNodeName>
+    <iOrder>44.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X</cFormat>
+    <cFormatOrg>X</cFormatOrg>
+    <iWidth>2</iWidth>
+    <cLabel>Status</cLabel>
+    <iOrderOrg>44.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>45</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>t-freight</cFieldName>
+    <cFullName>t-freight</cFullName>
+    <cXmlNodeName>t-freight</cXmlNodeName>
+    <iOrder>45.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>Total Freight</cLabel>
+    <iOrderOrg>45.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>46</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter total freight cost for this order release.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>lot-no</cFieldName>
+    <cFullName>lot-no</cFullName>
+    <cXmlNodeName>lot-no</cXmlNodeName>
+    <iOrder>46.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(15)</cFormat>
+    <cFormatOrg>x(15)</cFormatOrg>
+    <iWidth>30</iWidth>
+    <cLabel>Customer Lot #</cLabel>
+    <iOrderOrg>46.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel>Customer!Lot #</cColLabel>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>50</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter customer lot number</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>job</cFieldName>
+    <cFullName>job</cFullName>
+    <cXmlNodeName>job</cXmlNodeName>
+    <iOrder>47.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Unique Internial Job Number</cLabel>
+    <iOrderOrg>47.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>51</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Links JOB-HDR File to JOB File.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>price</cFieldName>
+    <cFullName>price</cFullName>
+    <cXmlNodeName>price</cXmlNodeName>
+    <iOrder>48.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;&lt;&lt;</cFormat>
+    <cFormatOrg>&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;&lt;&lt;</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel>Price</cLabel>
+    <iOrderOrg>48.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>52</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Price per Unit of measure</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>vend-po</cFieldName>
+    <cFullName>vend-po</cFullName>
+    <cXmlNodeName>vend-po</cXmlNodeName>
+    <iOrder>49.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>PO Number</cLabel>
+    <iOrderOrg>49.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>53</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Purchase Order Number For This Order.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-1</cFieldName>
+    <cFullName>spare-char-1</cFullName>
+    <cXmlNodeName>spare-char-1</cXmlNodeName>
+    <iOrder>50.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>50.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>66</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-2</cFieldName>
+    <cFullName>spare-char-2</cFullName>
+    <cXmlNodeName>spare-char-2</cXmlNodeName>
+    <iOrder>51.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>51.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>67</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-3</cFieldName>
+    <cFullName>spare-char-3</cFullName>
+    <cXmlNodeName>spare-char-3</cXmlNodeName>
+    <iOrder>52.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>52.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>68</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-4</cFieldName>
+    <cFullName>spare-char-4</cFullName>
+    <cXmlNodeName>spare-char-4</cXmlNodeName>
+    <iOrder>53.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>53.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>54</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-5</cFieldName>
+    <cFullName>spare-char-5</cFullName>
+    <cXmlNodeName>spare-char-5</cXmlNodeName>
+    <iOrder>54.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>54.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>55</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-1</cFieldName>
+    <cFullName>spare-dec-1</cFullName>
+    <cXmlNodeName>spare-dec-1</cXmlNodeName>
+    <iOrder>55.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>55.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>56</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-2</cFieldName>
+    <cFullName>spare-dec-2</cFullName>
+    <cXmlNodeName>spare-dec-2</cXmlNodeName>
+    <iOrder>56.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>56.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>57</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-3</cFieldName>
+    <cFullName>spare-dec-3</cFullName>
+    <cXmlNodeName>spare-dec-3</cXmlNodeName>
+    <iOrder>57.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>57.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>58</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-4</cFieldName>
+    <cFullName>spare-dec-4</cFullName>
+    <cXmlNodeName>spare-dec-4</cXmlNodeName>
+    <iOrder>58.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>58.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>59</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-5</cFieldName>
+    <cFullName>spare-dec-5</cFullName>
+    <cXmlNodeName>spare-dec-5</cXmlNodeName>
+    <iOrder>59.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>21</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>59.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>6</iDecimals>
+    <iFieldRpos>60</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-1</cFieldName>
+    <cFullName>spare-int-1</cFullName>
+    <cXmlNodeName>spare-int-1</cXmlNodeName>
+    <iOrder>60.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>60.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>61</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-2</cFieldName>
+    <cFullName>spare-int-2</cFullName>
+    <cXmlNodeName>spare-int-2</cXmlNodeName>
+    <iOrder>61.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>61.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>62</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-3</cFieldName>
+    <cFullName>spare-int-3</cFullName>
+    <cXmlNodeName>spare-int-3</cXmlNodeName>
+    <iOrder>62.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>62.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>63</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-4</cFieldName>
+    <cFullName>spare-int-4</cFullName>
+    <cXmlNodeName>spare-int-4</cXmlNodeName>
+    <iOrder>63.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>63.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>64</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-5</cFieldName>
+    <cFullName>spare-int-5</cFullName>
+    <cXmlNodeName>spare-int-5</cXmlNodeName>
+    <iOrder>64.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel xsi:nil="true"/>
+    <iOrderOrg>64.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>65</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sell-price</cFieldName>
+    <cFullName>sell-price</cFullName>
+    <cXmlNodeName>sell-price</cXmlNodeName>
+    <iOrder>65.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>Sell Price</cLabel>
+    <iOrderOrg>65.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>69</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>lot-code</cFieldName>
+    <cFullName>lot-code</cFullName>
+    <cXmlNodeName>lot-code</cXmlNodeName>
+    <iOrder>66.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Lot Code</cLabel>
+    <iOrderOrg>66.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>72</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>frt-pay</cFieldName>
+    <cFullName>frt-pay</cFullName>
+    <cXmlNodeName>frt-pay</cXmlNodeName>
+    <iOrder>67.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>Frt Pay</cLabel>
+    <iOrderOrg>67.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>73</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>fob-code</cFieldName>
+    <cFullName>fob-code</cFullName>
+    <cXmlNodeName>fob-code</cXmlNodeName>
+    <iOrder>68.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(8)</cFormat>
+    <cFormatOrg>x(8)</cFormatOrg>
+    <iWidth>16</iWidth>
+    <cLabel>FOB Code</cLabel>
+    <iOrderOrg>68.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>74</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>newSellPrice</cFieldName>
+    <cFullName>newSellPrice</cFullName>
+    <cXmlNodeName>newSellPrice</cXmlNodeName>
+    <iOrder>69.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>New Sell Price</cLabel>
+    <iOrderOrg>69.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>70</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>newZeroPrice</cFieldName>
+    <cFullName>newZeroPrice</cFullName>
+    <cXmlNodeName>newZeroPrice</cXmlNodeName>
+    <iOrder>70.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>New Zero Price</cLabel>
+    <iOrderOrg>70.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>71</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>zeroPrice</cFieldName>
+    <cFullName>zeroPrice</cFullName>
+    <cXmlNodeName>zeroPrice</cXmlNodeName>
+    <iOrder>71.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>-&gt;&gt;,&gt;&gt;9.99</cFormat>
+    <cFormatOrg>-&gt;&gt;,&gt;&gt;9.99</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>Zero Price</cLabel>
+    <iOrderOrg>71.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel>Zero Price</cColLabel>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>75</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <cFullName>RECID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>72.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(14)</cFormat>
+    <cFormatOrg>X(14)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>RECID</cLabel>
+    <iOrderOrg>72.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <cFullName>ROWID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>73.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(30)</cFormat>
+    <cFormatOrg>X(30)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>ROWID</cLabel>
+    <iOrderOrg>73.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>1.0</iOrder>
+    <cLabel>Ship To #</cLabel>
+    <iColumnNr>1</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sold-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>sold-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>2.0</iOrder>
+    <cLabel>Sold To #</cLabel>
+    <iColumnNr>2</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>qty</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>qty</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>3.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>3</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>po-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>po-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>P.O. Num</cLabel>
+    <iColumnNr>4</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>i-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>i-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Item No</cLabel>
+    <iColumnNr>5</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rel-date</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rel-date</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>6.0</iOrder>
+    <cLabel>Date Last Counted</cLabel>
+    <iColumnNr>6</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>partial</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>partial</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>7.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>7</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>cust-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>cust-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>8.0</iOrder>
+    <cLabel>Cust. #</cLabel>
+    <iColumnNr>8</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>line</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>line</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>9.0</iOrder>
+    <cLabel>Line</cLabel>
+    <iColumnNr>9</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>o-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>o-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>10.0</iOrder>
+    <cLabel>Order #</cLabel>
+    <iColumnNr>10</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>w-ord</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>w-ord</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>11.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>11</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-date</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-date</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>12.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>12</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>loc</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>loc</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>13.0</iOrder>
+    <cLabel>Warehouse</cLabel>
+    <iColumnNr>13</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>loc-bin</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>loc-bin</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>14.0</iOrder>
+    <cLabel>Primary Bin Loc.</cLabel>
+    <iColumnNr>14</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>tag</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>tag</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>15.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>15</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>cases</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>cases</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>16.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>16</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>qty-case</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>qty-case</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>17.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>17</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rel-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rel-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>18.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>18</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>tot-qty</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>tot-qty</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>19.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>19</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>company</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>company</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>20.0</iOrder>
+    <cLabel>Company</cLabel>
+    <iColumnNr>20</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sman</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>sman[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>21.0</iOrder>
+    <cLabel>Salesman Code</cLabel>
+    <iColumnNr>21</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sman</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>sman[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>21.0</iOrder>
+    <cLabel>Salesman Code</cLabel>
+    <iColumnNr>22</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sman</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>sman[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>21.0</iOrder>
+    <cLabel>Salesman Code</cLabel>
+    <iColumnNr>23</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-pct</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>s-pct[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>22.0</iOrder>
+    <cLabel>Percentage</cLabel>
+    <iColumnNr>24</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-pct</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>s-pct[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>22.0</iOrder>
+    <cLabel>Percentage</cLabel>
+    <iColumnNr>25</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-pct</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>s-pct[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>22.0</iOrder>
+    <cLabel>Percentage</cLabel>
+    <iColumnNr>26</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-name</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>s-name[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>23.0</iOrder>
+    <cLabel>Salesman Name</cLabel>
+    <iColumnNr>27</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-name</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>s-name[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>23.0</iOrder>
+    <cLabel>Salesman Name</cLabel>
+    <iColumnNr>28</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-name</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>s-name[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>23.0</iOrder>
+    <cLabel>Salesman Name</cLabel>
+    <iColumnNr>29</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>r-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>r-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>24.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>30</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ord-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ord-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>25.0</iOrder>
+    <cLabel>Order#</cLabel>
+    <iColumnNr>31</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>carrier</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>carrier</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>26.0</iOrder>
+    <cLabel>Carrier</cLabel>
+    <iColumnNr>32</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-addr</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>ship-addr[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>27.0</iOrder>
+    <cLabel>Address</cLabel>
+    <iColumnNr>33</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-addr</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>ship-addr[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>27.0</iOrder>
+    <cLabel>Address</cLabel>
+    <iColumnNr>34</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-city</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-city</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>28.0</iOrder>
+    <cLabel>City</cLabel>
+    <iColumnNr>35</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-state</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-state</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>29.0</iOrder>
+    <cLabel>State</cLabel>
+    <iColumnNr>36</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-zip</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-zip</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>30.0</iOrder>
+    <cLabel>Postal Code</cLabel>
+    <iColumnNr>37</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-comm</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>s-comm[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>31.0</iOrder>
+    <cLabel>Commission</cLabel>
+    <iColumnNr>38</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-comm</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>s-comm[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>31.0</iOrder>
+    <cLabel>Commission</cLabel>
+    <iColumnNr>39</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-comm</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>s-comm[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>31.0</iOrder>
+    <cLabel>Commission</cLabel>
+    <iColumnNr>40</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-i</cFieldName>
+    <iExtent>1</iExtent>
+    <cFullName>ship-i[1]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>32.0</iOrder>
+    <cLabel>Shipping Instructions</cLabel>
+    <iColumnNr>41</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-i</cFieldName>
+    <iExtent>2</iExtent>
+    <cFullName>ship-i[2]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>32.0</iOrder>
+    <cLabel>Shipping Instructions</cLabel>
+    <iColumnNr>42</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-i</cFieldName>
+    <iExtent>3</iExtent>
+    <cFullName>ship-i[3]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>32.0</iOrder>
+    <cLabel>Shipping Instructions</cLabel>
+    <iColumnNr>43</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-i</cFieldName>
+    <iExtent>4</iExtent>
+    <cFullName>ship-i[4]</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>32.0</iOrder>
+    <cLabel>Shipping Instructions</cLabel>
+    <iColumnNr>44</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>deleted</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>deleted</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>33.0</iOrder>
+    <cLabel>Deleted?</cLabel>
+    <iColumnNr>45</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ship-id</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ship-id</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>34.0</iOrder>
+    <cLabel>Ship To ID</cLabel>
+    <iColumnNr>46</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>link-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>link-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>35.0</iOrder>
+    <cLabel>Link Number</cLabel>
+    <iColumnNr>47</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>b-ord-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>b-ord-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>36.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>48</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rec_key</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>37.0</iOrder>
+    <cLabel>Rec Key</cLabel>
+    <iColumnNr>49</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>upd-date</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>upd-date</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>38.0</iOrder>
+    <cLabel>Updated Date</cLabel>
+    <iColumnNr>50</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>upd-time</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>upd-time</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>39.0</iOrder>
+    <cLabel>Updated Time</cLabel>
+    <iColumnNr>51</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>rel-time</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rel-time</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>40.0</iOrder>
+    <cLabel>Rel. Time</cLabel>
+    <iColumnNr>52</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>po-no2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>po-no2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>41.0</iOrder>
+    <cLabel>Misc PO#</cLabel>
+    <iColumnNr>53</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>s-code</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>s-code</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>42.0</iOrder>
+    <cLabel>Ship Code</cLabel>
+    <iColumnNr>54</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>opened</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>opened</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>43.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>55</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>stat</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>stat</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>44.0</iOrder>
+    <cLabel>Status</cLabel>
+    <iColumnNr>56</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>t-freight</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>t-freight</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>45.0</iOrder>
+    <cLabel>Total Freight</cLabel>
+    <iColumnNr>57</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>lot-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>lot-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>46.0</iOrder>
+    <cLabel>Customer Lot #</cLabel>
+    <iColumnNr>58</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>job</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>job</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>47.0</iOrder>
+    <cLabel>Unique Internial Job Number</cLabel>
+    <iColumnNr>59</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>price</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>price</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>48.0</iOrder>
+    <cLabel>Price</cLabel>
+    <iColumnNr>60</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>vend-po</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>vend-po</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>49.0</iOrder>
+    <cLabel>PO Number</cLabel>
+    <iColumnNr>61</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-1</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-1</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>50.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>62</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>51.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>63</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-3</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-3</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>52.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>64</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-4</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-4</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>53.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>65</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-char-5</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-char-5</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>54.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>66</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-1</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-1</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>55.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>67</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>56.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>68</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-3</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-3</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>57.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>69</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-4</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-4</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>58.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>70</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-dec-5</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-dec-5</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>59.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>71</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-1</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-1</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>60.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>72</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>61.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>73</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-3</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-3</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>62.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>74</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-4</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-4</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>63.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>75</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>spare-int-5</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>spare-int-5</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>64.0</iOrder>
+    <cLabel xsi:nil="true"/>
+    <iColumnNr>76</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>sell-price</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>sell-price</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>65.0</iOrder>
+    <cLabel>Sell Price</cLabel>
+    <iColumnNr>77</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>lot-code</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>lot-code</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>66.0</iOrder>
+    <cLabel>Lot Code</cLabel>
+    <iColumnNr>78</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>frt-pay</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>frt-pay</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>67.0</iOrder>
+    <cLabel>Frt Pay</cLabel>
+    <iColumnNr>79</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>fob-code</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>fob-code</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>68.0</iOrder>
+    <cLabel>FOB Code</cLabel>
+    <iColumnNr>80</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>newSellPrice</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>newSellPrice</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>69.0</iOrder>
+    <cLabel>New Sell Price</cLabel>
+    <iColumnNr>81</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>newZeroPrice</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>newZeroPrice</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>70.0</iOrder>
+    <cLabel>New Zero Price</cLabel>
+    <iColumnNr>82</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>zeroPrice</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>zeroPrice</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>71.0</iOrder>
+    <cLabel>Zero Price</cLabel>
+    <iColumnNr>83</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>RECID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>72.0</iOrder>
+    <cLabel>RECID</cLabel>
+    <iColumnNr>84</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.oe-rel.54846</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>oe-rel</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ROWID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>73.0</iOrder>
+    <cLabel>ROWID</cLabel>
+    <iColumnNr>85</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+</dsFields>
