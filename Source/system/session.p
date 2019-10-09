@@ -112,10 +112,10 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
 &ENDIF
 
 
-&IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
+&IF DEFINED(EXCLUDE-sfClearUsage) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfClearTtSysCtrlUsage Procedure 
-FUNCTION sfClearTtSysCtrlUsage RETURNS LOGICAL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfClearUsage Procedure 
+FUNCTION sfClearUsage RETURNS LOGICAL
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1629,15 +1629,16 @@ END FUNCTION.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
+&IF DEFINED(EXCLUDE-sfClearUsage) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfClearTtSysCtrlUsage Procedure 
-FUNCTION sfClearTtSysCtrlUsage RETURNS LOGICAL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfClearUsage Procedure 
+FUNCTION sfClearUsage RETURNS LOGICAL
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttPermissions.
     EMPTY TEMP-TABLE ttSysCtrlUsage.
 
     RETURN TRUE.
