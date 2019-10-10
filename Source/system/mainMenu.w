@@ -136,14 +136,14 @@ cEulaFile = SEARCH("{&EulaFile}").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo ~
-imageFolder imagePrinter imageScheduler 
+imageFolder imagePrinter imageScheduler imageRunUlitity 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
 Mnemonic 
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters menuTreeFilter searchSelections btnMoveDown ~
-btnMoveUp btnRemove btnFavorite svFavoriteText 
+&Scoped-define searchFilters btnMoveDown menuTreeFilter btnMoveUp ~
+searchSelections btnRemove btnFavorite svFavoriteText 
 &Scoped-define colorPallet colorChoice-0 colorChoice-1 colorChoice-2 ~
 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
 colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
@@ -222,6 +222,10 @@ DEFINE IMAGE imagePrinter
      FILENAME "Graphics/32x32/printer.ico":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Reports".
 
+DEFINE IMAGE imageRunUlitity
+     FILENAME "Graphics/32x32/window_gear.png":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Task Scheduler".
+
 DEFINE IMAGE imageScheduler
      FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Task Scheduler".
@@ -284,12 +288,12 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 27 BY 1.19
+     SIZE 25 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 28 BY 1.19
+     SIZE 21 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-8
@@ -625,20 +629,20 @@ DEFINE VARIABLE svMenuImage AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-USER
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
-     loc_loc AT ROW 1.71 COL 73 COLON-ALIGNED NO-LABEL
-     users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
+     loc_loc AT ROW 1.71 COL 68 COLON-ALIGNED NO-LABEL
+     users_user_id AT ROW 1.71 COL 98 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 99
+          SIZE 8 BY .62 AT ROW 1.71 COL 91
      "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 66
+          SIZE 9 BY .62 AT ROW 1.71 COL 61
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
-     RECT-6 AT ROW 1.48 COL 97 WIDGET-ID 40
+     RECT-6 AT ROW 1.48 COL 90 WIDGET-ID 40
      RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
      RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
@@ -656,9 +660,10 @@ DEFINE FRAME FRAME-USER
      menuLink-6 AT ROW 26.95 COL 83 WIDGET-ID 76
      menuLink-7 AT ROW 26.95 COL 70 WIDGET-ID 78
      menuLink-8 AT ROW 26.95 COL 57 WIDGET-ID 80
-     imageFolder AT ROW 1.24 COL 89 WIDGET-ID 86
-     imagePrinter AT ROW 1.24 COL 125 WIDGET-ID 98
-     imageScheduler AT ROW 1.24 COL 133 WIDGET-ID 102
+     imageFolder AT ROW 1.24 COL 82 WIDGET-ID 86
+     imagePrinter AT ROW 1.24 COL 116 WIDGET-ID 98
+     imageScheduler AT ROW 1.24 COL 124 WIDGET-ID 102
+     imageRunUlitity AT ROW 1.24 COL 133 WIDGET-ID 104
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -668,14 +673,14 @@ DEFINE FRAME FRAME-USER
 DEFINE FRAME searchFrame
      BtnFavorites AT ROW 1 COL 1 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnMoveDown AT ROW 5.76 COL 1 HELP
           "Move Favorite Down" WIDGET-ID 58
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
      btnMoveUp AT ROW 3.38 COL 1 HELP
           "Move Favorite Up" WIDGET-ID 56
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnRemove AT ROW 4.57 COL 1 HELP
           "Remove Favorite" WIDGET-ID 26
      btnSearch AT ROW 1 COL 51 HELP
@@ -712,6 +717,12 @@ DEFINE FRAME userSettingsFrame
           "Cancel" WIDGET-ID 2
      btnLanguage-1 AT ROW 4.33 COL 6 HELP
           "Select this Language" WIDGET-ID 24
+     btnLanguage-2 AT ROW 6 COL 6 HELP
+          "Select this Language" WIDGET-ID 26
+     btnLanguage-3 AT ROW 7.67 COL 6 HELP
+          "Select this Language" WIDGET-ID 28
+     btnOK AT ROW 20.52 COL 3 HELP
+          "Save Changes" WIDGET-ID 4
      btnToggle AT ROW 1.48 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
@@ -731,48 +742,42 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      lShowCueCards AT ROW 21 COL 32 HELP
           "Toggle to Show/Not Show Cue Cards" WIDGET-ID 470
-     btnLanguage-2 AT ROW 6 COL 6 HELP
-          "Select this Language" WIDGET-ID 26
-     btnLanguage-3 AT ROW 7.67 COL 6 HELP
-          "Select this Language" WIDGET-ID 28
-     btnOK AT ROW 20.52 COL 3 HELP
-          "Save Changes" WIDGET-ID 4
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
-          FGCOLOR 0 FONT 6
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
-          FONT 35
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
-          FONT 37
      " Copy to Selected Users" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      " Copy From User" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
      "3" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
+          FGCOLOR 0 FONT 6
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
+          FONT 37
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
      "[S] Scheduling" VIEW-AS TEXT
           SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
           FONT 33
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -1677,6 +1682,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME imageRunUlitity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageRunUlitity MAINMENU
+ON MOUSE-SELECT-CLICK OF imageRunUlitity IN FRAME FRAME-USER
+DO:
+    RUN Get_Procedure IN Persistent-Handle ("utillook.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME imageScheduler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
 ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
@@ -2196,21 +2212,21 @@ PROCEDURE enable_UI :
   DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   ENABLE imageSettings imageCompany menuLinkZoHo imageFolder imagePrinter 
-         imageScheduler 
+         imageScheduler imageRunUlitity 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites menuTreeFilter favoritesList searchSelections btnMoveDown 
-         btnMoveUp btnRemove btnSearch btnFavorite 
+  ENABLE BtnFavorites btnMoveDown menuTreeFilter btnMoveUp favoritesList 
+         searchSelections btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY copyFromUser copyToUser svLanguageList svMenuSize svMenuImage 
           cShowMnemonic cPositionMnemonic lShowCueCards 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
-  ENABLE btnCancel svMenuImage cShowMnemonic cPositionMnemonic lShowCueCards 
-         btnOK 
+  ENABLE btnCancel btnOK svMenuImage cShowMnemonic cPositionMnemonic 
+         lShowCueCards 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-userSettingsFrame}
   DISPLAY svFocus upgradeMsg 

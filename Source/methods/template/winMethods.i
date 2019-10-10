@@ -443,7 +443,8 @@ PROCEDURE select_appl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-RUN windows/utillook.w.
+    RUN Get_Procedure IN Persistent-Handle ('utillook.',OUTPUT run-proc,YES).
+    /*RUN windows/utillook.w.*/
 
 END PROCEDURE.
 

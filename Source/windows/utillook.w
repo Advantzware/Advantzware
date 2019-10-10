@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -93,13 +96,15 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Utility  Run Program Lookup"
+         TITLE              = "Utility Run Program Lookup"
          HEIGHT             = 20.1
-         WIDTH              = 58.4
+         WIDTH              = 51.8
          MAX-HEIGHT         = 54.76
          MAX-WIDTH          = 384
          VIRTUAL-HEIGHT     = 54.76
          VIRTUAL-WIDTH      = 384
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -144,7 +149,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Utility  Run Program Lookup */
+ON END-ERROR OF W-Win /* Utility Run Program Lookup */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -157,7 +162,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Utility  Run Program Lookup */
+ON WINDOW-CLOSE OF W-Win /* Utility Run Program Lookup */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -206,8 +211,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_usr-mnu2 ).
-       RUN set-position IN h_usr-mnu2 ( 1.48 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_usr-mnu2 ( 19.14 , 52.00 ) NO-ERROR.
+       RUN set-position IN h_usr-mnu2 ( 1.00 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_usr-mnu2 ( 20.10 , 52.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 0 */
