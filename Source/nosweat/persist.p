@@ -148,8 +148,9 @@ PROCEDURE Get_Procedure :
     DEFINE OUTPUT PARAMETER run-proc  AS CHARACTER.
     DEFINE INPUT  PARAMETER run-now   AS LOGICAL.
     
-    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
-    DEF VAR lDummy AS LOG NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iAuditID      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lDummy        AS LOGICAL NO-UNDO.
 
     IF INDEX(proc-name,"..") NE 0 OR INDEX(proc-name,".") = 0 THEN
         RETURN.
@@ -221,6 +222,10 @@ PROCEDURE Get_Procedure :
                 run-proc = "".
             END. /* if run-now */
             RUN spTtPermissions (ROWID(buf-prgrms)).
+            /* if SysCtrlUsage viewer open, auto refresh */
+            hSysCtrlUsage = DYNAMIC-FUNCTION("sfGetSysCtrlUsageHandle").
+            IF VALID-HANDLE(hSysCtrlUsage) THEN
+            RUN pGetTtPermissions IN hSysCtrlUsage.
         END. /* else do */
     END. /* avail buf-prgrms */
     ELSE IF NOT SESSION:BATCH-MODE THEN DO:
