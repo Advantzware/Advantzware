@@ -40,16 +40,23 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+DEFINE SHARED VARIABLE cIniLoc AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdStatus       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cColumnHandles AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDLC           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDLCDir        AS CHARACTER NO-UNDO.
+DEF TEMP-TABLE ttIniFile
+    FIELD iPos      AS INTEGER
+    FIELD cRaw      AS CHARACTER
+    FIELD cVarName  AS CHARACTER
+    FIELD cVarValue AS CHARACTER
+    INDEX idxPos IS PRIMARY UNIQUE iPos.
 
-/* Gets DLC path */
-GET-KEY-VALUE SECTION 'Startup' KEY 'DLC' VALUE cDLC.
+/* Fetches DLC from Advantzware.ini */
+RUN pFetchDLC.
 
 RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
-    INPUT cDLC,
+    INPUT cDLCDir,
     INPUT g_company
     ).
 
@@ -400,37 +407,28 @@ ON CHOOSE OF btStart IN FRAME DEFAULT-FRAME /* Start */
 DO:
 
     DEFINE VARIABLE cStartService AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
   
     SESSION:SET-WAIT-STATE("GENERAL").
 
     IF AVAILABLE serverResource THEN DO:
         
-        /* Re-starts NodeServer */
-        IF serverResource.resourceType EQ "Node" THEN DO:
-            IF SEARCH(serverResource.startService) NE ? THEN DO:
-                DOS SILENT START VALUE(serverResource.startService).
-            END.
-            ELSE
-                MESSAGE "start script [" + serverResource.startService + "] for node not found" VIEW-AS ALERT-BOX.
-            END.
-        
-        /* Re-starts AdminServer */
-        IF serverResource.resourceType EQ "AdminServer" THEN
-            cStartService = REPLACE(serverResource.StartService,"&1",serverResource.Port).
        
-        /* Re-starts NameServer */
-        IF serverResource.resourceType EQ "NameServer" THEN
-            cStartService = REPLACE(serverResource.StartService,"&1",serverResource.Name).
-        
-        /* Re-starts AppServer */
-        IF serverResource.resourceType EQ "AppServer" THEN
-            cStartService = REPLACE(serverResource.StartService,"&1",serverResource.Name).
-        
-        IF cStartService NE " " THEN DO:
-            cStartService = cDLC + "\bin\" + cStartService.
-            OS-COMMAND SILENT VALUE(cStartService).
+        IF SEARCH(serverResource.startService) NE ? THEN DO:
+            
+            IF serverResource.resourceType EQ "Node" THEN
+                DOS SILENT START VALUE(serverResource.startService). /* Re-starts NodeServer */
+            ELSE 
+                 OS-COMMAND SILENT VALUE(serverResource.startService). /* Re-starts AdminServer,AppServer and NameServer */
+        END. 
+        ELSE DO:
+            cErrorMessage = IF serverResource.resourceType EQ "Node" OR serverResource.resourceType EQ "AdminServer" THEN
+                           "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " is not found"
+                       ELSE
+                           "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
+                       .
+            MESSAGE cErrorMessage VIEW-AS ALERT-BOX.
         END.
-    
     END.
     
     SESSION:SET-WAIT-STATE("").
@@ -447,29 +445,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btStop C-Win
 ON CHOOSE OF btStop IN FRAME DEFAULT-FRAME /* Stop */
 DO:
-    DEFINE VARIABLE cStopService AS CHARACTER NO-UNDO.
-  
+    DEFINE VARIABLE cStopService  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     SESSION:SET-WAIT-STATE("GENERAL").
   
     IF AVAILABLE serverResource THEN DO:
-       
-        /* Stops AdminServer */
-        IF serverResource.resourceType EQ "AdminServer" THEN
-            cStopService = REPLACE(serverResource.StopService,"&1",serverResource.Port).
-       
-        /* Stops NameServer */
-        IF serverResource.resourceType EQ "NameServer" THEN
-            cStopService = REPLACE(serverResource.StopService,"&1",serverResource.Name).
-       
-        /* Stops AppServer */
-        IF serverResource.resourceType EQ "AppServer" THEN
-            cStopService = REPLACE(serverResource.StopService,"&1",serverResource.Name).
-   
-        IF cStopService NE "" THEN DO:
-            cStopService = cDLC + "\bin\" + cStopService.
-            OS-COMMAND SILENT VALUE(cStopService).
+        IF SEARCH(serverResource.stopService) NE ? THEN 
+            OS-COMMAND SILENT VALUE(serverResource.stopService). /* Stops AdminServer,AppServer and NameServer */
+        ELSE DO:
+            cErrorMessage = IF serverResource.resourceType EQ "AdminServer" THEN
+                           "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " is not found"
+                       ELSE
+                           "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
+                       .
+            MESSAGE cErrorMessage VIEW-AS ALERT-BOX.
         END.
-    
     END.
     
     SESSION:SET-WAIT-STATE("").
@@ -615,6 +605,59 @@ PROCEDURE enable_UI :
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFetchDLC C-Win 
+PROCEDURE pFetchDLC :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VARIABLE cIniLine    AS CHARACTER NO-UNDO.
+    DEF VARIABLE cIniVarList AS CHARACTER NO-UNDO.
+    DEF VARIABLE iLine       AS INTEGER   NO-UNDO.
+    
+    /* Create the temp-table and load var names */
+    cIniVarList = "# Setup Variables,DLCDir,".
+    
+    EMPTY TEMP-TABLE ttIniFile.
+    
+    DO iLine = 1 TO NUM-ENTRIES(cIniVarList):
+        CREATE ttIniFile.
+        ASSIGN
+            ttIniFile.iPos = iLine
+            ttIniFile.cVarName = ENTRY(iLine,cIniVarList).
+    END.
+    
+    INPUT FROM VALUE(SEARCH(cIniLoc)).
+    REPEAT:
+        IMPORT UNFORMATTED cIniLine.
+        IF cIniLine BEGINS "#" THEN DO:
+            FIND ttIniFile WHERE 
+                ttIniFile.cVarName = cIniLine
+                NO-ERROR.
+            IF AVAIL ttIniFile THEN ASSIGN
+                ttIniFile.cRaw = cIniLine.
+        END.
+        ELSE DO:
+            FIND ttIniFile WHERE 
+                ttIniFile.cVarName = ENTRY(1,cIniLine,"=")
+                NO-ERROR.
+            IF AVAIL ttIniFile THEN ASSIGN
+                ttIniFile.cRaw = cIniLine
+                ttIniFile.cVarValue = ENTRY(2,cIniLine,"=").
+        END.            
+    END.
+    INPUT CLOSE.
+     
+    FOR EACH ttIniFile WHERE ttIniFile.cVarName EQ "DLCDir" :
+        cDLCDir = ttIniFile.cVarValue.
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
