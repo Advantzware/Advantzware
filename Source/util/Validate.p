@@ -243,6 +243,30 @@ PROCEDURE pIsValidFGBinForLoc:
         &ValidateMessage = "FG Bin Location for warehouse"}
 END PROCEDURE.
 
+PROCEDURE pIsValidRMBinForLoc:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates RM Bin
+     Notes: Input 1 = Bin location
+    ------------------------------------------------------------------------------*/
+        {util/dev/ValidateWith2Criteria.i 
+        &ValidateTable = "rm-bin" 
+        &ValidateField1 = "loc-bin"
+        &ValidateField2 = "loc"  
+        &ValidateMessage = "RM Bin Location for warehouse"}
+END PROCEDURE.
+
+PROCEDURE pIsValidWipBinForLoc:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Wip Bin
+     Notes: Input 1 = Bin location
+    ------------------------------------------------------------------------------*/
+        {util/dev/ValidateWith2Criteria.i 
+        &ValidateTable = "Wip-bin" 
+        &ValidateField1 = "loc-bin"
+        &ValidateField2 = "loc"  
+        &ValidateMessage = "Wip Bin Location for warehouse"}
+END PROCEDURE.
+
 PROCEDURE pIsValidSalesRep:
     /*------------------------------------------------------------------------------
      Purpose:  Validates SalesRep 
