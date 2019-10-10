@@ -510,6 +510,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-inmisc. */
        RUN add-link IN adm-broker-hdl ( h_b-invitm , 'Record':U , h_b-inmisc ).
        RUN add-link IN adm-broker-hdl ( h_p-invmis , 'TableIO':U , h_b-inmisc ).
+       RUN add-link IN adm-broker-hdl ( h_b-inmisc , 'oemisc':U , h_p-invmis ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-inmisc ,
