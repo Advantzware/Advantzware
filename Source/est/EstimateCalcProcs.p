@@ -2652,12 +2652,15 @@ PROCEDURE pProcessOperations PRIVATE:
                             dQtyInOutRunWaste             = fRoundUp(ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut,1))
                             .
                 END.
+                
                 /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
                 ASSIGN 
                     dQtyInOut           = dQtyFormsRequiredForBlanksMax * bf-estCostOperation.numOutForOperation
                     dQtyInOutSetupWaste = dQtyInOutSetupWaste * bf-estCostOperation.numOutForOperation
                     dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-estCostOperation.numOutForOperation.
             END.
+            IF dQtyInOut EQ 0 THEN 
+                    dQtyInOut = ipbf-estCostForm.quantityFGOnForm.
             RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
