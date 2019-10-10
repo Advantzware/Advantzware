@@ -75,7 +75,7 @@ def var lv-first-time as log no-undo.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table btn-clear lv-search RECT-41 
+&Scoped-Define ENABLED-OBJECTS br_table RECT-41 lv-search btn-clear 
 &Scoped-Define DISPLAYED-OBJECTS lv-search 
 
 /* Custom List Definitions                                              */
@@ -134,16 +134,16 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-clear 
      LABEL "Clear Find" 
-     SIZE 15 BY 1.14.
+     SIZE 15 BY .91.
 
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Find Menu#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 22 BY .91
      FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-41
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 52 BY 1.29.
 
 /* Query definitions                                                    */
@@ -160,16 +160,16 @@ DEFINE BROWSE br_table
       usr-menu.descrip FORMAT "x(40)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 52 BY 17.86.
+    WITH NO-ASSIGN SEPARATORS SIZE 52 BY 18.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
-     btn-clear AT ROW 18.95 COL 30
-     lv-search AT ROW 19.1 COL 13 COLON-ALIGNED
-     RECT-41 AT ROW 18.86 COL 1
+     lv-search AT ROW 20.05 COL 13 COLON-ALIGNED
+     btn-clear AT ROW 20.05 COL 37
+     RECT-41 AT ROW 19.81 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -202,7 +202,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.14
+         HEIGHT             = 25.19
          WIDTH              = 96.
 /* END WINDOW DEFINITION */
                                                                         */

@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE cFolderFile AS CHARACTER NO-UNDO.
