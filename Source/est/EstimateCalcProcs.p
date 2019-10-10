@@ -395,7 +395,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         
         opbf-estCostBlank.quantityRequired        = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.quantityYielded         = ipbf-eb.yld-qty
-        opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice
+        opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
         .
         
     FIND FIRST bf-estCostItem EXCLUSIVE-LOCK 
