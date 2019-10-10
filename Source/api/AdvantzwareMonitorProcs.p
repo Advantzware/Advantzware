@@ -64,43 +64,13 @@ END PROCEDURE.
 
 /* Gets AppServer Status */
 PROCEDURE getASBrokerStatus:
-    DEFINE INPUT  PARAMETER ipcBrokerName     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcNameServer     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcNameServerPort AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcBrokerStatus   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBrokerName    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBrokerStatus  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCounter      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ibrokerLine   AS INTEGER   NO-UNDO. 
 
-    cFullFilePath = ipcDLC + "\" + "properties\ubroker.properties".
-
-    INPUT FROM VALUE(cFullFilePath).
-    BROKER-LOOP:
-    REPEAT:
-        iCounter = iCounter + 1.
-        IMPORT UNFORMATTED cLine.
-        
-        IF cLine MATCHES "[UBroker.AS." + ipcBrokerName + "]*" THEN 
-            ibrokerLine  = iCounter + 1.
-
-        IF ibrokerLine NE 0 AND 
-            iCounter > ibrokerLine AND 
-            cLine MATCHES "*controllingNameServer*" THEN DO:
-            
-            opcNameServer = ENTRY(2,cLine,"=").
-            LEAVE BROKER-LOOP.  
-        END.
-    END.
-    
-    INPUT CLOSE.
-    
-    RUN getNameServerPort   (
-        INPUT  opcNameServer, 
-        OUTPUT opcNameServerPort
-        ). 
-               
-               
     OS-COMMAND SILENT VALUE(ipcDLC + "\bin\asbman.bat") -NAME VALUE(ipcBrokerName) -QUERY > VALUE(cPathDataFile).
     IF SEARCH(cPathDataFile) = ? THEN RETURN.
     INPUT FROM VALUE(cPathDataFile).
@@ -125,8 +95,7 @@ END PROCEDURE.
 PROCEDURE getNameServerStatus:
     DEFINE INPUT  PARAMETER ipcNameServerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerStatus  AS CHARACTER NO-UNDO.
-  
-  
+   
     OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -QUERY > VALUE(cPathDataFile).
     IF SEARCH(cPathDataFile) = ? THEN RETURN.
 
@@ -140,27 +109,6 @@ PROCEDURE getNameServerStatus:
         IF cLine MATCHES "NameServer * running on Host*" OR 
            cLine MATCHES "Unable to find*" THEN
              opcNameServerStatus = "Running".
-    END.
-    INPUT CLOSE.
-    OS-DELETE VALUE(cPathDataFile).
-END PROCEDURE.
-
-/* Gets NameServer Port */
-PROCEDURE getNameServerPort:
-    DEFINE INPUT  PARAMETER ipcNameServerName AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcNameServerPort AS CHARACTER NO-UNDO.
-  
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsconfig.bat") -NAME VALUE(ipcNameServerName) > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
-    INPUT FROM VALUE(cPathDataFile).
-    PORT-CHECK:
-    REPEAT:
-        IMPORT UNFORMATTED cLine.
-
-        IF cLine MATCHES "*portNumber*" THEN DO:
-            opcNameServerPort = TRIM(ENTRY(2,cLine,":")).
-            LEAVE PORT-CHECK.
-        END.
     END.
     INPUT CLOSE.
     OS-DELETE VALUE(cPathDataFile).
@@ -240,41 +188,29 @@ PROCEDURE updateStatus:
         
 		CASE serverResource.resourceType:
             
-			WHEN "Node" THEN
-                RUN getNodeStatus(
-                    INPUT serverResource.port,
-                    OUTPUT cStatus
-                    ).      
-                    
-            WHEN "AdminServer" THEN
-                RUN getAdminServerStatus(
-                    INPUT  serverResource.port,
-                    OUTPUT cStatus
-                    ).            
-                                           
-            WHEN "NameServer" THEN
-                RUN getNameServerStatus (
-                    INPUT  serverResource.Name,
-                    OUTPUT cStatus
-                    ).
-                    
-            WHEN "AppServer" THEN DO:
-                RUN getASBrokerStatus(
-                    INPUT  serverResource.Name,
-                    OUTPUT cBrokerNameServer,
-                    OUTPUT cBrokerNameServerPort,
-                    OUTPUT cStatus
-                    ).
-               
-                /* we need to update the statusRemarks for AppServer because AppServer listens on controllingNameServer's port */
-                serverResource.statusRemarks  = IF serverResource.resourceType EQ "AppServer" THEN 
-                                                   "Listening on NameServer [" + 
-                                                   cBrokerNameServer + 
-                                                   ":" + cBrokerNameServerPort + 
-                                                   "]"
-                                                ELSE 
-                                                   "".
-            END.
+    	         WHEN "Node" THEN
+                    RUN getNodeStatus(
+                        INPUT serverResource.port,
+                        OUTPUT cStatus
+                        ).      
+                        
+                WHEN "AdminServer" THEN
+                    RUN getAdminServerStatus(
+                        INPUT  serverResource.port,
+                        OUTPUT cStatus
+                        ).            
+                                               
+                WHEN "NameServer" THEN
+                    RUN getNameServerStatus (
+                        INPUT  serverResource.Name,
+                        OUTPUT cStatus
+                        ).
+                        
+                WHEN "AppServer" THEN
+                    RUN getASBrokerStatus(
+                        INPUT  serverResource.Name,
+                        OUTPUT cStatus
+                        ).
         END CASE.
             
         ASSIGN serverResource.resourceStatus = cStatus
