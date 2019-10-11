@@ -94,13 +94,13 @@ RUN api\inbound\CreateBillOfLading.p (
 ASSIGN
     oplcResponseData = iplcResponseDataStructure
     oplcResponseData = IF oplSuccess THEN 
-                           REPLACE(oplcResponseData, "&1",STRING(cCompany))
+                           REPLACE(oplcResponseData, "$Company$",STRING(cCompany))
                        ELSE
-                          REPLACE(oplcResponseData, "&1","")
+                          REPLACE(oplcResponseData, "$Company$","")
     oplcResponseData = IF oplSuccess THEN 
-                           REPLACE(oplcResponseData, "&2",STRING(cBOLID))
+                           REPLACE(oplcResponseData, "$BOLID$",STRING(cBOLID))
                        ELSE
-                          REPLACE(oplcResponseData, "&2","0")
+                          REPLACE(oplcResponseData, "$BOLID$","0")
     opcMessage       = IF oplSuccess THEN 
                            "Success"
                        ELSE
