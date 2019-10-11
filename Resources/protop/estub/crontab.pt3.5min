@@ -1,5 +1,0 @@
-# ProTop 3.x Monitoring
-#
-# launching every 5 minutes allows rapid restart after system reboots or db crashes
-#
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * #ENVPT3#/bin/dbmonitor.sh >> #ENVLOG#/dbmonitor.cron.log 2>&1
