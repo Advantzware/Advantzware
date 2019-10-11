@@ -1,13 +1,13 @@
 /*------------------------------------------------------------------------
-    File        : api\inbound\CreateInventoryStockAliasForPO.p
-    Purpose     : creates stockaliasforpo
+    File        : api\inbound\CreateTagForPO.p
+    Purpose     : creates Tagforpo
 
     Syntax      :
 
-    Description : creates stockaliasforpo
+    Description : creates Tagforpo
 
     Author(s)   : Vishnu Vellanki
-    Created     : Tue July 16 07:33:22 EDT 2019
+    Created     : Tue Oct 11 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
 {inventory/ttinventory.i "NEW SHARED"}.
@@ -21,6 +21,8 @@ DEFINE INPUT  PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit AS DECIMAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcStockIDAlias       AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcUsername           AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCreateReceipt      AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcInventoryStockID   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess            AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage            AS CHARACTER NO-UNDO.
@@ -77,7 +79,15 @@ lValidPOLine = CAN-FIND(FIRST po-ordl NO-LOCK
 IF NOT lValidPOLine THEN
     ipiPOLine = 1.
 
-    
+/* Validate CreateReceipt */
+IF ipcCreateReceipt EQ "" OR (ipcCreateReceipt NE "YES" AND ipcCreateReceipt NE "NO") THEN DO:
+    ASSIGN 
+        opcMessage = "Please enter valid option (yes / no) for creating receipt"
+        oplSuccess = NO
+        .
+        RETURN.
+END.
+   
 /* Validate primary id */
 IF ipcPrimaryID EQ "" THEN
     ASSIGN 
@@ -161,7 +171,7 @@ IF ipcItemType EQ "FG" THEN DO:
      
     DO TRANSACTION ON ERROR UNDO,LEAVE:
       
-     /* Creates a new loadtag table record*/
+        /* Creates a new loadtag table record*/
         RUN CreateLoadTag (
             INPUT  ipcCompany, 
             INPUT  ipiPONo, 
@@ -175,22 +185,23 @@ IF ipcItemType EQ "FG" THEN DO:
             OUTPUT opcInventoryStockID
             ).
       
-     /* Checking sys-cntrl to create FG reciept for the given company*/     
+        /* Checking sys-cntrl to create FG reciept for the given company*/     
         FIND FIRST sys-ctrl NO-LOCK
              WHERE sys-ctrl.company EQ ipcCompany
                AND sys-ctrl.name    EQ "FGRECPT"
              NO-ERROR.
         lFGRecpt = AVAILABLE sys-ctrl AND sys-ctrl.char-fld EQ "LoadTag".
     
-     /* Retrieving last record of fg-rctd table*/ 
+        /* Retrieving last record of fg-rctd table*/ 
         FIND LAST fg-rctd NO-LOCK USE-INDEX fg-rctd NO-ERROR.
         IF AVAILABLE fg-rctd AND fg-rctd.r-no GT iRNo THEN 
             iRNo = fg-rctd.r-no.
         
-     /* Creates a new FGRctd table record  */	
-        RUN FGRecordCreation.
+        /* Creates a new FGRctd table record  */
+        IF ipcCreateReceipt EQ "yes" THEN	
+            RUN FGReceiptCreation.
      
-     /* Catches error if do transaction block fails*/
+        /* Catches error if do transaction block fails*/
         CATCH eSysError AS Progress.Lang.SysError:
             ASSIGN
                 opcMessage = "Unable to create stockaliasforPO"
@@ -291,7 +302,7 @@ PROCEDURE CreateLoadTag PRIVATE :
         .
 END PROCEDURE.
 
-PROCEDURE FGRecordCreation PRIVATE :
+PROCEDURE FGReceiptCreation PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Creates new fg-rctd record
  Notes:
@@ -322,8 +333,8 @@ PROCEDURE FGRecordCreation PRIVATE :
         fg-rctd.tag        = loadtag.tag-no
         fg-rctd.stack-code = loadtag.misc-char[2]
         fg-rctd.tot-wt     = loadtag.misc-dec[1] 
-        fg-rctd.created-by = "user1"
-        fg-rctd.updated-by = USERID('ASI')
+        fg-rctd.created-by = ipcUsername
+        fg-rctd.updated-by = ipcUsername
         fg-rctd.po-no      = TRIM(STRING(loadtag.po-no,">>>>>>>>>>")).
         fg-rctd.po-line    = loadtag.line 
         .
