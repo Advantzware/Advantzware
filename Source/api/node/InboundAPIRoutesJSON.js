@@ -37,7 +37,7 @@ router.post('/createinventorytransfer', (req,res) => {
 });
 
 //This will create an inventory stock alias for po
-router.post('/createinventorystockaliasforpo', (req,res) => {
+router.post('/createtagforPO', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 

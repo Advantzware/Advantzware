@@ -1,26 +1,28 @@
 /*------------------------------------------------------------------------
-    File        : api\inbound\handlers\CreateInventoryStockAliasForPORequestHandler.p
-    Purpose     : Process request data for creates inventory stock alias for po 
+    File        : api\inbound\handlers\CreateTagForPORequestHandler.p
+    Purpose     : Process request data for creates tag for po 
 
     Syntax      :
 
-    Description : Process request data for creates inventory stock alias for po
+    Description : Process request data for creates tag for po
 
     Author(s)   : Vishnu Vellanki
-    Created     : Tue July 05 07:33:22 EDT 2019
+    Created     : Tue Oct 11 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT  PARAMETER ipcRoute                  AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcVerb                   AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcRequestDataType        AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER iplcRequestData           AS LONGCHAR   NO-UNDO.
-DEFINE INPUT  PARAMETER iplcResponseDataStructure AS LONGCHAR   NO-UNDO.
-DEFINE INPUT  PARAMETER ipcRequestedBy            AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcRecordSource           AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcNotes                  AS CHARACTER  NO-UNDO.
-DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRoute                  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcVerb                   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRequestDataType        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplcRequestData           AS LONGCHAR  NO-UNDO.
+DEFINE INPUT  PARAMETER iplcResponseDataStructure AS LONGCHAR  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRequestedBy            AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRecordSource           AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcNotes                  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcUsername               AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR  NO-UNDO.
+DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAPIInboundEvent        AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdttRequestData     AS HANDLE     NO-UNDO. 
 DEFINE VARIABLE hdJSONProcs         AS HANDLE     NO-UNDO.
@@ -36,6 +38,7 @@ DEFINE VARIABLE dQuantity           AS DECIMAL    NO-UNDO.
 DEFINE VARIABLE dQuantityPerSubUnit AS DECIMAL    NO-UNDO.
 DEFINE VARIABLE cStockIDAlias       AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockID   AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cCreateReceipt      AS CHARACTER  NO-UNDO.
 
 {api/inbound/ttRequest.i}
 
@@ -62,7 +65,9 @@ IF NOT oplSuccess THEN DO:
         INPUT NOW,
         INPUT ipcRequestedBy,
         INPUT ipcRecordSource,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT opcAPIInboundEvent
         ).
 
    RETURN.
@@ -87,6 +92,8 @@ FOR EACH ttRequest:
            dQuantityPerSubUnit = INT(ttRequest.FieldValue).
         WHEN "StockIDAlias" THEN
            cStockIDAlias = ttRequest.FieldValue.
+        WHEN "CreateReceipt" THEN
+           cCreateReceipt = ttRequest.FieldValue.
         WHEN "Requester" THEN
            ipcRequestedBy = ttRequest.FieldValue.
         WHEN "RequesterNotes" THEN
@@ -95,7 +102,7 @@ FOR EACH ttRequest:
 END.
 
 /* This is to fetch response data*/ 
-RUN api\inbound\CreateInventoryStockAliasForPO.p (
+RUN api\inbound\CreateTagForPO.p (
     INPUT  cCompany, 
     INPUT  iPONo,
     INPUT  iPOLine, 
@@ -104,6 +111,8 @@ RUN api\inbound\CreateInventoryStockAliasForPO.p (
     INPUT  dQuantity,
     INPUT  dQuantityPerSubUnit,  
     INPUT  cStockIDAlias,
+    INPUT  ipcUsername,
+    INPUT  cCreateReceipt,
     OUTPUT cInventoryStockID,  
     OUTPUT oplSuccess,
     OUTPUT opcMessage
@@ -124,7 +133,9 @@ DO:
        INPUT NOW,
        INPUT ipcRequestedBy,
        INPUT ipcRecordSource,
-       INPUT ipcNotes
+       INPUT ipcNotes,
+       INPUT  "", /* PayloadID */
+       OUTPUT opcAPIInboundEvent
        ).
    
    RETURN.  
@@ -132,7 +143,7 @@ END.
  
 ASSIGN
     oplcResponseData = iplcResponseDataStructure
-    oplcResponseData = REPLACE(oplcResponseData, "&1",cInventoryStockID)
+    oplcResponseData = REPLACE(oplcResponseData,"$InventoryStockID$",cInventoryStockID)
     opcMessage = "Success"
     oplcResponseData  = '~{"response_code": 200,"response_message":"' + opcMessage + '","response_data":[' + oplcResponseData + ']}'. 
     .
@@ -147,7 +158,9 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT NOW,
     INPUT ipcRequestedBy,
     INPUT ipcRecordSource,
-    INPUT ipcNotes
+    INPUT ipcNotes,
+    INPUT  "", /* PayloadID */
+    OUTPUT opcAPIInboundEvent
     ).
     
 DELETE PROCEDURE hdJSONProcs.
