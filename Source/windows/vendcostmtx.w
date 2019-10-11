@@ -90,13 +90,13 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-impcom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-massdel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-vendcostvalue AS HANDLE NO-UNDO .
 DEFINE VARIABLE h_p-updsav2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_VendItemCostRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsavRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navicoRes AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -294,14 +294,7 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (      /* Task# 10301313*/
-             INPUT  'viewers/v-impcom.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-impcom ).
-       RUN set-position IN h_v-impcom ( 1.00 , 50.10 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 19.00 ) */
-
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -348,9 +341,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
-       RUN add-link IN adm-broker-hdl ( h_venditemcost , 'excel':U , h_v-impcom ).
-
+       
         /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_venditemcost , 'spec':U , h_options ).
 
@@ -363,7 +354,15 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
-        RUN init-object IN THIS-PROCEDURE (                 /*Task# 10301312*/
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 61.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+        RUN init-object IN THIS-PROCEDURE (                 
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -381,6 +380,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+        /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartNavBrowser h_venditemcost. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_venditemcost ).
@@ -585,6 +587,22 @@ PROCEDURE enable_UI :
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impVendCostMtx.p .
+ RUN local-open-query IN h_venditemcost .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

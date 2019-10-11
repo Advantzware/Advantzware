@@ -776,13 +776,11 @@ PROCEDURE export-xl :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE first-util AS CHARACTER NO-UNDO.
     DEFINE VARIABLE last-util  AS CHARACTER NO-UNDO.
-
-    GET FIRST Browser-Table .
-    ASSIGN 
-        first-util = vendItemCost.itemType .
-    GET LAST Browser-Table .
-    ASSIGN 
-        last-util = vendItemCost.itemType .
+  
+    IF AVAIL vendItemCost THEN
+       RUN po/VendCostExp.w(vendItemCost.itemType,vendItemCost.itemID,vendItemCost.vendorID,vendItemCost.customerID,vendItemCost.estimateNo,vendItemCost.effectiveDate,vendItemCost.expirationDate) .
+   ELSE
+       RUN po/VendCostExp.w("","","","","","","") .
 
     
 END PROCEDURE.
