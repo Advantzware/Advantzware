@@ -204,7 +204,7 @@ IF ipcItemType EQ "FG" THEN DO:
         /* Catches error if do transaction block fails*/
         CATCH eSysError AS Progress.Lang.SysError:
             ASSIGN
-                opcMessage = "Unable to create stockaliasforPO"
+                opcMessage = "Unable to create tag#"
                 oplSuccess = NO
                 .
             RETURN.
