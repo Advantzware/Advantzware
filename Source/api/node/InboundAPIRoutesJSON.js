@@ -51,4 +51,9 @@ router.post('/getpurchaseorder', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+//This will post inventory receipt 
+router.post('/createinventoryreceipt', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 module.exports = router;
