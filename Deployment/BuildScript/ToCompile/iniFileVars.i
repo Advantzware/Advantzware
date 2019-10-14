@@ -31,7 +31,8 @@ ASSIGN cIniVarList =
     "# Database List,dbList,dbVerList,dbDirList,dbPortList," +
     "# Audit DB List,audDbList,audVerList,audDirList,audPortList," +
     "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
-    "# Misc Elements,adminPort,dfFileName,deltaFileName".
+    "# API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort," +
+    "# Misc Elements,dfFileName,deltaFileName".
 
 /* # Setup Variables */
 DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
@@ -136,10 +137,21 @@ DEF VAR cShipDbStFile AS CHAR INITIAL "asiShip.st" NO-UNDO.
 DEF VAR cTestDbName AS CHAR INITIAL "asiTest" NO-UNDO.
 DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
 DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
+/* API Elements */
+DEF VAR cAdminPort AS CHAR INITIAL "20931" NO-UNDO.
+DEF VAR cNameServerName AS CHAR INITIAL "NS1" NO-UNDO.
+DEF VAR cNameServerPort AS CHAR INITIAL "5162" NO-UNDO.
+DEF VAR cAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
+DEF VAR cAppServerPort AS CHAR INITIAL "3092" NO-UNDO.
 /* # Misc Elements */
-DEF VAR cAdminPort AS CHAR INITIAL "20942.st" NO-UNDO.
 DEF VAR cDfFileName AS CHAR INITIAL "asi167.df" NO-UNDO.
 DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
+
+DEF VAR cOutAdminPort AS CHAR NO-UNDO.
+DEF VAR cOutAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
+DEF VAR cOutAppServerPort AS CHAR NO-UNDO.
+DEF VAR cOutNameServerName AS CHAR NO-UNDO.
+DEF VAR cOutNameServerPort AS CHAR NO-UNDO.
 
 /* END advantzware.ini Variables */
 
@@ -152,7 +164,7 @@ DEF TEMP-TABLE ttIniFile
 
 /* Create the temp-table and load var names */
 EMPTY TEMP-TABLE ttIniFile.
-DO iLine = 1 to NUM-ENTRIES(cIniVarList):
+DO iLine = 1 TO NUM-ENTRIES(cIniVarList):
     CREATE ttIniFile.
     ASSIGN
         ttIniFile.iPos = iLine
@@ -250,12 +262,105 @@ PROCEDURE ipFindIniFile:
 
 END PROCEDURE.
 
+PROCEDURE ipGetPropertyValues:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER opcOutAdminPort AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcOutAppServerName AS CHAR INITIAL "Advantzware_API" NO-UNDO.
+    DEF OUTPUT PARAMETER opcOutAppServerPort AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcOutNameServerName AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcOutNameServerPort AS CHAR NO-UNDO.
+    
+    DEF VAR cTestLine AS CHAR NO-UNDO.
+    DEF VAR lInSection AS LOG NO-UNDO.
+    DEF VAR ctDLC AS CHAR NO-UNDO.
+    
+    /* Use this if cDLC shared var is not yet set */
+    DEF BUFFER bttIniFile FOR ttIniFile.
+    FIND FIRST bttIniFile WHERE 
+        bttIniFile.cVarName EQ "DLCdir"
+        NO-ERROR.
+    IF AVAIL bttIniFile THEN ASSIGN  
+        ctDLC = bttIniFile.cVarValue.
+    ELSE ASSIGN 
+        ctDLC = "c:\Progress\OE116".
+        
+    /* Get the AdminService Port number */
+    INPUT FROM VALUE(ctDLC + "\Properties\AdminServerPlugins.properties").
+    ASSIGN 
+        lInSection = FALSE.
+    testLoop1:
+    REPEAT:
+        IMPORT cTestLine.
+        IF cTestLine BEGINS "[PluginPolicy.Progress.AdminServer]" THEN ASSIGN 
+            lInSection = TRUE.
+        IF lInSection 
+        AND TRIM(cTestLine) BEGINS "Port=" THEN DO:
+            ASSIGN 
+                opcOutAdminPort = ENTRY(2,trim(cTestLine),"=").
+            LEAVE testLoop1.
+        END.
+    END. 
+    INPUT CLOSE.
+
+    /* Get the AppServer Port number and the controlling NameServer Name */
+    INPUT FROM VALUE(ctDLC + "\Properties\ubroker.properties").
+    ASSIGN 
+        lInSection = FALSE.
+    testLoop2:
+    REPEAT:
+        IMPORT cTestLine.
+        IF cTestLine BEGINS "[UBroker.AS." + opcOutAppServerName THEN ASSIGN 
+            lInSection = TRUE.
+        IF lInSection 
+        AND TRIM(cTestLine) BEGINS "portNumber=" THEN ASSIGN 
+            opcOutAppServerPort = ENTRY(2,trim(cTestLine),"=").
+        IF lInSection 
+        AND TRIM(cTestLine) BEGINS "controllingNameServer=" THEN ASSIGN 
+            opcOutNameServerName = ENTRY(2,trim(cTestLine),"=").
+        IF opcOutAppServerPort NE ""
+        AND opcOutNameServerName NE "" THEN 
+            LEAVE testLoop2.
+    END. 
+    INPUT CLOSE.
+    IF opcOutNameServerName EQ "" THEN ASSIGN 
+        opcOutNameServerName = "NS1".
+    IF opcOutAppServerPort EQ "" THEN ASSIGN 
+        opcOutAppServerPort = "3092".
+
+    /* Get the appropriate NameServer Port number */
+    INPUT FROM VALUE(ctDLC + "\Properties\ubroker.properties").
+    ASSIGN 
+        lInSection = FALSE.
+    testLoop3:
+    REPEAT:
+        IMPORT cTestLine.
+        IF cTestLine BEGINS "[NameServer." + opcOutNameServerName THEN ASSIGN 
+            lInSection = TRUE.
+        IF lInSection 
+        AND TRIM(cTestLine) BEGINS "portNumber=" THEN ASSIGN 
+            opcOutNameServerPort = ENTRY(2,trim(cTestLine),"=").
+        IF lInSection 
+        AND TRIM(cTestLine) BEGINS "[" THEN
+            LEAVE testLoop3. 
+    END.
+    IF opcOutNameServerPort EQ "" THEN ASSIGN 
+        opcOutNameServerPort = "5162".
+    INPUT CLOSE.
+
+END PROCEDURE.
+
 PROCEDURE ipReadIniFile:
 /*------------------------------------------------------------------------------
  Purpose:   Read the advantzware.ini file and populate values
  Notes:
 ------------------------------------------------------------------------------*/
-   INPUT FROM VALUE(SEARCH(cIniLoc)).
+    DEF VAR cAPIList AS CHAR INITIAL "adminPort,nameServerName,nameServerPort,appServerName,appServerPort" NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
+    
+    INPUT FROM VALUE(SEARCH(cIniLoc)).
     REPEAT:
         IMPORT UNFORMATTED cIniLine.
         IF cIniLine BEGINS "#" THEN DO:
@@ -282,13 +387,19 @@ PROCEDURE ipReadIniFile:
         NOT ttIniFile.cVarName EQ "" AND
         NOT ttIniFile.cVarName EQ "audVerList" AND 
         ttIniFile.cVarValue = "":
-        DISP 
-            ttIniFile.cVarName LABEL "Name" FORMAT "x(32)" WITH WIDTH 90 
-            FRAME dGetValue VIEW-AS DIALOG-BOX THREE-D CENTERED 
-            1 COLUMN SIDE-LABELS TITLE "Need .INI file value".
-        UPDATE 
-            ttIniFile.cVarValue LABEL "Value" FORMAT "x(60)"
-            WITH FRAME dGetValue.
+    
+        /* We'll test for these after we set the local variables, and check for running on server */
+        IF CAN-DO(cAPIList,ttIniFile.cVarName) THEN NEXT.
+        
+        IF ttIniFile.cVarValue EQ "" THEN DO:
+            DISP 
+                ttIniFile.cVarName LABEL "Name" FORMAT "x(32)" WITH WIDTH 90 
+                FRAME dGetValue VIEW-AS DIALOG-BOX THREE-D CENTERED 
+                1 COLUMN SIDE-LABELS TITLE "Need .INI file value".
+            UPDATE 
+                ttIniFile.cVarValue LABEL "Value" FORMAT "x(60)"
+                WITH FRAME dGetValue.
+        END.
     END. 
     
     FOR EACH ttIniFile:
@@ -378,12 +489,50 @@ PROCEDURE ipReadIniFile:
             WHEN "testDbName" THEN ASSIGN cTestDbName = ttIniFile.cVarValue.
             WHEN "testDbPort" THEN ASSIGN cTestDbPort = ttIniFile.cVarValue.
             WHEN "testDbStFile" THEN ASSIGN cTestDbStFile = ttIniFile.cVarValue.
-            WHEN "adminPort" THEN ASSIGN cAdminPort = ttIniFile.cVarValue.
             WHEN "dfFileName" THEN ASSIGN cDfFileName = ttIniFile.cVarValue.
             WHEN "deltaFileName" THEN ASSIGN cDeltaFileName = ttIniFile.cVarValue.
+            WHEN "adminPort" THEN ASSIGN cAdminPort = ttIniFile.cVarValue.
+            WHEN "nameServerName" THEN ASSIGN cNameServerName = ttIniFile.cVarValue.
+            WHEN "nameServerPort" THEN ASSIGN cNameServerPort = ttIniFile.cVarValue.
+            WHEN "appServerName" THEN ASSIGN cAppServerName = ttIniFile.cVarValue.
+            WHEN "appServerPort" THEN ASSIGN cAppServerPort = ttIniFile.cVarValue.
         END CASE.
     END.
     
+    /* Are we on the server? If not, this isn't helpful */
+    ASSIGN 
+        FILE-INFO:FILE-NAME = cDbDrive + "\" + cTopDir + "\" + cDbDir + "\Structure\STFiles\progress.dev".
+    IF FILE-INFO:FULL-PATHNAME NE ? THEN DO:  
+        /* Reset API values from DLC properties pages */
+        RUN ipGetPropertyValues (OUTPUT cOutAdminPort,
+            OUTPUT cOutAppServerName,
+            OUTPUT cOutAppServerPort,
+            OUTPUT cOutNameServerName,
+            OUTPUT cOutNameServerPort).
+        DO iCtr = 1 TO NUM-ENTRIES(cAPIList):
+            FIND ttIniFile WHERE 
+                ttIniFile.cVarName EQ ENTRY(iCtr,cAPIList)
+                NO-ERROR.
+            CASE ttIniFile.cVarName:
+                WHEN "adminPort" THEN 
+                    ASSIGN 
+                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutAdminPort ELSE ttIniFile.cVarValue.
+                WHEN "nameServerName" THEN 
+                    ASSIGN 
+                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutNameServerName ELSE ttIniFile.cVarValue.
+                WHEN "nameServerPort" THEN 
+                    ASSIGN 
+                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutNameServerPort ELSE ttIniFile.cVarValue.
+                WHEN "appServerName" THEN 
+                    ASSIGN 
+                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutAppServerName ELSE ttIniFile.cVarValue.
+                WHEN "appServerPort" THEN 
+                    ASSIGN 
+                        ttIniFile.cVarValue = IF ttIniFile.cVarValue EQ "" THEN cOutAppServerPort ELSE ttIniFile.cVarValue.
+            END.
+        END.
+    END.             
+
     /* Handle initialization of newly added variables here */
     FIND ttIniFile WHERE 
         ttIniFile.cVarName = "audVerList"

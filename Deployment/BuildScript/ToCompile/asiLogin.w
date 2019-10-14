@@ -551,8 +551,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   RUN ipWriteIniFile.
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -939,6 +941,8 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
+    RUN ipWriteIniFile.
+    
     QUIT.
     
 END PROCEDURE.
@@ -1254,50 +1258,45 @@ PROCEDURE ipPreRun :
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         iTruncLevel = iDbLevel
         .
+    
+    /* Run various procedures and programs DEPENDING ON ENV OR DB LEVEL */
     /* Here the format for both is 16070400 */
-
-    IF iDbLevel GT 16050000
-    AND USERID(LDBNAME(1)) NE "asi" THEN 
-    DO:
-        RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
-        IF NOT lOK THEN QUIT.
-        RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
-        IF NOT lOK THEN QUIT.
+    IF iDbLevel GT 16050000 THEN DO:
+        IF USERID(LDBNAME(1)) NE "asi" THEN DO:
+            RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
+            IF NOT lOK THEN QUIT.
+            RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
+            IF NOT lOK THEN QUIT.
+        END.
     END.
 
-    IF NOT VALID-HANDLE(hSession)
-    AND iEnvLevel GE 16071600 THEN 
-    DO:
-        RUN system/session.p PERSISTENT SET hSession.
-        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    IF iEnvLevel GE 16071600 THEN DO:
+        IF NOT VALID-HANDLE(hSession) THEN DO:
+            RUN system/session.p PERSISTENT SET hSession.
+            SESSION:ADD-SUPER-PROCEDURE (hSession).
+        END. 
     END.
     
-    IF NOT VALID-HANDLE(hTags) 
-    AND iEnvLevel GE 16080000 THEN 
-    DO:
-        RUN system/TagProcs.p PERSISTENT SET hTags.
-        SESSION:ADD-SUPER-PROCEDURE (hTags).
+    IF iEnvLevel GE 16080000 THEN DO:
+        IF NOT VALID-HANDLE(hTags) THEN DO: 
+            RUN system/TagProcs.p PERSISTENT SET hTags.
+            SESSION:ADD-SUPER-PROCEDURE (hTags).
+        END.
     END.
     
-    IF NOT VALID-HANDLE(hCommonProcs) 
-    AND iEnvLevel GE 16120000 THEN 
-    DO:
-        RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
-        SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
-    END.
-    
-    IF NOT VALID-HANDLE(hCreditProcs) 
-    AND iEnvLevel GE 16120000 THEN 
-    DO:
-        RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
-        SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
-    END.
-    
-    IF NOT VALID-HANDLE(hPurgeProcs) 
-    AND iEnvLevel GE 16120000 THEN 
-    DO:
-        RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
-        SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
+    IF iEnvLevel GE 16130000 THEN DO:
+        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
+            RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
+        END.
+        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
+            RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
+        END.
+        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
+            RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
+        END.
     END.
     
     IF NOT VALID-HANDLE(persistent-handle) THEN
@@ -1477,6 +1476,46 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipWriteIniFile C-Win 
+PROCEDURE ipWriteIniFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    OUTPUT TO VALUE(cIniLoc).
+    FOR EACH ttIniFile BY ttIniFile.iPos:
+        IF ttIniFile.cVarName BEGINS "#" THEN
+            PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
+        ELSE IF ttIniFile.cVarName NE "" THEN 
+            DO:
+                IF ttIniFile.cVarName EQ "modeList" THEN ASSIGN 
+                        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"Addon,","").
+                IF ttIniFile.cVarName EQ "pgmList" THEN ASSIGN 
+                        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain.w,","")
+                        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain2.w,","")
+                        .
+                /* #53853 New 'mode': AutoLogout */
+                IF ttIniFile.cVarName EQ "modeList"
+                    AND LOOKUP("AutoLogout",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
+                        ttIniFile.cVarValue = ttIniFile.cVarValue + ",AutoLogout". 
+                IF ttIniFile.cVarName EQ "pgmList"
+                    AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
+                        ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
+                PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
+            END.
+            ELSE NEXT.
+    END.
+    OUTPUT CLOSE.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ************************  Function Implementations ***************** */
 
