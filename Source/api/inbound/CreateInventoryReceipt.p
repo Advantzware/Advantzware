@@ -239,7 +239,7 @@ RUN pFGRecordCreation (
     ) NO-ERROR.
 IF ERROR-STATUS:ERROR THEN DO:
     ASSIGN
-        opcMessage = "FG Recipt is not posted"
+        opcMessage = "FG Recipt is not posted #1"
         oplSuccess = NO
         .
     RETURN.
@@ -255,7 +255,7 @@ RUN PostFinishedGoodsForUser IN hdInventoryProcs(
     )NO-ERROR.
 IF ERROR-STATUS:ERROR THEN DO:
     ASSIGN
-        opcMessage = "FG Recipt is not posted"
+        opcMessage = "FG Recipt is not posted #2"
         oplSuccess = NO
         .
     RETURN.
