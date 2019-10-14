@@ -60,21 +60,33 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "Vender Item,Effective Date,Expires Date,Cost Uom," +     /* 4*/
                             "Width Min,Width Max,length Min,Length Max,Under Width,Under Length," + /* 6*/
                             "Upcharge Width,Upcharge Length,Min Order Qty,Max Order Qty," +   /* 4*/
-                            "Qty From,Qty To,Cost Per,Setup,Deviation"  /*5*/
+                            "Level Quantity 1,Level Quantity 2," + /*2*/
+                            "Level Quantity 3,Level Quantity 4," + /*2*/
+                            "Level Quantity 5,Level Quantity 6," + /*2*/
+                            "Level Quantity 7,Level Quantity 8," + /*2*/
+                            "Level Quantity 9,Level Quantity 10"  /*2*/
                             
        cFieldListToSelect = "itemType,itemID,vendorID,customerID,estimateNo,formNo,blankNo," +
                             "vendorItemID,effectiveDate,expirationDate,vendorUOM," +
                             "dimWidthMinimum,dimWidthMaximum,dimLengthMinimum,dimLengthMaximum,dimWidthUnder,dimLengthUnder," +
                             "dimWidthOver,dimLengthOver,quantityMinimumOrder,quantityMaximumOrder," +
-                            "quantityFrom,quantityTo,costPerUOM,costSetup,costDeviation".
+                            "levelQuantity1,levelQuantity2," +  
+                            "levelQuantity3,levelQuantity4," +
+                            "levelQuantity5,levelQuantity6," +
+                            "levelQuantity7,levelQuantity8," +
+                            "levelQuantity9,levelQuantity10".
 
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault  = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blank," +
-                            "Vender Item,Effective Date,Expires Date,Cost Uom," +
-                            "Width Min,Width Max,length Min,Length Max,Under Width,Under Length," +
-                            "Upcharge Width,Upcharge Length,Min Order Qty,Max Order Qty," +
-                            "Qty From,Qty To,Cost Per,Setup,Deviation" .
+    ASSIGN cTextListToDefault  = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blank," + /*7*/
+                            "Vender Item,Effective Date,Expires Date,Cost Uom," +     /* 4*/
+                            "Width Min,Width Max,length Min,Length Max,Under Width,Under Length," + /* 6*/
+                            "Upcharge Width,Upcharge Length,Min Order Qty,Max Order Qty," +   /* 4*/
+                            "Level Quantity 1,Level Quantity 2,"  +  /*2*/
+                            "Level Quantity 3,Level Quantity 4,"  + /*2*/
+                            "Level Quantity 5,Level Quantity 6,"  + /*2*/
+                            "Level Quantity 7,Level Quantity 8,"  + /*2*/
+                            "Level Quantity 9,Level Quantity 10"  /*2*/ .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1150,43 +1162,109 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
         AND vendItemCost.effectiveDate GE begin_date-eff
         AND vendItemCost.effectiveDate LE end_date-eff
         AND vendItemCost.expirationDate GE  begin_date-exp
-        AND vendItemCost.expirationDate LE end_date-exp
-        , 
-    EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID
-        NO-LOCK BY vendItemCostLevel.quantityBase :
+        AND vendItemCost.expirationDate LE end_date-exp :
 
     v-excel-detail-lines = "".
     
 
     FOR EACH ttRptSelected:
 
-        IF lookup(ttRptSelected.FieldList,"quantityFrom,quantityTo,costPerUOM,costSetup,costDeviation,effectiveDate") EQ 0 THEN do:
+        IF lookup(ttRptSelected.FieldList,"levelQuantity1,levelQuantity2,levelQuantity3,levelQuantity4,levelQuantity5,levelQuantity6,levelQuantity7,levelQuantity8,levelQuantity9,levelQuantity10,effectiveDate") EQ 0 THEN do:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue(BUFFER vendItemCost,ttRptSelected.FieldList)).
         END.
+        ELSE IF ttRptSelected.FieldList EQ "effectiveDate" THEN do:
+             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCost.effectiveDate,"99/99/9999")).
+        END.
         ELSE do:
-         CASE ttRptSelected.FieldList:                                                                                       
-             WHEN "quantityFrom" THEN do:
-                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityFrom,">>>>>>>9.99")).
-             END.
-             WHEN "quantityTo"  THEN DO:
-                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityTo)).
-             END.
-             WHEN "costPerUOM" THEN DO:
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM)).
-             END.
-             WHEN "costSetup" THEN DO:
-                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup)).
-             END.
-             WHEN "costDeviation" THEN DO:
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation)).
-             END.
-              WHEN "effectiveDate" THEN DO:
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCost.effectiveDate,"99/99/9999")).
-             END.
-             
-            
-         END CASE. 
+           i = 1 .
+           FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID
+               NO-LOCK BY vendItemCostLevel.quantityBase:
+
+               CASE ttRptSelected.FieldList:   
+                       WHEN "levelQuantity1"  THEN do:
+                         IF i EQ 1 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity2" THEN DO:
+                         IF i EQ 2 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity3"  THEN DO:
+                         IF i EQ 3 THEN do:
+                          v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity4" THEN DO:
+                         IF i EQ 4 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity5"  THEN DO:
+                         IF i EQ 5 THEN do:
+                          v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity6" THEN do:
+                         IF i EQ 6 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity7" THEN DO:
+                         IF i EQ 7 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity8" THEN DO:
+                         IF i EQ 8 THEN do:
+                          v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity9"  THEN DO:
+                         IF i EQ 9 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+                       WHEN "levelQuantity10" THEN DO:
+                         IF i EQ 10 THEN do:
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                         END.
+                       END.
+               END CASE.
+                         i = i + 1 .
+           END.
         END.
     END.
    
@@ -1302,7 +1380,76 @@ FUNCTION buildHeader RETURNS CHARACTER
 DEF VAR lc-header AS CHAR NO-UNDO.
 
 FOR EACH ttRptSelected:
-    lc-header = lc-header + appendXLLine(ttRptSelected.TextList).
+
+    IF lookup(ttRptSelected.FieldList,"levelQuantity1,levelQuantity2,levelQuantity3,levelQuantity4,levelQuantity5,levelQuantity6,levelQuantity7,levelQuantity8,levelQuantity9,levelQuantity10") EQ 0 THEN do:
+        lc-header = lc-header + appendXLLine(ttRptSelected.TextList).
+    END.
+    ELSE DO:
+
+      CASE ttRptSelected.FieldList :
+        WHEN "levelQuantity1"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 1").
+            lc-header = lc-header + appendXLLine("Cost Per 1").
+            lc-header = lc-header + appendXLLine("Setup 1").
+            lc-header = lc-header + appendXLLine("Deviation Cost 1").
+        END.
+        WHEN "levelQuantity2"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 2").
+            lc-header = lc-header + appendXLLine("Cost Per 2").
+            lc-header = lc-header + appendXLLine("Setup 2").
+            lc-header = lc-header + appendXLLine("Deviation Cost 2").
+        END.
+        WHEN "levelQuantity3"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 3").
+            lc-header = lc-header + appendXLLine("Cost Per 3").
+            lc-header = lc-header + appendXLLine("Setup 3").
+            lc-header = lc-header + appendXLLine("Deviation Cost 3").
+        END.
+        WHEN "levelQuantity4"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 4").
+            lc-header = lc-header + appendXLLine("Cost Per 4").
+            lc-header = lc-header + appendXLLine("Setup 4").
+            lc-header = lc-header + appendXLLine("Deviation Cost 4").
+        END.
+        WHEN "levelQuantity5"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 5").
+            lc-header = lc-header + appendXLLine("Cost Per 5").
+            lc-header = lc-header + appendXLLine("Setup 5").
+            lc-header = lc-header + appendXLLine("Deviation Cost 5").
+        END.
+        WHEN "levelQuantity6"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 6").
+            lc-header = lc-header + appendXLLine("Cost Per 6").
+            lc-header = lc-header + appendXLLine("Setup 6").
+            lc-header = lc-header + appendXLLine("Deviation Cost 6").
+        END.
+        WHEN "levelQuantity7"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 7").
+            lc-header = lc-header + appendXLLine("Cost Per 7").
+            lc-header = lc-header + appendXLLine("Setup 7").
+            lc-header = lc-header + appendXLLine("Deviation Cost 7").
+        END.
+        WHEN "levelQuantity8"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 8").
+            lc-header = lc-header + appendXLLine("Cost Per 8").
+            lc-header = lc-header + appendXLLine("Setup 8").
+            lc-header = lc-header + appendXLLine("Deviation Cost 8").
+        END.
+        WHEN "levelQuantity9"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 9").
+            lc-header = lc-header + appendXLLine("Cost Per 9").
+            lc-header = lc-header + appendXLLine("Setup 9").
+            lc-header = lc-header + appendXLLine("Deviation Cost 9").
+        END.
+        WHEN "levelQuantity10"  THEN DO:
+            lc-header = lc-header + appendXLLine("Level Quantity 10").
+            lc-header = lc-header + appendXLLine("Cost Per 10").
+            lc-header = lc-header + appendXLLine("Setup 10").
+            lc-header = lc-header + appendXLLine("Deviation Cost 10").
+        END.
+       
+      END CASE.
+    END.
 END.
 /*     lc-header = lc-header + appendXLLine ("PO #").      */
 /*     lc-header = lc-header + appendXLLine ("Vendor #").  */
