@@ -40,7 +40,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
-           + "JobCardPrintScores"
+           + "JobCardPrintScores,RMCountDefaultPath,FGCountDefaultPath"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -756,7 +756,17 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Styles separated by comma (Blank means applies to all styles)",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).        
+    WHEN "RMCountDefaultPath" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Define the path to create the snapshot",
+        INPUT ".\custfiles\RmCount" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).         
+    WHEN "FGCountDefaultPath" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Define the path to create the snapshot",
+        INPUT ".\custfiles\FgCount" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).         
 END CASE.
 ELSE
 CASE ip-nk1-value:
