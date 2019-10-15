@@ -679,7 +679,7 @@ do v-local-loop = 1 to v-local-copies:
               SKIP                            
               SUBSTRING(v-len-score,ind-j + 1,36) AT 3 FORM "x(36)"              
               /*"PM:" AT 39 v-dept-note[42] FORMAT "x(30)"*/
-              "CSR:" AT 39 job.csrUser_id FORMAT "x(30)"
+              "CSR:" AT 39 (IF AVAIL xoe-ord THEN xoe-ord.csrUser_id ELSE job.csrUser_id) FORMAT "x(30)"
               "Impressions:" AT 80 trim(string(v-dc-qty))    format "x(7)" "   Die Inch:" xef.die-in SKIP
               WITH FRAME job1 NO-LABEL NO-BOX WIDTH 200 STREAM-IO.                
         
@@ -1105,7 +1105,7 @@ do v-local-loop = 1 to v-local-copies:
              v-max-qty = /*v-ord-qty */ v-set-qty  * (1 + IF AVAIL xoe-ordl THEN xoe-ordl.over-pct / 100 
                                            ELSE IF AVAIL xoe-ord  THEN xoe-ord.over-pct / 100 
                                            ELSE 0 ). 
-            ASSIGN vProjectManager = "Project Manager: " + IF AVAIL xoe-ord THEN xoe-ord.USER-ID ELSE job.USER-ID.
+            ASSIGN vProjectManager = "CSR: " + IF AVAIL xoe-ord THEN xoe-ord.csrUser_id ELSE job.csrUser_id .
             PUT "<R1><C1><#1>"   /*SKIP         */
                  "<C1><R+5><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  /*SKIP                  */
                  /*"<P10><=1><R+8>"*/ .
