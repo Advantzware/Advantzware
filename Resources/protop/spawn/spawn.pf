@@ -1,8 +1,0 @@
-# spawn.pf
-#
-# common startup parameters for the spawn routines
-
--q
--b
--T tmp
--rand 2

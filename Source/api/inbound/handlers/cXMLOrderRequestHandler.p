@@ -62,9 +62,9 @@ ELSE
         cResponseCode    = IF oplSuccess THEN "200" ELSE "400"
         lcResponse       = '~<Status code="' + cResponseCode + '" text="' + opcMessage  + '"/>'
         oplcResponseData = iplcResponseDataStructure
-        oplcResponseData = REPLACE(oplcResponseData,"$payloadID",cPayLoadID)
-        oplcResponseData = REPLACE(oplcResponseData,"$response",lcResponse)
-        oplcResponseData = REPLACE(oplcResponseData,"$timestamp",GetDateTimeTZStringForResponse())
+        oplcResponseData = REPLACE(oplcResponseData,"$payloadID$",cPayLoadID)
+        oplcResponseData = REPLACE(oplcResponseData,"$response$",lcResponse)
+        oplcResponseData = REPLACE(oplcResponseData,"$timestamp$",GetDateTimeTZStringForResponse())
         oplcResponseData = REPLACE(oplcResponseData,'"','\"')
         oplcResponseData = '~{"response_code": ' +  cResponseCode + ',"response_message":"' + oplcResponseData + '"}'
         . 

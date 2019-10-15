@@ -1,9 +1,0 @@
-@echo off
-
-call #ENVPT3#\bin\protopenv.bat
-
-cd /d %PROTOP%
-
-call %protop%\bin\aipurge.bat
-
-call %protop%\bin\dbanalys.bat d:\db\dbname friendlyName

@@ -1674,7 +1674,7 @@ SESSION:SET-WAIT-STATE ("general").
       find first eb
           where eb.company    EQ est.company
             AND eb.est-no     EQ est.est-no
-            and eb.form-no    EQ job-hdr.frm
+            and (eb.form-no    EQ job-hdr.frm OR eb.form-no  EQ 0)
             and (est.est-type EQ 1                                       or
                  est.est-type EQ 5                                       or
                  (eb.blank-no EQ job-hdr.blank-no and

@@ -1,4 +1,5 @@
 DEF OUTPUT PARAMETER oplAuditLicensed AS LOG NO-UNDO.
+DEF OUTPUT PARAMETER oplHasTables AS LOG NO-UNDO.
 def var cFileList as char no-undo.
 def var hBuffer as handle no-undo.
 def var hQuery as handle no-undo.
@@ -36,6 +37,7 @@ FIND FIRST module NO-LOCK WHERE
 IF AVAIL module THEN ASSIGN 
     oplAuditLicensed = module.is-Used. 
 
-
+IF CAN-FIND(FIRST _file WHERE _file._file-name EQ "dep-table") THEN ASSIGN 
+    oplHasTables = TRUE.
 
 
