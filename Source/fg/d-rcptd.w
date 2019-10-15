@@ -736,13 +736,12 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
                         END. /* If ip-parts-set */
                         ELSE 
                         DO:
-                            RUN addon/windows/l-ldtag.w (INPUT cocode,
-                                INPUT no,
-                                INPUT fg-rctd.i-no:screen-value,
+                            RUN windows/l-ldtag.w (INPUT cocode,
+                                INPUT FALSE,
+                                INPUT fg-rctd.tag:screen-value,
                                 OUTPUT char-val,
-                                OUTPUT rRecidVal
-                                ).
-                            ASSIGN 
+                                OUTPUT rRecidVal).
+                            IF char-val NE "" THEN ASSIGN 
                                 fg-rctd.tag:SCREEN-VALUE = ENTRY(1,char-val).
                                                          
                         END.
