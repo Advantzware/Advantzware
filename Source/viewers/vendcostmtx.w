@@ -30,7 +30,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&Scoped-define proc-enable proc-enable 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -107,7 +107,7 @@ vendItemCost.formNo vendItemCost.blankNo vendItemCost.vendorItemID ~
 vendItemCost.effectiveDate vendItemCost.expirationDate ~
 vendItemCost.createdDate vendItemCost.createdID vendItemCost.updatedID ~
 vendItemCost.updatedDate 
-&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
+&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -892,7 +892,10 @@ PROCEDURE local-display-fields :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /*RUN pDisplayValue .*/
+ DO WITH FRAME {&FRAME-NAME}:
+     IF vendItemCost.effectiveDate:SCREEN-VALUE EQ  "01/01/0001" 
+         THEN vendItemCost.effectiveDate:SCREEN-VALUE =  "01/01/1900"  .
+ END.
 
   /* Code placed here will execute AFTER standard behavior.    */
 
@@ -1042,6 +1045,23 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+     DO WITH FRAME {&FRAME-NAME}:
+         ENABLE btnCalendar-1 btnCalendar-2 .
+     END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
