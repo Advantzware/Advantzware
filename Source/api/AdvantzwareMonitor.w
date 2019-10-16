@@ -42,9 +42,15 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 DEFINE SHARED VARIABLE cIniLoc AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdStatus       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cColumnHandles AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDLCDir        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdStatus         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cColumnHandles   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDLCDir          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdminServerPort AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAppServerPort   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAppServerName   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNameServerName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNameServerPort  AS CHARACTER NO-UNDO.
+
 DEF TEMP-TABLE ttIniFile
     FIELD iPos      AS INTEGER
     FIELD cRaw      AS CHARACTER
@@ -52,12 +58,17 @@ DEF TEMP-TABLE ttIniFile
     FIELD cVarValue AS CHARACTER
     INDEX idxPos IS PRIMARY UNIQUE iPos.
 
-/* Fetches DLC from Advantzware.ini */
-RUN pFetchDLC.
+/* Fetches API required element from Advantzware.ini */
+RUN pFetchAPIElements.
 
 RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
     INPUT cDLCDir,
-    INPUT g_company
+    INPUT g_company,
+    INPUT cAdminServerPort,
+    INPUT cAppServerName,
+    INPUT cAppServerPort,
+    INPUT cNameServerName,
+    INPUT cNameServerPort
     ).
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,8 +423,7 @@ DO:
     SESSION:SET-WAIT-STATE("GENERAL").
 
     IF AVAILABLE serverResource THEN DO:
-        
-       
+
         IF SEARCH(serverResource.startService) NE ? THEN DO:
             
             IF serverResource.resourceType EQ "Node" THEN
@@ -427,7 +437,8 @@ DO:
                        ELSE
                            "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
                        .
-            MESSAGE cErrorMessage VIEW-AS ALERT-BOX.
+            MESSAGE cErrorMessage VIEW-AS ALERT-BOX ERROR
+            TITLE "Error".
         END.
     END.
     
@@ -447,6 +458,7 @@ ON CHOOSE OF btStop IN FRAME DEFAULT-FRAME /* Stop */
 DO:
     DEFINE VARIABLE cStopService  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+
     SESSION:SET-WAIT-STATE("GENERAL").
   
     IF AVAILABLE serverResource THEN DO:
@@ -458,7 +470,8 @@ DO:
                        ELSE
                            "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
                        .
-            MESSAGE cErrorMessage VIEW-AS ALERT-BOX.
+            MESSAGE cErrorMessage VIEW-AS ALERT-BOX ERROR
+            TITLE "Error".
         END.
     END.
     
@@ -610,8 +623,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFetchDLC C-Win 
-PROCEDURE pFetchDLC :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFetchAPIElements C-Win 
+PROCEDURE pFetchAPIElements :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -622,14 +635,15 @@ PROCEDURE pFetchDLC :
     DEF VARIABLE iLine       AS INTEGER   NO-UNDO.
     
     /* Create the temp-table and load var names */
-    cIniVarList = "# Setup Variables,DLCDir,".
+    cIniVarList = "# Setup Variables,DLCDir,
+                   # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,".
     
     EMPTY TEMP-TABLE ttIniFile.
     
     DO iLine = 1 TO NUM-ENTRIES(cIniVarList):
         CREATE ttIniFile.
         ASSIGN
-            ttIniFile.iPos = iLine
+            ttIniFile.iPos     = iLine
             ttIniFile.cVarName = ENTRY(iLine,cIniVarList).
     END.
     
@@ -640,24 +654,36 @@ PROCEDURE pFetchDLC :
             FIND ttIniFile WHERE 
                 ttIniFile.cVarName = cIniLine
                 NO-ERROR.
-            IF AVAIL ttIniFile THEN ASSIGN
+            IF AVAILABLE ttIniFile THEN ASSIGN
                 ttIniFile.cRaw = cIniLine.
         END.
         ELSE DO:
             FIND ttIniFile WHERE 
                 ttIniFile.cVarName = ENTRY(1,cIniLine,"=")
                 NO-ERROR.
-            IF AVAIL ttIniFile THEN ASSIGN
-                ttIniFile.cRaw = cIniLine
-                ttIniFile.cVarValue = ENTRY(2,cIniLine,"=").
+            IF AVAILABLE ttIniFile THEN 
+                ASSIGN
+                    ttIniFile.cRaw      = cIniLine
+                    ttIniFile.cVarValue = ENTRY(2,cIniLine,"=")
+                    .
         END.            
     END.
     INPUT CLOSE.
      
-    FOR EACH ttIniFile WHERE ttIniFile.cVarName EQ "DLCDir" :
-        cDLCDir = ttIniFile.cVarValue.
+    FOR EACH ttIniFile:
+        IF ttIniFile.cVarName EQ "DLCDir" THEN
+            cDLCDir = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "adminPort" THEN
+            cAdminServerPort = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "AppServerName" THEN
+            cAppServerName = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "AppServerPort" THEN
+            cAppServerPort = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "NameServerName" THEN
+            cNameServerName = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "NameServerPort" THEN
+            cNameServerPort = ttIniFile.cVarValue.
     END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
