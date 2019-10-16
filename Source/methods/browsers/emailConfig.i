@@ -20,18 +20,18 @@
 &Global-define FLDNAME1 emailConfig.configID
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >>9
-&Global-define SORTBY-1 
+&Global-define SORTBY-1 BY {&FLDNAME1}
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Config ID
 &Global-define FLDNAME2 emailConfig.smtpServer
 &Global-define FORMAT-2 X(30)
-&Global-define SORTBY-2 
+&Global-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 SMTP Server
 &Global-define FLDNAME3 emailConfig.smtpPort
 &Global-define DATATYP3 INTEGER
 &Global-define FORMAT-3 >>>>9
-&Global-define SORTBY-3 
+&Global-define SORTBY-3 BY {&FLDNAME3} {&SORTBY-1}
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 SMTP Port
 &Global-define FLDNAME4 
