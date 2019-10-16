@@ -2184,25 +2184,33 @@ END FUNCTION.
 /*                 item.i-name                           */
 /*                 SKIP.                                 */
 /*         END. /* xjob-mat */                           */
-
-     FOR EACH estPacking NO-LOCK
-         WHERE estPacking.company  = cocode
-         AND estPacking.estimateNo = eb.est-no
-         AND estPacking.FormNo     = eb.form-no
-         AND estPacking.BlankNo    = eb.blank-No :
+    
+   FOR EACH estPacking NO-LOCK
+         WHERE estPacking.company  EQ cocode
+         AND estPacking.estimateNo EQ eb.est-no
+         AND estPacking.FormNo     EQ eb.form-no
+         AND estPacking.BlankNo    EQ eb.blank-No,
+       EACH xjob-mat NO-LOCK
+         WHERE xjob-mat.company EQ job-hdr.company
+           AND xjob-mat.job     EQ job-hdr.job
+           AND xjob-mat.job-no  EQ job-hdr.job-no
+           AND xjob-mat.job-no2 EQ job-hdr.job-no2
+           AND xjob-mat.frm     EQ eb.form-no 
+           AND xjob-mat.blank-no EQ eb.blank-no
+           AND xjob-mat.rm-i-no EQ estPacking.rmItemID BREAK BY estPacking.rmItemID :
 
          FIND FIRST ITEM NO-LOCK
              WHERE item.company  EQ cocode
              AND item.i-no     EQ estPacking.rmItemID
              NO-ERROR.
 
-         IF AVAIL ITEM THEN do:
+         IF AVAIL ITEM AND FIRST-OF(estPacking.rmItemID) THEN do:
              PUT ITEM.i-no SPACE(4)
                  ITEM.i-name FORMAT "x(20)" SPACE(3)
                  estPacking.dimLength FORMAT ">9.9999" " "
                  estPacking.dimWidth FORMAT ">9.9999" " "
                  estPacking.dimDepth FORMAT ">9.9999" " "
-                 estPacking.quantity FORMAT ">>>>>9" SKIP.
+                 xjob-mat.qty FORMAT ">>>>>9" SKIP.
              intLnCount = intLnCount + 1.
          END.
      END.
