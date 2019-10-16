@@ -109,7 +109,7 @@ END.
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 job-hdr.job-no job-hdr.job-no2 ~
 job-hdr.i-no job-hdr.est-no job-hdr.ord-no job-hdr.cust-no job.start-date ~
-job.close-date job.stat custPart() @ custPart job-hdr.qty ~
+job.due-date job.close-date job.stat custPart() @ custPart job-hdr.qty ~
 orderQty() @ orderQty producedQty(onHandQty) @ producedQty ~
 onHandQty(qtyOnHand) @ onHandQty shipQty() @ shipQty ~
 invoiceQty() @ invoiceQty wipQty() @ wipQty ~
@@ -293,6 +293,7 @@ DEFINE BROWSE BROWSE-1
     LABEL-BGCOLOR 14
     job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
     job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+    job.due-date   FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     job.close-date COLUMN-LABEL "Close Date" FORMAT "99/99/9999":U
     LABEL-BGCOLOR 14
     custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(15)":U
