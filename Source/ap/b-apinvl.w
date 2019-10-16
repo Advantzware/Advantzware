@@ -144,8 +144,8 @@ ap-invl.sf-sht ap-invl.amt ap-invl.amt-msf display-item-no() @ lv-item-no ~
 display-item-no() @ lv-item-no ap-invl.dscr display-job() @ lv-job-no ~
 display-snum() @ lv-snum display-bnum() @ lv-bnum 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-invl.po-no ~
-ap-invl.actnum ap-invl.qty ap-invl.unit-pr ap-invl.pr-qty-uom ap-invl.tax ~
-ap-invl.sf-sht ap-invl.amt ap-invl.dscr 
+ap-invl.actnum ap-invl.qty ap-invl.cons-uom ap-invl.unit-pr ~
+ap-invl.pr-qty-uom ap-invl.tax ap-invl.sf-sht ap-invl.amt ap-invl.dscr 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ap-invl
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ap-invl WHERE ap-invl.i-no = ap-inv.i-no NO-LOCK ~
@@ -290,6 +290,7 @@ DEFINE BROWSE Browser-Table
       ap-invl.po-no
       ap-invl.actnum
       ap-invl.qty
+      ap-invl.cons-uom
       ap-invl.unit-pr
       ap-invl.pr-qty-uom
       ap-invl.tax
@@ -376,7 +377,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -413,7 +414,7 @@ ASSIGN
      _FldNameList[5]   > ASI.ap-invl.qty
 "ap-invl.qty" ? "->>>,>>9.9<<<<<" "decimal" ? ? ? 14 ? ? yes ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.ap-invl.cons-uom
-"ap-invl.cons-uom" "UOM" ? "character" ? ? ? 14 ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-invl.cons-uom" "UOM" ? "character" ? ? ? 14 ? ? yes ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ap-invl.unit-pr
 "ap-invl.unit-pr" "Price" ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ap-invl.pr-qty-uom
