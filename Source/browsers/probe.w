@@ -2932,10 +2932,10 @@ PROCEDURE print-box-est :
   
   IF v-prt-box THEN RUN printBoxImage.
 
-ASSIGN v-line-count = LINE-COUNTER .
+ASSIGN v-line-count = LINE-COUNTER . 
   IF v-prt-note THEN DO:
      
-    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 65  .
+    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 66  .
     RUN print-notes(v-line-count) .
     OUTPUT CLOSE.
   END.
@@ -3027,9 +3027,9 @@ PROCEDURE print-notes :
   
 
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
-       
+      
   DO i = 1 TO lv-k:
-      IF v-line-count GT 62 THEN DO:
+      IF v-line-count GT 66 THEN DO:
           PAGE.
           v-line-count = 0 .
       END.
@@ -3296,7 +3296,7 @@ PROCEDURE printProbe :
     IF AVAILABLE sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
     ELSE v-print-fmt = "".
      i = 0 . 
-     IF is-xprint-form THEN lv-lines = 65.
+     IF is-xprint-form THEN lv-lines = 66.
      OUTPUT TO VALUE(ls-outfile) PAGE-SIZE VALUE(lv-lines). /* create .x file with page size */
 
      INPUT FROM VALUE(lv-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt)) NO-ECHO.
