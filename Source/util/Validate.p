@@ -421,3 +421,29 @@ PROCEDURE pIsValidCostType:
     
 
 END PROCEDURE.
+
+PROCEDURE pIsValidJob:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cost Type
+     Notes: Input 1 = Cost Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i
+        &ValidateTable = "job" 
+        &ValidateField = "job-no" 
+        &ValidateMessage = "Job Number"}
+    
+
+END PROCEDURE.
+
+PROCEDURE pIsValidPoNo:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cost Type
+     Notes: Input 1 = Cost Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validateIntField.i
+        &ValidateTable = "po-ord" 
+        &ValidateField = "po-no" 
+        &ValidateMessage = "PO #"}
+    
+
+END PROCEDURE.
