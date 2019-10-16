@@ -2871,23 +2871,7 @@ oplRelFlg2 = llRelFlg2.
   IF liNumShipTo GT 1 OR llOeShipFromLog THEN DO:
     /* If it's OESHIPTO and they've alread chosen a v-ship-id, then keep it for the next item */
     IF NOT (oeship-cha = "OESHIPTO" AND v-ship-id GT "") THEN DO:
-   
-        IF oe-ordl.est-no NE "" THEN
-        FOR EACH eb
-          WHERE eb.company  EQ b-oe-ordl.company
-            AND eb.est-no   EQ b-oe-ordl.est-no
-            AND eb.cust-no  EQ oe-ord.cust-no
-            AND eb.ship-id  NE ""
-          NO-LOCK
-          BREAK BY eb.stock-no DESC:
-          IF LAST(eb.stock-no)           OR
-          eb.stock-no EQ b-oe-ordl.i-no THEN DO:
-            v-ship-id = eb.ship-id.
-            LEAVE.
-          END.
-        END.
         
-        ELSE
         FOR EACH shipto
           WHERE shipto.company EQ cocode
              AND shipto.cust-no EQ oe-ord.cust-no

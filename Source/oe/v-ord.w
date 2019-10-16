@@ -2682,34 +2682,25 @@ PROCEDURE create-release :
 
      IF v-num-shipto GT 1 THEN
      DO:
-         IF oe-ordl.est-no NE "" THEN
-         DO:
-            FIND FIRST eb WHERE eb.company = oe-ordl.company AND
-                                eb.est-no EQ oe-ordl.est-no
-                            AND eb.form-no  NE 0
-                               NO-LOCK NO-ERROR.
-            IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
-            if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
-         END.
-         ELSE DO:
-            FIND FIRST shipto NO-LOCK  
-                WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ oe-ordl.cust-no
-                AND shipto.ship-id = oe-ordl.ship-id
-                NO-ERROR.
-            IF NOT AVAILABLE shipto THEN 
-                FIND FIRST shipto WHERE shipto.company EQ cocode
-                                AND shipto.cust-no EQ oe-ordl.cust-no
-                                AND shipto.ship-id = oe-ordl.cust-no
-                                NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE shipto THEN 
-                 FIND FIRST shipto WHERE shipto.company EQ cocode
-                                     AND shipto.cust-no EQ oe-ordl.cust-no
-                                     NO-LOCK NO-ERROR.   
+         FIND FIRST shipto NO-LOCK  
+             WHERE shipto.company EQ cocode
+               AND shipto.cust-no EQ oe-ordl.cust-no
+               AND shipto.ship-id = oe-ordl.ship-id
+             NO-ERROR.
+         IF NOT AVAILABLE shipto THEN 
+             FIND FIRST shipto NO-LOCK
+                  WHERE shipto.company EQ cocode
+                    AND shipto.cust-no EQ oe-ordl.cust-no 
+                    AND shipto.ship-id = oe-ordl.cust-no
+                  NO-ERROR.
+          IF NOT AVAILABLE shipto THEN 
+              FIND FIRST shipto NO-LOCK
+                   WHERE shipto.company EQ cocode
+                     AND shipto.cust-no EQ oe-ordl.cust-no
+                   NO-ERROR.   
             IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.
             IF AVAIL shipto AND v-ship-from EQ "" THEN
                 v-ship-from = shipto.loc.
-         END.
          
          IF llOeShipFromLog THEN
              RUN oe/d-shipid.w (INPUT oe-ord.cust-no , INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
