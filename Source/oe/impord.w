@@ -1270,24 +1270,14 @@ PROCEDURE pAutoCreateShipTo:
             shipto.carrier      = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.carrier ELSE ""
             shipto.dest-code    = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.dest-code ELSE ""
             .
-        FIND FIRST bf-state-shipto
-            WHERE bf-state-shipto.company EQ shipto.company
-            AND bf-state-shipto.cust-no EQ shipto.cust-no
-            AND bf-state-shipto.ship-id NE shipto.cust-no
-            AND bf-state-shipto.ship-state EQ shipto.ship-state
-            NO-LOCK NO-ERROR.
+        
         FIND FIRST bf-cust NO-LOCK 
             WHERE bf-cust.company EQ shipto.company
             AND bf-cust.cust-no EQ shipto.cust-no
             NO-ERROR.
-        shipto.tax-code = IF AVAILABLE bf-state-shipto  THEN bf-state-shipto.tax-code 
-            ELSE IF AVAILABLE bf-default-shipto  THEN bf-shipto.tax-code 
-            ELSE IF AVAILABLE bf-cust THEN bf-cust.tax-gr
-            ELSE "".
-        shipto.tax-mandatory = IF AVAIL(bf-state-shipto) THEN bf-state-shipto.tax-mandatory 
-            ELSE IF AVAIL(bf-default-shipto) THEN bf-shipto.tax-mandatory 
-            ELSE IF AVAILABLE bf-cust THEN bf-cust.sort EQ "Y"
-            ELSE NO.
+        shipto.tax-code =  IF AVAILABLE bf-cust THEN bf-cust.tax-gr ELSE "".
+        shipto.tax-mandatory =  IF AVAILABLE bf-cust THEN bf-cust.sort EQ "Y" ELSE NO.
+        shipto.spare-char-1 = IF AVAILABLE bf-cust THEN bf-cust.sman ELSE "" .
          
  
     END. /* not avail shipto */
