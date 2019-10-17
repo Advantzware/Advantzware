@@ -212,7 +212,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       end.
      
       else DO:
-           display skip(8)
+           display skip(9)
                 "V   V      OOO       III      DDDD"   at 10 skip
                 "V   V     O   O       I       D   D"  at 10 skip
                 "V   V     O   O       I       D   D"  at 10 skip
