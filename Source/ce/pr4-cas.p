@@ -247,7 +247,7 @@ ELSE
             and item.i-no eq xeb.tr-no
           no-lock no-error.
       if available item then  find first e-item of item no-lock no-error.
-      if xeb.cas-pal ne 0 then p-qty = c-qty / xeb.cas-pal.
+      if xeb.tr-cnt ne 0 then p-qty = qty / xeb.tr-cnt.
       else p-qty = ((((xeb.t-sqin - v-t-win) * qty / 144000) * b-wt) + c-qty )
                     / item.avg-w.
                     /* ce-ctrl.avg-palwt was previosly used. */

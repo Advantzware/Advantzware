@@ -92,7 +92,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
       find first item {sys/look/itemW.i} and item.i-no = xeb.tr-no
       no-lock no-error.
       if avail item then  find first e-item of item no-lock no-error.
-      if xeb.cas-pal ne 0 then p-qty = c-qty / xeb.cas-pal.
+      if xeb.cas-pal ne 0 then p-qty = qty / xeb.tr-cnt .
 
       else p-qty = if v-corr then
                    ((((xeb.t-sqin - xeb.t-win) * qty * .000007) * b-wt) + c-qty)
