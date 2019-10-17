@@ -788,6 +788,11 @@ PROCEDURE pExportTableList :
         slTables:LIST-ITEMS         = ""
         slTablesSelected:LIST-ITEMS = ""
         .
+
+    FILE-INFO:FILE-NAME = fiExportFile:SCREEN-VALUE.
+    
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN
+        RETURN.
                 
     INPUT FROM VALUE(fiExportFile:SCREEN-VALUE).
     REPEAT:
@@ -921,6 +926,11 @@ PROCEDURE pImportTableList :
         slTables:LIST-ITEMS         = ""
         slTablesSelected:LIST-ITEMS = ""
         .
+
+    FILE-INFO:FILE-NAME = fiPath:SCREEN-VALUE.
+    
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN
+        RETURN.
         
     INPUT FROM OS-DIR (fiPath:SCREEN-VALUE).    
     REPEAT:
