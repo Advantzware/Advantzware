@@ -3,4 +3,9 @@
 TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 {methods/triggers/create.i}
-{&TABLENAME}.configID = NEXT-VALUE(configID_seq).
+
+ASSIGN
+    {&TABLENAME}.configID   = NEXT-VALUE(configID_seq)
+    {&TABLENAME}.createBy   = USERID("ASI")
+    {&TABLENAME}.createTime = NOW
+    .
