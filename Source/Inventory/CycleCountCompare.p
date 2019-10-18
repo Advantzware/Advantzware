@@ -143,6 +143,7 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoCostMSF AS LOGICAL NO-UNDO.
     define variable icnt as int.
@@ -179,7 +180,7 @@ PROCEDURE exportSnapshot:
                
     END.
     
-    OUTPUT STREAM sOutput TO VALUE(gcSnapshotFile) .
+    OUTPUT STREAM sOutput TO VALUE(ipcFileName) .
     FOR EACH ttSnapShot:
         EXPORT STREAM sOutput DELIMITER "," ttSnapShot.
     END.
@@ -691,11 +692,14 @@ PROCEDURE pCheckCountDups:
     IF lIsDups THEN 
     DO:
         OUTPUT STREAM sOutput TO c:\tmp\dupCountTags.csv.
+        PUT STREAM sOutput UNFORMATTED "Item#,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags: 
             PUT STREAM sOutput UNFORMATTED  
                 '="' ttDupTags.i-no '",'
                 '="' ttDupTags.tag '",'
-                '="' ttDupTags.transTypes '",' SKIP.              
+                '="' ttDupTags.transTypes '",' 
+                SKIP
+                .              
         END.
         OUTPUT STREAM sOutput CLOSE.
     
@@ -1057,9 +1061,10 @@ PROCEDURE pExportTempTable PRIVATE:
         hQuery:GET-NEXT().   
         IF hQuery:QUERY-OFF-END THEN LEAVE.   
         DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
+            /* Was inserting an = sign for tag but that stopped working - new excel version? */
             IF iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):COLUMN-LABEL BEGINS  "Tag" THEN 
                 PUT STREAM sOutput UNFORMATTED  
-                    '="' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'.             
+                    '"' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'.             
             ELSE 
                 PUT STREAM sOutput UNFORMATTED  
                     '"' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'. 
@@ -1227,6 +1232,7 @@ PROCEDURE postFG:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
@@ -1258,7 +1264,7 @@ PROCEDURE postFG:
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
 
-    RUN pPostCounts (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
     MESSAGE "Posting Complete"
         VIEW-AS ALERT-BOX.
@@ -1269,12 +1275,13 @@ PROCEDURE pPostCounts:
      Purpose:
      Notes:  Modify for FG
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
-    DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate   AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItemStart  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItemEnd    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWhseList     AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcBinStart     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBinEnd       AS CHARACTER NO-UNDO.
         
     DEFINE VARIABLE save_id       AS RECID.
     DEFINE VARIABLE v-qty-onh     AS DECIMAL   NO-UNDO.
@@ -1312,7 +1319,7 @@ PROCEDURE pPostCounts:
     postit:
     DO TRANSACTION ON ERROR UNDO postit, LEAVE postit:
       
-        FOR EACH fg-rctd
+        FOR EACH fg-rctd EXCLUSIVE-LOCK
             WHERE fg-rctd.company EQ cocode
             AND fg-rctd.rita-code EQ "C"   
             AND fg-rctd.tag NE ""
@@ -1322,14 +1329,17 @@ PROCEDURE pPostCounts:
             AND fg-rctd.loc-bin GE ipcBinStart
             AND fg-rctd.loc-bin LE ipcBinEnd
             AND fg-rctd.qty NE 0  
-            NO-LOCK,  
+            ,  
             FIRST itemfg
             WHERE itemfg.company EQ cocode
             AND itemfg.i-no    EQ fg-rctd.i-no
             AND itemfg.isaset
             AND itemfg.alloc   
             NO-LOCK:
-
+                
+            /* Allow user to force transactions to be on a different date */
+            IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
+                fg-rctd.rct-date = ipdtTransDate.
             RUN fg/fullset.p (ROWID(itemfg)).
 
             FOR EACH tt-fg-set,
@@ -1506,6 +1516,7 @@ PROCEDURE reportComparison:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
@@ -1539,7 +1550,7 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE setFromHistory.
         
     IF setFromHistory THEN 
-        RUN postFG (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+        RUN postFG (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
             ipcBinStart, ipcBinEnd). 
         
 END PROCEDURE.

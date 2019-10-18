@@ -24,6 +24,9 @@ for each {1}fg-rctd
         
     IF NOT AVAIL itemfg THEN NEXT.
 
+    /* Allow user to force transactions to be on a different date */
+    IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
+        fg-rctd.rct-date = ipdtTransDate.
 
     release b2-fg-bin.        
             
