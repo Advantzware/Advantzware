@@ -2193,14 +2193,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
+    FIND FIRST oe-boll NO-LOCK 
+        WHERE oe-boll.company EQ oe-bolh.company
+        AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
+    
     FIND FIRST carrier WHERE carrier.company = g_company
-                         AND carrier.loc = cShipFromLoc
+                         AND carrier.loc = (IF AVAIL oe-boll THEN oe-boll.loc ELSE cShipFromLoc)
                          AND carrier.carrier = oe-bolh.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME}                          
                          NO-LOCK NO-ERROR.
     IF NOT AVAIL carrier THEN DO:
