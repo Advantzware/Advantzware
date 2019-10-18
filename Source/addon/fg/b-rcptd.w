@@ -1539,10 +1539,10 @@ FIND  FIRST itemfg WHERE itemfg.company EQ cocode
             USE-INDEX i-no NO-LOCK NO-ERROR.
 
 ASSIGN
- lv-cost-uom = itemfg.prod-uom
+ lv-cost-uom = IF AVAIL itemfg THEN itemfg.prod-uom ELSE ""
  v-bwt       = 0
- v-len       = itemfg.t-len
- v-wid       = itemfg.t-wid
+ v-len       = IF AVAIL itemfg THEN itemfg.t-len ELSE 0
+ v-wid       = IF AVAIL itemfg THEN itemfg.t-wid ELSE 0
  v-dep       = 0.
 
 IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO: /* for row-display */  
@@ -1831,11 +1831,11 @@ PROCEDURE get-values :
         NO-LOCK NO-ERROR.
 
     /*find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.*/
-
-    ASSIGN
-    fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
-    lv-qty-case = STRING(itemfg.case-count)
-    lv-cost-uom = IF itemfg.pur-man THEN itemfg.pur-uom ELSE itemfg.prod-uom.
+   IF AVAIL itemfg THEN 
+       ASSIGN
+       fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
+       lv-qty-case = STRING(itemfg.case-count)
+       lv-cost-uom = IF itemfg.pur-man THEN itemfg.pur-uom ELSE itemfg.prod-uom.
 
     RUN fg/autopost.p (ROWID(itemfg),
                        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -1851,7 +1851,7 @@ PROCEDURE get-values :
     IF AVAIL fg-bin THEN 
       ASSIGN
        lv-std-cost = IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" AND
-                                                  fg-rctd.job-no:SCREEN-VALUE = "" 
+                                                  fg-rctd.job-no:SCREEN-VALUE = "" AND AVAIL itemfg
                                                THEN STRING(itemfg.last-cost) 
                                                ELSE lv-std-cost
        lv-qty-case = /*IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" and
@@ -1859,8 +1859,8 @@ PROCEDURE get-values :
                                                 THEN   STRING(itemfg.case-count)
                                                 ELSE lv-qty-case
                                                 */
-                                                STRING(itemfg.case-count)
-       lv-cost-uom = itemfg.prod-uom.
+                                              IF AVAIL itemfg THEN  STRING(itemfg.case-count) ELSE ""
+       lv-cost-uom = IF AVAIL itemfg THEN itemfg.prod-uom else "".
 
     ASSIGN
      lv-save[1] = fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2429,6 +2429,9 @@ PROCEDURE local-update-record :
      RUN valid-delete-tag(OUTPUT op-error).
      IF op-error THEN RETURN NO-APPLY.
   END.
+
+  RUN valid-loadtag-on-save (OUTPUT op-error).
+  IF op-error THEN RETURN NO-APPLY. 
 
   DO WITH FRAME {&FRAME-NAME}:
     IF fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ ""      OR
@@ -3465,7 +3468,7 @@ PROCEDURE validate-record :
      END.
   END.
 
-  IF itemfg.isaset                                                        AND
+  IF AVAIL itemfg AND itemfg.isaset                                        AND
      (itemfg.alloc EQ NO                OR
       (itemfg.alloc EQ YES       AND
        fgrecpt-char EQ "AUTOPOST" AND
@@ -3629,6 +3632,35 @@ PROCEDURE valid-over-qty :
   DO WITH FRAME {&FRAME-NAME}:
       IF iFGUnderOver EQ 1 AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN do:
           {fg/chkporun.i}
+      END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loadtag-on-save B-table-Win 
+PROCEDURE valid-loadtag-on-save :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST loadtag NO-LOCK
+          WHERE loadtag.company   EQ g_company
+          AND loadtag.item-type EQ NO
+          AND loadtag.tag-no    EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+          NO-ERROR.
+      IF NOT AVAIL loadtag THEN DO:
+          MESSAGE "Invalid Loadtag#. " VIEW-AS ALERT-BOX ERROR.
+          fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "".
+          APPLY "entry" TO fg-rctd.tag .
+             op-error = YES .
       END.
   END.
 
