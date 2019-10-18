@@ -45,7 +45,7 @@ DEFINE            VARIABLE lv-new-recid    AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-valid-charge AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE char-hdl        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE ilogic          AS LOGICAL   NO-UNDO .
-
+DEFINE            VARIABLE lErrorPopClose  AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1047,8 +1047,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_cancel:HIDDEN                         = YES.
     END.
 
-   
+    IF lErrorPopClose THEN DO:
+        APPLY "choose" TO Btn_Cancel IN FRAME {&FRAME-NAME}.
+        RETURN NO-APPLY .
+    END.
+    
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+
 END.
 RUN disable_UI.
 
@@ -1069,7 +1074,7 @@ PROCEDURE create-item :
     DEFINE VARIABLE z        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE li-line  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-fgitem AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lv-error AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bf-inv-line FOR inv-line .
     
     i = 0 .
@@ -1079,7 +1084,7 @@ PROCEDURE create-item :
 
     IF i GT 1 THEN 
     DO:
-        RUN oe/mis-invfg.w (RECID(inv-head),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
+        RUN oe/mis-invfg.w (RECID(inv-head),OUTPUT v-fgitem,OUTPUT lErrorPopClose ) NO-ERROR.
     END.
 
     /* Code placed here will execute PRIOR to standard behavior. */
