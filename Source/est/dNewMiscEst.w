@@ -4,7 +4,7 @@
 &Scoped-define FRAME-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS D-Dialog 
 /*------------------------------------------------------------------------
-  File: est/d-estrel.w
+  File: est/dNewMiscEst.w
   
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
