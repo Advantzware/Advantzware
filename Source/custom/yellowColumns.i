@@ -1376,6 +1376,9 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Close Date' THEN STRING(YEAR(job.close-date),'9999') + ~
                                    STRING(MONTH(job.close-date),'99') + ~
                                    STRING(DAY(job.close-date),'99') ELSE ~
+  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(job.due-date),'9999') + ~
+                                   STRING(MONTH(job.due-date),'99') + ~
+                                   STRING(DAY(job.due-date),'99') ELSE ~
   IF sortColumn EQ 'Estimate#' THEN string(job-hdr.est-no) ELSE ~
   IF sortColumn EQ 'Order#' THEN string(job-hdr.ord-no,"999999999") ELSE ~
   IF sortColumn EQ 'Customer#' THEN string(job-hdr.cust-no) ELSE ~

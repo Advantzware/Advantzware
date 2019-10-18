@@ -23,22 +23,22 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD vendorID                AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor" HELP "Optional - - Size:8"
     FIELD customerID              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Customer" HELP "Optional - Size:8"
     FIELD estimateNo              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Estimate" HELP "Optional - Size:8"
-    FIELD formNo                  AS INTEGER FORMAT ">>" COLUMN-LABEL "Form" HELP "Optional - Integer"
-    FIELD blankNo                 AS INTEGER FORMAT ">>" COLUMN-LABEL "Blank" HELP "Optional - Integer"
+    FIELD formNo                  AS INTEGER FORMAT ">>" INITIAL 0 COLUMN-LABEL "Form" HELP "Optional - Integer"
+    FIELD blankNo                 AS INTEGER FORMAT ">>" INITIAL 0 COLUMN-LABEL "Blank" HELP "Optional - Integer"
     FIELD vendorItemID            AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Vendor Item" HELP "Optional - Size:16"
-    FIELD effectiveDate           AS CHARACTER FORMAT "99/99/9999" COLUMN-LABEL "Effective" HELP "Optional - Date"
-    FIELD expirationDate          AS CHARACTER FORMAT "99/99/9999" COLUMN-LABEL "Expires" HELP "Optional - Date"
+    FIELD effectiveDate           AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Effective" HELP "Optional - Date"
+    FIELD expirationDate          AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Expires" HELP "Optional - Date"
     FIELD vendorUOM               AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Vendor Uom" HELP "Required - Size:3"
-    FIELD dimWidthMinimum         AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Width Minimum" HELP "Optional - Decimal"
-    FIELD dimWidthMaximum         AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Width Maximum" HELP "Optional - Decimal"
-    FIELD dimLengthMinimum        AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Length Minimum" HELP "Optional - Decimal"
-    FIELD dimLengthMaximum        AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Length Maximum" HELP "Optional - Decimal"
-    FIELD dimLengthUnder          AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Length Under" HELP "Optional - Decimal"
-    FIELD dimWidthUnder           AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Width Under" HELP "Optional - Decimal"
-    FIELD dimWidthOver            AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Width Upcharge" HELP "Optional - Decimal"
-    FIELD dimLengthOver           AS DECIMAL FORMAT "->>,>>9.9999" COLUMN-LABEL "Length Upcharge" HELP "Optional - Decimal"
-    FIELD quantityMinimumOrder    AS INTEGER FORMAT "->>,>>>,>>9" COLUMN-LABEL "Min Order Qty" HELP "Optional - Integer"
-    FIELD quantityMaximumOrder    AS INTEGER FORMAT "->>,>>>,>>9" COLUMN-LABEL "Max Order Qty" HELP "Optional - Integer" 
+    FIELD dimWidthMinimum         AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Minimum" HELP "Optional - Decimal"
+    FIELD dimWidthMaximum         AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Maximum" HELP "Optional - Decimal"
+    FIELD dimLengthMinimum        AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Minimum" HELP "Optional - Decimal"
+    FIELD dimLengthMaximum        AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Maximum" HELP "Optional - Decimal"
+    FIELD dimLengthUnder          AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Under" HELP "Optional - Decimal"
+    FIELD dimWidthUnder           AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Under" HELP "Optional - Decimal"
+    FIELD dimWidthOver            AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Upcharge" HELP "Optional - Decimal"
+    FIELD dimLengthOver           AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Length Upcharge" HELP "Optional - Decimal"
+    FIELD quantityMinimumOrder    AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 COLUMN-LABEL "Min Order Qty" HELP "Optional - Decimal"
+    FIELD quantityMaximumOrder    AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 COLUMN-LABEL "Max Order Qty" HELP "Optional - Decimal" 
     
     FIELD LevelQuantity01         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 1" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM01       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 1" HELP "Optional - decimal"
@@ -153,8 +153,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthUnder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthUnder).                                   
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthOver, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthOver).                             
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthOver, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimLengthOver).                                 
-    RUN pAssignValueI (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.quantityMinimumOrder).                             
-    RUN pAssignValueI (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.quantityMaximumOrder). 
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.quantityMinimumOrder).                             
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.quantityMaximumOrder). 
     
     FOR EACH  vendItemCostLevel EXCLUSIVE-LOCK
         WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID :
@@ -247,7 +247,7 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Item Type must be FG or RM".
     END.
     
-    
+    ipbf-ttImportVendCostMtx.estimateNo =  FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportVendCostMtx.estimateNo))) + TRIM(ipbf-ttImportVendCostMtx.estimateNo).
     
     /*Determine if Add or Update*/
     IF oplValid THEN 

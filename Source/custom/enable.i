@@ -59,3 +59,4 @@ wiptag ~
 vend ~
 sman ~
 bank ~
+vendItemCost ~

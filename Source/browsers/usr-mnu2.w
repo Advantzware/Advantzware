@@ -37,6 +37,8 @@ CREATE WIDGET-POOL.
 def var ls-user-id as cha no-undo.
 def var lv-first-time as log no-undo.
 
+{methods/defines/hndldefs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -291,15 +293,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-    assign lv-search = "".
-    display lv-search with frame {&frame-name}.
-    FIND FIRST MNU-ITEM WHERE MNU-ITEM.menu-num = usr-menu.menu-num NO-LOCK NO-ERROR.
-    IF AVAIL mnu-item AND mnu-item.pgm-name <> "" THEN run value(mnu-item.pgm-name) .
-    ELSE DO:
-        MESSAGE "No program available. Contact Advance Software." VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
-    END.
+    DEFINE VARIABLE cPrgmName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
     
+    lv-search = "".
+    DISPLAY lv-search WITH FRAME {&frame-name}.
+    FIND FIRST mnu-item NO-LOCK
+         WHERE mnu-item.menu-num EQ usr-menu.menu-num
+         NO-ERROR.
+    IF AVAILABLE mnu-item AND mnu-item.pgm-name NE "" THEN DO:
+        ASSIGN
+            cPrgmName = REPLACE(mnu-item.pgm-name,".r",".")
+            cPrgmName = REPLACE(cPrgmName,"~\","/")
+            idx = R-INDEX(cPrgmName,"/")
+            cPrgmName = SUBSTRING(cPrgmName,idx + 1)
+            .
+        IF CAN-FIND(FIRST prgrms WHERE prgrms.prgmname EQ cPrgmName) THEN
+        RUN Get_Procedure IN Persistent-Handle (cPrgmName, OUTPUT run-proc, YES).
+        ELSE        
+        RUN VALUE(mnu-item.pgm-name).
+    END. /* if avail */
+    ELSE DO:
+        MESSAGE "No Program Available. Contact Advanced Software." VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */

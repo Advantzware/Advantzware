@@ -319,9 +319,13 @@ DEFINE FRAME rd-vendexp
      end_est-no AT ROW 7 COL 71 COLON-ALIGNED HELP
           "Enter Ending estimate Number" WIDGET-ID 106
      begin_date-eff AT ROW 8.14 COL 28 COLON-ALIGNED HELP
-          "Enter Beginning Due Date" WIDGET-ID 112
+          "Enter Beginning Effective Date" WIDGET-ID 112
      end_date-eff AT ROW 8.1 COL 71 COLON-ALIGNED HELP
-          "Enter Ending Due Date" WIDGET-ID 114
+          "Enter Ending Effective Date" WIDGET-ID 114
+     begin_date-exp AT ROW 9.24 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Expires Date" WIDGET-ID 142
+     end_date-exp AT ROW 9.19 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Expires Date" WIDGET-ID 144
      sl_avail AT ROW 12.81 COL 9 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 13.05 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -338,10 +342,6 @@ DEFINE FRAME rd-vendexp
           "Enter File Name" WIDGET-ID 22
      btn-ok AT ROW 21.24 COL 30 WIDGET-ID 14
      btn-cancel AT ROW 21.24 COL 60.2 WIDGET-ID 12
-     begin_date-exp AT ROW 9.24 COL 28 COLON-ALIGNED HELP
-          "Enter Beginning Due Date" WIDGET-ID 142
-     end_date-exp AT ROW 9.19 COL 71 COLON-ALIGNED HELP
-          "Enter Ending Due Date" WIDGET-ID 144
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 12.1 COL 10 WIDGET-ID 140
      "Selected Columns" VIEW-AS TEXT

@@ -100,6 +100,7 @@ DEFINE VARIABLE h_v-relhs AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-oereh AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-oerell AS HANDLE NO-UNDO .
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -342,6 +343,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
         RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 60.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -356,6 +365,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-relinq ).
        RUN set-position IN h_b-relinq ( 4.57 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 19.76 , 144.00 ) */
+
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-relinq , 'move-columns':U , h_movecol ).
 
        /* Links to SmartNavBrowser h_b-relinq. */
        RUN add-link IN adm-broker-hdl ( h_options , 'prnt-hld':U , h_b-relinq ).

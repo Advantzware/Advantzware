@@ -73,7 +73,7 @@ DEFINE VARIABLE giCountProcessed  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE giCountConverted  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE glConvertAllCompanies AS LOGICAL NO-UNDO.
 /*Constants*/
-DEFINE VARIABLE gdDefaultEffective AS DATE NO-UNDO INITIAL 01/01/0001.
+DEFINE VARIABLE gdDefaultEffective AS DATE NO-UNDO INITIAL 01/01/1900.
 DEFINE VARIABLE gdDefaultExpiration AS DATE NO-UNDO INITIAL 12/31/2099.
 
 /* ********************  Preprocessor Definitions  ******************** */

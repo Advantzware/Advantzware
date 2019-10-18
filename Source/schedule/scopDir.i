@@ -15,6 +15,7 @@
 &GLOBAL-DEFINE printPrompts {&print}/prompts
 &GLOBAL-DEFINE prompts {&objects}/prompts
 &GLOBAL-DEFINE viewers {&objects}/viewers
+&GLOBAL-DEFINE docs ..\..\Documentation\UserManual\Schedule
 
 /* cellColumn = udfExtent + userExtent + 30 */
 &GLOBAL-DEFINE cellColumn 173
