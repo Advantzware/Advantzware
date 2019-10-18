@@ -500,6 +500,13 @@ DO v-local-loop = 1 TO v-local-copies:
           
           dTotalup = getTotalUp() .
 
+          IF AVAIL xoe-ordl THEN DO:
+              IF xoe-ordl.pr-uom NE "M" THEN
+                  RUN sys/ref/convcuom.p(xoe-ordl.pr-uom, "M", 0, 0, 0, 0,
+                                         xoe-ordl.price, OUTPUT dSalesPrice ).
+              ELSE dSalesPrice = xoe-ordl.price .
+          END.
+
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
@@ -1013,13 +1020,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShipNotes3>" IF AVAILABLE shipto THEN shipto.notes[3] ELSE "" FORMAT "x(90)"
               "<=ShipNotes4>" IF AVAILABLE shipto THEN shipto.notes[4] ELSE "" FORMAT "x(90)" .
               PUT "<||3><R39.2><C1><FROM><C62><LINE><||3>" .
-
-              IF AVAIL xoe-ordl THEN DO:
-                  IF xoe-ordl.pr-uom NE "M" THEN
-                      RUN sys/ref/convcuom.p(xoe-ordl.pr-uom, "M", 0, 0, 0, 0,
-                               xoe-ordl.price, OUTPUT dSalesPrice ).
-                  ELSE dSalesPrice = xoe-ordl.price .
-              END.
+              
        PAGE.
 
             ls-fgitem-img = bf-itemfg.box-image.
