@@ -772,11 +772,17 @@ PROCEDURE CreateOrder :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR iLine# AS INT NO-UNDO.
+  DEF VAR iLine# AS INT NO-UNDO.      
   DEF VAR iOrder# AS INT NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
   DEF VAR cPO# AS cha NO-UNDO.
-
+  DEFINE VARIABLE lOeAutoApproval AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
   FOR EACH ttHeader BY ttHeader.Order#:
       IF NOT ttHeader.CustomerValid THEN NEXT.
 
@@ -952,9 +958,24 @@ PROCEDURE CreateOrder :
           run oe/ordlup.p.         /* Update Inventory and Job Costing */
       END.
       */
+
       
-/*   Insert?   RUN ProcessImportedOrder IN hOrderProcs (ROWID(oe-ord), OUTPUT lError, OUTPUT cMessage).*/
-  END.
+      /* Determine autoapproval for this customer/shipto */
+      lOEAutoApproval = NO.
+      RUN sys/ref/nk1look.p (cocode, "OEAutoApproval", "L", YES /* use shipto */, YES /* use cust*/, oe-ord.cust-no, oe-ord.ship-id, 
+                              OUTPUT cResult, OUTPUT lFound).
+      IF lFound THEN
+        lOEAutoApproval = LOGICAL(cResult) NO-ERROR.
+      
+      /* 52995 DSG Automated Ship To Creation */
+      IF lOeAutoApproval AND AVAIL(oe-ord) THEN DO:
+        RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
+        RUN ProcessImportedOrder IN hOrderProcs (ROWID(oe-ord), OUTPUT lError, OUTPUT cMessage).
+        IF VALID-HANDLE(hOrderProcs) THEN 
+            DELETE OBJECT hOrderProcs.
+      END.
+        
+  END. /* Each tt-header */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
