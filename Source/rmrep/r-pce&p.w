@@ -549,6 +549,8 @@ PROCEDURE cpost :
     DEF VAR v-r-qty     AS DEC NO-UNDO.
     DEF VAR v-i-qty     AS DEC NO-UNDO.
     DEF VAR v-t-qty     AS DEC NO-UNDO.
+    DEFINE VARIABLE lPrvTagFound AS LOGICAL NO-UNDO .
+    DEFINE BUFFER bf-rm-bin FOR rm-bin .
 
     postit:
     DO /* TRANSACTION */ ON ERROR UNDO postit, LEAVE postit:
@@ -578,8 +580,23 @@ PROCEDURE cpost :
                 AND rm-bin.tag     EQ rm-rctd.tag
                 NO-ERROR.
 
+             IF AVAIL rm-bin THEN
+             FOR EACH bf-rm-bin EXCLUSIVE-LOCK
+                    WHERE bf-rm-bin.company EQ cocode
+                    AND bf-rm-bin.i-no    EQ rm-rctd.i-no
+                    AND bf-rm-bin.tag     EQ rm-rctd.tag
+                    AND ROWID(bf-rm-bin)  NE ROWID(rm-bin) BREAK BY bf-rm-bin.i-no :
+                    IF FIRST(bf-rm-bin.i-no) THEN do:
+                        ASSIGN
+                            lPrvTagFound = YES  .
+                        IF rm-rctd.cost EQ 0 THEN
+                            rm-rctd.cost = bf-rm-bin.cost.
+                    END.
+                    ASSIGN 
+                        bf-rm-bin.qty = 0 .
+                END.
             IF NOT AVAIL rm-bin THEN 
-            DO:
+            DO: 
                 IF rm-rctd.cost EQ 0 THEN ASSIGN  
                     rm-rctd.cost = IF v-avgcost THEN ITEM.avg-cost ELSE ITEM.last-cost
                     rm-rctd.cost-uom = ITEM.cons-uom.
@@ -624,6 +641,24 @@ PROCEDURE cpost :
 
             IF LAST-OF(rm-rctd.i-no) THEN 
             DO:
+                IF lPrvTagFound THEN DO:
+                    FOR EACH rm-rcpth
+                        WHERE rm-rcpth.company    EQ cocode
+                        AND rm-rcpth.i-no       EQ item.i-no
+                        AND rm-rcpth.rita-code  EQ "C"
+                        NO-LOCK USE-INDEX i-no,
+                        EACH rm-rdtlh
+                        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+                        AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
+                        AND rm-rdtlh.tag       EQ rm-bin.tag
+                        EXCLUSIVE-LOCK
+                        BY rm-rcpth.trans-date
+                        BY rm-rcpth.r-no
+                        BY RECID(rm-rdtlh):
+                        rm-rdtlh.qty = 0 .
+                    END.                  
+                END.
+
                 v-temp-cost = 0.
 
                 FOR EACH rm-bin
@@ -657,7 +692,7 @@ PROCEDURE cpost :
 
         v-dunne = TRUE.
     END. /* postit */
-
+   RELEASE bf-rm-bin .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -199,7 +199,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 35
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
-      rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 25
+      rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 28
       rm-rctd.qty COLUMN-LABEL "Qty Counted" FORMAT "->>>>>>9.9<<<<<":U
             WIDTH 17
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(3)":U
@@ -328,7 +328,7 @@ rm-rctd.rita-code = ""C"""
      _FldNameList[6]   > asi.rm-rctd.loc-bin
 "rm-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.tag
-"rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.qty
 "rm-rctd.qty" "Qty Counted" ? "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.pur-uom
