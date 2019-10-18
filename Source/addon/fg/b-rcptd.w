@@ -2430,8 +2430,10 @@ PROCEDURE local-update-record :
      IF op-error THEN RETURN NO-APPLY.
   END.
 
-  RUN valid-loadtag-on-save (OUTPUT op-error).
-  IF op-error THEN RETURN NO-APPLY. 
+  IF lv-do-what NE "delete" THEN DO:
+      RUN valid-loadtag-on-save (OUTPUT op-error).
+      IF op-error THEN RETURN NO-APPLY. 
+  END.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ ""      OR
@@ -3651,6 +3653,7 @@ PROCEDURE valid-loadtag-on-save :
   DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN do:
       FIND FIRST loadtag NO-LOCK
           WHERE loadtag.company   EQ g_company
           AND loadtag.item-type EQ NO
@@ -3662,6 +3665,7 @@ PROCEDURE valid-loadtag-on-save :
           APPLY "entry" TO fg-rctd.tag .
              op-error = YES .
       END.
+    END.
   END.
 
 END PROCEDURE.
