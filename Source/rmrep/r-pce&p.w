@@ -589,12 +589,16 @@ PROCEDURE cpost :
                     IF FIRST(bf-rm-bin.i-no) THEN do:
                         ASSIGN
                             lPrvTagFound = YES  .
-                        IF rm-rctd.cost EQ 0 THEN
-                            rm-rctd.cost = bf-rm-bin.cost.
                     END.
+                    IF bf-rm-bin.cost NE 0 AND rm-rctd.cost EQ 0 THEN
+                        rm-rctd.cost = bf-rm-bin.cost.
                     ASSIGN 
                         bf-rm-bin.qty = 0 .
                 END.
+
+                IF rm-rctd.cost EQ 0 THEN ASSIGN  
+                    rm-rctd.cost = IF v-avgcost THEN ITEM.avg-cost ELSE ITEM.last-cost .
+
             IF NOT AVAIL rm-bin THEN 
             DO: 
                 IF rm-rctd.cost EQ 0 THEN ASSIGN  
@@ -613,6 +617,8 @@ PROCEDURE cpost :
             END. /* not avail rm-bin */
 
             rm-bin.qty = rm-rctd.qty.
+            IF rm-bin.cost EQ 0 THEN
+                rm-bin.cost = rm-rctd.cost .
 
             /* Update bin with any transactions after this cycle count */
             FOR EACH rm-rcpth
