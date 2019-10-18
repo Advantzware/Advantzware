@@ -120,8 +120,7 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod board fg-cat sub-unit iUnitCount ~
-iPerPallet pallet dWeightPerM iStackHeight Btn_OK Btn_Cancel RECT-1 RECT-2 ~
-RECT-3 RECT-4 
+iPerPallet pallet dWeightPerM iStackHeight Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod style-dscr board fg-cat sub-unit ~
 sub-Unit-dscr iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount ~
@@ -310,69 +309,68 @@ DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 122.2 BY 3
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 63.2 BY 10
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 63.2 BY 9.81
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 58.6 BY 10.05
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 58.6 BY 9.81
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 122 BY 16.57
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 124.2 BY 15.48
      BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     quantity AT ROW 2.19 COL 13.4 COLON-ALIGNED WIDGET-ID 198
-     cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
-     ship-to AT ROW 3.33 COL 71 COLON-ALIGNED WIDGET-ID 178
-     cCustPart AT ROW 5.86 COL 17 COLON-ALIGNED WIDGET-ID 88
-     fg-no AT ROW 6.95 COL 17 COLON-ALIGNED WIDGET-ID 42
-     item-name AT ROW 8.05 COL 17 COLON-ALIGNED WIDGET-ID 208
-     item-dscr AT ROW 9.19 COL 17 COLON-ALIGNED WIDGET-ID 210
-     len AT ROW 10.38 COL 9.8 COLON-ALIGNED WIDGET-ID 190
-     wid AT ROW 10.38 COL 30 COLON-ALIGNED WIDGET-ID 194
-     dep AT ROW 10.38 COL 50.2 COLON-ALIGNED WIDGET-ID 192
-     style-cod AT ROW 11.71 COL 17 COLON-ALIGNED WIDGET-ID 180
-     style-dscr AT ROW 11.71 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 182
-     board AT ROW 12.81 COL 17 COLON-ALIGNED WIDGET-ID 174
-     fg-cat AT ROW 13.91 COL 17 COLON-ALIGNED WIDGET-ID 196
-     sub-unit AT ROW 6.43 COL 81 COLON-ALIGNED WIDGET-ID 216
-     sub-Unit-dscr AT ROW 6.43 COL 95.8 COLON-ALIGNED NO-LABEL WIDGET-ID 218
-     iUnitCount AT ROW 7.91 COL 82.6 COLON-ALIGNED WIDGET-ID 220
-     iPerPallet AT ROW 7.91 COL 111.4 COLON-ALIGNED WIDGET-ID 222
-     pallet AT ROW 9.29 COL 77.2 COLON-ALIGNED WIDGET-ID 224
-     pallet-dscr AT ROW 9.29 COL 91.8 COLON-ALIGNED NO-LABEL WIDGET-ID 226
-     tot-iUnitCount AT ROW 10.71 COL 91.8 COLON-ALIGNED WIDGET-ID 228
-     dWeightPerM AT ROW 12.1 COL 91.8 COLON-ALIGNED WIDGET-ID 238
-     iStackHeight AT ROW 13.52 COL 91.8 COLON-ALIGNED WIDGET-ID 248
-     Btn_OK AT ROW 15.67 COL 45.4
-     Btn_Cancel AT ROW 15.67 COL 66.8
-     cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 202
-     ship-name AT ROW 3.33 COL 89.4 COLON-ALIGNED NO-LABEL WIDGET-ID 204
-     board-dscr AT ROW 12.86 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 212
-     cat-dscr AT ROW 13.95 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 214
-     "Product Input" VIEW-AS TEXT
-          SIZE 16 BY .86 AT ROW 4.81 COL 6 WIDGET-ID 166
-     "Main Input" VIEW-AS TEXT
-          SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
-     "Packing" VIEW-AS TEXT
-          SIZE 11 BY .86 AT ROW 4.86 COL 71.4 WIDGET-ID 234
-     RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
-     RECT-2 AT ROW 5.24 COL 1.8 WIDGET-ID 230
-     RECT-3 AT ROW 5.24 COL 65.4 WIDGET-ID 232
-     RECT-4 AT ROW 1.1 COL 1.8 WIDGET-ID 236
-     SPACE(0.59) SKIP(0.37)
+     quantity AT ROW 2.19 COL 14.6 COLON-ALIGNED WIDGET-ID 198
+     cCustNo AT ROW 3.33 COL 14.6 COLON-ALIGNED WIDGET-ID 176
+     ship-to AT ROW 3.33 COL 72.2 COLON-ALIGNED WIDGET-ID 178
+     cCustPart AT ROW 5.76 COL 19.2 COLON-ALIGNED WIDGET-ID 88
+     fg-no AT ROW 6.86 COL 19.2 COLON-ALIGNED WIDGET-ID 42
+     item-name AT ROW 7.95 COL 19.2 COLON-ALIGNED WIDGET-ID 208
+     item-dscr AT ROW 9.1 COL 19.2 COLON-ALIGNED WIDGET-ID 210
+     len AT ROW 10.29 COL 12 COLON-ALIGNED WIDGET-ID 190
+     wid AT ROW 10.29 COL 32.2 COLON-ALIGNED WIDGET-ID 194
+     dep AT ROW 10.29 COL 52.4 COLON-ALIGNED WIDGET-ID 192
+     style-cod AT ROW 11.62 COL 19.2 COLON-ALIGNED WIDGET-ID 180
+     style-dscr AT ROW 11.62 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 182
+     board AT ROW 12.71 COL 19.2 COLON-ALIGNED WIDGET-ID 174
+     fg-cat AT ROW 13.81 COL 19.2 COLON-ALIGNED WIDGET-ID 196
+     sub-unit AT ROW 6.43 COL 82.2 COLON-ALIGNED WIDGET-ID 216
+     sub-Unit-dscr AT ROW 6.43 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     iUnitCount AT ROW 7.91 COL 83.8 COLON-ALIGNED WIDGET-ID 220
+     iPerPallet AT ROW 7.91 COL 112.6 COLON-ALIGNED WIDGET-ID 222
+     pallet AT ROW 9.29 COL 78.4 COLON-ALIGNED WIDGET-ID 224
+     pallet-dscr AT ROW 9.29 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 226
+     tot-iUnitCount AT ROW 10.71 COL 93 COLON-ALIGNED WIDGET-ID 228
+     dWeightPerM AT ROW 12.1 COL 93 COLON-ALIGNED WIDGET-ID 238
+     iStackHeight AT ROW 13.52 COL 93 COLON-ALIGNED WIDGET-ID 248
+     Btn_OK AT ROW 15.29 COL 51
+     Btn_Cancel AT ROW 15.29 COL 67
+     cust-name AT ROW 3.33 COL 32.4 COLON-ALIGNED NO-LABEL WIDGET-ID 202
+     ship-name AT ROW 3.33 COL 90.6 COLON-ALIGNED NO-LABEL WIDGET-ID 204
+     board-dscr AT ROW 12.76 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     cat-dscr AT ROW 13.86 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     " Product Input" VIEW-AS TEXT
+          SIZE 16.8 BY .86 AT ROW 4.81 COL 5 WIDGET-ID 166
+     " Main Input" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 1.48 COL 5 WIDGET-ID 206
+     " Packing" VIEW-AS TEXT
+          SIZE 11 BY .86 AT ROW 4.81 COL 69 WIDGET-ID 234
+     RECT-1 AT ROW 1.71 COL 3 WIDGET-ID 82
+     RECT-2 AT ROW 5.24 COL 3 WIDGET-ID 230
+     RECT-3 AT ROW 5.24 COL 66.6 WIDGET-ID 232
+     RECT-4 AT ROW 1.24 COL 2 WIDGET-ID 236
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -417,6 +415,14 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust-name IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN pallet-dscr IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ship-name IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -1331,25 +1337,20 @@ DO:
 
 
 /* ***************************  Main Block  *************************** */
+
+{sys/inc/f3helpw.i}
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
     /*{src/adm/template/dialogmn.i}*/
-
     RUN enable_UI.
-
-    {methods/nowait.i}
-     
+    {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:
-
         IF ipType EQ "Edit" THEN
-            RUN pDisplayValue .
-        ELSE RUN pDefaultValue .
-      
+            RUN pDisplayValue.
+        ELSE RUN pDefaultValue.      
         APPLY "entry" TO quantity IN FRAME {&FRAME-NAME}.
     END.
-
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1531,7 +1532,7 @@ PROCEDURE enable_UI :
       WITH FRAME D-Dialog.
   ENABLE quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
          dep style-cod board fg-cat sub-unit iUnitCount iPerPallet pallet 
-         dWeightPerM iStackHeight Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 
+         dWeightPerM iStackHeight Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
