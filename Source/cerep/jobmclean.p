@@ -1659,8 +1659,44 @@ DO:
             "<C25><b>Quantity:</b>" (IF AVAIL b-eb THEN b-eb.bl-qty ELSE 0) FORMAT ">>>>>>9.99<<"
             "<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "") SKIP 
             "<C1.5><FROM><C84><LINE><||3>" SKIP.
-                        
+                       
         IF LINE-COUNTER > 68 THEN PAGE.
+
+       IF LAST(bf-jobhdr.i-no) AND AVAILABLE est AND est.est-type EQ 2 THEN DO:
+        FIND FIRST bff-eb NO-LOCK
+             WHERE bff-eb.company = bf-jobhdr.company
+                AND bff-eb.est-no = bf-jobhdr.est-no
+                AND bff-eb.blank-no EQ 0   NO-ERROR.
+
+        FOR EACH b-eb WHERE b-eb.company = bf-jobhdr.company
+                AND b-eb.est-no = bf-jobhdr.est-no
+                AND b-eb.form-no NE 0 NO-LOCK :
+     
+            IF AVAIL bff-eb AND  bff-eb.set-is-assembled EQ NO THEN
+                FIND FIRST oe-ordl NO-LOCK
+                WHERE oe-ordl.company EQ job-hdr.company
+                AND oe-ordl.ord-no  EQ bf-jobhdr.ord-no
+                AND oe-ordl.job-no  EQ bf-jobhdr.job-no
+                AND oe-ordl.job-no2 EQ bf-jobhdr.job-no2
+                AND oe-ordl.est-no  EQ b-eb.est-no
+                AND oe-ordl.i-no    EQ b-eb.stock-no
+                NO-ERROR.
+    
+            PUT UNFORMATTED 
+            "<C2><b>Order Qty: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0") FORMAT "x(10)"
+            "<C25><b>FG #: </b>"  b-eb.stock-no FORMAT "x(15)" 
+              "<C60><b> Price:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0") SKIP
+            "<C2><b>Material: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)" SKIP
+            "<C11>" b-eb.part-dscr1 FORMAT "x(30)" SKIP
+            "<C2><b>Estimate:</b> <C11>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.est-no)) ELSE "") FORMAT "x(10)" 
+            "<C25><b>Quantity:</b>" (IF AVAIL b-eb THEN b-eb.bl-qty ELSE 0) FORMAT ">>>>>>9.99<<"
+            "<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "") SKIP 
+            "<C1.5><FROM><C84><LINE><||3>" SKIP.
+
+            IF LINE-COUNTER > 68 THEN PAGE.
+        END. /* FOR EACH b-eb*/
+       END. /* last bf-jobhdr.i-no*/
+
     END.
          
 END. /*each bf-jobhdr*/
