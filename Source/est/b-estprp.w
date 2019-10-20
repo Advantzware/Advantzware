@@ -77,11 +77,12 @@ DEFINE QUERY external_tables FOR est.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table est-prep.s-num est-prep.b-num ~
 est-prep.code est-prep.qty est-prep.dscr est-prep.simon est-prep.cost ~
-est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
+est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz ~
+est-prep.orderID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-prep.s-num ~
 est-prep.b-num est-prep.code est-prep.qty est-prep.dscr est-prep.simon ~
 est-prep.cost est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz ~
-est-prep.orderID
+est-prep.orderID 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table est-prep
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table est-prep
 &Scoped-define QUERY-STRING-br_table FOR EACH est-prep WHERE est-prep.company = est.company ~
@@ -296,8 +297,8 @@ ASSIGN
 "est-prep.ml" ? ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.est-prep.amtz
 "est-prep.amtz" "Amort" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[12]   > ASI.est-prep.orderID
-"est-prep.orderID" "Order #" "x(9)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.est-prep.orderID
+"est-prep.orderID" "Order #" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -318,20 +319,8 @@ ASSIGN
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON return OF br_table IN FRAME F-Main /* Preparation */
-anywhere
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Preparation */
 DO:
-   apply "tab" to self.
-   return no-apply.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON DEFAULT-ACTION OF br_table IN FRAME F-Main
-    DO:
         DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
         DEFINE VARIABLE char-hdl AS cha           NO-UNDO.   
 
@@ -339,6 +328,18 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
         IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
             THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON return OF br_table IN FRAME F-Main /* Preparation */
+anywhere
+DO:
+   apply "tab" to self.
+   return no-apply.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,7 +402,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {custom/yellowColumns2.i}           /*Task# 01211414*/
-
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -518,42 +519,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
-PROCEDURE local-initialize :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
- 
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-  ASSIGN 
-      est-prep.s-num:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.b-num:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.code:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.qty:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.dscr:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.simon:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.cost:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.mkup:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.spare-dec-1:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.ml:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.amtz:READ-ONLY IN BROWSE {&browse-name} = YES
-      est-prep.orderID:READ-ONLY IN BROWSE {&browse-name} = YES
-      .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
 PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
@@ -654,7 +619,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -737,6 +701,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  ASSIGN 
+      est-prep.s-num:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.b-num:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.code:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.qty:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.dscr:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.simon:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.cost:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.mkup:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.spare-dec-1:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.ml:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.amtz:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.orderID:READ-ONLY IN BROWSE {&browse-name} = YES
+      .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win 
 PROCEDURE local-view :

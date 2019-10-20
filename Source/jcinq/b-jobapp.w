@@ -388,7 +388,6 @@ DEFINE BROWSE Browser-Table
       poNum() @ v-po-no COLUMN-LABEL "Board P.O. #" FORMAT "ZZZZZ9":U
             WIDTH 17
       sheets-on-order() @ v-sheets-on-order COLUMN-LABEL "Sheets on Order" FORMAT "->>>,>>>,>>9":U
-            WIDTH 21
       job.cs-user-id-t COLUMN-LABEL "CS ID" FORMAT "x(8)":U WIDTH 12
       job-hdr.due-date FORMAT "99/99/9999":U
       job.cs-trans-date COLUMN-LABEL "CS Xfer Date" FORMAT "99/99/9999":U
@@ -564,7 +563,7 @@ ASSIGN
      _FldNameList[4]   > "_<CALC>"
 "poNum() @ v-po-no" "Board P.O. #" "ZZZZZ9" ? ? ? ? ? ? ? no ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"sheets-on-order() @ v-sheets-on-order" "Sheets on Order" "->>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sheets-on-order() @ v-sheets-on-order" "Sheets on Order" "->>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.job.cs-user-id-t
 "job.cs-user-id-t" "CS ID" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.job-hdr.due-date
@@ -623,7 +622,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -954,6 +953,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 &SCOPED-DEFINE key-phrase job-hdr.company EQ cocode

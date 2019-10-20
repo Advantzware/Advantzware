@@ -287,7 +287,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -445,6 +445,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 

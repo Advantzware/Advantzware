@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -53,9 +54,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES pc-misc
+&Scoped-define FIRST-EXTERNAL-TABLE pc-misc
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR pc-misc.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -86,18 +96,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 23.81
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 2.91
-         SIZE 128 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 23 ROW 2.91
+         SIZE 128 BY 1.43
          BGCOLOR 15 .
 
 
@@ -106,6 +116,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.pc-misc
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -334,6 +345,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-mismat. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_b-mismat ).
+       RUN add-link IN adm-broker-hdl ( h_b-mismat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-mismat ,
@@ -364,6 +376,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "pc-misc"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "pc-misc"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -440,9 +461,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "pc-misc"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

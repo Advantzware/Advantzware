@@ -53,16 +53,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES reftable
-&Scoped-define FIRST-EXTERNAL-TABLE reftable
+&Scoped-define EXTERNAL-TABLES stackPattern
+&Scoped-define FIRST-EXTERNAL-TABLE stackPattern
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR reftable.
+DEFINE QUERY external_tables FOR stackPattern.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -95,18 +97,18 @@ DEFINE FRAME F-Main
          SIZE 222.2 BY 23.86
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 73.8 ROW 1
-         SIZE 148.4 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 48 ROW 2.91
          SIZE 175 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 73.8 ROW 1
+         SIZE 148.4 BY 1.91
          BGCOLOR 15 .
 
 
@@ -115,7 +117,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.reftable
+   External Tables: ASI.stackPattern
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -312,8 +314,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_st-pattn , 'note-link':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
@@ -347,7 +355,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_st-pattn. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_st-pattn ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_st-pattn ).
-       RUN add-link IN adm-broker-hdl ( h_st-pattn , 'note-link':U , h_options ).
+       RUN add-link IN adm-broker-hdl ( h_st-pattn , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
@@ -399,13 +407,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "reftable"}
+  {src/adm/template/row-list.i "stackPattern"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "reftable"}
+  {src/adm/template/row-find.i "stackPattern"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -504,7 +512,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "stackPattern"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

@@ -53,23 +53,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ap-pay
-
-/* Definitions for FRAME F-Main                                         */
-&Scoped-define FIELDS-IN-QUERY-F-Main ap-pay.cleared 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-F-Main ap-pay.cleared 
-&Scoped-define ENABLED-TABLES-IN-QUERY-F-Main ap-pay
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-F-Main ap-pay
-&Scoped-define QUERY-STRING-F-Main FOR EACH ap-pay SHARE-LOCK
-&Scoped-define OPEN-QUERY-F-Main OPEN QUERY F-Main FOR EACH ap-pay SHARE-LOCK.
-&Scoped-define TABLES-IN-QUERY-F-Main ap-pay
-&Scoped-define FIRST-TABLE-IN-QUERY-F-Main ap-pay
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES ap-pay
+&Scoped-define FIRST-EXTERNAL-TABLE ap-pay
 
 
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR ap-pay.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS ap-pay.cleared 
 &Scoped-define ENABLED-TABLES ap-pay
@@ -103,11 +98,6 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-void AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-/* Query definitions                                                    */
-&ANALYZE-SUSPEND
-DEFINE QUERY F-Main FOR 
-      ap-pay SCROLLING.
-&ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -121,18 +111,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 105 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 46 ROW 2.91
+         SIZE 105 BY 1.43
          BGCOLOR 15 .
 
 
@@ -141,6 +131,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.ap-pay
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -222,7 +213,6 @@ THEN W-Win:HIDDEN = yes.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
-     _TblList          = "ASI.ap-pay"
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
@@ -352,13 +342,14 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-void ).
        RUN set-position IN h_b-void ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-void ( 19.52 , 145.00 ) NO-ERROR.
+       /* Size in UIB:  ( 19.52 , 145.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_b-void. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-void ).
+       RUN add-link IN adm-broker-hdl ( h_b-void , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-void ,
@@ -431,6 +422,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "ap-pay"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "ap-pay"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */

@@ -399,22 +399,22 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 150 BY 5.24.
 
-DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_set AS LOGICAL INITIAL yes 
      LABEL "Set" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_single AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_single AS LOGICAL INITIAL yes 
      LABEL "Single" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL yes 
      LABEL "Tandem/Combo" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .86 NO-UNDO.
 
-DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL no 
      LABEL "Exact" 
      VIEW-AS TOGGLE-BOX
      SIZE 9.8 BY .81 TOOLTIP "Exact Match" NO-UNDO.
@@ -486,7 +486,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      vi_est-no AT ROW 1.95 COL 2 NO-LABEL
      begin_cust-no AT ROW 1.95 COL 15 COLON-ALIGNED NO-LABEL
-     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-no AT ROW 1.95 COL 29 COLON-ALIGNED NO-LABEL
      vi_stock-no AT ROW 1.95 COL 49 COLON-ALIGNED NO-LABEL
      vi_style AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
@@ -497,6 +496,7 @@ DEFINE FRAME F-Main
      vi_wid AT ROW 2.91 COL 86 COLON-ALIGNED NO-LABEL
      vi_wid-2 AT ROW 2.91 COL 103 COLON-ALIGNED NO-LABEL
      vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABEL
+     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-dscr1 AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABEL
      vi_dep AT ROW 3.86 COL 86 COLON-ALIGNED NO-LABEL
      vi_dep-2 AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
@@ -515,38 +515,38 @@ DEFINE FRAME F-Main
      "Style" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 73
           FGCOLOR 9 FONT 6
-     "Customer Part#" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 31
-          FGCOLOR 9 FONT 6
      "Sort By:" VIEW-AS TEXT
           SIZE 9.8 BY .62 AT ROW 5.29 COL 73
           FONT 6
      "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 2.91 COL 101
-     "Estimate" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 3
-          FGCOLOR 9 FONT 6
-     "FG Item# / Name" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 6
-     "L x W x D" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 96
+          SIZE 3 BY 1 AT ROW 1.95 COL 101
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 3.86 COL 101
+     "Match" VIEW-AS TEXT
+          SIZE 6.8 BY .62 AT ROW 2.71 COL 143.6 WIDGET-ID 10
+     "Browser Col. Mode:" VIEW-AS TEXT
+          SIZE 22.6 BY .62 AT ROW 5.33 COL 114.2 WIDGET-ID 6
+          FONT 6
+     "Customer" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 17
           FGCOLOR 9 FONT 6
      "Die # / Cad # / Plate #" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 1.24 COL 118
           FGCOLOR 9 FONT 6
-     "Customer" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 17
+     "L x W x D" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 96
           FGCOLOR 9 FONT 6
-     "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 5.33 COL 114.2 WIDGET-ID 6
-          FONT 6
-     "Match" VIEW-AS TEXT
-          SIZE 6.8 BY .62 AT ROW 2.71 COL 143.6 WIDGET-ID 10
+     "FG Item# / Name" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 1.24 COL 51
+          FGCOLOR 9 FONT 6
+     "Estimate" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 3
+          FGCOLOR 9 FONT 6
      "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 3.86 COL 101
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 1.95 COL 101
+          SIZE 3 BY 1 AT ROW 2.91 COL 101
+     "Customer Part#" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.24 COL 31
+          FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -731,10 +731,14 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
-ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
+ON LEAVE OF begin_cust-no IN FRAME F-Main
 DO:
-  
+  /*IF LASTKEY NE -1 THEN DO:
+    APPLY "choose" TO btn_go.
+  END.
+  */
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
@@ -745,13 +749,11 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
-ON LEAVE OF begin_cust-no IN FRAME F-Main
+ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
 DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    APPLY "choose" TO btn_go.
-  END.
-  */
+  
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
@@ -1213,6 +1215,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_est-no B-table-Win
 ON LEAVE OF vi_est-no IN FRAME F-Main
 DO:
@@ -1401,6 +1404,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 /*
 FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany and
@@ -1456,9 +1460,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilterValues B-table-Win
-PROCEDURE clearFilterValues:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilterValues B-table-Win 
+PROCEDURE clearFilterValues :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1471,11 +1474,9 @@ PROCEDURE clearFilterValues:
 */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-est B-table-Win 
 PROCEDURE create-est :
@@ -1643,6 +1644,32 @@ DEF BUFFER bb FOR eb.
 /*             i = i + 1.                                                                  */
 /*   end.                                                                                  */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-image-proc B-table-Win 
+PROCEDURE dept-image-proc :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-spec   AS LOG       NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  
+    FIND FIRST notes WHERE notes.rec_key = est.rec_key
+        NO-LOCK NO-ERROR.
+   
+    IF AVAILABLE notes THEN
+        v-spec = TRUE.
+    ELSE v-spec = FALSE.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2471,33 +2498,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-image-proc :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE v-spec   AS LOG       NO-UNDO.
-    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  
-    FIND FIRST notes WHERE notes.rec_key = est.rec_key
-        NO-LOCK NO-ERROR.
-   
-    IF AVAILABLE notes THEN
-        v-spec = TRUE.
-    ELSE v-spec = FALSE.
-
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-        RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

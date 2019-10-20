@@ -54,6 +54,8 @@ DEFINE VARIABLE il-cur-page AS INTEGER INIT 1 NO-UNDO.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -97,18 +99,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 68 ROW 2.91
          SIZE 83 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -336,6 +338,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_file. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_file ).
+       RUN add-link IN adm-broker-hdl ( h_file , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_file ,
@@ -345,13 +348,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/file.w':U ,
              INPUT  {&WINDOW-NAME} ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  '':U ,
              OUTPUT h_file-2 ).
        RUN set-position IN h_file-2 ( 6.67 , 20.20 ) NO-ERROR.
+       RUN set-size IN h_file-2 ( 7.14 , 99.00 ) NO-ERROR.
+       /* Position in AB:  ( 6.67 , 20.20 ) */
        /* Size in UIB:  ( 7.14 , 99.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -377,7 +378,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_file-2. */
+       /* Links to  h_file-2. */
        RUN add-link IN adm-broker-hdl ( h_file , 'Record':U , h_file-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_file-2 ).
 

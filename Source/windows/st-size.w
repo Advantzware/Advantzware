@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: windows/reftable.w
+  File: windows/st-size.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -56,16 +56,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES reftable
-&Scoped-define FIRST-EXTERNAL-TABLE reftable
+&Scoped-define EXTERNAL-TABLES item
+&Scoped-define FIRST-EXTERNAL-TABLE item
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR reftable.
+DEFINE QUERY external_tables FOR item.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -100,18 +102,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -120,7 +122,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartEasyWindow
-   External Tables: ASI.reftable
+   External Tables: ASI.item
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: 
    Design Page: 1
@@ -385,6 +387,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_stack-si. */
        RUN add-link IN adm-broker-hdl ( h_st-size2 , 'Record':U , h_stack-si ).
 
+       /* Links to SmartBrowser h_st-size1. */
+       RUN add-link IN adm-broker-hdl ( h_st-size1 , 'Record':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_impexcel ,
              FRAME message-frame:HANDLE , 'BEFORE':U ).
@@ -422,13 +427,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "reftable"}
+  {src/adm/template/row-list.i "item"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "reftable"}
+  {src/adm/template/row-find.i "item"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -527,7 +532,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "item"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

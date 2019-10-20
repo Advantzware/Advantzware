@@ -28,11 +28,6 @@ CREATE WIDGET-POOL.
 &scoped-define item_spec Customer
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_cust
-&SCOPED-DEFINE h_Object02 h_soldto-2
-&SCOPED-DEFINE h_Object03 h_p-cstsld
-&SCOPED-DEFINE h_Object04 h_custmark-2
-&SCOPED-DEFINE h_Object05 h_p-updsav
-&SCOPED-DEFINE moveRight {&h_Object04},{&h_Object05}
 
 /* Variables */
 DEF VAR lv-cust-rec-key   AS char NO-UNDO.
@@ -79,41 +74,12 @@ DEFINE QUERY external_tables FOR shipto.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-
-DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_b-ctcusi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_cust AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-3 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-4 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-5 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-6 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_cust-tot AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_custmark AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_custmark-2 AS HANDLE NO-UNDO.
-
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol-3 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecol-4 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecol-5 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecol-6 AS HANDLE NO-UNDO.
-
-DEFINE VARIABLE h_p-csthd AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-cstshp AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-cstsld AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-csttot AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
-
-DEFINE VARIABLE h_shipto AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_shipto-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_soldto AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_soldto-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-ctcusi AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -124,18 +90,18 @@ DEFINE FRAME F-Main
          SIZE 157.2 BY 26
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 35 ROW 1
-         SIZE 113 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 34 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 35 ROW 1
+         SIZE 113 BY 1.91
          BGCOLOR 15 .
 
 
@@ -146,6 +112,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.shipto
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -158,7 +125,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Ship To Inquiry"
          HEIGHT             = 26.81
-         WIDTH              = 157.3
+         WIDTH              = 157.4
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -249,7 +216,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Customer File Maintenance */
+ON END-ERROR OF W-Win /* Ship To Inquiry */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -262,7 +229,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Customer File Maintenance */
+ON WINDOW-CLOSE OF W-Win /* Ship To Inquiry */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -305,7 +272,6 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
-       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
@@ -330,16 +296,15 @@ PROCEDURE adm-create-objects :
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 23.67 , 155.00 ) NO-ERROR.
-       
+
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-        
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              h_exit , 'AFTER':U ).
-       
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -353,7 +318,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_movecol-3 ).
        RUN set-position IN h_movecol-3 ( 1.00 , 19.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -363,27 +328,24 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust ).
-       RUN set-position IN h_cust ( 4.40 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_cust ( 19.52 , 150.00 ) NO-ERROR.
+       RUN set-position IN h_cust ( 4.38 , 5.00 ) NO-ERROR.
+       /* Size in UIB:  ( 22.19 , 151.40 ) */
 
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
-        /* Links to SmartObject h_export. */
+       /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'export-xl':U , h_export ).
-       
-       /* Links to SmartViewer h_movecol-3. */
+
+       /* Links to SmartObject h_movecol-3. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'move-columns':U , h_movecol-3 ).
 
        /* Links to SmartNavBrowser h_cust. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_cust ).
        RUN add-link IN adm-broker-hdl ( h_cust , 'Record':U , THIS-PROCEDURE ).
 
-       
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol-3 ,
+             h_export , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_cust ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
-    
 
   END CASE.
   /* Select a Startup page. */
@@ -670,5 +632,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

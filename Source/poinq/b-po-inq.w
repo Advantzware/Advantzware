@@ -226,13 +226,14 @@ dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid po-ordl.s-wid ~
 dim-in-16 (po-ordl.s-len) @ po-ordl.s-len po-ordl.s-len po-ordl.vend-i-no ~
 po-ordl.ord-qty qty-in-ord-uom () @ lv-t-rec-qty po-ordl.pr-qty-uom ~
 po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost po-ordl.pr-uom po-ord.buyer ~
-is-it-polinestat() @ cPoLineStatus is-it-postat() @ cPoStatus is-it-paid() @ v-paidflg po-ordl.cust-no po-ordl.LINE
+is-it-polinestat() @ cPoLineStatus is-it-postat() @ cPoStatus ~
+is-it-paid() @ v-paidflg po-ordl.cust-no po-ordl.line 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table po-ordl.po-no ~
 po-ord.vend-no po-ordl.due-date po-ord.ship-id po-ord.ship-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
 po-ordl.s-wid po-ordl.s-len po-ordl.vend-i-no po-ordl.ord-qty ~
 po-ordl.pr-qty-uom po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost ~
-po-ordl.pr-uom po-ord.buyer po-ordl.cust-no 
+po-ordl.pr-uom po-ord.buyer po-ordl.cust-no po-ordl.line 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table po-ordl po-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table po-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table po-ord
@@ -316,17 +317,17 @@ FUNCTION is-it-paid RETURNS LOGICAL
   (  /* parameter-definitions */  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-postat B-table-Win 
-FUNCTION is-it-postat RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-polinestat B-table-Win 
+FUNCTION is-it-polinestat RETURNS CHARACTER
   (  /* parameter-definitions */  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-polinestat B-table-Win 
-FUNCTION is-it-poLinestat RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-postat B-table-Win 
+FUNCTION is-it-postat RETURNS CHARACTER
   (  /* parameter-definitions */  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -419,10 +420,10 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 148 BY 3.57.
 
-DEFINE VARIABLE tb_approved AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_approved AS LOGICAL INITIAL yes 
      LABEL "Not Hold" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.5 BY .81 NO-UNDO.
+     SIZE 13.6 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_closed AS LOGICAL INITIAL no 
      LABEL "Closed" 
@@ -430,7 +431,7 @@ DEFINE VARIABLE tb_closed AS LOGICAL INITIAL no
      SIZE 11.8 BY 1
      FGCOLOR 12  NO-UNDO.
 
-DEFINE VARIABLE tb_hold AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_hold AS LOGICAL INITIAL yes 
      LABEL "Hold" 
      VIEW-AS TOGGLE-BOX
      SIZE 11 BY .81 NO-UNDO.
@@ -477,7 +478,8 @@ DEFINE QUERY Browser-Table FOR
       po-ordl.cons-uom
       po-ordl.cost
       po-ordl.pr-uom
-      po-ordl.cust-no), 
+      po-ordl.cust-no
+      po-ordl.line), 
       po-ord, 
       reftable, 
       ap-invl, 
@@ -521,13 +523,13 @@ DEFINE BROWSE Browser-Table
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U LABEL-BGCOLOR 14
       po-ordl.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U LABEL-BGCOLOR 14
       po-ord.buyer FORMAT "x(10)":U LABEL-BGCOLOR 14
-      is-it-polinestat() @ cPoLineStatus COLUMN-LABEL "Line Status" FORMAT "x(20)":U LABEL-BGCOLOR 14
-      is-it-postat() @ cPoStatus COLUMN-LABEL "PO Status" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      is-it-polinestat() @ cPoLineStatus COLUMN-LABEL "Line Status"
+            LABEL-BGCOLOR 14
+      is-it-postat() @ cPoStatus COLUMN-LABEL "PO Status" LABEL-BGCOLOR 14
       is-it-paid() @ v-paidflg COLUMN-LABEL "Paid" FORMAT "YES / NO":U
       po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
-      po-ordl.LINE COLUMN-LABEL "Line #" FORMAT ">>>9":U LABEL-BGCOLOR 14
-    
+      po-ordl.line COLUMN-LABEL "Line #" FORMAT ">>>>>>>":U LABEL-BGCOLOR 14
   ENABLE
       po-ordl.po-no
       po-ord.vend-no
@@ -550,6 +552,7 @@ DEFINE BROWSE Browser-Table
       po-ordl.pr-uom
       po-ord.buyer
       po-ordl.cust-no
+      po-ordl.line
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 16.43
@@ -771,7 +774,7 @@ po-ord.po-no eq po-ordl.po-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1117,6 +1120,7 @@ END.
 
 RUN po/po-sysct.p.
 
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 &SCOPED-DEFINE cellColumnDat poinqb-po-inq
@@ -1215,6 +1219,32 @@ PROCEDURE browse-rowid :
   IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN
     op-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = po-ord.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2686,34 +2716,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-pan-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-
-   FIND FIRST notes WHERE notes.rec_key = po-ord.rec_key
-       NO-LOCK NO-ERROR.
-
-   IF AVAIL notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
-
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -2784,53 +2786,6 @@ FUNCTION getcurrentpo RETURNS INTEGER
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-postat B-table-Win 
-FUNCTION is-it-postat RETURNS CHARACTER
-  (  /* parameter-definitions */  ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-    
-    IF AVAILABLE po-ord THEN DO: 
-        lc-result = po-ord.stat .
-        RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
-        IF cResult NE "" THEN
-            lc-result  = cResult .
-    END.
-    RETURN lc-result.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-polinestat B-table-Win 
-FUNCTION is-it-polinestat RETURNS CHARACTER
-  (  /* parameter-definitions */  ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-    
-    IF AVAILABLE po-ordl THEN DO: 
-        lc-result = po-ordl.stat .
-        RUN oe/getStatusDesc.p( INPUT po-ordl.stat, OUTPUT cResult) .
-        IF cResult NE "" THEN
-            lc-result  = cResult .
-    END.
-    RETURN lc-result.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-paid B-table-Win 
@@ -2863,6 +2818,52 @@ FOR EACH  reftable NO-LOCK
 END.
 
   RETURN v-flg.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-polinestat B-table-Win 
+FUNCTION is-it-polinestat RETURNS CHARACTER
+  (  /* parameter-definitions */  ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE po-ordl THEN DO: 
+        lc-result = po-ordl.stat .
+        RUN oe/getStatusDesc.p( INPUT po-ordl.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
+    END.
+    RETURN lc-result.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-postat B-table-Win 
+FUNCTION is-it-postat RETURNS CHARACTER
+  (  /* parameter-definitions */  ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE po-ord THEN DO: 
+        lc-result = po-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
+    END.
+    RETURN lc-result.   /* Function return value. */
 
 END FUNCTION.
 

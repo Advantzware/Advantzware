@@ -158,14 +158,14 @@ DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 RUN methods/prgsecur.p
-	    (INPUT "p-upditm.",
-	     INPUT "CREATE", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+            (INPUT "p-upditm.",
+             INPUT "CREATE", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1568,29 +1568,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME est.est-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.est-date br-estitm _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est.est-date IN BROWSE br-estitm /* Est Date */
-DO:
-  IF eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-    APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-
-  ELSE
-  IF ls-add-what NE "" AND NOT ll-part-no THEN DO:
-    ll-part-no = YES.
-    APPLY "entry" TO eb.part-no IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+&Scoped-define SELF-NAME eb.pur-man
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.pur-man br-estitm _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Set? */
+ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Purch/Manuf */
 DO:
    DEFINE VARIABLE lChackLog AS LOGICAL NO-UNDO .
    DEFINE BUFFER bf-itemfg FOR itemfg .
@@ -1616,12 +1596,34 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME est.est-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.est-date br-estitm _BROWSE-COLUMN B-table-Win
+ON ENTRY OF est.est-date IN BROWSE br-estitm /* Est Date */
+DO:
+  IF eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
+    APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+    RETURN NO-APPLY.
+  END.
+
+  ELSE
+  IF ls-add-what NE "" AND NOT ll-part-no THEN DO:
+    ll-part-no = YES.
+    APPLY "entry" TO eb.part-no IN BROWSE {&browse-name}.
+    RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 DO WITH FRAME {&frame-name}:
@@ -3348,53 +3350,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win
-PROCEDURE pGetDefaultShipID:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
-    
-    FIND cust NO-LOCK WHERE 
-        cust.company EQ gcompany AND 
-        cust.cust-no EQ ipcCustNo
-        NO-ERROR.
-
-    IF AVAIL cust THEN 
-    DO:
-        FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no AND 
-            shipto.isDefault EQ TRUE  
-            NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no AND 
-            shipto.ship-id EQ cust.cust-no
-            NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no
-            NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no AND 
-            shipto.ship-no EQ 1
-            NO-ERROR.
-        IF AVAIL shipto THEN ASSIGN 
-            opcShipID = shipto.ship-id.
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
 PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
@@ -4913,6 +4868,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win 
+PROCEDURE pGetDefaultShipID :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
+    
+    FIND cust NO-LOCK WHERE 
+        cust.company EQ gcompany AND 
+        cust.cust-no EQ ipcCustNo
+        NO-ERROR.
+
+    IF AVAIL cust THEN 
+    DO:
+        FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ gcompany AND 
+            shipto.cust-no EQ cust.cust-no AND 
+            shipto.isDefault EQ TRUE  
+            NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ gcompany AND 
+            shipto.cust-no EQ cust.cust-no AND 
+            shipto.ship-id EQ cust.cust-no
+            NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ gcompany AND 
+            shipto.cust-no EQ cust.cust-no
+            NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ gcompany AND 
+            shipto.cust-no EQ cust.cust-no AND 
+            shipto.ship-no EQ 1
+            NO-ERROR.
+        IF AVAIL shipto THEN ASSIGN 
+            opcShipID = shipto.ship-id.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :
 /*------------------------------------------------------------------------------
@@ -5561,6 +5560,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no B-table-Win 
+PROCEDURE valid-cust-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST cust NO-LOCK
+          WHERE cust.company = gcompany 
+          AND cust.cust-no = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR .
+      
+      IF NOT AVAIL cust THEN DO:
+          MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+          oplReturnError = YES .
+      END.
+      ELSE IF AVAIL cust AND cust.ACTIVE EQ "I" THEN DO:
+          MESSAGE "Customer is Inactive. Please select a Active Customer ..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+          oplReturnError = YES .
+      END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
 PROCEDURE valid-cust-user :
 /*------------------------------------------------------------------------------
@@ -5680,38 +5710,6 @@ PROCEDURE valid-procat :
       APPLY "entry" TO eb.procat IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no B-table-Win 
-PROCEDURE valid-cust-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-
-  DO WITH FRAME {&FRAME-NAME}:
-      FIND FIRST cust NO-LOCK
-          WHERE cust.company = gcompany 
-          AND cust.cust-no = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR .
-      
-      IF NOT AVAIL cust THEN DO:
-          MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
-          oplReturnError = YES .
-      END.
-      ELSE IF AVAIL cust AND cust.ACTIVE EQ "I" THEN DO:
-          MESSAGE "Customer is Inactive. Please select a Active Customer ..." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
-          oplReturnError = YES .
-      END.
   END.
 
 END PROCEDURE.

@@ -358,7 +358,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -520,6 +520,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 

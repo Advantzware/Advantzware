@@ -44,10 +44,12 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartEasyWindow
+&Scoped-define PROCEDURE-TYPE SmartWindow
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
+
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -91,13 +93,6 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -105,15 +100,21 @@ DEFINE FRAME message-frame
          SIZE 127 BY 1.43
          BGCOLOR 15 .
 
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartEasyWindow
+   Type: SmartWindow
    External Tables: ASI.fg-rctd
-   Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Container Links: 
+   Allow: Basic,Browse,DB-Fields,Smart,Window,Query
    Design Page: 1
    Other Settings: COMPILE
  */
@@ -331,7 +332,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-phys ).
-       RUN set-position IN h_b-phys ( 5.05 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-phys ( 4.57 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-phys ( 17.86 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -341,7 +342,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 22.91 , 25.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 22.67 , 23.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 1.76 , 85.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -349,13 +350,14 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pv-trans ).
-       RUN set-position IN h_pv-trans ( 22.91 , 110.00 ) NO-ERROR.
+       RUN set-position IN h_pv-trans ( 22.67 , 109.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 17.00 ) */
 
        /* Links to SmartNavBrowser h_b-phys. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( h_pv-trans , 'trans':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-phys ).
+       RUN add-link IN adm-broker-hdl ( h_b-phys , 'Record':U , THIS-PROCEDURE ).
 
        /* Links to SmartPanel h_p-updsav. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'receipt':U , h_p-updsav ).

@@ -166,7 +166,7 @@ DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table vend.vend-no vend.name ~
 vend.type vend.active vend.area-code vend.phone vend.fax-area vend.fax ~
-vend.buyer vend.city vend.state vend.zip
+vend.buyer vend.city vend.state vend.zip 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH vend WHERE ~{&KEY-PHRASE} ~
       AND vend.company = gcompany NO-LOCK ~
@@ -192,6 +192,7 @@ fi_stat fi_zip fi_type fi_buyer tb_in-act fi_sort-by FI_moveCol
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -234,6 +235,7 @@ RUN set-attribute-list (
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -304,13 +306,13 @@ DEFINE VARIABLE fi_zip AS CHARACTER FORMAT "X(8)":U
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_act AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_act AS LOGICAL INITIAL yes 
      LABEL "Active" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81
      FGCOLOR 9 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_in-act AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_in-act AS LOGICAL INITIAL yes 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81
@@ -349,21 +351,8 @@ DEFINE BROWSE Browser-Table
       vend.fax FORMAT "999-9999":U LABEL-BGCOLOR 14
       vend.buyer COLUMN-LABEL "Buyer" FORMAT "x(3)":U LABEL-BGCOLOR 14
       vend.city FORMAT "x(16)":U LABEL-BGCOLOR 14
-      vend.state FORMAT "x(5)":U LABEL-BGCOLOR 14
-      vend.zip FORMAT "x(10)":U LABEL-BGCOLOR 14
-    ENABLE
-      vend.vend-no 
-      vend.name 
-      vend.type 
-      vend.active 
-      vend.area-code
-      vend.phone 
-      vend.fax-area 
-      vend.fax 
-      vend.buyer 
-      vend.city
-      vend.state
-      vend.zip
+      vend.state FORMAT "x(2)":U LABEL-BGCOLOR 14
+      vend.zip FORMAT "xxxxx-xxxx":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 146.6 BY 16.19
@@ -393,31 +382,28 @@ DEFINE FRAME F-Main
      "Name" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 20.8 WIDGET-ID 42
           FGCOLOR 9 FONT 6
-     "Vendor#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 24
+     "State" VIEW-AS TEXT
+          SIZE 7.2 BY .71 AT ROW 1.24 COL 72.4 WIDGET-ID 26
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
-     "Type" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 103 WIDGET-ID 34
-          FGCOLOR 9 FONT 6
-     "Buyer" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 119 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "City" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 51.4 WIDGET-ID 22
+     "Zip" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 84.8 WIDGET-ID 28
           FGCOLOR 9 FONT 6
      "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
           FONT 6
-     "Zip" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 84.8 WIDGET-ID 28
+     "City" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 51.4 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     /*"Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 18.38 COL 99.6 WIDGET-ID 6
-          FONT 6*/
-     "State" VIEW-AS TEXT
-          SIZE 7.2 BY .71 AT ROW 1.24 COL 72.4 WIDGET-ID 26
+     "Buyer" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 119 WIDGET-ID 38
+          FGCOLOR 9 FONT 6
+     "Type" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 103 WIDGET-ID 34
+          FGCOLOR 9 FONT 6
+     "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+     "Vendor#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 24
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -461,12 +447,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-/*{src/adm/method/browser.i}
 {src/adm/method/query.i}
-{methods/template/browser.i}
-{custom/yellowcolumns.i}*/
-
 {src/adm/method/navbrows.i}
+{methods/template/browser.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -528,12 +511,12 @@ ASSIGN
 "vend.fax" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.vend.buyer
 "vend.buyer" "Buyer" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[10]   > ASI.vend.city
-"vend.city" "City" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[11]   > ASI.vend.state
-"vend.state" "State" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[12]   > ASI.vend.zip
-"vend.zip" "Zip" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.vend.city
+"vend.city" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.vend.state
+"vend.state" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > ASI.vend.zip
+"vend.zip" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -554,106 +537,6 @@ ASSIGN
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_city
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_city V-table-Win
-ON HELP OF fi_city IN FRAME F-Main /* City */
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR rec-val AS RECID NO-UNDO.
-  
-       RUN windows/l-city.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
-       IF char-val NE "" THEN fi_city:SCREEN-VALUE = ENTRY(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_zip
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_zip V-table-Win
-ON HELP OF fi_zip IN FRAME F-Main /* Zip */
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR city-val AS cha NO-UNDO.
-  DEF VAR state-val AS cha NO-UNDO.
-  DEF VAR rec-val AS RECID NO-UNDO.
- 
-       RUN windows/l-zipcod.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT city-val,OUTPUT state-val,OUTPUT rec-val).
-       IF char-val NE "" THEN fi_zip:SCREEN-VALUE = ENTRY(1,char-val).
-   /*    IF city-val NE "" THEN fi.city:SCREEN-VALUE = ENTRY(1,city-val).
-       IF state-val NE "" THEN fi.state:SCREEN-VALUE = ENTRY(1,state-val).
-
-       RUN vend-zip. */
-
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_stat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_stat V-table-Win
-ON HELP OF fi_stat IN FRAME F-Main /* Zip */
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-
-       run windows/l-state.w ("", output char-val).
-       IF char-val NE "" THEN fi_stat:SCREEN-VALUE = ENTRY(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_type
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_type V-table-Win
-ON HELP OF fi_type IN FRAME F-Main /* Zip */
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-
-       run windows/l-vendtyp.w ("", output char-val).
-       IF char-val NE "" THEN fi_type:SCREEN-VALUE = ENTRY(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_buyer
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_buyer V-table-Win
-ON HELP OF fi_buyer IN FRAME F-Main /* Whs */
-DO:
-     DEF VAR char-val AS CHAR.
-     run windows/l-buyer.w (cocode,"", output char-val).
-     if char-val <> "" then 
-        assign fi_buyer:SCREEN-VALUE = entry(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_i-name
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-name V-table-Win
-ON HELP OF fi_i-name IN FRAME F-Main /* Whs */
-DO:
-     DEF VAR char-val AS CHAR.
-     run windows/l-vendno.w (cocode,"","", output char-val).
-     if char-val <> "" then 
-        assign fi_i-name:SCREEN-VALUE = entry(2,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
   DEF VAR phandle AS HANDLE NO-UNDO.
@@ -665,6 +548,74 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
+DO:
+  /* This code displays initial values for newly added or copied rows. */
+  {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
+DO:
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+   /*RUN startSearch.*/
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab.
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+  RUN dispatch ("open-query").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
+DO:
+  /* This ADM trigger code must be preserved in order to notify other
+     objects when the browser's current row changes. */
+  {src/adm/template/brschnge.i}
+  {methods/template/local/setvalue.i}
+  ASSIGN s-rec_key = vend.rec_key WHEN AVAIL vend.
+  RUN spec-book-image-proc .  /* task 11071401 */
+  RUN dept-pan-image-proc.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn_go
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
@@ -766,56 +717,94 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
+&Scoped-define SELF-NAME fi_buyer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_buyer B-table-Win
+ON HELP OF fi_buyer IN FRAME F-Main
 DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
+     DEF VAR char-val AS CHAR.
+     run windows/l-buyer.w (cocode,"", output char-val).
+     if char-val <> "" then 
+        assign fi_buyer:SCREEN-VALUE = entry(1,char-val).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON START-SEARCH OF Browser-Table IN FRAME F-Main
+&Scoped-define SELF-NAME fi_city
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_city B-table-Win
+ON HELP OF fi_city IN FRAME F-Main
 DO:
-   /*RUN startSearch.*/
-  DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
-
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
-
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-  RUN dispatch ("open-query").
-
+  DEF VAR char-val AS cha NO-UNDO.
+  DEF VAR rec-val AS RECID NO-UNDO.
+  
+       RUN windows/l-city.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+       IF char-val NE "" THEN fi_city:SCREEN-VALUE = ENTRY(1,char-val).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
+&Scoped-define SELF-NAME fi_i-name
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-name B-table-Win
+ON HELP OF fi_i-name IN FRAME F-Main
 DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
-  {methods/template/local/setvalue.i}
-  ASSIGN s-rec_key = vend.rec_key WHEN AVAIL vend.
-  RUN spec-book-image-proc .  /* task 11071401 */
-  RUN dept-pan-image-proc.
+     DEF VAR char-val AS CHAR.
+     run windows/l-vendno.w (cocode,"","", output char-val).
+     if char-val <> "" then 
+        assign fi_i-name:SCREEN-VALUE = entry(2,char-val).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_stat B-table-Win
+ON HELP OF fi_stat IN FRAME F-Main
+DO:
+  DEF VAR char-val AS cha NO-UNDO.
+
+       run windows/l-state.w ("", output char-val).
+       IF char-val NE "" THEN fi_stat:SCREEN-VALUE = ENTRY(1,char-val).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_type
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_type B-table-Win
+ON HELP OF fi_type IN FRAME F-Main
+DO:
+  DEF VAR char-val AS cha NO-UNDO.
+
+       run windows/l-vendtyp.w ("", output char-val).
+       IF char-val NE "" THEN fi_type:SCREEN-VALUE = ENTRY(1,char-val).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_zip
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_zip B-table-Win
+ON HELP OF fi_zip IN FRAME F-Main
+DO:
+  DEF VAR char-val AS cha NO-UNDO.
+  DEF VAR city-val AS cha NO-UNDO.
+  DEF VAR state-val AS cha NO-UNDO.
+  DEF VAR rec-val AS RECID NO-UNDO.
+ 
+       RUN windows/l-zipcod.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT city-val,OUTPUT state-val,OUTPUT rec-val).
+       IF char-val NE "" THEN fi_zip:SCREEN-VALUE = ENTRY(1,char-val).
+   /*    IF city-val NE "" THEN fi.city:SCREEN-VALUE = ENTRY(1,city-val).
+       IF state-val NE "" THEN fi.state:SCREEN-VALUE = ENTRY(1,state-val).
+
+       RUN vend-zip. */
+
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -828,6 +817,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
 {sys/inc/f3help.i}
 
  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -840,7 +830,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -865,6 +854,32 @@ PROCEDURE adm-row-available :
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+   IF AVAIL vend THEN
+    FIND FIRST notes WHERE notes.rec_key = vend.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachvend-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1088,7 +1103,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -1744,6 +1758,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
+PROCEDURE setBrowseFocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-prev-next B-table-Win 
 PROCEDURE show-prev-next :
 /*------------------------------------------------------------------------------
@@ -1866,15 +1894,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
-PROCEDURE setBrowseFocus :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
+PROCEDURE spec-book-image-proc :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
-
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+  IF AVAIL vend THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = vend.rec_key AND
+               notes.note_type <> "o").
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachvend-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image-change IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1900,55 +1938,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
-PROCEDURE spec-book-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-  IF AVAIL vend THEN
-      v-spec = CAN-FIND(FIRST notes WHERE
-               notes.rec_key = vend.rec_key AND
-               notes.note_type <> "o").
-   
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachvend-target':U, OUTPUT char-hdl).
-  
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN spec-book-image-change IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-pan-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-   IF AVAIL vend THEN
-    FIND FIRST notes WHERE notes.rec_key = vend.rec_key
-       NO-LOCK NO-ERROR.
-
-   IF AVAIL notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachvend-target':U, OUTPUT char-hdl).
-
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

@@ -53,6 +53,8 @@ DEFINE VARIABLE il-cur-page AS INTEGER INIT 1 NO-UNDO.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -95,18 +97,18 @@ DEFINE FRAME F-Main
          SIZE 126 BY 24.1
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 3.38
-         SIZE 80.8 BY 1.19
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 125 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 46 ROW 3.38
+         SIZE 80.8 BY 1.19
          BGCOLOR 15 .
 
 
@@ -117,7 +119,7 @@ DEFINE FRAME OPTIONS-FRAME
    Type: SmartWindow
    External Tables: ASI.reftable
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -322,13 +324,14 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_xref-2 ).
        RUN set-position IN h_xref-2 ( 5.05 , 8.00 ) NO-ERROR.
-       RUN set-size IN h_xref-2 ( 19.52 , 92.00 ) NO-ERROR.
+       RUN set-size IN h_xref-2 ( 19.52 , 112.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_xref-2. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_xref-2 ).
+       RUN add-link IN adm-broker-hdl ( h_xref-2 , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_xref-2 ,
@@ -338,9 +341,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/xref.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_xref-3 ).
-       RUN set-position IN h_xref-3 ( 6.95 , 10.00 ) NO-ERROR.
+       RUN set-position IN h_xref-3 ( 11.24 , 20.00 ) NO-ERROR.
+       RUN set-size IN h_xref-3 ( 5.48 , 89.00 ) NO-ERROR.
+       /* Position in AB:  ( 11.24 , 20.00 ) */
        /* Size in UIB:  ( 5.48 , 89.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -350,7 +355,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.67 , 6.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 22.43 , 4.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -360,21 +365,19 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updncp ).
-       RUN set-position IN h_p-updncp ( 22.67 , 63.00 ) NO-ERROR.
+       RUN set-position IN h_p-updncp ( 22.43 , 67.00 ) NO-ERROR.
        RUN set-size IN h_p-updncp ( 2.14 , 56.80 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_xref-3. */
+       /* Links to  h_xref-3. */
        RUN add-link IN adm-broker-hdl ( h_p-updncp , 'TableIO':U , h_xref-3 ).
        RUN add-link IN adm-broker-hdl ( h_xref-2 , 'Record':U , h_xref-3 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_xref-3 ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_xref-3 , 'AFTER':U ).
+             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updncp ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */

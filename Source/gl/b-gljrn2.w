@@ -168,7 +168,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 36.2
       display-account() @ lv-acct-dscr
       gl-jrnl.dscr FORMAT "x(30)":U WIDTH 51.2
-      gl-jrnl.tr-amt FORMAT "->>>,>>>,>>9.99":U
+      gl-jrnl.tr-amt FORMAT "->>,>>>,>>9.99":U
   ENABLE
       gl-jrnl.line
       gl-jrnl.actnum
@@ -523,6 +523,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-delete B-table-Win 
+PROCEDURE is-delete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       Task - 11121308 
+------------------------------------------------------------------------------*/
+ DEF BUFFER b-gl-jrnl FOR gl-jrnl .
+
+    FOR EACH  b-gl-jrnl OF gl-jrn EXCLUSIVE-LOCK:
+        IF b-gl-jrnl.tr-amt = 0  THEN DO:
+            DELETE b-gl-jrnl .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
 PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
@@ -860,26 +880,6 @@ PROCEDURE valid-actnum :
       RETURN ERROR.
     END.
   END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-delete B-table-Win 
-PROCEDURE is-delete :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       Task - 11121308 
-------------------------------------------------------------------------------*/
- DEF BUFFER b-gl-jrnl FOR gl-jrnl .
-
-    FOR EACH  b-gl-jrnl OF gl-jrn EXCLUSIVE-LOCK:
-        IF b-gl-jrnl.tr-amt = 0  THEN DO:
-            DELETE b-gl-jrnl .
-        END.
-    END.
 
 END PROCEDURE.
 

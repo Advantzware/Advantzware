@@ -151,10 +151,11 @@ IF AVAILABLE users THEN ASSIGN
 &Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCost.itemType ~
 vendItemCost.itemID vendItemCost.vendorID vendItemCost.customerID ~
 vendItemCost.estimateNo vendItemCost.effectiveDate ~
-vendItemCost.expirationDate fGetLevel(1) @ cLevel[1] fGetLevel(2) @ cLevel[2] ~
-fGetLevel(3) @ cLevel[3] fGetLevel(4) @ cLevel[4] fGetLevel(5) @ cLevel[5] ~
-fGetLevel(6) @ cLevel[6] fGetLevel(7) @ cLevel[7] fGetLevel(8) @ cLevel[8] ~
-fGetLevel(9) @ cLevel[9] fGetLevel(10) @ cLevel[10] 
+vendItemCost.expirationDate fGetLevel(1) @ cLevel[1] ~
+fGetLevel(2) @ cLevel[2] fGetLevel(3) @ cLevel[3] fGetLevel(4) @ cLevel[4] ~
+fGetLevel(5) @ cLevel[5] fGetLevel(6) @ cLevel[6] fGetLevel(7) @ cLevel[7] ~
+fGetLevel(8) @ cLevel[8] fGetLevel(9) @ cLevel[9] ~
+fGetLevel(10) @ cLevel[10] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -225,10 +226,11 @@ RUN set-attribute-list (
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLevel B-table-Win 
 FUNCTION fGetLevel RETURNS CHARACTER
-  ( ipiLevel AS INTEGER  )  FORWARD.
+  ( ipiLevel AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -274,15 +276,15 @@ DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(10)":U
      SIZE 13 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL no 
-     LABEL "Include Estimate" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 22.6 BY 1 NO-UNDO.
-
 DEFINE VARIABLE tb_fut-eff AS LOGICAL INITIAL no 
      LABEL "Include Future Effective" 
      VIEW-AS TOGGLE-BOX
      SIZE 29.4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL no 
+     LABEL "Include Estimate" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_in-exp AS LOGICAL INITIAL no 
      LABEL "Include Expired" 
@@ -301,25 +303,24 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       vendItemCost.itemType COLUMN-LABEL "Type" FORMAT "x(5)":U
             WIDTH 8 LABEL-BGCOLOR 14
-      vendItemCost.itemID FORMAT "x(15)":U LABEL-BGCOLOR 14
+      vendItemCost.itemID FORMAT "x(20)":U LABEL-BGCOLOR 14
       vendItemCost.vendorID FORMAT "x(10)":U WIDTH 13 LABEL-BGCOLOR 14
       vendItemCost.customerID FORMAT "x(10)":U WIDTH 13 LABEL-BGCOLOR 14
       vendItemCost.estimateNo COLUMN-LABEL "Est" FORMAT "x(8)":U
-            WIDTH 12 LABEL-BGCOLOR 14
-      vendItemCost.effectiveDate COLUMN-LABEL "Effective" FORMAT "99/99/9999":U WIDTH 14
-            LABEL-BGCOLOR 14
-      vendItemCost.expirationDate COLUMN-LABEL "Expires" FORMAT "99/99/9999":U
-            WIDTH 14 LABEL-BGCOLOR 14
-      fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(25)":U
-      fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(25)":U
-      fGetLevel(3) @ cLevel[3] COLUMN-LABEL "Level 3" FORMAT "x(25)":U
-      fGetLevel(4) @ cLevel[4] COLUMN-LABEL "Level 4" FORMAT "x(25)":U
-      fGetLevel(5) @ cLevel[5] COLUMN-LABEL "Level 5" FORMAT "x(25)":U
-      fGetLevel(6) @ cLevel[6] COLUMN-LABEL "Level 6" FORMAT "x(25)":U
-      fGetLevel(7) @ cLevel[7] COLUMN-LABEL "Level 7" FORMAT "x(25)":U
-      fGetLevel(8) @ cLevel[8] COLUMN-LABEL "Level 8" FORMAT "x(25)":U
-      fGetLevel(9) @ cLevel[9] COLUMN-LABEL "Level 9" FORMAT "x(25)":U
-      fGetLevel(10) @ cLevel[10] COLUMN-LABEL "Level 10" FORMAT "x(25)":U
+            WIDTH 13 LABEL-BGCOLOR 14
+      vendItemCost.effectiveDate COLUMN-LABEL "Effective ?" FORMAT "99/99/9999":U
+            COLUMN-FONT 14
+      vendItemCost.expirationDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(30)":U
+      fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(30)":U
+      fGetLevel(3) @ cLevel[3] COLUMN-LABEL "Level 3" FORMAT "x(30)":U
+      fGetLevel(4) @ cLevel[4] COLUMN-LABEL "Level 4" FORMAT "x(30)":U
+      fGetLevel(5) @ cLevel[5] COLUMN-LABEL "Level 5" FORMAT "x(30)":U
+      fGetLevel(6) @ cLevel[6] COLUMN-LABEL "Level 6" FORMAT "x(30)":U
+      fGetLevel(7) @ cLevel[7] COLUMN-LABEL "Level 7" FORMAT "x(30)":U
+      fGetLevel(8) @ cLevel[8] COLUMN-LABEL "Level 8" FORMAT "x(30)":U
+      fGetLevel(9) @ cLevel[9] COLUMN-LABEL "Level 9" FORMAT "x(30)":U
+      fGetLevel(10) @ cLevel[10] COLUMN-LABEL "Level 10" FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 142.6 BY 15.43
@@ -346,7 +347,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 1
+         BGCOLOR 8 FGCOLOR 1 
          DEFAULT-BUTTON btn_go WIDGET-ID 100.
 
 
@@ -390,6 +391,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -411,11 +415,11 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       tb_in-est:PRIVATE-DATA IN FRAME F-Main     = 
+       tb_fut-eff:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
 
 ASSIGN 
-       tb_fut-eff:PRIVATE-DATA IN FRAME F-Main     = 
+       tb_in-est:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
 
 ASSIGN 
@@ -425,6 +429,7 @@ ASSIGN
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
+
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
@@ -433,40 +438,40 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "vendItemCost"
      _FldNameList[1]   > asi.vendItemCost.itemType
-"vendItemCost.itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.vendItemCost.itemID
-"vendItemCost.itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.vendItemCost.vendorID
-"vendItemCost.vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.vendItemCost.customerID
-"vendItemCost.customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.vendItemCost.estimateNo
-"vendItemCost.estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.vendItemCost.effectiveDate
-"vendItemCost.effectiveDate" "Effective ? "Date" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"effectiveDate" "Effective ?" ? ? ? ? 14 ? ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.vendItemCost.expirationDate
-"vendItemCost.expirationDate" "Expires" ? "Date" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[8]   > "_<CALC>" 
+"expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > "_<CALC>"
 "fGetLevel(1) @ cLevel[1]" "Level 1" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[9]   > "_<CALC>" 
+     _FldNameList[9]   > "_<CALC>"
 "fGetLevel(2) @ cLevel[2]" "Level 2" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[10]   > "_<CALC>" 
+     _FldNameList[10]   > "_<CALC>"
 "fGetLevel(3) @ cLevel[3]" "Level 3" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[11]   > "_<CALC>" 
+     _FldNameList[11]   > "_<CALC>"
 "fGetLevel(4) @ cLevel[4]" "Level 4" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[12]   > "_<CALC>" 
+     _FldNameList[12]   > "_<CALC>"
 "fGetLevel(5) @ cLevel[5]" "Level 5" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[13]   > "_<CALC>" 
+     _FldNameList[13]   > "_<CALC>"
 "fGetLevel(6) @ cLevel[6]" "Level 6" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[14]   > "_<CALC>" 
+     _FldNameList[14]   > "_<CALC>"
 "fGetLevel(7) @ cLevel[7]" "Level 7" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[15]   > "_<CALC>" 
+     _FldNameList[15]   > "_<CALC>"
 "fGetLevel(8) @ cLevel[8]" "Level 8" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[16]   > "_<CALC>" 
+     _FldNameList[16]   > "_<CALC>"
 "fGetLevel(9) @ cLevel[9]" "Level 9" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[17]   > "_<CALC>" 
+     _FldNameList[17]   > "_<CALC>"
 "fGetLevel(10) @ cLevel[10]" "Level 10" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-_Query            is NOT OPENED
+     _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
@@ -477,68 +482,11 @@ _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+ 
+
+
+
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME fi_vend-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_vend-no B-table-Win
-ON HELP OF fi_vend-no IN FRAME F-Main
-DO:
-
-  DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
-
-  RUN system/openlookup.p (g_company, "vend-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
-          IF cMainField <> "" THEN fi_vend-no:SCREEN-VALUE = cMainField. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
-ON HELP OF fi_i-no IN FRAME F-Main
-DO:
-
-  DEFINE VARIABLE cMainField  AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cAllFields  AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE recRecordID AS RECID     NO-UNDO.
-
-  IF fi_hotkey:SCREEN-VALUE EQ "FG" THEN do:
-      RUN system/openlookup.p (g_company, "i-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
-      IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
-  END.
-  ELSE IF fi_hotkey:SCREEN-VALUE EQ "RM" THEN DO:
-      RUN system/openlookup.p (g_company, "item", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
-      IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
-  END.
-  ELSE DO:
-      MESSAGE 
-        "Please Select Item Type: FG/RM"
-      VIEW-AS ALERT-BOX WARNING.
-      APPLY "ENTRY":U TO fi_hotkey.
-  END.    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_est-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_est-no B-table-Win
-ON HELP OF fi_est-no IN FRAME F-Main
-DO:
-    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-
-    RUN windows/l-est.w (g_company,g_loc,"", OUTPUT char-val).
-    IF char-val <> "" THEN DO:
-        FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
-        IF AVAIL eb THEN 
-            fi_est-no:screen-value = eb.est-no.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
@@ -658,11 +606,64 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_in-est
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_in-est B-table-Win
-ON VALUE-CHANGED OF tb_in-est IN FRAME F-Main /* Include Estimated */
+&Scoped-define SELF-NAME fi_est-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_est-no B-table-Win
+ON HELP OF fi_est-no IN FRAME F-Main /* Estimate */
 DO:
-  assign {&self-name}.
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+
+    RUN windows/l-est.w (g_company,g_loc,"", OUTPUT char-val).
+    IF char-val <> "" THEN DO:
+        FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+        IF AVAIL eb THEN 
+            fi_est-no:screen-value = eb.est-no.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
+ON HELP OF fi_i-no IN FRAME F-Main /* Item */
+DO:
+
+  DEFINE VARIABLE cMainField  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cAllFields  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recRecordID AS RECID     NO-UNDO.
+
+  IF fi_hotkey:SCREEN-VALUE EQ "FG" THEN do:
+      RUN system/openlookup.p (g_company, "i-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+      IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
+  END.
+  ELSE IF fi_hotkey:SCREEN-VALUE EQ "RM" THEN DO:
+      RUN system/openlookup.p (g_company, "item", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+      IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
+  END.
+  ELSE DO:
+      MESSAGE 
+        "Please Select Item Type: FG/RM"
+      VIEW-AS ALERT-BOX WARNING.
+      APPLY "ENTRY":U TO fi_hotkey.
+  END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_vend-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_vend-no B-table-Win
+ON HELP OF fi_vend-no IN FRAME F-Main /* Vendor */
+DO:
+
+  DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+
+  RUN system/openlookup.p (g_company, "vend-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN fi_vend-no:SCREEN-VALUE = cMainField. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -672,6 +673,17 @@ END.
 &Scoped-define SELF-NAME tb_fut-eff
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_fut-eff B-table-Win
 ON VALUE-CHANGED OF tb_fut-eff IN FRAME F-Main /* Include Future Effective */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_in-est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_in-est B-table-Win
+ON VALUE-CHANGED OF tb_in-est IN FRAME F-Main /* Include Estimate */
 DO:
   assign {&self-name}.
 END.
@@ -697,6 +709,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -744,6 +757,32 @@ PROCEDURE adm-row-available :
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = vendItemCost.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -819,6 +858,20 @@ PROCEDURE getCellColumns :
     DO idx = 1 TO columnCount:
         cellColumn[idx] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-excel B-table-Win 
+PROCEDURE import-excel :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
 
 END PROCEDURE.
 
@@ -1231,20 +1284,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-excel B-table-Win 
-PROCEDURE import-excel :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -1260,32 +1299,6 @@ PROCEDURE state-changed :
            or add new cases. */
         {src/adm/template/bstates.i}
     END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-pan-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-
-   FIND FIRST notes WHERE notes.rec_key = vendItemCost.rec_key
-       NO-LOCK NO-ERROR.
-
-   IF AVAIL notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
-
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1337,3 +1350,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

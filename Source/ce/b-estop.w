@@ -478,6 +478,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
