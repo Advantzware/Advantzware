@@ -5,7 +5,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS rd-fgexp 
 /*------------------------------------------------------------------------
 
-  File: 
+  File:          fg/loc-exp.w
 
   Description: 
 
@@ -15,9 +15,9 @@
   Output Parameters:
       <none>
 
-  Author: 
+  Author:  Sewa Singh
 
-  Created: 
+  Created: Mon Oct 21 2019
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -25,7 +25,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipcBinType AS CHARACTER NO-UNDO .
+
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
@@ -67,17 +67,20 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Location,Type,Default Bin,Name,Address1,Address2,Address3,Address4,Address5,Address6," +
-                           "City,St Prov,Zip Post,Country,County,Lat,Long,Phone,Ext Code,Fax,Email,Notes,Primary Bin Loc," +
-                           "Loc Active,FG Bin Active"
+    cTextListToSelect  = "Warehouse,Name,Default Bin,Address1,Address2,Address3,City,St/Prov,Phone,Fax,Email,Zip/Post," +   /*12*/
+                         "Country,Handling,Storage 1,Storage 2,Storage 3,Storage 4,Location Gross,Pallets,Division,GL Code," +  /*10*/
+                         "County,Lat,long,Ext. Code,Notes,Active,API Enabled,Consignment,Owner,Address4,Address5,Address6"  /*12*/
 
-    cFieldListToSelect = "loc,type,def-bin,dscr,addr[1],addr[2],addr[3],addr[4],addr[5],addr[6]," +
-                           "city,st-prov,zip-post,country,county,lat,long,phone,ext-code,fax,email,notes,prm-bin-loc," +
-                           "active,fg-active"  .
+    cFieldListToSelect = "loc,dscr,def-bin,addr[1],addr[2],addr[3],subCode3,subCode1,Phone,fax,email,subCode4," +  /*12*/
+                         "countryCode,handlingCost,storageCost1,storageCost2,storageCost3,storageCost4,locationSquareFeet,palletCapacity,division,GlCode," + /*10*/
+                         "subCode2,geoLat,geoLong,externalID1,notes,Active,isAPIEnabled,lActive,Owner,addr[4],addr[5],addr[6]"  .  /*12*/
+        
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Location,Type,Primary Bin Loc,Loc Active,FG Bin Active" .
+    cTextListToDefault = "Warehouse,Name,Default Bin,Address1,Address2,Address3,City,St/Prov,Phone,Fax,Email,Zip/Post," + 
+                         "Country,Handling,Storage 1,Storage 2,Storage 3,Storage 4,Location Gross,Pallets,Division,GL Code," +
+                         "County,Lat,long,Ext. Code,Notes,Active,API Enabled,Consignment,Owner" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -95,10 +98,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_location ~
-end_location rd_type Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
+end_location Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
 btn_down tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_location end_location lbl_Type ~
-rd_type sl_avail sl_selected tb_excel tb_runExcel fi_file 
+&Scoped-Define DISPLAYED-OBJECTS begin_location end_location  ~
+sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,9 +133,9 @@ FUNCTION buildHeader RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-fgexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR loc, ipc-field AS CHARACTER, ipc-bin-loc AS CHARACTER, ipc-type AS CHARACTER, ipc-active AS LOGICAL )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-loc rd-fgexp 
+FUNCTION getValue-loc RETURNS CHARACTER
+    ( BUFFER ipb-loc FOR loc, ipc-field AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,23 +184,11 @@ DEFINE VARIABLE end_location AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-locbin.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-loc.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
      FGCOLOR 9 .
-
-DEFINE VARIABLE lbl_Type AS CHARACTER FORMAT "X(256)":U INITIAL "Type?" 
-     VIEW-AS FILL-IN 
-     SIZE 7.5 BY 1 NO-UNDO.
-
-DEFINE VARIABLE rd_type AS CHARACTER INITIAL "FG" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "FG", "FG",
-"RM", "RM",
-"WIP", "WIP"
-     SIZE 36 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -239,8 +230,6 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Location" WIDGET-ID 142
      end_location AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Location" WIDGET-ID 144
-     lbl_Type AT ROW 5.71 COL 23 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     rd_type AT ROW 5.76 COL 34 NO-LABEL WIDGET-ID 148
      Btn_Def AT ROW 10.1 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
      sl_avail AT ROW 10.14 COL 9 NO-LABEL WIDGET-ID 26
@@ -272,7 +261,7 @@ DEFINE FRAME rd-fgexp
      SPACE(2.39) SKIP(2.47)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Export location/bins to Excel" WIDGET-ID 100.
+         TITLE "Export location to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -308,11 +297,6 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN lbl_Type IN FRAME rd-fgexp
-   NO-ENABLE                                                            */
-ASSIGN 
-       lbl_Type:PRIVATE-DATA IN FRAME rd-fgexp     = 
-                "rd_type".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME rd-fgexp
    NO-ENABLE                                                            */
@@ -488,17 +472,6 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_type
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_type rd-fgexp
-ON VALUE-CHANGED OF rd_type IN FRAME rd-fgexp
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail rd-fgexp
 ON DEFAULT-ACTION OF sl_avail IN FRAME rd-fgexp
@@ -592,8 +565,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN DisplaySelectionList2.
         /* RUN Set-Sort-Data.*/
         
-        rd_type:SCREEN-VALUE = ipcBinType .
-       
         APPLY "entry" TO begin_location.
     END.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -747,10 +718,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_location end_location lbl_Type rd_type sl_avail sl_selected 
+  DISPLAY begin_location end_location sl_avail sl_selected 
           tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_location end_location rd_type Btn_Def 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_location end_location Btn_Def 
          sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
          fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
@@ -834,14 +805,15 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cexcelheader         AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
     DEFINE BUFFER b-loc FOR loc.
+
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     v-excelheader = buildHeader().
     SESSION:SET-WAIT-STATE ("general").
-
-    cType = SUBSTR(rd_type,1,3).
-
-    IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+    
+    IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
     IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
     FOR EACH b-loc NO-LOCK 
@@ -851,74 +823,23 @@ PROCEDURE run-report :
 
         v-excel-detail-lines = "".
 
-       /* */
 
         PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
+           v-excel-detail-lines = "".
 
-        i = 0.
-        IF cType EQ "FG" THEN DO:
-            FOR EACH fg-bin NO-LOCK 
-                WHERE  fg-bin.company EQ b-loc.company
-                    AND fg-bin.loc EQ b-loc.loc 
-                    AND fg-bin.i-no = '':
-                i = i + 1.
-                v-excel-detail-lines = "".
-               
                 FOR EACH ttRptSelected:
                     v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,fg-bin.loc-bin,cType,fg-bin.active)).
+                        appendXLLine(getValue-loc(BUFFER b-loc,ttRptSelected.FieldList)).
                 END.
                 PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
-
-            END. /* for each fg-bin */  
-            
-        END.
-        ELSE IF cType EQ "RM" THEN DO:
-            FOR EACH rm-bin NO-LOCK 
-                WHERE  rm-bin.company EQ b-loc.company
-                    AND rm-bin.loc EQ b-loc.loc
-                    AND rm-bin.i-no = '':
-                i = i + 1.
-                v-excel-detail-lines = "".
-                
-                FOR EACH ttRptSelected:
-                    v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,rm-bin.loc-bin,cType,b-loc.active)).
-                END.
-                PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
-
-            END. /* for each rm-bin */
-        END.
-        ELSE DO:
-            FOR EACH wip-bin NO-LOCK 
-                WHERE  wip-bin.company EQ b-loc.company
-                    AND wip-bin.loc EQ b-loc.loc:
-                i = i + 1.
-                v-excel-detail-lines = "".
-               
-                FOR EACH ttRptSelected:
-                    v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,wip-bin.loc-bin,cType,b-loc.active)).
-                END.
-                PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
-
-            END. /* for each rm-bin */
-        END.
-        IF i EQ 0 THEN DO:
-             FOR EACH ttRptSelected:
-                    v-excel-detail-lines = v-excel-detail-lines + 
-                        appendXLLine(getValue-itemfg(BUFFER b-loc,ttRptSelected.FieldList,"",cType,b-loc.active)).
-             END.
-             PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
-        END.
-    END. /* cust */
+    END. /* loc */
 
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -992,9 +913,9 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-fgexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR loc, ipc-field AS CHARACTER, ipc-loc-bin AS CHARACTER, ipc-type AS CHARACTER, ipc-active AS LOGICAL ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-loc rd-fgexp 
+FUNCTION getValue-loc RETURNS CHARACTER
+    ( BUFFER ipb-loc FOR loc, ipc-field AS CHARACTER ) :
     /*------------------------------------------------------------------------------
       Purpose:  Take a buffer and field name as string and return the value
         Notes:  
@@ -1006,8 +927,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
    
     
     FIND FIRST location NO-LOCK
-        WHERE location.locationCode = ipb-itemfg.loc 
-        AND location.rec_key = ipb-itemfg.addrRecKey NO-ERROR.
+        WHERE location.locationCode = ipb-loc.loc 
+        AND location.rec_key = ipb-loc.addrRecKey NO-ERROR.
    
     CASE ipc-field :
         WHEN "def-bin" THEN 
@@ -1066,42 +987,49 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 ELSE
                     lc-return = "".
             END.
-        WHEN "st-prov" THEN 
+        WHEN "subCode1" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = location.subCode1 .
                 ELSE
                     lc-return = "".
             END.
-        WHEN "zip-post" THEN 
+        WHEN "subCode4" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = location.subCode4 .
                 ELSE
                     lc-return = "".
             END.
-        WHEN "country" THEN 
+        WHEN "countryCode" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = location.countryCode .
                 ELSE
                     lc-return = "".
             END.
-        WHEN "county" THEN 
+        WHEN "subCode2" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = location.subCode2 .
                 ELSE
                     lc-return = "".
             END.
-        WHEN "lat" THEN 
+        WHEN "subCode3" THEN 
+            DO:
+                IF AVAILABLE location THEN
+                    lc-return = location.subCode3 .
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "geoLat" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = STRING(location.geoLat).
                 ELSE
                     lc-return = "".
             END.
-        WHEN "long" THEN 
+        WHEN "geoLong" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = STRING(location.geoLong) .
@@ -1115,7 +1043,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 ELSE
                     lc-return = "".
             END.
-        WHEN "ext-code" THEN 
+        WHEN "externalID1" THEN 
             DO:
                 IF AVAILABLE location THEN
                     lc-return = location.externalID[1] .
@@ -1143,20 +1071,29 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 ELSE
                     lc-return = "".
         END.
-        WHEN "prm-bin-loc"  THEN DO:
-            lc-return = ipc-loc-bin.
-        END.
-        WHEN "type"  THEN DO:   
-            lc-return = ipc-type .
-        END.
+       
         WHEN "active"  THEN DO:  
-            lc-return = string(ipb-itemfg.active) .
+            lc-return = string(ipb-loc.active) .
         END.
-        WHEN "fg-active"  THEN DO:  
-            IF ipc-type EQ "FG" THEN
-                lc-return = string(ipc-active) .
-            ELSE lc-return = "" .
+
+        WHEN "storageCost1"  THEN DO:  
+            lc-return = string(ipb-loc.storageCost[1]) .
         END.
+        WHEN "storageCost2"  THEN DO:  
+            lc-return = string(ipb-loc.storageCost[2]) .
+        END.
+        WHEN "storageCost3"  THEN DO:  
+            lc-return = string(ipb-loc.storageCost[3]) .
+        END.
+        WHEN "storageCost4"  THEN DO:  
+            lc-return = string(ipb-loc.storageCost[4]) .
+        END.
+        
+        
+        WHEN "lActive"  THEN DO:  
+            lc-return = string(location.lActive) .
+        END.
+        
         OTHERWISE 
         DO:
             IF INDEX(ipc-field,"[") > 0 THEN 
@@ -1164,7 +1101,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).
                 ipc-field = SUBSTRING(ipc-field,1,INDEX(ipc-field,"[") - 1).
             END.
-            h-field = BUFFER ipb-itemfg:BUFFER-FIELD(ipc-field).
+            h-field = BUFFER ipb-loc:BUFFER-FIELD(ipc-field).
             IF h-field:EXTENT = 0 THEN
                 lc-return = STRING(h-field:BUFFER-VALUE /*, h-field:FORMAT*/ ).
             ELSE
