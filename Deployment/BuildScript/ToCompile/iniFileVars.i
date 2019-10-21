@@ -31,7 +31,7 @@ ASSIGN cIniVarList =
     "# Database List,dbList,dbVerList,dbDirList,dbPortList," +
     "# Audit DB List,audDbList,audVerList,audDirList,audPortList," +
     "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
-    "# API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort," +
+    "# API Elements,apiIPAddress,apiPort,adminPort,nameServerName,nameServerPort,appServerName,appServerPort," +
     "# Misc Elements,dfFileName,deltaFileName".
 
 /* # Setup Variables */
@@ -138,6 +138,8 @@ DEF VAR cTestDbName AS CHAR INITIAL "asiTest" NO-UNDO.
 DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
 DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
 /* API Elements */
+DEF VAR cAPIIPAddress AS CHAR INITIAL "0.0.0.0" NO-UNDO.
+DEF VAR cAPIPort AS CHAR INITIAL "8443" NO-UNDO.
 DEF VAR cAdminPort AS CHAR INITIAL "20931" NO-UNDO.
 DEF VAR cNameServerName AS CHAR INITIAL "NS1" NO-UNDO.
 DEF VAR cNameServerPort AS CHAR INITIAL "5162" NO-UNDO.
@@ -491,6 +493,8 @@ PROCEDURE ipReadIniFile:
             WHEN "testDbStFile" THEN ASSIGN cTestDbStFile = ttIniFile.cVarValue.
             WHEN "dfFileName" THEN ASSIGN cDfFileName = ttIniFile.cVarValue.
             WHEN "deltaFileName" THEN ASSIGN cDeltaFileName = ttIniFile.cVarValue.
+            WHEN "apiIPAddress" THEN ASSIGN cAPIIpAddress = ttIniFile.cVarValue.
+            WHEN "apiPort" THEN ASSIGN cAPIPort = ttIniFile.cVarValue.
             WHEN "adminPort" THEN ASSIGN cAdminPort = ttIniFile.cVarValue.
             WHEN "nameServerName" THEN ASSIGN cNameServerName = ttIniFile.cVarValue.
             WHEN "nameServerPort" THEN ASSIGN cNameServerPort = ttIniFile.cVarValue.

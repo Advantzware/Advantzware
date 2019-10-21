@@ -1,4 +1,4 @@
-::@ECHO OFF
+@ECHO OFF
 :: This code "assumes" it's own location is in /programs/api
 :: If moved, may have to change the ini file lookup
 
@@ -32,7 +32,6 @@ SET API_PORT=8443
 
 ECHO Stopping node listeners
 taskkill /im node.exe /F 
-pause
 
 :QUIT
 EXIT

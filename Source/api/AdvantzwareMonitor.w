@@ -376,8 +376,8 @@ DO:
         btStart:SENSITIVE = AVAILABLE serverResource AND 
                             serverResource.resourceStatus EQ "Stopped"
         btStop:SENSITIVE  = AVAILABLE serverResource  AND 
-                            serverResource.resourceStatus EQ "Running" AND
-                            serverResource.resourceType NE "Node"
+                            serverResource.resourceStatus EQ "Running" /* AND
+                            serverResource.resourceType NE "Node" */
         .
 END.
 
@@ -419,17 +419,14 @@ DO:
 
     DEFINE VARIABLE cStartService AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
   
     SESSION:SET-WAIT-STATE("GENERAL").
 
     IF AVAILABLE serverResource THEN DO:
 
         IF SEARCH(serverResource.startService) NE ? THEN DO:
-            
-            IF serverResource.resourceType EQ "Node" THEN
-                DOS SILENT START VALUE(serverResource.startService). /* Re-starts NodeServer */
-            ELSE 
-                 OS-COMMAND SILENT VALUE(serverResource.startService). /* Re-starts AdminServer,AppServer and NameServer */
+            OS-COMMAND silent VALUE(SEARCH(serverResource.startService)). /* Re-starts AdminServer,AppServer and NameServer */            
         END. 
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "Node" OR serverResource.resourceType EQ "AdminServer" THEN
@@ -441,10 +438,16 @@ DO:
             TITLE "Error".
         END.
     END.
-    
+    IF serverResource.resourceType EQ "Node" THEN 
+        PAUSE 3 NO-MESSAGE.
+        
     SESSION:SET-WAIT-STATE("").
+    ASSIGN
+        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    BROWSE {&BROWSE-NAME}:SELECT-ROW(iCurrBrowseRow).
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+    APPLY 'choose' TO btRefresh.
     
 END.
 
@@ -458,12 +461,13 @@ ON CHOOSE OF btStop IN FRAME DEFAULT-FRAME /* Stop */
 DO:
     DEFINE VARIABLE cStopService  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
 
     SESSION:SET-WAIT-STATE("GENERAL").
   
     IF AVAILABLE serverResource THEN DO:
         IF SEARCH(serverResource.stopService) NE ? THEN 
-            OS-COMMAND SILENT VALUE(serverResource.stopService). /* Stops AdminServer,AppServer and NameServer */
+            OS-COMMAND silent VALUE(SEARCH(serverResource.stopService)). /* Stops AdminServer,AppServer and NameServer */
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "AdminServer" THEN
                            "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " is not found"
@@ -476,8 +480,12 @@ DO:
     END.
     
     SESSION:SET-WAIT-STATE("").
+    ASSIGN
+        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    BROWSE {&BROWSE-NAME}:SELECT-ROW(iCurrBrowseRow).
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+    apply 'choose' to btRefresh.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,6 +704,8 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -709,11 +719,15 @@ PROCEDURE pInit :
    
     RUN pMonitor IN hdStatus.
 
+    ASSIGN
+        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    BROWSE {&BROWSE-NAME}:SELECT-ROW(iCurrBrowseRow).
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}. 
     
     fiProcess:SCREEN-VALUE = "".
     btRefresh:SENSITIVE    = TRUE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

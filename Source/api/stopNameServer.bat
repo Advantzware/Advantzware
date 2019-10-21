@@ -1,4 +1,4 @@
-::@ECHO OFF
+@ECHO OFF
 :: This code "assumes" it's own location is in /programs/api
 :: If moved, may have to change the ini file lookup
 
@@ -25,7 +25,6 @@ ECHO ...Stopping NameServer
 !drive!
 CD !DLCDir!\bin
 CALL nsman -name !nameServerName! -host !hostName! -port !adminPort! -stop 
-pause
 
 :QUIT
 EXIT
