@@ -48,6 +48,8 @@ DEF VAR lv-type-code AS CHAR NO-UNDO.
 DEF VAR lv-type-dscr AS CHAR NO-UNDO.
 DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 DEF VAR llNewBol AS LOG NO-UNDO.
+DEF VAR cShipFromLoc AS CHAR NO-UNDO.
+
 DEFINE VARIABLE lFreightEntered AS LOGICAL     NO-UNDO.
 DEF BUFFER bf-bolh FOR oe-bolh.
 DEF BUFFER bf-boll FOR oe-boll.
@@ -580,7 +582,7 @@ ON LEAVE OF oe-bolh.carrier IN FRAME F-Main /* Carrier */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-carrier NO-ERROR.
-    IF ERROR-STATU:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1233,15 +1235,18 @@ PROCEDURE display-shipto-detail :
      
      RUN  relpost-values(oe-bolh.cust-no:screen-value,shipto.ship-id,OUTPUT relpost-chr ,OUTPUT relpost-log) .
 
-     ASSIGN oe-bolh.ship-id:screen-value   = shipto.ship-id
-            ship_name:screen-value = shipto.ship-name
-            ship_addr1:screen-value   = shipto.ship-addr[1]
-            ship_addr2:screen-value   = shipto.ship-addr[2]
-            ship_city:screen-value      = shipto.ship-city
-            ship_state:screen-value     = shipto.ship-state
-            ship_zip:screen-value       = shipto.ship-zip
-            lv-ship-no = shipto.ship-no.
-            oe-bolh.stat:screen-value     = STRING(relpost-log AND relpost-chr BEGINS "BOL","(H)OLD/(R)eleased") .
+     ASSIGN 
+        oe-bolh.ship-id:screen-value    = shipto.ship-id
+        ship_name:screen-value          = shipto.ship-name
+        ship_addr1:screen-value         = shipto.ship-addr[1]
+        ship_addr2:screen-value         = shipto.ship-addr[2]
+        ship_city:screen-value          = shipto.ship-city
+        ship_state:screen-value         = shipto.ship-state
+        ship_zip:screen-value           = shipto.ship-zip
+        lv-ship-no                      = shipto.ship-no
+        oe-bolh.stat:screen-value       = STRING(relpost-log AND relpost-chr BEGINS "BOL","(H)OLD/(R)eleased") 
+        cShipFromLoc                    = shipto.loc
+        .
             
   END.
 END PROCEDURE.
@@ -1704,8 +1709,9 @@ PROCEDURE local-display-fields :
      li-ss       = oe-bolh.upd-time - (li-hh * 3600) - (li-mm * 60) 
      fi_upd-time = STRING(li-hh,"99") + ":" +
                    STRING(li-mm,"99") + ":" +
-                   STRING(li-ss,"99").   
-     tgSigned    = (IF oe-bolh.spare-int-1 EQ 1 THEN TRUE ELSE FALSE).
+                   STRING(li-ss,"99")
+     tgSigned    = (IF oe-bolh.spare-int-1 EQ 1 THEN TRUE ELSE FALSE)
+     cShipFromLoc = IF AVAIL shipto THEN shipto.loc ELSE oe-bolh.loc.
 
   END.
                                                                  
@@ -2187,20 +2193,39 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
+    FIND FIRST oe-boll NO-LOCK 
+        WHERE oe-boll.company EQ oe-bolh.company
+        AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
+    
     FIND FIRST carrier WHERE carrier.company = g_company
-                         AND carrier.loc = g_loc                       
+                         AND carrier.loc = (IF AVAIL oe-boll THEN oe-boll.loc ELSE cShipFromLoc)
                          AND carrier.carrier = oe-bolh.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME}                          
                          NO-LOCK NO-ERROR.
     IF NOT AVAIL carrier THEN DO:
-       MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO oe-bolh.carrier.
-       RETURN ERROR.
+        FIND FIRST carrier WHERE carrier.company = g_company
+            AND carrier.carrier = oe-bolh.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME}                          
+            NO-LOCK NO-ERROR.
+        IF NOT AVAIL carrier THEN DO:
+            MESSAGE 
+                "Invalid Carrier. Presss F1 for a list of valid carriers." 
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO oe-bolh.carrier.
+            RETURN ERROR.
+        END.    
+        ELSE DO:
+            MESSAGE 
+                "The carrier you entered is valid, but is not available" SKIP 
+                "for this shipto. Presss F1 for a list of valid carriers." 
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO oe-bolh.carrier.
+            RETURN ERROR.
+        END.        
     END.
 
 END PROCEDURE.

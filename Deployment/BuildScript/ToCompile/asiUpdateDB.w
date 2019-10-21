@@ -95,6 +95,7 @@ DEF VAR lConnectAudit AS LOG NO-UNDO.
 DEF VAR lFoundIni AS LOG NO-UNDO.
 DEF VAR lFoundUsr AS LOG NO-UNDO.
 DEF VAR lCorrupt AS LOG NO-UNDO.
+DEF VAR lHasAllFiles AS LOG NO-UNDO.
 DEF VAR lSuccess AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lMakeBackup AS LOG NO-UNDO.
@@ -1087,6 +1088,7 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR lAlternate AS LOG NO-UNDO.
     DEF VAR cFullDelta AS CHAR NO-UNDO.
     DEF VAR cThisPort AS CHAR NO-UNDO.
+    DEF VAR cMissingFilesDelta AS CHAR NO-UNDO.
 
     RUN ipStatus ("  Upgrading database " + fiDbName:{&SV}).
 
@@ -1096,7 +1098,9 @@ PROCEDURE ipUpgradeDBs :
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
         cFullDelta = REPLACE(cUpdStructureDir,"PATCH","PATCH" + fiToVer:{&SV}) + "\DFFiles\" + cDelta
-        cFullDelta = REPLACE(cFullDelta,"StructureUpdate","Structure").
+        cFullDelta = REPLACE(cFullDelta,"StructureUpdate","Structure")
+        cMissingFilesDelta = REPLACE(cFullDelta,cDelta,"addlfiles.df")
+        .
 
     IF cPrefix = "asi" THEN ASSIGN 
         iListEntry = ipiEntry
@@ -1210,13 +1214,19 @@ PROCEDURE ipUpgradeDBs :
         CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
         IF iDBCtr EQ 1 THEN
             CREATE ALIAS asi FOR DATABASE updDB1.
-        RUN asiAuditTest.r (OUTPUT lAuditLicensed).
+        RUN asiAuditTest.r (OUTPUT lAuditLicensed, OUTPUT lHasAllFiles).
         DELETE ALIAS asi.
     END.
     
     IF CONNECTED("updDB2") 
     AND lAuditLicensed EQ FALSE THEN ASSIGN 
         cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
+    
+    /* If missing files, load the missing files delta */
+    IF NOT lHasAllFiles THEN DO:
+        RUN ipStatus ("    Loading missing files delta").
+        RUN prodict/load_df.p (cMissingFilesDelta).
+    END. 
     
     /* Load the delta */
     RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).

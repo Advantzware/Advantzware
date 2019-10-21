@@ -65,6 +65,9 @@ DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE fg-uom-list        AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cRtnChar           AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
+DEFINE            VARIABLE lPOChangeDueDate   AS LOGICAL   NO-UNDO.
 DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -97,6 +100,12 @@ DO TRANSACTION:
     {sys/ref/postatus.i} 
     {sys/inc/poqty.i}
 END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "POChangeDueDate", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPOChangeDueDate = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1634,7 +1643,7 @@ PROCEDURE local-assign-record :
          po-ordl.vend-no = po-ord.vend-no.
      END.
 
-  IF NOT adm-new-record AND lv-due-date <> po-ord.due-date THEN DO:
+  IF lPOChangeDueDate AND NOT adm-new-record AND lv-due-date <> po-ord.due-date THEN DO:
      MESSAGE "Do you want to update the due date for all line items?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
      IF ll-ans THEN 

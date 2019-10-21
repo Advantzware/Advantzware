@@ -59,6 +59,10 @@ DEFINE VARIABLE v-shipto-zone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE begin_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE cPartNo AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iActualQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE iBolQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
+DEFINE VARIABLE v-col-move AS LOG INIT YES NO-UNDO.
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -155,7 +159,8 @@ END.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartNo oe-relh.ship-id ~
 oe-rell.i-no oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 ~
-oe-relh.printed oe-rell.qty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
+oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty get-act-bol-qty() @ iBolQty ~
+itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -194,7 +199,7 @@ use-index r-no NO-LOCK, ~
 &Scoped-Define ENABLED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
 fi_i-no fi_po-no fi_job-no fi_job-no2 btn_go btn_prev Browser-Table RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
-fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by 
+fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by FI_moveCol
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -215,7 +220,22 @@ FUNCTION get-part-no RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-rel-qty B-table-Win 
+FUNCTION get-act-rel-qty RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-bol-qty B-table-Win 
+FUNCTION get-act-bol-qty RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -277,6 +297,11 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
      SIZE 29 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 4.05.
@@ -318,8 +343,10 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
-      oe-rell.qty COLUMN-LABEL "Release Qty" FORMAT "->>,>>>,>>9":U
+      oe-rell.qty COLUMN-LABEL "Scheduled Qty" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
+      get-act-rel-qty() @ iActualQty COLUMN-LABEL "Act. Rel.Qty" FORMAT "->>,>>>,>>>":U
+      get-act-bol-qty() @ iBolQty COLUMN-LABEL "Actual Shipped qty" FORMAT "->>,>>>,>>>":U
       itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>9":U
             LABEL-BGCOLOR 14
       get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(5)":U
@@ -354,6 +381,7 @@ DEFINE FRAME F-Main
      fi_job-no2 AT ROW 2.19 COL 106 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 2
      fi_sort-by AT ROW 3.62 COL 70 COLON-ALIGNED NO-LABEL
+     FI_moveCol AT ROW 3.62 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      btn_prev AT ROW 3.62 COL 17
      Browser-Table AT ROW 5.05 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
@@ -379,8 +407,8 @@ DEFINE FRAME F-Main
      "Release#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 4
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 42 BY .95 AT ROW 3.62 COL 102
+     "BrwsrColMode:" VIEW-AS TEXT
+          SIZE 18 BY .95 AT ROW 3.62 COL 112
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -440,6 +468,7 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 /* BROWSE-TAB Browser-Table btn_prev F-Main */
+/* BROWSE-TAB Browser-Table FI_moveCol F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -447,11 +476,16 @@ ASSIGN
 ASSIGN 
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
+ASSIGN 
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1.
+
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_ord-no IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -494,9 +528,13 @@ use-index r-no"
 "oe-relh.printed" ? ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rell.qty
 "oe-rell.qty" "Release Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[13]   > ASI.itemfg.q-onh
+     _FldNameList[13]   > "_<CALC>"
+"get-act-rel-qty() @ iActualQty" "Act. Rel.Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > "_<CALC>"
+"get-act-bol-qty() @ iBolQty" "Actual Shipped qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[15]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > "_<CALC>"     
+     _FldNameList[16]   > "_<CALC>"     
 "get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
@@ -886,6 +924,11 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
+&SCOPED-DEFINE cellColumnDat b-relinq
+
+{methods/browsers/setCellColumns.i}
+
+RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
 
 RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'OT1',
@@ -1091,6 +1134,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win 
+PROCEDURE local-exit :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(lr-rel-lib) THEN
+     DELETE OBJECT lr-rel-lib.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-first B-table-Win 
 PROCEDURE local-get-first :
 /*------------------------------------------------------------------------------
@@ -1183,6 +1247,8 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  RUN setCellColumns.
+
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    oe-relh.release#:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1194,7 +1260,8 @@ PROCEDURE local-initialize :
    oe-rell.job-no:READ-ONLY IN BROWSE {&browse-name} = YES
    oe-rell.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES
    oe-relh.printed:READ-ONLY IN BROWSE {&browse-name} = YES
-   oe-relh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES.
+   oe-relh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
+   FI_moveCol = "Sort" .
 
   IF AVAIL oe-relh THEN
   DO:
@@ -1207,7 +1274,7 @@ PROCEDURE local-initialize :
     {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
        "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = oe-relh.rec_key))"}
   END.
-
+    DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
     APPLY 'ENTRY':U TO fi_rel-no IN FRAME {&FRAME-NAME}.   /*Task# 02121406*/
 
 END PROCEDURE.
@@ -1275,6 +1342,26 @@ PROCEDURE local-view :
   {methods/template/local/setvalue.i}                 
   APPLY 'ENTRY':U TO fi_rel-no IN FRAME {&FRAME-NAME}.    /*Task# 02121406*/
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN
+     Browser-Table:COLUMN-MOVABLE = v-col-move
+     Browser-Table:COLUMN-RESIZABLE = v-col-move
+     v-col-move = NOT v-col-move
+     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1668,6 +1755,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xlocal-destroy B-table-Win 
+PROCEDURE xlocal-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:    Called from local destroy since local destroy is not available
+            to edit (defined in methods\browsers\setCellColumns.i   
+------------------------------------------------------------------------------*/
+
+  IF VALID-HANDLE(lr-rel-lib) THEN
+     DELETE OBJECT lr-rel-lib.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-zone B-table-Win 
 FUNCTION get-shipto-zone RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
@@ -1704,6 +1808,58 @@ FUNCTION get-part-no RETURNS CHARACTER
            cReturn =  oe-ordl.part-no .
         ELSE cReturn = "" .
   RETURN cReturn .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-rel-qty B-table-Win 
+FUNCTION get-act-rel-qty RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO .
+    DEFINE VARIABLE liReturn AS INTEGER NO-UNDO.
+    
+    IF AVAILABLE oe-rell AND VALID-HANDLE(lr-rel-lib) THEN DO:
+        FOR EACH oe-rel NO-LOCK
+            WHERE oe-rel.company EQ oe-rell.company 
+              AND oe-rel.ord-no  EQ oe-rell.ord-no 
+              AND oe-rel.i-no    EQ oe-rell.i-no 
+              AND oe-rel.line    EQ oe-rell.LINE 
+              AND LOOKUP(oe-rel.stat, "P,C,Z") EQ 0 :
+
+            RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT liReturn).
+            iReturn = iReturn + liReturn.
+        END.
+    END.
+ 
+  RETURN iReturn .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-bol-qty B-table-Win 
+FUNCTION get-act-bol-qty RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO .
+    DEFINE VARIABLE liReturn AS INTEGER NO-UNDO.
+    
+    IF AVAILABLE oe-rell AND VALID-HANDLE(lr-rel-lib) THEN DO:
+        FOR EACH oe-rel NO-LOCK
+            WHERE oe-rel.company EQ oe-rell.company  
+              AND oe-rel.ord-no  EQ oe-rell.ord-no
+              AND oe-rel.i-no    EQ oe-rell.i-no 
+              AND oe-rel.line    EQ oe-rell.LINE 
+              AND LOOKUP(oe-rel.stat, "P") GT 0 :
+
+            RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT liReturn).
+            iReturn = iReturn + liReturn.
+        END.
+    END.
+ 
+  RETURN iReturn .
 
 END FUNCTION.
 

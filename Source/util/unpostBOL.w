@@ -122,7 +122,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Archive/Delete Estimates"
+         TITLE              = "Mark BOL as unposted"
          HEIGHT             = 9.05
          WIDTH              = 90.6
          MAX-HEIGHT         = 19.76

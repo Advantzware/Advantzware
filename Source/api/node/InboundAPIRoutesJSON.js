@@ -37,7 +37,7 @@ router.post('/createinventorytransfer', (req,res) => {
 });
 
 //This will create an inventory stock alias for po
-router.post('/createinventorystockaliasforpo', (req,res) => {
+router.post('/createtagforPO', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
@@ -48,6 +48,11 @@ router.post('/createbilloflading', (req,res) => {
 
 //This will get purchase orders 
 router.post('/getpurchaseorder', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
+//This will post inventory receipt 
+router.post('/createinventoryreceipt', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
