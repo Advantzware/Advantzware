@@ -77,6 +77,8 @@ FOR EACH ttInputEst NO-LOCK:
         eb.cas-no       = ttInputEst.cBndlCode
         eb.weight       = ttInputEst.dWeightPerM
         eb.stackHeight  = ttInputEst.iStackHeight
+        eb.quantityPartial = ttInputEst.iPartial
+        eb.tr-cnt          = eb.cas-cnt * eb.cas-pal + eb.quantityPartial 
         .
 
      IF AVAIL est-qty THEN do:
@@ -375,15 +377,15 @@ PROCEDURE pCalcPacking:
         {sys/inc/roundup.i iLayers}
 
         ASSIGN
-            eb.tr-cas     = iLayers
             eb.stacks     = iStacks
             eb.stack-code = cStackCode
             .
+        IF eb.tr-cas  EQ 0 THEN eb.tr-cas  = iLayers .
         IF eb.cas-pal EQ 0 THEN eb.cas-pal = dUnitsPerPallet.
         IF eb.tr-cnt  EQ 0 THEN eb.tr-cnt = iCountOnPallet.
     END.
     IF eb.tr-cnt EQ 0 THEN 
-        eb.tr-cnt = eb.cas-cnt * eb.cas-pal.
+        eb.tr-cnt = eb.cas-cnt * eb.cas-pal + eb.quantityPartial.
 
 END PROCEDURE.
 
