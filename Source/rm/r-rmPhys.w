@@ -48,11 +48,19 @@ DEFINE STREAM excel.
 DEFINE STREAM excel2 .
 DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSnapshotFolder AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "RMCountDefaultPath", "C", NO, NO, "", "", 
+                          OUTPUT cNk1Char, OUTPUT lfound).
+IF lFound THEN
+    cSnapshotFolder = cNk1Char NO-ERROR.    
+ELSE
+    cSnapshotFolder = ".\custfiles".
 ASSIGN
-    fi_file = "c:\tmp\r-rmPhys.csv"
-    cSnapshotFolder = ".\custfiles"
+    fi_file = "c:\tmp\r-rmPhys.csv"    
     .
+cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "/").
+cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "\").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,13 +77,14 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 fiFromItem fiEndItem ~
-fiFromWhse fiToWhse fiFromBin fiToBin fiSnapshotFile btChooseFile ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 fiTransDate fiFromItem ~
+fiEndItem fiWhseList fiFromBin fiToBin fiSnapshotFile btChooseFile ~
 tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep ~
 tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse ~
-fiFromBin fiToBin fiSnapshotFolder fiSnapshotFile tb_fullReport tb_show-fo ~
-tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
+&Scoped-Define DISPLAYED-OBJECTS fiTransDate fiFromItem fiEndItem ~
+fiWhseList fiFromBin fiToBin fiSnapshotFolder fiSnapshotFile tb_fullReport ~
+tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 ~
+tb_runExcel fi_file2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -118,11 +127,6 @@ DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiFromWhse AS CHARACTER FORMAT "X(256)":U 
-     LABEL "From Warehouse" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fiSnapshotFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "SnapshotFile" 
      VIEW-AS FILL-IN 
@@ -138,10 +142,15 @@ DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U 
-     LABEL "To Warehouse" 
+DEFINE VARIABLE fiTransDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+     LABEL "Trans Date" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Whse List" 
+     VIEW-AS FILL-IN 
+     SIZE 79 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-rmPhys.csv" 
      LABEL "If Yes, File Name" 
@@ -155,7 +164,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 8.57.
+     SIZE 94 BY 7.14.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Include location changed?" 
@@ -203,40 +212,46 @@ DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiFromItem AT ROW 3.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fiEndItem AT ROW 3.86 COL 55 COLON-ALIGNED WIDGET-ID 28
-     fiFromWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
-     fiToWhse AT ROW 4.81 COL 55 COLON-ALIGNED WIDGET-ID 16
-     fiFromBin AT ROW 5.76 COL 19 COLON-ALIGNED WIDGET-ID 18
-     fiToBin AT ROW 5.81 COL 55 COLON-ALIGNED WIDGET-ID 20
-     fiSnapshotFolder AT ROW 7.38 COL 36.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fiSnapshotFile AT ROW 8.38 COL 19 COLON-ALIGNED WIDGET-ID 30
-     btChooseFile AT ROW 8.38 COL 74 WIDGET-ID 34
-     tb_fullReport AT ROW 9.57 COL 21 WIDGET-ID 2
-     tb_show-fo AT ROW 12.91 COL 23
-     tb_show-vo AT ROW 13.86 COL 23
-     tb_prep AT ROW 14.81 COL 23 WIDGET-ID 4
-     tb_excel AT ROW 15.71 COL 54 RIGHT-ALIGNED
-     tb_exclude_prep AT ROW 16.67 COL 23 WIDGET-ID 12
+     fiTransDate AT ROW 2.57 COL 12 COLON-ALIGNED WIDGET-ID 40
+     fiFromItem AT ROW 4 COL 12 COLON-ALIGNED WIDGET-ID 26
+     fiEndItem AT ROW 4.05 COL 48 COLON-ALIGNED WIDGET-ID 28
+     fiWhseList AT ROW 5 COL 12 COLON-ALIGNED WIDGET-ID 14
+     fiFromBin AT ROW 7.1 COL 12 COLON-ALIGNED WIDGET-ID 18
+     fiToBin AT ROW 7.14 COL 48 COLON-ALIGNED WIDGET-ID 20
+     fiSnapshotFolder AT ROW 9 COL 35.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fiSnapshotFile AT ROW 10 COL 18 COLON-ALIGNED WIDGET-ID 30
+     btChooseFile AT ROW 10 COL 73 WIDGET-ID 34
+     tb_fullReport AT ROW 11.19 COL 20 WIDGET-ID 2
+     tb_show-fo AT ROW 14.57 COL 23
+     tb_show-vo AT ROW 15.52 COL 23
+     tb_prep AT ROW 16.48 COL 23 WIDGET-ID 4
+     tb_excel AT ROW 17.38 COL 54 RIGHT-ALIGNED
+     tb_exclude_prep AT ROW 18.33 COL 23 WIDGET-ID 12
      tb_excel2 AT ROW 23.62 COL 22.2
      tb_runExcel AT ROW 23.62 COL 64 RIGHT-ALIGNED
      fi_file2 AT ROW 24.71 COL 20 COLON-ALIGNED HELP
           "Enter File Name"
      btn-ok AT ROW 26.95 COL 22
      btn-cancel AT ROW 26.95 COL 54
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 22.24 COL 4
+     "(Date on History Tab)" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 2.81 COL 31 WIDGET-ID 42
+          FGCOLOR 9 
+     "(Comma separated list)" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 6 COL 14 WIDGET-ID 38
+          FGCOLOR 9 
      "Snapshot File In:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 7.57 COL 21 WIDGET-ID 32
+          SIZE 17 BY .62 AT ROW 8.95 COL 20 WIDGET-ID 32
           FGCOLOR 12 
      "Exceptions" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 11.71 COL 18 WIDGET-ID 22
+          SIZE 20 BY .62 AT ROW 13.38 COL 18 WIDGET-ID 22
           FGCOLOR 9 
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-7 AT ROW 1.05 COL 1
-     RECT-8 AT ROW 11.24 COL 1 WIDGET-ID 24
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 22.24 COL 4
+     RECT-7 AT ROW 1.14 COL 1
+     RECT-8 AT ROW 12.67 COL 1 WIDGET-ID 24
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
@@ -393,7 +408,7 @@ DO:
         DEFINE VARIABLE recid-val AS RECID     NO-UNDO.
         DEFINE VARIABLE char-val  AS CHARACTER NO-UNDO. 
         DEFINE VARIABLE ll-tag#   AS LOG       NO-UNDO.
-
+        
         CASE FOCUS:NAME :
             WHEN "fiFromItem" OR 
             WHEN  "fiEndItem" THEN 
@@ -406,14 +421,18 @@ DO:
                     END.   
                 END.
 
-            WHEN "fiFromWhse" OR WHEN "fiToWhse" THEN 
-                DO:
-                    RUN windows/l-loc.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-                    FOCUS:SCREEN-VALUE = ENTRY(1, char-val).
+            WHEN "fiWhseList"  THEN 
+                DO:                                
+                    RUN windows/l-locMulti.w (cocode,ENTRY(1, fiWhseList:SCREEN-VALUE), OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                    DO :
+                        ASSIGN  FOCUS:SCREEN-VALUE = ENTRY(1,char-val, "|")
+                                .  
+                    END.
                 END.   
             WHEN "fiFromBin" OR WHEN "fiToBin" THEN 
                 DO:
-                    RUN windows/l-locbin.w (cocode,fiFromWhse:SCREEN-VALUE,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    RUN windows/l-locbin.w (cocode,ENTRY(1, fiWhseList:SCREEN-VALUE),FOCUS:SCREEN-VALUE, OUTPUT char-val).
                     FOCUS:SCREEN-VALUE = char-val.
                 END.
         END CASE.
@@ -471,25 +490,57 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DEFINE VARIABLE lValidEntry AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cInvalidValues AS CHARACTER NO-UNDO.
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
         ASSIGN   fi_file2        
             fiFromItem
             fiEndItem
-            fiFromWhse       
-            fiToWhse  
+            fiWhseList         
             fiFromBin  
             fiToBin 
             tb_show-vo
             tb_prep   
             tb_show-fo
             tb_excel  
-            tb_exclude_prep.
-         
+            tb_exclude_prep
+            fiTransDate
+            .
+            
+          RUN validateSnapshotFolder (INPUT fiSnapshotFolder, OUTPUT lValidEntry).
+          IF NOT lValidEntry THEN DO:
+            MESSAGE "The snapshot folder specified is not valid, please correct NK1 value." 
+            VIEW-AS ALERT-BOX.
+            RETURN.
+          END.  
+          RUN validateSnapshotFile (INPUT fiSnapshotFolder + "\" + fiSnapshotFile, OUTPUT lValidEntry).
+          IF NOT lValidEntry THEN DO:
+            MESSAGE "The snapshot file specified could not be found." 
+            VIEW-AS ALERT-BOX.
+            RETURN.
+          END.   
+          RUN validateWhseList (INPUT fiWhseList,  OUTPUT cInvalidValues, OUTPUT lValidEntry).
+          IF NOT lValidEntry THEN DO:
+            MESSAGE "Entry of warehouse list is not valid: " + cInvalidValues
+            VIEW-AS ALERT-BOX.
+            RETURN.
+          END.       
         RUN run-report. 
         STATUS DEFAULT "Processing Complete". 
 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiWhseList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiWhseList C-Win
+ON LEAVE OF fiWhseList IN FRAME FRAME-A /* Whse List */
+DO:
+        ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -654,6 +705,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         APPLY "entry" TO tb_prep.
         fiSnapshotFolder:SCREEN-VALUE = cSnapshotFolder.
+        fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999").
     END.
 
 IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -696,11 +748,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse fiFromBin fiToBin 
+  DISPLAY fiTransDate fiFromItem fiEndItem fiWhseList fiFromBin fiToBin 
           fiSnapshotFolder fiSnapshotFile tb_fullReport tb_show-fo tb_show-vo 
           tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-8 fiFromItem fiEndItem fiFromWhse fiToWhse fiFromBin 
+  ENABLE RECT-7 RECT-8 fiTransDate fiFromItem fiEndItem fiWhseList fiFromBin 
          fiToBin fiSnapshotFile btChooseFile tb_fullReport tb_show-fo 
          tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel 
          fi_file2 btn-ok btn-cancel 
@@ -717,9 +769,6 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
     /* Job Summary Report                                                         */
     /* -------------------------------------------------------------------------- */
-
-
-
     DEFINE VARIABLE excelheader    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE excelheader1   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE excelheader2   AS CHARACTER NO-UNDO.
@@ -762,10 +811,10 @@ PROCEDURE run-report :
     RUN reportComparison IN h
         (INPUT fi_file2,
         INPUT cocode,
+        INPUT fiTransDate,
         INPUT fiFromItem,
         INPUT fiEndItem,
-        INPUT fiFromWhse,        /* st whse */
-        INPUT fiToWhse,          /* end whse */
+        INPUT fiWhseList,        /* st whse */
         INPUT fiFromBin,         /* start bin */
         INPUT fiToBin,           /* end bin */
         INPUT YES,               /* scans only */
@@ -864,6 +913,78 @@ PROCEDURE show-param :
     END.
 
     PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateSnapshotFile C-Win 
+PROCEDURE validateSnapshotFile :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER cFile AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+
+FILE-INFO:FILE-NAME = cFile.
+
+IF FILE-INFO:FULL-PATHNAME EQ ? OR FILE-INFO:FULL-PATHNAME EQ "" THEN
+  oplValid = NO.
+ELSE
+  oplValid = YES.  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateSnapshotFolder C-Win 
+PROCEDURE validateSnapshotFolder :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER cFolder AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+
+FILE-INFO:FILE-NAME = cFolder.
+IF FILE-INFO:FULL-PATHNAME EQ ? OR FILE-INFO:FULL-PATHNAME EQ "" THEN 
+  OS-CREATE-DIR VALUE(cFolder).
+IF FILE-INFO:FULL-PATHNAME EQ ? OR FILE-INFO:FULL-PATHNAME EQ "" THEN
+  oplValid = NO.
+ELSE
+  oplValid = YES.    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateWhseList C-Win 
+PROCEDURE validateWhseList :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcInvalidList AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cInvalidList AS CHARACTER NO-UNDO.
+lValid = YES.
+DO iIndex = 1 TO NUM-ENTRIES(ipcWhseList):
+    IF NOT CAN-FIND(FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ ENTRY(iIndex, ipcWhseList)) THEN 
+       ASSIGN cInvalidList = cInvalidList + "," +  ENTRY(iIndex, ipcWhseList)
+              lValid = NO
+              .
+END.
+ASSIGN oplValid = lValid
+       opcInvalidList = cInvalidList
+       .
+
 
 END PROCEDURE.
 

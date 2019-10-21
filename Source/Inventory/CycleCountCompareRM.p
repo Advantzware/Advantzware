@@ -139,8 +139,7 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
@@ -163,8 +162,7 @@ PROCEDURE exportSnapshot:
         WHERE rm-bin.company EQ ipcCompany
         AND rm-bin.i-no GE ipcFGItemStart
         AND rm-bin.i-no LE ipcFGItemEnd
-        AND rm-bin.loc GE ipcWhseStart
-        AND rm-bin.loc LE ipcWhseEnd
+        AND lookup(rm-bin.loc, ipcWhseList) GT 0        
         AND rm-bin.qty NE 0
         AND rm-bin.tag NE ""
         :
@@ -213,8 +211,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.   
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplScansOnly AS LOGICAL NO-UNDO.
@@ -243,8 +240,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND rm-rctd.tag NE ""
         AND rm-rctd.i-no GE ipcFGItemStart
         AND rm-rctd.i-no LE ipcFGItemEnd
-        AND rm-rctd.loc GE ipcWhseStart
-        AND rm-rctd.loc LE ipcWhseEnd
+        AND lookup(rm-rctd.loc, ipcWhseList) GT 0  
         AND rm-rctd.loc-bin GE ipcBinStart
         AND rm-rctd.loc-bin LE ipcBinEnd
         AND rm-rctd.qty NE 0
@@ -292,8 +288,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
     FOR EACH ttSnapshot
         WHERE ttSnapshot.cFGItemID GE ipcFgItemStart
         AND ttSnapshot.cFgItemID   LE ipcFgItemEnd
-        AND ttSnapshot.cSysLoc     GE ipcWhseStart
-        AND ttSnapshot.cSysLoc     LE ipcWhseEnd
+        AND lookup(ttSnapshot.cSysLoc, ipcWhseList) GT 0   
         AND ttSnapshot.cSysLocBin  GE ipcBinStart
         AND ttSnapshot.cSysLocBin  LE ipcBinEnd         
         :
@@ -440,8 +435,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             WHERE rm-bin.company EQ ipcCompany
             AND rm-bin.i-no GE ipcFGItemStart
             AND rm-bin.i-no LE ipcFGItemEnd
-            AND rm-bin.loc GE ipcWhseStart
-            AND rm-bin.loc LE ipcWhseEnd
+            AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0   
             AND rm-bin.qty NE 0
             AND rm-bin.tag NE ""
             :
@@ -494,14 +488,12 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
         (
-        ttCycleCountCompare.cScanLoc     GE ipcWhseStart
-        AND ttCycleCountCompare.cScanLoc     LE ipcWhseEnd
+        LOOKUP(ttCycleCountCompare.cScanLoc, ipcWhseList) GT 0         
         AND ttCycleCountCompare.cScanLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cScanLocBin  LE ipcBinEnd
         )
         ELSE 
-        (ttCycleCountCompare.cSysLoc     GE ipcWhseStart
-        AND ttCycleCountCompare.cSysLoc     LE ipcWhseEnd
+        (LOOKUP(ttCycleCountCompare.cSysLoc, ipcWhseList) GT 0        
         AND ttCycleCountCompare.cSysLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cSysLocBin  LE ipcBinEnd)
         :
@@ -719,6 +711,7 @@ PROCEDURE pCheckCountDups:
     IF lIsDups THEN 
     DO:
         OUTPUT TO c:\tmp\dupCountTags.csv.
+        PUT STREAM sOutput UNFORMATTED "Item #,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags:
             PUT STREAM sOutput UNFORMATTED  
                 '="' ttDupTags.i-no '",'
@@ -1027,9 +1020,10 @@ PROCEDURE pExportTempTable PRIVATE:
         hQuery:GET-NEXT().   
         IF hQuery:QUERY-OFF-END THEN LEAVE.   
         DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
+            /* Was inserting an = sign for tag but that stopped working - new excel version? */
             IF iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):COLUMN-LABEL BEGINS  "Tag" THEN 
                 PUT STREAM sOutput UNFORMATTED  
-                    '="' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'.             
+                    '"' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'.             
             ELSE 
                 PUT STREAM sOutput UNFORMATTED  
                     '"' iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):buffer-value '",'. 
@@ -1271,10 +1265,10 @@ PROCEDURE postRM:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
@@ -1295,10 +1289,10 @@ PROCEDURE postRM:
     
     RUN pCreateTransferCounts.
     
-    RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
+    RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
-    RUN pPostCounts (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
     MESSAGE "Posting Complete"
@@ -1311,10 +1305,10 @@ PROCEDURE pPostCounts:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
     
@@ -1336,19 +1330,18 @@ PROCEDURE pPostCounts:
     DEFINE VARIABLE v-cum-qty   AS DECIMAL EXTENT 2 FORMAT ">>>>>9.999".
     postit:
     DO /* TRANSACTION */ ON ERROR UNDO postit, LEAVE postit:
-        FOR EACH rm-rctd
+        FOR EACH rm-rctd EXCLUSIVE-LOCK 
             WHERE rm-rctd.company   EQ cocode
             AND rm-rctd.rita-code EQ "C"   
             AND rm-rctd.tag NE ""
             AND rm-rctd.i-no GE ipcFGItemStart
             AND rm-rctd.i-no LE ipcFGItemEnd
-            AND rm-rctd.loc GE ipcWhseStart
-            AND rm-rctd.loc LE ipcWhseEnd
+            AND LOOKUP(rm-rctd.loc, ipcWhseList) GT 0 
             AND rm-rctd.loc-bin GE ipcBinStart
             AND rm-rctd.loc-bin LE ipcBinEnd
             AND rm-rctd.qty GE 0  
             ,  
-            FIRST item
+            FIRST ITEM EXCLUSIVE-LOCK 
             WHERE item.company EQ cocode
             AND item.i-no    EQ rm-rctd.i-no
             USE-INDEX i-no
@@ -1357,9 +1350,11 @@ PROCEDURE pPostCounts:
             BY rm-rctd.rct-date
             BY rm-rctd.tag:
 
+            IF ipdtTransDate NE ? AND ipdtTransDate NE rm-rctd.rct-date THEN 
+              rm-rctd.rct-date = ipdtTransDate.
             ASSIGN
                 item.last-count = 0
-                item.q-onh      = 0
+                item.q-onh      = 0                
                 item.last-date  = rm-rctd.rct-date
                 .
            FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
@@ -1482,8 +1477,7 @@ PROCEDURE pRemoveMatches:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
@@ -1493,15 +1487,13 @@ PROCEDURE pRemoveMatches:
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
         (
-        ttCycleCountCompare.cScanLoc         GE ipcWhseStart
-        AND ttCycleCountCompare.cScanLoc     LE ipcWhseEnd
+        LOOKUP(ttCycleCountCompare.cScanLoc, ipcWhseList) GT 0 
         AND ttCycleCountCompare.cScanLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cScanLocBin  LE ipcBinEnd
         )
         ELSE 
         (
-        ttCycleCountCompare.cSysLoc        GE ipcWhseStart
-        AND ttCycleCountCompare.cSysLoc     LE ipcWhseEnd
+        LOOKUP(ttCycleCountCompare.cSysLoc, ipcWhseList) GT 0   
         AND ttCycleCountCompare.cSysLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cSysLocBin  LE ipcBinEnd
         ) 
@@ -1544,10 +1536,10 @@ PROCEDURE reportComparison:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplScansOnly AS LOGICAL NO-UNDO.
@@ -1563,7 +1555,7 @@ PROCEDURE reportComparison:
     RUN pImportSnapshot (INPUT ipcSnapshotFile).
     
     STATUS DEFAULT "Build Compare Table". 
-    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
+    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd, YES /* scans only */).
     gcOutputFile = ipcOutputFile.
     
@@ -1578,7 +1570,7 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE lChoosePost.
         
     IF lChoosePost THEN 
-        RUN postRM (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
+        RUN postRM (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
             ipcBinStart, ipcBinEnd). 
         
 END PROCEDURE.

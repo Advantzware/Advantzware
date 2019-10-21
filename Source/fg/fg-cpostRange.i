@@ -7,8 +7,7 @@ for each {1}fg-rctd
             AND fg-rctd.created-by LE end_userid
             AND fg-rctd.i-no GE ipcFGItemStart
             AND fg-rctd.i-no LE ipcFGItemEnd
-            AND fg-rctd.loc GE ipcWhseStart
-            AND fg-rctd.loc LE ipcWhseEnd
+            AND LOOKUP(fg-rctd.loc, ipcWhseList) GT 0            
             AND fg-rctd.loc-bin GE ipcBinStart
             AND fg-rctd.loc-bin LE ipcBinEnd            
            )
@@ -25,6 +24,9 @@ for each {1}fg-rctd
         
     IF NOT AVAIL itemfg THEN NEXT.
 
+    /* Allow user to force transactions to be on a different date */
+    IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
+        fg-rctd.rct-date = ipdtTransDate.
 
     release b2-fg-bin.        
             
