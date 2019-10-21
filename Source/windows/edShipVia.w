@@ -358,6 +358,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_edshipvia-2 ).
+       RUN set-position IN h_edshipvia-2 ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_edshipvia-2 ( 17.14 , 144.00 ) NO-ERROR.
        /* Position in AB:  ( 4.81 , 4.00 ) */
        /* Size in UIB:  ( 17.14 , 144.00 ) */
 

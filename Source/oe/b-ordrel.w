@@ -892,6 +892,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 SESSION:DATA-ENTRY-RETURN = YES.
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
 {sa/sa-sls01.i}

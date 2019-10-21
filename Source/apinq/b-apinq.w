@@ -360,9 +360,8 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-
 &Scoped-define SELF-NAME F-Main
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win        /* Task# 10251303 */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
 ON HELP OF FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
@@ -385,6 +384,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
@@ -509,6 +509,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 
@@ -621,6 +622,31 @@ PROCEDURE Enable-Navigation :
 ------------------------------------------------------------------------------*/
 
   {methods/run_link.i "NAVIGATION-SOURCE" "dispatch" "('enable':U) NO-ERROR"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+DEF VAR last-cust AS CHAR NO-UNDO.
+
+/*GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no . */
+
+/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
+
+RUN apinq/apnq-exp.w ("", "").
+
 
 END PROCEDURE.
 
@@ -1016,31 +1042,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-
-/*GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no . */
-
-/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
-
-RUN apinq/apnq-exp.w ("", "").
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

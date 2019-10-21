@@ -112,26 +112,19 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no ap-pay.check-no ~
-ap-pay.bank-code ap-pay.check-date ap-pay.check-amt ap-pay.man-check ~
-display-voided() @ cleared 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no ap-pay.check-no ~
-ap-pay.bank-code ap-pay.check-date ap-pay.check-amt ap-pay.man-check 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no vend.name ~
+ap-pay.check-no ap-pay.check-date display-amount() @ ap-pay.check-amt 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no ~
+vend.name ap-pay.check-no ap-pay.check-date 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-pay vend
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ap-pay
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table vend
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ap-pay WHERE ~{&KEY-PHRASE} ~
-      AND ap-pay.company = g_company ~
- AND ap-pay.reconciled = no and ~
-ap-pay.check-amt <> 0 and ~
-ap-pay.check-no GT 90000000 NO-LOCK , ~
+      AND ap-pay.check-no gt 999999999 NO-LOCK, ~
       EACH vend OF ap-pay NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH ap-pay WHERE ~{&KEY-PHRASE} ~
-      AND ap-pay.company = g_company ~
- AND ap-pay.reconciled = no and ~
-ap-pay.check-amt <> 0 and ~
-ap-pay.check-no GT 90000000 NO-LOCK , ~
+      AND ap-pay.check-no gt 999999999 NO-LOCK, ~
       EACH vend OF ap-pay NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table ap-pay vend
@@ -161,7 +154,6 @@ FUNCTION display-amount RETURNS DECIMAL
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-reconciled B-table-Win 
 FUNCTION display-reconciled RETURNS LOGICAL
@@ -228,23 +220,19 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-     ap-pay.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U WIDTH 16.2 LABEL-BGCOLOR 14
-      ap-pay.check-no COLUMN-LABEL "Check#" FORMAT "99999999":U 
-            WIDTH 17.2 LABEL-BGCOLOR 14
-      ap-pay.bank-code FORMAT "x(8)":U LABEL-BGCOLOR 14
-      ap-pay.check-date COLUMN-LABEL "Check Date" FORMAT "99/99/9999":U
-            WIDTH 14.2 LABEL-BGCOLOR 14
-      ap-pay.check-amt FORMAT "->>,>>>,>>9.99":U WIDTH 20.2 LABEL-BGCOLOR 14
-      ap-pay.man-check COLUMN-LABEL "Manual Check" FORMAT "Yes/No":U
-            WIDTH 17.2 LABEL-BGCOLOR 14
-      display-voided() @ cleared COLUMN-LABEL "Voided" LABEL-BGCOLOR 14
-      ENABLE
+      ap-pay.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U WIDTH 17.2
+            LABEL-BGCOLOR 14
+      vend.name FORMAT "x(30)":U LABEL-BGCOLOR 14
+      ap-pay.check-no COLUMN-LABEL "Memo#" FORMAT ">>>>>>>>>>":U
+            WIDTH 19.2 LABEL-BGCOLOR 14
+      ap-pay.check-date COLUMN-LABEL "Memo Date" FORMAT "99/99/9999":U
+            WIDTH 18.2 LABEL-BGCOLOR 14
+      display-amount() @ ap-pay.check-amt COLUMN-LABEL "Amount" FORMAT "->>>,>>>,>>9.99":U
+  ENABLE
       ap-pay.vend-no
+      vend.name
       ap-pay.check-no
-      ap-pay.bank-code
-      /*ap-pay.check-date
-      ap-pay.check-amt
-      ap-pay.man-check*/
+      ap-pay.check-date
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.19
@@ -373,9 +361,8 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-
 &Scoped-define SELF-NAME F-Main
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win            /* Task# 10251303 */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
 ON HELP OF FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
@@ -554,6 +541,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 
@@ -1124,7 +1112,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-reconciled B-table-Win 
 FUNCTION display-reconciled RETURNS LOGICAL
   ( /* parameter-definitions */ ) :
@@ -1156,7 +1143,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 

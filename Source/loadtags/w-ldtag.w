@@ -328,6 +328,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_loadtag. */
        RUN add-link IN adm-broker-hdl ( h_b-ldtag , 'loadtag':U , h_loadtag ).
+       RUN add-link IN adm-broker-hdl ( h_b-ldtag , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-ldtag ,

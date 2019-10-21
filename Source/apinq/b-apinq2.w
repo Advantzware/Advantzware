@@ -132,11 +132,11 @@ ap-inv.due ap-inv.stat ap-inv.user-id
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1  fi_date tb_posted fi_finv fi_vend ~
-fi_date-to tb_unposted btn_go btn_show  Browser-Table btnCalendar-1 btnCalendar-2
+&Scoped-Define ENABLED-OBJECTS RECT-1 fi_date btnCalendar-1 tb_posted ~
+fi_finv fi_vend fi_date-to btnCalendar-2 tb_unposted btn_go btn_show ~
+Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_date tb_posted fi_finv fi_vend ~
 fi_date-to tb_unposted fi_sort-by FI_moveCol 
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -150,6 +150,16 @@ fi_date-to tb_unposted fi_sort-by FI_moveCol
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 12 BY 1.
@@ -207,16 +217,6 @@ DEFINE VARIABLE tb_unposted AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -234,11 +234,11 @@ DEFINE BROWSE Browser-Table
       ap-inv.inv-date FORMAT "99/99/9999":U WIDTH 17.2 LABEL-BGCOLOR 14
       ap-inv.due-date FORMAT "99/99/9999":U WIDTH 16.2 LABEL-BGCOLOR 14
       ap-inv.net FORMAT "->,>>>,>>9.99":U LABEL-BGCOLOR 14
-      ap-inv.paid FORMAT "->,>>>,>>9.99":U WIDTH 18.2 LABEL-BGCOLOR 14
+      ap-inv.paid FORMAT "->,>>>,>>9.99":U LABEL-BGCOLOR 14
       ap-inv.due COLUMN-LABEL "Balance Due" FORMAT "->,>>>,>>9.99":U
             WIDTH 19.2 LABEL-BGCOLOR 14
-      ap-inv.stat FORMAT "x":U LABEL-BGCOLOR 14                           /*Task# 01311403*/
-      ap-inv.user-id COLUMN-LABEL "User" FORMAT "x(8)":U LABEL-BGCOLOR 14  /*Task# 01311403*/
+      ap-inv.stat FORMAT "x":U LABEL-BGCOLOR 14
+      ap-inv.user-id COLUMN-LABEL "User" FORMAT "x(8)":U LABEL-BGCOLOR 14
   ENABLE
       ap-inv.inv-no
       ap-inv.vend-no
@@ -369,7 +369,7 @@ ASSIGN
      _FldNameList[5]   > ASI.ap-inv.net
 "ap-inv.net" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.ap-inv.paid
-"ap-inv.paid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.paid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ap-inv.due
 "ap-inv.due" "Balance Due" ? "decimal" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ap-inv.stat
@@ -497,6 +497,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_date-to}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_go
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
@@ -526,21 +548,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fi_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date B-table-Win
-ON HELP OF fi_date IN FRAME F-Main /* Ack. Date */
+ON HELP OF fi_date IN FRAME F-Main /* From Inv Date */
 DO:
   {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i fi_date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +562,7 @@ END.
 
 &Scoped-define SELF-NAME fi_date-to
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date-to B-table-Win
-ON HELP OF fi_date-to IN FRAME F-Main /* Ack. Date */
+ON HELP OF fi_date-to IN FRAME F-Main /* To Inv Date */
 DO:
   {methods/calendar.i}
 END.
@@ -557,15 +570,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
-ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i fi_date-to}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
 
 &Scoped-define SELF-NAME fi_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_vend B-table-Win
@@ -584,6 +588,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 &SCOPED-DEFINE cellColumnDat apinqb-apinq2

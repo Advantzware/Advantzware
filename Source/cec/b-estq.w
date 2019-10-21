@@ -1535,7 +1535,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
  RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EC',

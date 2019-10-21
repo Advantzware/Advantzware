@@ -576,6 +576,7 @@ ON CHOOSE OF btn_show IN FRAME F-Main /* Show All */
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+{methods/ctrl-a_browser.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

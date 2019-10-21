@@ -1151,6 +1151,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 &SCOPED-DEFINE cellColumnDat oeinqb-ordinq

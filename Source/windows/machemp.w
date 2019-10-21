@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -50,6 +50,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -79,6 +81,9 @@ DEFINE VARIABLE h_emplog2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_emplog2-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_employe2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_machemp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_machemp1 AS HANDLE NO-UNDO.
@@ -91,7 +96,6 @@ DEFINE VARIABLE h_p-updsav-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_q-emp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -102,18 +106,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 89 ROW 2.91
-         SIZE 62 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 89 ROW 2.91
+         SIZE 62 BY 1.43
          BGCOLOR 15 .
 
 
@@ -122,9 +126,9 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: machemp
+   External Tables: ASI.machemp
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 4
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -293,6 +297,15 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Brws Emp|View Emp|Machine|Log In/Out|Posted|All Notes' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -308,29 +321,20 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Emp|View Emp|Machine|Log In/Out|Posted|All Notes' + ',
-                     FOLDER-TAB-TYPE = 2':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
-
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_options , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_export ).
        RUN set-position IN h_export ( 1.00 , 77.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -343,14 +347,12 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_machemp1 ( 4.81 , 4.00 ) NO-ERROR.
        RUN set-size IN h_machemp1 ( 19.52 , 142.00 ) NO-ERROR.
 
-       /* Links to SmartViewer h_export. */
-       RUN add-link IN adm-broker-hdl ( h_machemp1 , 'export-xl':U , h_export ).
-
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_machemp1. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_machemp1 ).
+       RUN add-link IN adm-broker-hdl ( h_machemp1 , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_machemp1 ,
@@ -404,9 +406,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 77.00 ) NO-ERROR.
+             INPUT  '':U ,
+             OUTPUT h_export-2 ).
+       RUN set-position IN h_export-2 ( 1.00 , 77.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -416,9 +418,6 @@ PROCEDURE adm-create-objects :
              OUTPUT h_machtran ).
        RUN set-position IN h_machtran ( 4.81 , 4.00 ) NO-ERROR.
        RUN set-size IN h_machtran ( 19.52 , 144.00 ) NO-ERROR.
-
-       /* Links to SmartViewer h_export. */
-       RUN add-link IN adm-broker-hdl ( h_machtran , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_machtran ,
@@ -487,9 +486,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 77.00 ) NO-ERROR.
+             INPUT  '':U ,
+             OUTPUT h_export-3 ).
+       RUN set-position IN h_export-3 ( 1.00 , 77.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -507,9 +506,6 @@ PROCEDURE adm-create-objects :
              OUTPUT h_q-emp ).
        RUN set-position IN h_q-emp ( 5.05 , 133.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 11.60 ) */
-
-       /* Links to SmartViewer h_export. */
-       RUN add-link IN adm-broker-hdl ( h_machemp3 , 'export-xl':U , h_export ).
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.

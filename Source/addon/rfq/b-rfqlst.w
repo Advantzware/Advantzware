@@ -1011,6 +1011,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 /*
 FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany and

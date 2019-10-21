@@ -358,7 +358,7 @@ DEFINE FRAME F-Main
           "Job Number." NO-LABEL
      tb_job-no2 AT ROW 1.71 COL 66.6 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
-     tb_po-no AT ROW 1.71 COL 70.40 COLON-ALIGNED NO-LABEL
+     tb_po-no AT ROW 1.71 COL 70.4 COLON-ALIGNED NO-LABEL
      tb_ord-no AT ROW 1.71 COL 80 COLON-ALIGNED NO-LABEL
      tb_i-no AT ROW 1.71 COL 89 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
@@ -374,26 +374,26 @@ DEFINE FRAME F-Main
      "Name" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.05 COL 126
           FGCOLOR 9 FONT 6
-     "Warehouse" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.05 COL 34
-          FGCOLOR 9 FONT 6
-     "Job" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.05 COL 64
-          FGCOLOR 9 FONT 6
-     "PO" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1.05 COL 75
-          FGCOLOR 9 FONT 6
-     "Item" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.05 COL 98
-          FGCOLOR 9 FONT 6
-     "Bin" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 1.05 COL 52
+     "Order" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.05 COL 83
           FGCOLOR 9 FONT 6
      "Tag#/RFID#" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.05 COL 10
           FGCOLOR 9 FONT 6
-     "Order" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.05 COL 83
+     "Bin" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 1.05 COL 52
+          FGCOLOR 9 FONT 6
+     "Item" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.05 COL 98
+          FGCOLOR 9 FONT 6
+     "PO" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 1.05 COL 75
+          FGCOLOR 9 FONT 6
+     "Job" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.05 COL 64
+          FGCOLOR 9 FONT 6
+     "Warehouse" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.05 COL 34
           FGCOLOR 9 FONT 6
      RECT-4 AT ROW 19.1 COL 1
      RECT-5 AT ROW 1 COL 1
@@ -655,22 +655,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_go
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
-ON HELP OF tb_i-no IN FRAME F-Main /* Go */
-DO:
-
-  RUN lookups/i-no.p.
-  SELF:SCREEN-VALUE = g_lookup-var.
-  APPLY 'ENTRY':U TO SELF.
-  RETURN NO-APPLY.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btn_next
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_next B-table-Win
 ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
@@ -737,7 +721,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/ctrl-a_browser.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -898,6 +882,27 @@ END PROCEDURE.
 PROCEDURE get-item-type :
 DEF OUTPUT PARAM op-item-type LIKE loadtag.item-type INIT NO NO-UNDO.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadTag B-table-Win 
+PROCEDURE loadTag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  IF AVAIL loadtag THEN do:
+      RUN custom/setUserPrint.p (INPUT loadtag.company,
+                           INPUT 'r-loadtg.',
+                           INPUT 'fi_cas-lab',
+                           INPUT STRING(loadtag.tag-no)).
+      RUN Get_Procedure IN Persistent-Handle ('r-loadtg.',OUTPUT run-proc,yes).
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1218,27 +1223,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadTag B-table-Win 
-PROCEDURE loadTag :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    
-  IF AVAIL loadtag THEN do:
-      RUN custom/setUserPrint.p (INPUT loadtag.company,
-                           INPUT 'r-loadtg.',
-                           INPUT 'fi_cas-lab',
-                           INPUT STRING(loadtag.tag-no)).
-      RUN Get_Procedure IN Persistent-Handle ('r-loadtg.',OUTPUT run-proc,yes).
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
