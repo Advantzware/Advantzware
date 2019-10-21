@@ -1890,11 +1890,15 @@ DO:
 &ELSE
     IF lUpgradeAvail THEN DO:
         MESSAGE 
-            "About to download and install a system update.  This" SKIP 
-            "window will now close until the update is complete."
-            VIEW-AS ALERT-BOX INFO.
-    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
-        QUIT.
+            "A system update is available.  Would you like to install it now?" SKIP 
+            "(Choosing 'Yes' will close this window and open the download" SKIP 
+            "page in your web browser.  The download page will have further" skip
+            "instructions for installing and applying the upgrade.)" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdate AS LOG.
+        IF lUpdate THEN DO:            
+            OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+            QUIT.
+        END.
     END.
     ELSE DO:
         OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
