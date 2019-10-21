@@ -242,7 +242,7 @@ for each xeb where xeb.company = xest.company
             cas.dscr = item.est-dscr.
       end.
       cas.cosm = cas.cosm + if xeb.yrprice then xeb.yld-qty else xeb.bl-qty.
-      if xeb.cas-pal ne 0 then p-qty = xcas.qty / xeb.cas-pal.
+      if xeb.tr-cnt ne 0 then p-qty = xeb.bl-qty / xeb.tr-cnt.
          else p-qty = ((((xeb.t-sqin - xeb.t-win) * xeb.yld-qty / 144000)
                        * b-wt) + xcas.qty) / item.avg-w.
       {sys/inc/roundup.i p-qty}

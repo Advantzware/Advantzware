@@ -11,9 +11,14 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-DEFINE INPUT PARAMETER ipcDLC     AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
+DEFINE INPUT PARAMETER ipcDLC             AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcAdminServerPort AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcAppServerName   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcAppServerPort   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNameServerName  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcNameServerPort  AS CHARACTER NO-UNDO.
+   
 DEFINE VARIABLE cLine         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPathDataFile AS CHARACTER NO-UNDO.
@@ -21,7 +26,7 @@ DEFINE VARIABLE hdSession     AS HANDLE    NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN system/Session.p     PERSISTENT SET hdSession.
-
+  
 /* This is to get path */
 RUN GetBarDirFilePath IN hdOutputProcs (
     INPUT ipcCompany,
@@ -53,6 +58,7 @@ END PROCEDURE.
 
 /* Monitors Advantzware Resources */
 PROCEDURE pMonitor:
+  
     FOR EACH serverResource 
         WHERE serverResource.isActive NO-LOCK:
         
@@ -67,11 +73,11 @@ PROCEDURE getASBrokerStatus:
     DEFINE INPUT  PARAMETER ipcBrokerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBrokerStatus  AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCounter      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE ibrokerLine   AS INTEGER   NO-UNDO. 
-
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\asbman.bat") -NAME VALUE(ipcBrokerName) -QUERY > VALUE(cPathDataFile).
+    DEFINE VARIABLE cFullFilePath    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCounter         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE ibrokerLine      AS INTEGER   NO-UNDO. 
+       
+    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\asbman.bat") -NAME VALUE(ipcBrokerName) -PORT VALUE(ipcAdminServerPort) -QUERY > VALUE(cPathDataFile).
     IF SEARCH(cPathDataFile) = ? THEN RETURN.
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
@@ -83,7 +89,7 @@ PROCEDURE getASBrokerStatus:
                
        IF cLine BEGINS "Broker Status" THEN
            opcBrokerStatus = "Running".
- 
+       
     END.
      
     INPUT CLOSE.
@@ -194,23 +200,41 @@ PROCEDURE updateStatus:
                         OUTPUT cStatus
                         ).      
                         
-                WHEN "AdminServer" THEN
+                WHEN "AdminServer" THEN DO:
+                    
+                    IF serverResource.port NE ipcAdminServerPort THEN
+                        serverResource.port = ipcAdminServerPort.
+                        
                     RUN getAdminServerStatus(
                         INPUT  serverResource.port,
                         OUTPUT cStatus
-                        ).            
-                                               
-                WHEN "NameServer" THEN
+                        ).  
+       
+                END.                              
+                WHEN "NameServer" THEN DO:
+                    
+                    IF serverResource.name NE ipcNameServerName THEN
+                        serverResource.name = ipcNameServerName.
+                    IF serverResource.port NE ipcNameServerport THEN
+                        serverResource.port = ipcNameServerPort.
+                    
                     RUN getNameServerStatus (
                         INPUT  serverResource.Name,
                         OUTPUT cStatus
                         ).
+                END.     
+                WHEN "AppServer" THEN DO:
+                
+                    IF serverResource.name NE ipcAppServerName THEN
+                        serverResource.name = ipcAppServerName.
+                    IF serverResource.port NE ipcAppServerport THEN
+                        serverResource.port = ipcAppServerPort.
                         
-                WHEN "AppServer" THEN
                     RUN getASBrokerStatus(
                         INPUT  serverResource.Name,
                         OUTPUT cStatus
                         ).
+                END.
         END CASE.
             
         ASSIGN serverResource.resourceStatus = cStatus
@@ -261,6 +285,4 @@ PROCEDURE getEmailConfigSubject:
         .
        
 END PROCEDURE.
-
-
 

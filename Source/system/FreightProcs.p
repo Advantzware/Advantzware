@@ -197,13 +197,15 @@ PROCEDURE GetFreightForCarrierZone:
                 opcMessage      = "Freight Calculated from carrier charge based on total MSF of " + STRING(ipdTotalMSF,">>,>>>,>>9.99")
                 .
         END CASE. 
+        IF dCostMultiplier EQ ? THEN dCostMultiplier = 0.
         DO iLevel = 1 TO 10:
             IF bf-carr-mtx.weight[iLevel] GE dQtyToLookup THEN LEAVE.
         END.
-        ASSIGN 
-            opdFreightMin   = bf-carr-mtx.min-rate
-            opdFreightTotal = bf-carr-mtx.rate[iLevel] * dCostMultiplier
-            .
+        IF iLevel LE 10 THEN 
+            ASSIGN 
+                opdFreightMin   = bf-carr-mtx.min-rate
+                opdFreightTotal = bf-carr-mtx.rate[iLevel] * dCostMultiplier
+                .
         IF opdFreightTotal LT opdFreightMin THEN 
             ASSIGN 
                 opdFreightTotal = opdFreightMin

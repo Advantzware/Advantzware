@@ -222,8 +222,8 @@ FOR EACH est-op
             .
         IF est-op.op-sb THEN
             OP.run-qty = est-op.num-sh * v-on-f.
-        /*	 else*/
-        OP.run-qty = est-op.num-sh * v-num-up *
+        ELSE
+            OP.run-qty = est-op.num-sh * v-num-up *
             (IF xef.n-out   EQ 0 THEN 1 ELSE xef.n-out) *
             (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
         

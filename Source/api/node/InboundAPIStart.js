@@ -47,6 +47,13 @@ if (config.javaProgramDir === undefined         ||
 	process.exit(1);
 }
 
+// Node stops if a given Java logs folder doesn't exist
+if (!lib.isDir(config.javaLogsDir)) {
+	console.log(`${dateTime} Error: Environment variable API_JAVA_LOGS_DIR doesn't contain a valid path`);
+	console.log(`${dateTime} Error: Node could not be started!`);
+	process.exit(1);
+};
+
 // InboundAPIRoutesJSON.js has all JSON based routes definitions
 const JSONRoutes = require('./InboundAPIRoutesJSON.js');
 app.use('/api', JSONRoutes);

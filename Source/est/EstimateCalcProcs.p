@@ -1107,6 +1107,11 @@ PROCEDURE pAddInk PRIVATE:
             RUN pAddError("Material Type for Ink RM Code '" + ipcItemCode + "' is not one of '" + gcInkMatTypes + "'", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
             RETURN.
         END.
+        IF bf-item.yield EQ 0 OR bf-item.yield EQ ? THEN 
+        DO: 
+            RUN pAddError("Ink RM Code '" + ipcItemCode + "' has an invalid coverage rate.", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
+            RETURN.
+        END.
         FIND FIRST ttInk EXCLUSIVE-LOCK 
             WHERE ttInk.estHeaderID EQ ipbf-estCostBlank.estCostHeaderID
             AND ttInk.estFormID EQ ipbf-estCostBlank.estCostFormID

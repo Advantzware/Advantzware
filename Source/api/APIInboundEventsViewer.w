@@ -41,8 +41,10 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE lReTrigger    AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lReTrigger           AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdOutputProcs        AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdAPIInboundTestWin  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdAPIInboundTestProc AS HANDLE  NO-UNDO.
 
 DEFINE TEMP-TABLE ttAPIInboundEvent NO-UNDO
     FIELDS retryEvent AS LOGICAL
@@ -97,8 +99,8 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-26 btExport btExit btFilter fieventID ~
-btAPIIDLookup cbSuccess fiAPIId btRestart btBeginRequestDateCal ~
+&Scoped-Define ENABLED-OBJECTS RECT-26 btTest btExit btFilter fieventID ~
+btAPIIDLookup cbSuccess fiAPIId btExport btRestart btBeginRequestDateCal ~
 fiBeginRequestDate fiEndRequestDate btEndRequestDateCal BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fieventID fiSuccessLabel ~
 cbSuccess fiAPIIdLabel fiAPIId fiBeginRequestDatelabel fiBeginRequestDate ~
@@ -152,6 +154,11 @@ DEFINE BUTTON btRestart
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      LABEL "Restart" 
      SIZE 9 BY 2.14 TOOLTIP "Retry Event(s)".
+
+DEFINE BUTTON btTest 
+     IMAGE-UP FILE "Graphics/32x32/add.ico":U
+     LABEL "Test" 
+     SIZE 11 BY 2.62 TOOLTIP "Add Inbound Event".
 
 DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -241,7 +248,7 @@ DEFINE BROWSE BROWSE-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btExport AT ROW 1.48 COL 130 WIDGET-ID 50
+     btTest AT ROW 1.48 COL 123 WIDGET-ID 20
      btExit AT ROW 1.48 COL 149 WIDGET-ID 2
      btFilter AT ROW 1.76 COL 110.6 WIDGET-ID 18
      fieventIDlb AT ROW 1.95 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 32
@@ -251,6 +258,7 @@ DEFINE FRAME DEFAULT-FRAME
      cbSuccess AT ROW 3.62 COL 88.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      fiAPIIdLabel AT ROW 3.67 COL 3 NO-LABEL WIDGET-ID 6
      fiAPIId AT ROW 3.67 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     btExport AT ROW 4.33 COL 123 WIDGET-ID 50
      btRestart AT ROW 4.52 COL 110.6 WIDGET-ID 26
      fiBeginRequestDatelabel AT ROW 5.29 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      btBeginRequestDateCal AT ROW 5.29 COL 48 WIDGET-ID 44
@@ -472,8 +480,14 @@ ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
     IF VALID-HANDLE(hdOutputProcs) THEN
         DELETE PROCEDURE hdOutputProcs.
-        
-    APPLY "WINDOW-CLOSE" TO CURRENT-WINDOW.
+
+    IF VALID-HANDLE(hdAPIInboundTestWin) THEN
+        APPLY "WINDOW-CLOSE" TO hdAPIInboundTestWin.
+
+    IF VALID-HANDLE(hdAPIInboundTestProc) THEN
+        DELETE OBJECT hdAPIInboundTestProc.
+                
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -610,6 +624,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btTest
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTest C-Win
+ON CHOOSE OF btTest IN FRAME DEFAULT-FRAME /* Test */
+DO:
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    IF NOT VALID-HANDLE(hdAPIInboundTestProc) THEN DO:         
+        RUN api/APIInboundTest.w PERSISTENT SET hdAPIInboundTestProc.
+        
+        hdAPIInboundTestWin = hdAPIInboundTestProc:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdAPIInboundTestProc) AND
+        VALID-HANDLE(hdAPIInboundTestWin) THEN DO:        
+
+        IF hdAPIInboundTestWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdAPIInboundTestWin:WINDOW-STATE = 3.
+        
+        hdAPIInboundTestWin:MOVE-TO-TOP().
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiAPIId
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId C-Win
 ON HELP OF fiAPIId IN FRAME DEFAULT-FRAME
@@ -720,8 +761,8 @@ PROCEDURE enable_UI :
           fiBeginRequestDatelabel fiBeginRequestDate fiendRequestDatelabel 
           fiEndRequestDate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-26 btExport btExit btFilter fieventID btAPIIDLookup cbSuccess 
-         fiAPIId btRestart btBeginRequestDateCal fiBeginRequestDate 
+  ENABLE RECT-26 btTest btExit btFilter fieventID btAPIIDLookup cbSuccess 
+         fiAPIId btExport btRestart btBeginRequestDateCal fiBeginRequestDate 
          fiEndRequestDate btEndRequestDateCal BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}

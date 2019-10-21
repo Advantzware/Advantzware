@@ -2372,6 +2372,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateDataLoader C-Win
+PROCEDURE ipCreateDataLoader:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Create DataLoader folder and files...").
+
+    DEF VAR cCurrentDir AS CHAR NO-UNDO.
+    
+    /* Ensure folder available for custom menus */
+    ASSIGN
+        cCurrentDir = cDrive + "\" + 
+                      cTopDir + "\" +
+                      cEnvDir + "\" +
+                      fiEnvironment:{&SV} + "\CustFiles\DataLoader".
+    OS-CREATE-DIR VALUE(cCurrentDir).
+    OS-COPY VALUE(cUpdDataDir + "\TestFile.txt") VALUE(cCurrentDir).
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix C-Win 
 PROCEDURE ipDataFix :
 /*------------------------------------------------------------------------------
@@ -2426,6 +2453,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161200.
     IF fIntVer(cThisEntry) LT 16130000 THEN 
         RUN ipDataFix161300.
+    IF fIntVer(cThisEntry) LT 16140000 THEN 
+        RUN ipDataFix161400.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2811,7 +2840,7 @@ END PROCEDURE.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix1613010 C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161300 C-Win
 PROCEDURE ipDataFix161300:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -2819,7 +2848,6 @@ PROCEDURE ipDataFix161300:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161300...").
     
-    /* RUN ipConvertVendorCosts. */
     RUN ipLoadOEAutoApproveNK1s.
 
 END PROCEDURE.
@@ -2827,6 +2855,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161400 C-Win
+PROCEDURE ipDataFix161400:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161400...").
+    
+    RUN ipConvertVendorCosts.
+    RUN ipCreateDataLoader.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 

@@ -224,7 +224,7 @@ DEFINE IMAGE imagePrinter
 
 DEFINE IMAGE imageRunUlitity
      FILENAME "Graphics/32x32/window_gear.png":U TRANSPARENT
-     SIZE 6.4 BY 1.52 TOOLTIP "Task Scheduler".
+     SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE IMAGE imageScheduler
      FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT

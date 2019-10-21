@@ -633,8 +633,8 @@ PROCEDURE do-tr-no:
        cas.ino  = item.i-no
        cas.dscr = item.est-dscr.
     end.
-    cas.cosm = cas.cosm + qty.
-    if xeb.cas-pal ne 0 then p-qty = xcas.qty / xeb.cas-pal.
+    cas.cosm = cas.cosm + qty. 
+    if xeb.tr-cnt ne 0 then p-qty = qty / xeb.tr-cnt.
     else p-qty = (b-wt-tot + xcas.qty) / item.avg-w.
     {sys/inc/roundup.i p-qty}
     cas.qty = cas.qty + p-qty.

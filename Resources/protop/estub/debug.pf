@@ -1,6 +1,0 @@
-# debug.pf
-
--debugalert
--errorstack
-
--clientlog tmp/protop.debug
