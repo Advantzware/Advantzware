@@ -38,7 +38,8 @@ ASSIGN
     glShowAllQuantities = NO
     gcQtyMasterInd      = "*"
     gcSIMONListInclude  = "I,M"
-    gcSIMONListSeparate = "S,O,N".
+    gcSIMONListSeparate = "S,O,N"
+    .
 
 DEFINE TEMP-TABLE ttSection
     FIELD rec_keyParent AS CHARACTER 
@@ -50,8 +51,10 @@ DEFINE TEMP-TABLE ttSection
 DEFINE STREAM sEstOutput.
 DEFINE VARIABLE hdOutputProcs AS HANDLE.
 DEFINE VARIABLE hdNotesProcs  AS HANDLE.
+DEFINE VARIABLE hdEstimateCalcProcs  AS HANDLE.
 RUN sys/NotesProcs.p PERSISTENT SET hdNotesProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+RUN est/EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -67,10 +70,19 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     (ipcString AS CHARACTER,
     ipiCharacters AS INTEGER) FORWARD.
 
+FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
+	(ipcEstType AS CHARACTER) FORWARD.
 
+FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
+	(ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER) FORWARD.
+    
 /* ***************************  Main Block  *************************** */
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdNotesProcs).
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
 RUN pBuildSections(ipiEstCostHeaderID, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
@@ -124,7 +136,7 @@ PROCEDURE pBuildSections PRIVATE:
         NO-ERROR.
     IF AVAILABLE bf-estCostHeader THEN 
     DO:
-        IF CAN-DO("Single,Set",bf-estCostHeader.estType) AND INDEX(cSectionBy, "Mult Qty") GT 0 THEN
+        IF fTypeAllowsMult(bf-estCostHeader.estType) AND INDEX(cSectionBy, "Mult Qty") GT 0 THEN
             glShowAllQuantities = YES.
         FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
         ASSIGN 
@@ -228,11 +240,13 @@ PROCEDURE pPrintForm PRIVATE:
 
     RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintItemInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    IF fTypePrintsLayout(estCostHeader.estType) THEN 
+        RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMaterialInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, glShowAllQuantities, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
@@ -605,6 +619,78 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             
 END PROCEDURE.
 
+PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prints the top-most section of each page
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+   
+    DEFINE VARIABLE iColumn    AS INTEGER EXTENT 10 INITIAL [5,18,23,29,39,47,55,64,73,82].    
+    DEFINE VARIABLE dTotalFreight  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalHandling AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalStorage  AS DECIMAL NO-UNDO.
+       
+    ASSIGN 
+        dTotalFreight = 0
+        dTotalHandling = 0
+        dTotalStorage = 0
+        . 
+    FOR EACH estRelease NO-LOCK 
+        WHERE estRelease.company EQ ipbf-estCostHeader.company
+        AND estRelease.estimateNo EQ ipbf-estCostHeader.estimateNo
+        AND estRelease.quantity EQ ipbf-estCostHeader.quantityMaster
+        AND estRelease.formNo EQ ipbf-estCostForm.formNo
+        BREAK BY estRelease.estReleaseID
+        :
+        IF FIRST-OF(estRelease.estReleaseID) THEN DO: 
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Release Quantity", NO, YES, NO).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "From", NO, YES, NO).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[3], "To", NO, YES, NO).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "Via", NO, YES, NO).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[5], "Pallets", NO, YES, YES).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[6], "Multiplier", NO, YES, YES).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[7], "Months", NO, YES, YES).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[8], "Freight", NO, YES, YES).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[9], "Storage", NO, YES, YES).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[10], "Handling", NO, YES, YES).
+        END.    
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estRelease.formNo,2, 0, YES) + "-" + fFormatNumber(estRelease.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[1] + 1, estRelease.quantityRelease, 6, 0, NO, YES, NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[2], estRelease.shipFromLocationID, 8, NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[3], estRelease.shipToID, 8, NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[4], estRelease.carrierID, 8, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estRelease.quantityOfUnits, 6, 0, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estRelease.palletMultiplier, 3, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estRelease.monthsAtShipFrom, 6, 0, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], estRelease.freightCost, 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[9], estRelease.storageCostTotal, 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[10], estRelease.handlingCostTotal, 6, 2, NO, YES, NO, NO, YES).
+        
+        ASSIGN 
+            dTotalFreight = dTotalFreight + estRelease.freightCost
+            dTotalStorage = dTotalStorage + estRelease.storageCostTotal
+            dTotalHandling = dTotalHandling + estRelease.storageCostTotal
+            .    
+    END.
+    IF dTotalFreight NE 0 OR dTotalStorage NE 0 OR dTotalHandling NE 0 THEN 
+    DO:        
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Total Freight and Warehousing", YES, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], dTotalFreight, 6, 2, NO, YES, YES, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[9], dTotalStorage, 6, 2, NO, YES, YES, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[10], dTotalHandling, 6, 2, NO, YES, YES, NO, YES).
+    END.
+    
+END PROCEDURE.
+
+
 
 PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     /*------------------------------------------------------------------------------
@@ -715,7 +801,8 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         BY estCostMaterial.formNo DESCENDING
         BY estCostMaterial.blankNo
         BY estCostMaterial.sequenceOfMaterial:
-
+        
+        IF estCostMaterial.isPrimarySubstrate AND NOT fTypePrintsBoard(ipbf-estCostHeader.estType) THEN NEXT.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMaterial.formNo,2, 0, YES) + "-" + fFormatNumber(estCostMaterial.blankNo,2, 0, YES), NO, NO, YES).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName, 30, NO, NO, NO).
@@ -739,6 +826,9 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[4] + 1, estCostMaterial.quantityUOMWaste, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostMaterial.costTotalPerMFinishedRunWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costTotalRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "  Vendor Setup",NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
                 dTotalPerM = dTotalPerM + estCostMaterial.costTotalPerMFinishedNoWaste
                 dTotal     = dTotal + estCostMaterial.costTotalNoWaste
@@ -746,6 +836,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
                 dTotal     = dTotal + estCostMaterial.costTotalSetupWaste
                 dTotalPerM = dTotalPerM + estCostMaterial.costTotalPerMFinishedRunWaste
                 dTotal     = dTotal + estCostMaterial.costTotalRunWaste
+                dTotal     = dTotal + estCostMaterial.costSetup
                 .
         END.
         ELSE 
@@ -853,7 +944,7 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
            
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Machine", NO, YES, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Operation", NO, YES, NO).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "SU Hrs", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3], "Run Hrs", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "Speed", NO, YES, YES).
@@ -1185,3 +1276,38 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     
 		
 END FUNCTION.
+
+FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
+	(ipcEstType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns if Given Type supports Multiple
+ Notes:
+------------------------------------------------------------------------------*/	
+    RETURN DYNAMIC-FUNCTION("IsSetType",ipcEstType) 
+            OR 
+           DYNAMIC-FUNCTION("IsSingleType",ipcEstType)
+            OR
+           DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+		
+END FUNCTION.
+
+FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
+	(ipcEstType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns if given type should print Layout
+ Notes:
+------------------------------------------------------------------------------*/	
+    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+		
+END FUNCTION.
+
+FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns if given type should print board details
+ Notes:
+------------------------------------------------------------------------------*/    
+    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+        
+END FUNCTION.
+
