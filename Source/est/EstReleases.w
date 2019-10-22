@@ -133,24 +133,24 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-add 
-     LABEL "Add New" 
+     LABEL "Add " 
      SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-copy 
-     LABEL "Copy Selected" 
-     SIZE 19 BY 1.14.
+     LABEL "Copy " 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-delete 
-     LABEL "Delete Selected" 
-     SIZE 21.8 BY 1.14.
+     LABEL "Delete " 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
      LABEL "OK" 
      SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-update 
-     LABEL "Update Selected" 
-     SIZE 21.8 BY 1.14.
+     LABEL "Update " 
+     SIZE 15 BY 1.14.
 
 DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
      LABEL "Cust#" 
@@ -234,10 +234,10 @@ DEFINE BROWSE BROWSE-1
 
 DEFINE FRAME F-Main
      BROWSE-1 AT ROW 6.52 COL 2.2
-     btn-update AT ROW 4.95 COL 37.8
      btn-add AT ROW 4.95 COL 2.2 WIDGET-ID 16
-     btn-copy AT ROW 4.95 COL 17.6
-     btn-delete AT ROW 4.95 COL 60.8
+     btn-copy AT ROW 4.95 COL 17.0
+     btn-update AT ROW 4.95 COL 31.8
+     btn-delete AT ROW 4.95 COL 46.5
      btn-ok AT ROW 20.29 COL 69
      est-no AT ROW 2.14 COL 13.8 COLON-ALIGNED WIDGET-ID 200
      quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
