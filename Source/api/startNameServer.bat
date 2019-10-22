@@ -1,4 +1,4 @@
-::@ECHO OFF
+@ECHO OFF
 :: This code "assumes" it's own location is in /programs/api
 :: If moved, may have to change the ini file lookup
 
@@ -25,7 +25,10 @@ ECHO ...Starting NameServer
 !drive!
 CD !DLCDir!\bin
 CALL nsman -name !nameServerName! -host !hostName! -port !adminPort! -start 
-pause
+
+    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -QUERY > VALUE(cPathDataFile).
+    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+
 
 :QUIT
 EXIT

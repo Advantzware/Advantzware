@@ -1,4 +1,4 @@
-::@ECHO OFF
+@ECHO OFF
 :: This code "assumes" it's own location is in /programs/api
 :: If moved, may have to change the ini file lookup
 
@@ -23,7 +23,6 @@ IF NOT EXIST !dbDrive!\!topDir!\!dbDir!\Structure\STFiles\progress.dev (
 
 ECHO ...Stopping AdminServer
 sc \\!hostname! STOP "AdminService11.6(64-bit)"
-pause
 
 :QUIT
 EXIT
