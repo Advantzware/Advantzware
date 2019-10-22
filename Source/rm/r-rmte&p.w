@@ -55,6 +55,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = gcompany
@@ -118,6 +119,14 @@ DEF TEMP-TABLE tt-email NO-UNDO
     FIELD undovr       AS CHAR
     INDEX po-no po-no ASC item-no ASC.
 
+DEFINE TEMP-TABLE ttBoardToWIP NO-UNDO
+    FIELD rmrdtlhRowID AS ROWID
+    FIELD rmrcpthRowID AS ROWID
+    FIELD rmbinRowID   AS ROWID
+    FIELD jobmatRowID  AS ROWID
+    FIELD itemRowID    AS ROWID
+    .
+    
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.name    EQ "AUTOISSU"
@@ -182,6 +191,8 @@ DEF {1} SHARED VAR v-print-fmt  AS CHAR NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR is-xprint-form AS LOG NO-UNDO. 
 
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+
 DEF BUFFER b-job-hdr FOR job-hdr.
 DEF BUFFER b-rh FOR rm-rcpth.
 DEF BUFFER b-rd FOR rm-rdtlh.
@@ -189,6 +200,8 @@ DEF BUFFER b-rd FOR rm-rdtlh.
 /* AJ 06/26/2008  Added two variables for excel report */
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE STREAM excel.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -437,10 +450,10 @@ DEFINE FRAME FRAME-F
      "Selection Parameters" VIEW-AS TEXT
           SIZE 22 BY .95 AT ROW 1.48 COL 6
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 14.67 COL 2
      "Transaction Types" VIEW-AS TEXT
           SIZE 21 BY .86 AT ROW 7.76 COL 23
+     "Output Destination" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 14.67 COL 2
      RECT-18 AT ROW 1 COL 1
      RECT-6 AT ROW 14.57 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -1744,6 +1757,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateWIPInventoryStock C-Win 
+PROCEDURE pCreateWIPInventoryStock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRecValue          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRecFound          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSysCtrlRMIssueWIP AS CHARACTER NO-UNDO INITIAL "RMIssueWIP".
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  cocode,                   /* Company Code */
+        INPUT  cSysCtrlRMIssueWIP,       /* sys-ctrl name */
+        INPUT  "L",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                    /* Use ship-to */
+        INPUT  FALSE,                    /* ship-to vendor */
+        INPUT  "",                       /* ship-to vendor value */
+        INPUT  "",                       /* shi-id value */
+        OUTPUT cRecValue,
+        OUTPUT lRecFound
+        ).
+    
+    IF lRecFound EQ FALSE THEN
+        RETURN.
+        
+    IF LOGICAL(cRecValue) EQ FALSE THEN
+        RETURN.
+            
+    IF VALID-HANDLE(hdInventoryProcs) THEN DO:
+        FOR EACH ttBoardToWIP:
+            RUN Inventory_CreateWIPInventoryStockForIssuedRM IN hdInventoryProcs (
+                INPUT  ttBoardToWIP.rmrdtlhRowID,
+                INPUT  ttBoardToWIP.rmrcpthRowID,
+                INPUT  ttBoardToWIP.rmbinRowID,
+                INPUT  ttBoardToWIP.jobmatRowID,
+                INPUT  ttBoardToWIP.itemRowID,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ) NO-ERROR.   
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-rm C-Win 
 PROCEDURE post-rm :
 /* --------------------------------------------------- rm/rm-post.p 10/94 rd  */
@@ -1782,6 +1844,8 @@ DEF VAR v-rmemail-file AS cha NO-UNDO.
 
 FIND FIRST rm-ctrl WHERE rm-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 v-avg-cst = rm-ctrl.avg-lst-cst.
+
+EMPTY TEMP-TABLE ttBoardToWIP.
 
     SESSION:SET-WAIT-STATE ("general").
     transblok:
@@ -2114,6 +2178,18 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
       FIND CURRENT job-mat NO-LOCK NO-ERROR.
       FIND CURRENT po-ord NO-LOCK NO-ERROR.
       FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+
+      IF item.mat-type EQ "B" AND AVAILABLE rm-rctd THEN DO:
+          CREATE ttBoardToWIP.
+          ASSIGN
+              ttBoardToWIP.rmrdtlhRowID = ROWID(rm-rdtlh)
+              ttBoardToWIP.rmrcpthRowID = ROWID(rm-rcpth)
+              ttBoardToWIP.rmbinRowID   = ROWID(rm-bin)
+              ttBoardToWIP.jobmatRowID  = ROWID(job-mat)
+              ttBoardToWIP.itemRowID    = ROWID(item)
+              .
+      END.
+      
     END. /* for each rm-rctd */
 
     v-dunne = YES.
@@ -2153,8 +2229,10 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
       /* gdm - 11050906 */
     END. /* IF rmpostgl */
     IF CAN-FIND(FIRST tt-email) THEN 
-      RUN send-rmemail (v-rmemail-file).
+      RUN send-rmemail (v-rmemail-file).    
 
+    RUN pCreateWIPInventoryStock.
+        
     SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
