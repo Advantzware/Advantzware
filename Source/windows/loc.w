@@ -41,6 +41,7 @@ DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAllowFGBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAllowRMBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAllowWIPBin AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "LocationFGBin",
 	     INPUT "ALL", /* based on run, create, update, delete or all */
@@ -60,6 +61,16 @@ RUN methods/prgsecur.p
 	     OUTPUT lAllowRMBin, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+        (INPUT "LocationWIPBin",
+        INPUT "ALL", /* based on run, create, update, delete or all */
+        INPUT NO,    /* use the directory in addition to the program */
+        INPUT NO,    /* Show a message if not authorized */
+        INPUT NO,    /* Group overrides user security? */
+        OUTPUT lAllowWIPBin, /* Allowed? Yes/NO */
+        OUTPUT lAccessClose, /* used in template/windows.i  */
+        OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN methods/prgsecur.p
 	    (INPUT "Location",
@@ -231,7 +242,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -745,6 +756,9 @@ DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
   END.
   ELSE IF il-cur-page = 4 AND NOT lAllowRMBin THEN DO:
       RUN set-buttons IN h_p-updsav-3 ('disable-all').
+  END.
+  ELSE IF il-cur-page = 5 AND NOT lAllowWIPBin THEN DO:
+      RUN set-buttons IN h_p-updsav-4 ('disable-all').
   END.
 
 
