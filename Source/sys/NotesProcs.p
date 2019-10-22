@@ -323,7 +323,8 @@ PROCEDURE UpdateNoteOfType:
     END. /*not avail notes*/
 
     notes.note_text = ipcNoteText.
-
+    FIND CURRENT notes NO-LOCK.
+    
 END PROCEDURE.
 
 PROCEDURE UpdateShipNote:
