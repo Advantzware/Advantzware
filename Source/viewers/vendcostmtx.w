@@ -636,6 +636,37 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME vendItemCost.effectiveDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.effectiveDate V-table-Win
+ON LEAVE OF vendItemCost.effectiveDate IN FRAME F-Main /* effectiveDate */
+DO:
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+    IF LASTKEY <> -1 THEN DO:
+        RUN valid-date(1,date(vendItemCost.effectiveDate:SCREEN-VALUE), OUTPUT lCheckError) NO-ERROR.
+        IF lCheckError THEN RETURN NO-APPLY.
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME vendItemCost.expirationDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.expirationDate V-table-Win
+ON LEAVE OF vendItemCost.expirationDate IN FRAME F-Main /* expirationDate */
+DO:
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+    IF LASTKEY <> -1 THEN DO:
+        RUN valid-date(2,date(vendItemCost.expirationDate:SCREEN-VALUE), OUTPUT lCheckError) NO-ERROR.
+        IF lCheckError THEN RETURN NO-APPLY.
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -893,7 +924,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
  DO WITH FRAME {&FRAME-NAME}:
-     IF vendItemCost.effectiveDate:SCREEN-VALUE EQ  "01/01/0001" 
+     IF vendItemCost.effectiveDate:SCREEN-VALUE LT  "01/01/1900" 
          THEN vendItemCost.effectiveDate:SCREEN-VALUE =  "01/01/1900"  .
  END.
 
@@ -935,6 +966,12 @@ PROCEDURE local-update-record :
     END.
 
     RUN valid-uom( OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+
+    RUN valid-date(1,date(vendItemCost.effectiveDate:SCREEN-VALUE), OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+
+    RUN valid-date(2,date(vendItemCost.expirationDate:SCREEN-VALUE), OUTPUT lCheckError) NO-ERROR.
     IF lCheckError THEN RETURN NO-APPLY.
 
     RUN valid-expdate ( OUTPUT lCheckError) NO-ERROR.
@@ -1319,6 +1356,36 @@ PROCEDURE valid-vend-no :
         END.
         {methods/lValidateError.i NO}
     END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-date V-table-Win 
+PROCEDURE valid-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO .
+    DEFINE OUTPUT PARAMETER opcReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE lv-msg AS CHARACTER NO-UNDO.
+
+   DO WITH FRAME {&FRAME-NAME}:
+        {methods/lValidateError.i YES}
+        IF ipdtDate LT 01/01/1900 OR ipdtDate GT 12/31/3000 THEN DO:
+            MESSAGE "Calendar year should be between 1900 to 3000 years " 
+                VIEW-AS ALERT-BOX INFO .
+            IF ipiType EQ 1 THEN
+                APPLY "entry" TO vendItemCost.effectiveDate .
+            ELSE APPLY "entry" TO vendItemCost.expirationDate .
+                opcReturnError = YES .
+        END.
+        {methods/lValidateError.i NO}
+   END.
     
 END PROCEDURE.
 

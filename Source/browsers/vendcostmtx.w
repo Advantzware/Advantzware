@@ -70,7 +70,7 @@ DEFINE VARIABLE useColors               AS CHAR NO-UNDO.
 DEFINE VARIABLE v-called-setCellColumns AS LOG  NO-UNDO.
 DEFINE VARIABLE v-col-move              AS LOG  INIT YES NO-UNDO.
 DEFINE VARIABLE cLevel                  AS CHARACTER EXTENT 10 NO-UNDO .
-
+DEFINE VARIABLE dtEffDate               AS DATE NO-UNDO .
 ASSIGN 
     cocode = g_company
     locode = g_loc.
@@ -150,7 +150,7 @@ IF AVAILABLE users THEN ASSIGN
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCost.itemType ~
 vendItemCost.itemID vendItemCost.vendorID vendItemCost.customerID ~
-vendItemCost.estimateNo vendItemCost.effectiveDate ~
+vendItemCost.estimateNo get-eff-date() @ dtEffDate ~
 vendItemCost.expirationDate fGetLevel(1) @ cLevel[1] ~
 fGetLevel(2) @ cLevel[2] fGetLevel(3) @ cLevel[3] fGetLevel(4) @ cLevel[4] ~
 fGetLevel(5) @ cLevel[5] fGetLevel(6) @ cLevel[6] fGetLevel(7) @ cLevel[7] ~
@@ -231,6 +231,14 @@ FUNCTION fGetLevel RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-eff-date B-table-Win 
+FUNCTION get-eff-date RETURNS DATE
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -308,8 +316,7 @@ DEFINE BROWSE Browser-Table
       vendItemCost.customerID FORMAT "x(10)":U WIDTH 13 LABEL-BGCOLOR 14
       vendItemCost.estimateNo COLUMN-LABEL "Est" FORMAT "x(8)":U
             WIDTH 13 LABEL-BGCOLOR 14
-      vendItemCost.effectiveDate COLUMN-LABEL "Effective ?" FORMAT "99/99/9999":U
-            COLUMN-FONT 14
+      get-eff-date() @ dtEffDate COLUMN-LABEL "Effective" FORMAT "99/99/9999":U COLUMN-FONT 14
       vendItemCost.expirationDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(30)":U
       fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(30)":U
@@ -447,8 +454,8 @@ ASSIGN
 "customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.vendItemCost.estimateNo
 "estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > asi.vendItemCost.effectiveDate
-"effectiveDate" "Effective ?" ? ? ? ? 14 ? ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > "_<CALC>"
+"get-eff-date() @ dtEffDate" "Effective" ? ? ? ? 14 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.vendItemCost.expirationDate
 "expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
@@ -1346,6 +1353,26 @@ FUNCTION fGetLevel RETURNS CHARACTER
 
     RETURN lc-result.   /* Function return value. */
     
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-eff-date B-table-Win 
+FUNCTION get-eff-date RETURNS DATE
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dtReturn AS DATE NO-UNDO .
+  
+  IF vendItemCost.effectiveDate LT 01/01/1900 THEN
+      ASSIGN dtReturn = 01/01/1900 .
+  ELSE dtReturn = vendItemCost.effectiveDate .
+  
+  RETURN dtReturn.
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
