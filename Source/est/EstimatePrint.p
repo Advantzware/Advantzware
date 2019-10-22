@@ -644,9 +644,9 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
         AND estRelease.estimateNo EQ ipbf-estCostHeader.estimateNo
         AND estRelease.quantity EQ ipbf-estCostHeader.quantityMaster
         AND estRelease.formNo EQ ipbf-estCostForm.formNo
-        BREAK BY estRelease.estReleaseID
+        BREAK BY estRelease.blankNo
         :
-        IF FIRST-OF(estRelease.estReleaseID) THEN DO: 
+        IF FIRST-OF(estRelease.blankNo) THEN DO: 
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Release Quantity", NO, YES, NO).
@@ -676,7 +676,7 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
         ASSIGN 
             dTotalFreight = dTotalFreight + estRelease.freightCost
             dTotalStorage = dTotalStorage + estRelease.storageCostTotal
-            dTotalHandling = dTotalHandling + estRelease.storageCostTotal
+            dTotalHandling = dTotalHandling + estRelease.handlingCostTotal
             .    
     END.
     IF dTotalFreight NE 0 OR dTotalStorage NE 0 OR dTotalHandling NE 0 THEN 
