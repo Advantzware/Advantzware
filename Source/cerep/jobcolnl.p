@@ -245,6 +245,7 @@ DEFINE VARIABLE ord-qty AS INTEGER NO-UNDO .
 
 DEFINE VARIABLE cDraftImage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDraftImageFull AS CHARACTER FORMAT "x(50)" NO-UNDO.
+DEFINE VARIABLE dQtyPerTry               AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-job-mch FOR job-mch .
 ASSIGN cDraftImage = "images\draft.jpg"
 
@@ -1298,7 +1299,11 @@ FOR EACH job-hdr NO-LOCK
 
           IF v-dc-out EQ 0 THEN
              v-dc-out = 1.
-          
+
+          dQtyPerTry = IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0 .
+          dQtyPerTry = (job-hdr.qty /  eb.cas-cnt ) * dQtyPerTry .
+          IF dQtyPerTry NE 0 THEN 
+          {sys/inc/roundup.i dQtyPerTry}
           ASSIGN
               v-shrink-wrap = CAN-FIND(FIRST est-op WHERE
                                est-op.company EQ job-hdr.company AND
@@ -1308,7 +1313,7 @@ FOR EACH job-hdr NO-LOCK
                     trim(STRING(bff-eb.blank-no,">>9")) FORM "x(11)"
 
               bff-eb.layer-pad  AT 18 /* tray */
-              ( IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0) FORMAT "->>>>>9.99"  AT 36
+              /*( IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0)*/ dQtyPerTry FORMAT "->>>>>9.99"  AT 36
               bff-eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
               (IF AVAILABLE bf-job-mat THEN STRING(bf-job-mat.qty,"->>>>>>9.9<") ELSE "") FORMAT "x(11)"
               bff-eb.cas-cnt FORMAT "->>>>>9" AT 87  /* qty per case */

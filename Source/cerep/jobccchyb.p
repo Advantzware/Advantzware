@@ -259,7 +259,7 @@ DEFINE        VARIABLE v-pr-speed      AS INTEGER   NO-UNDO.
 DEFINE        VARIABLE cDraftImage     AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cDraftImageFull AS CHARACTER FORMAT "x(50)" NO-UNDO.
 DEFINE        VARIABLE cJobNo          AS CHARACTER NO-UNDO.
-
+DEFINE        VARIABLE dQtyPerTry      AS DECIMAL NO-UNDO .
 ASSIGN 
     cDraftImage         = "images\draft.jpg"
 
@@ -1282,6 +1282,11 @@ FOR EACH job-hdr NO-LOCK
                 ddivider = reftable.val[2].
     END.
 
+    dQtyPerTry = IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0 .
+    dQtyPerTry = (job-hdr.qty /  eb.cas-cnt ) * dQtyPerTry .
+    IF dQtyPerTry NE 0 THEN 
+          {sys/inc/roundup.i dQtyPerTry}
+
     PUT "<P9><B> UNIT SIZE   Flat:</B>"  STRING(eb.t-len) + " x " + STRING(eb.t-wid * v-dc-only-out)  FORMAT "x(19)"
         "<B>Finished:</B> "  STRING(eb.len) + " x " + STRING(eb.wid) FORMAT "X(19)"
         "<B>UP#:</B>" v-dc-out SPACE(4)
@@ -1291,7 +1296,8 @@ FOR EACH job-hdr NO-LOCK
         "<B> Packaging: " SKIP
         " Tray #: </B>" eb.layer-pad FORMAT "x(15)"
         "<C20><B>Size: </B>"  STRING(eb.lp-len) + "x" + STRING(eb.lp-wid) + "x" + STRING(v-lp-dep)  FORMAT "x(27)"
-        "<C38><B>  Qty Per Tray:</B>" /*v-lp-qty*/ ( IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0)  FORMAT "->>>>>9.9<"
+        /*"<C38><B>  Qty Per Tray:</B>" /*v-lp-qty*/ ( IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0)  FORMAT "->>>>>9.9<"*/
+        "<C38><B>  Qty Per Tray:</B>"  dQtyPerTry  FORMAT "->>>>>9.9<"
         "<C60><B># of trays:</B>"   v-layer-qty FORMAT "->>>>>>9.9<<"  SKIP 
 
         "<B> Case #: </B>"   eb.cas-no
