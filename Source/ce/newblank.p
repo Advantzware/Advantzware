@@ -7,26 +7,38 @@ DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
 DEF VAR prev-style LIKE eb.style NO-UNDO.
 DEF VAR prev-cust LIKE eb.cust-no NO-UNDO.
 DEF VAR prev-ship LIKE eb.ship-id NO-UNDO.
-DEF VAR prev-yrprice LIKE eb.yrprice NO-UNDO.
 DEF VAR ls-part-no AS cha NO-UNDO.
 DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPriceBasedOnYield AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPriceBasedOnYield AS LOGICAL NO-UNDO.
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 FIND ef WHERE ROWID(ef) EQ ip-rowid NO-LOCK NO-ERROR.
 
-FOR EACH eb
-    WHERE eb.company EQ ef.company
-      AND eb.est-no  EQ ef.est-no
-      AND eb.eqty    EQ ef.eqty
-    NO-LOCK
-    BY eb.form-no  DESC
-    BY eb.blank-no DESC:
-  prev-yrprice = eb.yrprice.
-  LEAVE.
-END.
+IF NOT AVAILABLE ef THEN RETURN.
+RUN sys/ref/nk1look.p (ef.company, "CERequestYield", "C", NO, NO, "", "", OUTPUT cPriceBasedOnYield, OUTPUT lFound).
+
+CASE cPriceBasedOnYield:
+    WHEN "RequestAlways" OR WHEN "RequestNewOnly" THEN 
+        lPriceBasedOnYield = NO.
+    WHEN "YieldAlways" OR WHEN "YieldNewOnly" THEN 
+        lPriceBasedOnYield = YES.
+END CASE.
+IF cPriceBasedOnYield EQ "RequestNewOnly" OR cPriceBasedOnYield EQ "YieldNewOnly" THEN 
+    FOR EACH eb
+        WHERE eb.company EQ ef.company
+        AND eb.est-no  EQ ef.est-no
+        AND eb.eqty    EQ ef.eqty
+        NO-LOCK
+        BY eb.form-no  DESC
+        BY eb.blank-no DESC:
+        lPriceBasedOnYield = eb.yrprice.
+      LEAVE.
+    END.
 
 FIND LAST eb NO-LOCK
     WHERE eb.company EQ ef.company
@@ -72,7 +84,7 @@ ASSIGN
  eb.cust-no  = prev-cust
  eb.ship-id  = prev-ship
  eb.style    = prev-style
- eb.yrprice  = prev-yrprice
+ eb.yrprice  = lPriceBasedOnYield
  eb.i-pass   = 0
  eb.cust-%   = INT(ef.est-type EQ 2).
 

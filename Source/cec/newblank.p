@@ -12,10 +12,34 @@ DEF VAR ls-part-no AS cha NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPriceBasedOnYield AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPriceBasedOnYield AS LOGICAL NO-UNDO.
+
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 FIND ef WHERE ROWID(ef) EQ ip-rowid NO-LOCK NO-ERROR.
 
+IF NOT AVAILABLE ef THEN RETURN.
+RUN sys/ref/nk1look.p (ef.company, "CERequestYield", "C", NO, NO, "", "", OUTPUT cPriceBasedOnYield, OUTPUT lFound).
+
+CASE cPriceBasedOnYield:
+    WHEN "RequestAlways" OR WHEN "RequestNewOnly" THEN 
+        lPriceBasedOnYield = NO.
+    WHEN "YieldAlways" OR WHEN "YieldNewOnly" THEN 
+        lPriceBasedOnYield = YES.
+END CASE.
+IF cPriceBasedOnYield EQ "RequestNewOnly" OR cPriceBasedOnYield EQ "YieldNewOnly" THEN 
+    FOR EACH eb
+        WHERE eb.company EQ ef.company
+        AND eb.est-no  EQ ef.est-no
+        AND eb.eqty    EQ ef.eqty
+        NO-LOCK
+        BY eb.form-no  DESC
+        BY eb.blank-no DESC:
+        lPriceBasedOnYield = eb.yrprice.
+      LEAVE.
+    END.
 FIND FIRST bb
     WHERE bb.company  EQ ef.company 
       AND bb.est-no   EQ ef.est-no
@@ -70,7 +94,8 @@ ASSIGN
  eb.flute     = ef.flute
  eb.test      = ef.test
  eb.casNoCharge = YES
- eb.trNoCharge  = YES .
+ eb.trNoCharge  = YES
+ eb.yrprice   = lPriceBasedOnYield .
 
 RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
 IF cPackCodeOverride GT "" THEN 
