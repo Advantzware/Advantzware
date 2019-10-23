@@ -95,53 +95,7 @@ DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
-
-DEFINE TEMP-TABLE ttProcessed 
-    FIELD imported   AS LOGICAL
-    FIELD note       AS CHARACTER 
-    FIELD rec_key LIKE vendItemCost.rec_key 
-    FIELD vendItemCostID LIKE vendItemCost.vendItemCostID 
-    FIELD vendorItemID LIKE vendItemCost.vendorItemID 
-    FIELD company LIKE vendItemCost.company 
-    FIELD itemID LIKE vendItemCost.itemID 
-    FIELD itemType LIKE vendItemCost.itemType 
-    FIELD vendorID LIKE vendItemCost.vendorID 
-    FIELD customerID LIKE vendItemCost.customerID 
-    FIELD estimateNo LIKE vendItemCost.estimateNo 
-    FIELD formNo LIKE vendItemCost.formNo 
-    FIELD blankNo LIKE vendItemCost.blankNo
-    FIELD eQty       AS DECIMAL
-    FIELD vendorUOM LIKE vendItemCost.vendorUOM
-    FIELD effectiveDate LIKE vendItemCost.effectiveDate 
-    FIELD expirationDate LIKE vendItemCost.expirationDate 
-    FIELD createdDate LIKE vendItemCost.createdDate 
-    FIELD createdID LIKE vendItemCost.createdID 
-    FIELD updatedDate LIKE vendItemCost.updatedDate 
-    FIELD updatedID LIKE vendItemCost.updatedID 
-    FIELD dimLengthMaximum LIKE vendItemCost.dimLengthMaximum 
-    FIELD dimLengthMinimum LIKE vendItemCost.dimLengthMinimum 
-    FIELD dimLengthOver LIKE vendItemCost.dimLengthOver 
-    FIELD dimLengthOverCharge LIKE vendItemCost.dimLengthOverCharge
-    FIELD dimLengthUnder LIKE vendItemCost.dimLengthUnder 
-    FIELD dimLengthUnderCharge LIKE vendItemCost.dimLengthUnderCharge 
-    FIELD dimUom LIKE vendItemCost.dimUOM
-    FIELD dimWidthMaximum LIKE vendItemCost.dimWidthMaximum 
-    FIELD dimWidthMinimum LIKE vendItemCost.dimWidthMinimum 
-    FIELD dimWidthOver LIKE vendItemCost.dimWidthOver 
-    FIELD dimWidthOverCharge LIKE vendItemCost.dimWidthOverCharge 
-    FIELD dimWidthUnder LIKE vendItemCost.dimWidthUnder 
-    FIELD dimWidthUnderCharge LIKE vendItemCost.dimWidthUnderCharge 
-    FIELD leadDays LIKE vendItemCost.leadDays 
-    FIELD overPercentAllowed LIKE vendItemCost.overPercentAllowed 
-    FIELD quantityMaximumOrder LIKE vendItemCost.quantityMaximumOrder 
-    FIELD quantityMinimumOrder LIKE vendItemCost.quantityMinimumOrder 
-    FIELD underPercentAllowed LIKE vendItemCost.underPercentAllowed 
-    FIELD useQuantityFromBase LIKE vendItemCost.useQuantityFromBase 
-    FIELD validLengthIncrement LIKE vendItemCost.validLengthIncrement 
-    FIELD validLength LIKE vendItemCost.validLength
-    FIELD validWidth LIKE vendItemCost.validWidth
-    .
-    
+ 
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
     FIELD ttfRawLine AS CHAR 
@@ -264,8 +218,7 @@ DEF VAR v3 LIKE lookups.frame_field NO-UNDO.
 DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
-DEF VAR gdDefaultEffective AS DATE NO-UNDO INITIAL 01/01/1900.
-DEF VAR gdDefaultExpiration AS DATE NO-UNDO INITIAL 12/31/2099.
+DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2163,30 +2116,41 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertVendorCosts C-Win
 PROCEDURE ipConvertVendorCosts:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
     RUN ipStatus ("    Converting vendor cost records").
 
-    DEFINE VARIABLE iVendCostItemID AS INT64 NO-UNDO.
+    DEF VAR iVendCostItemID AS INT64 NO-UNDO.
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+    DEF VAR lError AS LOG NO-UNDO.
+    DEF VAR cMessage AS CHAR NO-UNDO.
 
-    FOR EACH e-item-vend NO-LOCK, 
-        FIRST e-item NO-LOCK 
-        WHERE e-item.company EQ e-item-vend.company
-        AND e-item.i-no EQ e-item-vend.i-no:
-        RUN pCreateVendItemCostFromEItemVend(BUFFER e-item-vend, BUFFER e-item, OUTPUT iVendCostItemID).
-    END. /*each e-item-vend*/
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
     
-    FOR EACH e-itemfg NO-LOCK, 
-        EACH e-itemfg-vend NO-LOCK 
-        WHERE e-itemfg-vend.company EQ e-itemfg.company
-        AND e-itemfg-vend.i-no EQ e-itemfg.i-no:
-        RUN pCreateVendItemCostFromEItemFgVend(BUFFER e-itemfg-vend, BUFFER e-itemfg, OUTPUT iVendCostItemID).
-    END. /*each e-item-vend*/
-
-    RUN pTempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, "C:\tmp\DuplicateVendCosts.csv", TRUE /* Export Header */).
-
+    RUN util/dev/VendorCostConvProcs PERSISTENT SET hVendCostProcs.
+    FOR EACH company NO-LOCK:
+        RUN ConvertLegacyToNew IN hVendCostProcs (company.company,
+                            TRUE, /* Convert Farm */
+                            TRUE, /* Convert RM */
+                            TRUE, /* Convert FG */
+                            FALSE, /* Include Inactive FG */
+                            FALSE, /* Include Inactive Vend */
+                            FALSE, /* Include Inactive Cust */
+                            "c:\tmp\VendCostConv.txt", 
+                            OUTPUT lError, 
+                            OUTPUT cMessage).
+    END.
+    
+    ASSIGN 
+        PROPATH = cOrigPropath.
+    DELETE OBJECT hVendCostProcs.        
+    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2913,7 +2877,6 @@ PROCEDURE ipDataFix161400:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161400...").
     
-    RUN ipConvertVendorCosts.
     RUN ipCreateDataLoader.
 
 END PROCEDURE.
@@ -5052,6 +5015,10 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 20
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
+    IF fIntVer(fiFromVer:SCREEN-VALUE) LT 161400 THEN DO:
+        RUN ipConvertVendorCosts.
+    END.
+            
     IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipRefTableConv.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -6183,306 +6150,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateVendItemCostFromEItemfgVend C-Win 
-PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: given an e-item-vend buffer, create vendItemCost record
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttProcessed FOR ttProcessed.
-    DEFINE PARAMETER BUFFER ipbf-e-itemfg-vend FOR e-itemfg-vend.
-    DEFINE PARAMETER BUFFER ipbf-e-itemfg      FOR e-itemfg.
-    DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
-    
-    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
-    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
-    
-    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iFormNo AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iBlankNo AS INTEGER NO-UNDO.
-    
-    ASSIGN 
-        iFormNo = MAX(ipbf-e-itemfg-vend.form-no,1)
-        iBlankNo = MAX(ipbf-e-itemfg-vend.blank-no,1)
-        .
-    IF CAN-FIND(FIRST bf-vendItemCost
-        WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
-        AND bf-vendItemCost.itemID EQ ipbf-e-itemfg-vend.i-no
-        AND bf-vendItemCost.itemType EQ "FG"
-        AND bf-vendItemCost.vendorID EQ ipbf-e-itemfg-vend.vend-no
-        AND bf-vendItemCost.customerID EQ ipbf-e-itemfg-vend.cust-no
-        AND bf-vendItemCost.estimateNo EQ ipbf-e-itemfg-vend.est-no
-        AND bf-vendItemCost.formNo EQ iFormNo
-        AND bf-vendItemCost.blankNo EQ iBlankNo)
-        THEN 
-    DO:
-        RUN pAddErrorProcessedFG(BUFFER ipbf-ttProcessed, BUFFER ipbf-e-itemfg-vend, BUFFER ipbf-e-itemfg, "Duplicate already converted").
-    END.
-    ELSE 
-    DO:
-        CREATE bf-vendItemCost.
-        ASSIGN  
-            opiVendItemCostID                = bf-vendItemCost.vendItemCostID
-            bf-vendItemCost.company          = ipbf-e-itemfg-vend.company
-            bf-vendItemCost.itemID           = ipbf-e-itemfg-vend.i-no
-            bf-vendItemCost.itemType         = "FG"
-            bf-vendItemCost.vendorID         = ipbf-e-itemfg-vend.vend-no
-            bf-vendItemCost.customerID       = ipbf-e-itemfg-vend.cust-no
-            bf-vendItemCost.estimateNo       = ipbf-e-itemfg-vend.est-no
-            bf-vendItemCost.formNo           = iFormNo
-            bf-vendItemCost.blankNo          = iBlankNo
-            bf-vendItemCost.dimWidthMinimum  = ipbf-e-itemfg-vend.roll-w[27]
-            bf-vendItemCost.dimWidthMaximum  = ipbf-e-itemfg-vend.roll-w[28]
-            bf-vendItemCost.dimLengthMinimum = ipbf-e-itemfg-vend.roll-w[29]
-            bf-vendItemCost.dimLengthMaximum = ipbf-e-itemfg-vend.roll-w[30]
-            bf-vendItemCost.dimUOM           = "IN"
-            bf-vendItemCost.vendorItemID     = ipbf-e-itemfg-vend.vend-item
-            bf-vendItemCost.useQuantityFrom  = glUseQtyFrom
-            bf-vendItemCost.effectiveDate    = gdDefaultEffective
-            bf-vendItemCost.expirationDate   = gdDefaultExpiration
-            .
-        IF ipbf-e-itemfg.std-uom NE "" THEN                         
-            cUOM = CAPS(ipbf-e-itemfg.std-uom).
-        ELSE IF ipbf-e-itemfg-vend.std-uom NE "" THEN 
-                cUOM = CAPS(ipbf-e-itemfg-vend.std-uom).
-            ELSE
-                ASSIGN 
-                    cUOM = "EA"
-                    cAppendNote = " but blank UOM entered as default of EA"
-                    .
-        bf-vendItemCost.vendorUOM = cUOM.
-        
-        DO iIndex = 1 TO 26:
-            bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-itemfg-vend.roll-w[iIndex] NE 0 
-                THEN ipbf-e-itemfg-vend.roll-w[iIndex] 
-                ELSE ipbf-e-itemfg.roll-w[iIndex].
-        END.
-        DO iIndex = 1 TO 10:
-            IF ipbf-e-itemfg-vend.run-qty[iIndex] NE 0 THEN 
-            DO:
-                CREATE bf-vendItemCostLevel.
-                ASSIGN 
-                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
-                    bf-vendItemCostLevel.quantityBase   = ipbf-e-itemfg-vend.run-qty[iIndex]
-                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-itemfg-vend.run-cost[iIndex]
-                    bf-vendItemCostLevel.costSetup      = ipbf-e-itemfg-vend.setups[iIndex]
-                    .
-            END. /*run-qty ne 0*/
-        END.  /*Do loop 1*/      
-        RUN pRecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
-        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote).    
-    END. /*Not duplicate*/
-    RELEASE bf-vendItemCost.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateVendItemCostFromEItemVend C-Win 
-PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: given an e-item-vend buffer, create vendItemCost record
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttProcessed FOR ttProcessed.
-    DEFINE PARAMETER BUFFER ipbf-e-item-vend FOR e-item-vend.
-    DEFINE PARAMETER BUFFER ipbf-e-item      FOR e-item.
-    DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
-    
-    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
-    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
-    
-    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
-        
-    IF CAN-FIND(FIRST bf-vendItemCost
-        WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
-        AND bf-vendItemCost.itemID EQ ipbf-e-item-vend.i-no
-        AND bf-vendItemCost.itemType EQ "RM"
-        AND bf-vendItemCost.vendorID EQ ipbf-e-item-vend.vend-no)
-        THEN 
-    DO:
-        RUN pAddErrorProcessedRM(BUFFER ipbf-ttProcessed, BUFFER ipbf-e-item-vend, BUFFER ipbf-e-item,"Duplicate already converted").
-    END.
-    ELSE 
-    DO:
-        CREATE bf-vendItemCost.
-        ASSIGN  
-            opiVendItemCostID                    = bf-vendItemCost.vendItemCostID
-            bf-vendItemCost.company              = ipbf-e-item-vend.company
-            bf-vendItemCost.itemID               = ipbf-e-item-vend.i-no
-            bf-vendItemCost.itemType             = "RM"
-            bf-vendItemCost.vendorID             = ipbf-e-item-vend.vend-no
-            bf-vendItemCost.dimWidthMinimum      = ipbf-e-item-vend.roll-w[27]
-            bf-vendItemCost.dimWidthMaximum      = ipbf-e-item-vend.roll-w[28]
-            bf-vendItemCost.dimLengthMinimum     = ipbf-e-item-vend.roll-w[29]
-            bf-vendItemCost.dimLengthMaximum     = ipbf-e-item-vend.roll-w[30]
-            bf-vendItemCost.dimWidthUnder        = ipbf-e-item-vend.underWidth
-            bf-vendItemCost.dimWidthUnderCharge  = ipbf-e-item-vend.underWidthCost
-            bf-vendItemCost.dimLengthUnder       = ipbf-e-item-vend.underLength
-            bf-vendItemCost.dimLengthUnderCharge = ipbf-e-item-vend.underLengthCost
-            bf-vendItemCost.dimUOM               = "IN"
-            bf-vendItemCost.vendorItemID         = ipbf-e-item-vend.vend-item
-            bf-vendItemCost.effectiveDate        = gdDefaultEffective
-            bf-vendItemCost.expirationDate       = gdDefaultExpiration
-            .
-        IF ipbf-e-item.std-uom NE "" THEN                         
-            cUOM = CAPS(ipbf-e-item.std-uom).
-        ELSE IF ipbf-e-item-vend.std-uom NE "" THEN 
-                cUOM = CAPS(ipbf-e-item-vend.std-uom).
-            ELSE
-                ASSIGN 
-                    cUOM = "EA"
-                    cAppendNote = " but blank UOM entered as default of EA"
-                    .
-        bf-vendItemCost.vendorUOM = cUOM.
-        
-        DO iIndex = 1 TO 26:
-            bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
-                THEN ipbf-e-item-vend.roll-w[iIndex] 
-                ELSE ipbf-e-item.roll-w[iIndex].
-        END.
-        DO iIndex = 1 TO 10:
-            IF ipbf-e-item-vend.run-qty[iIndex] NE 0 THEN 
-            DO:
-                CREATE bf-vendItemCostLevel.
-                ASSIGN 
-                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
-                    bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
-                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.run-cost[iIndex]
-                    bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setups[iIndex]
-                    .
-            END. /*run-qty ne 0*/
-        END.  /*Do loop 1*/              
-        DO iIndex = 1 TO 10:
-            IF ipbf-e-item-vend.runQtyXtra[iIndex] NE 0 THEN 
-            DO:
-                CREATE bf-vendItemCostLevel.
-                ASSIGN 
-                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
-                    bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
-                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.runCostXtra[iIndex]
-                    bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setupsXtra[iIndex]
-                    .
-            END. /*runQtyExtra ne 0*/
-        END.  /*Do loop 2*/
-        RUN pRecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
-        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote). 
-    END. /*Not duplicate*/
-    RELEASE bf-vendItemCost.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-PROCEDURE pRecalculateFromAndTo:
-    /*------------------------------------------------------------------------------
-     Purpose: Public wrapper for processing the From/To ranges for a given
-     vendItemCost record
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
-
-    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
-
-    FIND FIRST bf-vendItemCost NO-LOCK
-        WHERE bf-vendItemCost.vendItemCostID EQ ipiVendItemCostID
-        NO-ERROR.
-    IF AVAILABLE bf-vendItemCost THEN 
-    DO: 
-        RUN pRecalculateFromAndToForLevels(bf-vendItemCost.vendItemCostID).
-        opcMessage = "Successfully recalculated all from and to quantities for vendor item cost".
-    END.
-    ELSE 
-        ASSIGN 
-            oplError   = YES
-            opcMessage = "Invalid VendItemCostID: " + STRING(ipiVendItemCostID)
-            . 
-
-END PROCEDURE.
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTempTableToCSV C-Win 
-PROCEDURE pTempTableToCSV:
-    /*------------------------------------------------------------------------------ 
-     Purpose: Exports the contents of any temp-table into CSV    
-     Notes: 
-    ------------------------------------------------------------------------------*/ 
-    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
-    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
-  
-    DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
-    DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
-    DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
-    DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
-        
-    ASSIGN
-        cTTName = iphTT:NAME
-        hBuffer = iphTT:DEFAULT-BUFFER-HANDLE
-        .
-
-    IF iplHeader THEN 
-    DO:
-        OUTPUT STREAM sOutput to VALUE(ipcFileName). 
-        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
-            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN 
-            DO:
-                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
-                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
-                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
-                END.
-            END.
-            ELSE
-                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
-                    (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
-        END. 
-        PUT STREAM sOutput UNFORMATTED SKIP. 
-    END.
-    ELSE 
-        OUTPUT STREAM sOutput to VALUE(ipcFileName) APPEND. 
-        
-    CREATE QUERY hQuery. 
-    hQuery:SET-BUFFERS (hBuffer). 
-    hQuery:QUERY-PREPARE("FOR EACH " + cTTName). 
-    hQuery:QUERY-OPEN().
-    REPEAT:   
-        hQuery:GET-NEXT().   
-        IF hQuery:QUERY-OFF-END THEN LEAVE.   
-        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
-            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN 
-            DO:
-                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
-                    PUT STREAM sOutput UNFORMATTED  
-                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex)) 
-                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
-                END.
-            END.
-            ELSE
-                PUT STREAM sOutput UNFORMATTED  
-                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE) 
-                    (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"'). 
-        END. 
-        PUT STREAM sOutput UNFORMATTED SKIP. 
-    END. 
-    OUTPUT STREAM sOutput CLOSE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 
