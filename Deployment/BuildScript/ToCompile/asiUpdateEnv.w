@@ -96,6 +96,52 @@ DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
 
+DEFINE TEMP-TABLE ttProcessed 
+    FIELD imported   AS LOGICAL
+    FIELD note       AS CHARACTER 
+    FIELD rec_key LIKE vendItemCost.rec_key 
+    FIELD vendItemCostID LIKE vendItemCost.vendItemCostID 
+    FIELD vendorItemID LIKE vendItemCost.vendorItemID 
+    FIELD company LIKE vendItemCost.company 
+    FIELD itemID LIKE vendItemCost.itemID 
+    FIELD itemType LIKE vendItemCost.itemType 
+    FIELD vendorID LIKE vendItemCost.vendorID 
+    FIELD customerID LIKE vendItemCost.customerID 
+    FIELD estimateNo LIKE vendItemCost.estimateNo 
+    FIELD formNo LIKE vendItemCost.formNo 
+    FIELD blankNo LIKE vendItemCost.blankNo
+    FIELD eQty       AS DECIMAL
+    FIELD vendorUOM LIKE vendItemCost.vendorUOM
+    FIELD effectiveDate LIKE vendItemCost.effectiveDate 
+    FIELD expirationDate LIKE vendItemCost.expirationDate 
+    FIELD createdDate LIKE vendItemCost.createdDate 
+    FIELD createdID LIKE vendItemCost.createdID 
+    FIELD updatedDate LIKE vendItemCost.updatedDate 
+    FIELD updatedID LIKE vendItemCost.updatedID 
+    FIELD dimLengthMaximum LIKE vendItemCost.dimLengthMaximum 
+    FIELD dimLengthMinimum LIKE vendItemCost.dimLengthMinimum 
+    FIELD dimLengthOver LIKE vendItemCost.dimLengthOver 
+    FIELD dimLengthOverCharge LIKE vendItemCost.dimLengthOverCharge
+    FIELD dimLengthUnder LIKE vendItemCost.dimLengthUnder 
+    FIELD dimLengthUnderCharge LIKE vendItemCost.dimLengthUnderCharge 
+    FIELD dimUom LIKE vendItemCost.dimUOM
+    FIELD dimWidthMaximum LIKE vendItemCost.dimWidthMaximum 
+    FIELD dimWidthMinimum LIKE vendItemCost.dimWidthMinimum 
+    FIELD dimWidthOver LIKE vendItemCost.dimWidthOver 
+    FIELD dimWidthOverCharge LIKE vendItemCost.dimWidthOverCharge 
+    FIELD dimWidthUnder LIKE vendItemCost.dimWidthUnder 
+    FIELD dimWidthUnderCharge LIKE vendItemCost.dimWidthUnderCharge 
+    FIELD leadDays LIKE vendItemCost.leadDays 
+    FIELD overPercentAllowed LIKE vendItemCost.overPercentAllowed 
+    FIELD quantityMaximumOrder LIKE vendItemCost.quantityMaximumOrder 
+    FIELD quantityMinimumOrder LIKE vendItemCost.quantityMinimumOrder 
+    FIELD underPercentAllowed LIKE vendItemCost.underPercentAllowed 
+    FIELD useQuantityFromBase LIKE vendItemCost.useQuantityFromBase 
+    FIELD validLengthIncrement LIKE vendItemCost.validLengthIncrement 
+    FIELD validLength LIKE vendItemCost.validLength
+    FIELD validWidth LIKE vendItemCost.validWidth
+    .
+    
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
     FIELD ttfRawLine AS CHAR 
@@ -218,6 +264,8 @@ DEF VAR v3 LIKE lookups.frame_field NO-UNDO.
 DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
+DEF VAR gdDefaultEffective AS DATE NO-UNDO INITIAL 01/01/1900.
+DEF VAR gdDefaultExpiration AS DATE NO-UNDO INITIAL 12/31/2099.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2137,7 +2185,7 @@ PROCEDURE ipConvertVendorCosts:
         RUN pCreateVendItemCostFromEItemFgVend(BUFFER e-itemfg-vend, BUFFER e-itemfg, OUTPUT iVendCostItemID).
     END. /*each e-item-vend*/
 
-    RUN TempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, "C:\tmp\DuplicateVendCosts.csv", TRUE /* Export Header */).
+    RUN pTempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, "C:\tmp\DuplicateVendCosts.csv", TRUE /* Export Header */).
 
 END PROCEDURE.
 	
@@ -6141,6 +6189,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
      Purpose: given an e-item-vend buffer, create vendItemCost record
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttProcessed FOR ttProcessed.
     DEFINE PARAMETER BUFFER ipbf-e-itemfg-vend FOR e-itemfg-vend.
     DEFINE PARAMETER BUFFER ipbf-e-itemfg      FOR e-itemfg.
     DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
@@ -6149,20 +6198,17 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
     DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
     
     DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFormNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iBlankNo AS INTEGER NO-UNDO.
     
-    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCost.
-    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCostLevel.
-    DISABLE TRIGGERS FOR LOAD OF rec_key.
-    
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.company EQ company.company AND 
-        sys-ctrl.name EQ "VendCostMatrix"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN 
-        glUseQtyFrom = sys-ctrl.log-fld.
-    ELSE ASSIGN 
-        glUseQtyFrom = FALSE.
-        
+    ASSIGN 
+        iFormNo = MAX(ipbf-e-itemfg-vend.form-no,1)
+        iBlankNo = MAX(ipbf-e-itemfg-vend.blank-no,1)
+        .
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
         AND bf-vendItemCost.itemID EQ ipbf-e-itemfg-vend.i-no
@@ -6170,29 +6216,16 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
         AND bf-vendItemCost.vendorID EQ ipbf-e-itemfg-vend.vend-no
         AND bf-vendItemCost.customerID EQ ipbf-e-itemfg-vend.cust-no
         AND bf-vendItemCost.estimateNo EQ ipbf-e-itemfg-vend.est-no
-        AND bf-vendItemCost.formNo EQ ipbf-e-itemfg-vend.form-no
-        AND bf-vendItemCost.blankNo EQ ipbf-e-itemfg-vend.blank-no)
+        AND bf-vendItemCost.formNo EQ iFormNo
+        AND bf-vendItemCost.blankNo EQ iBlankNo)
         THEN 
     DO:
-        giCountDuplicate = giCountDuplicate + 1.
-        CREATE ttDuplicates.
-        ASSIGN 
-            ttDuplicates.cCompany    = ipbf-e-itemfg-vend.company
-            ttDuplicates.cItem       = ipbf-e-itemfg-vend.i-no
-            ttDuplicates.cItemType   = "FG"
-            ttDuplicates.cVendor     = ipbf-e-itemfg-vend.vend-no
-            ttDuplicates.cEstimateNo = ipbf-e-itemfg-vend.est-no
-            ttDuplicates.iForm       = ipbf-e-itemfg-vend.form-no
-            ttDuplicates.iBlank      = ipbf-e-itemfg-vend.blank-no
-            ttDuplicates.cCustomer   = ipbf-e-itemfg-vend.cust-no
-            ttDuplicates.dEQty       = ipbf-e-itemfg-vend.eqty
-            .
+        RUN pAddErrorProcessedFG(BUFFER ipbf-ttProcessed, BUFFER ipbf-e-itemfg-vend, BUFFER ipbf-e-itemfg, "Duplicate already converted").
     END.
     ELSE 
     DO:
         CREATE bf-vendItemCost.
         ASSIGN  
-            giCountCreated                   = giCountCreated + 1
             opiVendItemCostID                = bf-vendItemCost.vendItemCostID
             bf-vendItemCost.company          = ipbf-e-itemfg-vend.company
             bf-vendItemCost.itemID           = ipbf-e-itemfg-vend.i-no
@@ -6200,26 +6233,28 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
             bf-vendItemCost.vendorID         = ipbf-e-itemfg-vend.vend-no
             bf-vendItemCost.customerID       = ipbf-e-itemfg-vend.cust-no
             bf-vendItemCost.estimateNo       = ipbf-e-itemfg-vend.est-no
-            bf-vendItemCost.formNo           = ipbf-e-itemfg-vend.form-no
-            bf-vendItemCost.blankNo          = ipbf-e-itemfg-vend.blank-no
+            bf-vendItemCost.formNo           = iFormNo
+            bf-vendItemCost.blankNo          = iBlankNo
             bf-vendItemCost.dimWidthMinimum  = ipbf-e-itemfg-vend.roll-w[27]
             bf-vendItemCost.dimWidthMaximum  = ipbf-e-itemfg-vend.roll-w[28]
             bf-vendItemCost.dimLengthMinimum = ipbf-e-itemfg-vend.roll-w[29]
             bf-vendItemCost.dimLengthMaximum = ipbf-e-itemfg-vend.roll-w[30]
             bf-vendItemCost.dimUOM           = "IN"
             bf-vendItemCost.vendorItemID     = ipbf-e-itemfg-vend.vend-item
-            bf-vendItemCost.vendorUOM        = CAPS(ipbf-e-itemfg.std-uom) 
             bf-vendItemCost.useQuantityFrom  = glUseQtyFrom
-            /* Assignments from triggers */
-            bf-vendItemCost.vendItemCostID = NEXT-VALUE(vendItemCostID_seq,ASI)
-            bf-vendItemCost.createdID = USERID('ASI')
-            bf-vendItemCost.createdDate = DATE(TODAY)
-            bf-vendItemCost.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
-                                                                 + STRING(DAY(TODAY),"99")
-                                                                 + STRING(TIME,"99999")
-                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
-            /* End trigger assignments */
+            bf-vendItemCost.effectiveDate    = gdDefaultEffective
+            bf-vendItemCost.expirationDate   = gdDefaultExpiration
             .
+        IF ipbf-e-itemfg.std-uom NE "" THEN                         
+            cUOM = CAPS(ipbf-e-itemfg.std-uom).
+        ELSE IF ipbf-e-itemfg-vend.std-uom NE "" THEN 
+                cUOM = CAPS(ipbf-e-itemfg-vend.std-uom).
+            ELSE
+                ASSIGN 
+                    cUOM = "EA"
+                    cAppendNote = " but blank UOM entered as default of EA"
+                    .
+        bf-vendItemCost.vendorUOM = cUOM.
         
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-itemfg-vend.roll-w[iIndex] NE 0 
@@ -6235,18 +6270,11 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
                     bf-vendItemCostLevel.quantityBase   = ipbf-e-itemfg-vend.run-qty[iIndex]
                     bf-vendItemCostLevel.costPerUOM     = ipbf-e-itemfg-vend.run-cost[iIndex]
                     bf-vendItemCostLevel.costSetup      = ipbf-e-itemfg-vend.setups[iIndex]
-                    /* Assignments from triggers */
-                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
-                    bf-vendItemCostLevel.createdID = USERID('ASI')
-                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
-                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
-                                                                 + STRING(DAY(TODAY),"99")
-                                                                 + STRING(TIME,"99999")
-                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
-                    /* End trigger assignments */
                     .
             END. /*run-qty ne 0*/
-        END.  /*Do loop 1*/              
+        END.  /*Do loop 1*/      
+        RUN pRecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
+        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote).    
     END. /*Not duplicate*/
     RELEASE bf-vendItemCost.
 
@@ -6262,6 +6290,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
      Purpose: given an e-item-vend buffer, create vendItemCost record
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttProcessed FOR ttProcessed.
     DEFINE PARAMETER BUFFER ipbf-e-item-vend FOR e-item-vend.
     DEFINE PARAMETER BUFFER ipbf-e-item      FOR e-item.
     DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
@@ -6269,11 +6298,11 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
     DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
     DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
     
-    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCost.
-    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCostLevel.
-    DISABLE TRIGGERS FOR LOAD OF rec_key.
-
     DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
         
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
@@ -6282,20 +6311,12 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
         AND bf-vendItemCost.vendorID EQ ipbf-e-item-vend.vend-no)
         THEN 
     DO:
-        giCountDuplicate = giCountDuplicate + 1.
-        CREATE ttDuplicates.
-        ASSIGN 
-            ttDuplicates.cCompany  = ipbf-e-item-vend.company
-            ttDuplicates.cItem     = ipbf-e-item-vend.i-no
-            ttDuplicates.cItemType = "RM"
-            ttDuplicates.cVendor   = ipbf-e-item-vend.vend-no
-            .
+        RUN pAddErrorProcessedRM(BUFFER ipbf-ttProcessed, BUFFER ipbf-e-item-vend, BUFFER ipbf-e-item,"Duplicate already converted").
     END.
     ELSE 
     DO:
         CREATE bf-vendItemCost.
         ASSIGN  
-            giCountCreated                       = giCountCreated + 1
             opiVendItemCostID                    = bf-vendItemCost.vendItemCostID
             bf-vendItemCost.company              = ipbf-e-item-vend.company
             bf-vendItemCost.itemID               = ipbf-e-item-vend.i-no
@@ -6311,17 +6332,20 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
             bf-vendItemCost.dimLengthUnderCharge = ipbf-e-item-vend.underLengthCost
             bf-vendItemCost.dimUOM               = "IN"
             bf-vendItemCost.vendorItemID         = ipbf-e-item-vend.vend-item
-            bf-vendItemCost.vendorUOM            = CAPS(ipbf-e-item.std-uom) 
-            /* Assignments from triggers */
-            bf-vendItemCost.vendItemCostID = NEXT-VALUE(vendItemCostID_seq,ASI)
-            bf-vendItemCost.createdID = USERID('ASI')
-            bf-vendItemCost.createdDate = DATE(TODAY)
-            bf-vendItemCost.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
-                                                                 + STRING(DAY(TODAY),"99")
-                                                                 + STRING(TIME,"99999")
-                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
-            /* End trigger assignments */
+            bf-vendItemCost.effectiveDate        = gdDefaultEffective
+            bf-vendItemCost.expirationDate       = gdDefaultExpiration
             .
+        IF ipbf-e-item.std-uom NE "" THEN                         
+            cUOM = CAPS(ipbf-e-item.std-uom).
+        ELSE IF ipbf-e-item-vend.std-uom NE "" THEN 
+                cUOM = CAPS(ipbf-e-item-vend.std-uom).
+            ELSE
+                ASSIGN 
+                    cUOM = "EA"
+                    cAppendNote = " but blank UOM entered as default of EA"
+                    .
+        bf-vendItemCost.vendorUOM = cUOM.
+        
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
                 THEN ipbf-e-item-vend.roll-w[iIndex] 
@@ -6336,15 +6360,6 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
                     bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
                     bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.run-cost[iIndex]
                     bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setups[iIndex]
-                    /* Assignments from triggers */
-                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
-                    bf-vendItemCostLevel.createdID = USERID('ASI')
-                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
-                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
-                                                                 + STRING(DAY(TODAY),"99")
-                                                                 + STRING(TIME,"99999")
-                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
-                    /* End trigger assignments */
                     .
             END. /*run-qty ne 0*/
         END.  /*Do loop 1*/              
@@ -6357,28 +6372,50 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
                     bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
                     bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.runCostXtra[iIndex]
                     bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setupsXtra[iIndex]
-                    /* Assignments from triggers */
-                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
-                    bf-vendItemCostLevel.createdID = USERID('ASI')
-                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
-                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
-                                                                 + STRING(DAY(TODAY),"99")
-                                                                 + STRING(TIME,"99999")
-                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
-                    /* End trigger assignments */
                     .
             END. /*runQtyExtra ne 0*/
-        END.  /*Do loop 2*/              
+        END.  /*Do loop 2*/
+        RUN pRecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
+        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote). 
     END. /*Not duplicate*/
     RELEASE bf-vendItemCost.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE TempTableToCSV C-Win 
-PROCEDURE TempTableToCSV:
+
+PROCEDURE pRecalculateFromAndTo:
+    /*------------------------------------------------------------------------------
+     Purpose: Public wrapper for processing the From/To ranges for a given
+     vendItemCost record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+
+    FIND FIRST bf-vendItemCost NO-LOCK
+        WHERE bf-vendItemCost.vendItemCostID EQ ipiVendItemCostID
+        NO-ERROR.
+    IF AVAILABLE bf-vendItemCost THEN 
+    DO: 
+        RUN pRecalculateFromAndToForLevels(bf-vendItemCost.vendItemCostID).
+        opcMessage = "Successfully recalculated all from and to quantities for vendor item cost".
+    END.
+    ELSE 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid VendItemCostID: " + STRING(ipiVendItemCostID)
+            . 
+
+END PROCEDURE.
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTempTableToCSV C-Win 
+PROCEDURE pTempTableToCSV:
     /*------------------------------------------------------------------------------ 
      Purpose: Exports the contents of any temp-table into CSV    
      Notes: 
