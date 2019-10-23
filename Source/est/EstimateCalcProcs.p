@@ -2752,7 +2752,8 @@ END. /*Each est-op*/
 ASSIGN 
     ipbf-estCostForm.grossQtyRequiredSetupWaste = dQtyInOutSetupWaste
     ipbf-estCostForm.grossQtyRequiredRunWaste   = dQtyInOutRunWaste
-    ipbf-estCostForm.grossQtyRequiredTotal      = ipbf-estCostForm.grossQtyRequiredNoWaste + ipbf-estCostForm.grossQtyRequiredRunWaste + ipbf-estCostForm.grossQtyRequiredSetupWaste
+    ipbf-estCostForm.grossQtyRequiredNoWaste    = dQtyInOut - (dQtyInOutSetupWaste + dQtyInOutRunWaste)
+    ipbf-estCostForm.grossQtyRequiredTotal      = dQtyInOut
     .
             
 END PROCEDURE.
@@ -3568,9 +3569,15 @@ PROCEDURE pProcessPacking PRIVATE:
         
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ttPack.cItemID, bf-estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
         
-        
-        ASSIGN 
-            bf-estCostMaterial.quantityRequiredNoWaste = IF ttPack.cQtyMultiplierPer EQ "P" THEN iPallets * ttPack.dQtyMultiplier ELSE iCases * ttPack.dQtyMultiplier
+        CASE ttPack.cQtyMultiplier:
+            WHEN "P" THEN 
+                bf-estCostMaterial.quantityRequiredNoWaste = bf-estCostBlank.quantityOfUnits * ttPack.dQtyMultiplier.
+            WHEN "C" THEN 
+                bf-estCostMaterial.quantityRequiredNoWaste = bf-estCostBlank.quantityOfSubUnits * ttPack.dQtyMultiplier.
+            OTHERWISE 
+                bf-estCostMaterial.quantityRequiredNoWaste = ttPack.dQtyMultiplier.
+        END CASE.
+        ASSIGN                                                 
             bf-estCostMaterial.addToWeightTare         = NO
             bf-estCostMaterial.quantityUOM             = ttPack.cQtyUOM
             bf-estCostMaterial.costOverridePerUOM      = ttPack.dCostPerUOMOverride
