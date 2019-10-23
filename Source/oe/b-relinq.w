@@ -157,10 +157,10 @@ END.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
-oe-rell.ord-no oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartNo oe-relh.ship-id ~
-oe-rell.i-no oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 ~
-oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty get-act-bol-qty() @ iBolQty ~
-itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
+oe-rell.ord-no oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
+oe-relh.ship-id oe-rell.i-no oe-relh.rel-date oe-rell.job-no ~
+oe-rell.job-no2 oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty ~
+get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -197,9 +197,9 @@ use-index r-no NO-LOCK, ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
-fi_i-no fi_po-no fi_job-no fi_job-no2 btn_go btn_prev Browser-Table RECT-1 
+fi_i-no fi_po-no fi_job-no fi_job-no2 btn_go Browser-Table btn_prev RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
-fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by FI_moveCol
+fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -207,20 +207,15 @@ fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by FI_moveCol
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-zone B-table-Win 
-FUNCTION get-shipto-zone RETURNS CHARACTER
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-bol-qty B-table-Win 
+FUNCTION get-act-bol-qty RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-part-no B-table-Win 
-FUNCTION get-part-no RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-rel-qty B-table-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER
@@ -229,8 +224,15 @@ FUNCTION get-act-rel-qty RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-bol-qty B-table-Win 
-FUNCTION get-act-bol-qty RETURNS INTEGER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-part-no B-table-Win 
+FUNCTION get-part-no RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-zone B-table-Win 
+FUNCTION get-shipto-zone RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,6 +279,11 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -295,11 +302,6 @@ DEFINE VARIABLE fi_rel-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 29 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
-
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 8 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -332,7 +334,8 @@ DEFINE BROWSE Browser-Table
       oe-rell.ord-no FORMAT ">>>>>9":U WIDTH 9 LABEL-BGCOLOR 14
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      get-part-no() @ cPartno COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
+      get-part-no() @ cPartno COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U
+            WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-rell.i-no COLUMN-LABEL "FG Item Number" FORMAT "x(15)":U
@@ -343,14 +346,15 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
-      oe-rell.qty COLUMN-LABEL "Scheduled Qty" FORMAT "->>,>>>,>>9":U
+      oe-rell.qty COLUMN-LABEL "Release Qty" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
       get-act-rel-qty() @ iActualQty COLUMN-LABEL "Act. Rel.Qty" FORMAT "->>,>>>,>>>":U
+            WIDTH 12.4
       get-act-bol-qty() @ iBolQty COLUMN-LABEL "Actual Shipped qty" FORMAT "->>,>>>,>>>":U
-      itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>9":U
-            LABEL-BGCOLOR 14
-      get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(5)":U
-            LABEL-BGCOLOR 14
+            WIDTH 12.4
+      itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>>":U
+      get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(8)":U
+            WIDTH 10
   ENABLE
       oe-relh.release#
       oe-rell.ord-no
@@ -364,8 +368,8 @@ DEFINE BROWSE Browser-Table
       oe-relh.printed
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 141 BY 16.60
-    FONT 2. 
+    WITH NO-ASSIGN SEPARATORS SIZE 141 BY 16.62
+         FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -382,9 +386,9 @@ DEFINE FRAME F-Main
      btn_go AT ROW 3.62 COL 2
      fi_sort-by AT ROW 3.62 COL 70 COLON-ALIGNED NO-LABEL
      FI_moveCol AT ROW 3.62 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     btn_prev AT ROW 3.62 COL 17
      Browser-Table AT ROW 5.05 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     btn_prev AT ROW 3.62 COL 17
      btn_next AT ROW 3.62 COL 38
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 99
@@ -467,25 +471,22 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
-/* BROWSE-TAB Browser-Table btn_prev F-Main */
 /* BROWSE-TAB Browser-Table FI_moveCol F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-ASSIGN 
-       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1.
-
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_ord-no IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -532,9 +533,9 @@ use-index r-no"
 "get-act-rel-qty() @ iActualQty" "Act. Rel.Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "get-act-bol-qty() @ iBolQty" "Actual Shipped qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[15]   > ASI.itemfg.q-onh
+     _FldNameList[15]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > "_<CALC>"     
+     _FldNameList[16]   > "_<CALC>"
 "get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
@@ -547,7 +548,7 @@ use-index r-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -643,20 +644,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
-DO:
-  IF LASTKEY EQ -1 THEN DO:
-    APPLY 'ENTRY' TO fi_rel-no IN FRAME {&FRAME-NAME}.                  /*Task# 02121406*/
-    RETURN NO-APPLY.
-  END.
-
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
@@ -838,19 +825,6 @@ END.
 
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
-ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
-DO:
-  IF LASTKEY NE 32 THEN
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
@@ -861,6 +835,18 @@ DO:
             FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
           END.
           /* return no-apply. */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
+ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
+DO:
+  IF LASTKEY NE 32 THEN
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -922,6 +908,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 &SCOPED-DEFINE cellColumnDat b-relinq
@@ -989,6 +976,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = oe-relh.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-Navigation B-table-Win 
 PROCEDURE Disable-Navigation :
 /*------------------------------------------------------------------------------
@@ -1036,7 +1050,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
 PROCEDURE export-xl :
@@ -1677,33 +1690,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-pan-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-
-   FIND FIRST notes WHERE notes.rec_key = oe-relh.rec_key
-       NO-LOCK NO-ERROR.
-
-   IF AVAIL notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
-   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
 PROCEDURE spec-book-image-proc :
 /*------------------------------------------------------------------------------
@@ -1771,43 +1757,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-zone B-table-Win 
-FUNCTION get-shipto-zone RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-bol-qty B-table-Win 
+FUNCTION get-act-bol-qty RETURNS INTEGER
   ( /* parameter-definitions */ ) :
+    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO .
+    DEFINE VARIABLE liReturn AS INTEGER NO-UNDO.
+    
+    IF AVAILABLE oe-rell AND VALID-HANDLE(lr-rel-lib) THEN DO:
+        FOR EACH oe-rel NO-LOCK
+            WHERE oe-rel.company EQ oe-rell.company  
+              AND oe-rel.ord-no  EQ oe-rell.ord-no
+              AND oe-rel.i-no    EQ oe-rell.i-no 
+              AND oe-rel.line    EQ oe-rell.LINE 
+              AND LOOKUP(oe-rel.stat, "P") GT 0 :
 
-  FOR EACH shipto NO-LOCK
-      WHERE shipto.company EQ cocode
-       AND shipto.cust-no EQ oe-relh.cust-no
-      AND shipto.ship-id EQ oe-relh.ship-id :
-
-       IF AVAILABLE shipto THEN
-       DO:
-           RETURN shipto.dest-code.
-       END.
-  END.
-
-  RETURN "".
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-part-no B-table-Win 
-FUNCTION get-part-no RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
- DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
-  FIND FIRST oe-ordl NO-LOCK
-             WHERE oe-ordl.company EQ oe-rell.company
-               AND oe-ordl.ord-no EQ oe-rell.ord-no 
-               AND oe-ordl.i-no EQ oe-rell.i-no 
-               AND oe-ordl.line EQ oe-rell.line NO-ERROR .
-        IF AVAILABLE oe-ordl THEN
-           cReturn =  oe-ordl.part-no .
-        ELSE cReturn = "" .
-  RETURN cReturn .
+            RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT liReturn).
+            iReturn = iReturn + liReturn.
+        END.
+    END.
+ 
+  RETURN iReturn .
 
 END FUNCTION.
 
@@ -1840,30 +1811,44 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-bol-qty B-table-Win 
-FUNCTION get-act-bol-qty RETURNS INTEGER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-part-no B-table-Win 
+FUNCTION get-part-no RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
-    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO .
-    DEFINE VARIABLE liReturn AS INTEGER NO-UNDO.
-    
-    IF AVAILABLE oe-rell AND VALID-HANDLE(lr-rel-lib) THEN DO:
-        FOR EACH oe-rel NO-LOCK
-            WHERE oe-rel.company EQ oe-rell.company  
-              AND oe-rel.ord-no  EQ oe-rell.ord-no
-              AND oe-rel.i-no    EQ oe-rell.i-no 
-              AND oe-rel.line    EQ oe-rell.LINE 
-              AND LOOKUP(oe-rel.stat, "P") GT 0 :
-
-            RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT liReturn).
-            iReturn = iReturn + liReturn.
-        END.
-    END.
- 
-  RETURN iReturn .
+ DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
+  FIND FIRST oe-ordl NO-LOCK
+             WHERE oe-ordl.company EQ oe-rell.company
+               AND oe-ordl.ord-no EQ oe-rell.ord-no 
+               AND oe-ordl.i-no EQ oe-rell.i-no 
+               AND oe-ordl.line EQ oe-rell.line NO-ERROR .
+        IF AVAILABLE oe-ordl THEN
+           cReturn =  oe-ordl.part-no .
+        ELSE cReturn = "" .
+  RETURN cReturn .
 
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-zone B-table-Win 
+FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+
+  FOR EACH shipto NO-LOCK
+      WHERE shipto.company EQ cocode
+       AND shipto.cust-no EQ oe-relh.cust-no
+      AND shipto.ship-id EQ oe-relh.ship-id :
+
+       IF AVAILABLE shipto THEN
+       DO:
+           RETURN shipto.dest-code.
+       END.
+  END.
+
+  RETURN "".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
