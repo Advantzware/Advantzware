@@ -101,7 +101,7 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -112,8 +112,9 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no vend.name ~
-ap-pay.check-no ap-pay.check-date display-amount() @ ap-pay.check-amt 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ap-pay.bank-code ~
+ap-pay.vend-no vend.name ap-pay.check-no ap-pay.check-date ~
+display-amount() @ ap-pay.check-amt 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no ~
 vend.name ap-pay.check-no ap-pay.check-date 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-pay vend
@@ -220,6 +221,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
+      ap-pay.bank-code FORMAT "x(8)":U WIDTH 12.8
       ap-pay.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U WIDTH 17.2
             LABEL-BGCOLOR 14
       vend.name FORMAT "x(30)":U LABEL-BGCOLOR 14
@@ -308,7 +310,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table fi_sort-by F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -334,15 +336,17 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ","
      _Where[1]         = "ASI.ap-pay.check-no gt 999999999"
-     _FldNameList[1]   > ASI.ap-pay.vend-no
+     _FldNameList[1]   > ASI.ap-pay.bank-code
+"ap-pay.bank-code" ? ? "character" ? ? ? ? ? ? no ? no no "12.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.ap-pay.vend-no
 "ap-pay.vend-no" "Vendor#" ? "character" ? ? ? 14 ? ? yes ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.vend.name
+     _FldNameList[3]   > ASI.vend.name
 "vend.name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.ap-pay.check-no
+     _FldNameList[4]   > ASI.ap-pay.check-no
 "ap-pay.check-no" "Memo#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.ap-pay.check-date
+     _FldNameList[5]   > ASI.ap-pay.check-date
 "ap-pay.check-date" "Memo Date" ? "date" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > "_<CALC>"
+     _FldNameList[6]   > "_<CALC>"
 "display-amount() @ ap-pay.check-amt" "Amount" "->>>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
