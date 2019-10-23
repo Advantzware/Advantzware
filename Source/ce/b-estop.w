@@ -803,22 +803,30 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
   DEFINE BUFFER xop FOR est-op.
 
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-
   /* Code placed here will execute PRIOR to standard behavior. */
-  {custom/checkuse.i}
-
-  IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
+  RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
+  
+  IF lMultiRecords THEN do:
+      RUN est/delRouteMulti.w(ROWID(est),RECID(est-op)) . 
+      RUN local-open-query .
   END.
+  ELSE do: 
+   {custom/checkuse.i}
 
-  v-override-mode = NO.
+   IF NOT adm-new-record THEN DO:
+     {custom/askdel.i}
+   END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+   v-override-mode = NO.
+
+   /* Dispatch standard ADM method.                             */
+   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF est.est-type EQ 1                              AND
@@ -1133,3 +1141,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMultiRecord B-table-Win 
+PROCEDURE pCheckMultiRecord :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplCheckMulti AS LOGICAL   NO-UNDO.
+  DEFINE BUFFER bff-est-op FOR est-op .
+      i = 0 .
+      Main-look:
+      FOR EACH bff-est-op WHERE bff-est-op.company = est-qty.company 
+          AND bff-est-op.est-no = est-qty.est-no 
+          AND bff-est-op.line < 500 
+          AND ((ASI.bff-est-op.qty eq est-qty.eqty and est.est-type eq 1) or 
+               (ASI.bff-est-op.qty eq lv-eqty and est.est-type ne 1))  :
+            i = i + 1 .
+            IF i GE 2 THEN LEAVE Main-look .
+      END.
+      IF i EQ 1 THEN
+            oplCheckMulti = NO .
+      ELSE oplCheckMulti = YES .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
