@@ -816,12 +816,18 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
   DEFINE BUFFER xop FOR est-op.
 
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
-
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
+ IF lMultiRecords THEN do:
+     RUN est/delRouteMulti.w(ROWID(est),RECID(est-op)) . 
+     RUN local-open-query .
+ END.
+ ELSE do: 
   {custom/checkuse.i}
 
   IF NOT adm-new-record THEN DO:
@@ -832,6 +838,7 @@ PROCEDURE local-delete-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+ END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF est.est-type NE 8                              AND
@@ -1191,6 +1198,35 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMultiRecord B-table-Win 
+PROCEDURE pCheckMultiRecord :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplCheckMulti AS LOGICAL   NO-UNDO.
+  DEFINE BUFFER bff-est-op FOR est-op .
+      i = 0 .
+      Main-look:
+      FOR EACH bff-est-op NO-LOCK
+          WHERE bff-est-op.company = est-qty.company 
+            AND bff-est-op.est-no = est-qty.est-no 
+            AND bff-est-op.line LT 500 and 
+           ((bff-est-op.qty eq est-qty.eqty and est.est-type ne 8) or 
+           (bff-est-op.qty eq lv-eqty and est.est-type ge 7)) :
+            i = i + 1 .
+            IF i GE 2 THEN LEAVE Main-look .
+      END.
+      IF i EQ 1 THEN
+            oplCheckMulti = NO .
+      ELSE oplCheckMulti = YES .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
