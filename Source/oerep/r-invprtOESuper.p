@@ -6,5 +6,6 @@
 &global-define rno r-no
 &global-define miscrno r-no
 &global-define bno b-no
+&global-define due spare-dec-1
 
 {oerep/r-invprtProc.i}

@@ -6,5 +6,6 @@
 &global-define rno x-no
 &global-define bno b-no
 &global-define miscrno r-no
+&global-define due due
 
 {oerep/r-invprtProc.i}
