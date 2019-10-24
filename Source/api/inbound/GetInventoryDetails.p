@@ -1,10 +1,10 @@
 /*------------------------------------------------------------------------
     File        : api/inbound/GetInventoryDetails.p
-    Purpose     : Fetches Inventory response data for the given inPUT data
+    Purpose     : Fetches Inventory response data for the given input data
 
     Syntax      :
 
-    Description : Fetches Inventory response data for the given inPUT data
+    Description : Fetches Inventory response data for the given input data
 
     Author(s)   : Vishnu Vellanki
     Created     : Tue July 06 07:33:22 EDT 2019
