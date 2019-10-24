@@ -506,6 +506,12 @@ DO:
               assign lw-focus:screen-value = entry(1,char-val)
                        .
         end.
+        when "cons-uom" then do:
+            RUN get-uom-list (OUTPUT uom-list).
+            run windows/l-stduom.w (g_company,uom-list, lw-focus:screen-value, output char-val).
+            if char-val <> "" then 
+              assign lw-focus:screen-value = entry(1,char-val).
+        end.
   END CASE.
 
   RETURN NO-APPLY.
@@ -670,6 +676,21 @@ END.
 ON VALUE-CHANGED OF ap-invl.qty IN BROWSE Browser-Table /* Quantity */
 DO:
   RUN calc-amt.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ap-invl.cons-uom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.cons-uom Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF ap-invl.cons-uom IN BROWSE Browser-Table /* Quantity */
+DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-qty-uom(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+    RUN calc-amt.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2233,7 +2254,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
@@ -2264,6 +2285,9 @@ PROCEDURE local-update-record :
 
   RUN valid-unit-pr NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-qty-uom(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
 
   RUN valid-pr-qty-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -3313,6 +3337,51 @@ PROCEDURE vend-cost :
     ap-invl.unit-pr = lv-t-cost / v-ord-qty.
 
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-qty-uom B-table-Win 
+PROCEDURE valid-qty-uom :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+  DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
+  DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cValidMessage AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+  RUN util/Validate.p PERSISTENT SET hdValidator.
+
+  DO WITH FRAME {&FRAME-NAME}:
+       RUN get-uom-list (OUTPUT uom-list).
+
+      RUN pIsValidUOM IN hdValidator (ap-invl.cons-uom:SCREEN-VALUE IN BROWSE {&browse-name} , YES, OUTPUT lValid, OUTPUT cValidMessage).
+      IF NOT lValid THEN DO:
+          MESSAGE  cValidMessage
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+          oplReturnError = YES .
+          lCheckError = YES .
+          APPLY "entry" TO ap-invl.cons-uom IN BROWSE {&browse-name} .
+      END.
+
+      RUN pIsValidFromList IN hdValidator ("Uom", ap-invl.cons-uom:SCREEN-VALUE IN BROWSE {&browse-name}, lv-uom-list, OUTPUT lValid, OUTPUT cValidMessage). 
+      
+      IF NOT lValid AND NOT lCheckError THEN DO:
+          MESSAGE  cValidMessage
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+          oplReturnError = YES .
+          APPLY "entry" TO ap-invl.cons-uom IN BROWSE {&browse-name} .
+      END.
+
+
+  END.
+  DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

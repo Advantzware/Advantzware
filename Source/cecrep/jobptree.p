@@ -153,6 +153,15 @@ DEFINE VARIABLE v-managed-order AS cha FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE ll-tandem AS LOG NO-UNDO.
 DEFINE VARIABLE ll-jqcust AS LOG NO-UNDO.
 DEFINE VARIABLE cCustpo-name AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cProdAceBarScan AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lProdAceBarScan AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    cocode,"ProdAceBarScan","L",NO,NO,"","",
+     OUTPUT cProdAceBarScan,OUTPUT lProdAceBarScan
+    ).
+lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES".
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
@@ -431,9 +440,18 @@ ASSIGN
        FIND FIRST stackPattern NO-LOCK WHERE stackPattern.stackCode EQ b-eb.stack-code NO-ERROR.
        IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN lv-spattern-img =  stackPattern.stackImage.
        
-       PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>".
-       PUT "<P12><B><C95>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
-      
+       PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C37>" lv-est-type "</B>".
+       PUT "<P12><B>".
+
+       IF lProdAceBarScan THEN PUT "<C1>DMI SCAN".
+
+       PUT "<C95>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/
+
+       IF lProdAceBarScan THEN DO:       
+           cJobMchID = "W99999-99.999999999".
+           PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C38><FROM><c9.3><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" cJobMchID ">".
+       END. /* if lProdAceBarScan */
+
        PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C68><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               cJobNumber ">" SKIP "<r-1>".
        PUT

@@ -201,6 +201,30 @@ ASSIGN
  
 
 
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME fg-bin.loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-bin.loc-bin V-table-Win
+ON LEAVE OF fg-bin.loc-bin IN FRAME F-Main /* Primary Bin Location */
+DO:
+    IF LASTKEY EQ -1 THEN RETURN.
+    IF SELF:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE 
+            "You may not create a blank bin location."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' TO SELF.
+        RETURN NO-APPLY.
+    END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&UNDEFINE SELF-NAME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
@@ -286,6 +310,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win
+PROCEDURE local-update-record:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+ 
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF fg-bin.loc-bin:SCREEN-VALUE IN FRAME {&frame-name} EQ "" THEN 
+    DO:
+        MESSAGE 
+            "You may not create a blank bin location."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY 'entry' TO fg-bin.loc-bin.
+        RETURN .
+    END.  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

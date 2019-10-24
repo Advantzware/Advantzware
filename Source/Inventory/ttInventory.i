@@ -310,9 +310,12 @@ DEFINE VARIABLE gcDBUser                   AS CHARACTER INITIAL "asi".
 DEFINE VARIABLE gcFGUOM                    AS CHARACTER INITIAL "EA".
 DEFINE VARIABLE gcUOMInches                AS CHARACTER INITIAL "IN".
 DEFINE VARIABLE gcUOMWeightBasis           AS CHARACTER INITIAL "C".
+DEFINE VARIABLE gcUOMWeightBasisLBSPerSQFT AS CHARACTER INITIAL "LBS/SQFT".
+DEFINE VARIABLE gcUOMWeightPound           AS CHARACTER INITIAL "LBS".
 DEFINE VARIABLE gcUOMWeight                AS CHARACTER INITIAL "LB".
 
 DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER INITIAL "Job".
+DEFINE VARIABLE gcInventorySourceTypePO    AS CHARACTER INITIAL "PO".
 
 /* ********************  Preprocessor Definitions  ******************** */
 

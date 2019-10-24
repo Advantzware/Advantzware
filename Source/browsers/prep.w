@@ -165,7 +165,7 @@ DEFINE BROWSE Browser-Table
       prep.dscr COLUMN-LABEL "Description" FORMAT "x(20)":U WIDTH 24.2
       get-type-info() @ cTypeInfo COLUMN-LABEL "Mat'l !Type" FORMAT "x(25)":U
             WIDTH 28
-      prep.mkup FORMAT ">>9.99":U WIDTH 9.8
+      prep.mkup FORMAT "->>9.99":U WIDTH 9.8
       prep.cost FORMAT "->>,>>9.99":U
       prep.dfault COLUMN-LABEL "Always" FORMAT "Y/N":U WIDTH 10.6
       prep.amtz FORMAT ">>9.99":U
@@ -252,7 +252,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -283,7 +283,7 @@ ASSIGN
      _FldNameList[3]   > "_<CALC>"
 "get-type-info() @ cTypeInfo" "Mat'l !Type" "x(25)" ? ? ? ? ? ? ? no ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.prep.mkup
-"mkup" ? ? "decimal" ? ? ? ? ? ? no ? no no "9.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mkup" ? "->>9.99" "decimal" ? ? ? ? ? ? no ? no no "9.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = ASI.prep.cost
      _FldNameList[6]   > ASI.prep.dfault
 "dfault" "Always" ? "logical" ? ? ? ? ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no

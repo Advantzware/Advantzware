@@ -22,6 +22,7 @@
 &global-define bno b-no
 &global-define miscrno r-no
 &global-define vprgmname "r-invprt."
+&global-define due due
 &ENDIF
 DEFINE BUFFER b-{&head}1   FOR {&head}.
 DEFINE BUFFER buf-{&head}  FOR {&head}.
@@ -225,6 +226,7 @@ DEFINE VARIABLE td-show-parm      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_qty-all        AS LOGICAL   INITIAL YES              .
 DEFINE VARIABLE tb_cust-list      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_prt-dupl       AS LOGICAL   INITIAL NO               .
+DEFINE VARIABLE tb_open-inv       AS LOGICAL   INITIAL NO               .
 
 
 PROCEDURE assignSelections:
@@ -270,6 +272,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbCustList         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptbOpenInvOnly      AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -317,6 +320,7 @@ PROCEDURE assignSelections:
         nsv_setcomp      = tb_setcomp
         tb_prt-dupl      = iptb_prt-dupl
         tb_PdfOnly       = iptbPdfOnly
+        tb_open-inv      = iptbOpenInvOnly
         .
         
         CASE rd-dest:
@@ -1306,6 +1310,10 @@ PROCEDURE build-list1:
                AND ("{&head}" NE "ar-inv" 
                     OR ({&head}.posted = tb_posted AND cInvoiceType EQ "ar-inv")
                     OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
+                   ) 
+               AND ("{&head}" NE "ar-inv" 
+                    OR (tb_open-inv AND {&head}.{&due} GT 0 AND cInvoiceType EQ "ar-inv")
+                    OR ( NOT tb_open-inv AND cInvoiceType EQ "ar-inv")
                    ) 
                AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
                        AND {&head}.inv-date LE end_date ELSE TRUE

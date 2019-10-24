@@ -84,7 +84,12 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
      ipdQuantityPartialSubUnit AS DECIMAL) FORWARD.
 
 FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
-    (ipcInventoryStatus AS CHARACTER) FORWARD.     
+    (ipcInventoryStatus AS CHARACTER) FORWARD.
+
+FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
+    (ipcCompany  AS CHARACTER,
+     iplItemType AS LOGICAL,
+     ipcTag      AS CHARACTER) FORWARD.            
 /* ***************************  Main Block  *************************** */
 
 
@@ -3443,6 +3448,213 @@ DEFINE INPUT-OUTPUT PARAMETER iopcMessage  AS CHARACTER NO-UNDO.
    
 END PROCEDURE.
 
+PROCEDURE Inventory_CreateWIPInventoryStockForIssuedRM:
+    DEFINE INPUT  PARAMETER ipriRmrdtlh AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriRmrcpth AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriRmbin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriJobmat  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriItem    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    DEFINE BUFFER bf-rm-bin   FOR rm-bin.
+    DEFINE BUFFER bf-job-mat  FOR job-mat.
+    DEFINE BUFFER bf-item     FOR item.
+    DEFINE BUFFER bf-po-ordl  FOR po-ordl.
+
+    DEFINE VARIABLE dLength    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWidth     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dDepth     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO.
+                        
+    FIND FIRST bf-rm-rdtlh NO-LOCK
+         WHERE ROWID(bf-rm-rdtlh) EQ ipriRmrdtlh NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rdtlh THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid rm-rdtlh record"
+            .
+        RETURN.
+    END.
+
+    FIND FIRST bf-rm-rcpth NO-LOCK
+         WHERE ROWID(bf-rm-rcpth) EQ ipriRmrcpth NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rcpth THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid rm-rcpth record"
+            .
+        RETURN.
+    END.
+
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE ROWID(bf-rm-bin) EQ ipriRmbin NO-ERROR.
+    IF NOT AVAILABLE bf-rm-bin THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid rm-bin record"
+            .
+        RETURN.
+    END.
+
+    FIND FIRST bf-job-mat NO-LOCK
+         WHERE ROWID(bf-job-mat) EQ ipriJobmat NO-ERROR.
+
+    FIND FIRST bf-item NO-LOCK
+         WHERE ROWID(bf-item) EQ ipriItem NO-ERROR.
+    IF NOT AVAILABLE bf-item THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid item record"
+            .
+        RETURN.
+    END.
+
+    IF bf-rm-rdtlh.tag EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Empty tag value sent in receipt" 
+            .
+        RETURN.    
+    END.
+    
+    FIND FIRST inventoryStock NO-LOCK
+         WHERE inventoryStock.company          EQ bf-rm-rdtlh.company
+           AND inventoryStock.inventoryStockID EQ bf-rm-rdtlh.tag
+         NO-ERROR.
+    IF AVAILABLE inventoryStock THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "InventoryStock already exists with tag " + bf-rm-rdtlh.tag 
+            .
+        RETURN.    
+    END.
+    
+    FIND FIRST bf-po-ordl NO-LOCK
+         WHERE bf-po-ordl.company EQ bf-rm-rcpth.company            
+           AND bf-po-ordl.po-no   EQ INTEGER(bf-rm-rcpth.po-no)
+           AND bf-po-ordl.line    EQ bf-rm-rcpth.po-line
+         NO-ERROR.
+    IF AVAILABLE bf-po-ordl THEN
+        ASSIGN
+            dLength = bf-po-ordl.s-len
+            dWidth  = bf-po-ordl.s-wid
+            dDepth  = bf-po-ordl.s-dep
+            .
+
+    cVendorTag = fGetVendorTagFromLoadTag (
+                    cVendorTag,
+                    TRUE, /* Item Type: True - RM, False - FG */
+                    bf-rm-rdtlh.tag
+                    ).
+                                             
+    CREATE inventoryStock.
+    ASSIGN
+        inventoryStock.company                    = bf-rm-rdtlh.company
+        inventoryStock.jobID                      = bf-rm-rdtlh.job-no
+        inventoryStock.jobID2                     = bf-rm-rdtlh.job-no2
+        inventoryStock.formNo                     = bf-rm-rdtlh.s-num
+        inventoryStock.blankNo                    = bf-rm-rdtlh.b-num
+        inventoryStock.warehouseID                = bf-rm-rdtlh.loc
+        inventoryStock.locationID                 = bf-rm-rdtlh.loc-bin
+        inventoryStock.customerID                 = bf-rm-bin.cust-no
+        inventoryStock.WIPItemID                  = bf-rm-rdtlh.i-no
+        inventoryStock.poID                       = INTEGER(bf-rm-rcpth.po-no)
+        inventoryStock.poLine                     = bf-rm-rcpth.po-line
+        inventoryStock.itemType                   = gcItemTypeWIP
+        inventoryStock.quantity                   = bf-rm-rdtlh.qty
+        inventoryStock.quantityOriginal           = bf-rm-rdtlh.qty
+        inventoryStock.primaryID                  = bf-rm-rdtlh.i-no
+        inventoryStock.costStandardPerUOM         = bf-rm-rdtlh.cost
+        inventoryStock.quantityPerSubUnit         = 1
+        inventoryStock.quantityOfSubUnits         = 1
+        inventoryStock.quantitySubUnitsPerUnit    = 1
+        inventoryStock.quantityPartial            = 0
+        inventoryStock.quantityOfUnits            = 1
+        inventoryStock.quantityOfUnitsOriginal    = 1
+        inventoryStock.quantityPartialOriginal    = 0
+        inventoryStock.quantityOfSubUnitsOriginal = 1        
+        inventoryStock.dimEachLen                 = IF AVAILABLE bf-job-mat AND bf-job-mat.len NE 0 THEN
+                                                        bf-job-mat.len
+                                                    ELSE IF bf-item.s-len NE 0 AND bf-item.i-code EQ "R" THEN
+                                                        bf-item.s-len
+                                                    ELSE
+                                                        dLength
+        inventoryStock.dimEachWid                 = IF AVAILABLE bf-job-mat AND bf-job-mat.wid NE 0 THEN
+                                                        bf-job-mat.wid
+                                                    ELSE IF bf-item.s-wid NE 0 AND bf-item.i-code EQ "R" THEN
+                                                        bf-item.s-wid
+                                                    ELSE
+                                                        dWidth
+        inventoryStock.dimEachDep                 = IF bf-item.s-dep NE 0 AND bf-item.i-code EQ "R" THEN
+                                                        bf-item.s-dep
+                                                    ELSE
+                                                        dDepth
+        inventoryStock.quantityUOM                = bf-rm-rcpth.pur-uom
+        inventoryStock.dimEachUOM                 = gcUOMInches
+        inventoryStock.costUOM                    = bf-rm-rcpth.pur-uom
+        inventoryStock.basisWeightUOM             = gcUOMWeightBasisLBSPerSQFT
+        inventoryStock.weightUOM                  = gcUOMWeightPound
+        inventoryStock.basisWeight                = bf-item.basis-w
+        inventoryStock.costStandardMat            = costStandardPerUOM
+        inventoryStock.sourceID                   = bf-rm-rcpth.po-no
+        inventoryStock.sourceType                 = gcInventorySourceTypePO
+        inventoryStock.inventoryStatus            = gcStatusStockReceived
+        inventoryStock.inventoryStockID           = IF bf-rm-rdtlh.tag NE "" THEN
+                                                        bf-rm-rdtlh.tag
+                                                    ELSE
+                                                        fGetNextStockID (
+                                                            inventoryStock.itemType
+                                                        )
+        inventoryStock.stockIDAlias               = inventoryStock.inventoryStockID
+        inventoryStock.createdTime                = NOW
+        inventoryStock.createdBy                  = USERID(gcDBUser)
+        inventoryStock.lastTransBy                = USERID(gcDBUser)
+        NO-ERROR.
+
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error creating inventoryStock"
+            .            
+        RETURN.            
+    END.
+
+    IF inventoryStock.inventoryStockID NE "" THEN
+        RUN CreateStockIDAlias (
+            INPUT  inventoryStock.company,
+            INPUT  inventoryStock.inventoryStockID,
+            INPUT  inventoryStock.primaryID,
+            INPUT  inventoryStock.stockIDAlias,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+
+    IF cVendorTag NE "" AND cVendorTag NE inventoryStock.stockIDAlias THEN
+        RUN CreateStockIDAlias (
+            INPUT  inventoryStock.company,
+            INPUT  inventoryStock.inventoryStockID,
+            INPUT  inventoryStock.primaryID,
+            INPUT  cVendorTag,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR. 
+        
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "InventoryStock created successfully"
+        .
+    
+    RELEASE bf-rm-rdtlh.
+    RELEASE bf-rm-rcpth.
+    RELEASE bf-rm-bin.
+    RELEASE bf-job-mat.
+    RELEASE bf-item.
+    RELEASE bf-po-ordl.                 
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
@@ -3695,3 +3907,18 @@ FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
     
     RETURN iCount.
 END FUNCTION.    
+
+FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
+    (ipcCompany AS CHARACTER, iplItemType AS LOGICAL, ipcTag AS CHARACTER):
+    DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO.
+
+    FIND FIRST loadtag NO-LOCK
+         WHERE loadtag.company   EQ ipcCompany
+           AND loadtag.item-type EQ iplItemType
+           AND loadtag.tag-no    EQ ipcTag
+        NO-ERROR.
+    IF AVAILABLE loadtag THEN
+        cVendorTag = loadtag.misc-char[1].
+
+    RETURN cVendorTag.
+END FUNCTION.

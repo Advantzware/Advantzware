@@ -433,11 +433,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-/*{src/adm/method/browser.i}
-{src/adm/method/query.i}
-{methods/template/browser.i}
-{custom/yellowColumns.i}*/
-
 {src/adm/method/navbrows.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -735,6 +730,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

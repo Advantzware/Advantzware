@@ -114,6 +114,8 @@ FOR EACH ttInputEst NO-LOCK:
         eb.weight       = ttInputEst.dWeightPerM
         eb.stackHeight  = MAXIMUM(ttInputEst.iStackHeight,1)
         eb.chg-method   = IF ttInputEst.cFreightChargeMethod EQ "" THEN "P" ELSE ttInputEst.cFreightChargeMethod
+        eb.quantityPartial = ttInputEst.iPartial
+        eb.tr-cnt          = eb.cas-cnt * eb.cas-pal + eb.quantityPartial
         .
 
      IF AVAIL est-qty AND ttInputEst.iQuantity GT 0 THEN

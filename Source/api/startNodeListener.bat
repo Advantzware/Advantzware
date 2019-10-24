@@ -1,4 +1,4 @@
-::@ECHO OFF
+@ECHO OFF
 :: This code "assumes" it's own location is in /programs/api
 :: If moved, may have to change the ini file lookup
 
@@ -21,19 +21,19 @@ IF NOT EXIST !dbDrive!\!topDir!\!dbDir!\Structure\STFiles\progress.dev (
     GOTO :QUIT
     ) 
 
-SET DLC=c:\Progress\OE116_64
+SET DLC=!DLCDir!
 SET API_JAVA_PROGRAMS_DIR=java
 SET API_JAVA_LOGS_DIR=java\logs
 SET API_JAVA_PROCESSOR=RequestDispatcher
-SET API_APPSERVER_URL=AppServer://localhost:5163/Advantzware_API
+SET API_APPSERVER_URL=AppServer://localhost:!NameServerPort!/!AppServerName!
 SET API_APPSERVER_REQUEST_ROUTER=api/inbound/APIRequestRouterAS.p
-SET API_IP_ADDRESS=172.31.22.4
-SET API_PORT=8443
+SET API_IP_ADDRESS=!apiIPAddress!
+SET API_PORT=!apiPort!
 
 ECHO Running node listeners...Ctrl-Break to exit
-CD ..\..\CustFiles\node
+CD !envProgramsDir!/api/node
 START /B node InboundAPIStart.js >> node.server.log 2>> node.server.error.log
-pause
 
 :QUIT
+:: This leaves a command window open; that's a good thing
 EXIT

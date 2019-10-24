@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -55,9 +56,18 @@ DEF NEW SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES po-ordl
+&Scoped-define FIRST-EXTERNAL-TABLE po-ordl
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR po-ordl.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -76,6 +86,7 @@ DEFINE VARIABLE h_b-po-inq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_bi-poord AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
@@ -84,7 +95,6 @@ DEFINE VARIABLE h_vi-poord AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-clsp2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-clspo AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-viewp AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -95,18 +105,18 @@ DEFINE FRAME F-Main
          SIZE 151.8 BY 24.62
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 65 ROW 2.91
          SIZE 87.8 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -115,8 +125,9 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.po-ordl
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -277,20 +288,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 55.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/options.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_options ).
+       RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -322,7 +333,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_movecol ).
        RUN set-position IN h_movecol ( 1.00 , 77.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -338,11 +349,12 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to SmartViewer h_movecol. */
+       /* Links to SmartObject h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'move-columns':U , h_movecol ).
 
        /* Links to SmartNavBrowser h_b-po-inq. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-po-inq ).
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-po-inq ,
@@ -352,9 +364,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'po/v-purord.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_v-purord ).
        RUN set-position IN h_v-purord ( 5.05 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_v-purord ( 15.48 , 144.00 ) NO-ERROR.
+       /* Position in AB:  ( 5.05 , 4.00 ) */
        /* Size in UIB:  ( 15.48 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -378,17 +392,15 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_v-purord. */
+       /* Links to  h_v-purord. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_v-purord ).
 
        /* Links to SmartViewer h_vp-clspo. */
        RUN add-link IN adm-broker-hdl ( h_v-purord , 'Record':U , h_vp-clspo ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-purord ,
-             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_v-purord , 'AFTER':U ).
+             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_vp-clspo ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
@@ -473,6 +485,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "po-ordl"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "po-ordl"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -569,9 +590,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "po-ordl"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

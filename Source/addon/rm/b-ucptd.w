@@ -313,11 +313,11 @@ ASSIGN
      _Where[1]         = "rm-rctd.company = g_company and
 rm-rctd.rita-code = ""R"""
      _FldNameList[1]   > ASI.rm-rctd.tag
-"tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.rm-rctd.loc
-"loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.rm-rctd.loc-bin
-"loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.rm-rctd.job-no
      _FldNameList[5]   = ASI.rm-rctd.job-no2
      _FldNameList[6]   = ASI.rm-rctd.rct-date
@@ -325,14 +325,14 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[8]   = ASI.rm-rctd.i-no
      _FldNameList[9]   = ASI.rm-rctd.i-name
      _FldNameList[10]   > ASI.rm-rctd.cost
-"cost" "Cost/UOM" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.cost" "Cost/UOM" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.rm-rctd.cost-uom
-"cost-uom" "UOM" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.cost-uom" "UOM" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.rm-rctd.qty
-"qty" "Total!Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.qty" "Total!Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   = ASI.rm-rctd.pur-uom
      _FldNameList[14]   > ASI.rm-rctd.user-id
-"user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -744,7 +744,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/ctrl-a_browser.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -897,9 +897,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
-PROCEDURE local-assign-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -919,11 +918,9 @@ PROCEDURE local-assign-record:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :

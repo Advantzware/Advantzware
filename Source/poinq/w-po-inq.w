@@ -357,6 +357,7 @@ PROCEDURE adm-create-objects :
        RUN init-pages IN THIS-PROCEDURE ('2,3':U) NO-ERROR.
 
        /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'move-columns':U , h_movecol ).
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'export-xl':U , h_export ).
 

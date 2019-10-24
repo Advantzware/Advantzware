@@ -50,6 +50,8 @@ DEFINE VARIABLE ip-do-what AS CHARACTER NO-UNDO INITIAL 'Receipt'.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -90,18 +92,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 4 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 4 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 4 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
          BGCOLOR 4 .
 
 
@@ -334,6 +336,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-rcptd. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-rcptd ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-rcptd ).
+       RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'Record':U , THIS-PROCEDURE ).
 
        /* Links to SmartPanel h_p-updsav. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'receipt':U , h_p-updsav ).

@@ -189,12 +189,12 @@ DEFINE BROWSE Browser-Table
       EDDoc.Unique-SDQ-No FORMAT ">>>>>9":U
       EDDoc.Unique-Order-No FORMAT ">>>>>9":U
       EDDoc.Stat FORMAT "9":U
-      EDDoc.DocSeq FORMAT ">>>>9":U
+      EDDoc.DocSeq FORMAT ">>>>>9":U
       EDDoc.ST-Code FORMAT "x(12)":U
       EDDoc.ST FORMAT ">>>>>>>>9":U
       EDDoc.Set-Test-Prod FORMAT "x(1)":U
       EDDoc.Seq FORMAT ">>>>>>9":U
-      EDDoc.rec_key FORMAT "X(20)":U
+      EDDoc.rec_key FORMAT "X(21)":U
       EDDoc.Recv-Test-Prod FORMAT "x(1)":U
       EDDoc.P-FATime FORMAT ">>>>>9":U
       EDDoc.P-FADate FORMAT "99/99/9999":U
@@ -298,7 +298,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -325,7 +325,8 @@ ASSIGN
      _FldNameList[9]   = asi.EDDoc.Unique-SDQ-No
      _FldNameList[10]   = asi.EDDoc.Unique-Order-No
      _FldNameList[11]   = asi.EDDoc.Stat
-     _FldNameList[12]   = asi.EDDoc.DocSeq
+     _FldNameList[12]   > asi.EDDoc.DocSeq
+"DocSeq" ? ">>>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   = asi.EDDoc.ST-Code
      _FldNameList[14]   = asi.EDDoc.ST
      _FldNameList[15]   = asi.EDDoc.Set-Test-Prod
@@ -471,10 +472,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RepoQuery B-table-Win
-PROCEDURE RepoQuery:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RepoQuery B-table-Win 
+PROCEDURE RepoQuery :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -487,11 +487,9 @@ PROCEDURE RepoQuery:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resend-doc B-table-Win 
 PROCEDURE resend-doc :

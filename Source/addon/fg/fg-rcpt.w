@@ -357,6 +357,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_b-rcptd ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-rcptd ).
        RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'can-exit':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rcptd ,

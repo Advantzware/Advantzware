@@ -53,16 +53,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES reftable
-&Scoped-define FIRST-EXTERNAL-TABLE reftable
+&Scoped-define EXTERNAL-TABLES flute
+&Scoped-define FIRST-EXTERNAL-TABLE flute
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR reftable.
+DEFINE QUERY external_tables FOR flute.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -118,7 +120,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.reftable
+   External Tables: ASI.flute
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
  */
@@ -345,6 +347,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_flute. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_flute ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_flute ).
+       RUN add-link IN adm-broker-hdl ( h_flute , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
@@ -353,6 +356,14 @@ PROCEDURE adm-create-objects :
              h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/stack-fl.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_stack-fl ).
+       /* Position in AB:  ( 4.81 , 9.00 ) */
+       /* Size in UIB:  ( 17.86 , 141.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -374,18 +385,6 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav-2 ( 1.52 , 56.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/stack-fl.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
-             OUTPUT h_stack-fl ).
-       RUN set-position IN h_stack-fl ( 4.81 , 9.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.86 , 141.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/q-stackf.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -396,7 +395,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_stack-fl. */
+       /* Links to  h_stack-fl. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_stack-fl ).
        RUN add-link IN adm-broker-hdl ( h_q-stackf , 'Record':U , h_stack-fl ).
 
@@ -409,8 +408,6 @@ PROCEDURE adm-create-objects :
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
              h_p-navico , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_stack-fl ,
-             h_p-updsav-2 , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -437,13 +434,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "reftable"}
+  {src/adm/template/row-list.i "flute"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "reftable"}
+  {src/adm/template/row-find.i "flute"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -542,7 +539,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "flute"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

@@ -113,13 +113,6 @@ DEF VAR ld-cons-uom AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES item
-&Scoped-define FIRST-EXTERNAL-TABLE item
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR item.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES job job-mat
 
@@ -335,10 +328,8 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser Template
-   External Tables: asi.item
    Allow: Basic,Browse
    Frames: 1
-   Add Fields to: External-Tables
    Other Settings: PERSISTENT-ONLY
  */
 
@@ -448,7 +439,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -669,6 +660,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 SESSION:DATA-ENTRY-RETURN = YES.
@@ -697,15 +689,6 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
-
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "item"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "item"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -807,6 +790,31 @@ PROCEDURE Enable-Navigation :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+DEF VAR last-cust AS CHAR NO-UNDO.
+
+/*GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no . */
+
+/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
+
+RUN rminq/rmnq-exp.w ("", "").
+
 
 END PROCEDURE.
 
@@ -920,7 +928,6 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "item"}
   {src/adm/template/snd-list.i "job"}
   {src/adm/template/snd-list.i "job-mat"}
 
@@ -966,31 +973,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-
-/*GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no . */
-
-/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
-
-RUN rminq/rmnq-exp.w ("", "").
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

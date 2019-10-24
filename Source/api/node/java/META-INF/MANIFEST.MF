@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.1
+Created-By: 24.45-b08 (Oracle Corporation)
+Class-Path: messages.jar    schema.jar    ext/sslj.jar    ext/certj.ja
+ r    ext/cryptoj.jar
+

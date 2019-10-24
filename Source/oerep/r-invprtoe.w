@@ -185,15 +185,16 @@ v-prgmname = ipcPrgmnameOverride.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
 begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
-tb_posted tb_setcomp tb_prt-inst tb_qty-all rd_sort tb_BatchMail ~
-tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
-tb_email-orig tb_override-email td-show-parm btn-ok btn-cancel run_format
+tb_posted tb_setcomp tb_prt-inst tb_qty-all tb_open-inv rd_sort ~
+tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page ~
+lv-font-no tb_email-orig tb_override-email td-show-parm run_format btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
 end_inv begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst ~
-tb_qty-all lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest ~
-lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig ~
-tb_override-email td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel ~
-run_format
+tb_qty-all tb_open-inv lbl_sort rd_sort tb_BatchMail tb_HideDialog ~
+tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+tb_email-orig tb_override-email td-show-parm run_format tb_splitPDF ~
+fiEndDateLabel fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -308,6 +309,11 @@ DEFINE VARIABLE lv-scr-num-copies AS INTEGER FORMAT ">>9":U INITIAL 1
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -393,6 +399,11 @@ DEFINE VARIABLE tb_office-copy AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_open-inv AS LOGICAL INITIAL no 
+     LABEL "Only Open Invoices" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28.8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_override-email AS LOGICAL INITIAL yes 
      LABEL "Ignore Paperless Setting?" 
      VIEW-AS TOGGLE-BOX
@@ -408,15 +419,15 @@ DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_prt-dupl AS LOGICAL INITIAL no 
+     LABEL "Print Duplicate $0.00 Invoice?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_prt-inst AS LOGICAL INITIAL yes 
      LABEL "Print Instructions?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_prt-dupl AS LOGICAL INITIAL NO 
-     LABEL "Print Duplicate $0.00 Invoice?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL yes 
      LABEL "Print if Inv/Ship Qty = 0?" 
@@ -453,10 +464,6 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
-     LABEL "Format" 
-     VIEW-AS FILL-IN 
-     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -486,12 +493,13 @@ DEFINE FRAME FRAME-A
      tbPostedAR AT ROW 8.38 COL 28.2 WIDGET-ID 24
      tb_setcomp AT ROW 8.43 COL 59.2 WIDGET-ID 2
      tb_prt-inst AT ROW 9.1 COL 49 RIGHT-ALIGNED
-     tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
      tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
+     tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
      fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
      tb_qty-all AT ROW 10.14 COL 28 WIDGET-ID 28
      tb_prt-zero-qty AT ROW 10.95 COL 56 RIGHT-ALIGNED WIDGET-ID 12
+     tb_open-inv AT ROW 10.95 COL 87.4 RIGHT-ALIGNED WIDGET-ID 34
      lbl_sort AT ROW 12 COL 26.2 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 12 COL 39 NO-LABEL
      fi_broker-bol AT ROW 12 COL 75 COLON-ALIGNED HELP
@@ -511,8 +519,8 @@ DEFINE FRAME FRAME-A
      tb_email-orig AT ROW 20.33 COL 30 WIDGET-ID 14
      tb_override-email AT ROW 20.62 COL 60 WIDGET-ID 18
      td-show-parm AT ROW 21.43 COL 30
+     run_format AT ROW 22.19 COL 66 COLON-ALIGNED WIDGET-ID 12
      tb_splitPDF AT ROW 22.48 COL 30 WIDGET-ID 26
-     run_format AT ROW 22.18 COL 66 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 23.86 COL 23
      btn-cancel AT ROW 23.86 COL 56
      fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
@@ -712,6 +720,12 @@ ASSIGN
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        tb_office-copy:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_open-inv IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_open-inv:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        tb_override-email:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -1063,7 +1077,8 @@ DO:
             tb_qty-all         ,
             tb_cust-list       ,
             tb_prt-dupl        ,
-            NO /* Pdf only */
+            NO  /* Pdf only */ , 
+            tb_open-inv
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1208,7 +1223,8 @@ DO:
         tb_qty-all         ,
         tb_cust-list       ,
         tb_prt-dupl        ,
-        YES /* Pdf only */
+        YES /* Pdf only */ ,
+        tb_open-inv
         ).
 RUN BatchMail (begin_cust, end_cust).
         END.
@@ -1428,6 +1444,43 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Format */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    
+    RUN windows/l-syschrL.w (gcompany,"INVPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+     IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
+              vcDefaultForm = v-print-fmt.
+      RUN  pRunFormatValueChanged .
+     END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
+DO:
+   ASSIGN run_format.
+
+   IF v-print-fmt NE run_format THEN DO:
+       ASSIGN v-print-fmt =  run_format
+              vcDefaultForm = v-print-fmt.
+      RUN  pRunFormatValueChanged .
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_BatchMail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_BatchMail C-Win
 ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
@@ -1488,6 +1541,17 @@ DO:
 &Scoped-define SELF-NAME tb_HideDialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_HideDialog C-Win
 ON VALUE-CHANGED OF tb_HideDialog IN FRAME FRAME-A /* Hide Dialog-Box */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_open-inv
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_open-inv C-Win
+ON VALUE-CHANGED OF tb_open-inv IN FRAME FRAME-A /* Only Open Invoices */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -1568,15 +1632,17 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME tb_prt-dupl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-dupl C-Win
-ON VALUE-CHANGED OF tb_prt-dupl IN FRAME FRAME-A /* Print Duplicate $0.00 invoice? */
+ON VALUE-CHANGED OF tb_prt-dupl IN FRAME FRAME-A /* Print Duplicate $0.00 Invoice? */
 DO:
         ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_prt-inst
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-inst C-Win
@@ -1643,41 +1709,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME run_format
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
-ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
-DO:
-   ASSIGN run_format.
-
-   IF v-print-fmt NE run_format THEN DO:
-       ASSIGN v-print-fmt =  run_format
-              vcDefaultForm = v-print-fmt.
-      RUN  pRunFormatValueChanged .
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME run_format
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
-ON HELP OF run_format IN FRAME FRAME-A /* Font */
-DO:
-    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
-    
-    RUN windows/l-syschrL.w (gcompany,"INVPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
-     IF char-val NE '' THEN
-      run_format:SCREEN-VALUE = ENTRY(1,char-val).
-     IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
-       ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
-              vcDefaultForm = v-print-fmt.
-      RUN  pRunFormatValueChanged .
-     END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1982,7 +2013,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
 PROCEDURE BuildCustList :
 /*------------------------------------------------------------------------------
@@ -2041,7 +2071,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -2073,16 +2102,17 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_inv end_inv begin_date end_date 
-          tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all lbl_sort 
-          rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email 
-          td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel run_format
+          tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all tb_open-inv 
+          lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest 
+          lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig 
+          tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel 
+          fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
          end_inv begin_date end_date tb_reprint tb_posted tb_setcomp 
-         tb_prt-inst tb_qty-all rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
-         rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
-         tb_override-email td-show-parm btn-ok btn-cancel run_format
+         tb_prt-inst tb_qty-all tb_open-inv rd_sort tb_BatchMail tb_HideDialog 
+         tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
+         tb_override-email td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2136,88 +2166,6 @@ PROCEDURE GenerateReport :
         END CASE.
     END.
 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-broker-bol-proc C-Win 
-PROCEDURE set-broker-bol-proc :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-
-        IF fi_broker-bol:SENSITIVE AND
-            begin_inv:SCREEN-VALUE EQ end_inv:SCREEN-VALUE THEN
-        DO:
-            FIND FIRST b-broker-bol WHERE
-                b-broker-bol.reftable EQ "brokerbol" AND
-                b-broker-bol.CODE EQ STRING(begin_inv:SCREEN-VALUE)
-                NO-LOCK NO-ERROR.
-
-            IF AVAIL b-broker-bol THEN
-            DO:
-                fi_broker-bol:SCREEN-VALUE = b-broker-bol.code2.
-                RELEASE b-broker-bol.
-            END.
-            ELSE
-                fi_broker-bol:SCREEN-VALUE = "".
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetEmailBoxes C-Win 
-PROCEDURE SetEmailBoxes :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-    IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} = '5' THEN
-        ASSIGN tb_BatchMail:SENSITIVE  = YES
-            tb_HideDialog:SENSITIVE = TRUE
-            tb_attachBOL:SENSITIVE  = TRUE
-            .
-
-    ELSE ASSIGN tb_BatchMail:SENSITIVE  = FALSE
-            tb_BatchMail:CHECKED    = FALSE
-            tb_HideDialog:SENSITIVE = FALSE
-            tb_HideDialog:CHECKED   = FALSE
-            tb_attachBOL:SENSITIVE  = FALSE
-            tb_attachBOL:CHECKED    = FALSE.
-    IF glPaperless THEN
-        tb_override-email:CHECKED = FALSE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
-PROCEDURE SetCustRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-        begin_cust:SENSITIVE = NOT iplChecked
-        end_cust:SENSITIVE = NOT iplChecked
-        begin_cust:VISIBLE = NOT iplChecked
-        end_cust:VISIBLE = NOT iplChecked
-        btnCustList:SENSITIVE = iplChecked
-       .
-  END.
 
 END PROCEDURE.
 
@@ -2331,6 +2279,88 @@ PROCEDURE pRunFormatValueChanged :
          ELSE tb_qty-all:HIDDEN = YES .
        
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-broker-bol-proc C-Win 
+PROCEDURE set-broker-bol-proc :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+        IF fi_broker-bol:SENSITIVE AND
+            begin_inv:SCREEN-VALUE EQ end_inv:SCREEN-VALUE THEN
+        DO:
+            FIND FIRST b-broker-bol WHERE
+                b-broker-bol.reftable EQ "brokerbol" AND
+                b-broker-bol.CODE EQ STRING(begin_inv:SCREEN-VALUE)
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL b-broker-bol THEN
+            DO:
+                fi_broker-bol:SCREEN-VALUE = b-broker-bol.code2.
+                RELEASE b-broker-bol.
+            END.
+            ELSE
+                fi_broker-bol:SCREEN-VALUE = "".
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
+PROCEDURE SetCustRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        begin_cust:SENSITIVE = NOT iplChecked
+        end_cust:SENSITIVE = NOT iplChecked
+        begin_cust:VISIBLE = NOT iplChecked
+        end_cust:VISIBLE = NOT iplChecked
+        btnCustList:SENSITIVE = iplChecked
+       .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetEmailBoxes C-Win 
+PROCEDURE SetEmailBoxes :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} = '5' THEN
+        ASSIGN tb_BatchMail:SENSITIVE  = YES
+            tb_HideDialog:SENSITIVE = TRUE
+            tb_attachBOL:SENSITIVE  = TRUE
+            .
+
+    ELSE ASSIGN tb_BatchMail:SENSITIVE  = FALSE
+            tb_BatchMail:CHECKED    = FALSE
+            tb_HideDialog:SENSITIVE = FALSE
+            tb_HideDialog:CHECKED   = FALSE
+            tb_attachBOL:SENSITIVE  = FALSE
+            tb_attachBOL:CHECKED    = FALSE.
+    IF glPaperless THEN
+        tb_override-email:CHECKED = FALSE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

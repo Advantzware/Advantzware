@@ -178,8 +178,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      fg-set.qtyPerSet COLUMN-LABEL "Qty/Set" FORMAT "->>,>>9.99<<<<":U
-            WIDTH 13.2
+      fg-set.qtyPerSet FORMAT "->>,>>9.99<<<<":U WIDTH 15.2
       fg-set.part-no FORMAT "x(15)":U
       get-itemfg () @ lv-i-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       lv-q-onh @ lv-q-onh COLUMN-LABEL "On Hand" FORMAT "->>>,>>9":U
@@ -279,7 +278,7 @@ ASSIGN
      _JoinCode[1]      = "ASI.fg-set.company = ASI.itemfg.company
   AND ASI.fg-set.set-no = ASI.itemfg.i-no"
      _FldNameList[1]   > ASI.fg-set.qtyPerSet
-"fg-set.qtyPerSet" "Qty per Set" "->>,>>9.99<<<<" "DECIMAL" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-set.qtyPerSet" ? ? "DECIMAL" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-set.part-no
 "fg-set.part-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
@@ -401,7 +400,7 @@ END.
 ASSIGN
  cocode = g_company
  locode = g_loc.
-
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

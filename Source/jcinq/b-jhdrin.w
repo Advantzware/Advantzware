@@ -98,15 +98,6 @@ job-hdr.std-fix-cost get-total-cost () @ ld-total-cost
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
-
-
- &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-total-cost B-table-Win 
-FUNCTION get-total-cost RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -154,6 +145,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-total-cost B-table-Win 
+FUNCTION get-total-cost RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -174,7 +174,7 @@ DEFINE BROWSE br_table
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      job-hdr.qty FORMAT "->>>,>>>,>>9":U LABEL-BGCOLOR 14
+      job-hdr.qty FORMAT ">>>,>>>,>>9":U LABEL-BGCOLOR 14
       job-hdr.sq-in COLUMN-LABEL "SqInch%" FORMAT ">>9.99":U LABEL-BGCOLOR 14
       job-hdr.ord-no FORMAT ">>>>>>":U LABEL-BGCOLOR 14
       job-hdr.std-mat-cost COLUMN-LABEL "Mat'l" FORMAT "->>,>>9.99":U
@@ -185,7 +185,7 @@ DEFINE BROWSE br_table
             LABEL-BGCOLOR 14
       job-hdr.std-fix-cost COLUMN-LABEL "Fixed OH" FORMAT "->>,>>9.99":U
             LABEL-BGCOLOR 14
-      get-total-cost () @ ld-total-cost COLUMN-LABEL "Total Cost" FORMAT "->,>>>,>>>,>>9.99<<":U
+      get-total-cost () @ ld-total-cost COLUMN-LABEL "Total Cost"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 11.43
@@ -295,9 +295,8 @@ ASSIGN
 "job-hdr.std-var-cost" "Var OH" "->>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-hdr.std-fix-cost
 "job-hdr.std-fix-cost" "Fixed OH" "->>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
- _FldNameList[12]   > "_<CALC>" 
+     _FldNameList[12]   > "_<CALC>"
 "get-total-cost () @ ld-total-cost" "Total Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -382,6 +381,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -599,6 +599,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-total-cost B-table-Win 
 FUNCTION get-total-cost RETURNS DECIMAL
   ( /* parameter-definitions */ ) :
@@ -617,3 +619,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
