@@ -142,7 +142,7 @@ DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiTransDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+DEFINE VARIABLE fiTransDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Trans Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
@@ -152,10 +152,10 @@ DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 79 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-rmPhys.csv" 
-     LABEL "If Yes, File Name" 
+DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-rmPhys.csv" 
+     LABEL "File Name" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1
+     SIZE 76 BY 1
      FGCOLOR 9 .
 
 DEFINE RECTANGLE RECT-7
@@ -229,7 +229,7 @@ DEFINE FRAME FRAME-A
      tb_exclude_prep AT ROW 18.33 COL 23 WIDGET-ID 12
      tb_excel2 AT ROW 23.62 COL 22.2
      tb_runExcel AT ROW 23.62 COL 64 RIGHT-ALIGNED
-     fi_file2 AT ROW 24.71 COL 20 COLON-ALIGNED HELP
+     fi_file2 AT ROW 24.81 COL 13 COLON-ALIGNED HELP
           "Enter File Name"
      btn-ok AT ROW 26.95 COL 22
      btn-cancel AT ROW 26.95 COL 54
@@ -549,7 +549,7 @@ DO:
 
 &Scoped-define SELF-NAME fi_file2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file2 C-Win
-ON LEAVE OF fi_file2 IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file2 IN FRAME FRAME-A /* File Name */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -704,8 +704,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         {custom/usrprint.i}
 
         APPLY "entry" TO tb_prep.
-        fiSnapshotFolder:SCREEN-VALUE = cSnapshotFolder.
-        fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999").
+        ASSIGN  fiSnapshotFolder:SCREEN-VALUE = cSnapshotFolder
+                fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999")
+                fi_file2:SCREEN-VALUE = "c:\tmp\RMPhysCountAnalysis_" + STRING(YEAR(TODAY), "9999") + STRING(MONTH(today)) + STRING(DAY(TODAY)) 
+                                        + REPLACE(STRING(time, "hh:mm"), ":","") + ".csv"                   
+                .
     END.
 
 IF NOT THIS-PROCEDURE:PERSISTENT THEN

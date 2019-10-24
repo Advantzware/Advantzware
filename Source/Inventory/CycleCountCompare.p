@@ -147,7 +147,7 @@ PROCEDURE exportSnapshot:
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoCostMSF AS LOGICAL NO-UNDO.
     define variable icnt as int.
-    RUN pCheckBinDups (OUTPUT lBinDups ).
+    RUN pCheckBinDups (INPUT ipcCompany, INPUT ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).
     
     IF lBinDups THEN 
          RETURN.
@@ -415,8 +415,10 @@ PROCEDURE pBuildCompareTable PRIVATE:
         END.   
         
         ASSIGN 
-            ttCycleCountCompare.lLocationChanged          = (ttCycleCountCompare.cScanLoc NE ttCycleCountCompare.cSysLoc 
-                                                    OR ttCycleCountCompare.cScanLocBin NE ttCycleCountCompare.cSysLocBin)
+            ttCycleCountCompare.lLocationChanged          = ttCycleCountCompare.cScanLocBin NE "" 
+                                                            AND ttCycleCountCompare.cScanLoc NE ""
+                                                            AND (ttCycleCountCompare.cScanLoc NE ttCycleCountCompare.cSysLoc 
+                                                                 OR ttCycleCountCompare.cScanLocBin NE ttCycleCountCompare.cSysLocBin)
             ttCycleCountCompare.lQuantityChanged          = (ttCycleCountCompare.dScanQty NE ttCycleCountCompare.dSysQty)
             ttCycleCountCompare.iCountOfBinsForTagNonZero = iCountBins
             .
@@ -604,14 +606,25 @@ PROCEDURE pCheckBinDups:
      Purpose: Check Bin Duplicates
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.     
     DEFINE OUTPUT PARAMETER oplNoDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cDupOutputFile AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
 
     EMPTY TEMP-TABLE ttDupTags.
     lIsDups = NO.
-    FOR EACH fg-bin WHERE fg-bin.qty GT 0
-        AND fg-bin.tag GT "" NO-LOCK.
+    FOR EACH fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ ipcCompany
+          AND fg-bin.i-no GE ipcFGItemStart
+          AND fg-bin.i-no LE ipcFGItemEnd
+          AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0 
+          AND fg-bin.qty GT 0
+          AND fg-bin.tag GT "" 
+          .
         FIND FIRST bf-fg-bin NO-LOCK
             WHERE bf-fg-bin.company EQ fg-bin.company
             AND bf-fg-bin.tag EQ fg-bin.tag
@@ -631,20 +644,21 @@ PROCEDURE pCheckBinDups:
                 .
         END.
     END.
-
-    OUTPUT TO c:\tmp\dupbinTags.csv.
-    EXPORT STREAM sOutput "Item,Tag,Trans Types,Item2,Loc1,Loc2" SKIP.
+    
+    cDupOutputFile = "c:\tmp\dupbinTags.csv".
+    OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
+    PUT STREAM sOutput UNFORMATTED "Item,Tag,Trans Types,Item2,Loc1,Loc2" SKIP.
     FOR EACH ttDupTags:
         PUT STREAM sOutput UNFORMATTED   
             '"' ttDupTags.i-no '",'
-            '="' ttDupTags.tag '",'
+            '"' ttDupTags.tag '",'
             '"' ttDupTags.transTypes '",' 
             '"' ttDupTags.i-no2 '",' 
             '"' ttDupTags.Loc1 '",' 
             '"' ttDupTags.Loc2 '",' 
             SKIP.        
     END.
-    OUTPUT CLOSE.
+    OUTPUT STREAM sOutput CLOSE.
     
     oplNoDups = lIsDups.
     IF lIsDups THEN 
@@ -652,8 +666,9 @@ PROCEDURE pCheckBinDups:
         MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE("c:\tmp\dupbinTags.csv").
+        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
     END.
+    
 END PROCEDURE.
 
 PROCEDURE pCheckCountDups:
@@ -663,6 +678,7 @@ PROCEDURE pCheckCountDups:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cDupOutputFile AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 
     EMPTY TEMP-TABLE ttDupTags.
@@ -689,15 +705,16 @@ PROCEDURE pCheckCountDups:
         END.
     END.
     oplDups = lIsDups.
+    cDupOutputFile = "c:\tmp\dupCountTags.csv".
     IF lIsDups THEN 
     DO:
-        OUTPUT STREAM sOutput TO c:\tmp\dupCountTags.csv.
+        OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
         PUT STREAM sOutput UNFORMATTED "Item#,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags: 
             PUT STREAM sOutput UNFORMATTED  
-                '="' ttDupTags.i-no '",'
-                '="' ttDupTags.tag '",'
-                '="' ttDupTags.transTypes '",' 
+                '"' ttDupTags.i-no '",'
+                '"' ttDupTags.tag '",'
+                '"' ttDupTags.transTypes '",' 
                 SKIP
                 .              
         END.
@@ -706,7 +723,7 @@ PROCEDURE pCheckCountDups:
         MESSAGE "Cannot post because some tags were counted more than once." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE("c:\tmp\dupCountTags.csv").
+        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 
@@ -756,6 +773,8 @@ PROCEDURE pCreateTransferCounts:
     DEFINE VARIABLE lv-tag     AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     DEFINE VARIABLE iTransTime AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cEnteredBy AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtmEnteredDate AS DATETIME NO-UNDO.
     ASSIGN 
         dTransDate = TODAY
         iTransTime = TIME. 
@@ -806,7 +825,9 @@ PROCEDURE pCreateTransferCounts:
         IF AVAILABLE bf-fg-rctd THEN
             ASSIGN  
                 dTransDate = bf-fg-rctd.rct-date
-                iTransTime = bf-fg-rctd.trans-time - 600
+                iTransTime = bf-fg-rctd.trans-time
+                cEnteredBy = bf-fg-rctd.enteredBy
+                dtmEnteredDate = bf-fg-rctd.enteredDT       
                 .  
             
         FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
@@ -854,7 +875,10 @@ PROCEDURE pCreateTransferCounts:
         ASSIGN 
             fg-rctd.user-id  = "PhysCnt"
             fg-rctd.upd-date = TODAY
-            fg-rctd.upd-time = TIME.
+            fg-rctd.upd-time = TIME
+            fg-rctd.enteredBy = cEnteredBy 
+            fg-rctd.enteredDT = dtmEnteredDate  
+            .
         IF AVAILABLE itemfg THEN 
         DO:
             fg-rctd.pur-uom = itemfg.cons-uom.
@@ -1318,7 +1342,22 @@ PROCEDURE pPostCounts:
 
     postit:
     DO TRANSACTION ON ERROR UNDO postit, LEAVE postit:
-      
+        /* Need to loop through first to set the date so can sort by it */
+        FOR EACH fg-rctd EXCLUSIVE-LOCK
+            WHERE fg-rctd.company EQ cocode
+            AND fg-rctd.rita-code EQ "C"   
+            AND fg-rctd.tag NE ""
+            AND fg-rctd.i-no GE ipcFGItemStart
+            AND fg-rctd.i-no LE ipcFGItemEnd
+            AND LOOKUP(fg-rctd.loc, ipcWhseList) > 0
+            AND fg-rctd.loc-bin GE ipcBinStart
+            AND fg-rctd.loc-bin LE ipcBinEnd
+            AND fg-rctd.qty NE 0 :
+                
+            /* Allow user to force transactions to be on a different date */
+            IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
+                fg-rctd.rct-date = ipdtTransDate.                
+        END.      
         FOR EACH fg-rctd EXCLUSIVE-LOCK
             WHERE fg-rctd.company EQ cocode
             AND fg-rctd.rita-code EQ "C"   
@@ -1335,11 +1374,12 @@ PROCEDURE pPostCounts:
             AND itemfg.i-no    EQ fg-rctd.i-no
             AND itemfg.isaset
             AND itemfg.alloc   
-            NO-LOCK:
+            NO-LOCK
+            BY fg-rctd.rct-date
+            BY fg-rctd.trans-time
+            :
                 
-            /* Allow user to force transactions to be on a different date */
-            IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
-                fg-rctd.rct-date = ipdtTransDate.
+
             RUN fg/fullset.p (ROWID(itemfg)).
 
             FOR EACH tt-fg-set,
@@ -1485,9 +1525,7 @@ PROCEDURE pRemoveMatches:
         AND fg-rctd.loc      EQ ttCycleCountCompare.cScanLoc    
         AND fg-rctd.loc-bin  EQ ttCycleCountCompare.cScanLocBin  
         AND fg-rctd.qty      EQ ttCycleCountCompare.dScanQty    
-        AND fg-rctd.r-no     EQ ttCycleCountCompare.iSequence
-        
-       
+        AND fg-rctd.r-no     EQ ttCycleCountCompare.iSequence               
         :
         DELETE fg-rctd.
     END. 
