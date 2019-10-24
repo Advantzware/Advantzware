@@ -2274,7 +2274,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_setcomp:SENSITIVE = YES
                 tb_setcomp           = YES.
 
-         IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
+         IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ  "invprint 21" OR v-print-fmt EQ "LancoYork" THEN
              ASSIGN tb_qty-all:HIDDEN = NO .
          ELSE tb_qty-all:HIDDEN = YES .
        
