@@ -1088,7 +1088,7 @@ IF tb_excel THEN DO:
         END.
 
         PUT STREAM excel UNFORMATTED 
-            'RELEASE Items,PO Number,Location,Date,BOL#,P/C,REL#,Carrier,Ship To,Quantity'
+            'RELEASE Items,PO Number,Location,Date,BOL#,P/C,REL#,Carrier,Ship To,Quantity,CSR,Line Sales TaxGroup,Misc Item SalesTax Group,OrderHeader ShipTo State,Order Line No,Billing Note'
             SKIP.
 
     END.
