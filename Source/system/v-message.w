@@ -70,28 +70,27 @@ IF AVAILABLE users THEN ASSIGN
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR zMessage.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS zMessage.module ~
-zMessage.hotKey zMessage.msgName zMessage.currSecLevel zMessage.currMessage ~
-zMessage.defaultTitle zMessage.msgType zMessage.currentTitle ~
-zMessage.userSuppress zMessage.defaultMsg zMessage.logMessage ~
-zMessage.rtnValue zMessage.displayOptions zMessage.options ~
-zMessage.contextParms 
+&Scoped-Define ENABLED-FIELDS zMessage.msgID zMessage.module ~
+zMessage.hotKey zMessage.msgName zMessage.currSecLevel ~
+zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType ~
+zMessage.userSuppress zMessage.currentTitle zMessage.logMessage ~
+zMessage.currMessage zMessage.displayOptions zMessage.rtnValue ~
+zMessage.options zMessage.contextParms 
 &Scoped-define ENABLED-TABLES zMessage
 &Scoped-define FIRST-ENABLED-TABLE zMessage
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Test
 &Scoped-Define DISPLAYED-FIELDS zMessage.msgID zMessage.module ~
-zMessage.hotKey zMessage.msgName zMessage.currSecLevel zMessage.currMessage ~
-zMessage.defaultTitle zMessage.msgType zMessage.currentTitle ~
-zMessage.userSuppress zMessage.defaultMsg zMessage.logMessage ~
-zMessage.rtnValue zMessage.displayOptions zMessage.options ~
-zMessage.contextParms 
+zMessage.hotKey zMessage.msgName zMessage.currSecLevel ~
+zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType ~
+zMessage.userSuppress zMessage.currentTitle zMessage.logMessage ~
+zMessage.currMessage zMessage.displayOptions zMessage.rtnValue ~
+zMessage.options zMessage.contextParms 
 &Scoped-define DISPLAYED-TABLES zMessage
 &Scoped-define FIRST-DISPLAYED-TABLE zMessage
 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS zMessage.msgID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -124,75 +123,94 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 123 BY 12.62.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED 
+     SIZE 123 BY 14.29.
 
+DEFINE BUTTON Btn_Test
+    LABEL "&Test" 
+    SIZE 15 BY 1.14
+    BGCOLOR 8 .
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    zMessage.msgID AT ROW 1.24 COL 23.6 COLON-ALIGNED HELP
-    "Enter Utility Name"
-    LABEL "Message Id" FORMAT "x(32)"
-    VIEW-AS FILL-IN 
-    SIZE 25 BY 1
-    zMessage.module AT ROW 1.24 COL 70.6 COLON-ALIGNED HELP
-    "Enter Module Code"
-    LABEL "Module" FORMAT "x(4)"
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1
-    zMessage.hotKey AT ROW 1.24 COL 96 COLON-ALIGNED
-    LABEL "Hot Key" FORMAT "x(3)"
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    zMessage.msgName AT ROW 2.43 COL 23.6 COLON-ALIGNED FORMAT "x(48)"
-    LABEL "Message Name" 
-    VIEW-AS FILL-IN 
-    SIZE 56 BY 1
-    zMessage.currSecLevel AT ROW 2.43 COL 96 COLON-ALIGNED HELP
-    ""
-    LABEL "Sec. Lvl" FORMAT ">>>9"
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    zMessage.currMessage AT ROW 3.67 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 70 BY 1
-    zMessage.defaultTitle AT ROW 4.91 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    zMessage.msgType AT ROW 4.91 COL 96 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    zMessage.currentTitle AT ROW 6.14 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    zMessage.userSuppress AT ROW 6.14 COL 96 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    zMessage.defaultMsg AT ROW 7.38 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    zMessage.logMessage AT ROW 7.38 COL 96 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    zMessage.rtnValue AT ROW 8.62 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    zMessage.displayOptions AT ROW 8.62 COL 96 COLON-ALIGNED
-    LABEL "Display" 
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    zMessage.options AT ROW 9.86 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    zMessage.contextParms AT ROW 11.1 COL 23.6 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    RECT-1 AT ROW 1 COL 1
+     zMessage.msgID AT ROW 1.24 COL 23.6 COLON-ALIGNED HELP
+          "Enter Utility Name"
+          LABEL "Message Id" FORMAT "x(32)"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          BGCOLOR 15
+     zMessage.module AT ROW 1.24 COL 70.6 COLON-ALIGNED HELP
+          "Enter Module Code"
+          LABEL "Module" FORMAT "x(4)"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+          BGCOLOR 15
+     zMessage.hotKey AT ROW 1.24 COL 96 COLON-ALIGNED
+          LABEL "Hot Key" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15
+     zMessage.msgName AT ROW 2.43 COL 23.6 COLON-ALIGNED FORMAT "x(48)"
+          VIEW-AS FILL-IN 
+          SIZE 56 BY 1
+          BGCOLOR 15
+     zMessage.currSecLevel AT ROW 2.43 COL 96 COLON-ALIGNED HELP
+          ""
+          LABEL "Sec. Lvl" FORMAT ">>>9"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15
+     zMessage.defaultTitle AT ROW 3.62 COL 23.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 55.4 BY 1
+          BGCOLOR 15
+     zMessage.defaultMsg AT ROW 4.81 COL 23.8 COLON-ALIGNED
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 55.2 BY 2.24
+          BGCOLOR 15
+     zMessage.msgType AT ROW 4.91 COL 96 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15
+     zMessage.userSuppress AT ROW 6.14 COL 98
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
+          BGCOLOR 15
+     zMessage.currentTitle AT ROW 7.24 COL 23.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 55.4 BY 1
+          BGCOLOR 15
+     zMessage.logMessage AT ROW 7.38 COL 98
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
+          BGCOLOR 15
+     zMessage.currMessage AT ROW 8.38 COL 23.6 COLON-ALIGNED
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 70 BY 3.1
+          BGCOLOR 15
+     zMessage.displayOptions AT ROW 8.62 COL 98
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
+          BGCOLOR 15
+     zMessage.rtnValue AT ROW 11.62 COL 23.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 55 BY 1
+          BGCOLOR 15
+     zMessage.options AT ROW 12.71 COL 23.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 55 BY 1
+          BGCOLOR 15
+     zMessage.contextParms AT ROW 13.95 COL 23.6 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 55 BY 1
+          BGCOLOR 15
+    Btn_Test AT ROW 13.95 COL 100
+     RECT-1 AT ROW 1.05 COL 1.2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -209,11 +227,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -223,7 +240,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 12.76
+         HEIGHT             = 14.57
          WIDTH              = 124.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -249,8 +266,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-    FRAME F-Main:SCROLLABLE = FALSE
-    FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN zMessage.currSecLevel IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
@@ -284,7 +301,7 @@ ASSIGN
 &Scoped-define SELF-NAME zMessage.currSecLevel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zMessage.currSecLevel V-table-Win
 ON ENTRY OF zMessage.currSecLevel IN FRAME F-Main /* Sec. Lvl */
-    DO:
+DO:
         ASSIGN 
             iBaseLevel = INTEGER(SELF:SCREEN-VALUE).
     END.
@@ -295,7 +312,7 @@ ON ENTRY OF zMessage.currSecLevel IN FRAME F-Main /* Sec. Lvl */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zMessage.currSecLevel V-table-Win
 ON LEAVE OF zMessage.currSecLevel IN FRAME F-Main /* Sec. Lvl */
-    DO:
+DO:
         IF INTEGER(SELF:SCREEN-VALUE) GT iSecurityLevel THEN 
         DO:
             MESSAGE 
@@ -326,7 +343,7 @@ ON LEAVE OF zMessage.currSecLevel IN FRAME F-Main /* Sec. Lvl */
 &Scoped-define SELF-NAME zMessage.hotKey
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zMessage.hotKey V-table-Win
 ON LEAVE OF zMessage.hotKey IN FRAME F-Main /* Hot Key */
-    DO:
+DO:
         IF LASTKEY NE -1 
             OR SELF:SCREEN-VALUE NE "" THEN ASSIGN 
                 SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
@@ -339,7 +356,7 @@ ON LEAVE OF zMessage.hotKey IN FRAME F-Main /* Hot Key */
 &Scoped-define SELF-NAME zMessage.module
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zMessage.module V-table-Win
 ON LEAVE OF zMessage.module IN FRAME F-Main /* Module */
-    DO:
+DO:
         IF LASTKEY NE -1 
             OR SELF:SCREEN-VALUE NE "" THEN ASSIGN 
                 SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
@@ -349,17 +366,22 @@ ON LEAVE OF zMessage.module IN FRAME F-Main /* Module */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME zMessage.msgID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zMessage.msgID V-table-Win
-ON LEAVE OF zMessage.msgID IN FRAME F-Main /* Message Id */
+&Scoped-define SELF-NAME Btn_Test
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Test V-table-Win
+ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
     DO:
-    
+    IF AVAIL zMessage AND zMessage.currMessage NE "" THEN
+        MESSAGE zMessage.currMessage VIEW-AS ALERT-BOX INFO .
+    ELSE IF AVAIL zMessage  THEN
+        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO .
+  
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME zMessage.msgID
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -381,29 +403,29 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Create a list of all the tables that we need to get.            */
-    {src/adm/template/row-list.i "zMessage"}
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "zMessage"}
 
-    /* Get the record ROWID's from the RECORD-SOURCE.                  */
-    {src/adm/template/row-get.i}
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
 
-    /* FIND each record specified by the RECORD-SOURCE.                */
-    {src/adm/template/row-find.i "zMessage"}
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "zMessage"}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -412,17 +434,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -430,7 +452,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
 PROCEDURE local-add-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -471,7 +493,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -485,7 +507,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
 PROCEDURE local-cancel-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -502,7 +524,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
 PROCEDURE local-copy-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -531,7 +553,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -555,7 +577,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
 PROCEDURE local-delete-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -585,7 +607,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -599,7 +621,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
 PROCEDURE local-enable-fields :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -613,12 +635,25 @@ PROCEDURE local-enable-fields :
     IF iSecurityLevel LT 1000 THEN ASSIGN 
             zMessage.module:SENSITIVE      = FALSE 
             zMessage.hotkey:SENSITIVE      = FALSE 
-            zMessage.msgName:SENSITIVE     = FALSE
-            zMessage.currMessage:SENSITIVE = FALSE.  
+            zMessage.msgName:SENSITIVE     = FALSE .  
     ASSIGN 
-        iBaseLevel = INTEGER(zMessage.currSecLevel:SCREEN-VALUE).              
+        iBaseLevel = INTEGER(zMessage.currSecLevel:SCREEN-VALUE).  
 
-
+  DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
+  DEFINE VARIABLE lResult      AS LOG     NO-UNDO.
+  
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/message.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN DO:
+            DO WITH FRAME {&FRAME-NAME}:
+            DISABLE  zMessage.msgID zMessage.module 
+                zMessage.hotKey zMessage.msgName zMessage.currSecLevel 
+                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType 
+                zMessage.logMessage zMessage.rtnValue
+                zMessage.options zMessage.contextParms  .
+            END.
+        END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,7 +661,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -664,20 +699,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "zMessage"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "zMessage"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -686,7 +721,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -705,3 +740,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons B-table-Win 
+PROCEDURE valid-buttons :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAM op-add AS LOG INIT YES NO-UNDO.
+  DEF OUTPUT PARAM op-del AS LOG INIT YES NO-UNDO.
+
+  DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
+  DEFINE VARIABLE lResult      AS LOG     NO-UNDO.
+
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/message.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            ASSIGN op-add = NO
+                   op-del = NO .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
