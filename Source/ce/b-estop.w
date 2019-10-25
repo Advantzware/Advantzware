@@ -812,7 +812,7 @@ PROCEDURE local-delete-record :
   RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
   
   IF lMultiRecords THEN do:
-      RUN est/delRouteMulti.w(ROWID(est),RECID(est-op)) . 
+      RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty)) . 
       RUN local-open-query .
   END.
   ELSE do: 
