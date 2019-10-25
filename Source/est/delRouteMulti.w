@@ -29,6 +29,7 @@
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER iprwRowidEb AS ROWID NO-UNDO .
 DEFINE INPUT PARAMETER iprwRecid AS RECID NO-UNDO .
+DEFINE INPUT PARAMETER iprwRowidEstQty AS ROWID NO-UNDO .
 /* Local Variable Definitions ---                                       */
 
 {custom/globdefs.i}
@@ -82,7 +83,7 @@ DEFINE BUFFER xop FOR est-op.
     ~{&OPEN-QUERY-browse-route}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS browse-route Btn_OK btn-cancel 
+&Scoped-Define ENABLED-OBJECTS browse-route Btn_OK Btn_Select btn-cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -104,6 +105,11 @@ DEFINE BUTTON btn-cancel
 
 DEFINE BUTTON Btn_OK AUTO-GO  NO-CONVERT-3D-COLORS
     LABEL "Delete" 
+    SIZE 15 BY 1.14
+    BGCOLOR 8 .
+
+DEFINE BUTTON Btn_Select  NO-CONVERT-3D-COLORS
+    LABEL "Select All" 
     SIZE 15 BY 1.14
     BGCOLOR 8 .
 
@@ -133,8 +139,9 @@ DEFINE BROWSE browse-route
 
 DEFINE FRAME Dialog-Frame
     browse-route AT ROW 1.57 COL 2.6
-    Btn_OK AT ROW 12.81 COL 20.2
-    btn-cancel AT ROW 12.81 COL 45.2
+    Btn_Select AT ROW 12.81 COL 5.2
+    Btn_OK AT ROW 12.81 COL 27.5
+    btn-cancel AT ROW 12.81 COL 50.2
     SPACE(12.39) SKIP(1.04)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -253,6 +260,26 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME Btn_Select
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Select Dialog-Frame
+ON CHOOSE OF Btn_Select IN FRAME Dialog-Frame /* OK */
+    DO:
+        FOR EACH tt-oe-route NO-LOCK:
+             tt-oe-route.IS-SELECTED = YES .
+        END.
+        
+        CLOSE QUERY browse-route.
+        DO WITH FRAME {&FRAME-NAME}:
+            
+            OPEN QUERY browse-route FOR EACH tt-oe-route
+                NO-LOCK BY tt-oe-route.s-num.
+            END.
+        END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME tt-oe-route.IS-SELECTED
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-oe-route.IS-SELECTED Browser-Table _BROWSE-COLUMN Dialog-Frame
 ON VALUE-CHANGED OF tt-oe-route.IS-SELECTED IN BROWSE browse-route /* IS-SELECTED */
@@ -324,9 +351,11 @@ PROCEDURE build-table :
         FIND FIRST est WHERE ROWID(est) EQ iprwRowidEb NO-LOCK NO-ERROR .
         FIND FIRST est-qty NO-LOCK
             WHERE est-qty.company EQ est.company
-            AND est-qty.est-no EQ est.est-no NO-ERROR .
+            AND rowid(est-qty) EQ iprwRowidEstQty NO-ERROR .
 
         EMPTY TEMP-TABLE tt-oe-route .    
+
+       
         IF est.est-type LT 5 THEN 
         DO:
 
@@ -430,7 +459,7 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    ENABLE browse-route Btn_OK btn-cancel 
+    ENABLE browse-route Btn_OK Btn_Select btn-cancel 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
     {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
