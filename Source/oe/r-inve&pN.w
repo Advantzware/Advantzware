@@ -1361,21 +1361,21 @@ PROCEDURE create-save-line :
     FOR EACH inv-line WHERE inv-line.r-no EQ b-inv-head.r-no:
       CREATE save-line.
       ASSIGN
-       save-line.reftable = "save-line" + STRING(v-trnum,"9999999999")
-       save-line.val[1]   = inv-line.r-no
-       save-line.val[2]   = inv-head.r-no
-       save-line.val[3]   = INT(RECID(inv-line))
-       inv-line.r-no      = inv-head.r-no.
+       save-line.reftable     = "save-line" + STRING(v-trnum,"9999999999")
+       save-line.val[1]       = inv-line.r-no
+       save-line.val[2]       = inv-head.r-no
+       save-line.spare-char-1 = STRING(RECID(inv-line))
+       inv-line.r-no          = inv-head.r-no.
     END.
 
     FOR EACH inv-misc WHERE inv-misc.r-no EQ b-inv-head.r-no:
       CREATE save-line.
       ASSIGN
-       save-line.reftable = "save-line" + STRING(v-trnum,"9999999999")
-       save-line.val[1]   = inv-misc.r-no
-       save-line.val[2]   = inv-head.r-no
-       save-line.val[3]   = INT(RECID(inv-misc))
-       inv-misc.r-no      = inv-head.r-no.
+       save-line.reftable     = "save-line" + STRING(v-trnum,"9999999999")
+       save-line.val[1]       = inv-misc.r-no
+       save-line.val[2]       = inv-head.r-no
+       save-line.spare-char-1 = STRING(RECID(inv-line))
+       inv-misc.r-no          = inv-head.r-no.
     END.
 
 END PROCEDURE.
@@ -2770,17 +2770,16 @@ PROCEDURE undo-save-line :
   DISABLE TRIGGERS FOR LOAD OF inv-line.
   DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
-
   RELEASE inv-line.
   RELEASE inv-misc.
 
-  FIND FIRST inv-line WHERE RECID(inv-line) EQ INT(save-line.val[3]) NO-ERROR.
+  FIND FIRST inv-line WHERE RECID(inv-line) EQ INT(save-line.spare-char-1) NO-ERROR.
 
   IF AVAILABLE inv-line THEN inv-line.r-no = save-line.val[1].
 
   ELSE
-  FIND FIRST inv-misc WHERE RECID(inv-misc) EQ INT(save-line.val[3]) NO-ERROR.
-
+  FIND FIRST inv-misc WHERE RECID(inv-misc) EQ INT(save-line.spare-char-1) NO-ERROR.
+  
   IF AVAILABLE inv-misc THEN inv-misc.r-no = save-line.val[1].
 
   DELETE save-line.
