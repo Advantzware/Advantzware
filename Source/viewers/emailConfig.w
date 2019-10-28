@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -62,14 +62,14 @@ DEFINE QUERY external_tables FOR emailConfig.
 &Scoped-Define ENABLED-FIELDS emailConfig.isActive emailConfig.smtpServer ~
 emailConfig.smtpPort emailConfig.smtpUser emailConfig.smtpPassword ~
 emailConfig.subject emailConfig.attachment emailConfig.body ~
-emailConfig.recipientsSendCC emailConfig.recipientsSendTo ~
+emailConfig.recipientsSendTo emailConfig.recipientsSendCC ~
 emailConfig.recipientsSendBcc emailConfig.recipientsReplyTo 
 &Scoped-define ENABLED-TABLES emailConfig
 &Scoped-define FIRST-ENABLED-TABLE emailConfig
 &Scoped-Define DISPLAYED-FIELDS emailConfig.configID emailConfig.isActive ~
 emailConfig.smtpServer emailConfig.smtpPort emailConfig.smtpUser ~
 emailConfig.smtpPassword emailConfig.subject emailConfig.attachment ~
-emailConfig.body emailConfig.recipientsSendCC emailConfig.recipientsSendTo ~
+emailConfig.body emailConfig.recipientsSendTo emailConfig.recipientsSendCC ~
 emailConfig.recipientsSendBcc emailConfig.recipientsReplyTo ~
 emailConfig.createBy emailConfig.createTime 
 &Scoped-define DISPLAYED-TABLES emailConfig
@@ -144,7 +144,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.attachment AT ROW 8.38 COL 4 WIDGET-ID 30
+     emailConfig.attachment AT ROW 8.38 COL 4.4 WIDGET-ID 30
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
@@ -152,19 +152,19 @@ DEFINE FRAME F-Main
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 130 BY 4
           BGCOLOR 15 
-     emailConfig.recipientsSendCC AT ROW 13.86 COL 3 WIDGET-ID 44
+     emailConfig.recipientsSendTo AT ROW 13.86 COL 3 WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.recipientsSendTo AT ROW 15.05 COL 3.4 WIDGET-ID 46
+     emailConfig.recipientsSendCC AT ROW 15.05 COL 2.8 WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.recipientsSendBcc AT ROW 16.24 COL 2.6 WIDGET-ID 42
+     emailConfig.recipientsSendBcc AT ROW 16.24 COL 1.8 WIDGET-ID 42
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.recipientsReplyTo AT ROW 17.43 COL 2.8 WIDGET-ID 40
+     emailConfig.recipientsReplyTo AT ROW 17.43 COL 2.6 WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
@@ -236,7 +236,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
