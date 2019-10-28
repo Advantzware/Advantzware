@@ -166,6 +166,8 @@ PROCEDURE sendEmail:
     
     DEFINE VARIABLE cSubject  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBody     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
     
     IF AVAILABLE bufServerResource THEN DO:
 	
@@ -192,9 +194,11 @@ PROCEDURE sendEmail:
             INPUT "",                          /* Override for Email RecipientsinBCC */
             INPUT cSubject,                    /* Override for Email Subject */
             INPUT cBody,                       /* Override for Email Body */
-            INPUT ""                           /* Email Attachment */
+            INPUT "",                          /* Email Attachment */
+            OUTPUT lSuccess,                   /* Email success or not */
+            OUTPUT cMessage                    /* Reason for failure in case email is not sent */
             ).
-        oplSent = TRUE.
+        oplSent = lSuccess.
     END.
 END PROCEDURE.
 
