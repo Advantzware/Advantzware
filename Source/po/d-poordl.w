@@ -171,6 +171,9 @@ RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -972,7 +975,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
     DISABLE TRIGGERS FOR LOAD OF po-ordl.
-
+    DELETE OBJECT hMessageProcs.
     IF lv-item-recid <> ? THEN DO:
        FIND po-ordl EXCLUSIVE-LOCK WHERE RECID(po-ordl) = lv-item-recid  NO-ERROR.
        IF AVAILABLE po-ordl THEN DELETE po-ordl.
@@ -1258,6 +1261,8 @@ DO:
         RUN writeJobFarmInfo.
       
 END. /* If a finished good */
+
+DELETE OBJECT hMessageProcs.
 APPLY "go" TO FRAME {&frame-name}.
 END.
 
@@ -5360,6 +5365,9 @@ PROCEDURE valid-b-num :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-msg AS CHARACTER INIT "" NO-UNDO.
+    DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
   
     RELEASE xpo-ordl.
     DO WITH FRAME {&FRAME-NAME}:
@@ -5369,6 +5377,7 @@ PROCEDURE valid-b-num :
             po-ordl.job-no:SCREEN-VALUE =
                 FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
                 TRIM(po-ordl.job-no:SCREEN-VALUE).
+            RUN pGetMessageProcs IN hMessageProcs (INPUT "5", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
             IF NOT ll-pojob-warned THEN
                 FIND FIRST xpo-ordl NO-LOCK
                     WHERE xpo-ordl.company EQ g_company
@@ -5384,12 +5393,14 @@ PROCEDURE valid-b-num :
                     WHERE xpo-ord.company EQ xpo-ordl.company
                     AND xpo-ord.po-no   EQ xpo-ordl.po-no)
                     USE-INDEX ITEM NO-ERROR.
-            IF AVAILABLE xpo-ordl THEN 
+            IF AVAILABLE xpo-ordl AND NOT lSuppressMessage THEN 
             DO:
                 ll-ans = NO.
-                MESSAGE "Purchase order " +
-                    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +
-                    " already exists for Job/Item/Sheet/Blank, continue?"
+
+                /*MESSAGE "Purchase order " +                              */
+                /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
+                /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
+                    MESSAGE  cCurrentMessage
                     VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans.
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
