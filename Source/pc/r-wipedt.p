@@ -65,6 +65,8 @@ DO TRANSACTION:
 END.
 
 DEF STREAM excel.
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -431,6 +433,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Production Control Edit List */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE OBJECT hMessageProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -498,6 +501,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE OBJECT hMessageProcs.
    apply "close" to this-procedure.
 END.
 
@@ -2180,8 +2184,13 @@ def var v-disp-amt      as   dec format ">>,>>>,>>9.99cr".
 def var v-disp-job      like work-gl.job-no.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+RUN pGetMessageProcs IN hMessageProcs (INPUT "6", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
 
 form
     pc-prdd.m-code column-label "MACH"
@@ -2398,7 +2407,14 @@ for each pc-prdd
         v-tot-rm = v-tot-rm + mat-act.qty.
       end.
 
-      if v-tot-fg gt v-tot-rm then next.
+      if v-tot-fg gt v-tot-rm THEN do:
+          IF NOT lSuppressMessage THEN DO:
+              MESSAGE cCurrentMessage VIEW-AS ALERT-BOX INFO .
+              ll-ok-to-post = NO .
+              RETURN NO-APPLY .
+          END.
+          next.
+      END.
     end.
   end.
 
