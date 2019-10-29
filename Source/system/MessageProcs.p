@@ -46,6 +46,11 @@ PROCEDURE pGetMessageProcs:
         oplSuppressMessage = zMessage.userSuppress 
         opcCurrentTitle    = zMessage.currentTitle
         opcCurrentMessage  = zMessage.currMessage .
+
+    IF opcCurrentMessage EQ "" AND AVAIL zMessage THEN
+        ASSIGN
+           opcCurrentTitle    = zMessage.defaultTitle
+           opcCurrentMessage  = zMessage.defaultMsg .
     
 END PROCEDURE.
 
