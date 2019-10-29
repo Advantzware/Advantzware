@@ -649,16 +649,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
-DO:
-  /*RUN new-bin.*/
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME rm-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */

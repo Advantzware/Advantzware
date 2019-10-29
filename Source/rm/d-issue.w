@@ -1040,16 +1040,11 @@ ON LEAVE OF rm-rctd.tag IN FRAME F-Main /* Tag# */
      
             RUN valid-loc-bin-tag (3) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+            IF ll-new-record OR
+             ( AVAIL rm-rctd AND rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE) THEN
+                RUN new-bin.
         END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag M-Win
-ON VALUE-CHANGED OF rm-rctd.tag IN FRAME F-Main /* Tag# */
-    DO:
-        RUN new-bin.
     END.
 
 /* _UIB-CODE-BLOCK-END */
