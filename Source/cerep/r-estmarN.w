@@ -579,11 +579,6 @@ DO:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-  IF tb_excel THEN DO:
-    IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
-  END. 
-
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
@@ -1601,6 +1596,14 @@ FOR EACH est
           '"'                       '",'
           SKIP. */
   END.
+
+    IF tb_excel THEN 
+    DO:
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+    END. 
+
+
 END.
 
 OUTPUT STREAM st-excel CLOSE.
