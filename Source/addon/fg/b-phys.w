@@ -606,17 +606,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fg-rctd.tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-   lCheckCount = NO .
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fg-rctd.rct-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.rct-date Browser-Table _BROWSE-COLUMN B-table-Win

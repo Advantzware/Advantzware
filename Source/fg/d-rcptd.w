@@ -1695,6 +1695,10 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
         DEFINE VARIABLE lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO: 
+            IF adm-new-record OR
+                ( AVAIL fg-rctd AND fg-rctd.tag NE fg-rctd.tag:SCREEN-VALUE) THEN
+                RUN new-tag.
+
             IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag THEN 
             DO:
                 RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
@@ -1708,16 +1712,6 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
 
             END.
         END.  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
-ON VALUE-CHANGED OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
-    DO:
-        RUN new-tag.
     END.
 
 /* _UIB-CODE-BLOCK-END */
