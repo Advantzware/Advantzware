@@ -2232,6 +2232,7 @@ PROCEDURE import-price :
   DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
   
   DEFINE BUFFER bff-probe FOR probe .
 
@@ -2243,10 +2244,10 @@ PROCEDURE import-price :
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
   IF lMultiRecords THEN do:
       RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-
-      MESSAGE cCurrentMessage
-          VIEW-AS ALERT-BOX QUESTION 
-          BUTTONS YES-NO UPDATE lcheckflg as logical .
+    IF NOT lSuppressMessage THEN
+        MESSAGE cCurrentMessage
+        VIEW-AS ALERT-BOX QUESTION 
+        BUTTONS YES-NO UPDATE lcheckflg  .
   END.
 
  FOR EACH bff-probe NO-LOCK
