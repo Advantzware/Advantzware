@@ -826,7 +826,9 @@ PROCEDURE ReleaseOrder :
                 LEAVE REL-LINES.
            END.
         END.     
-
+        FIND FIRST bf-oe-relh NO-LOCK
+            WHERE ROWID(bf-oe-relh) EQ rOeRelh
+            NO-ERROR.
         iRelNo = iRelNo + 1.
         RUN pCreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT oplError, OUTPUT opcMessage).
      END. 
