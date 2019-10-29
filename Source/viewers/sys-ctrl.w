@@ -653,11 +653,21 @@ PROCEDURE post-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lEnableFileld AS LOGICAL NO-UNDO .
   IF sys-ctrl.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Autopost" OR
      sys-ctrl.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "TSPOSTFG" 
   THEN DO:
       DISABLE sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
 
+  END.
+  DO WITH FRAME {&FRAME-NAME}:
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/sys-ctrl.w", "", OUTPUT lEnableFileld).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lEnableFileld AND sys-ctrl.NAME:SCREEN-VALUE EQ "RM=FG" THEN
+        DISABLE sys-ctrl.descrip sys-ctrl.module 
+        sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld sys-ctrl.int-fld 
+        sys-ctrl.log-fld  .
   END.
 
 END PROCEDURE.
