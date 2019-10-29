@@ -741,19 +741,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-   lCheckCount = NO .
-   lCheckTag = NO .
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rctd.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cust-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.cust-no IN BROWSE Browser-Table /* Customer# */

@@ -144,6 +144,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE hdValidator AS HANDLE NO-UNDO.
     DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportRmRctd FOR ttImportRmRctd.
+    DEFINE BUFFER bf-tmp FOR rm-rctd.  /* for tag validation */
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh. /* for tag validation */
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
 
@@ -171,9 +173,30 @@ PROCEDURE pValidate PRIVATE:
     /*Determine if Add or Update*/
     IF oplValid THEN 
     DO:
-        ASSIGN 
-            oplValid = YES
-            opcNote = "Add record".
+        FIND FIRST bf-tmp NO-LOCK 
+            WHERE bf-tmp.company EQ ipbf-ttImportRmRctd.Company
+            AND bf-tmp.tag EQ (STRING(CAPS(ipbf-ttImportRmRctd.RmItem),"x(15)") + string(ipbf-ttImportRmRctd.tag,"99999"))
+            AND bf-tmp.rita-code <> "P"
+            NO-ERROR .
+        find first bf-rm-rdtlh NO-LOCK
+            where bf-rm-rdtlh.company   eq ipbf-ttImportRmRctd.Company
+              and bf-rm-rdtlh.loc       eq ipbf-ttImportRmRctd.loc
+              and bf-rm-rdtlh.tag       eq (STRING(CAPS(ipbf-ttImportRmRctd.RmItem),"x(15)") + string(ipbf-ttImportRmRctd.tag,"99999"))
+              and bf-rm-rdtlh.qty       gt 0
+              and bf-rm-rdtlh.rita-code ne "S" 
+            use-index tag no-error.
+              
+        IF AVAIL bf-tmp OR AVAIL bf-rm-rdtlh THEN
+        DO: 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Duplicate record exists" .
+        END.
+        ELSE 
+            ASSIGN 
+                oplValid = YES
+                opcNote = "Add record"
+                .
     END.
     
     /*Field Level Validation*/

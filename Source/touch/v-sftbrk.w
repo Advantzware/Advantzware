@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 DEF VAR correct-error AS LOG NO-UNDO.
+DEF VAR lAddingRecord AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -443,7 +444,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{sys/inc/f3helpd.i} 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
@@ -614,7 +615,8 @@ PROCEDURE local-create-record :
 
   ASSIGN shift_break.company = shifts.company
          shift_break.shift = shifts.shift
-         shift_break.seq = lv-seq + 1.
+         shift_break.seq = lv-seq + 1
+         lAddingRecord = TRUE.
 
 
 END PROCEDURE.
@@ -630,13 +632,16 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {custom/askdel.i}
+  IF NOT lAddingRecord THEN DO:
+    {custom/askdel.i}
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+    ASSIGN 
+        lAddingRecord = FALSE.
 
 END PROCEDURE.
 
@@ -761,6 +766,8 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
    DISABLE {&list-5} WITH FRAME {&FRAME-NAME}.
+    ASSIGN 
+        lAddingRecord = FALSE.
 
 END PROCEDURE.
 

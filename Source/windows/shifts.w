@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi         PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -183,7 +183,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -257,6 +257,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Include custom  Main Block code for SmartWindows. */
+{sys/inc/f3helpd.i} 
 {src/adm/template/windowmn.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,7 +389,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/touch/vi-sifht.w':U ,
+             INPUT  'touch/vi-sifht.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vi-sifht ).
@@ -396,7 +397,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.43 , 63.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/touch/b-sftbrk.w':U ,
+             INPUT  'touch/b-sftbrk.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-sftbrk ).
@@ -404,7 +405,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-sftbrk ( 8.10 , 18.60 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'addon/touch/v-sftbrk.w':U ,
+             INPUT  'touch/v-sftbrk.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
                      Hide-on-Init = no,

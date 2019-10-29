@@ -973,6 +973,7 @@ PROCEDURE pCreateZeroCount:
             
         CREATE ttToPost.
         ttToPost.rRmRctd = ROWID(rm-rctd).
+
       
         IF AVAILABLE ITEM THEN 
         DO:

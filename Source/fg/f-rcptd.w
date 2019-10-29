@@ -730,19 +730,12 @@ END.
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:    
   IF LASTKEY NE -1 THEN DO:    
+    IF adm-new-record OR
+          ( AVAIL fg-rctd AND fg-rctd.tag NE fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
+          RUN new-tag.
     RUN valid-tag (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
-DO:
-  RUN new-tag.
 END.
 
 /* _UIB-CODE-BLOCK-END */

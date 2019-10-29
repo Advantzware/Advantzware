@@ -44,7 +44,8 @@ ASSIGN
                 "ColonialLot#,LoylangJIT,Carded,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
-                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex"
+                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
+		        "invprint 21" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
@@ -265,7 +266,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
      ASSIGN
 	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,quoprint10-CAN,QuoPrint-Excel-Mex"
-       str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20,invprint10-CAN,InvPrint-Mex"
+       str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20,invprint10-CAN,InvPrint-Mex,invprint 21"
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,POPrint-Mex,POPrint-CAN2"
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
        str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,BOLfmt15,bolfmt 30,BOLFMT-Mex"

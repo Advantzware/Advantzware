@@ -324,7 +324,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-message ).
-       RUN set-position IN h_b-message ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-message ( 4.64 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_b-message ( 26.57 , 14.85 ) NO-ERROR.
        /* Size in UIB:  ( 18.57 , 138.00 ) */
 
        /* Links to SmartNavBrowser h_b-message. */
@@ -344,7 +345,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 12.62 , 123.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -359,6 +360,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-message. */
        RUN add-link IN adm-broker-hdl ( h_b-message , 'Record':U , h_v-message ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_v-message ).
+
+       /* Links to SmartPanel h_p-updsav. */
+       RUN add-link IN adm-broker-hdl ( h_v-message , 'buttons':U , h_p-updsav ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-message ,

@@ -965,29 +965,15 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
 
         RUN validate-record NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
         IF ERROR-STATUS:ERROR THEN 
         DO:   
-            RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
-     
-            IF VALID-HANDLE(HANDLE(char-hdl)) THEN 
-            DO:   
-   
-                hPanel = HANDLE(char-hdl).
-                RUN notify IN hPanel (INPUT 'cancel-record':U).
-                RUN delete-tt.
-                ASSIGN
-                    adm-adding-record   = NO
-                    adm-new-record      = NO
-                    lv-rct-date-checked = NO   .
-                /*RUN reset-cursor.*/
-                RETURN NO-APPLY.
-            END.
-      
-
+            ASSIGN 
+                lv-rct-date-checked = FALSE
+                lFatalQtyError = FALSE .
+            RUN delete-tt.
+            RETURN NO-APPLY. 
         END.
-
+        
         /* Needed since the fg-rctd can become unavailable for some reason */
         lrMissingRow = ?.
         IF NOT AVAILABLE fg-rctd AND INTEGER(fg-rctd.r-no:SCREEN-VALUE ) GT 0 THEN 
@@ -1709,6 +1695,10 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
         DEFINE VARIABLE lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO: 
+            IF adm-new-record OR
+                ( AVAIL fg-rctd AND fg-rctd.tag NE fg-rctd.tag:SCREEN-VALUE) THEN
+                RUN new-tag.
+
             IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag THEN 
             DO:
                 RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
@@ -1722,16 +1712,6 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
 
             END.
         END.  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
-ON VALUE-CHANGED OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
-    DO:
-        RUN new-tag.
     END.
 
 /* _UIB-CODE-BLOCK-END */
