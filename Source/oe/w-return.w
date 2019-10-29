@@ -55,6 +55,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -105,18 +107,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 25.71
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 90 ROW 2.91
-         SIZE 61 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 90 ROW 2.91
+         SIZE 61 BY 1.43
          BGCOLOR 15 .
 
 
@@ -354,6 +356,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-return. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-return ).
        RUN add-link IN adm-broker-hdl ( h_v-retlin , 'line-browse':U , h_b-return ).
+       RUN add-link IN adm-broker-hdl ( h_b-return , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-return ,
@@ -363,13 +366,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/v-rethad.w':U ,
              INPUT  {&WINDOW-NAME} ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  '':U ,
              OUTPUT h_v-rethad ).
        RUN set-position IN h_v-rethad ( 5.38 , 4.60 ) NO-ERROR.
+       RUN set-size IN h_v-rethad ( 14.05 , 144.00 ) NO-ERROR.
+       /* Position in AB:  ( 5.38 , 4.60 ) */
        /* Size in UIB:  ( 14.05 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -395,7 +396,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('3,1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_v-rethad. */
+       /* Links to  h_v-rethad. */
        RUN add-link IN adm-broker-hdl ( h_b-oeretl , 'detail-browse':U , h_v-rethad ).
        RUN add-link IN adm-broker-hdl ( h_b-return , 'Record':U , h_v-rethad ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_v-rethad ).
@@ -499,9 +500,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/v-rettxt.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_v-rettxt ).
        RUN set-position IN h_v-rettxt ( 8.00 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_v-rettxt ( 9.76 , 144.00 ) NO-ERROR.
+       /* Position in AB:  ( 8.00 , 5.00 ) */
        /* Size in UIB:  ( 9.76 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -520,17 +523,15 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_vi-oerth-2. */
        RUN add-link IN adm-broker-hdl ( h_b-return , 'Record':U , h_vi-oerth-2 ).
 
-       /* Links to SmartViewer h_v-rettxt. */
+       /* Links to  h_v-rettxt. */
        RUN add-link IN adm-broker-hdl ( h_b-return , 'Record':U , h_v-rettxt ).
        RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_v-rettxt ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-oerth-2 ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-rettxt ,
-             h_vi-oerth-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
-             h_v-rettxt , 'AFTER':U ).
+             h_vi-oerth-2 , 'AFTER':U ).
     END. /* Page 4 */
 
   END CASE.

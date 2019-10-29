@@ -60,8 +60,29 @@ END PROCEDURE.
 PROCEDURE pMonitor:
   
     FOR EACH serverResource 
-        WHERE serverResource.isActive NO-LOCK:
-        
+        WHERE serverResource.resourceType EQ "Node" AND 
+        serverResource.isActive NO-LOCK:
+        RUN updateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ "AppServer" AND 
+        serverResource.isActive NO-LOCK:
+        RUN updateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ "NameServer" AND 
+        serverResource.isActive NO-LOCK:
+        RUN updateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ "AdminServer" AND 
+        serverResource.isActive NO-LOCK:
         RUN updateStatus(
             INPUT ROWID(serverResource)
             ).
@@ -101,8 +122,8 @@ END PROCEDURE.
 PROCEDURE getNameServerStatus:
     DEFINE INPUT  PARAMETER ipcNameServerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerStatus  AS CHARACTER NO-UNDO.
-   
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -QUERY > VALUE(cPathDataFile).
+
+    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -PORT VALUE(ipcAdminServerPort) -QUERY > VALUE(cPathDataFile).
     IF SEARCH(cPathDataFile) = ? THEN RETURN.
 
     INPUT FROM VALUE(cPathDataFile).
@@ -117,7 +138,7 @@ PROCEDURE getNameServerStatus:
              opcNameServerStatus = "Running".
     END.
     INPUT CLOSE.
-    OS-DELETE VALUE(cPathDataFile).
+    OS-DELETE VALUE(cPathDataFile). 
 END PROCEDURE.
 
 /* Gets AdminServer Status */

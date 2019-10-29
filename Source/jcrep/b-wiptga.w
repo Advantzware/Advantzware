@@ -603,15 +603,7 @@ ON LEAVE OF wiptag-mch.tag-no IN BROWSE Browser-Table /* Wip Tag */
 DO:
 
   RUN add-tag.
-END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wiptag-mch.tag-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF wiptag-mch.tag-no IN BROWSE Browser-Table /* Wip Tag */
-DO:
   RUN validate-tag.
   IF ERROR-STATUS:ERROR THEN DO:
       APPLY "entry" TO wiptag-mch.tag-no IN BROWSE {&browse-name}.

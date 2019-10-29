@@ -69,6 +69,7 @@ DEFINE VARIABLE gvcCurrentItem      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hInventoryProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lMultipleAdds       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateRecords      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFatalQtyError      AS logical   NO-UNDO.
 
 DEFINE TEMP-TABLE tt-fg-rctd LIKE fg-rctd
     FIELD tt-rowid AS ROWID
@@ -97,6 +98,7 @@ DEFINE VARIABLE glFGReceiptPassWord AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glFGSetAssembly     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glFGUnderOver       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcFGUnderOver       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE giFGUnderOver       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE glFGPOFrt           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glJobReopn          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glFGPOTag#          AS LOGICAL   NO-UNDO.
@@ -963,29 +965,15 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
 
         RUN validate-record NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
         IF ERROR-STATUS:ERROR THEN 
         DO:   
-            RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
-     
-            IF VALID-HANDLE(HANDLE(char-hdl)) THEN 
-            DO:   
-   
-                hPanel = HANDLE(char-hdl).
-                RUN notify IN hPanel (INPUT 'cancel-record':U).
-                RUN delete-tt.
-                ASSIGN
-                    adm-adding-record   = NO
-                    adm-new-record      = NO
-                    lv-rct-date-checked = NO   .
-                /*RUN reset-cursor.*/
-                RETURN NO-APPLY.
-            END.
-      
-
+            ASSIGN 
+                lv-rct-date-checked = FALSE
+                lFatalQtyError = FALSE .
+            RUN delete-tt.
+            RETURN NO-APPLY. 
         END.
-
+        
         /* Needed since the fg-rctd can become unavailable for some reason */
         lrMissingRow = ?.
         IF NOT AVAILABLE fg-rctd AND INTEGER(fg-rctd.r-no:SCREEN-VALUE ) GT 0 THEN 
@@ -1707,6 +1695,10 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
         DEFINE VARIABLE lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO: 
+            IF adm-new-record OR
+                ( AVAIL fg-rctd AND fg-rctd.tag NE fg-rctd.tag:SCREEN-VALUE) THEN
+                RUN new-tag.
+
             IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag THEN 
             DO:
                 RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
@@ -1720,16 +1712,6 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
 
             END.
         END.  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
-ON VALUE-CHANGED OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
-    DO:
-        RUN new-tag.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2754,6 +2736,7 @@ PROCEDURE get-matrix-all :
                     RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                         v-rec-qty, OUTPUT v-rec-qty).
                 RUN valid-porec-qty(INPUT v-rec-qty).
+                IF lFatalQtyError THEN RETURN ERROR.
             END.
             ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN 
                 DO:
@@ -3458,6 +3441,8 @@ PROCEDURE pSetGlobalSettings PRIVATE :
 
     RUN sys/ref/nk1look.p (ipcCompany, "FGUnderOver", "C", NO, NO, "", "", OUTPUT gcFGUnderOver, OUTPUT lFound).
 
+    RUN sys/ref/nk1look.p (ipcCompany, "FGUnderOver", "I", NO, NO, "", "", OUTPUT giFGUnderOver, OUTPUT lFound).
+
     RUN sys/ref/nk1look.p (ipcCompany, "FGPOFRT", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glFGPOFrt = lFound AND cReturn EQ "YES".
 
@@ -4098,22 +4083,34 @@ PROCEDURE valid-porec-qty :
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
         
-    IF glFGUnderOver AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-        AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN
-    DO:          
-        MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
-            "Overrun allowed for this PO line Item..."
-            VIEW-AS ALERT-BOX WARNING .
-        lv-overrun2-checked = YES.
-    END.
-    ELSE IF glFGUnderOver AND (gcFGUnderOver EQ "UnderRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-            AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun2-checked THEN
-        DO:
-            MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
-                "Underrun allowed for this PO line Item..."
+    IF glFGUnderOver 
+    AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
+    AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
+        IF giFGUnderOver EQ 1 THEN DO:        
+            MESSAGE 
+                "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+                "Overrun allowed for this PO line Item, and excess overruns are not allowed."
+                VIEW-AS ALERT-BOX WARNING .
+            lv-overrun2-checked = YES.
+            lFatalQtyError = YES.
+        END.
+        ELSE DO:
+            MESSAGE 
+                "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+                "Overrun allowed for this PO line Item..."
                 VIEW-AS ALERT-BOX WARNING .
             lv-overrun2-checked = YES.
         END.
+    END.
+    ELSE IF glFGUnderOver 
+    AND (gcFGUnderOver EQ "UnderRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
+    AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun2-checked THEN DO:
+            MESSAGE 
+                "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+                "Underrun allowed for this PO line Item..."
+                VIEW-AS ALERT-BOX WARNING .
+            lv-overrun2-checked = YES.
+    END.
 
 END PROCEDURE.
 

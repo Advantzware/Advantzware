@@ -51,10 +51,12 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartEasyWindow
+&Scoped-define PROCEDURE-TYPE SmartWindow
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
+
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -99,13 +101,6 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -113,15 +108,21 @@ DEFINE FRAME OPTIONS-FRAME
          SIZE 148 BY 1.91
          BGCOLOR 15 .
 
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
+         BGCOLOR 15 .
+
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartEasyWindow
+   Type: SmartWindow
    External Tables: ASI.fg-rctd
-   Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Container Links: 
+   Allow: Basic,Browse,DB-Fields,Smart,Window,Query
    Design Page: 1
    Other Settings: COMPILE
  */
@@ -377,6 +378,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_pv-trans , 'trans':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( h_v-postct , 'State':U , h_b-phys ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-phys ).
+       RUN add-link IN adm-broker-hdl ( h_b-phys , 'Record':U , THIS-PROCEDURE ).
 
        /* Links to SmartPanel h_p-updsav. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'receipt':U , h_p-updsav ).

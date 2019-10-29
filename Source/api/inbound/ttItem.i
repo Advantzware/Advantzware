@@ -7,7 +7,7 @@ DEFINE TEMP-TABLE ttItem NO-UNDO
     FIELD ItemType                 AS CHARACTER  
     FIELD StockIDAlias             AS CHARACTER
     FIELD QuantityUOM              AS CHARACTER
-    FIELD QuantityPerSubUnit       AS DECIMAL
-    FIELD QuantitySubUnitsPerUnit  AS INTEGER
-    FIELD QuantityPartial          AS DECIMAL
+    FIELD QuantityPerSubUnit       AS INT64
+    FIELD QuantitySubUnitsPerUnit  AS INT64
+    FIELD QuantityPartial          AS INT64
     .

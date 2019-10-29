@@ -57,6 +57,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -103,18 +105,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 23.81
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -125,7 +127,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.ar-cash
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -350,7 +352,9 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-dbcr. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-dbcr ).
+       RUN add-link IN adm-broker-hdl ( h_v-dbcr , 'get-rec':U , h_b-dbcr ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'win':U , h_b-dbcr ).
+       RUN add-link IN adm-broker-hdl ( h_b-dbcr , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-dbcr ,
@@ -437,11 +441,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-line':U , h_b-dbcr2 ).
 
        /* Links to SmartPanel h_p-cashl. */
-       RUN add-link IN adm-broker-hdl ( h_v-dbcr , 'adding-line':U , h_p-cashl ).
-
-       /* Links to SmartPanel h_v-dbcr. */
-       RUN add-link IN adm-broker-hdl ( h_v-dbcr , 'get-rec':U , h_b-dbcr ).
        RUN add-link IN adm-broker-hdl ( h_b-dbcr2 , 'disableadd':U , h_p-cashl ).
+       RUN add-link IN adm-broker-hdl ( h_v-dbcr , 'adding-line':U , h_p-cashl ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-arinv ,

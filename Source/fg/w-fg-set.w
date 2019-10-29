@@ -55,16 +55,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES item
-&Scoped-define FIRST-EXTERNAL-TABLE item
+&Scoped-define EXTERNAL-TABLES itemfg
+&Scoped-define FIRST-EXTERNAL-TABLE itemfg
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR item.
+DEFINE QUERY external_tables FOR itemfg.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -98,18 +100,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 105 BY 1.67
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 46 ROW 2.91
+         SIZE 105 BY 1.67
          BGCOLOR 15 .
 
 
@@ -118,7 +120,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.item
+   External Tables: ASI.itemfg
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -341,6 +343,9 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-fg-set ( 5.05 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-fg-set ( 19.52 , 145.00 ) NO-ERROR.
 
+       /* Links to SmartNavBrowser h_b-fg-set. */
+       RUN add-link IN adm-broker-hdl ( h_b-fg-set , 'Record':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-fg-set ,
              h_folder , 'AFTER':U ).
@@ -418,13 +423,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "item"}
+  {src/adm/template/row-list.i "itemfg"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "item"}
+  {src/adm/template/row-find.i "itemfg"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -543,7 +548,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "item"}
+  {src/adm/template/snd-list.i "itemfg"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

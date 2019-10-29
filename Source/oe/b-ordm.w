@@ -520,6 +520,7 @@ FIND FIRST cust
         AND cust.cust-no EQ oe-ord.cust-no
       NO-LOCK NO-ERROR.
 
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

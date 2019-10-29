@@ -2,7 +2,6 @@
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
-          emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -271,7 +270,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _JoinCode[1]      = "machshft.company = ASI.mach.company
   AND machshft.machine = ASI.mach.m-code"
-     _FldNameList[1]   > machshft.shift
+     _FldNameList[1]   > "_<CALC>"
 "machshft.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "shift_description(machshft.shift) @ shifts_description" "Description" "x(40)" ? ? ? ? ? ? ? no ? no no "40.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -349,6 +348,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {custom/yellowColumns.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

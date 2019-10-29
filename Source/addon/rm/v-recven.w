@@ -708,7 +708,9 @@ DO:
    DO WITH FRAME {&FRAME-NAME}:
 
       IF LASTKEY NE -1 THEN
-      DO:
+      DO:                             
+          IF scr-vend-tag NE scr-vend-tag:SCREEN-VALUE THEN
+            LSSScanVendorLength = NO .
          ASSIGN
             scr-vend-tag
             ERROR-STATUS:ERROR = NO
@@ -783,17 +785,6 @@ DO:
          END.
       END.
    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
-ON VALUE-CHANGED OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
-DO:
- LSSScanVendorLength = NO .
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -493,6 +493,23 @@
 
             FIND LAST work-rel NO-LOCK NO-ERROR.
             IF AVAIL work-rel THEN DO:
+
+                 find first oe-ord no-lock
+                     where oe-ord.company eq cocode
+                     and oe-ord.ord-no  eq inv-line.ord-no
+                  no-error.
+
+                 IF NOT AVAIL oe-ordl THEN
+                     find first oe-ordl no-lock
+                     where oe-ordl.company eq cocode
+                     and oe-ordl.ord-no  eq inv-line.ord-no
+                     AND oe-ordl.i-no EQ work-rel.i-no
+                  no-error.
+
+                IF AVAIL oe-ord THEN
+                    FIND FIRST shipto NO-LOCK
+                    WHERE shipto.company EQ inv-head.company 
+                     AND shipto.ship-id EQ oe-ord.ship-id NO-ERROR .
             
                 PUT STREAM excel UNFORMATTED
                   '"' work-rel.i-no      '",'
@@ -504,7 +521,16 @@
                   '"' work-rel.r-no      '",'
                   '"' work-rel.carrier   '",'
                   '"' work-rel.ship-id   '",'
-                  '"' work-rel.qty       '",'
+                  '"' work-rel.qty       '",' 
+                  '"' (IF AVAIL oe-ord THEN oe-ord.csruser_ID ELSE "") '",' 
+                  '"' inv-head.tax-gr       '",'  
+                  '"' (IF AVAIL inv-misc THEN inv-misc.spare-char-1 ELSE "") '",' 
+                  '"' (IF AVAIL oe-ord AND AVAIL shipto THEN shipto.ship-state ELSE "") '",' 
+                  '"' (IF AVAIL oe-ordl THEN string(oe-ordl.LINE) ELSE "") '",' 
+                  '"' inv-head.bill-i[1] '",'
+                  '"' inv-head.bill-i[2] '",'
+                  '"' inv-head.bill-i[3] '",'
+                  '"' inv-head.bill-i[4] '",'  
                   SKIP.
    
             END.

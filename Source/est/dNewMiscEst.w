@@ -120,10 +120,10 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod board fg-cat sub-unit iUnitCount ~
-iPerPallet pallet dWeightPerM iStackHeight Btn_OK Btn_Cancel 
+iPerPallet iPartial pallet dWeightPerM iStackHeight Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod style-dscr board fg-cat sub-unit ~
-sub-Unit-dscr iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount ~
+sub-Unit-dscr iUnitCount iPerPallet iPartial pallet pallet-dscr tot-iUnitCount ~
 dWeightPerM iStackHeight cust-name ship-name board-dscr cat-dscr 
 
 /* Custom List Definitions                                              */
@@ -218,6 +218,12 @@ DEFINE VARIABLE fg-no AS CHARACTER FORMAT "X(15)":U
 
 DEFINE VARIABLE iPerPallet AS INTEGER FORMAT "->>,>>9":U INITIAL 0 
      LABEL "Per Pallet" 
+     VIEW-AS FILL-IN 
+     SIZE 8.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE iPartial AS INTEGER FORMAT "->>,>>9":U INITIAL 0 
+     LABEL "Partial" 
      VIEW-AS FILL-IN 
      SIZE 8.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
@@ -346,10 +352,11 @@ DEFINE FRAME D-Dialog
      style-dscr AT ROW 11.62 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 182
      board AT ROW 12.71 COL 19.2 COLON-ALIGNED WIDGET-ID 174
      fg-cat AT ROW 13.81 COL 19.2 COLON-ALIGNED WIDGET-ID 196
-     sub-unit AT ROW 6.43 COL 82.2 COLON-ALIGNED WIDGET-ID 216
-     sub-Unit-dscr AT ROW 6.43 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 218
-     iUnitCount AT ROW 7.91 COL 83.8 COLON-ALIGNED WIDGET-ID 220
-     iPerPallet AT ROW 7.91 COL 112.6 COLON-ALIGNED WIDGET-ID 222
+     sub-unit AT ROW 5.76 COL 82.2 COLON-ALIGNED WIDGET-ID 216
+     sub-Unit-dscr AT ROW 5.75 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     iUnitCount AT ROW 6.91 COL 83.8 COLON-ALIGNED WIDGET-ID 220
+     iPerPallet AT ROW 6.91 COL 112.6 COLON-ALIGNED WIDGET-ID 222
+     iPartial AT ROW 8.10 COL 83.8 COLON-ALIGNED
      pallet AT ROW 9.29 COL 78.4 COLON-ALIGNED WIDGET-ID 224
      pallet-dscr AT ROW 9.29 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 226
      tot-iUnitCount AT ROW 10.71 COL 93 COLON-ALIGNED WIDGET-ID 228
@@ -853,6 +860,17 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME iPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPartial D-Dialog
+ON VALUE-CHANGED OF iPartial IN FRAME D-Dialog /* Partial */
+DO:
+        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE) + INTEGER(iPartial:SCREEN-VALUE)) .  
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME iPerPallet
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPerPallet D-Dialog
@@ -875,7 +893,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPerPallet D-Dialog
 ON VALUE-CHANGED OF iPerPallet IN FRAME D-Dialog /* Per Pallet */
 DO:
-        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE)) .  
+        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE) + INTEGER(iPartial:SCREEN-VALUE)) .  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -934,7 +952,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iUnitCount D-Dialog
 ON VALUE-CHANGED OF iUnitCount IN FRAME D-Dialog /* Pack Code Unit */
 DO:
-        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE)) .  
+        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE) + INTEGER(iPartial:SCREEN-VALUE)) .  
 
     END.
 
@@ -1419,6 +1437,7 @@ PROCEDURE create-ttfrmout :
         ttInputEst.cBndlCode        = sub-unit
         ttInputEst.iUnitCount       = iUnitCount
         ttInputEst.iPerPallet       = iPerPallet
+        ttInputEst.iPartial         = iPartial
         ttInputEst.cPallet          = pallet
         ttInputEst.iFormNo          = iFormNumber
         ttInputEst.iBlankNo         = iBlankNumber 
@@ -1527,11 +1546,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
           dep style-cod style-dscr board fg-cat sub-unit sub-Unit-dscr 
-          iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount dWeightPerM 
+          iUnitCount iPerPallet iPartial pallet pallet-dscr tot-iUnitCount dWeightPerM 
           iStackHeight cust-name ship-name board-dscr cat-dscr 
       WITH FRAME D-Dialog.
   ENABLE quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
-         dep style-cod board fg-cat sub-unit iUnitCount iPerPallet pallet 
+         dep style-cod board fg-cat sub-unit iUnitCount iPerPallet iPartial pallet 
          dWeightPerM iStackHeight Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
@@ -1735,9 +1754,10 @@ PROCEDURE pDisplayValue :
              sub-unit:SCREEN-VALUE   = eb.cas-no
              iUnitCount:SCREEN-VALUE = string(eb.cas-cnt)
              iPerPallet:SCREEN-VALUE = string(eb.cas-pal)
+             iPartial:SCREEN-VALUE = string(eb.quantityPartial)
              pallet:SCREEN-VALUE     = eb.tr-no
              dWeightPerM:SCREEN-VALUE = string(eb.weight)
-             tot-iUnitCount:SCREEN-VALUE = string(eb.cas-cnt * eb.cas-pal )
+             tot-iUnitCount:SCREEN-VALUE = string(eb.cas-cnt * eb.cas-pal + eb.quantityPartial )
              cStackCode = eb.stack-code .
               . 
         IF eb.stackHeight GT 0 THEN 

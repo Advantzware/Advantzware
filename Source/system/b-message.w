@@ -286,8 +286,8 @@ DEFINE BROWSE Browser-Table
     WIDTH 13.2 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 136.6 BY 14.05
-         FONT 2.
+    WITH NO-ASSIGN SEPARATORS SIZE 136.0 BY 14.20
+         FGCOLOR 1  FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -327,7 +327,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1 ROW 1 SCROLLABLE 
-    BGCOLOR 8 FGCOLOR 0 
+    BGCOLOR 15 FGCOLOR 1 
     DEFAULT-BUTTON btn_go WIDGET-ID 100.
 
 
@@ -576,6 +576,7 @@ ON CHOOSE OF btn_show IN FRAME F-Main /* Show All */
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+{methods/ctrl-a_browser.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

@@ -78,6 +78,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "est/r-quoprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "oerep/r-invprtoe.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "windows/message.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */

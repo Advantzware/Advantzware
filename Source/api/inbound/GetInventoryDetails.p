@@ -25,33 +25,31 @@ DEFINE OUTPUT PARAMETER TABLE                FOR ttItem.
 
 DEFINE VARIABLE iCount           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
-DEFINE VARIABLE lValidBin        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidLoc        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidBin        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidCompany    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cQuery           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValidTag        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lItemType        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidItem       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cItemTypeFG      AS CHARACTER NO-UNDO INITIAL "FG".
 DEFINE VARIABLE cItemTypeRM      AS CHARACTER NO-UNDO INITIAL "RM".
-
-/* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's 
-   create trigger, only if session.p is running persistently, else will be populated with empty value. 
-   ( refer methods/triggers/create.i ) */
-DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.  
-RUN system/session.p PERSISTENT SET hdSession.
-SESSION:ADD-SUPER-PROCEDURE (hdSession).
+DEFINE VARIABLE hdBuffer         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdQuery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cTableFG         AS CHARACTER NO-UNDO INITIAL "fg-bin".
+DEFINE VARIABLE cTableRM         AS CHARACTER NO-UNDO INITIAL "rm-bin".
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
 ASSIGN
     oplSuccess    = YES
     lValidLoc     = IF ipcWareHouseID NE "" THEN
-                        YES 
-                    ELSE 
+                        YES
+                    ELSE
                         NO
     lValidBin     = IF ipcLocationID NE "" THEN 
                         YES
-                    ELSE 
+                    ELSE
                         NO
     lValidTag     = IF ipcInventoryStockID NE "" THEN
                        YES
@@ -62,12 +60,15 @@ ASSIGN
                     ELSE
                         NO
     lValidCompany = YES
+    ipcItemType   = IF ipcItemType EQ "" THEN
+                        cItemTypeFG
+                    ELSE
+                        ipcItemType
     .
-    
+  
 /* Validate company */
 lValidCompany = CAN-FIND(FIRST company NO-LOCK
                          WHERE company.company EQ ipcCompany).
-        
 IF NOT lValidCompany THEN DO:
     ASSIGN 
         opcMessage = opcMessage + "Invalid Company"
@@ -76,7 +77,7 @@ IF NOT lValidCompany THEN DO:
     RETURN.
 END.
 
-IF NOT lValidLoc AND
+IF NOT lValidLoc AND 
    NOT lValidBin AND
    NOT lValidTag AND
    NOT lValidItem THEN DO:
@@ -84,27 +85,29 @@ IF NOT lValidLoc AND
         opcMessage = "Enter value for loc&bin / tag / item to get inventory details"
         oplSuccess = NO 
         .
+        
     RETURN.
 END.   
 
-IF lValidLoc THEN DO:
+IF (lValidLoc AND NOT lValidBin) OR
+   (lValidBin AND NOT lValidLoc) OR 
+   (lValidLoc AND lValidBin) THEN DO:
+    
     /* Validate warehouse */        
     RUN ValidateLoc IN hdInventoryProcs (
         ipcCompany,
         ipcWareHouseID,
         OUTPUT lValidLoc
         ).
-    
     IF NOT lValidLoc THEN DO:
         ASSIGN 
             opcMessage = "Invalid WareHouseID"                     
             oplSuccess = NO
             .
+            
         RETURN.
     END.
-END.
-
-IF lValidBin THEN DO:
+    
     /* Validate location */
     RUN ValidateBin IN hdInventoryProcs (
         ipcCompany,
@@ -112,173 +115,170 @@ IF lValidBin THEN DO:
         ipcLocationID,
         OUTPUT lValidBin
         ).
-    
+
     IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
         ASSIGN 
             opcMessage = "Invalid LocationID"
             oplSuccess = NO 
             .
+            
         RETURN.
     END.
 END.
 
+/* Validate Item type */
+IF (ipcItemType NE cItemTypeFG  AND 
+    ipcItemType NE cItemTypeRM) THEN DO:
+    ASSIGN 
+        opcMessage = "Invalid ItemType"
+        oplSuccess = NO 
+        .
+        
+    RETURN.
+END.
+
+lItemType = IF ipcItemType EQ cItemTypeFG THEN 
+                FALSE
+            ELSE 
+                TRUE.
+
 /* Validate inventory Stock ID */
-IF lValidTag THEN DO:
+IF lValidTag THEN DO:    
     FIND FIRST loadtag NO-LOCK
          WHERE loadtag.company   EQ ipcCompany
-           AND (IF ipcItemType   EQ cItemTypeFG THEN
-                    loadtag.item-type EQ NO
-                ELSE IF ipcItemType   EQ cItemTypeRM THEN
-                    loadtag.item-type EQ YES
-                ELSE
-                    FALSE)
+           AND loadtag.item-type EQ lItemType
            AND loadtag.tag-no    EQ ipcInventoryStockID 
          NO-ERROR.
     IF NOT AVAILABLE loadtag THEN DO:
         ASSIGN 
-            opcMessage = IF opcMessage EQ "" THEN 
-                             "Invalid inventoryStockID"
-                         ELSE
-                             opcMessage + ", " + "Invalid inventoryStockID"
+            opcMessage = "Invalid inventoryStockID"
             oplSuccess = NO
             .
+            
         RETURN.
     END.
 END.
- 
-/* Validate  Primary ID */
+
+/* Validate Primary ID */
 IF lValidItem THEN DO:
-    IF ipcItemType EQ cItemTypeRM THEN DO:
+    IF lItemType THEN DO:
         FIND FIRST item NO-LOCK
              WHERE item.company EQ ipcCompany
                AND item.i-no    EQ ipcPrimaryID
              NO-ERROR.
         IF NOT AVAILABLE item THEN DO:
             ASSIGN 
-                opcMessage = IF opcMessage EQ "" THEN 
-                                 "Invalid PrimaryID"
-                             ELSE
-                                 opcMessage + ", " + "Invalid PrimaryID"
+                opcMessage = "Invalid PrimaryID"
                 oplSuccess = NO
                 .
-             RETURN.
-         END.
+                
+            RETURN.
+        END.
     END.
-    ELSE IF ipcItemType EQ cItemTypeFG THEN DO:
+    ELSE DO:
         FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company EQ ipcCompany
                AND itemfg.i-no    EQ ipcPrimaryID
              NO-ERROR.
         IF NOT AVAILABLE itemfg THEN DO:
             ASSIGN 
-                opcMessage = IF opcMessage EQ "" THEN 
-                                 "Invalid PrimaryID"
-                             ELSE
-                                 opcMessage + ", " + "Invalid PrimaryID"
+                opcMessage = "Invalid PrimaryID" 
                 oplSuccess = NO
                 .
-             RETURN.
-         END.
+                
+            RETURN.
+        END.
      END.
-     ELSE DO:
-        ASSIGN 
-            opcMessage = IF opcMessage EQ "" THEN 
-                             "Invalid Item Type"
-                         ELSE
-                             opcMessage + ", " + "Invalid Item Type"
-            oplSuccess = NO
-            .
-         RETURN.        
-     END.     
 END.
-
-/* Validate Item type */
-IF ipcItemType EQ "" THEN DO:
-    ASSIGN 
-        opcMessage = IF opcMessage EQ "" THEN 
-                         "Invalid ItemType"
-                   ELSE
-                         opcMessage + ", " + "Invalid ItemType"
-        oplSuccess = NO
-        .
-    RETURN.
-END.
-
-IF NOT oplSuccess THEN
-    RETURN.
-    
+  
 /* Writes response data to temp table*/
-IF ipcItemType EQ cItemTypeFG THEN DO: 
-    FOR EACH fg-bin NO-LOCK 
-        WHERE fg-bin.company  EQ ipcCompany
-          AND (IF lValidTag  THEN fg-bin.tag     EQ ipcInventoryStockID ELSE fg-bin.tag     GE "")
-          AND (IF lValidItem THEN fg-bin.i-no    EQ ipcPrimaryID        ELSE fg-bin.i-no    GE "")
-          AND (IF lValidLoc  THEN fg-bin.loc     EQ ipcWarehouseID      ELSE fg-bin.loc     GE "")
-          AND (IF lValidBin  THEN fg-bin.loc-bin EQ ipcLocationID       ELSE fg-bin.loc-bin GE ""):
-              
+IF ipcItemType EQ cItemTypeFG THEN DO:
+    CREATE BUFFER hdBuffer FOR TABLE cTableFG.
+    CREATE QUERY hdQuery.
+    
+    cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
+           + (IF lValidTag THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidItem THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
+           + (IF lValidLoc  THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
+           + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "").
+       
+    hdQuery:SET-BUFFERS(hdBuffer).
+    hdQuery:QUERY-PREPARE(cQuery).
+    hdQuery:QUERY-OPEN().
+    hdQuery:GET-FIRST().
+    
+    REPEAT:
         iCount = iCount + 1.
-
-        FIND FIRST loadtag NO-LOCK
-             WHERE loadtag.company   EQ fg-bin.company
-               AND loadtag.item-type EQ NO
-               AND loadtag.tag-no    EQ fg-bin.tag 
-             NO-ERROR.
-                      
-        /* Setting the maximum limit of records to fetch to 1000 */
-        IF iCount GT 1000 THEN
-            LEAVE.
         
+        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN
+            LEAVE.
+    
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
+               AND loadtag.item-type EQ NO
+               AND loadtag.tag-no    EQ hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
+             NO-ERROR.
+      
         CREATE ttItem.
-        ASSIGN 
-            ttItem.WarehouseID             = fg-bin.loc
-            ttItem.LocationID              = fg-bin.loc-bin
-            ttItem.PrimaryID               = fg-bin.i-no  
-            ttItem.InventoryStockID        = fg-bin.tag
-            ttItem.Quantity                = fg-bin.qty
+        ASSIGN
+            ttItem.WarehouseID             = hdBuffer:BUFFER-FIELD("loc"):BUFFER-VALUE
+            ttItem.LocationID              = hdBuffer:BUFFER-FIELD("loc-bin"):BUFFER-VALUE
+            ttItem.PrimaryID               = hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
+            ttItem.InventoryStockID        = hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
+            ttItem.Quantity                = hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE
             ttItem.ItemType                = ipcItemType
             ttItem.StockIDAlias            = IF AVAILABLE loadtag THEN
                                                   loadtag.misc-char[1]
                                               ELSE
                                                   ""
-            ttItem.QuantityUOM             = fg-bin.pur-uom /* Each */
-            ttItem.QuantityPerSubUnit      = fg-bin.case-count
-            ttItem.QuantitySubUnitsPerUnit = fg-bin.cases-unit
-            ttItem.QuantityPartial         = fg-bin.partial-total
+            ttItem.QuantityUOM             = hdBuffer:BUFFER-FIELD("pur-uom"):BUFFER-VALUE
+            ttItem.QuantityPerSubUnit      = hdBuffer:BUFFER-FIELD("case-count"):BUFFER-VALUE
+            ttItem.QuantitySubUnitsPerUnit = hdBuffer:BUFFER-FIELD("cases-unit"):BUFFER-VALUE
+            ttItem.QuantityPartial         = hdBuffer:BUFFER-FIELD("partial-total"):BUFFER-VALUE
             .
+        
+        hdQuery:GET-NEXT().
     END.
+    
 END.
-ELSE IF ipcItemType EQ cItemTypeRM THEN DO: 
-    FOR EACH rm-bin NO-LOCK 
-        WHERE rm-bin.company  EQ ipcCompany
-          AND (IF lValidLoc  THEN rm-bin.loc     EQ ipcWarehouseID      ELSE rm-bin.loc     GE "")
-          AND (IF lValidItem THEN rm-bin.i-no    EQ ipcPrimaryID        ELSE rm-bin.i-no    GE "")
-          AND (IF lValidBin  THEN rm-bin.loc-bin EQ ipcLocationID       ELSE rm-bin.loc-bin GE "")
-          AND (IF lValidTag  THEN rm-bin.tag     EQ ipcInventoryStockID ELSE rm-bin.tag     GE ""):
-              
+ELSE DO:
+    CREATE BUFFER hdBuffer FOR TABLE cTableRM.
+    CREATE QUERY hdQuery.
+    
+    cQuery = "FOR EACH rm-bin NO-LOCK WHERE rm-bin.company EQ '" + ipcCompany + "'"
+           + (IF lValidTag  THEN " AND rm-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidItem THEN " AND rm-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
+           + (IF lValidLoc  THEN " AND rm-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
+           + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "").
+       
+    hdQuery:SET-BUFFERS(hdBuffer).
+    hdQuery:QUERY-PREPARE(cQuery).
+    hdQuery:QUERY-OPEN().
+    hdQuery:GET-FIRST().
+    
+    REPEAT:
         iCount = iCount + 1.
-
-        FIND FIRST loadtag NO-LOCK
-             WHERE loadtag.company   EQ rm-bin.company
-               AND loadtag.item-type EQ YES
-               AND loadtag.tag-no    EQ rm-bin.tag 
-             NO-ERROR.
         
-        FIND FIRST item NO-LOCK
-             WHERE item.company EQ ipcCompany
-               AND item.i-no    EQ rm-bin.i-no
-             NO-ERROR.           
-        
-        /* Setting the maximum limit of records to fetch to 1000 */
-        IF iCount GT 1000 THEN
+        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN
             LEAVE.
-        
+    
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
+               AND loadtag.item-type EQ YES
+               AND loadtag.tag-no    EQ hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
+             NO-ERROR.
+        FIND FIRST item NO-LOCK
+             WHERE item.company EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
+               AND item.i-no    EQ hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
+             NO-ERROR.
+             
         CREATE ttItem.
-        ASSIGN 
-            ttItem.WarehouseID             = rm-bin.loc
-            ttItem.LocationID              = rm-bin.loc-bin
-            ttItem.PrimaryID               = rm-bin.i-no  
-            ttItem.InventoryStockID        = rm-bin.tag
-            ttItem.Quantity                = rm-bin.qty
+        ASSIGN
+            ttItem.WarehouseID             = hdBuffer:BUFFER-FIELD("loc"):BUFFER-VALUE
+            ttItem.LocationID              = hdBuffer:BUFFER-FIELD("loc-bin"):BUFFER-VALUE
+            ttItem.PrimaryID               = hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
+            ttItem.InventoryStockID        = hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
+            ttItem.Quantity                = hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE
             ttItem.ItemType                = ipcItemType
             ttItem.StockIDAlias            = IF AVAILABLE loadtag THEN
                                                   loadtag.misc-char[1]
@@ -292,10 +292,20 @@ ELSE IF ipcItemType EQ cItemTypeRM THEN DO:
             ttItem.QuantitySubUnitsPerUnit = 0
             ttItem.QuantityPartial         = 0
             .
+        
+        hdQuery:GET-NEXT().
     END.
 END.
+IF VALID-HANDLE(hdInventoryProcs) THEN
+    DELETE PROCEDURE hdInventoryProcs.
+IF VALID-HANDLE(hdBuffer) THEN
+    DELETE OBJECT hdBuffer.
+IF VALID-HANDLE(hdQuery) THEN DO:
+    IF hdQuery:IS-OPEN THEN
+        hdQuery:QUERY-CLOSE().
+    DELETE OBJECT hdQuery.
+END.
 
-DELETE PROCEDURE hdInventoryProcs.
 
 
 

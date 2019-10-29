@@ -112,18 +112,18 @@ DEFINE FRAME F-Main
          SIZE 160.4 BY 24.1
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 168 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 67 ROW 2.91
          SIZE 84 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 168 BY 1.91
          BGCOLOR 15 .
 
 
@@ -359,6 +359,9 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
 
@@ -366,6 +369,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_vend , 'attachvend':U , h_options ).
        RUN add-link IN adm-broker-hdl ( h_options , 'note-link':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
@@ -386,7 +390,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_export ).
        RUN set-position IN h_export ( 1.00 , 38.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -394,7 +398,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_movecol ).
        RUN set-position IN h_movecol ( 1.00 , 53.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -410,18 +414,15 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to SmartViewer h_export. */
+       /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_vend , 'export-xl':U , h_export ).
 
-       /* Links to SmartViewer h_movecol. */
+       /* Links to SmartObject h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_vend , 'move-columns':U , h_movecol ).
 
        /* Links to SmartNavBrowser h_vend. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_vend ).
        RUN add-link IN adm-broker-hdl ( h_vend , 'Record':U , THIS-PROCEDURE ).
-
-       /* Links to SmartObject h_options. */
-       RUN add-link IN adm-broker-hdl ( h_vend , 'attachvend':U , h_options ).   /* task 11071401 */
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
@@ -578,22 +579,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE image-change-note W-Win 
-PROCEDURE image-change-note :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def output parameter op-need-note as log no-undo.
-  
-  op-need-note = no.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -631,6 +616,21 @@ PROCEDURE enable_UI :
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE image-change-note W-Win 
+PROCEDURE image-change-note :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  def output parameter op-need-note as log no-undo.
+  
+  op-need-note = no.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

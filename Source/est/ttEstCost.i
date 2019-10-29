@@ -59,6 +59,7 @@ DEFINE {1} TEMP-TABLE ttInk
     FIELD dQtyRequired AS DECIMAL
     FIELD cQtyUOM AS CHARACTER
     FIELD dMinLbsPerJob AS DECIMAL
+    FIELD lNoCharge AS LOGICAL
     .
     
 DEFINE {1} TEMP-TABLE ttGlue
@@ -133,6 +134,7 @@ DEFINE {1} TEMP-TABLE ttPack
     FIELD lIsCase AS LOGICAL 
     FIELD lIsPallet AS LOGICAL 
     FIELD dCostPerUOMOverride AS DECIMAL
+    FIELD lNoCharge AS LOGICAL
     .     
         
 /* ********************  Preprocessor Definitions  ******************** */

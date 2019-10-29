@@ -82,17 +82,19 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
                                                 "Cust PO#,Carrier,FOB Code,Job#,Job2,Est#,Item#," +
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
-                                                "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price"                    
+                                                "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
+                                                "CSR,Line Sales TaxGroup,Misc Item SalesTax Group,OrderHeader ShipTo State,Order Line No,Billing Note"
        cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
                                         "i-name,part-no,qty,part-dscr1,part-dscr2," +
                                         "ship-qty,inv-qty,pr-uom,sman1,sname1,sman2,sname2,sman3,sname3," +
-                                        "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price"        
+                                        "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
+                                        "csr,line-sales-tax,misc-sales-tax,ord-head-ship-stat,ord-line,bill-note"
         cFieldLength = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
-                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10"
+                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,15"
            cFieldType = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
-                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i"     
+                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,c,i,c"     
        .
 
 {sys/inc/ttRptSel.i}
@@ -1045,6 +1047,7 @@ DEF BUFFER b-inv-line FOR inv-line.
 DEF BUFFER bf-inv-line FOR inv-line.
 DEF BUFFER b-inv-misc FOR inv-misc.
 DEF BUFFER b-oe-ord FOR oe-ord.
+DEF BUFFER b-oe-ordl FOR oe-ordl.
 
 DEF VAR v-fcust LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
 
@@ -1237,6 +1240,51 @@ IF tb_print-del  THEN do:
                   WHEN "tax"            THEN cVarValue = STRING(inv-line.tax). 
                   WHEN "t-price"            THEN cVarValue = STRING(inv-line.t-price). 
                   WHEN "part-no"            THEN cVarValue = STRING(inv-line.part-no). 
+                  WHEN "csr"                THEN DO:
+                      FIND FIRST b-oe-ord NO-LOCK
+                          WHERE b-oe-ord.company EQ inv-head.company
+                          AND b-oe-ord.ord-no EQ inv-line.ord-no NO-ERROR.
+                      IF AVAIL b-oe-ord THEN
+                          cVarValue = b-oe-ord.csruser_ID.
+                      ELSE cVarValue = "".
+                  END.
+                  WHEN "line-sales-tax"     THEN DO: 
+                     cVarValue = "".
+                  END.
+                  WHEN "misc-sales-tax"     THEN DO:
+                    FIND FIRST b-inv-misc OF inv-head NO-LOCK
+                        WHERE b-inv-misc.ord-no NE 0
+                        NO-ERROR.
+                    IF AVAIL b-inv-misc THEN
+                          cVarValue = b-inv-misc.spare-char-1 .
+                      ELSE cVarValue = "".
+                  END.
+                  WHEN "ord-head-ship-stat" THEN DO:
+                      FIND FIRST b-oe-ord NO-LOCK
+                          WHERE b-oe-ord.company EQ inv-head.company
+                          AND b-oe-ord.ord-no EQ inv-line.ord-no
+                           NO-ERROR.
+                      IF AVAIL b-oe-ord THEN
+                          FIND FIRST shipto NO-LOCK
+                          WHERE shipto.company EQ inv-head.company 
+                            AND shipto.ship-id EQ b-oe-ord.ship-id NO-ERROR .
+                      IF AVAIL b-oe-ord AND AVAIL shipto THEN
+                          cVarValue = shipto.ship-state .
+                      ELSE cVarValue = "".
+                  END.
+                  WHEN "ord-line"           THEN DO: 
+                      FIND FIRST b-oe-ordl NO-LOCK
+                          WHERE b-oe-ordl.company EQ inv-head.company
+                          AND b-oe-ordl.ord-no EQ inv-line.ord-no
+                          AND b-oe-ordl.i-no  EQ inv-line.i-no 
+                           NO-ERROR.
+                      IF AVAIL b-oe-ordl THEN
+                          cVarValue = string(b-oe-ordl.LINE) .
+                      ELSE cVarValue = "".
+                  END.
+                  WHEN "bill-note"          THEN DO:
+                     cVarValue =  inv-head.bill-i[1] + " "  + inv-head.bill-i[2] + " " + inv-head.bill-i[3] + "  " + inv-head.bill-i[4] .
+                  END.
                   
              END CASE.
 

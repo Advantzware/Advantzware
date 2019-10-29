@@ -842,51 +842,40 @@ PROCEDURE spSendEmail:
         .    
     FIND FIRST emailConfig NO-LOCK
          WHERE emailConfig.configID EQ ipcConfigID
-           AND isActive
-         NO-ERROR.        
-
+           AND emailConfig.isActive EQ YES
+         NO-ERROR.
     /* Sends email only if configID is available in emailConfig table */
-    IF AVAILABLE emailConfig AND emailConfig.smtpServer NE "" THEN DO:
-   
+    IF AVAILABLE emailConfig AND emailConfig.smtpServer NE "" THEN DO:   
         /* If value for input recipientsinTo is null, then gets value from emailConfig table */
         IF ipcRecipientsSendTO EQ "" THEN
-            ipcRecipientsSendTO = emailConfig.recipientsSendTO.
-        
+        ipcRecipientsSendTO = emailConfig.recipientsSendTo.        
      /* If value for recipientsinTo is null in emailConfig table, then code execution stops */
         IF ipcRecipientsSendTO EQ "" THEN
-            RETURN.
-		
+        RETURN.		
         /* If value for input recipientsinBCC is null, then gets value from emailConfig table */
         IF ipcRecipientsSendBCC EQ "" THEN
-            ipcRecipientsSendBCC = emailConfig.recipientsSendBCC.
-        
+        ipcRecipientsSendBCC = emailConfig.recipientsSendBCC.        
      /* If value for input recipientsinCC is null, then gets value from emailConfig table */			
         IF ipcRecipientsSendCC EQ "" THEN
-            ipcRecipientsSendCC = emailConfig.recipientsSendCC.
-        
+        ipcRecipientsSendCC = emailConfig.recipientsSendCC.        
      /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */			
         IF ipcRecipientsReplyTo EQ "" THEN
-            ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.
-        
+        ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.        
         ASSIGN
             ipcRecipientsSendTO  = TRIM(REPLACE(ipcRecipientsSendTO,";",","))
             ipcRecipientsSendCC  = TRIM(REPLACE(ipcRecipientsSendCC,";",","))
             ipcRecipientsSendBCC = TRIM(REPLACE(ipcRecipientsSendBCC,";",","))
             ipcRecipientsReplyTo = TRIM(REPLACE(ipcRecipientsReplyTo,";",","))
-            .
-            
+            .            
      /* If value for input body is null, then gets value from emailConfig table */
         IF ipcBody EQ "" THEN
-            ipcBody = emailConfig.body.
-        
+        ipcBody = emailConfig.body.        
      /* If value for input subject is null, then gets value from emailConfig table */
         IF ipcSubject EQ "" THEN
-            ipcSubject = emailConfig.subject.
-        
+        ipcSubject = emailConfig.subject.        
      /* If value for input attachment is valid, then only attachment will be sent in email  */
         IF ipcAttachment NE ? THEN
-            cAttachments = cAttachments + " -a:" + ipcAttachment.   
-		
+        cAttachments = cAttachments + " -a:" + ipcAttachment.		
      /* cMail don't supports adding multiple recipients to a single (to/cc/bcc/reply-to) field. 
            Only one recipient can be added to a single (to/cc/bcc/reply-to) field. 
 	 So,This setting may be required multiple times based on the number of receipients */
