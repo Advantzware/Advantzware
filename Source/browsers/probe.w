@@ -2232,13 +2232,39 @@ PROCEDURE import-price :
   DEFINE VARIABLE lv-price AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lv-subprice AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lv-subquantity AS DECIMAL DECIMALS 10 NO-UNDO.
+  DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+
   DEFINE BUFFER b-eb FOR eb.
+  DEFINE BUFFER bff-probe FOR probe .
+
+  DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+  RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
   
   {est/checkuse.i}
+
+  RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
+  IF lMultiRecords THEN do:
+      RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+
+      MESSAGE cCurrentMessage
+          VIEW-AS ALERT-BOX QUESTION 
+          BUTTONS YES-NO UPDATE lcheckflg as logical .
+  END.
+
+ FOR EACH bff-probe NO-LOCK
+     WHERE bff-probe.company = eb.company 
+       and bff-probe.est-no = eb.est-no 
+       AND bff-probe.probe-date ne ?
+       AND (lcheckflg OR ( NOT lcheckflg AND rowid(bff-probe) EQ ROWID(probe))) :
 
   RUN save-fields.
 
   DO WITH FRAME {&FRAME-NAME}:
+
+    REPOSITION {&browse-name} TO ROWID rowid(bff-probe) NO-ERROR.
 
     IF est.est-type NE 8 THEN
       FOR EACH quotehd OF est NO-LOCK,
@@ -2301,14 +2327,17 @@ PROCEDURE import-price :
           probe.sell-price:{&SVB} = STRING(ROUND(lv-subprice / lv-subquantity,2)).
        ELSE
           probe.sell-price:{&SVB} = "0".
-         
+
        RUN calc-fields NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN.
        
        RUN dispatch ("update-record").
     END.
   END.
-  
+ END.
+
+ DELETE OBJECT hMessageProcs.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4102,6 +4131,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMultiRecords B-table-Win 
+PROCEDURE pCheckMultiRecords :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplMultiRecords AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bff-probe FOR probe .
+  i = 0 .
+  FOR EACH bff-probe NO-LOCK
+     WHERE bff-probe.company = eb.company 
+       and bff-probe.est-no = eb.est-no 
+       AND bff-probe.probe-date ne ?:
+     i = i + 1 .
+     IF i GE 2 THEN DO:
+        oplMultiRecords = YES .
+        LEAVE .
+     END.
+  END.   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ************************  Function Implementations ***************** */
 
