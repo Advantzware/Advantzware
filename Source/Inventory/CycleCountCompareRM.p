@@ -103,7 +103,11 @@ DEFINE TEMP-TABLE ttDupTags
     FIELD loc1       LIKE rm-bin.loc
     FIELD loc2       LIKE rm-bin.loc
     FIELD transTypes AS CHARACTER.
-    
+
+DEF TEMP-TABLE ttToPost
+  FIELD rRmRctd AS ROWID 
+  .
+      
 DEFINE STREAM sOutput.
 DEFINE STREAM sIn.
 
@@ -232,7 +236,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE VARIABLE iStatusCnt2 AS INTEGER NO-UNDO.
         
     EMPTY TEMP-TABLE ttCycleCountCompare.
-    
+
     FIND FIRST ce-ctrl WHERE ce-ctrl.company EQ ipcCompany NO-LOCK NO-ERROR.
     FOR EACH rm-rctd NO-LOCK 
         WHERE rm-rctd.company EQ ipcCompany
@@ -240,7 +244,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND rm-rctd.tag NE ""
         AND rm-rctd.i-no GE ipcFGItemStart
         AND rm-rctd.i-no LE ipcFGItemEnd
-        AND lookup(rm-rctd.loc, ipcWhseList) GT 0  
+        AND (LOOKUP(rm-rctd.loc, ipcWhseList) GT 0
+             OR CAN-FIND(FIRST ttSnapShot WHERE ttSnapshot.cTag EQ rm-rctd.tag)
+            )       
         AND rm-rctd.loc-bin GE ipcBinStart
         AND rm-rctd.loc-bin LE ipcBinEnd
         AND rm-rctd.qty NE 0
@@ -261,6 +267,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND ttCycleCountCompare.cFGItemID EQ rm-rctd.i-no
             AND ttCycleCountCompare.cTag EQ rm-rctd.tag
             NO-ERROR.
+
         IF NOT AVAILABLE ttCycleCountCompare THEN 
         DO:
             CREATE ttCycleCountCompare.
@@ -489,9 +496,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         WHERE ttCycleCountCompare.cFGItem   GE ipcFGItemStart
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
-        (
-        LOOKUP(ttCycleCountCompare.cScanLoc, ipcWhseList) GT 0         
-        AND ttCycleCountCompare.cScanLocBin  GE ipcBinStart
+        (ttCycleCountCompare.cScanLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cScanLocBin  LE ipcBinEnd
         )
         ELSE 
@@ -511,7 +516,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
 
         ttCycleCountCompare.cAction = fGetAction(
             ttCycleCountCompare.lLocationChanged, 
-            ttCycleCountCompare.lQuantityChanged, 
+            (ttCycleCountCompare.lQuantityChanged OR ttCycleCountCompare.cSysLoc EQ ""), 
             ttCycleCountCompare.lNotScanned, 
             ttCycleCountCompare.lMatch,
             ttCycleCountCompare.iCountOfBinsForTagNonZero, 
@@ -797,22 +802,30 @@ PROCEDURE pCreateTransferCounts:
 
     FOR EACH ttCycleCountCompare NO-LOCK 
         WHERE lNotScanned = FALSE 
-        AND lLocationChanged
-        AND ttCycleCountCompare.cSysLoc GT ""
-        AND ttCycleCountCompare.cSysLocBin GT "",    
-        FIRST rm-bin NO-LOCK 
-        WHERE /* rm-bin.r-no   EQ ttCycleCountCompare.iSequence    
-        AND */ rm-bin.company EQ  ttCycleCountCompare.cCompany
-        AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
-        AND rm-bin.tag     EQ ttCycleCountCompare.cTag        
-        AND rm-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
-        AND rm-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
-        :
+        AND (lLocationChanged OR ttCycleCountCompare.cSysLoc NE ttCycleCountCompare.cScanLoc)
+        :   
+        FIND FIRST rm-bin NO-LOCK 
+            WHERE rm-bin.company EQ  ttCycleCountCompare.cCompany
+              AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+              AND rm-bin.tag     EQ ttCycleCountCompare.cTag        
+              AND rm-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
+              AND rm-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
+              NO-ERROR.
+        /* In case the inventory moved from another location */
+        IF NOT AVAIL rm-bin THEN 
+        FIND FIRST rm-bin NO-LOCK 
+            WHERE rm-bin.company EQ  ttCycleCountCompare.cCompany
+              AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+              AND rm-bin.tag     EQ ttCycleCountCompare.cTag           
+              AND rm-bin.qty     GT 0
+              NO-ERROR.        
+        IF NOT AVAIL rm-bin THEN 
+            NEXT.      
         RUN sys/ref/asiseq.p (INPUT rm-bin.company, INPUT "rm_rcpt_seq", OUTPUT iNextRNo) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN
             MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.              
-        /* Finding a count record from within the past week on assumption it will */
+        /* Finding a count record from within the past week on assumption it will    */
         /* be part of the current physical                                           */
         FIND FIRST bf-rm-rctd NO-LOCK 
             WHERE bf-rm-rctd.company EQ  ttCycleCountCompare.cCompany
@@ -844,8 +857,11 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.po-no      = STRING(rm-bin.po-no)
             lv-tag             = rm-bin.tag
             .
-                               
-      
+        CREATE ttToPost.
+        ttToPost.rRmRctd = ROWID(rm-rctd). 
+        IF AVAIL bf-rm-rctd THEN DO:
+             ttToPost.rRmRctd = ROWID(bf-rm-rctd). 
+        END.
         IF rm-rctd.pur-uom = "" THEN
             rm-rctd.pur-uom = rm-rctd.cost-uom.
 
@@ -874,14 +890,14 @@ PROCEDURE pCreateTransferCounts:
 
         IF AVAILABLE rm-rdtlh THEN 
         DO:
-
             FIND FIRST rm-rcpth OF rm-rdtlh NO-LOCK NO-ERROR.
 
             IF AVAILABLE rm-rcpth THEN 
             DO:
-
+                IF rm-rcpth.po-no GT "" THEN 
                 ASSIGN                     
-                    rm-rctd.po-no   = rm-rcpth.po-no
+                    rm-rctd.po-no   = rm-rcpth.po-no.
+                ASSIGN 
                     rm-rctd.po-line = MAX(rm-rcpth.po-line, 1)
                     rm-rctd.job-no  = rm-rcpth.job-no
                     rm-rctd.job-no2 = rm-rcpth.job-no2.
@@ -893,7 +909,6 @@ PROCEDURE pCreateTransferCounts:
         
 
     END.  /* for each rm-bin*/
-
 
 END PROCEDURE.
 
@@ -954,6 +969,8 @@ PROCEDURE pCreateZeroCount:
             rm-rctd.user-id  = USERID("nosweat")
             rm-rctd.upd-date = TODAY
             rm-rctd.upd-time = TIME.
+            
+      
         IF AVAILABLE ITEM THEN 
         DO:
             rm-rctd.pur-uom = ITEM.cons-uom.
@@ -1366,17 +1383,18 @@ PROCEDURE pPostCounts:
             :
             IF ipdtTransDate NE ? AND ipdtTransDate NE rm-rctd.rct-date THEN 
               rm-rctd.rct-date = ipdtTransDate.
+            FIND FIRST ttToPost
+                WHERE ttToPost.rRmRctd EQ ROWID(rm-rctd)
+                NO-ERROR.
+            IF NOT AVAIL ttToPost THEN DO:
+              CREATE ttToPost.
+              ttToPost.rRmRctd = ROWID(rm-rctd).
+            END. 
         END.
-        FOR EACH rm-rctd EXCLUSIVE-LOCK 
-            WHERE rm-rctd.company   EQ cocode
-            AND rm-rctd.rita-code EQ "C"   
-            AND rm-rctd.tag NE ""
-            AND rm-rctd.i-no GE ipcFGItemStart
-            AND rm-rctd.i-no LE ipcFGItemEnd
-            AND LOOKUP(rm-rctd.loc, ipcWhseList) GT 0 
-            AND rm-rctd.loc-bin GE ipcBinStart
-            AND rm-rctd.loc-bin LE ipcBinEnd
-            AND rm-rctd.qty GE 0  
+        
+        FOR EACH ttToPost,
+           FIRST rm-rctd EXCLUSIVE-LOCK 
+            WHERE ROWID(rm-rctd) EQ ttToPost.rRmrctd
             ,  
             FIRST ITEM EXCLUSIVE-LOCK 
             WHERE item.company EQ cocode
@@ -1386,7 +1404,6 @@ PROCEDURE pPostCounts:
             BREAK BY rm-rctd.i-no
             BY rm-rctd.rct-date
             BY rm-rctd.tag:
-
 
             ASSIGN
                 item.last-count = 0
@@ -1631,9 +1648,9 @@ FUNCTION fGetAction RETURNS CHARACTER
     IF  ipcLocChanged AND iplQtyChanged THEN 
         cResult = "Count Posted, Count orig to 0".
         
-    /* Not in snapshot so just post count */
-    IF  ipcLocChanged AND iplQtyChanged AND ipcLoc = "" THEN 
-        cResult = "Count Posted".          
+    /* Not in snapshot but may have been in another warehouse */
+    // IF  ipcLocChanged AND iplQtyChanged AND ipcLoc = "" THEN 
+    //     cResult = "Count Posted".          
                       
     IF  ipdCntNonZero > 1 THEN 
         ASSIGN cResult = "Cannot Post - Remove Dupcate" .

@@ -1,17 +1,7 @@
     
-for each {1}fg-rctd
-    where {1}fg-rctd.company   eq cocode
-      and {1}fg-rctd.rita-code eq "C"
-      AND ("{1}" EQ "w-" OR
-           (fg-rctd.created-by GE begin_userid  
-            AND fg-rctd.created-by LE end_userid
-            AND fg-rctd.i-no GE ipcFGItemStart
-            AND fg-rctd.i-no LE ipcFGItemEnd
-            AND LOOKUP(fg-rctd.loc, ipcWhseList) GT 0            
-            AND fg-rctd.loc-bin GE ipcBinStart
-            AND fg-rctd.loc-bin LE ipcBinEnd            
-           )
-          )
+   FOR EACH ttToPost,
+       FIRST {1}fg-rctd EXCLUSIVE-LOCK
+           WHERE ROWID({1}fg-rctd) EQ ttToPost.rFgRctd
    break by {1}fg-rctd.i-no 
           by {1}fg-rctd.loc
           by {1}fg-rctd.loc-bin
@@ -61,6 +51,7 @@ for each {1}fg-rctd
        b-fg-bin.company = {1}fg-rctd.company
        b-fg-bin.job-no  = {1}fg-rctd.job-no
        b-fg-bin.job-no2 = {1}fg-rctd.job-no2
+       b-fg-bin.po-no   = {1}fg-rctd.po-no
        b-fg-bin.loc     = {1}fg-rctd.loc
        b-fg-bin.loc-bin = {1}fg-rctd.loc-bin
        b-fg-bin.tag     = {1}fg-rctd.tag

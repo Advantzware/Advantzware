@@ -104,6 +104,9 @@ DEFINE TEMP-TABLE ttDupTags
     FIELD transTypes AS CHARACTER
     .
     
+DEF TEMP-TABLE ttToPost
+  FIELD rFgRctd AS ROWID 
+  .    
 DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd.
 {fg/fullset.i NEW}   
 {oe/invwork.i new} 
@@ -236,17 +239,22 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND fg-rctd.tag NE ""
         AND fg-rctd.i-no GE ipcFGItemStart
         AND fg-rctd.i-no LE ipcFGItemEnd
-        AND LOOKUP(fg-rctd.loc, ipcWhseList) GT 0        
+        AND (LOOKUP(fg-rctd.loc, ipcWhseList) GT 0
+             OR CAN-FIND(FIRST ttSnapShot WHERE ttSnapshot.cTag EQ fg-rctd.tag)
+             )        
         AND fg-rctd.loc-bin GE ipcBinStart
         AND fg-rctd.loc-bin LE ipcBinEnd
         AND fg-rctd.qty NE 0
         :
+            
+
         /*Initial Create*/    
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
             WHERE ttCycleCountCompare.cCompany EQ fg-rctd.company
             AND ttCycleCountCompare.cFGItemID EQ fg-rctd.i-no
             AND ttCycleCountCompare.cTag EQ fg-rctd.tag
             NO-ERROR.
+        
         IF NOT AVAILABLE ttCycleCountCompare THEN 
         DO:
             iStatusCnt1 = iStatusCnt1 + 1.
@@ -488,8 +496,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
         WHERE ttCycleCountCompare.cFGItem   GE ipcFGItemStart
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
-        (LOOKUP(ttCycleCountCompare.cScanLoc, ipcWhseList) GT 0
-        AND ttCycleCountCompare.cScanLocBin  GE ipcBinStart       
+        // (LOOKUP(ttCycleCountCompare.cScanLoc, ipcWhseList) GT 0 
+        (  ttCycleCountCompare.cScanLocBin  GE ipcBinStart       
         AND ttCycleCountCompare.cScanLocBin  LE ipcBinEnd
         )
         ELSE 
@@ -509,7 +517,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         END.
  
         ttCycleCountCompare.cAction = fGetAction(
-            ttCycleCountCompare.lLocationChanged, 
+            ttCycleCountCompare.lLocationChanged OR ttCycleCountCompare.cSysLoc EQ "",
             ttCycleCountCompare.lQuantityChanged, 
             ttCycleCountCompare.lNotScanned, 
             ttCycleCountCompare.lMatch,
@@ -663,7 +671,7 @@ PROCEDURE pCheckBinDups:
     oplNoDups = lIsDups.
     IF lIsDups THEN 
     DO:
-        MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
+         MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
         OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
@@ -798,19 +806,41 @@ PROCEDURE pCreateTransferCounts:
  
     FOR EACH ttCycleCountCompare NO-LOCK 
         WHERE lNotScanned = FALSE 
-        AND lLocationChanged
-        AND ttCycleCountCompare.cSysLoc GT ""
-        AND ttCycleCountCompare.cSysLocBin GT "",    
-        FIRST fg-bin NO-LOCK 
-        WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
-        AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
-        AND fg-bin.tag     EQ ttCycleCountCompare.cTag        
-        AND fg-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
-        AND fg-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
-        AND fg-bin.job-no  EQ ttCycleCountCompare.cJobNo
-        AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
-        :
-        /* Finding a count record from within the past 2 weeks on assumption it will */
+        AND (lLocationChanged OR ttCycleCountCompare.cSysLoc NE ttCycleCountCompare.cScanLoc)
+        // AND ttCycleCountCompare.cSysLoc GT ""
+        // AND ttCycleCountCompare.cSysLocBin GT ""
+        :  
+        FIND FIRST fg-bin NO-LOCK 
+            WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
+                AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+                AND fg-bin.tag     EQ ttCycleCountCompare.cTag        
+                AND fg-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
+                AND fg-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
+                AND fg-bin.job-no  EQ ttCycleCountCompare.cJobNo
+                AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
+                NO-ERROR.
+                
+        /* In case the inventory exists in a different location */
+        IF NOT AVAIL fg-bin THEN 
+            FIND FIRST fg-bin NO-LOCK 
+              WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
+                AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+                AND fg-bin.tag     EQ ttCycleCountCompare.cTag           
+                AND fg-bin.job-no  EQ ttCycleCountCompare.cJobNo
+                AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
+                AND fg-bin.qty     GT 0
+                NO-ERROR.
+        IF NOT AVAIL fg-bin THEN 
+            FIND FIRST fg-bin NO-LOCK 
+              WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
+                AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+                AND fg-bin.tag     EQ ttCycleCountCompare.cTag   
+                AND fg-bin.qty     GT 0        
+                NO-ERROR.       
+        IF NOT AVAIL fg-bin THEN 
+            NEXT.
+                     
+            /* Finding a count record from within the past 2 weeks on assumption it will */
         /* be part of the current physical                                           */
         FIND FIRST bf-fg-rctd NO-LOCK 
             WHERE bf-fg-rctd.company EQ  ttCycleCountCompare.cCompany
@@ -822,17 +852,20 @@ PROCEDURE pCreateTransferCounts:
             AND bf-fg-rctd.rct-date GE TODAY - 14
             NO-ERROR.    
         /* The transfer should happen before the count */
-        IF AVAILABLE bf-fg-rctd THEN
+        IF AVAILABLE bf-fg-rctd THEN DO:
             ASSIGN  
                 dTransDate = bf-fg-rctd.rct-date
                 iTransTime = bf-fg-rctd.trans-time
                 cEnteredBy = bf-fg-rctd.enteredBy
                 dtmEnteredDate = bf-fg-rctd.enteredDT       
-                .  
+                .
+            CREATE ttToPost.
+            ttToPost.rFgRctd = ROWID(bf-fg-rctd). 
+        END.
             
         FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
             AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
-            
+
         /* ttCycleCountCompare.cSysLoc & bin contain the original location for this tag, so create a count to 0 it out */
         CREATE fg-rctd.
         ASSIGN 
@@ -884,6 +917,10 @@ PROCEDURE pCreateTransferCounts:
             fg-rctd.pur-uom = itemfg.cons-uom.
             RELEASE itemfg.
         END.  
+        
+        CREATE ttToPost.
+        ttToPost.rFgRctd = ROWID(fg-rctd). 
+                
     /* fg-rctd job, PO must match the fg-bin to post */
     /*
     FIND FIRST fg-rdtlh WHERE
@@ -1356,22 +1393,23 @@ PROCEDURE pPostCounts:
                 
             /* Allow user to force transactions to be on a different date */
             IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
-                fg-rctd.rct-date = ipdtTransDate.                
+                fg-rctd.rct-date = ipdtTransDate. 
+            FIND FIRST ttToPost
+                WHERE ttToPost.rFgRctd EQ ROWID(fg-rctd)  
+                NO-ERROR.
+            IF NOT AVAIL ttToPost THEN DO:
+              CREATE ttToPost.
+              ttToPost.rFgRctd = ROWID(fg-rctd).
+            END.
         END.      
-        FOR EACH fg-rctd EXCLUSIVE-LOCK
-            WHERE fg-rctd.company EQ cocode
-            AND fg-rctd.rita-code EQ "C"   
-            AND fg-rctd.tag NE ""
-            AND fg-rctd.i-no GE ipcFGItemStart
-            AND fg-rctd.i-no LE ipcFGItemEnd
-            AND LOOKUP(fg-rctd.loc, ipcWhseList) > 0
-            AND fg-rctd.loc-bin GE ipcBinStart
-            AND fg-rctd.loc-bin LE ipcBinEnd
-            AND fg-rctd.qty NE 0  
+        
+        FOR EACH ttToPost,
+           EACH fg-rctd EXCLUSIVE-LOCK
+            WHERE ROWID(fg-rctd) EQ ttToPost.rFgRctd
             ,  
             FIRST itemfg
             WHERE itemfg.company EQ cocode
-            AND itemfg.i-no    EQ fg-rctd.i-no
+            AND itemfg.i-no      EQ fg-rctd.i-no
             AND itemfg.isaset
             AND itemfg.alloc   
             NO-LOCK
