@@ -321,7 +321,7 @@ PROCEDURE runProcess :
     DO:
         OUTPUT STREAM excel TO VALUE(fi_file).
 
-        excelheader = "Inv No.,Inv Date,Due Amount,Paid Amount,Gross,Net,Calculated Paid Amt".
+        excelheader = "Customer No,Invoice No,Invoice Date,Invoice Gross Amount,Invoice Net Amount,Payment Amount,Net Should be,Amount Due Shows".
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
@@ -350,8 +350,9 @@ PROCEDURE runProcess :
             IF tb_excel THEN 
             DO:
                 EXPORT STREAM excel DELIMITER "," 
-                 ar-inv.inv-no ar-inv.inv-date ar-inv.due ar-inv.paid ar-inv.gross ar-inv.net
-                 tot-paid .
+                 ar-inv.cust-no ar-inv.inv-no ar-inv.inv-date ar-inv.gross ar-inv.net ar-inv.paid 
+                   (if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN ar-inv.net ELSE ar-inv.gross)  - tot-paid ar-inv.due 
+                 .
             END. /* Excel Report */  
                 
       END.
