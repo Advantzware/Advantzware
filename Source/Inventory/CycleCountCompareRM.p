@@ -789,13 +789,13 @@ PROCEDURE pCreateTransferCounts:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-   
+   DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE VARIABLE iNextRno LIKE rm-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-rm-rctd FOR rm-rctd.
     DEFINE VARIABLE dTransDate AS DATE      NO-UNDO.
     DEFINE VARIABLE lv-tag     AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
-    dTransDate = TODAY.
+    dTransDate = (IF ipdtTransDate EQ ? THEN TODAY ELSE ipdtTransDate ).
 
     /* Code placed here will execute PRIOR to standard behavior. */
     iNextRno = 0.
@@ -917,13 +917,14 @@ PROCEDURE pCreateZeroCount:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/        
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE VARIABLE iNextRNo LIKE rm-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-rm-rctd FOR rm-rctd.
         
     DEFINE VARIABLE dTransDate AS DATE      NO-UNDO.
     DEFINE VARIABLE cTag       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIno       AS CHARACTER NO-UNDO.
-    dTransDate = TODAY.
+    dTransDate = (IF ipdtTransDate EQ ? THEN TODAY ELSE ipdtTransDate ).
 
     iNextRNo = 0.
      
@@ -970,6 +971,8 @@ PROCEDURE pCreateZeroCount:
             rm-rctd.upd-date = TODAY
             rm-rctd.upd-time = TIME.
             
+        CREATE ttToPost.
+        ttToPost.rRmRctd = ROWID(rm-rctd).
       
         IF AVAILABLE ITEM THEN 
         DO:
@@ -1324,9 +1327,9 @@ PROCEDURE postRM:
     IF lDupsExist THEN 
         RETURN.
 
-    RUN pCreateZeroCount.
+    RUN pCreateZeroCount (ipdtTransDate).
     
-    RUN pCreateTransferCounts.
+    RUN pCreateTransferCounts (ipdtTransDate).
     
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).

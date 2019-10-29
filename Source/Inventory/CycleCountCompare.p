@@ -774,7 +774,7 @@ PROCEDURE pCreateTransferCounts:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-   
+   DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE VARIABLE iNextRno LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
     DEFINE VARIABLE dTransDate AS DATE      NO-UNDO.
@@ -784,7 +784,7 @@ PROCEDURE pCreateTransferCounts:
     DEFINE VARIABLE cEnteredBy AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtmEnteredDate AS DATETIME NO-UNDO.
     ASSIGN 
-        dTransDate = TODAY
+        dTransDate = (IF ipdtTransDate EQ ? THEN TODAY ELSE ipdtTransDate)
         iTransTime = TIME. 
 
     /* Code placed here will execute PRIOR to standard behavior. */
@@ -961,6 +961,7 @@ PROCEDURE pCreateZeroCount:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/        
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE VARIABLE iNextRNo LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
     
@@ -968,7 +969,7 @@ PROCEDURE pCreateZeroCount:
     DEFINE VARIABLE cTag       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIno       AS CHARACTER NO-UNDO.
     ASSIGN 
-        dTransDate = TODAY
+        dTransDate = (IF ipdtTransDate EQ ? THEN TODAY ELSE ipdtTransDate)
         iNextRNo   = 0
         .
     FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
@@ -1031,8 +1032,10 @@ PROCEDURE pCreateZeroCount:
             fg-rctd.partial      = 0
             fg-rctd.t-qty        = 0
             fg-rctd.units-pallet = 1 /* normal default */
-            fg-rctd.cost-uom     = fg-bin.pur-uom.
-            
+            fg-rctd.cost-uom     = fg-bin.pur-uom
+            .
+        CREATE ttToPost.
+        ttToPost.rFgRctd = ROWID(fg-rctd).             
         FIND FIRST fg-rdtlh NO-LOCK WHERE 
             fg-rdtlh.company   = fg-bin.company AND
             fg-rdtlh.tag       = ttCycleCountCompare.cTag AND
@@ -1319,8 +1322,8 @@ PROCEDURE postFG:
             RETURN.
     END.
 
-    RUN pCreateZeroCount.
-    RUN pCreateTransferCounts.
+    RUN pCreateZeroCount (ipdtTransDate ).
+    RUN pCreateTransferCounts (ipdtTransDate).
 
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
