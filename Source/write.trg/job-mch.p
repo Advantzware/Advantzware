@@ -14,8 +14,6 @@ DEFINE VARIABLE ld-tot            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cocode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-format-f       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ll-error          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cJobCompleteEmail AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lJobCompleteEmail AS LOGICAL   NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF job-mat.
 
@@ -113,17 +111,10 @@ IF lv-format-f NE "Frankstn" AND
   END.
 END.
 
-RUN sys/ref/nk1look.p (
-    cocode,"JobCompleteEmail","L",NO,NO,"","",
-    OUTPUT cJobCompleteEmail,OUTPUT lJobCompleteEmail
-    ).
-IF lJobCompleteEmail AND cJobCompleteEmail EQ "Yes" THEN DO:
-    RUN sys/ref/nk1look.p (
-        cocode,"JobCompleteEmail","I",NO,NO,"","",
-        OUTPUT cJobCompleteEmail,OUTPUT lJobCompleteEmail
-        ).
-    RUN pLastRoutingEmail (INTEGER(cJobCompleteEmail)).
-END. /* if ljobcompleteemail */
+/* check if run-complete changed from no to yes */
+IF old-{&TABLENAME}.run-complete EQ NO  AND
+       {&TABLENAME}.run-complete EQ YES THEN
+RUN pLastRoutingEmail.
 
 FIND FIRST b-job EXCLUSIVE-LOCK
      WHERE b-job.company EQ {&TABLENAME}.company
@@ -136,51 +127,63 @@ b-job.user-id = USERID("NOSWEAT").
 ll-error = YES NO-ERROR.
 
 PROCEDURE pLastRoutingEmail:
-    DEFINE INPUT PARAMETER ipiConfigID AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE cBody    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFGItem  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBody             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFGItem           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobCompleteEmail AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachine          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lJobCompleteEmail AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER bJobMch FOR job-mch.
 
+    /* get last routing record */
     FIND LAST bJobMch NO-LOCK USE-INDEX line-idx
         WHERE bJobMch.company EQ {&TABLENAME}.company
           AND bJobMch.job     EQ {&TABLENAME}.job
         NO-ERROR.
+    /* only applies if last routing record */
     IF AVAILABLE bJobMch AND
-       ROWID(bJobMch) EQ ROWID({&TABLENAME}) AND
-       {&TABLENAME}.run-complete EQ YES AND
-       old-{&TABLENAME}.run-complete EQ NO THEN DO:
-        FIND FIRST mach NO-LOCK
-             WHERE mach.company EQ {&TABLENAME}.company
-               AND mach.m-code  EQ {&TABLENAME}.m-code
-             NO-ERROR.
-        IF AVAILABLE mach THEN
-        cMachine = mach.m-dscr.
-        FIND FIRST itemfg NO-LOCK
-             WHERE itemfg.company EQ {&TABLENAME}.company
-               AND itemfg.i-no    EQ {&TABLENAME}.i-no
-             NO-ERROR.
-        IF AVAILABLE itemfg THEN
-        cFGItem = itemfg.i-name.
-        cBody = "Job: " + {&TABLENAME}.job-no + "-"
-              + STRING({&TABLENAME}.job-no2)
-              + " - Routing: " + {&TABLENAME}.m-code + " ("
-              + cMachine + ")"
-              + " - FG Item: " + {&TABLENAME}.i-no + " ("
-              + cFGItem + ")"
-              .
-        RUN spSendEmail (
-            INPUT ipiConfigID, /* emailConfig.ConfigID */
-            INPUT "",          /* Override for Email RecipientsinTo */
-            INPUT "",          /* Override for Email RecipientsinReplyTo */
-            INPUT "",          /* Override for Email RecipientsinCC */
-            INPUT "",          /* Override for Email RecipientsinBCC */
-            INPUT "",          /* Override for Email Subject */
-            INPUT cBody,       /* Override for Email Body */
-            INPUT ""           /* Email Attachment */
+       ROWID(bJobMch) EQ ROWID({&TABLENAME}) THEN DO:
+        RUN sys/ref/nk1look.p (
+            cocode,"JobCompleteEmail","L",NO,NO,"","",
+            OUTPUT cJobCompleteEmail,OUTPUT lJobCompleteEmail
             ).
+        IF lJobCompleteEmail AND cJobCompleteEmail EQ "Yes" THEN DO:
+            RUN sys/ref/nk1look.p (
+                cocode,"JobCompleteEmail","I",NO,NO,"","",
+                OUTPUT cJobCompleteEmail,OUTPUT lJobCompleteEmail
+                ).
+            iConfigID = INTEGER(cJobCompleteEmail).
+            FIND FIRST mach NO-LOCK
+                 WHERE mach.company EQ {&TABLENAME}.company
+                   AND mach.m-code  EQ {&TABLENAME}.m-code
+                 NO-ERROR.
+            IF AVAILABLE mach THEN
+            cMachine = mach.m-dscr.
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ {&TABLENAME}.company
+                   AND itemfg.i-no    EQ {&TABLENAME}.i-no
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN
+            cFGItem = itemfg.i-name.
+            cBody = "Job: " + {&TABLENAME}.job-no + "-"
+                  + STRING({&TABLENAME}.job-no2)
+                  + " - Routing: " + {&TABLENAME}.m-code + " ("
+                  + cMachine + ")"
+                  + " - FG Item: " + {&TABLENAME}.i-no + " ("
+                  + cFGItem + ")"
+                  .
+            RUN spSendEmail (
+                INPUT iConfigID, /* emailConfig.ConfigID */
+                INPUT "",        /* Override for Email RecipientsinTo */
+                INPUT "",        /* Override for Email RecipientsinReplyTo */
+                INPUT "",        /* Override for Email RecipientsinCC */
+                INPUT "",        /* Override for Email RecipientsinBCC */
+                INPUT "",        /* Override for Email Subject */
+                INPUT cBody,     /* Override for Email Body */
+                INPUT ""         /* Email Attachment */
+                ).
+        END. /* if ljobcompleteemail */
     END. /* if avail */
 
 END PROCEDURE.
