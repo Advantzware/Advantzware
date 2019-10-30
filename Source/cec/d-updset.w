@@ -919,6 +919,7 @@ PROCEDURE UpdateSetUnitize :
             eb.fr-out-m = bf-eb.fr-out-m
             eb.casNoCharge = bf-eb.casNoCharge
             eb.trNoCharge = bf-eb.trNoCharge
+            eb.inkNoCharge = bf-eb.inkNoCharge
             .
 
 

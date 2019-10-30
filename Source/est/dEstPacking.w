@@ -669,8 +669,8 @@ PROCEDURE create-item :
             estPacking.estimateNo   = eb.est-no
             estPacking.FormNo       = eb.form-no
             estPacking.BlankNo      = eb.blank-No
-            estPacking.quantityPer  = "C" 
-            estPacking.noCharge     = NO .
+            estPacking.quantityPer  = "C"
+            . 
 
         IF AVAILABLE estPacking THEN 
         DO:
