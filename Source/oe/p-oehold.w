@@ -35,14 +35,33 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE hViewer  AS HANDLE NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lARAutoReleaseCreditHold AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 /* DEFINE VARIABLE char-val AS CHAR NO-UNDO INIT "".  */
 /*                                                    */
 /* DEFINE BUFFER b-oe-ord FOR oe-ord.                 */
 /* DEFINE BUFFER b-oe-ordl FOR oe-ordl.               */
-
 {oe/ordholdstat.i}
 
 {methods/prgsecdt.i}
+
+  {sys/inc/var.i "new shared" }
+
+    ASSIGN
+    cocode = g_company
+    locode = g_loc.
+
+{sys/inc/oecredit.i}
+
+
+
+RUN sys/ref/nk1look.p (INPUT g_company, "ARAutoReleaseCreditHold", "L" /* Logical */, NO /* check by cust */, 
+                          INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+   IF lRecFound THEN
+       lARAutoReleaseCreditHold = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -351,6 +370,7 @@ PROCEDURE Process-Hold-Status :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE viCompany LIKE oe-ord.company NO-UNDO.
    DEFINE VARIABLE viOrdNum LIKE oe-ord.ord-no NO-UNDO.
+   DEFINE BUFFER bff-oe-ord FOR oe-ord.
 
    IF NOT validHandle() THEN RETURN.
 
@@ -359,6 +379,22 @@ PROCEDURE Process-Hold-Status :
    RUN Get-current-order IN hViewer (OUTPUT viCompany, OUTPUT viOrdNum) NO-ERROR.
 
    RUN os-Process-Hold-Status (INPUT viCompany, INPUT viOrdNum).
+
+   /* Find the order record. */
+    FIND FIRST bff-oe-ord NO-LOCK WHERE
+        bff-oe-ord.company EQ viCompany AND
+        bff-oe-ord.ord-no  EQ viOrdNum NO-ERROR .
+    IF AVAIL bff-oe-ord THEN
+        FIND FIRST cust NO-LOCK
+          WHERE cust.company EQ bff-oe-ord.company
+          AND cust.cust-no EQ bff-oe-ord.cust-no NO-ERROR .
+    
+    IF lARAutoReleaseCreditHold AND AVAIL cust AND cust.active NE "X" AND bff-oe-ord.type NE "T"
+        AND bff-oe-ord.stat NE "H" THEN DO:
+          FIND CURRENT cust NO-LOCK NO-ERROR.
+          cCustStatCheck = cust.cust-no .
+          RUN check-status .
+    END.
 
    /* Refresh the viewer to get updated information. */
      IF VALID-HANDLE(hViewer) THEN
@@ -434,6 +470,57 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-status V-table-Win 
+ PROCEDURE check-status :
+ /*------------------------------------------------------------------------------
+   Purpose:     
+   Parameters:  <none>
+   Notes:       
+ ------------------------------------------------------------------------------*/
+ 
+ DEFINE VARIABLE ld-ord-bal      LIKE cust.ord-bal NO-UNDO.
+ DEFINE VARIABLE lRelHold AS LOGICAL NO-UNDO .
+ FOR EACH cust EXCLUSIVE-LOCK
+     WHERE cust.company EQ g_company
+       AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
+       AND cust.cust-no NE "" :
+            
+     FIND FIRST  terms NO-LOCK
+         WHERE terms.company = cust.company
+           AND terms.t-code  = cust.terms NO-ERROR.
+     
+     IF cust.cr-hold THEN do:
+         ld-ord-bal      = cust.ord-bal.
+
+         IF oecredit-cha EQ "" THEN
+             RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+
+          lRelHold = NO.
+         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim 
+             AND ld-ord-bal LT cust.ord-lim THEN
+             ASSIGN lRelHold = YES . 
+         
+
+              IF lRelHold AND lARAutoReleaseCreditHold THEN  DO:  
+                  ASSIGN cust.cr-hold = NO .
+                  
+                  FOR EACH oe-ord EXCLUSIVE-LOCK
+                     WHERE oe-ord.company             EQ g_company
+                       AND oe-ord.cust-no             EQ cust.cust-no
+                       AND oe-ord.stat EQ "H" :
+                     ASSIGN
+                         oe-ord.stat = "A" .
+                  END.
+              END. /* lRelHold*/
+
+     END. /* cust.cr-hold */
+ END. /* for cust */
+ 
+ END PROCEDURE.
+ 
+ /* _UIB-CODE-BLOCK-END */
+ &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 
