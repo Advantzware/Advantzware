@@ -120,7 +120,6 @@ DEFINE BUFFER bf-cust FOR cust.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
-DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -575,19 +574,14 @@ find first company where company.company eq cocode NO-LOCK.
             end.
             
             v-price-head = inv-line.pr-uom.
-            IF length(int(v-price)) LE 4 THEN
-                cFormat = "$->,>>9.999999" .
-            ELSE IF length(int(v-price)) EQ 5 THEN
-                cFormat = "$->>>,>>9.9999" .
-            ELSE cFormat = "$->,>>>,>>9.99" .
-
+            
           IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price  FORMAT cFormat /*"$->>>,>>9.99<<<<" */ SPACE(1)
+                v-price  FORMAT "$->>>,>>9.9999" SPACE(1)
                 v-price-head 
                 inv-line.t-price  format "$->>>>,>>9.99<<<<"                     
                 SKIP.
@@ -598,7 +592,7 @@ find first company where company.company eq cocode NO-LOCK.
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format cFormat /*"$->>>,>>9.99<<<<"*/  SPACE(2)
+                v-price  format "$->>>,>>9.9999"  SPACE(2)
                 v-price-head 
                 inv-line.t-price  format "$->>>>,>>9.99<<<<" 
                 SKIP.

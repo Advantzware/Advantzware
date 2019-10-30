@@ -113,7 +113,6 @@ DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
-DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO .
 DEFINE SHARED VARIABLE lPrintQtyAll  as LOGICAL no-undo .
 DEF BUFFER bf-cust FOR cust .
 
@@ -467,12 +466,6 @@ ELSE lv-comp-color = "BLACK".
                    w-tax     = v-t-price
                    v-lines   = v-lines + 1.
                 end.
-           
-            IF length(int(v-price)) LE 4 THEN
-                cFormat = "$->,>>9.999999" .
-            ELSE IF length(int(v-price)) EQ 5 THEN
-                cFormat = "$->>>,>>9.9999" .
-            ELSE cFormat = "$->,>>>,>>9.99" .
             
           IF NOT lPrintQtyAll THEN do:  
             PUT space(1)        /*"->>>>9.9<"*/
@@ -482,7 +475,7 @@ ELSE lv-comp-color = "BLACK".
                 ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(2)
-                v-price  FORMAT cFormat /*"$->>>,>>9.99"*/  SPACE(1)
+                v-price  FORMAT "$->>>,>>9.9999"  SPACE(1)
                 v-price-head SPACE(1)
                 ar-invl.amt  format "$->>>>,>>9.99"               
                 SKIP.
@@ -495,7 +488,7 @@ ELSE lv-comp-color = "BLACK".
                 ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(2)
-                v-price  FORMAT cFormat /*"$->>>,>>9.99"*/  SPACE(1)
+                v-price  FORMAT "$->>>,>>9.9999"  SPACE(1)
                 v-price-head SPACE(1)
                 ar-invl.amt  format "$->>>>,>>9.99"                 
                 SKIP.
