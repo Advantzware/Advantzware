@@ -94,21 +94,21 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150.4 BY 21.91
+         SIZE 160 BY 28.57
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 149 BY 1.91
+         AT COL 45 ROW 1
+         SIZE 116 BY 2.86
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 105 BY 1.43
+         AT COL 1 ROW 1
+         SIZE 44 BY 1.43
          BGCOLOR 15 .
 
 
@@ -119,7 +119,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: NOSWEAT.prgrms
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -131,8 +131,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Program Master"
-         HEIGHT             = 21.91
-         WIDTH              = 150.4
+         HEIGHT             = 28.57
+         WIDTH              = 160
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -181,7 +181,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
+ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
 /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
@@ -284,7 +284,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 70.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 37.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -292,7 +292,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 20.00 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 1.24 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -300,7 +300,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_prgrms-3 ).
-       RUN set-position IN h_prgrms-3 ( 1.00 , 110.00 ) NO-ERROR.
+       RUN set-position IN h_prgrms-3 ( 1.00 , 77.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 31.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -308,7 +308,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 142.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 109.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -317,8 +317,8 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Browse Prgms|View Programs' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 19.76 , 149.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.67 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.91 , 160.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -329,7 +329,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_prgrms-3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
+             FRAME OPTIONS-FRAME:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -337,8 +337,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_prgrms ).
-       RUN set-position IN h_prgrms ( 4.57 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_prgrms ( 18.10 , 148.00 ) NO-ERROR.
+       RUN set-position IN h_prgrms ( 4.10 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_prgrms ( 25.24 , 158.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -355,12 +355,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/prgrms.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_prgrms-2 ).
-       RUN set-position IN h_prgrms-2 ( 4.57 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_prgrms-2 ( 15.95 , 147.00 ) NO-ERROR.
-       /* Position in AB:  ( 4.57 , 3.00 ) */
-       /* Size in UIB:  ( 15.95 , 147.00 ) */
+       RUN set-position IN h_prgrms-2 ( 4.10 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 22.62 , 158.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -369,7 +367,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 20.52 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 26.95 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -379,19 +377,21 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 20.52 , 94.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 26.95 , 103.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to  h_prgrms-2. */
+       /* Links to SmartViewer h_prgrms-2. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_prgrms-2 ).
        RUN add-link IN adm-broker-hdl ( h_prgrms , 'Record':U , h_prgrms-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_prgrms-2 ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_prgrms-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
@@ -469,10 +469,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
+  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
   VIEW W-Win.
 END PROCEDURE.
 

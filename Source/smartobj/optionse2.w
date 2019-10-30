@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_spec Select_dept Select_frac ~
-Select_Add Select_appl Select_help UDF 
+&Scoped-Define ENABLED-OBJECTS Select_dept Select_List Select_spec UDF ~
+Select_frac Select_add Select_appl Select_help 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -75,7 +75,7 @@ DEFINE BUTTON Select_appl
 
 DEFINE BUTTON Select_dept 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
@@ -91,30 +91,37 @@ DEFINE BUTTON Select_help
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
-DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "UDF" 
-     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
+DEFINE BUTTON Select_List 
+     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/jss_icon_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "List" 
+     SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
+
+DEFINE BUTTON UDF 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "UDF" 
+     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_spec AT ROW 1 COL 17
-     Select_dept AT ROW 1 COL 9
-     Select_frac AT ROW 1 COL 49
-     Select_Add AT ROW 1 COL 1
-     Select_appl AT ROW 1 COL 25
-     Select_help AT ROW 1 COL 33
-     UDF AT ROW 1 COL 41 HELP
+     Select_dept AT ROW 1 COL 16
+     Select_List AT ROW 1 COL 9 WIDGET-ID 2
+     Select_spec AT ROW 1 COL 24
+     UDF AT ROW 1 COL 48 HELP
           "Access UDF Viewer"
+     Select_frac AT ROW 1 COL 56
+     Select_add AT ROW 1 COL 1
+     Select_appl AT ROW 1 COL 32
+     Select_help AT ROW 1 COL 40
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -146,8 +153,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.95
-         WIDTH              = 68.4.
+         HEIGHT             = 1.81
+         WIDTH              = 62.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -193,9 +200,9 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Select_Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Add s-object
-ON CHOOSE OF Select_Add IN FRAME F-Main /* Add */
+&Scoped-define SELF-NAME Select_add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_add s-object
+ON CHOOSE OF Select_add IN FRAME F-Main /* Add */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -206,7 +213,7 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Run App */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Util Appl */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -229,7 +236,7 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
+ON CHOOSE OF Select_frac IN FRAME F-Main
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -249,11 +256,24 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME UDF
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
-ON CHOOSE OF UDF IN FRAME F-Main /* Home */
+&Scoped-define SELF-NAME Select_List
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_List s-object
+ON CHOOSE OF Select_List IN FRAME F-Main /* List */
 DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+   DEF VAR hHandle AS HANDLE NO-UNDO.
+   
+  /* get container source object handle */
+  RUN get-link-handle IN adm-broker-hdl (INPUT THIS-PROCEDURE,
+                                         INPUT  'Container-Source':U,
+                                         OUTPUT hHandle).
+
+  /* If the calling program is "folding styles", then run
+     the print functionality in that window.  Otherwise
+     run the standard behavior. */
+  IF hHandle:NAME BEGINS 'windows/stylef' THEN
+      RUN Print-List IN hHandle.
+  ELSE
+      {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -265,6 +285,17 @@ END.
 ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON CHOOSE OF UDF IN FRAME F-Main /* UDF */
+DO:
+  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,8 +361,8 @@ PROCEDURE Init-Buttons :
   
   IF NOT notes-button THEN
   DISABLE select_dept WITH FRAME {&FRAME-NAME}.
-/*  IF NOT misc_fields-button THEN
-  DISABLE select_misc_fields WITH FRAME {&FRAME-NAME}.  */
+  IF NOT misc_fields-button THEN
+  DISABLE UDF WITH FRAME {&FRAME-NAME}.
   IF NOT spec-note THEN
   DISABLE select_spec WITH FRAME {&FRAME-NAME}.
 

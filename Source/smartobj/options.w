@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS UDF Select_frac Select_List Select_appl ~
-Select_help Select_Notes Select_spec 
+&Scoped-Define ENABLED-OBJECTS Select_Notes UDF Select_List Select_spec ~
+Select_frac Select_appl Select_help 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -80,26 +80,26 @@ DEFINE BUTTON Select_help
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/jss_icon_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
      SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
@@ -107,14 +107,14 @@ DEFINE BUTTON UDF
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_Notes AT ROW 1 COL 9
      UDF AT ROW 1 COL 41 HELP
           "Access UDF Viewer"
-     Select_frac AT ROW 1 COL 49
      Select_List AT ROW 1 COL 1
+     Select_spec AT ROW 1 COL 17
+     Select_frac AT ROW 1 COL 49
      Select_appl AT ROW 1 COL 25
      Select_help AT ROW 1 COL 33
-     Select_Notes AT ROW 1 COL 9
-     Select_spec AT ROW 1 COL 17
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -146,8 +146,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.91
-         WIDTH              = 62.
+         HEIGHT             = 1.81
+         WIDTH              = 55.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -231,7 +231,7 @@ END.
 ON CHOOSE OF Select_List IN FRAME F-Main /* List */
 DO:
    DEF VAR hHandle AS HANDLE NO-UNDO.
-
+   
   /* get container source object handle */
   RUN get-link-handle IN adm-broker-hdl (INPUT THIS-PROCEDURE,
                                          INPUT  'Container-Source':U,
@@ -378,15 +378,15 @@ PROCEDURE Init-Buttons :
   {methods/calcBtnImage.i}
 
   {methods/run_link.i "CONTAINER-SOURCE" "Init-Options-Panel"
-    "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button, output spec-note)"}
+    "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button,OUTPUT spec-note)"}
 /*  IF NOT search-button THEN
   DISABLE select_search WITH FRAME {&FRAME-NAME}. */
   IF NOT list-button THEN
   DISABLE select_list WITH FRAME {&FRAME-NAME}.
   IF NOT notes-button THEN
   DISABLE select_notes WITH FRAME {&FRAME-NAME}.
-/*  IF NOT misc_fields-button THEN
-  DISABLE select_misc_fields WITH FRAME {&FRAME-NAME}.  */
+  IF NOT misc_fields-button THEN
+  DISABLE UDF WITH FRAME {&FRAME-NAME}.
   IF NOT spec-note THEN
   DISABLE select_spec WITH FRAME {&FRAME-NAME}.
 

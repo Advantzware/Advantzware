@@ -22,7 +22,11 @@ ASSIGN
 RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
-FIND FIRST config NO-LOCK.
+FIND FIRST emailConfig NO-LOCK
+     WHERE emailConfig.configID EQ 1
+       AND emailConfig.isActive EQ YES
+     NO-ERROR.
+FIND FIRST config NO-LOCK NO-ERROR.
 FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ rRowID.
 
 FIND FIRST dynParamValue NO-LOCK
@@ -75,8 +79,8 @@ IF AVAILABLE dynParamValue THEN DO:
                             CREATE taskEmail.
                             ASSIGN
                                 taskEmail.subject    = cSubject
-                                taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
-                                                       config.emailBody ELSE "AOA Task Result Attached"
+                                taskEmail.body       = IF AVAILABLE emailConfig AND emailConfig.body NE "" THEN
+                                                       emailConfig.body ELSE "AOA Task Result Attached"
                                 taskEmail.attachment = cJasperFile
                                 taskEmail.recipients = Task.recipients
                                 taskEmail.mustExist  = YES
