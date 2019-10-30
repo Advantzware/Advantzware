@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 106
+&SCOPED-DEFINE nextUserField 107
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -1089,20 +1089,21 @@ FOR EACH job-hdr NO-LOCK
         OUTPUT boardLength,
         OUTPUT boardWidth,
         OUTPUT jobBoard,
-        OUTPUT userField[3],  /* B */
-        OUTPUT userField[14], /* I */
-        OUTPUT userField[55], /* D */
-        OUTPUT userField[56], /* D */
-        OUTPUT userField[61], /* 5 */
-        OUTPUT userField[93], /* 5 */
-        OUTPUT userField[62], /* 6 */
-        OUTPUT userField[94], /* 6 */
-        OUTPUT userField[70], /* V */
-        OUTPUT userField[71], /* A */
-        OUTPUT userField[78], /* C */
-        OUTPUT userField[79], /* C */
-        OUTPUT userField[81], /* W */
-        OUTPUT userField[95]  /* Required Qty */
+        OUTPUT userField[3],   /* B */
+        OUTPUT userField[14],  /* I */
+        OUTPUT userField[106], /* I */
+        OUTPUT userField[55],  /* D */
+        OUTPUT userField[56],  /* D */
+        OUTPUT userField[61],  /* 5 */
+        OUTPUT userField[93],  /* 5 */
+        OUTPUT userField[62],  /* 6 */
+        OUTPUT userField[94],  /* 6 */
+        OUTPUT userField[70],  /* V */
+        OUTPUT userField[71],  /* A */
+        OUTPUT userField[78],  /* C */
+        OUTPUT userField[79],  /* C */
+        OUTPUT userField[81],  /* W */
+        OUTPUT userField[95]   /* Required Qty */
         ).
 
     IF useField[71] THEN
@@ -1422,20 +1423,21 @@ PROCEDURE ipJobMaterial:
   DEFINE OUTPUT PARAMETER opBoardLength AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoardWidth AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opJobBoard AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.        /*  3,B */
-  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.          /* 14,I */
-  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.       /* 55,D */
-  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.       /* 56,D */
-  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.     /* 61,5 */
-  DEFINE OUTPUT PARAMETER opMatType5Qty AS CHARACTER NO-UNDO.  /* 93,5 */
-  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.     /* 62,6 */
-  DEFINE OUTPUT PARAMETER opMatType6Qty AS CHARACTER NO-UNDO.  /* 94,6 */
-  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.      /* 70,V */
-  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.       /* 71,A */
-  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.      /* 78,C */
-  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO.    /* 79,C */
-  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.     /* 81,W */
-  DEFINE OUTPUT PARAMETER opRequiredQty AS CHARACTER NO-UNDO.  /* 95   */
+  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.       /*   3,B */
+  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.         /*  14,I */
+  DEFINE OUTPUT PARAMETER opInkQty AS DECIMAL NO-UNDO.        /* 106,I */
+  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.      /*  55,D */
+  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.      /*  56,D */
+  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.    /*  61,5 */
+  DEFINE OUTPUT PARAMETER opMatType5Qty AS CHARACTER NO-UNDO. /*  93,5 */
+  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.    /*  62,6 */
+  DEFINE OUTPUT PARAMETER opMatType6Qty AS CHARACTER NO-UNDO. /*  94,6 */
+  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.     /*  70,V */
+  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.      /*  71,A */
+  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.     /*  78,C */
+  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO.   /*  79,C */
+  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.    /*  81,W */
+  DEFINE OUTPUT PARAMETER opRequiredQty AS CHARACTER NO-UNDO. /*  95   */
 
   DEFINE VARIABLE noCases AS DECIMAL NO-UNDO.
   DEFINE VARIABLE matType5Qty AS DECIMAL NO-UNDO.
@@ -1494,9 +1496,11 @@ PROCEDURE ipJobMaterial:
           ASSIGN
             opPallet = item.i-name
             opTotMRP = STRING(job-mat.qty,'>>,>>>,>>9.9<<<<<').
-        WHEN 'I' THEN
+        WHEN 'I' THEN DO:
           IF NOT CAN-DO(opInk,job-mat.i-no) THEN
           opInk = opInk + comma(opInk) + job-mat.i-no.
+          opInkQty = opInkQty + job-mat.qty.
+        END. /* I */
         WHEN 'V' THEN
           IF NOT CAN-DO(opVarnish,job-mat.i-no) THEN
           opVarnish = opVarnish + comma(opVarnish) + job-mat.i-no.
@@ -1880,6 +1884,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[103] = 'Run Time'       userWidth[103] = 15
     userLabel[104] = 'Job-Run'        userWidth[104] = 12
     userLabel[105] = 'Tot. Time'      userWidth[105] = 8
+    userLabel[106] = 'Ink LBS'        userWidth[106] = 12
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1939,7 +1944,7 @@ PROCEDURE setUseFields:
     ufEF = useField[3] OR useField[22] OR useField[23] OR useField[58] OR useField[59]
     ufEst = useField[26] OR useField[27]
     ufGetSalesRep = useField[36]
-    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81] OR useField[93] OR useField[94] OR useField[95]
+    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81] OR useField[93] OR useField[94] OR useField[95] OR useField[106]
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
