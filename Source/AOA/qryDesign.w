@@ -91,10 +91,11 @@ cPoolName = "QueryPool" + STRING(TIME).
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnField btnCalcField btnUseIndex tableType ~
-btnConstant ofType btnOF fieldType keywordType parameterColor calcfieldType ~
-useindexType btnTable btnWhere forFillIn btnAnd btnBegins btnEQ btnGE btnGT ~
-btnKeyword btnLE btnLT btnMatches btnNE btnOR btnParam btnSave btnUndo 
+&Scoped-Define ENABLED-OBJECTS btnField btnCalcField btnUseIndex ~
+btnConstant tableType btnOF ofType fieldType keywordType parameterColor ~
+calcfieldType btnTable useindexType btnWhere forFillIn btnAnd btnBegins ~
+btnEQ btnGE btnGT btnKeyword btnLE btnLT btnMatches btnNE btnOR btnParam ~
+btnSave btnUndo 
 &Scoped-Define DISPLAYED-OBJECTS tableType ofType fieldType keywordType ~
 parameterColor calcfieldType useindexType forFillIn 
 
@@ -339,16 +340,16 @@ DEFINE FRAME DEFAULT-FRAME
      btnField AT ROW 11 COL 3 WIDGET-ID 298
      btnCalcField AT ROW 22.67 COL 3 WIDGET-ID 316
      btnUseIndex AT ROW 25.76 COL 3 WIDGET-ID 312
-     tableType AT ROW 1.24 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      btnConstant AT ROW 23.86 COL 3 WIDGET-ID 338
-     ofType AT ROW 1.24 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 340
+     tableType AT ROW 1.24 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      btnOF AT ROW 6 COL 3 WIDGET-ID 300
+     ofType AT ROW 1.24 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 340
      fieldType AT ROW 1.24 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      keywordType AT ROW 1.24 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      parameterColor AT ROW 1.24 COL 103 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      calcfieldType AT ROW 1.24 COL 121 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     useindexType AT ROW 1.24 COL 144 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      btnTable AT ROW 4.81 COL 3 WIDGET-ID 296
+     useindexType AT ROW 1.24 COL 144 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      btnWhere AT ROW 7.91 COL 3 WIDGET-ID 302
      forFillIn AT ROW 2.57 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      btnAnd AT ROW 9.1 COL 3 WIDGET-ID 304
@@ -370,12 +371,12 @@ DEFINE FRAME DEFAULT-FRAME
      "Add . . ." VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 4.1 COL 3 WIDGET-ID 334
           BGCOLOR 1 FGCOLOR 15 FONT 6
-     "Color Legend:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 1.24 COL 4 WIDGET-ID 4
-          BGCOLOR 15 FONT 6
      "Query:" VIEW-AS TEXT
           SIZE 8 BY .86 AT ROW 2.57 COL 6 WIDGET-ID 336
           FONT 6
+     "Color Legend:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 1.24 COL 4 WIDGET-ID 4
+          BGCOLOR 15 FONT 6
      RECT-1 AT ROW 1 COL 2 WIDGET-ID 10
      RECT-SAVE AT ROW 27.43 COL 2 WIDGET-ID 246
      RECT-2 AT ROW 3.86 COL 2 WIDGET-ID 332
@@ -427,6 +428,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/32x32/jss_icon_32.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -876,9 +883,9 @@ PROCEDURE enable_UI :
   DISPLAY tableType ofType fieldType keywordType parameterColor calcfieldType 
           useindexType forFillIn 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnField btnCalcField btnUseIndex tableType btnConstant ofType btnOF 
-         fieldType keywordType parameterColor calcfieldType useindexType 
-         btnTable btnWhere forFillIn btnAnd btnBegins btnEQ btnGE btnGT 
+  ENABLE btnField btnCalcField btnUseIndex btnConstant tableType btnOF ofType 
+         fieldType keywordType parameterColor calcfieldType btnTable 
+         useindexType btnWhere forFillIn btnAnd btnBegins btnEQ btnGE btnGT 
          btnKeyword btnLE btnLT btnMatches btnNE btnOR btnParam btnSave btnUndo 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
