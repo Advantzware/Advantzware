@@ -233,7 +233,7 @@ po-ord.vend-no po-ordl.due-date po-ord.ship-id po-ord.ship-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
 po-ordl.s-wid po-ordl.s-len po-ordl.vend-i-no po-ordl.ord-qty ~
 po-ordl.pr-qty-uom po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost ~
-po-ordl.pr-uom po-ord.buyer po-ordl.cust-no po-ordl.line 
+po-ordl.pr-uom po-ord.buyer po-ordl.cust-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table po-ordl po-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table po-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table po-ord
@@ -552,7 +552,6 @@ DEFINE BROWSE Browser-Table
       po-ordl.pr-uom
       po-ord.buyer
       po-ordl.cust-no
-      po-ordl.line
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 16.43
@@ -762,7 +761,7 @@ po-ord.po-no eq po-ordl.po-no"
      _FldNameList[27]   > ASI.po-ordl.cust-no
 "po-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.po-ordl.line
-"po-ordl.line" "Line #" ">>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-ordl.line" "Line #" ">>>>>>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
