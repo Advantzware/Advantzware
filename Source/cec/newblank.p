@@ -93,8 +93,6 @@ ASSIGN
  eb.procat    = IF AVAIL bb THEN bb.procat ELSE ""
  eb.flute     = ef.flute
  eb.test      = ef.test
- eb.casNoCharge = YES
- eb.trNoCharge  = YES
  eb.yrprice   = lPriceBasedOnYield .
 
 RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
