@@ -10,6 +10,8 @@ DEFINE VARIABLE cSubject             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hSession             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iAuditID             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSystemEmailConfigID AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
 
 ASSIGN
     PROPATH     = ENTRY(1,SESSION:PARAMETER,"+")
@@ -29,14 +31,16 @@ RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 RUN spSendEmail (
-    INPUT iSystemEmailConfigID, /* emailConfig.ConfigID */
-    INPUT cRecipients,          /* Override for Email RecipientsinTo */
-    INPUT "",                   /* Override for Email RecipientsinReplyTo */
-    INPUT "",                   /* Override for Email RecipientsinCC */
-    INPUT "",                   /* Override for Email RecipientsinBCC */
-    INPUT cSubject,             /* Override for Email Subject */
-    INPUT cBody,                /* Override for Email Body */
-    INPUT cAttachment           /* Email Attachment */
+    INPUT  iSystemEmailConfigID, /* emailConfig.ConfigID */
+    INPUT  cRecipients,          /* Override for Email RecipientsinTo */
+    INPUT  "",                   /* Override for Email RecipientsinReplyTo */
+    INPUT  "",                   /* Override for Email RecipientsinCC */
+    INPUT  "",                   /* Override for Email RecipientsinBCC */
+    INPUT  cSubject,             /* Override for Email Subject */
+    INPUT  cBody,                /* Override for Email Body */
+    INPUT  cAttachment,          /* Email Attachment */
+    OUTPUT lSuccess,             /* Email success or not */
+    OUTPUT cMessage              /* Reason for failure in case email is not sent */
     ).
 RUN spCreateAuditHdr ("TASK", "ASI", "TaskEmail", cRecKey, OUTPUT iAuditID).
 RUN spCreateAuditDtl (iAuditID, "Subject",    0, cSubject,    "", NO).
