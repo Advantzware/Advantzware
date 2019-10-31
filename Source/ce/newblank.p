@@ -32,7 +32,6 @@ IF cPriceBasedOnYield EQ "RequestNewOnly" OR cPriceBasedOnYield EQ "YieldNewOnly
     FOR EACH eb
         WHERE eb.company EQ ef.company
         AND eb.est-no  EQ ef.est-no
-        AND eb.eqty    EQ ef.eqty
         NO-LOCK
         BY eb.form-no  DESC
         BY eb.blank-no DESC:
