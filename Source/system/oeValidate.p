@@ -55,10 +55,10 @@ PROCEDURE pBuildValidationsToRun PRIVATE:
     /* Create/setup NK1s if not already there */
     /* I know there is a "standard" for this, but we're pulling two values from eight records,
        This is much more compact. */
-    DEFINE VARIABLE cTestList AS CHARACTER INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom" NO-UNDO.    
-    DEFINE VARIABLE cReqdList AS CHARACTER INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
-    DEFINE VARIABLE cTypeList AS CHARACTER INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD" NO-UNDO.
-    DEFINE VARIABLE cDescList AS CHARACTER INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid" NO-UNDO.    
+    DEFINE VARIABLE cTestList AS CHARACTER INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom,OnHandInventory" NO-UNDO.    
+    DEFINE VARIABLE cReqdList AS CHARACTER INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
+    DEFINE VARIABLE cTypeList AS CHARACTER INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD" NO-UNDO.
+    DEFINE VARIABLE cDescList AS CHARACTER INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid,Sufficient Inventory OH" NO-UNDO.    
     
     EMPTY TEMP-TABLE ttValidation.
     DO iCtr = 1 TO NUM-ENTRIES(cTestList):
@@ -204,6 +204,52 @@ PROCEDURE pCustomerPO PRIVATE:
 
 END PROCEDURE.
 
+
+PROCEDURE pOnHandInventory PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:   Verifies a customer PO has been entered on the order header
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
+    DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bcust FOR cust.
+    
+    DEFINE BUFFER boe-ordl FOR oe-ordl.
+    DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iOnHand AS INT NO-UNDO.
+
+    FOR EACH boe-ordl NO-LOCK WHERE 
+        boe-ordl.company EQ ipboe-ord.company AND 
+        boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
+        boe-ordl.line NE 0:
+            
+        FOR EACH itemfg-loc NO-LOCK WHERE 
+            itemfg-loc.company EQ boe-ordl.company AND 
+            itemfg-loc.i-no    EQ boe-ordl.i-no AND 
+            itemfg-loc.loc     EQ ipboe-ord.loc:
+            ASSIGN 
+                iOnHand = iOnHand + itemfg-loc.q-onh.
+        END.
+                 
+        IF iOnHand LT boe-ordl.qty THEN ASSIGN              
+                cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+    END. 
+                    
+    IF cBadLines NE "" THEN ASSIGN 
+            cBadLines  = TRIM(cBadLines,",")
+            oplHold    = TRUE 
+            opcMessage = "Insufficient OH Inventory for line" + 
+                     IF NUM-ENTRIES(cBadLines) GT 1 THEN ("s " + cBadLines)
+                     ELSE (" " + cBadLines).
+
+
+END PROCEDURE.
 
 PROCEDURE pPriceGtCost PRIVATE:
     /*------------------------------------------------------------------------------
