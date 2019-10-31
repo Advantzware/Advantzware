@@ -424,14 +424,15 @@ v-printline = 0.
            {po/po-pchtree.i}
         END.
         cMachCode = "" .
-        FOR EACH job-mch WHERE job-mch.company EQ cocode
-            AND job-mch.job-no EQ po-ordl.job-no
-            AND job-mch.job-no2 EQ po-ordl.job-no2
-            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
-
-            ASSIGN cMachCode = job-mch.m-code .
-            LEAVE.
-        END.
+        IF po-ordl.job-no NE "" THEN 
+            FOR EACH job-mch WHERE job-mch.company EQ cocode
+                AND job-mch.job-no EQ po-ordl.job-no
+                AND job-mch.job-no2 EQ po-ordl.job-no2
+                AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+    
+                ASSIGN cMachCode = job-mch.m-code .
+                LEAVE.
+            END.
 
         ASSIGN
         lv-ord-qty = po-ordl.ord-qty
