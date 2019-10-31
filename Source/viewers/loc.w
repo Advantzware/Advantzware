@@ -72,7 +72,7 @@ location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
 location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
-location.lActive
+location.lActive 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -86,7 +86,7 @@ loc.owner location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
 location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
-location.lActive
+location.lActive 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -271,17 +271,17 @@ DEFINE FRAME F-Main
           LABEL "API Enabled"
           VIEW-AS TOGGLE-BOX
           SIZE 19.6 BY .81
-     location.lActive AT ROW 17.33 COL 55 
-          HELP "Flag to indicate that location supports consignment materials."
+     location.lActive AT ROW 17.33 COL 55 HELP
+          "Flag to indicate that location supports consignment materials."
           LABEL "Consignment"
           VIEW-AS TOGGLE-BOX
           SIZE 18.4 BY .81
-     "Capacity:" VIEW-AS TEXT
-          SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
-     "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.86 COL 3
      "Notes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 14.1 COL 5
+     "Address:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.86 COL 3
+     "Capacity:" VIEW-AS TEXT
+          SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -345,11 +345,12 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX loc.active IN FRAME F-Main
-   EXP-LABEL                                                            */ 
-/* SETTINGS FOR TOGGLE-BOX location.lActive IN FRAME F-Main
-   EXP-LABEL EXP-HELP                                                   */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.company IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       loc.company:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.division IN FRAME F-Main
@@ -368,6 +369,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX loc.isAPIEnabled IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX location.lActive IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN loc.loc IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN loc.locationSquareFeet IN FRAME F-Main
