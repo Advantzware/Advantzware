@@ -125,19 +125,19 @@ END.
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 begin_cust-no ~
 end_cust-no tb_excl_cust begin_relnum end_relnum begin_ord-no end_ord-no ~
 begin_date end_date begin_del-zone end_del-zone begin_whse end_whse ~
-tb_printed tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted ~
+tb_print-qty-uom tb_printed tb_print-spec tb_sort-rel fi_specs tb_posted ~
 tb_more rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component ~
 begin_loc end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
 lines-per-page lv-font-no tgMultipleReleases td-show-parm tb_post-rel ~
 run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no tb_excl_cust ~
 begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date ~
-begin_del-zone end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin ~
-tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more ~
-rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc ~
-end_loc tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name tgMultipleReleases ~
-td-show-parm tb_post-rel run_format 
+begin_del-zone end_del-zone begin_whse end_whse tb_exl-tg-bin ~
+tb_print-qty-uom tb_printed tb_print-spec tb_sort-rel fi_specs tb_posted ~
+tb_more rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component ~
+begin_loc end_loc tb_prt-part-no begin_loc-bin end_loc-bin tb_pricing ~
+tb_whs-bin-sort rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+tgMultipleReleases td-show-parm tb_post-rel run_format 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -294,7 +294,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 97 BY 15.95.
+     SIZE 97 BY 16.24.
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -420,49 +420,49 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Warehouse" WIDGET-ID 4
      end_whse AT ROW 7.38 COL 70 COLON-ALIGNED HELP
           "Enter Ending Warehouse Number" WIDGET-ID 6
-     tb_printed AT ROW 8.33 COL 6
      tb_exl-tg-bin AT ROW 8.33 COL 53
      tb_print-qty-uom AT ROW 8.52 COL 48.8 WIDGET-ID 16
+     tb_printed AT ROW 8.62 COL 6
      tb_print-spec AT ROW 8.86 COL 46.6 WIDGET-ID 10
      tb_sort-rel AT ROW 8.86 COL 52.8 WIDGET-ID 14
      fi_specs AT ROW 8.86 COL 70 COLON-ALIGNED HELP
           "Enter Spec Code separated by commas" NO-LABEL WIDGET-ID 12
-     tb_posted AT ROW 9.19 COL 35 RIGHT-ALIGNED
-     tb_more AT ROW 10.05 COL 6
+     tb_posted AT ROW 9.48 COL 35 RIGHT-ALIGNED
+     tb_more AT ROW 10.33 COL 6
      rd-print-what AT ROW 10.38 COL 53 NO-LABEL
-     tb_p-bin AT ROW 10.91 COL 6
-     tb_zone-s AT ROW 11.76 COL 6
-     tb_zone-p AT ROW 12.62 COL 6
-     tb_print-component AT ROW 13.48 COL 6
+     tb_p-bin AT ROW 11.19 COL 6
+     tb_zone-s AT ROW 12.05 COL 6
+     tb_zone-p AT ROW 12.91 COL 6
+     tb_print-component AT ROW 13.76 COL 6
      begin_loc AT ROW 14.19 COL 60 COLON-ALIGNED
      end_loc AT ROW 14.19 COL 78 COLON-ALIGNED NO-LABEL
-     tb_prt-part-no AT ROW 14.33 COL 6
-     tb_pricing AT ROW 15.19 COL 6
+     tb_prt-part-no AT ROW 14.62 COL 6
      begin_loc-bin AT ROW 15.38 COL 60 COLON-ALIGNED
      end_loc-bin AT ROW 15.38 COL 78 COLON-ALIGNED NO-LABEL
-     tb_whs-bin-sort AT ROW 16.05 COL 6
-     rd-dest AT ROW 17.91 COL 5 NO-LABEL
-     lv-ornt AT ROW 18.38 COL 30 NO-LABEL
-     lines-per-page AT ROW 18.38 COL 83 COLON-ALIGNED
-     lv-font-no AT ROW 19.81 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 20.76 COL 27 COLON-ALIGNED NO-LABEL
-     tgMultipleReleases AT ROW 21.95 COL 64 HELP
+     tb_pricing AT ROW 15.48 COL 6
+     tb_whs-bin-sort AT ROW 16.33 COL 6
+     rd-dest AT ROW 18.14 COL 5 NO-LABEL
+     lv-ornt AT ROW 18.62 COL 30 NO-LABEL
+     lines-per-page AT ROW 18.62 COL 85 COLON-ALIGNED
+     lv-font-no AT ROW 19.81 COL 32 COLON-ALIGNED
+     lv-font-name AT ROW 21 COL 27 COLON-ALIGNED NO-LABEL
+     tgMultipleReleases AT ROW 22.19 COL 64 HELP
           "parm" WIDGET-ID 2
-     td-show-parm AT ROW 22.67 COL 30
-     tb_post-rel AT ROW 22.67 COL 64
-     run_format AT ROW 23.76 COL 62 COLON-ALIGNED WIDGET-ID 12
+     td-show-parm AT ROW 22.91 COL 30
+     tb_post-rel AT ROW 22.91 COL 64
+     run_format AT ROW 24 COL 62 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 25.29 COL 21
      btn-cancel AT ROW 25.29 COL 59
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 17.33 COL 4
-     "To" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 13.48 COL 85
+          SIZE 18 BY .62 AT ROW 17.57 COL 4
      "From" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 13.48 COL 67
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4.2
           BGCOLOR 2 
-     RECT-6 AT ROW 17.19 COL 1
+     "To" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.48 COL 85
+     RECT-6 AT ROW 17.43 COL 1
      RECT-7 AT ROW 1.19 COL 1
      RECT-9 AT ROW 10.14 COL 48
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -1887,17 +1887,17 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no tb_excl_cust begin_relnum end_relnum 
           begin_ord-no end_ord-no begin_date end_date begin_del-zone 
-          end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin 
-          tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more 
+          end_del-zone begin_whse end_whse tb_exl-tg-bin tb_print-qty-uom 
+          tb_printed tb_print-spec tb_sort-rel fi_specs tb_posted tb_more 
           rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component 
-          begin_loc end_loc tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin 
+          begin_loc end_loc tb_prt-part-no begin_loc-bin end_loc-bin tb_pricing 
           tb_whs-bin-sort rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
           tgMultipleReleases td-show-parm tb_post-rel run_format 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-9 begin_cust-no end_cust-no tb_excl_cust 
          begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date 
-         begin_del-zone end_del-zone begin_whse end_whse tb_printed 
-         tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more 
+         begin_del-zone end_del-zone begin_whse end_whse tb_print-qty-uom 
+         tb_printed tb_print-spec tb_sort-rel fi_specs tb_posted tb_more 
          rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component 
          begin_loc end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest 
          lv-ornt lines-per-page lv-font-no tgMultipleReleases td-show-parm 
