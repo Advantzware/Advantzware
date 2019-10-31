@@ -142,6 +142,17 @@ DEF VAR v-i-no              AS CHAR NO-UNDO.
 DEF VAR v-item-part-no      AS CHAR NO-UNDO.
 DEF VAR v-case-tot          AS INTE NO-UNDO.
 
+DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ship_note AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFrightDscr AS CHARACTER NO-UNDO .
+
+
+RUN sys/ref/nk1look.p (cocode, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
+          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.
+
+
 form 
      w2.i-no                         format "x(15)"
      w2.ord-po-no                    format "x(16)"
@@ -454,6 +465,13 @@ FOR EACH oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
   END.  /* last-of*/
 
   oe-bolh.printed = yes.
+
+  if LAST(oe-bolh.bol-no) then do:
+
+      {oe/rep/bolptreePage.i} 
+   
+  END. /* LAST(oe-bolh.bol-no)*/ 
+
 end. /* for each oe-bolh */
 PROCEDURE create-tt-boll.  /* btr */
   DEF INPUT PARAM ip-qty-case LIKE oe-boll.qty-case NO-UNDO.
