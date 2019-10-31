@@ -253,7 +253,7 @@ END FUNCTION.
         assign v-freight-dscr = "Bill".
 
 v-printline = 0.
-{po/po-xprnt10.i}
+{po/po-mclean.i}
 
       for each po-ordl WHERE
           po-ordl.company EQ po-ord.company AND
@@ -421,7 +421,7 @@ v-printline = 0.
         IF v-printline + 4 > 46 THEN DO:         
            PAGE.
            v-printline = 0.
-           {po/po-xprnt10.i}
+           {po/po-mclean.i}
         END.
 
 
@@ -733,7 +733,7 @@ v-printline = 0.
          IF s-group-notes AND v-printline + li > 46 THEN DO:
            PAGE.
            v-printline = 0.
-           {po/po-xprnt10.i}
+           {po/po-mclean.i}
          END.
 
          DO i = 1 TO li: 
@@ -744,7 +744,7 @@ v-printline = 0.
             IF v-printline > 46 THEN DO:                  
                PAGE.
                v-printline = 0.
-               {po/po-xprnt10.i}
+               {po/po-mclean.i}
             END.
          END.
          PUT skip(1).
@@ -755,7 +755,7 @@ v-printline = 0.
      IF v-printline > 46 THEN DO:
           PAGE.
           v-printline = 0.
-          {po/po-xprnt10.i}
+          {po/po-mclean.i}
      END.
      IF v-print-sn THEN DO:
         IF po-ordl.item-type THEN
@@ -800,7 +800,7 @@ v-printline = 0.
             IF v-printline > 46 THEN DO:         
               PAGE.
               v-printline = 0.
-              {po/po-xprnt10.i}
+              {po/po-mclean.i}
             END. 
               IF FIRST(tt-text.tt-line) THEN DO:
                   PUT skip(1).
@@ -820,7 +820,7 @@ v-printline = 0.
          IF v-printline > 46 THEN DO:         
               PAGE.
               v-printline = 0.
-              {po/po-xprnt10.i}
+              {po/po-mclean.i}
          END.
      END.
 
@@ -874,7 +874,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   IF v-printline > 46 THEN DO:                  
      PAGE.
      v-printline = 0.
-     {po/po-xprnt10.i}
+     {po/po-mclean.i}
   END.
 
   IF lPrintGrandTotMsf THEN
@@ -901,11 +901,13 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
                 /*v-bot-lab[2] */
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
 
-PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-     " " SKIP
-     " " SKIP
-     " " SKIP(1)     
-     "  I acknowledge the pricing on this P.O. is correct. _________________________(please sign and fax)" SKIP
+PUT "<FArial><R57.5><C1><P12><B>Terms and Conditions</B><P9> " SKIP
+       "<R59><C1><P7><B> Please send acknowledgment to: purchaseorders@mcleanpackaging.com </B>"
+       "<R60><C1><P7> - All Pallets must be labeled with the McLean specified 128 Auto bar code"
+       "<R61><C1><P7> - No Steel Banding On Pallets Vendor must confirm shipment"
+       "<R62><C1><P7> - Vendor must confirm shipment and schedule a dock appointment by calling (856)359-2625 (NJ) or (610)759-3550 (PA)"  
+       "<R63><C1><P7> - Receiving hours are 7:00am to 3:30pm Monday-Friday, please contact if special arrangements need to be made"
+       "<R64><C1><P7> - Invoices must reference only <u>ONE</u> Purchase Order Number (each purchase/delivery to be invoiced separately)" SKIP 
      .
 
 v-printline = v-printline + 6.
