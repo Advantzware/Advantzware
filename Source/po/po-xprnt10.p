@@ -902,10 +902,13 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
 
 PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-     " " SKIP
-     " " SKIP
-     " " SKIP(1)     
-     "  I acknowledge the pricing on this P.O. is correct. _________________________(please sign and fax)" SKIP
+       "<R59><C1><P7><B> Please send acknowledgment to: purchaseorders@mcleanpackaging.com </B>"
+       "<R60><C1><P7> All Pallets must be labeled with the McLean specified 128 Auto bar code No Steel Banding On Pallets Vendor must confirm shipment"
+       "<R61><C1><P7> and schedule a dock appointment by calling (856)359-2625 (NJ) or (610)759-3550 (PA) Receiving hours are 7:00am to 3:30pm Monday-" 
+       "<R62><C1><P7> Friday, please contact if special arrangements need to be made Invoices must reference only ONE Purchase Order Number (each "
+       "<R63><C1><P7> purchase/delivery to be invoiced separately)" SKIP 
+       
+       "  I acknowledge the pricing on this P.O. is correct. _________________________(please sign and fax)" SKIP
      .
 
 v-printline = v-printline + 6.
