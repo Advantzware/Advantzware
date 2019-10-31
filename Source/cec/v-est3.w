@@ -66,6 +66,15 @@ END.
 
 {est/inksvarn.i NEW}
 
+{custom/framechk.i NEW}
+
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cCurrentMessage  AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCurrentTitle    AS CHARACTER NO-UNDO .
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hMessageProcs).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2169,10 +2178,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   ll-unit-calc   = NO.
-   ll-update-pack = NO.
-
+  
   DISABLE eb.cas-no
           eb.cas-cost
           eb.cas-cnt
@@ -2203,7 +2209,17 @@ PROCEDURE local-update-record :
           eb.inkNoCharge
       WITH FRAME {&FRAME-NAME}.
 
+  RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
+
   RUN release-shared-buffers.
+
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3,NO).
+  ELSE IF framechk-i-changed AND NOT lSuppressMessage THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2,YES).
+
+  ASSIGN
+   ll-unit-calc   = NO.
+   ll-update-pack = NO.
+
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
@@ -2314,6 +2330,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-ink V-table-Win 
 PROCEDURE reset-ink :
 /*------------------------------------------------------------------------------
@@ -2321,6 +2338,35 @@ PROCEDURE reset-ink :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
+IF eb.form-no NE 0 THEN DO:
+  {custom/checkuse.i}
+
+  RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
+
+  RUN reset-ink1 .
+
+  RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
+
+  RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
+
+  IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-ink1 V-table-Win 
+PROCEDURE reset-ink1 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
 {&methods/lValidateError.i YES}
 IF eb.form-no NE 0 THEN DO:
   {custom/checkuse.i}
@@ -2905,6 +2951,7 @@ PROCEDURE update-ink :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
 
   disable eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
           eb.cas-dep eb.cas-pal eb.cas-wt eb.quantityPartial
@@ -2930,6 +2977,7 @@ PROCEDURE update-pack :
 
   {custom/checkuse.i}
 
+  RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
   /*RUN set-pack (OUTPUT ll-update-pack).*/ ll-update-pack = YES.
 
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".

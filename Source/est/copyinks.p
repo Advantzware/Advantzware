@@ -26,7 +26,7 @@ IF AVAIL eb THEN DO:
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.
 
-  RUN est/updest3.p (ROWID(eb), ROWID(eb), 1 + INT(ll)).
+  RUN est/updest3.p (ROWID(eb), ROWID(eb), 1 + INT(ll),YES).
 
   RUN est/d-selblk.w (ip-rowid, "Copy Inks" + IF ll THEN " & Units" ELSE "").
 
@@ -37,7 +37,7 @@ IF AVAIL eb THEN DO:
     {est/copyinks.i}
 
     IF LAST-OF(b-eb.stock-no) THEN
-      RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(ll)).
+      RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(ll),YES).
   END.
 END.
 
