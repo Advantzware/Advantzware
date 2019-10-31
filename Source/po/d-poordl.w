@@ -6880,7 +6880,7 @@ PROCEDURE GetFirstMach :
     DEFINE OUTPUT PARAMETER opMachine AS CHAR NO-UNDO.
     
  DO WITH FRAME {&FRAME-NAME}:
-      IF AVAILABLE po-ordl THEN
+      IF AVAILABLE po-ordl AND po-ordl.job-no:SCREEN-VALUE NE "" THEN
         FOR EACH job-mch NO-LOCK
           WHERE job-mch.company EQ cocode
             AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
