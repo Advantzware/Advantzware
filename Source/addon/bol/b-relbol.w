@@ -2420,6 +2420,10 @@ PROCEDURE local-update-record :
   DEFINE BUFFER bf-ssrelbol FOR ssrelbol.
   
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* browse is defaulting to the last column on update, so make the last column tag# */
+  APPLY "ENTRY":U TO tt-relbol.tag# IN BROWSE {&browse-name}.
+  
   RUN validate-rel# NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 
