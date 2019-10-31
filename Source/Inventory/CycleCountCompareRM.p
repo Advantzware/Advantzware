@@ -693,7 +693,7 @@ PROCEDURE pCheckBinDups:
         MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
+        OS-COMMAND NO-WAIT VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 
@@ -731,10 +731,10 @@ PROCEDURE pCheckCountDups:
         END.
     END.
     oplDups = lIsDups.
-    cDupOutputFile = "c:\tmp\dupCountTags.csv".
+    cDupOutputFile = "c:\tmp\dupCountTagsRm.csv".
     IF lIsDups THEN 
     DO:
-        OUTPUT TO VALUE(cDupOutputFile).
+        OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
         PUT STREAM sOutput UNFORMATTED "Item #,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags:
             PUT STREAM sOutput UNFORMATTED  
@@ -748,7 +748,7 @@ PROCEDURE pCheckCountDups:
         MESSAGE "Cannot post because some tags were counted more than once." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
+        OS-COMMAND NO-WAIT VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 
@@ -827,7 +827,7 @@ PROCEDURE pCreateTransferCounts:
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.              
         /* Finding a count record from within the past week on assumption it will    */
         /* be part of the current physical                                           */
-        FIND FIRST bf-rm-rctd NO-LOCK 
+        FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
             WHERE bf-rm-rctd.company EQ  ttCycleCountCompare.cCompany
             AND bf-rm-rctd.i-no    EQ ttCycleCountCompare.cFGItemID   
             AND bf-rm-rctd.tag     EQ ttCycleCountCompare.cTag        
@@ -836,7 +836,13 @@ PROCEDURE pCreateTransferCounts:
             AND bf-rm-rctd.rita-code EQ "C"
             AND bf-rm-rctd.rct-date GE TODAY - 7
             NO-ERROR.    
-        
+        IF AVAIL bf-rm-rctd THEN DO:
+             IF ipdtTransDate NE ? THEN
+                bf-rm-rctd.rct-date = ipdtTransDate.
+            CREATE ttToPost.                
+             ttToPost.rRmRctd = ROWID(bf-rm-rctd). 
+        END.
+        FIND CURRENT bf-rm-rctd NO-LOCK NO-ERROR. 
         /* ttCycleCountCompare.cSysLoc/bin is the original location of the tag, so 0 that out */
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
@@ -859,9 +865,7 @@ PROCEDURE pCreateTransferCounts:
             .
         CREATE ttToPost.
         ttToPost.rRmRctd = ROWID(rm-rctd). 
-        IF AVAIL bf-rm-rctd THEN DO:
-             ttToPost.rRmRctd = ROWID(bf-rm-rctd). 
-        END.
+
         IF rm-rctd.pur-uom = "" THEN
             rm-rctd.pur-uom = rm-rctd.cost-uom.
 
@@ -1447,6 +1451,7 @@ PROCEDURE pPostCounts:
                     rm-bin.cost    = rm-rctd.cost
                     rm-bin.po-no   = INTEGER(rm-rctd.po-no)
                     .
+
             END. /* not avail rm-bin */
 
             rm-bin.qty = rm-rctd.qty.

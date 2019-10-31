@@ -842,7 +842,7 @@ PROCEDURE pCreateTransferCounts:
                      
             /* Finding a count record from within the past 2 weeks on assumption it will */
         /* be part of the current physical                                           */
-        FIND FIRST bf-fg-rctd NO-LOCK 
+        FIND FIRST bf-fg-rctd EXCLUSIVE-LOCK 
             WHERE bf-fg-rctd.company EQ  ttCycleCountCompare.cCompany
             AND bf-fg-rctd.i-no    EQ ttCycleCountCompare.cFGItemID   
             AND bf-fg-rctd.tag     EQ ttCycleCountCompare.cTag        
@@ -851,10 +851,11 @@ PROCEDURE pCreateTransferCounts:
             AND bf-fg-rctd.rita-code EQ "C"
             AND bf-fg-rctd.rct-date GE TODAY - 14
             NO-ERROR.    
-        /* The transfer should happen before the count */
+       
         IF AVAILABLE bf-fg-rctd THEN DO:
-            ASSIGN  
-                dTransDate = bf-fg-rctd.rct-date
+            IF dTransDate NE ? THEN 
+                bf-fg-rctd.rct-date = dTransDate.
+            ASSIGN                  
                 iTransTime = bf-fg-rctd.trans-time
                 cEnteredBy = bf-fg-rctd.enteredBy
                 dtmEnteredDate = bf-fg-rctd.enteredDT       
@@ -862,7 +863,8 @@ PROCEDURE pCreateTransferCounts:
             CREATE ttToPost.
             ttToPost.rFgRctd = ROWID(bf-fg-rctd). 
         END.
-            
+        FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
+        
         FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
             AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
 
@@ -910,7 +912,7 @@ PROCEDURE pCreateTransferCounts:
             fg-rctd.upd-date = TODAY
             fg-rctd.upd-time = TIME
             fg-rctd.enteredBy = cEnteredBy 
-            fg-rctd.enteredDT = dtmEnteredDate  
+            fg-rctd.enteredDT = DATETIME(TODAY, MTIME)
             .
         IF AVAILABLE itemfg THEN 
         DO:
