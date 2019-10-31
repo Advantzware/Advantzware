@@ -510,7 +510,7 @@ FOR EACH xqchg OF xquo NO-LOCK
   IF FIRST(xqchg.charge) THEN PUT SKIP(1).
  
     /*IF xqchg.qty EQ 0 OR FIRST-OF(xqchg.b-num) THEN DO:*/
-     lv-chg-amt = xqchg.spare-dec-1 .
+     lv-chg-amt = xqchg.amt .
 
      IF xqchg.bill EQ "N" THEN
        PUT xqchg.charge AT 25
