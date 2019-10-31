@@ -9,8 +9,8 @@ IF VALID-HANDLE(adm-broker-hdl) THEN DO:
       RUN {2} IN phandle {3} NO-ERROR.
       IF (ERROR-STATUS:ERROR OR NOT VALID-HANDLE(phandle)) AND "{2}" EQ "pCallAudit" THEN
       MESSAGE 
-          THIS-PROCEDURE:NAME "failed to RUN pCallAudit." SKIP(1)
-          "Please notify Advantzware Development Team"
+          THIS-PROCEDURE:NAME
+          "Not Configured to Run Audit History"
       VIEW-AS ALERT-BOX ERROR.
   END. /* if num-entries */
 END. /* if valid-handle */

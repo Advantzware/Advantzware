@@ -72,14 +72,18 @@ for each ink with frame ab down no-labels no-box:
        no-lock no-error.
    else next.
    if ink.i-qty < item.min-lbs then ink.i-qty = item.min-lbs.
+   
+   IF ink.noCharge THEN 
+    ink.i-cost = 0. 
+   ELSE DO:
+    {est/matcost.i ink.i-qty ink.i-cost ink}
 
-   {est/matcost.i ink.i-qty ink.i-cost ink}
-
-   ASSIGN
-    ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink
-    dm-tot[4]  = dm-tot[4] + (ink.i-cost / (qty / 1000))
-    dm-tot[5]  = dm-tot[5] + ink.i-cost.
-
+    ASSIGN
+        ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink
+        dm-tot[4]  = dm-tot[4] + (ink.i-cost / (qty / 1000))
+        dm-tot[5]  = dm-tot[5] + ink.i-cost.
+   END.  /*InkNoCharge = NO*/
+   
    find first brd where brd.form-no = xeb.form-no and
                         brd.blank-no = xeb.blank-no and
                         brd.i-no    = ink.i-code

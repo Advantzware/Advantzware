@@ -148,6 +148,9 @@ DEFINE VARIABLE h_rm-bin-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportfg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportrm AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportwip AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -472,6 +475,14 @@ PROCEDURE adm-create-objects :
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
+      RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exportfg ).
+       RUN set-position IN h_exportfg ( 1.00 , 34.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -509,6 +520,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_fg-bin , 'export-xl':U , h_exportfg ).
+
        /* Links to SmartViewer h_loc-3. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_loc-3 ).
 
@@ -530,6 +544,14 @@ PROCEDURE adm-create-objects :
              h_fg-bin-2 , 'AFTER':U ).
     END. /* Page 3 */
     WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exportrm ).
+       RUN set-position IN h_exportrm ( 1.00 , 34.20 ) NO-ERROR.
+
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -567,6 +589,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_rm-bin , 'export-xl':U , h_exportrm ).
+
        /* Links to SmartViewer h_loc-4. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_loc-4 ).
 
@@ -588,6 +613,14 @@ PROCEDURE adm-create-objects :
              h_rm-bin-2 , 'AFTER':U ).
     END. /* Page 4 */
     WHEN 5 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exportwip ).
+       RUN set-position IN h_exportwip ( 1.00 , 34.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -624,6 +657,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_wip-bin , 'export-xl':U , h_exportwip ).
 
        /* Links to SmartViewer h_loc-5. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_loc-5 ).

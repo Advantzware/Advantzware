@@ -23,13 +23,14 @@
 {methods/prgsecur.i "WIN"}
 {methods/defines/winReSize.i}
 
-DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
-DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cParamList         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE header_value       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hTable             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iDynSubjectPage    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE misc_header_value  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE misc_rec_key_value AS CHARACTER NO-UNDO.
-DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+DEFINE VARIABLE rec_key_value      AS CHARACTER NO-UNDO.
 
 {methods/defines/noreckey.i}
 
@@ -90,6 +91,10 @@ hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
 {sys/inc/f3helpw.i}
 {custom/resizmx.i}
 {custom/resizrs.i}
+
+{AOA/includes/pGetDynParamValue.i}
+{AOA/includes/pInitDynParamValue.i}
+{AOA/includes/pSetDynParamValue.i "dyn"}
 
 FIND FIRST company NO-LOCK WHERE company.company EQ g_company NO-ERROR .
 
@@ -208,45 +213,52 @@ PROCEDURE Init-Options-Panel :
 ------------------------------------------------------------------------------*/
 
 &IF "{&NOMENUS}" NE "yes" &THEN
-  DEFINE OUTPUT PARAMETER search-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER list-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER notes-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER misc_fields-button AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER spec-note-button AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE listname AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplSearch      AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplList        AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplNotes       AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplMisc_Fields AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplSpecNote    AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE listname   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSubjectID AS LOGICAL   NO-UNDO.
 
+  /* check if program using dynamic subject on any of it's pages */
+  DO idx = 1 TO EXTENT(b-prgrms.pageSubjectID):
+      IF b-prgrms.pageSubjectID[idx] EQ 0 THEN NEXT.
+      lSubjectID = TRUE.
+      LEAVE.
+  END. /* do idx */
   ASSIGN
-    listname = SUBSTR("{&FIRST-EXTERNAL-TABLE}",1,7) + "_"
-    search-button = IF SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.r") = ? AND
-                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") = ? THEN NO
-                    ELSE YES
-    list-button = IF SEARCH("listobjs/" + listname + ".r") = ? AND
-                     SEARCH("listobjs/" + listname + ".w") = ? THEN NO
-                  ELSE YES
-    notes-button = IF /*INDEX("{&NORECKEY}","{&FIRST-EXTERNAL-TABLE}")*/
-                       LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN YES
-                   ELSE NO
-    misc_fields-button = IF b-prgrms.mfgroup = "" THEN NO ELSE YES
-    spec-note-button = LOOKUP("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh,prep") > 0
+    listname       = SUBSTR("{&FIRST-EXTERNAL-TABLE}",1,7) + "_"
+    oplSearch      = SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.r") NE ? OR
+                     SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") NE ?
+    oplList        = SEARCH("listobjs/" + listname + ".r") NE ? OR
+                     SEARCH("listobjs/" + listname + ".w") NE ? OR
+                     lSubjectID
+    oplNotes       = LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") EQ 0
+    oplMisc_Fields = CAN-FIND(FIRST mfgroup WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0)
+    oplSpecNote    = LOOKUP("{&FIRST-EXTERNAL-TABLE}",
+        "est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh,prep") GT 0
     .
 
-  &Scoped-define MENUITEM search
-  IF NOT {&MENUITEM}-button THEN
+  &Scoped-define MENUITEM Search
+  IF NOT opl{&MENUITEM} THEN
   ASSIGN
     MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
     MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
-  &Scoped-define MENUITEM list
-  IF NOT {&MENUITEM}-button THEN
+  &Scoped-define MENUITEM List
+  IF NOT opl{&MENUITEM} THEN
   ASSIGN
     MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
     MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
-  &Scoped-define MENUITEM notes
-  IF NOT {&MENUITEM}-button THEN
+  &Scoped-define MENUITEM Notes
+  IF NOT opl{&MENUITEM} THEN
   ASSIGN
     MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
     MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
-  &Scoped-define MENUITEM misc_fields
-  IF NOT {&MENUITEM}-button THEN
+  &Scoped-define MENUITEM Misc_Fields
+  IF NOT opl{&MENUITEM} THEN
   ASSIGN
     MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
     MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
@@ -375,6 +387,7 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset-g_rec_key Include 
 PROCEDURE Reset-g_rec_key :

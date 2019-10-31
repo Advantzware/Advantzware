@@ -2773,7 +2773,6 @@ PROCEDURE undo-save-line :
   DISABLE TRIGGERS FOR LOAD OF inv-line.
   DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
-
   RELEASE inv-line.
   RELEASE inv-misc.
 

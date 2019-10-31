@@ -170,7 +170,8 @@ DEFINE {2} TEMP-TABLE ink NO-UNDO
     FIELD i-dscr AS CHARACTER FORMAT "x(19)"
     FIELD i-%    AS INTEGER   FORMAT ">>9"
     FIELD i-qty  AS DECIMAL   FORMAT ">>>9.99"
-    FIELD i-cost AS DECIMAL   FORMAT ">>>,>>9.99".
+    FIELD i-cost AS DECIMAL   FORMAT ">>>,>>9.99"
+    FIELD noCharge AS LOGICAL .
 
 DEFINE {2} TEMP-TABLE flm NO-UNDO
     FIELD id   AS CHARACTER
