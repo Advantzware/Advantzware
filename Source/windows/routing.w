@@ -370,6 +370,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_routing-2 ).
+       RUN set-position IN h_routing-2 ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_routing-2 ( 16.19 , 67.00 ) NO-ERROR.
        /* Position in AB:  ( 5.05 , 5.00 ) */
        /* Size in UIB:  ( 16.19 , 67.00 ) */
 
