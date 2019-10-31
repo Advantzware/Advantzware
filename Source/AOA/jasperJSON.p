@@ -8,8 +8,9 @@ DEFINE OUTPUT PARAMETER opcJasperFile  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cBufferValue  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFullName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
@@ -62,15 +63,19 @@ IF NOT iphQuery:QUERY-OFF-END THEN DO:
             ELSE
             ASSIGN
                 hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))
-                cFieldName   = ENTRY(2,dynParamValue.colName[idx],".")
-                cBufferValue = fFormatValue(hQueryBuf, hQueryBuf:BUFFER-FIELD(cFieldName):NAME)
+                cFullName    = ENTRY(2,dynParamValue.colName[idx],".")
+                cFieldName   = IF INDEX(cFullName,"[") EQ 0 THEN cFullName
+                               ELSE SUBSTRING(cFullName,1,INDEX(cFullName,"[") - 1)
+                cBufferValue = fFormatValue(hQueryBuf, cFullName)
                 cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
+                cFullName    = REPLACE(cFullName,"[","")
+                cFullName    = REPLACE(cFullName,"]","")
                 .
             IF idx GT 1 THEN
             PUT UNFORMATTED "," SKIP.
             PUT UNFORMATTED
                 FILL(" ",8)
-                "~"" cFieldName "~": ~""
+                "~"" cFullName "~": ~""
                 IF cBufferValue NE "" THEN cBufferValue ELSE " "
                 "~""
                 .

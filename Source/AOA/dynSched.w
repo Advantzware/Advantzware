@@ -559,7 +559,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      Task.module AT ROW 3.62 COL 124 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
-          LIST-ITEMS " ","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","TS" 
+          LIST-ITEMS "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?" 
           DROP-DOWN-LIST
           SIZE 8.2 BY 1
           BGCOLOR 15 
@@ -619,6 +619,8 @@ DEFINE FRAME viewFrame
           LABEL "3"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[4] AT ROW 7.43 COL 52 WIDGET-ID 530
           LABEL "4"
           VIEW-AS TOGGLE-BOX
@@ -651,8 +653,6 @@ DEFINE FRAME viewFrame
           LABEL "11"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[12] AT ROW 8.38 COL 60 WIDGET-ID 546
           LABEL "12"
           VIEW-AS TOGGLE-BOX
@@ -689,6 +689,8 @@ DEFINE FRAME viewFrame
           LABEL "20"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.dayOfMonth[21] AT ROW 9.33 COL 76 WIDGET-ID 560
           LABEL "21"
           VIEW-AS TOGGLE-BOX
@@ -721,8 +723,6 @@ DEFINE FRAME viewFrame
           LABEL "26"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
           LABEL "27"
           VIEW-AS TOGGLE-BOX
@@ -746,6 +746,8 @@ DEFINE FRAME viewFrame
           LABEL "31"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
      Task.lastOfMonth AT ROW 11.24 COL 76 WIDGET-ID 586
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
@@ -760,8 +762,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
@@ -774,10 +774,14 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
@@ -787,17 +791,15 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
-     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 125 BY 2.14
-          BGCOLOR 15 
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
+     btnCancel AT ROW 19.86 COL 55 HELP
+          "Cancel" WIDGET-ID 28
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -806,26 +808,24 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
-     btnCancel AT ROW 19.86 COL 55 HELP
-          "Cancel" WIDGET-ID 28
      btnCopy AT ROW 19.86 COL 31 HELP
           "Copy" WIDGET-ID 24
+     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 125 BY 2.14
+          BGCOLOR 15 
      btnDelete AT ROW 19.86 COL 39 HELP
           "Delete" WIDGET-ID 26
      btnReset AT ROW 19.86 COL 47 HELP
           "Reset" WIDGET-ID 22
      btnUpdate AT ROW 19.86 COL 15 HELP
           "Update/Save" WIDGET-ID 18
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -874,6 +874,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/32x32/jss_icon_32.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 

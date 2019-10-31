@@ -236,23 +236,34 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME resultsFrame
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
 DEFINE FRAME outputFrame
      btnRunResults AT ROW 1.48 COL 95 HELP
           "Results Grid" WIDGET-ID 254
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
-     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      btnCSV AT ROW 1.48 COL 103 HELP
           "Excel CSV" WIDGET-ID 140
-     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
+     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnAddEmail AT ROW 2.19 COL 3 HELP
@@ -277,17 +288,6 @@ DEFINE FRAME outputFrame
          SIZE 160 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
-
-DEFINE FRAME resultsFrame
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -323,6 +323,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/32x32/jss_icon_32.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -754,10 +760,10 @@ PROCEDURE enable_UI :
           svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
           svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnRunResults svRecipients svSetAlignment svShowAll svShowReportHeader 
-         btnCSV svShowReportFooter svShowPageHeader btnHTML svShowPageFooter 
-         svShowGroupHeader btnView svShowGroupFooter svShowParameters 
-         btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
+  ENABLE btnRunResults svRecipients svSetAlignment btnCSV svShowAll 
+         svShowReportHeader btnHTML svShowReportFooter svShowPageHeader 
+         svShowPageFooter btnView svShowGroupHeader svShowGroupFooter 
+         svShowParameters btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.

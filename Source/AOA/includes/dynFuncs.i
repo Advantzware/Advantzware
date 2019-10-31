@@ -34,13 +34,21 @@ FUNCTION fFormatValue RETURNS CHARACTER
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cStr AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx  AS INTEGER   NO-UNDO.
 
-    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(),
+    IF INDEX(ipcField,"[") NE 0 THEN
+    ASSIGN
+        cStr = SUBSTRING(ipcField,INDEX(ipcField,"[") + 1)
+        cStr = REPLACE(cStr,"]","")
+        idx  = INTEGER(cStr)
+        ipcField = SUBSTRING(ipcField,1,INDEX(ipcField,"[") - 1)
+        .
+    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx),
                   iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
     /* error raised if invalid format for field value */
     IF ERROR-STATUS:NUM-MESSAGES NE 0 OR
        iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 
-    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE().
+    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx).
     
     RETURN LEFT-TRIM(TRIM(cStr)).
 
