@@ -1300,18 +1300,31 @@ DO WITH FRAME {&FRAME-NAME}:
              ASSIGN
              begin_item:SCREEN-VALUE = ipcItem 
              end_item:SCREEN-VALUE = ipcItem .
+         ELSE 
+             ASSIGN
+             begin_item:SCREEN-VALUE = "" 
+             end_item:SCREEN-VALUE = "zzzzzzzzzzzzzzz" .
          IF ipcVendor NE "" THEN
              ASSIGN
              begin_vend-no:SCREEN-VALUE = ipcVendor
              end_vend-no:SCREEN-VALUE = ipcVendor.
+         ELSE ASSIGN
+             begin_vend-no:SCREEN-VALUE = ""
+             end_vend-no:SCREEN-VALUE = "zzzzzzzz" .
          IF ipcCustomer NE "" THEN
              ASSIGN
              begin_cust-no:SCREEN-VALUE = ipcCustomer
              end_cust-no:SCREEN-VALUE = ipcCustomer.
+         ELSE ASSIGN
+             begin_cust-no:SCREEN-VALUE = ""
+             end_cust-no:SCREEN-VALUE = "zzzzzzzz".
          IF ipcEstimate NE "" THEN
              ASSIGN
              begin_est-no:SCREEN-VALUE   = ipcEstimate
              end_est-no:SCREEN-VALUE = ipcEstimate.
+         ELSE ASSIGN
+             begin_est-no:SCREEN-VALUE   = ""
+             end_est-no:SCREEN-VALUE = "zzzzzzzz" .
          IF ipcExpires NE "" THEN
              ASSIGN
              begin_date-eff:SCREEN-VALUE   = string(ipcExpires)
