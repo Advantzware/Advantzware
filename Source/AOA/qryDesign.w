@@ -594,9 +594,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalcField C-Win
 ON CHOOSE OF btnCalcField IN FRAME DEFAULT-FRAME /* Calculated */
 DO:
-    MESSAGE 
-    iphDynCalcField:INTERNAL-ENTRIES
-    VIEW-AS ALERT-BOX.
     RUN pNewAdd (SELF).
 END.
 
