@@ -4520,23 +4520,6 @@ PROCEDURE hold-approve :
         END. /* transaction */
 
 
-        DO TRANSACTION:
-            /* Update cust.cr-hold */
-            FIND CURRENT cust EXCLUSIVE-LOCK NO-ERROR.
-            IF AVAIL cust THEN 
-            DO:
-
-                cust.cr-hold = oe-ord.stat EQ "H" OR
-                    CAN-FIND(FIRST b-oe-ord
-                    WHERE b-oe-ord.company EQ oe-ord.company
-                    AND b-oe-ord.cust-no EQ oe-ord.cust-no
-                    AND b-oe-ord.stat    EQ "H").
-
-                FIND CURRENT cust NO-LOCK NO-ERROR.
-            END. /* avail cust */
-        END. /* transaction - update cust */
-
-
         RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
         IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
