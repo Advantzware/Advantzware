@@ -70,7 +70,6 @@ DEFINE VARIABLE hInventoryProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lMultipleAdds       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateRecords      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFatalQtyError      AS logical   NO-UNDO.
-DEFINE VARIABLE lSaved              AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE tt-fg-rctd LIKE fg-rctd
     FIELD tt-rowid AS ROWID
@@ -164,8 +163,7 @@ fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.std-cost ~
 fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost 
 &Scoped-define ENABLED-TABLES fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE fg-rctd
-&Scoped-Define ENABLED-OBJECTS Btn_Cancel fiQtyOrd Btn_Done btnCalendar-1 ~
-fiQtyRec Btn_OK 
+&Scoped-Define ENABLED-OBJECTS Btn_Cancel Btn_Done btnCalendar-1 Btn_OK 
 &Scoped-Define DISPLAYED-FIELDS fg-rctd.rct-date fg-rctd.tag ~
 fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line fg-rctd.job-no ~
 fg-rctd.job-no2 fg-rctd.i-no fg-rctd.i-name fg-rctd.loc fg-rctd.loc-bin ~
@@ -175,7 +173,7 @@ fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by ~
 fg-rctd.r-no 
 &Scoped-define DISPLAYED-TABLES fg-rctd
 &Scoped-define FIRST-DISPLAYED-TABLE fg-rctd
-&Scoped-Define DISPLAYED-OBJECTS fiQtyOrd cTransTime fi_tr-time fiQtyRec 
+&Scoped-Define DISPLAYED-OBJECTS cTransTime fi_tr-time 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -228,18 +226,6 @@ DEFINE VARIABLE cTransTime AS CHARACTER FORMAT "x(8)":U
      SIZE 12 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fiQtyOrd AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Ord" 
-     VIEW-AS FILL-IN 
-     SIZE 16.4 BY 1
-     FONT 1 NO-UNDO.
-
-DEFINE VARIABLE fiQtyRec AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Rcvd" 
-     VIEW-AS FILL-IN 
-     SIZE 16.4 BY 1
-     FONT 1 NO-UNDO.
-
 DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U 
      LABEL "Tr Time" 
      VIEW-AS FILL-IN 
@@ -263,7 +249,7 @@ DEFINE RECTANGLE RECT-3
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 50 BY 5
+     SIZE 50 BY 3.81
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-5
@@ -290,10 +276,9 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     Btn_Cancel AT ROW 18.38 COL 94
-     fiQtyOrd AT ROW 5.05 COL 58 COLON-ALIGNED
+     Btn_Cancel AT ROW 17.43 COL 94
      cTransTime AT ROW 1.48 COL 37 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     Btn_Done AT ROW 18.38 COL 85
+     Btn_Done AT ROW 17.43 COL 85
      fg-rctd.rct-date AT ROW 1.48 COL 18 COLON-ALIGNED
           LABEL "Receipt Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
@@ -349,27 +334,27 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cases AT ROW 6.71 COL 72 COLON-ALIGNED
+     fg-rctd.cases AT ROW 5.52 COL 72 COLON-ALIGNED
           LABEL "Units" FORMAT "->>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.qty-case AT ROW 7.91 COL 72 COLON-ALIGNED
+     fg-rctd.qty-case AT ROW 6.71 COL 72 COLON-ALIGNED
           LABEL "Unit Count" FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cases-unit AT ROW 9.1 COL 72 COLON-ALIGNED
+     fg-rctd.cases-unit AT ROW 7.91 COL 72 COLON-ALIGNED
           LABEL "Units/Skid" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.partial AT ROW 10.29 COL 72 COLON-ALIGNED
+     fg-rctd.partial AT ROW 9.1 COL 72 COLON-ALIGNED
           LABEL "Partial" FORMAT "->>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.t-qty AT ROW 11.48 COL 72 COLON-ALIGNED
+     fg-rctd.t-qty AT ROW 10.29 COL 72 COLON-ALIGNED
           LABEL "Total Qty" FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
@@ -405,32 +390,31 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fi_tr-time AT ROW 13.14 COL 72 COLON-ALIGNED NO-TAB-STOP 
-     fg-rctd.created-by AT ROW 14.33 COL 72 COLON-ALIGNED
+     fi_tr-time AT ROW 11.95 COL 72 COLON-ALIGNED NO-TAB-STOP 
+     fg-rctd.created-by AT ROW 13.14 COL 72 COLON-ALIGNED
           LABEL "Created By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1 NO-TAB-STOP 
-     fg-rctd.updated-by AT ROW 15.52 COL 72 COLON-ALIGNED
+     fg-rctd.updated-by AT ROW 14.33 COL 72 COLON-ALIGNED
           LABEL "Last Updated By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1 NO-TAB-STOP 
-     fg-rctd.r-no AT ROW 16.71 COL 72 COLON-ALIGNED
+     fg-rctd.r-no AT ROW 15.52 COL 72 COLON-ALIGNED
           LABEL "Seq#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1 NO-TAB-STOP 
-     fiQtyRec AT ROW 5.05 COL 83 COLON-ALIGNED
-     Btn_OK AT ROW 18.38 COL 85
-     RECT-7 AT ROW 18.14 COL 84
+     Btn_OK AT ROW 17.43 COL 85
+     RECT-7 AT ROW 17.19 COL 84
      RECT-2 AT ROW 5.29 COL 2
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 2
      RECT-4 AT ROW 1.24 COL 53 WIDGET-ID 4
      RECT-3 AT ROW 10.52 COL 2 WIDGET-ID 6
-     RECT-5 AT ROW 6.48 COL 53 WIDGET-ID 8
-     RECT-6 AT ROW 12.91 COL 53 WIDGET-ID 10
-     SPACE(0.00) SKIP(2.84)
+     RECT-5 AT ROW 5.29 COL 53 WIDGET-ID 8
+     RECT-6 AT ROW 11.71 COL 53 WIDGET-ID 10
+     SPACE(0.00) SKIP(3.19)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -484,12 +468,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fg-rctd.ext-cost IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
-ASSIGN 
-       fiQtyOrd:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
-
-ASSIGN 
-       fiQtyRec:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
-
 /* SETTINGS FOR FILL-IN fi_tr-time IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -848,7 +826,7 @@ DO:
             op-rowid = ROWID(fg-rctd) .
 
         IF lv-item-recid NE ? 
-        OR NOT lSaved THEN 
+        OR lFatalQtyError THEN 
         DO:
             IF AVAIL fg-rctd THEN DO:
                 FIND CURRENT fg-rctd EXCLUSIVE.
@@ -871,7 +849,7 @@ DO:
             ASSIGN op-rowid = ROWID(fg-rctd) .
         
         IF lv-item-recid NE ? 
-        OR NOT lSaved THEN 
+        OR lFatalQtyError THEN 
         DO:
             IF AVAIL fg-rctd THEN 
             DO:
@@ -912,7 +890,6 @@ DO:
         DEFINE VARIABLE lOK           AS LOG       NO-UNDO.
         DEFINE VARIABLE iLinker       AS INTEGER   NO-UNDO.
 
-        lSaved = FALSE.
         IF ip-type EQ "view" THEN 
         DO: 
             APPLY "go" TO FRAME {&FRAME-NAME}.
@@ -1015,9 +992,11 @@ DO:
         IF ERROR-STATUS:ERROR THEN 
         DO:   
             ASSIGN 
-                lv-rct-date-checked = FALSE
-                lFatalQtyError = FALSE .
+                lv-rct-date-checked = FALSE.
             RUN delete-tt.
+            IF lFatalQtyError THEN DO:
+                APPLY 'choose' TO btn_Cancel.
+            END.
             RETURN NO-APPLY. 
         END.
         
@@ -1133,7 +1112,6 @@ DO:
         FIND CURRENT fg-rctd NO-LOCK NO-ERROR .
         op-rowid = ROWID(fg-rctd).
 
-        lSaved = TRUE.
         APPLY "go" TO FRAME {&FRAME-NAME}.
 
     END.
@@ -1563,7 +1541,7 @@ DO:
         DO:
             IF INT({&self-name}:SCREEN-VALUE ) EQ 0 THEN
                 {&self-name}:SCREEN-VALUE  = "". 
-            IF {&self-name}:SCREEN-VALUE  NE gcPoBeforeChange THEN 
+            /* IF {&self-name}:SCREEN-VALUE  NE gcPoBeforeChange THEN */ 
             DO:
                 FIND FIRST po-ordl
                     WHERE po-ordl.company   EQ fg-rctd.company
@@ -1797,13 +1775,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
     RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
     
-    lSaved = TRUE.
     IF ip-type EQ "copy" THEN ASSIGN 
-        lSaved = FALSE  
         lv-item-recid = ip-recid.
     IF ip-type EQ "add" THEN ASSIGN 
-        adm-adding-record = YES
-        lSaved = FALSE .
+        adm-adding-record = YES.
 
     IF ip-recid EQ ? THEN 
     DO:
@@ -2387,9 +2362,7 @@ PROCEDURE display-po :
             fg-rctd.i-no:SCREEN-VALUE     = po-ordl.i-no
             fg-rctd.i-name:SCREEN-VALUE   = po-ordl.i-name
             fg-rctd.cost-uom:SCREEN-VALUE = po-ordl.pr-uom
-            fg-rctd.po-line:SCREEN-VALUE  = STRING(po-ordl.line)
-            fiQtyOrd:SCREEN-VALUE         = STRING(po-ordl.ord-qty)
-            fiQtyRec:SCREEN-VALUE         = STRING(po-ordl.t-rec-qty).
+            fg-rctd.po-line:SCREEN-VALUE  = STRING(po-ordl.line).
             
         RUN pDisplayPO(NO).
 
@@ -2411,7 +2384,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiQtyOrd cTransTime fi_tr-time fiQtyRec 
+  DISPLAY cTransTime fi_tr-time 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE fg-rctd THEN 
     DISPLAY fg-rctd.rct-date fg-rctd.tag fg-rctd.stack-code fg-rctd.po-no 
@@ -2421,12 +2394,11 @@ PROCEDURE enable_UI :
           fg-rctd.tot-wt fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost 
           fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by fg-rctd.r-no 
       WITH FRAME Dialog-Frame.
-  ENABLE Btn_Cancel fiQtyOrd Btn_Done fg-rctd.rct-date btnCalendar-1 
-         fg-rctd.tag fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line 
-         fg-rctd.job-no fg-rctd.job-no2 fg-rctd.i-no fg-rctd.loc 
-         fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit 
-         fg-rctd.partial fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost 
-         fg-rctd.ext-cost fiQtyRec Btn_OK 
+  ENABLE Btn_Cancel Btn_Done fg-rctd.rct-date btnCalendar-1 fg-rctd.tag 
+         fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line fg-rctd.job-no 
+         fg-rctd.job-no2 fg-rctd.i-no fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases 
+         fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.std-cost 
+         fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost Btn_OK 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -4232,11 +4204,7 @@ PROCEDURE valid-porec-qty :
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
- MESSAGE ipRecQty skip 
-    po-ordl.ord-qty skip 
-    po-ordl.over-pct SKIP 
-    po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100))
-    VIEW-AS ALERT-BOX.       
+
     IF glFGUnderOver 
     AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
     AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
