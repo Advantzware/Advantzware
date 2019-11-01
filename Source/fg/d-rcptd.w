@@ -1541,7 +1541,7 @@ DO:
         DO:
             IF INT({&self-name}:SCREEN-VALUE ) EQ 0 THEN
                 {&self-name}:SCREEN-VALUE  = "". 
-            /* IF {&self-name}:SCREEN-VALUE  NE gcPoBeforeChange THEN */ 
+            IF {&self-name}:SCREEN-VALUE  NE gcPoBeforeChange THEN 
             DO:
                 FIND FIRST po-ordl
                     WHERE po-ordl.company   EQ fg-rctd.company
