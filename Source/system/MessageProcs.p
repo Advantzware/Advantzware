@@ -51,6 +51,10 @@ PROCEDURE pGetMessageProcs:
         ASSIGN
            opcCurrentTitle    = zMessage.defaultTitle
            opcCurrentMessage  = zMessage.defaultMsg .
+
+    IF AVAIL zMessage AND NOT zMessage.displayOptions THEN
+        oplSuppressMessage = YES .
+
     
 END PROCEDURE.
 
