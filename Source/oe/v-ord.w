@@ -5305,10 +5305,12 @@ PROCEDURE local-display-fields :
     ASSIGN 
         imgHoldRsn:VISIBLE IN FRAME {&frame-name} = TRUE.
     */     
-    RUN oe/getStatusDesc.p (INPUT oe-ord.stat, OUTPUT cStatDesc).      
-    ASSIGN 
-        fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
-        oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
+    IF AVAIL oe-ord THEN DO:
+        RUN oe/getStatusDesc.p (INPUT oe-ord.stat, OUTPUT cStatDesc).      
+        ASSIGN 
+            fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
+            oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
+    END.
 
   RUN pDisplayAddresses.
   
