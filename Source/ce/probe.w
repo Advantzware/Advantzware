@@ -2247,7 +2247,7 @@ PROCEDURE import-price :
     IF NOT lSuppressMessage THEN
         MESSAGE cCurrentMessage
         VIEW-AS ALERT-BOX QUESTION 
-        BUTTONS YES-NO UPDATE lcheckflg  .
+        BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
   END.
 
  FOR EACH bff-probe NO-LOCK
