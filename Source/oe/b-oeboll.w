@@ -752,17 +752,10 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF adm-new-record OR
+        (AVAIL oe-boll AND  oe-boll.tag NE oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
+        RUN new-tag.
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-boll.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF oe-boll.tag IN BROWSE Browser-Table /* Tag */
-DO:
-  RUN new-tag.
 END.
 
 /* _UIB-CODE-BLOCK-END */

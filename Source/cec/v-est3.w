@@ -66,6 +66,15 @@ END.
 
 {est/inksvarn.i NEW}
 
+{custom/framechk.i NEW}
+
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cCurrentMessage  AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCurrentTitle    AS CHARACTER NO-UNDO .
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hMessageProcs).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -91,30 +100,30 @@ END.
 DEFINE QUERY external_tables FOR est, eb.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS eb.i-col eb.i-pass eb.i-coat eb.i-coat-p ~
-eb.casNoCharge eb.i-coldscr eb.i-ps[1] eb.i-code[1] eb.i-dscr[1] eb.i-%[1] ~
-eb.i-ps[2] eb.i-code[2] eb.i-dscr[2] eb.i-%[2] eb.trNoCharge eb.i-ps[3] ~
-eb.i-code[3] eb.i-dscr[3] eb.i-%[3] eb.i-ps[4] eb.i-code[4] eb.i-dscr[4] ~
-eb.i-%[4] eb.i-ps[5] eb.i-code[5] eb.i-dscr[5] eb.i-%[5] eb.i-ps[6] ~
-eb.i-code[6] eb.i-dscr[6] eb.i-%[6] eb.i-ps[7] eb.i-code[7] eb.i-dscr[7] ~
-eb.i-%[7] eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.i-ps[9] ~
-eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] ~
-eb.i-%[10] 
+eb.casNoCharge eb.i-coldscr eb.inkNoCharge eb.i-ps[1] eb.i-code[1] ~
+eb.i-dscr[1] eb.i-%[1] eb.i-ps[2] eb.i-code[2] eb.i-dscr[2] eb.i-%[2] ~
+eb.trNoCharge eb.i-ps[3] eb.i-code[3] eb.i-dscr[3] eb.i-%[3] eb.i-ps[4] ~
+eb.i-code[4] eb.i-dscr[4] eb.i-%[4] eb.i-ps[5] eb.i-code[5] eb.i-dscr[5] ~
+eb.i-%[5] eb.i-ps[6] eb.i-code[6] eb.i-dscr[6] eb.i-%[6] eb.i-ps[7] ~
+eb.i-code[7] eb.i-dscr[7] eb.i-%[7] eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] ~
+eb.i-%[8] eb.i-ps[9] eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.i-ps[10] ~
+eb.i-code[10] eb.i-dscr[10] eb.i-%[10] 
 &Scoped-define ENABLED-TABLES eb
 &Scoped-define FIRST-ENABLED-TABLE eb
 &Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 btn_misc-est 
 &Scoped-Define DISPLAYED-FIELDS eb.cas-no eb.cas-len eb.i-col eb.i-pass ~
 eb.i-coat eb.i-coat-p eb.cas-cost eb.cas-wid eb.casNoCharge eb.i-coldscr ~
-eb.cas-cnt eb.cas-dep eb.cas-pal eb.cas-wt eb.i-ps[1] eb.i-code[1] ~
-eb.i-dscr[1] eb.i-%[1] eb.tr-no eb.tr-len eb.i-ps[2] eb.i-code[2] ~
-eb.i-dscr[2] eb.i-%[2] eb.tr-cost eb.tr-wid eb.trNoCharge eb.i-ps[3] ~
-eb.i-code[3] eb.i-dscr[3] eb.i-%[3] eb.tr-cnt eb.tr-dep eb.i-ps[4] ~
-eb.i-code[4] eb.i-dscr[4] eb.i-%[4] eb.tr-cas eb.i-ps[5] eb.i-code[5] ~
-eb.i-dscr[5] eb.i-%[5] eb.stacks eb.i-ps[6] eb.i-code[6] eb.i-dscr[6] ~
-eb.i-%[6] eb.stack-code eb.i-ps[7] eb.i-code[7] eb.i-dscr[7] eb.i-%[7] ~
-eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.chg-method eb.i-ps[9] ~
-eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.weight-m eb.carrier eb.carr-dscr ~
-eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] eb.i-%[10] eb.dest-code eb.fr-out-c ~
-eb.fr-out-m eb.quantityPartial
+eb.inkNoCharge eb.cas-cnt eb.cas-dep eb.cas-pal eb.quantityPartial ~
+eb.cas-wt eb.i-ps[1] eb.i-code[1] eb.i-dscr[1] eb.i-%[1] eb.tr-no eb.tr-len ~
+eb.i-ps[2] eb.i-code[2] eb.i-dscr[2] eb.i-%[2] eb.tr-cost eb.tr-wid ~
+eb.trNoCharge eb.i-ps[3] eb.i-code[3] eb.i-dscr[3] eb.i-%[3] eb.tr-cnt ~
+eb.tr-dep eb.i-ps[4] eb.i-code[4] eb.i-dscr[4] eb.i-%[4] eb.tr-cas ~
+eb.i-ps[5] eb.i-code[5] eb.i-dscr[5] eb.i-%[5] eb.stacks eb.i-ps[6] ~
+eb.i-code[6] eb.i-dscr[6] eb.i-%[6] eb.stack-code eb.i-ps[7] eb.i-code[7] ~
+eb.i-dscr[7] eb.i-%[7] eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] eb.i-%[8] ~
+eb.chg-method eb.i-ps[9] eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.weight-m ~
+eb.carrier eb.carr-dscr eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] eb.i-%[10] ~
+eb.dest-code eb.fr-out-c eb.fr-out-m 
 &Scoped-define DISPLAYED-TABLES eb
 &Scoped-define FIRST-DISPLAYED-TABLE eb
 
@@ -122,10 +131,10 @@ eb.fr-out-m eb.quantityPartial
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS eb.cas-no eb.cas-len eb.cas-cost ~
-eb.cas-wid eb.casNoCharge eb.cas-cnt eb.cas-dep eb.cas-pal eb.cas-wt ~
-eb.tr-no eb.tr-len eb.tr-cost eb.tr-wid eb.trNoCharge eb.tr-cnt eb.tr-dep ~
-eb.tr-cas eb.stacks eb.stack-code eb.chg-method eb.weight-m eb.carrier ~
-eb.carr-dscr eb.dest-code eb.fr-out-c eb.fr-out-m eb.quantityPartial
+eb.cas-wid eb.cas-cnt eb.cas-dep eb.cas-pal eb.quantityPartial eb.cas-wt ~
+eb.tr-no eb.tr-len eb.tr-cost eb.tr-wid eb.tr-cnt eb.tr-dep eb.tr-cas ~
+eb.stacks eb.stack-code eb.chg-method eb.weight-m eb.carrier eb.carr-dscr ~
+eb.dest-code eb.fr-out-c eb.fr-out-m 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -216,13 +225,17 @@ DEFINE FRAME Corr
           LABEL "Unit Width" FORMAT ">9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     eb.casNoCharge AT ROW 2.24 COL 106.4 COLON-ALIGNED
-          LABEL "NC" FORMAT "Y/N"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
-     eb.i-coldscr AT ROW 2.43 COL 9 COLON-ALIGNED NO-LABEL FORMAT "x(40)"
+     eb.casNoCharge AT ROW 2.24 COL 115 RIGHT-ALIGNED WIDGET-ID 2
+          LABEL "NC"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
+     eb.i-coldscr AT ROW 2.52 COL 1 COLON-ALIGNED NO-LABEL FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 56 BY 1
+     eb.inkNoCharge AT ROW 2.57 COL 60 WIDGET-ID 6
+          LABEL "NC"
+          VIEW-AS TOGGLE-BOX
+          SIZE 9 BY .81
      eb.cas-cnt AT ROW 3.14 COL 89 COLON-ALIGNED
           LABEL "Boxes/Code"
           VIEW-AS FILL-IN 
@@ -275,17 +288,6 @@ DEFINE FRAME Corr
      eb.i-%[2] AT ROW 5.57 COL 59 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     eb.tr-cost AT ROW 6.48 COL 89 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
-     eb.tr-wid AT ROW 6.48 COL 125 COLON-ALIGNED
-          LABEL "Width" FORMAT ">>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     eb.trNoCharge AT ROW 6.52 COL 106.8 COLON-ALIGNED
-          LABEL "NC" FORMAT "Y/N"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -293,6 +295,17 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     eb.tr-cost AT ROW 6.48 COL 89 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+     eb.tr-wid AT ROW 6.48 COL 125 COLON-ALIGNED
+          LABEL "Width" FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     eb.trNoCharge AT ROW 6.52 COL 102.6 WIDGET-ID 4
+          LABEL "NC"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
      eb.i-ps[3] AT ROW 6.57 COL 2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
@@ -367,6 +380,13 @@ DEFINE FRAME Corr
      eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Corr
      eb.i-%[7] AT ROW 10.67 COL 59 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -376,13 +396,6 @@ DEFINE FRAME Corr
      eb.i-code[8] AT ROW 11.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME Corr
      eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
@@ -444,15 +457,15 @@ DEFINE FRAME Corr
           SIZE 9.2 BY 1
      "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.86 COL 36
-     "%" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 3.86 COL 63
-     "Item #" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.86 COL 15
-     "PS" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 3.86 COL 4
      "Freight Charge" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 11.71 COL 73
           FGCOLOR 9 
+     "PS" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 3.86 COL 4
+     "Item #" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.86 COL 15
+     "%" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 3.86 COL 63
      stackImage AT ROW 8.38 COL 122
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.48 COL 71
@@ -535,15 +548,13 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.cas-no IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN eb.cas-pal IN FRAME Corr
-   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */ 
-/* SETTINGS FOR FILL-IN eb.quantityPartial IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN eb.cas-wid IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN eb.cas-wt IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN eb.casNoCharge IN FRAME Corr
-   2 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR TOGGLE-BOX eb.casNoCharge IN FRAME Corr
+   ALIGN-R EXP-LABEL                                                    */
 /* SETTINGS FOR RADIO-SET eb.chg-method IN FRAME Corr
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN eb.dest-code IN FRAME Corr
@@ -558,6 +569,10 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.i-coldscr IN FRAME Corr
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR TOGGLE-BOX eb.inkNoCharge IN FRAME Corr
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN eb.quantityPartial IN FRAME Corr
+   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN eb.stack-code IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR IMAGE stackImage IN FRAME Corr
@@ -581,8 +596,8 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN eb.tr-wid IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
-/* SETTINGS FOR FILL-IN eb.trNoCharge IN FRAME Corr
-   2 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR TOGGLE-BOX eb.trNoCharge IN FRAME Corr
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.weight-m IN FRAME Corr
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -822,16 +837,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME eb.quantityPartial
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.quantityPartial V-table-Win
-ON VALUE-CHANGED OF eb.quantityPartial IN FRAME Corr /* Partial */
-DO:
-  RUN calc-tr-cnt.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME eb.cas-dep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cas-dep V-table-Win
@@ -961,19 +966,6 @@ DO:
     RUN valid-cas-wt NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.casNoCharge
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.casNoCharge V-table-Win
-ON VALUE-CHANGED OF eb.casNoCharge IN FRAME Corr /* NC */
-DO:
-  IF eb.casNoCharge:SCREEN-VALUE EQ "N" THEN
-      ASSIGN eb.cas-cost:SCREEN-VALUE = "0.00".
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1292,6 +1284,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME eb.quantityPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.quantityPartial V-table-Win
+ON VALUE-CHANGED OF eb.quantityPartial IN FRAME Corr /* Partial */
+DO:
+  RUN calc-tr-cnt.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME eb.stack-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.stack-code V-table-Win
 ON LEAVE OF eb.stack-code IN FRAME Corr /* Stack Code */
@@ -1436,19 +1439,6 @@ DO:
       return no-apply.
    end.*/
 
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.trNoCharge
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.trNoCharge V-table-Win
-ON VALUE-CHANGED OF eb.trNoCharge IN FRAME Corr /* NC */
-DO:
-  IF eb.trNoCharge:SCREEN-VALUE EQ "N" THEN
-      ASSIGN eb.tr-cost:SCREEN-VALUE = "0.00".
 
 END.
 
@@ -1843,7 +1833,6 @@ PROCEDURE local-assign-record :
         ASSIGN
          b-eb.cas-no   = eb.cas-no
          b-eb.cas-cost = eb.cas-cost
-         b-eb.casNoCharge = eb.casNoCharge
          b-eb.cas-cnt  = eb.cas-cnt
          b-eb.cas-len  = eb.cas-len
          b-eb.cas-wid  = eb.cas-wid
@@ -1852,7 +1841,6 @@ PROCEDURE local-assign-record :
          b-eb.cas-wt   = eb.cas-wt
          b-eb.tr-no    = eb.tr-no
          b-eb.tr-cost  = eb.tr-cost
-         b-eb.trNoCharge = eb.trNoCharge
          b-eb.tr-cnt   = eb.tr-cnt
          b-eb.tr-len   = eb.tr-len
          b-eb.tr-wid   = eb.tr-wid
@@ -1860,7 +1848,8 @@ PROCEDURE local-assign-record :
          b-eb.tr-cas   = eb.tr-cas
          b-eb.casNoCharge   = eb.casNoCharge
          b-eb.trNoCharge = eb.trNoCharge 
-         b-eb.quantityPartial = eb.quantityPartial.
+         b-eb.quantityPartial = eb.quantityPartial
+         .
       END.
     END.
   END.
@@ -1898,7 +1887,6 @@ PROCEDURE local-assign-record :
             ASSIGN
              bf-eb.cas-no   = eb.cas-no
              bf-eb.cas-cost = eb.cas-cost
-             bf-eb.casNoCharge = eb.casNoCharge
              bf-eb.cas-cnt  = eb.cas-cnt
              bf-eb.cas-len  = eb.cas-len
              bf-eb.cas-wid  = eb.cas-wid
@@ -1907,7 +1895,6 @@ PROCEDURE local-assign-record :
              bf-eb.cas-wt   = eb.cas-wt
              bf-eb.tr-no    = eb.tr-no
              bf-eb.tr-cost  = eb.tr-cost
-             bf-eb.trNoCharge = eb.trNoCharge
              bf-eb.tr-cnt   = eb.tr-cnt
              bf-eb.tr-len   = eb.tr-len
              bf-eb.tr-wid   = eb.tr-wid
@@ -1915,7 +1902,8 @@ PROCEDURE local-assign-record :
              bf-eb.tr-cas   = eb.tr-cas
              bf-eb.casNoCharge = eb.casNoCharge
              bf-eb.trNoCharge  = eb.trNoCharge 
-             bf-eb.quantityPartial = eb.quantityPartial.
+             bf-eb.quantityPartial = eb.quantityPartial
+             .
           RELEASE bf-eb.
       END.
 
@@ -2190,10 +2178,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   ll-unit-calc   = NO.
-   ll-update-pack = NO.
-
+  
   DISABLE eb.cas-no
           eb.cas-cost
           eb.cas-cnt
@@ -2221,9 +2206,20 @@ PROCEDURE local-update-record :
           eb.casNoCharge
           eb.trNoCharge
           eb.quantityPartial
+          eb.inkNoCharge
       WITH FRAME {&FRAME-NAME}.
 
+  RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
+
   RUN release-shared-buffers.
+
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3,NO).
+  ELSE IF framechk-i-changed AND NOT lSuppressMessage THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2,YES).
+
+  ASSIGN
+   ll-unit-calc   = NO.
+   ll-update-pack = NO.
+
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
@@ -2334,6 +2330,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-ink V-table-Win 
 PROCEDURE reset-ink :
 /*------------------------------------------------------------------------------
@@ -2341,6 +2338,35 @@ PROCEDURE reset-ink :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
+IF eb.form-no NE 0 THEN DO:
+  {custom/checkuse.i}
+
+  RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
+
+  RUN reset-ink1 .
+
+  RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
+
+  RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
+
+  IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-ink1 V-table-Win 
+PROCEDURE reset-ink1 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
 {&methods/lValidateError.i YES}
 IF eb.form-no NE 0 THEN DO:
   {custom/checkuse.i}
@@ -2925,6 +2951,7 @@ PROCEDURE update-ink :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
 
   disable eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
           eb.cas-dep eb.cas-pal eb.cas-wt eb.quantityPartial
@@ -2950,6 +2977,7 @@ PROCEDURE update-pack :
 
   {custom/checkuse.i}
 
+  RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
   /*RUN set-pack (OUTPUT ll-update-pack).*/ ll-update-pack = YES.
 
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".
@@ -2972,6 +3000,7 @@ PROCEDURE update-pack :
           eb.i-code[1 for 10]
           eb.i-dscr[1 for 10]
           eb.i-%[1 for 10]
+          eb.inkNoCharge
           with frame {&frame-name}.
 
   apply "entry" to eb.cas-no in frame {&frame-name}.

@@ -98,18 +98,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 68 ROW 2.91
-         SIZE 83 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 68 ROW 2.91
+         SIZE 83 BY 1.43
          BGCOLOR 15 .
 
 
@@ -119,7 +119,7 @@ DEFINE FRAME OPTIONS-FRAME
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    External Tables: ASI.employee
-   Allow: Basic,Browse,DB-Fields,Smart,Window,Query
+   Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
  */
@@ -347,6 +347,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_empinout. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_empinout ).
+       RUN add-link IN adm-broker-hdl ( h_empinout , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_empinout ,
@@ -392,7 +393,6 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_employee. */
        RUN add-link IN adm-broker-hdl ( h_empinout , 'Record':U , h_employee ).
-       RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , THIS-PROCEDURE ).
 
        /* Links to SmartBrowser h_empinou2. */
        RUN add-link IN adm-broker-hdl ( h_empinout , 'Record':U , h_empinou2 ).

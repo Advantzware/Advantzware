@@ -108,9 +108,9 @@ DEFINE TEMP-TABLE ttDynSubjectWhere    NO-UNDO LIKE dynSubjectWhere.
     ~{&OPEN-QUERY-subjectBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectBrowse btnExit paramSetBrowse ~
-btnExport lExportSubject lExportParamSet cImportExportFolder btnImport ~
-lExportDynLookup 
+&Scoped-Define ENABLED-OBJECTS subjectBrowse paramSetBrowse btnExit ~
+btnExport lExportSubject lExportParamSet cImportExportFolder ~
+lExportDynLookup btnImport 
 &Scoped-Define DISPLAYED-OBJECTS lExportSubject lExportParamSet ~
 cImportExportFolder lExportDynLookup 
 
@@ -214,18 +214,18 @@ ttDynSubject.exportSubject
 
 DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 1 COL 2 WIDGET-ID 200
+     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      btnExit AT ROW 27.43 COL 118 HELP
           "Exit Design Layout Window" WIDGET-ID 32
-     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      btnExport AT ROW 27.43 COL 110 HELP
           "Export" WIDGET-ID 26
      lExportSubject AT ROW 1.24 COL 55 WIDGET-ID 2
      lExportParamSet AT ROW 1.24 COL 118 WIDGET-ID 38
      cImportExportFolder AT ROW 26.24 COL 86 COLON-ALIGNED HELP
           "Enter Import~\Export Folder" WIDGET-ID 4
+     lExportDynLookup AT ROW 27.91 COL 68 WIDGET-ID 36
      btnImport AT ROW 27.43 COL 102 HELP
           "Import" WIDGET-ID 24
-     lExportDynLookup AT ROW 27.91 COL 68 WIDGET-ID 36
      portRect AT ROW 26 COL 65 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -268,6 +268,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/32x32/jss_icon_32.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -281,7 +287,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB subjectBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse btnExit DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse subjectBrowse DEFAULT-FRAME */
 ASSIGN 
        paramSetBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -554,8 +560,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY lExportSubject lExportParamSet cImportExportFolder lExportDynLookup 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE subjectBrowse btnExit paramSetBrowse btnExport lExportSubject 
-         lExportParamSet cImportExportFolder btnImport lExportDynLookup 
+  ENABLE subjectBrowse paramSetBrowse btnExit btnExport lExportSubject 
+         lExportParamSet cImportExportFolder lExportDynLookup btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

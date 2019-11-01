@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          rfq              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -116,28 +115,28 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 151.2 BY 24.1
-         BGCOLOR 4 .
+         BGCOLOR 15 FGCOLOR 1 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE 
+         AT COL 2 ROW 1.24
+         SIZE 57 BY 1.67
+         BGCOLOR 15 FGCOLOR 1 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 64 ROW 1
+         SIZE 88 BY 1.91
+         BGCOLOR 15 FGCOLOR 1 .
 
 DEFINE FRAME message-frame2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 117 ROW 2.91
          SIZE 35 BY 1.19
-         BGCOLOR 4 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 64 ROW 1
-         SIZE 86 BY 1.91
-         BGCOLOR 4 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE 
-         AT COL 2 ROW 1.48
-         SIZE 57 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -147,6 +146,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: rfq.rfq
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -327,8 +327,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_optionse2 ).
-       RUN set-position IN h_optionse2 ( 1.00 , 23.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
+       RUN set-position IN h_optionse2 ( 1.00 , 19.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 62.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
@@ -343,7 +343,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 79.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 81.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -358,8 +358,12 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_optionse2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rfq/b-rfqlst.w':U ,
@@ -376,8 +380,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-rfqlst ).
        RUN add-link IN adm-broker-hdl ( h_b-rfqlst , 'Record':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-rfqlst ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/rfqtool.w':U ,
@@ -419,8 +425,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_rfqtool ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-rfq':U , h_rfqtool ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqtool ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_rfqtool , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
-
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/rfq.w':U ,
@@ -483,8 +495,18 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFrame h_rfqtoest. */
        RUN add-link IN adm-broker-hdl ( h_rfqitem , 'Record':U , h_rfqtoest ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfq-3 ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqitem ,
+             h_rfq-3 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-set ,
+             h_rfqitem , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqtoest ,
+             h_v-set , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
+             h_rfqtoest , 'AFTER':U ).
     END. /* Page 3 */
-
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/rfq.w':U ,
@@ -509,12 +531,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
+             INPUT  '':U ,
              OUTPUT h_p-rfqsiz ).
-       RUN set-position IN h_p-rfqsiz ( 19.10 , 39.00 ) NO-ERROR.
-       RUN set-size IN h_p-rfqsiz ( 1.76 , 52.00 ) NO-ERROR.
+       /* Position in AB:  ( 19.10 , 39.00 ) */
+       /* Size in UIB:  ( 1.76 , 52.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('5,3':U) NO-ERROR.
@@ -526,8 +546,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-rfqsiz , 'TableIO':U , h_rfqsize ).
        RUN add-link IN adm-broker-hdl ( h_rfqitem , 'Record':U , h_rfqsize ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqsize ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
     END. /* Page 4 */
-
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/rfq.w':U ,
@@ -565,8 +587,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updcan-2 , 'TableIO':U , h_rfqispec ).
        RUN add-link IN adm-broker-hdl ( h_rfqitem , 'Record':U , h_rfqispec ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfq ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqispec ,
+             h_rfq , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan-2 ,
+             h_rfqispec , 'AFTER':U ).
     END. /* Page 5 */
-
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/rfqitem.w':U ,
@@ -604,8 +632,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updcan-3 , 'TableIO':U , h_rfqmat ).
        RUN add-link IN adm-broker-hdl ( h_rfqitem , 'Record':U , h_rfqmat ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqitem-4 ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqmat ,
+             h_rfqitem-4 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan-3 ,
+             h_rfqmat , 'AFTER':U ).
     END. /* Page 6 */
-
     WHEN 7 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/rfqitem.w':U ,
@@ -643,8 +677,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updprt , 'TableIO':U , h_rfqiprt ).
        RUN add-link IN adm-broker-hdl ( h_rfqsize , 'Record':U , h_rfqiprt ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqitem-3 ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqiprt ,
+             h_rfqitem-3 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updprt ,
+             h_rfqiprt , 'AFTER':U ).
     END. /* Page 7 */
-
     WHEN 8 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/rfqitem.w':U ,
@@ -683,6 +723,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_rfqitem , 'Record':U , h_rfqiship ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqitem-2 ,
+             FRAME message-frame2:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rfqiship ,
+             h_rfqitem-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan-5 ,
+             h_rfqiship , 'AFTER':U ).
     END. /* Page 8 */
 
   END CASE.

@@ -590,7 +590,7 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-RUN fg/bin-exp.w.
+RUN fg/loc-exp.w.
 
 
 END PROCEDURE.

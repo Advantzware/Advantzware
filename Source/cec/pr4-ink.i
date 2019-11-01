@@ -20,7 +20,9 @@
              ink.snum   = xeb.form-no
              ink.bnum   = xeb.blank-no
              ink.i-code = xeb.i-code[i]
-             ink.i-dscr = xeb.i-dscr[i].
+             ink.i-dscr = xeb.i-dscr[i]
+             ink.noCharge = xeb.inkNoCharge
+             .
           end.
         end.
       end.

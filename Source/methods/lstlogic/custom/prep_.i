@@ -26,7 +26,7 @@
 DISPLAY
   prep.code FORMAT "x(15)"
   prep.dscr
-  prep.mkup
+  prep.mkup FORMAT "->>9.99"
   prep.cost
   prep.ml
   prep.amtz

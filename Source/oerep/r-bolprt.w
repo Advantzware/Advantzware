@@ -268,7 +268,7 @@ tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
 rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line ~
 tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill ~
 tb_footer lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok ~
-btn-cancel run_format
+btn-cancel run_format tb_print-DetPage
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
@@ -276,7 +276,7 @@ tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
 lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert ~
 tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
 tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no lv-font-name ~
-tb_post-bol td-show-parm run_format
+tb_post-bol td-show-parm run_format tb_print-DetPage
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -469,7 +469,12 @@ DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_print-barcode AS LOGICAL INITIAL no 
      LABEL "Print Barcode by Part Number?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 44 BY .81 NO-UNDO.
+     SIZE 44 BY .81 NO-UNDO. 
+
+DEFINE VARIABLE tb_print-DetPage AS LOGICAL INITIAL no 
+     LABEL "Print Detail Bol Page 2?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 44 BY .81 NO-UNDO. 
 
 DEFINE VARIABLE tb_print-binstags AS LOGICAL INITIAL no 
      LABEL "Print Bins/Tags?" 
@@ -552,6 +557,7 @@ DEFINE FRAME FRAME-A
      tb_print-dept AT ROW 11.43 COL 34
      tb_print_ship AT ROW 11.43 COL 34 WIDGET-ID 4
      tb_print-barcode AT ROW 12.29 COL 34 WIDGET-ID 2
+     tb_print-DetPage AT ROW 13.01 COL 34 
      tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
      tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
      lbl_bolsort AT ROW 13.86 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
@@ -777,6 +783,11 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       tb_print-DetPage:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+
+ASSIGN 
        tb_print-binstags:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_print-binstags:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -952,7 +963,15 @@ DO:
    ELSE
       v-format-str = "BOLCERT".
 
+      
+   IF tb_print-DetPage AND rd_bolcert EQ "BOL" THEN DO:
+       IF v-print-fmt = "Peachtree" OR v-print-fmt = "PeachtreeBC" OR v-print-fmt = "PeachtreeLotPO"  THEN do:
+           EMPTY TEMP-TABLE tt-temp-report .
+           RUN oe/rep/d-ptree.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
+       END.
+   END.
 
+  
    CASE rd-dest:
       WHEN 1 THEN ASSIGN LvOutputSelection = "Printer".
       WHEN 2 THEN ASSIGN LvOutputSelection = "Screen". 
@@ -2968,7 +2987,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
           tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
-          tb_barcode tb_print_ship tb_print-barcode 
+          tb_barcode tb_print_ship tb_print-barcode tb_print-DetPage
           tb_print-unassemble-component tb_print-binstags lbl_bolsort 
           rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
           tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode 
@@ -2982,7 +3001,7 @@ PROCEDURE enable_UI :
          tb_print-spec rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest 
          tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt 
          lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
-         run_format
+         run_format tb_print-DetPage
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3949,7 +3968,8 @@ PROCEDURE run-packing-list :
     lv-run-commercial   = ""
     v-print-unassembled = tb_print-unassemble-component
     v-footer            = tb_footer
-    lPerBolLine         = tb_per-bol-line.
+    lPerBolLine         = tb_per-bol-line
+    lPrintDetailPage    = tb_print-DetPage .
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -4137,7 +4157,8 @@ PROCEDURE run-report :
     v-sort              = rd_bol-sort EQ "Item #"
     v-print-unassembled = tb_print-unassemble-component 
     v-footer            = tb_footer
-    lPerBolLine         = tb_per-bol-line.
+    lPerBolLine         = tb_per-bol-line
+    lPrintDetailPage    = tb_print-DetPage .
 
   /*IF lAsiUser THEN DO:
      ASSIGN v-print-fmt = run_format
@@ -4364,7 +4385,8 @@ assign
   is-xprint-form      = YES
   v-print-unassembled = tb_print-unassemble-component
   v-footer            = tb_footer
-  lPerBolLine         = tb_per-bol-line.
+  lPerBolLine         = tb_per-bol-line
+  lPrintDetailPage    = tb_print-DetPage .
 
 IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
    ASSIGN
@@ -4631,7 +4653,8 @@ PROCEDURE run-report-mail :
     lv-run-commercial   = ""
     v-print-unassembled = tb_print-unassemble-component
     v-footer            = tb_footer
-    lPerBolLine         = tb_per-bol-line.
+    lPerBolLine         = tb_per-bol-line
+    lPrintDetailPage    = tb_print-DetPage .
 
   IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
@@ -5171,6 +5194,14 @@ PROCEDURE pRunFormatValueChanged :
       IF v-print-fmt NE "PremierXFooter"    THEN
          ASSIGN  tb_footer:HIDDEN = YES
                  tb_footer:SCREEN-VALUE = "No" .
+
+      
+    IF v-print-fmt = "Peachtree" OR v-print-fmt = "PeachtreeBC" OR v-print-fmt = "PeachtreeLotPO"  THEN 
+       ASSIGN
+        tb_print-DetPage:HIDDEN = NO .
+   ELSE
+       ASSIGN
+        tb_print-DetPage:HIDDEN = YES .
     END.
 END PROCEDURE.
 

@@ -1127,6 +1127,7 @@ FIND FIRST oe-relh WHERE oe-relh.company EQ oe-bolh.company
 
 /*if avail oe-relh THEN if v-do-bol then delete oe-relh.
                       else*/ IF AVAIL oe-relh THEN oe-relh.posted = NO.
+FIND CURRENT oe-relh NO-LOCK.
 
 IF oe-bolh.posted THEN DO:
     oe-bolh.deleted = YES.

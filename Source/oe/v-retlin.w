@@ -648,17 +648,8 @@ DO:
     IF LASTKEY NE -1 THEN DO:
     RUN valid-tag (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-retl.tag V-table-Win
-ON VALUE-CHANGED OF oe-retl.tag IN FRAME F-Main /* Tag */
-DO:
-    DO WITH FRAME {&FRAME-NAME}:  
+     DO WITH FRAME {&FRAME-NAME}:  
       FIND FIRST ar-inv NO-LOCK
           WHERE ar-inv.company EQ oe-reth.company
             AND ar-inv.cust-no EQ oe-reth.cust-no
@@ -694,11 +685,23 @@ DO:
           oe-retl.uom:SCREEN-VALUE            = ar-invl.pr-uom
           oe-retl.unit-pr:SCREEN-VALUE        = STRING(ar-invl.unit-pr).
 
-  END. /* do with frame */
+    END. /* do with frame */
+
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+/*
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-retl.tag V-table-Win
+ON VALUE-CHANGED OF oe-retl.tag IN FRAME F-Main /* Tag */
+DO:
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME*/
 
 
 &Scoped-define SELF-NAME oe-retl.tot-qty-return

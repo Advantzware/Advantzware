@@ -123,7 +123,7 @@ DEFINE TEMP-TABLE tt-custbal NO-UNDO
     INDEX i1 cust-no.
 
 DEFINE BUFFER b-inv-head FOR inv-head.
-DEFINE BUFFER save-line  FOR reftable.
+{oe/ttSaveLine.i}
 
 {oe/invwork.i NEW}
 {oe/closchk.i NEW}
@@ -482,24 +482,24 @@ PROCEDURE create-save-line :
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
     FOR EACH inv-line WHERE inv-line.r-no EQ b-inv-head.r-no:
-        CREATE save-line.
+        CREATE ttSaveLine.
         ASSIGN
-            save-line.reftable = "save-line" + STRING(v-trnum,"9999999999")
-            save-line.val[1]   = inv-line.r-no
-            save-line.val[2]   = inv-head.r-no
-            save-line.val[3]   = INT(RECID(inv-line))
-            inv-line.r-no      = inv-head.r-no
+            ttSaveLine.sessionID  = "save-line" + STRING(v-trnum,"9999999999")
+            ttSaveLine.invLineRNo = inv-line.r-no
+            ttSaveLine.invHeadRNo = inv-head.r-no
+            ttSaveLine.invRowiD   = ROWID(inv-line)
+            inv-line.r-no         = inv-head.r-no
             .
     END.
 
     FOR EACH inv-misc WHERE inv-misc.r-no EQ b-inv-head.r-no:
-        CREATE save-line.
+        CREATE ttSaveLine.
         ASSIGN
-            save-line.reftable = "save-line" + STRING(v-trnum,"9999999999")
-            save-line.val[1]   = inv-misc.r-no
-            save-line.val[2]   = inv-head.r-no
-            save-line.val[3]   = INT(RECID(inv-misc))
-            inv-misc.r-no      = inv-head.r-no
+            ttSaveLine.sessionID  = "save-line" + STRING(v-trnum,"9999999999")
+            ttSaveLine.invMiscRNo = inv-misc.r-no
+            ttSaveLine.invHeadRNo = inv-head.r-no
+            ttSaveLine.invRowID   = ROWID(inv-misc)
+            inv-misc.r-no         = inv-head.r-no
             .
     END.
 
@@ -2324,7 +2324,7 @@ PROCEDURE pPrintPost:
         END.
     END.
 
-    FOR EACH save-line WHERE save-line.reftable EQ "save-line" + STRING(v-trnum,"9999999999"):
+    FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + STRING(v-trnum,"9999999999"):
         RUN undo-save-line.
     END.
 
@@ -2563,12 +2563,14 @@ PROCEDURE undo-save-line :
     RELEASE inv-line.
     RELEASE inv-misc.
 
-    FIND FIRST inv-line EXCLUSIVE-LOCK WHERE RECID(inv-line) EQ INT(save-line.val[3]) NO-ERROR.
-    IF AVAILABLE inv-line THEN inv-line.r-no = save-line.val[1].
+    FIND FIRST inv-line EXCLUSIVE-LOCK WHERE ROWID(inv-line) EQ ttSaveLine.invRowID NO-ERROR.
+    IF AVAILABLE inv-line THEN 
+        inv-line.r-no = ttSaveLine.invLineRNo.
     ELSE
-        FIND FIRST inv-misc EXCLUSIVE-LOCK WHERE RECID(inv-misc) EQ INT(save-line.val[3]) NO-ERROR.
-    IF AVAILABLE inv-misc THEN inv-misc.r-no = save-line.val[1].
-    DELETE save-line.
+        FIND FIRST inv-misc EXCLUSIVE-LOCK WHERE ROWID(inv-misc) EQ ttSaveLine.invRowID NO-ERROR.
+    IF AVAILABLE inv-misc THEN 
+        inv-misc.r-no = ttSaveLine.invMiscRNo.
+    DELETE ttSaveLine.
 END PROCEDURE.
 
 {aoa/BL/pBuildCustList.i}

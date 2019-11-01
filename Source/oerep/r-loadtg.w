@@ -528,7 +528,7 @@ DEFINE RECTANGLE RECT-11
 
 DEFINE RECTANGLE RECT-12
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 4.52.
+     SIZE 101 BY 4.67.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -542,12 +542,12 @@ DEFINE RECTANGLE RECT-8
 DEFINE VARIABLE scr-auto-print AS LOGICAL INITIAL no 
      LABEL "Auto Print Label?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 19.8 BY 1 NO-UNDO.
+     SIZE 19.8 BY .86 NO-UNDO.
 
 DEFINE VARIABLE scr-freeze-label AS LOGICAL INITIAL no 
      LABEL "Freeze Label File Choice?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 28 BY 1 NO-UNDO.
+     SIZE 28 BY .86 NO-UNDO.
 
 DEFINE VARIABLE tbPartSelect AS LOGICAL INITIAL no 
      LABEL "Select Components" 
@@ -562,7 +562,7 @@ DEFINE VARIABLE tb_16ths AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_close AS LOGICAL INITIAL no 
      LABEL "Close?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 12 BY .86 NO-UNDO.
 
 DEFINE VARIABLE tb_dept-note AS LOGICAL INITIAL no 
      LABEL "Print Department Notes?" 
@@ -582,7 +582,7 @@ DEFINE VARIABLE tb_override-mult AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_print-view AS LOGICAL INITIAL no 
      LABEL "Preview?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 19.6 BY 1 NO-UNDO.
+     SIZE 19.6 BY .86 NO-UNDO.
 
 DEFINE VARIABLE tb_rel AS LOGICAL INITIAL no 
      LABEL "Print Posted Release in BOL File?" 
@@ -655,17 +655,17 @@ DEFINE FRAME FRAME-A
      scr-auto-print AT ROW 21.33 COL 18.4 WIDGET-ID 2
      scr-freeze-label AT ROW 21.33 COL 39.6 WIDGET-ID 4
      scr-label-file AT ROW 22.29 COL 24 COLON-ALIGNED WIDGET-ID 6
-     begin_labels AT ROW 23.29 COL 24 COLON-ALIGNED
-     begin_form AT ROW 23.24 COL 84 COLON-ALIGNED
-     begin_filename AT ROW 24.33 COL 24 COLON-ALIGNED
-     btn-ok AT ROW 25.71 COL 25
-     btn-cancel AT ROW 25.71 COL 66
+     begin_labels AT ROW 23.43 COL 24 COLON-ALIGNED
+     begin_form AT ROW 23.38 COL 84 COLON-ALIGNED
+     begin_filename AT ROW 24.57 COL 24 COLON-ALIGNED
+     btn-ok AT ROW 26 COL 25
+     btn-cancel AT ROW 26 COL 66
      typeLabel AT ROW 5.29 COL 6 COLON-ALIGNED NO-LABEL
      statusLabel AT ROW 13.1 COL 4.4 NO-LABEL
      lbl_po-no AT ROW 14.81 COL 4 HELP
           "Print Customer's PO Number from Header, Line item or Release" NO-LABEL
      tb_xfer-lot AT ROW 17.52 COL 4 WIDGET-ID 28
-     tb_override-mult AT ROW 23.29 COL 35 WIDGET-ID 34
+     tb_override-mult AT ROW 23.43 COL 35 WIDGET-ID 34
      begin_ship-to AT ROW 15.67 COL 61.2 COLON-ALIGNED HELP
           "Enter Beginning Release Shipto" WIDGET-ID 36
      end_ship-to AT ROW 15.67 COL 82.6 COLON-ALIGNED HELP
@@ -1238,9 +1238,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME begin_poLine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_poLine C-Win
-ON VALUE-CHANGED OF begin_poLine IN FRAME FRAME-A /* From Order# */
+ON VALUE-CHANGED OF begin_poLine IN FRAME FRAME-A /* Ln */
 DO:  
     RUN get-po-info ("REFRESH").
 
@@ -1249,16 +1250,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_poLine
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_poLine C-Win
-ON VALUE-CHANGED OF end_poLine IN FRAME FRAME-A /* From Order# */
-DO:  
-    RUN get-po-info ("REFRESH").
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -1895,6 +1886,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_poLine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_poLine C-Win
+ON VALUE-CHANGED OF end_poLine IN FRAME FRAME-A /* Ln */
+DO:  
+    RUN get-po-info ("REFRESH").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_cas-lab
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cas-lab C-Win
 ON ENTRY OF fi_cas-lab IN FRAME FRAME-A /* Scan Case Label */
@@ -2394,7 +2397,6 @@ END.
 
 
 &UNDEFINE SELF-NAME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 

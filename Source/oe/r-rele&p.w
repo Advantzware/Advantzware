@@ -278,27 +278,27 @@ DEFINE FRAME FRAME-A
      fi_text-1 AT ROW 1.24 COL 3 COLON-ALIGNED NO-LABEL
      tran-date AT ROW 2.43 COL 36 COLON-ALIGNED
      tran-period AT ROW 2.43 COL 64 COLON-ALIGNED
-     begin_relnum AT ROW 3.86 COL 28 COLON-ALIGNED HELP
+     begin_relnum AT ROW 3.62 COL 28 COLON-ALIGNED HELP
           "Enter the beginning release number"
-     end_relnum AT ROW 3.86 COL 73 COLON-ALIGNED HELP
+     end_relnum AT ROW 3.62 COL 73 COLON-ALIGNED HELP
           "Enter the ending release number"
-     begin_date AT ROW 4.81 COL 28 COLON-ALIGNED HELP
+     begin_date AT ROW 4.57 COL 28 COLON-ALIGNED HELP
           "Enter the beginning release date"
-     end_date AT ROW 4.81 COL 73 COLON-ALIGNED HELP
+     end_date AT ROW 4.57 COL 73 COLON-ALIGNED HELP
           "Enter the ending release date"
-     begin_cust AT ROW 5.76 COL 28 COLON-ALIGNED HELP
+     begin_cust AT ROW 5.52 COL 28 COLON-ALIGNED HELP
           "Enter the beginning customer number"
-     end_cust AT ROW 5.76 COL 73 COLON-ALIGNED HELP
+     end_cust AT ROW 5.52 COL 73 COLON-ALIGNED HELP
           "Enter the ending customer number"
-     begin_ord AT ROW 6.71 COL 28 COLON-ALIGNED HELP
+     begin_ord AT ROW 6.48 COL 28 COLON-ALIGNED HELP
           "Enter the beginning order number"
-     end_ord AT ROW 6.71 COL 73 COLON-ALIGNED HELP
+     end_ord AT ROW 6.48 COL 73 COLON-ALIGNED HELP
           "Enter the ending order number"
      tgMultipleReleases AT ROW 7.67 COL 30 WIDGET-ID 8
      rd-dest AT ROW 14.57 COL 4 NO-LABEL
      lv-ornt AT ROW 14.81 COL 28 NO-LABEL
-     lines-per-page AT ROW 14.81 COL 81 COLON-ALIGNED
-     lv-font-no AT ROW 16.24 COL 31 COLON-ALIGNED
+     lines-per-page AT ROW 14.81 COL 83 COLON-ALIGNED
+     lv-font-no AT ROW 16 COL 30 COLON-ALIGNED
      lv-font-name AT ROW 17.19 COL 25 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 18.43 COL 27
      tb_excel AT ROW 19.48 COL 27 WIDGET-ID 2
@@ -387,16 +387,6 @@ ASSIGN FRAME FRAME-E:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -412,6 +402,14 @@ ASSIGN
 ASSIGN 
        begin_relnum:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -472,7 +470,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 

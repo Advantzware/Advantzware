@@ -63,6 +63,13 @@ DO TRANSACTION:
   {sys/inc/fgcolors.i}
 END.
 
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cCurrentMessage  AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCurrentTitle    AS CHARACTER NO-UNDO .
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hMessageProcs).
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3229,9 +3236,11 @@ PROCEDURE local-update-record :
   RUN release-shared-buffers.
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
+  
+  RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
 
-  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
-  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3,NO).
+  ELSE IF framechk-i-changed AND NOT lSuppressMessage THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2,YES).
 
   ASSIGN
    ll-unit-calc   = NO
@@ -3340,7 +3349,9 @@ IF eb.form-no NE 0 THEN DO:
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
+  RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
+
+  IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
 END.
 
 END PROCEDURE.

@@ -662,6 +662,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDynSubject W-Win
+PROCEDURE pDynSubject:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE vendItemCost THEN
+    CASE iDynSubjectPage:
+        WHEN 2 THEN
+        ASSIGN
+            cParamList  = "allItemID,startItemID,endItemID"
+            cParamValue = "no,"
+                        + vendItemCost.itemID + ","
+                        + vendItemCost.itemID
+                        .
+    END CASE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
 PROCEDURE Select_Add :
 /*------------------------------------------------------------------------------

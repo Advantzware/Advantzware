@@ -31,12 +31,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-/*&SCOPED-DEFINE setBrowseFocus
-&SCOPED-DEFINE yellowColumnsName vend
-&SCOPED-DEFINE cellColumnBrowserName b-vend*/
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
-/*&SCOPED-DEFINE useMatches*/
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -44,9 +40,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
-
 {custom/globdefs.i}
-
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
   
@@ -382,28 +376,28 @@ DEFINE FRAME F-Main
      "Name" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 20.8 WIDGET-ID 42
           FGCOLOR 9 FONT 6
-     "State" VIEW-AS TEXT
-          SIZE 7.2 BY .71 AT ROW 1.24 COL 72.4 WIDGET-ID 26
+     "Vendor#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 24
           FGCOLOR 9 FONT 6
-     "Zip" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 84.8 WIDGET-ID 28
-          FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
-          FONT 6
-     "City" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 51.4 WIDGET-ID 22
+     "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+     "Type" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 103 WIDGET-ID 34
           FGCOLOR 9 FONT 6
      "Buyer" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 119 WIDGET-ID 38
           FGCOLOR 9 FONT 6
-     "Type" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 103 WIDGET-ID 34
+     "City" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 51.4 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
-     "Vendor#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 24
+     "Sorted By:" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
+          FONT 6
+     "Zip" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 84.8 WIDGET-ID 28
+          FGCOLOR 9 FONT 6
+     "State" VIEW-AS TEXT
+          SIZE 7.2 BY .71 AT ROW 1.24 COL 72.4 WIDGET-ID 26
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -447,14 +441,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/query.i}
 {src/adm/method/navbrows.i}
-{methods/template/browser.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
@@ -817,7 +807,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -1081,18 +1071,18 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
   RUN setCellColumns.
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN vend.vend-no:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.name:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.type:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.active:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.area-code:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.phone:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.fax-area:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.fax:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.buyer:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.city:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.state:READ-ONLY IN BROWSE {&browse-name} = YES
-         vend.zip:READ-ONLY IN BROWSE {&browse-name} = YES   
+/*  ASSIGN vend.vend-no:READ-ONLY IN BROWSE {&browse-name} = YES  */
+/*         vend.name:READ-ONLY IN BROWSE {&browse-name} = YES     */
+/*         vend.type:READ-ONLY IN BROWSE {&browse-name} = YES     */
+/*         vend.active:READ-ONLY IN BROWSE {&browse-name} = YES   */
+/*         vend.area-code:READ-ONLY IN BROWSE {&browse-name} = YES*/
+/*         vend.phone:READ-ONLY IN BROWSE {&browse-name} = YES    */
+/*         vend.fax-area:READ-ONLY IN BROWSE {&browse-name} = YES */
+/*         vend.fax:READ-ONLY IN BROWSE {&browse-name} = YES      */
+/*         vend.buyer:READ-ONLY IN BROWSE {&browse-name} = YES    */
+/*         vend.city:READ-ONLY IN BROWSE {&browse-name} = YES     */
+/*         vend.state:READ-ONLY IN BROWSE {&browse-name} = YES    */
+/*         vend.zip:READ-ONLY IN BROWSE {&browse-name} = YES      */
          FI_moveCol = "Sort".
   
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.

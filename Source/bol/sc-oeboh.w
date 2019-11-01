@@ -667,21 +667,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Scan_Tag C-Win
 ON LEAVE OF Scan_Tag IN FRAME DEFAULT-FRAME /* Scan Tag# */
 DO:
+    
    ASSIGN v_itemfg = SUBSTRING(SELF:SCREEN-VALUE,1,15)
           v_count = SUBSTRING(SELF:SCREEN-VALUE,16,5)
           .
    DISP v_itemfg v_count WITH FRAME {&FRAME-NAME}.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Scan_Tag C-Win
-ON VALUE-CHANGED OF Scan_Tag IN FRAME DEFAULT-FRAME /* Scan Tag# */
-DO:
-    FIND FIRST loadtag WHERE loadtag.company = gcompany
+   FIND FIRST loadtag WHERE loadtag.company = gcompany
                          AND loadtag.item-type = NO
                          AND loadtag.tag-no = SELF:SCREEN-VALUE
                          NO-LOCK NO-ERROR.

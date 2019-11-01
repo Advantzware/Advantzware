@@ -142,8 +142,8 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters btnMoveDown menuTreeFilter btnMoveUp ~
-searchSelections btnRemove btnFavorite svFavoriteText 
+&Scoped-define searchFilters menuTreeFilter btnMoveDown searchSelections ~
+btnMoveUp btnRemove btnFavorite svFavoriteText 
 &Scoped-define colorPallet colorChoice-0 colorChoice-1 colorChoice-2 ~
 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
 colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
@@ -670,48 +670,6 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
-DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
-         SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 20.52 COL 12 HELP
           "Cancel" WIDGET-ID 2
@@ -742,6 +700,29 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      lShowCueCards AT ROW 21 COL 32 HELP
           "Toggle to Show/Not Show Cue Cards" WIDGET-ID 470
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
+          FONT 33
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
+          FONT 37
      " Copy to Selected Users" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      " Copy From User" VIEW-AS TEXT
@@ -752,32 +733,9 @@ DEFINE FRAME userSettingsFrame
           SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
      " Menu Size" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
           FGCOLOR 0 FONT 6
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
-          FONT 37
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
-          FONT 35
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
-          FONT 33
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -828,6 +786,48 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 25.95
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME searchFrame
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnMoveUp AT ROW 3.38 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     btnRemove AT ROW 4.57 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnSearch AT ROW 1 COL 51 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 100 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.38
+         SIZE 108 BY 14.05
+         FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -2221,8 +2221,8 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites btnMoveDown menuTreeFilter btnMoveUp favoritesList 
-         searchSelections btnRemove btnSearch btnFavorite 
+  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList searchSelections 
+         btnMoveUp btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}

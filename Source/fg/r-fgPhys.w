@@ -151,10 +151,10 @@ DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 72 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-fgPhys.csv" 
+DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-fgPhys.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1
+     SIZE 69 BY 1
      FGCOLOR 9 .
 
 DEFINE RECTANGLE RECT-7
@@ -741,7 +741,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     fiTransDate:SCREEN-VALUE = STRING(today, "99/99/9999").
     APPLY "entry" TO tb_prep.
-    fiSnapshotFolder:SCREEN-VALUE = cSnapshotFolder.
+    ASSIGN fiSnapshotFolder:SCREEN-VALUE = cSnapshotFolder
+           fi_file2:SCREEN-VALUE = "c:\tmp\FGPhysCountAnalysis_" + STRING(YEAR(TODAY), "9999") + STRING(MONTH(today)) + STRING(DAY(TODAY)) 
+                                   + REPLACE(STRING(time, "hh:mm"), ":","") + ".csv"            
+           .
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -868,8 +871,7 @@ SESSION:SET-WAIT-STATE ("general").
     DELETE OBJECT h.  
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
-  /*IF tb_runExcel THEN*/
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

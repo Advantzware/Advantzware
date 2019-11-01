@@ -22,6 +22,7 @@
 &global-define bno b-no
 &global-define miscrno r-no
 &global-define vprgmname "r-invprt."
+&global-define due due
 &ENDIF
 DEFINE BUFFER b-{&head}1   FOR {&head}.
 DEFINE BUFFER buf-{&head}  FOR {&head}.
@@ -1311,7 +1312,7 @@ PROCEDURE build-list1:
                     OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
                    ) 
                AND ("{&head}" NE "ar-inv" 
-                    OR (tb_open-inv AND {&head}.due GT 0 AND cInvoiceType EQ "ar-inv")
+                    OR (tb_open-inv AND {&head}.{&due} GT 0 AND cInvoiceType EQ "ar-inv")
                     OR ( NOT tb_open-inv AND cInvoiceType EQ "ar-inv")
                    ) 
                AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
@@ -2515,6 +2516,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "invprint 21" THEN
+            ASSIGN
+                v-program      = "oe/rep/invxprnt21.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "LancoYork" THEN
             ASSIGN
                 v-program      = "oe/rep/invlanyork.p"
@@ -3096,6 +3102,11 @@ PROCEDURE SetInvPostForm:
         WHEN "invprint 20" THEN
             ASSIGN
                 v-program      = "ar/rep/invxprnt10.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "invprint 21" THEN
+            ASSIGN
+                v-program      = "ar/rep/invxprnt21.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "LancoYork" THEN

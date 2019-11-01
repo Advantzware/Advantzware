@@ -65,15 +65,6 @@ CREATE WIDGET-POOL.
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR ap-pay.
-/* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS ap-pay.cleared 
-&Scoped-define ENABLED-TABLES ap-pay
-&Scoped-define FIRST-ENABLED-TABLE ap-pay
-&Scoped-Define DISPLAYED-FIELDS ap-pay.cleared 
-&Scoped-define DISPLAYED-TABLES ap-pay
-&Scoped-define FIRST-DISPLAYED-TABLE ap-pay
-
-
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -97,25 +88,13 @@ DEFINE VARIABLE h_p-updchk AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-void AS HANDLE NO-UNDO.
 
-/* Definitions of the field level widgets                               */
-
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     ap-pay.cleared AT ROW 8 COL 51 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 8.6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -123,6 +102,13 @@ DEFINE FRAME message-frame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -395,7 +381,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-void ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             ap-pay.cleared:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             h_v-void , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updchk ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
@@ -471,11 +457,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  IF AVAILABLE ap-pay THEN 
-    DISPLAY ap-pay.cleared 
-      WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE ap-pay.cleared 
-      WITH FRAME F-Main IN WINDOW W-Win.
+  VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}

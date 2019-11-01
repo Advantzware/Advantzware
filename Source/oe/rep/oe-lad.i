@@ -23,6 +23,7 @@ DEF {1} SHARED VAR v-depts AS CHAR NO-UNDO.
 DEF {1} SHARED VAR v-sort AS log NO-UNDO.
 DEF {1} SHARED VAR v-footer AS log NO-UNDO.
 DEF {1} SHARED VARIABLE lPerBolLine AS LOG NO-UNDO.
+DEF {1} SHARED VARIABLE lPrintDetailPage AS LOG NO-UNDO.
 
 def var v-last-page         as   int.
 def var v-page-tot          as   dec format ">>9".
@@ -34,3 +35,5 @@ DEF TEMP-TABLE tt-boll LIKE oe-boll
     FIELD job-diff  as CHARACTER.
 
 DEF BUFFER b-tt-boll FOR tt-boll.
+
+DEF {1} SHARED TEMP-TABLE tt-temp-report LIKE report .

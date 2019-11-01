@@ -79,33 +79,47 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR prgrms.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.securityLevelUser ~
-prgrms.dir_group prgrms.run_persistent prgrms.track_usage prgrms.popup ~
-prgrms.subjectID prgrms.module prgrms.can_run prgrms.can_create ~
-prgrms.can_update prgrms.can_delete prgrms.mfgroup prgrms.menu_item ~
-prgrms.securityLevelDefault prgrms.menuOrder prgrms.menuLevel ~
-prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent prgrms.systemType 
+&Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.dir_group ~
+prgrms.securityLevelUser prgrms.module prgrms.run_persistent ~
+prgrms.track_usage prgrms.popup prgrms.can_run prgrms.can_create ~
+prgrms.can_update prgrms.can_delete prgrms.mfgroup prgrms.subjectID ~
+prgrms.pageSubjectID[1] prgrms.pageSubjectID[2] prgrms.pageSubjectID[3] ~
+prgrms.pageSubjectID[4] prgrms.pageSubjectID[5] prgrms.pageSubjectID[6] ~
+prgrms.pageSubjectID[7] prgrms.pageSubjectID[8] prgrms.pageSubjectID[9] ~
+prgrms.pageSubjectID[10] prgrms.pageSubjectID[11] prgrms.pageSubjectID[12] ~
+prgrms.pageSubjectID[13] prgrms.pageSubjectID[14] prgrms.pageSubjectID[15] ~
+prgrms.pageSubjectID[16] prgrms.pageSubjectID[17] prgrms.pageSubjectID[18] ~
+prgrms.pageSubjectID[19] prgrms.pageSubjectID[20] prgrms.menu_item ~
+prgrms.securityLevelDefault prgrms.mnemonic prgrms.systemType ~
+prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.itemParent 
 &Scoped-define ENABLED-TABLES prgrms
 &Scoped-define FIRST-ENABLED-TABLE prgrms
 &Scoped-Define DISPLAYED-FIELDS prgrms.prgmname prgrms.prgtitle ~
-prgrms.securityLevelUser prgrms.dir_group prgrms.run_persistent ~
-prgrms.track_usage prgrms.popup prgrms.subjectID prgrms.module ~
-prgrms.can_run prgrms.can_create prgrms.can_update prgrms.can_delete ~
-prgrms.mfgroup prgrms.menu_item prgrms.securityLevelDefault ~
-prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic ~
-prgrms.itemParent prgrms.systemType 
+prgrms.dir_group prgrms.securityLevelUser prgrms.module ~
+prgrms.run_persistent prgrms.track_usage prgrms.popup prgrms.can_run ~
+prgrms.can_create prgrms.can_update prgrms.can_delete prgrms.mfgroup ~
+prgrms.subjectID prgrms.pageSubjectID[1] prgrms.pageSubjectID[2] ~
+prgrms.pageSubjectID[3] prgrms.pageSubjectID[4] prgrms.pageSubjectID[5] ~
+prgrms.pageSubjectID[6] prgrms.pageSubjectID[7] prgrms.pageSubjectID[8] ~
+prgrms.pageSubjectID[9] prgrms.pageSubjectID[10] prgrms.pageSubjectID[11] ~
+prgrms.pageSubjectID[12] prgrms.pageSubjectID[13] prgrms.pageSubjectID[14] ~
+prgrms.pageSubjectID[15] prgrms.pageSubjectID[16] prgrms.pageSubjectID[17] ~
+prgrms.pageSubjectID[18] prgrms.pageSubjectID[19] prgrms.pageSubjectID[20] ~
+prgrms.menu_item prgrms.securityLevelDefault prgrms.mnemonic ~
+prgrms.systemType prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] ~
+prgrms.itemParent 
 &Scoped-define DISPLAYED-TABLES prgrms
 &Scoped-define FIRST-DISPLAYED-TABLE prgrms
-&Scoped-Define DISPLAYED-OBJECTS parentPrgTitle F1 F-3 F-2 
+&Scoped-Define DISPLAYED-OBJECTS parentPrgTitle F1 F-2 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,MENU-FIELDS,F1 */
 &Scoped-define ADM-CREATE-FIELDS prgrms.prgmname 
 &Scoped-define DISPLAY-FIELD prgrms.itemParent parentPrgTitle 
 &Scoped-define MENU-FIELDS prgrms.menu_item prgrms.securityLevelDefault ~
-prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic ~
-prgrms.itemParent prgrms.systemType 
-&Scoped-define F1 F1 F-3 F-2 
+prgrms.mnemonic prgrms.systemType prgrms.menuOrder prgrms.menuLevel ~
+prgrms.menuImage[1] prgrms.itemParent 
+&Scoped-define F1 F1 F-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -142,11 +156,6 @@ DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE F-3 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
 DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
@@ -163,106 +172,106 @@ DEFINE IMAGE cMenuImage
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 147 BY 15.95.
+     SIZE 158 BY 22.62.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 147 BY 3.76.
+     SIZE 138 BY 3.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED FORMAT "X(32)"
+     prgrms.prgmname AT ROW 1.24 COL 10 COLON-ALIGNED FORMAT "X(32)"
           VIEW-AS FILL-IN 
           SIZE 39 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgtitle AT ROW 1.24 COL 59 COLON-ALIGNED FORMAT "X(60)"
+     prgrms.prgtitle AT ROW 1.24 COL 55 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
-          SIZE 61 BY 1
+          SIZE 69 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.securityLevelUser AT ROW 1.24 COL 137 COLON-ALIGNED WIDGET-ID 24
-          VIEW-AS FILL-IN 
-          SIZE 6.2 BY 1
-          BGCOLOR 15 
-     prgrms.dir_group AT ROW 2.43 COL 13 COLON-ALIGNED
+     prgrms.dir_group AT ROW 2.43 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.run_persistent AT ROW 2.43 COL 48
-          VIEW-AS TOGGLE-BOX
-          SIZE 18 BY 1
-     prgrms.track_usage AT ROW 2.43 COL 66
-          VIEW-AS TOGGLE-BOX
-          SIZE 15 BY 1
-     prgrms.popup AT ROW 2.43 COL 82
-          VIEW-AS TOGGLE-BOX
-          SIZE 11 BY 1
-     prgrms.subjectID AT ROW 2.43 COL 107 COLON-ALIGNED WIDGET-ID 32
+     prgrms.securityLevelUser AT ROW 2.43 COL 55 COLON-ALIGNED WIDGET-ID 24
           VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
+          SIZE 6 BY 1
           BGCOLOR 15 
-     prgrms.module AT ROW 2.43 COL 137 COLON-ALIGNED WIDGET-ID 160
+     prgrms.module AT ROW 2.43 COL 70 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
           LIST-ITEMS "","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","SS","TS" 
           DROP-DOWN-LIST
           SIZE 8 BY 1
           BGCOLOR 15 
-     prgrms.can_run AT ROW 3.62 COL 15 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 132 BY 1.91
-          BGCOLOR 15 
-     prgrms.can_create AT ROW 5.52 COL 15 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 132 BY 1.91
-          BGCOLOR 15 
-     prgrms.can_update AT ROW 7.43 COL 15 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 132 BY 1.91
-          BGCOLOR 15 
-     prgrms.can_delete AT ROW 9.33 COL 15 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 132 BY 1.91
-          BGCOLOR 15 
-     prgrms.mfgroup AT ROW 11.24 COL 15 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 132 BY 1.91
-          BGCOLOR 15 
-     prgrms.menu_item AT ROW 13.38 COL 15
+     prgrms.run_persistent AT ROW 2.43 COL 81
           VIEW-AS TOGGLE-BOX
-          SIZE 14 BY 1
-     prgrms.securityLevelDefault AT ROW 13.38 COL 129 COLON-ALIGNED WIDGET-ID 22
-          VIEW-AS FILL-IN 
-          SIZE 7.6 BY 1
+          SIZE 18 BY 1
+     prgrms.track_usage AT ROW 2.43 COL 99
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY 1
+     prgrms.popup AT ROW 2.43 COL 116
+          VIEW-AS TOGGLE-BOX
+          SIZE 11 BY 1
+     prgrms.can_run AT ROW 3.62 COL 12 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 126 BY 3.1
           BGCOLOR 15 
-     prgrms.menuOrder AT ROW 14.57 COL 13 COLON-ALIGNED WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 6.8 BY 1
+     prgrms.can_create AT ROW 6.71 COL 12 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 126 BY 3.1
           BGCOLOR 15 
-     prgrms.menuLevel AT ROW 14.57 COL 33 COLON-ALIGNED WIDGET-ID 20
-          VIEW-AS FILL-IN 
-          SIZE 6.2 BY 1
+     prgrms.can_update AT ROW 9.81 COL 12 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 126 BY 3.1
           BGCOLOR 15 
-     prgrms.menuImage[1] AT ROW 14.57 COL 64 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Menu Image"
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+     prgrms.can_delete AT ROW 12.91 COL 12 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 126 BY 3.1
           BGCOLOR 15 
-     prgrms.mnemonic AT ROW 14.57 COL 129 COLON-ALIGNED WIDGET-ID 6
-          LABEL "HotKey (Mnemonic)"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+     prgrms.mfgroup AT ROW 16 COL 12 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 126 BY 3.1
           BGCOLOR 15 
-     prgrms.itemParent AT ROW 15.76 COL 13 COLON-ALIGNED WIDGET-ID 10
+     prgrms.subjectID AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 32
+          LABEL "Menu Subject ID"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 14.6 BY 1
           BGCOLOR 15 
-     parentPrgTitle AT ROW 15.76 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     prgrms.systemType AT ROW 15.76 COL 129 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEMS "","Both","Corrware","Foldware" 
-          DROP-DOWN-LIST
-          SIZE 16 BY 1
+     prgrms.pageSubjectID[1] AT ROW 3.38 COL 142 COLON-ALIGNED WIDGET-ID 186
+          LABEL "0"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[2] AT ROW 4.38 COL 142 COLON-ALIGNED WIDGET-ID 190
+          LABEL "1"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[3] AT ROW 5.38 COL 142 COLON-ALIGNED WIDGET-ID 192
+          LABEL "2"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[4] AT ROW 6.38 COL 142 COLON-ALIGNED WIDGET-ID 194
+          LABEL "3"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[5] AT ROW 7.38 COL 142 COLON-ALIGNED WIDGET-ID 196
+          LABEL "4"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[6] AT ROW 8.38 COL 142 COLON-ALIGNED WIDGET-ID 198
+          LABEL "5"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[7] AT ROW 9.38 COL 142 COLON-ALIGNED WIDGET-ID 200
+          LABEL "6"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
           BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -271,24 +280,133 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     F1 AT ROW 2.43 COL 41 NO-LABEL
-     F-3 AT ROW 14.57 COL 98 NO-LABEL WIDGET-ID 16
-     F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
+     prgrms.pageSubjectID[8] AT ROW 10.38 COL 142 COLON-ALIGNED WIDGET-ID 202
+          LABEL "7"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[9] AT ROW 11.38 COL 142 COLON-ALIGNED WIDGET-ID 204
+          LABEL "8"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[10] AT ROW 12.38 COL 142 COLON-ALIGNED WIDGET-ID 166
+          LABEL "9"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[11] AT ROW 13.38 COL 142 COLON-ALIGNED WIDGET-ID 168
+          LABEL "10"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[12] AT ROW 14.38 COL 142 COLON-ALIGNED WIDGET-ID 170
+          LABEL "11"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[13] AT ROW 15.38 COL 142 COLON-ALIGNED WIDGET-ID 172
+          LABEL "12"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[14] AT ROW 16.38 COL 142 COLON-ALIGNED WIDGET-ID 174
+          LABEL "13"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[15] AT ROW 17.38 COL 142 COLON-ALIGNED WIDGET-ID 176
+          LABEL "14"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[16] AT ROW 18.38 COL 142 COLON-ALIGNED WIDGET-ID 178
+          LABEL "15"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[17] AT ROW 19.33 COL 142 COLON-ALIGNED WIDGET-ID 206
+          LABEL "16"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[18] AT ROW 20.33 COL 142 COLON-ALIGNED WIDGET-ID 208
+          LABEL "17"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[19] AT ROW 21.33 COL 142 COLON-ALIGNED WIDGET-ID 210
+          LABEL "18"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.pageSubjectID[20] AT ROW 22.33 COL 142 COLON-ALIGNED WIDGET-ID 212
+          LABEL "19"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     prgrms.menu_item AT ROW 19.81 COL 15
+          VIEW-AS TOGGLE-BOX
+          SIZE 14 BY 1
+     prgrms.securityLevelDefault AT ROW 19.81 COL 64 COLON-ALIGNED WIDGET-ID 22
+          VIEW-AS FILL-IN 
+          SIZE 7.6 BY 1
+          BGCOLOR 15 
+     prgrms.mnemonic AT ROW 19.81 COL 95 COLON-ALIGNED WIDGET-ID 6
+          LABEL "HotKey (Mnemonic)"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+          BGCOLOR 15 
+     prgrms.systemType AT ROW 19.81 COL 121 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEMS "","Both","Corrware","Foldware" 
+          DROP-DOWN-LIST
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     prgrms.menuOrder AT ROW 21 COL 13 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 6.8 BY 1
+          BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     prgrms.menuLevel AT ROW 21 COL 33 COLON-ALIGNED WIDGET-ID 20
+          VIEW-AS FILL-IN 
+          SIZE 6.2 BY 1
+          BGCOLOR 15 
+     prgrms.menuImage[1] AT ROW 21 COL 64 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Menu Image"
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+          BGCOLOR 15 
+     prgrms.itemParent AT ROW 22.19 COL 13 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     parentPrgTitle AT ROW 22.19 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     F1 AT ROW 2.43 COL 38 NO-LABEL
+     F-2 AT ROW 22.19 COL 31 NO-LABEL WIDGET-ID 12
      "Delete:" VIEW-AS TEXT
-          SIZE 7.6 BY .62 AT ROW 9.33 COL 7
+          SIZE 7.6 BY .62 AT ROW 12.91 COL 4
      "Add:" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 5.52 COL 10
+          SIZE 5 BY .62 AT ROW 6.71 COL 7
      "Update:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.43 COL 7
+          SIZE 8 BY .62 AT ROW 9.81 COL 4
      "Parent(s):" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.24 COL 5
+          SIZE 10 BY .62 AT ROW 16 COL 2
      "View:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.62 COL 9
+          SIZE 6 BY .62 AT ROW 3.62 COL 6
      " Menu Fields" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
+          SIZE 12 BY .62 AT ROW 19.33 COL 4 WIDGET-ID 28
+     "Page / Subject ID" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 2.43 COL 140 WIDGET-ID 164
      RECT-1 AT ROW 1 COL 1
-     cMenuImage AT ROW 14.57 COL 101 WIDGET-ID 18
-     RECT-2 AT ROW 13.19 COL 1 WIDGET-ID 26
+     cMenuImage AT ROW 21 COL 99 WIDGET-ID 18
+     RECT-2 AT ROW 19.57 COL 2 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -322,8 +440,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 15.95
-         WIDTH              = 147.
+         HEIGHT             = 22.62
+         WIDTH              = 158.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -346,7 +464,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -357,11 +475,6 @@ ASSIGN
    NO-ENABLE ALIGN-L 6                                                  */
 ASSIGN 
        F-2:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-3 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-3:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN F1 IN FRAME F-Main
    NO-ENABLE ALIGN-L 6                                                  */
@@ -380,6 +493,46 @@ ASSIGN
    5                                                                    */
 /* SETTINGS FOR FILL-IN prgrms.mnemonic IN FRAME F-Main
    5 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[10] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[11] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[12] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[13] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[14] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[15] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[16] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[17] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[18] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[19] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[1] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[20] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[2] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[3] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[4] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[5] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[6] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[7] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[8] IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN prgrms.pageSubjectID[9] IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN parentPrgTitle IN FRAME F-Main
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN prgrms.prgmname IN FRAME F-Main
@@ -392,6 +545,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN prgrms.securityLevelDefault IN FRAME F-Main
    5                                                                    */
+/* SETTINGS FOR FILL-IN prgrms.subjectID IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR COMBO-BOX prgrms.systemType IN FRAME F-Main
    5                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -588,12 +743,285 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME prgrms.pageSubjectID[10]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[10] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[10] IN FRAME F-Main /* 9 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[11]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[11] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[11] IN FRAME F-Main /* 10 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[12]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[12] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[12] IN FRAME F-Main /* 11 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[13]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[13] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[13] IN FRAME F-Main /* 12 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[14]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[14] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[14] IN FRAME F-Main /* 13 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[15]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[15] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[15] IN FRAME F-Main /* 14 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[16]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[16] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[16] IN FRAME F-Main /* 15 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[17]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[17] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[17] IN FRAME F-Main /* 16 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[18]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[18] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[18] IN FRAME F-Main /* 17 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[19]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[19] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[19] IN FRAME F-Main /* 18 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[1] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[1] IN FRAME F-Main /* 0 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[20]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[20] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[20] IN FRAME F-Main /* 19 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[2] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[2] IN FRAME F-Main /* 1 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[3] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[3] IN FRAME F-Main /* 2 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[4] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[4] IN FRAME F-Main /* 3 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[5] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[5] IN FRAME F-Main /* 4 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[6] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[6] IN FRAME F-Main /* 5 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[7] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[7] IN FRAME F-Main /* 6 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[8] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[8] IN FRAME F-Main /* 7 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.pageSubjectID[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.pageSubjectID[9] V-table-Win
+ON LEAVE OF prgrms.pageSubjectID[9] IN FRAME F-Main /* 8 */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME prgrms.securityLevelUser
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.securityLevelUser V-table-Win
 ON LEAVE OF prgrms.securityLevelUser IN FRAME F-Main /* User Sec. Lev. */
 DO:
     IF INTEGER(SELF:SCREEN-VALUE) GT INTEGER(prgrms.securityLevelDefault:SCREEN-VALUE) THEN
     SELF:SCREEN-VALUE = prgrms.securityLevelDefault:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.subjectID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.subjectID V-table-Win
+ON LEAVE OF prgrms.subjectID IN FRAME F-Main /* Menu Subject ID */
+DO:
+    {methods/entryerr.i
+        &can-find="FIRST dynSubject WHERE dynSubject.subjectID EQ INT(SELF:SCREEN-VALUE)"
+        &error-message="Invalid Subject ID, Please Try Again..."}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,6 +1213,27 @@ PROCEDURE pRebuildMenuTree :
         IF VALID-HANDLE(pHandle) THEN
         RUN pRebuildMenuTree IN pHandle.
     END. /* if rebuild */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateSubjectID V-table-Win 
+PROCEDURE pValidateSubjectID :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphSubjectID AS HANDLE NO-UNDO.
+    
+    IF NOT CAN-FIND(FIRST dynSubject
+                    WHERE dynSubject.subjectID EQ INTEGER(iphSubjectID:SCREEN-VALUE)) THEN DO:
+        MESSAGE 
+            "Invalid Subject ID, Please Try Again..."
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END. /* if not can-find */
 
 END PROCEDURE.
 

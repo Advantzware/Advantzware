@@ -563,12 +563,6 @@ DO:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-  IF tb_excel THEN DO:
-    OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-  END. 
-
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
@@ -738,7 +732,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON HELP OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-   def var ls-filename as cha no-undo.
+   def var ls-filename as cha FORMAT "x(60)" no-undo.
    def var ll-ok as log no-undo.
 
    system-dialog get-file ls-filename 
@@ -1673,7 +1667,7 @@ FOR EACH ap-pay
       and ap-ledger.vend-no  eq ap-pay.vend-no      
       and ap-ledger.refnum   eq ("AC" + string(ap-pay.check-no,"999999"))      
       and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
-      /*use-index ap-ledger */NO-LOCK NO-ERROR.
+            /*use-index ap-ledger */NO-LOCK NO-ERROR.
 
     IF NOT AVAIL ap-ledger THEN DO:
          FIND FIRST bank NO-LOCK
@@ -1686,7 +1680,7 @@ FOR EACH ap-pay
             and ap-ledger.refnum   eq ("CHK# " + string(ap-pay.check-no) +
                                            " CD#" + bank.bank-code)      
             and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
-            /*use-index ap-ledger */NO-LOCK NO-ERROR.
+                /*use-index ap-ledger */NO-LOCK NO-ERROR.
     END.
 
 
@@ -1791,6 +1785,8 @@ FOR EACH ap-pay
      v-gross-amt = 0
      v-amt-disc  = 0. 
   END.
+  
+  
 END.
 
 /* gdm - */
@@ -1954,7 +1950,13 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
-/* end ---------------------------------- copr. 2004 Advanced Software, Inc. */
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    END. 
+
 
 END PROCEDURE.
 

@@ -96,7 +96,7 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
 DEFINE FRAME gDialog
      Btn_OK AT ROW 1.24 COL 98
      fiMessage AT ROW 1.48 COL 1 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     SPACE(31.59) SKIP(20.75)
+     SPACE(31.59) SKIP(15.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Tag Viewer"
@@ -213,15 +213,15 @@ PROCEDURE adm-create-objects :
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brwtag ).
        RUN repositionObject IN h_brwtag ( 2.91 , 3.00 ) NO-ERROR.
-       RUN resizeObject IN h_brwtag ( 6.67 , 110.00 ) NO-ERROR.
+       RUN resizeObject IN h_brwtag ( 7.62 , 110.00 ) NO-ERROR.
 
        RUN constructObject (
              INPUT  'viewers/vwrtag.w':U ,
              INPUT  FRAME gDialog:HANDLE ,
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vwrtag ).
-       RUN repositionObject IN h_vwrtag ( 9.81 , 3.00 ) NO-ERROR.
-       /* Size in AB:  ( 12.67 , 110.00 ) */
+       RUN repositionObject IN h_vwrtag ( 10.76 , 3.00 ) NO-ERROR.
+       /* Size in AB:  ( 6.71 , 106.20 ) */
 
        /* Links to SmartDataBrowser h_brwtag. */
        RUN addLink ( h_sdotag , 'Data':U , h_brwtag ).
@@ -281,8 +281,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject gDialog
-PROCEDURE initializeObject:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject gDialog 
+PROCEDURE initializeObject :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -301,8 +301,7 @@ PROCEDURE initializeObject:
         cNewQueryString = "tag.linkRecKey EQ '" + ipcRecKey + "' AND tag.tagType EQ " + (IF ipcTagType EQ "" THEN "tag.tagType" ELSE "'" + ipcTagType + "'").
     RUN chgQueryWhere IN h_sdotag (cNewQueryString).
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

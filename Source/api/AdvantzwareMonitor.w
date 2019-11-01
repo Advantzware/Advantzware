@@ -376,8 +376,8 @@ DO:
         btStart:SENSITIVE = AVAILABLE serverResource AND 
                             serverResource.resourceStatus EQ "Stopped"
         btStop:SENSITIVE  = AVAILABLE serverResource  AND 
-                            serverResource.resourceStatus EQ "Running" /* AND
-                            serverResource.resourceType NE "Node" */
+                            serverResource.resourceStatus EQ "Running" AND
+                            serverResource.resourceType NE "AdminServer" 
         .
 END.
 
@@ -426,7 +426,7 @@ DO:
     IF AVAILABLE serverResource THEN DO:
 
         IF SEARCH(serverResource.startService) NE ? THEN DO:
-            OS-COMMAND silent VALUE(SEARCH(serverResource.startService)). /* Re-starts AdminServer,AppServer and NameServer */            
+            OS-COMMAND SILENT VALUE(SEARCH(serverResource.startService)). /* Re-starts AdminServer,AppServer and NameServer */            
         END. 
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "Node" OR serverResource.resourceType EQ "AdminServer" THEN
@@ -467,9 +467,9 @@ DO:
   
     IF AVAILABLE serverResource THEN DO:
         IF SEARCH(serverResource.stopService) NE ? THEN 
-            OS-COMMAND silent VALUE(SEARCH(serverResource.stopService)). /* Stops AdminServer,AppServer and NameServer */
+            OS-COMMAND NO-CONSOLE VALUE(SEARCH(serverResource.stopService)). /* Stops AdminServer,AppServer and NameServer */
         ELSE DO:
-            cErrorMessage = IF serverResource.resourceType EQ "AdminServer" THEN
+            cErrorMessage = IF serverResource.resourceType EQ "Node" THEN
                            "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " is not found"
                        ELSE
                            "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"

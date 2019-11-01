@@ -25,7 +25,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
+DEFINE INPUT PARAMETER ipcBinType AS CHARACTER NO-UNDO .
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
@@ -591,7 +591,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         {custom/usrprint.i}
         RUN DisplaySelectionList2.
         /* RUN Set-Sort-Data.*/
-
+        
+        rd_type:SCREEN-VALUE = ipcBinType .
+       
         APPLY "entry" TO begin_location.
     END.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.

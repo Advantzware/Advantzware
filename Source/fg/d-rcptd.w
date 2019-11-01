@@ -1723,6 +1723,10 @@ DO:
         DEFINE VARIABLE lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO: 
+            IF adm-new-record OR
+                ( AVAIL fg-rctd AND fg-rctd.tag NE fg-rctd.tag:SCREEN-VALUE) THEN
+                RUN new-tag.
+
             IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag THEN 
             DO:
                 RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
@@ -4213,7 +4217,7 @@ PROCEDURE valid-porec-qty :
                 "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
                 "Overrun allowed for this PO line Item, and excess overruns are not allowed."
                 VIEW-AS ALERT-BOX WARNING .
-            lv-overrun2-checked = NO.
+            lv-overrun2-checked = YES.
             lFatalQtyError = YES.
         END.
         ELSE DO:
