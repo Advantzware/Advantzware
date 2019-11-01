@@ -4,14 +4,14 @@
  DEFINE VARIABLE iUnitCount AS INTEGER NO-UNDO .
  DEFINE VARIABLE dWeightCount AS DECIMAL NO-UNDO .
  DEFINE BUFFER bf-oe-boll FOR oe-boll .
- IF glShipNotesExpanded THEN do:
-     RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
-     RUN GetNoteOfType IN hNotesProcs (oe-bolh.rec_key, "ES", OUTPUT ship_note).
-     DELETE OBJECT hNotesProcs.
- END.
- ELSE DO:
-     ship_note = oe-bolh.ship-i[1] + " " + oe-bolh.ship-i[2] + "  " + oe-bolh.ship-i[3] + " " + oe-bolh.ship-i[4] .
- END.
+ /*IF glShipNotesExpanded THEN do:                                                                                    */      
+ /*    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.                                                             */
+ /*    RUN GetNoteOfType IN hNotesProcs (oe-bolh.rec_key, "ES", OUTPUT ship_note).                                    */
+ /*    DELETE OBJECT hNotesProcs.                                                                                     */
+ /*END.                                                                                                               */
+ /*ELSE DO:                                                                                                           */
+ /*    ship_note = oe-bolh.ship-i[1] + " " + oe-bolh.ship-i[2] + "  " + oe-bolh.ship-i[3] + " " + oe-bolh.ship-i[4] . */
+ /*END.                                                                                                               */
  
  find first carrier NO-LOCK
      where carrier.company eq oe-bolh.company
@@ -27,6 +27,8 @@
    ELSE IF oe-bolh.frt-pay EQ "T" THEN
      cFrightDscr = "3RD PARTY"        .
   FIND FIRST tt-temp-report NO-ERROR .
+  
+
  
  PUT  "<FArial>".
    PUT "<FArial><R2><C2><B><p7> STRAIGHT BILL OF LADING - SHORT FORM - <p6> Original - Not Negotlable <c60><p6>  BOL#: " oe-bolh.bol-no "</B>"  SKIP.
@@ -53,8 +55,7 @@
    PUT "<FArial><R13><C2><B><p7> " v-comp-add2  FORMAT "x(30)"  "</B>" SKIP.
    PUT "<FArial><R14><C2><B><p7> " v-comp-add3  FORMAT "x(30)"  "</B>" SKIP.
 
-   PUT "<=1><R12><UNITS=INCHES><C50><FROM><C+20><R+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE= " + string(IF AVAIL tt-temp-report THEN tt-temp-report.key-01 ELSE "") + ">" FORMAT "x(250)" .
-
+   
    FIND FIRST bf-oe-boll NO-LOCK
        WHERE bf-oe-boll.b-no EQ oe-bolh.b-no 
         AND bf-oe-boll.lot-no NE "" NO-ERROR . 
@@ -79,18 +80,19 @@
    
 
    PUT "<FArial><R21.5><C2><B><p7> CUST.ORDER#: " (IF AVAIL bf-oe-boll THEN bf-oe-boll.lot-no ELSE "") FORMAT "x(20)" 
-             " <c45> OUR ORDER#: "   (IF AVAIL bf-oe-boll THEN bf-oe-boll.ord-no ELSE 0) "</B>" SKIP.
+             " <c45> OUR ORDER#: "   (IF AVAIL bf-oe-boll THEN bf-oe-boll.ord-no ELSE 0) FORMAT ">>>>>>>>" "</B>" SKIP.
    
-   PUT "<FArial><R22.5><C2><B><p7> Special Instructions: </B>" ship_note FORMAT "x(200)"  SKIP.    
+   PUT "<FArial><R22.5><C2><B><p7> Special Instructions: </B>" /*ship_note FORMAT "x(200)"*/  SKIP.    
    PUT "<FArial><R23.5><C2><B><p8> REFFRENCE # 19-001896-142 </B>" SKIP.     
    PUT "<||><R25><C2><FROM><R32><C42><RECT>" "<R25><C2><B><p8> THIRD PARTY FREIGHT CHARGES BILL TO </B>"
        "<||><R25><C42><FROM><R32><C60><RECT>" "<R25><C43><B><p8> Freight charges are: </B>" SKIP.
    PUT "<||><R25><C42><FROM><R32><C77><RECT>"  SKIP. 
    PUT  SKIP(3) "<R26><C2><FROM><R26><C42><LINE>"  SKIP.    
-   PUT "<FArial><R26.5><C2><B><p8>  </B>" "<R26><C42><B><p13> " cFrightDscr FORMAT "X(15)" "</B>" SKIP. 
-   PUT "<FArial><R27.5><C2><B><p8>   </B>" SKIP.    
+   PUT "<FArial><R26.5><C2><B><p8> " (IF AVAIL tt-temp-report AND oe-bolh.frt-pay EQ "T" THEN tt-temp-report.key-04 ELSE "") FORMAT "x(30)" "</B>" "<R26><C42><B><p13> " cFrightDscr FORMAT "X(15)" "</B>" SKIP. 
+   PUT "<FArial><R27.5><C2><B><p8> " (IF AVAIL tt-temp-report AND oe-bolh.frt-pay EQ "T" THEN tt-temp-report.key-05 ELSE "") FORMAT "x(30)"  " </B>" SKIP.    
    PUT  SKIP(3) "<R27.5><C42><FROM><R27.5><C59><LINE>" SKIP .
-   PUT "<FArial><R28.5><C2><B><p8>   </B>" SKIP. 
+   PUT "<FArial><R28.5><C2><B><p8> "  (IF AVAIL tt-temp-report AND oe-bolh.frt-pay EQ "T" THEN tt-temp-report.key-06 ELSE "") FORMAT "x(30)" "</B>" SKIP
+       "<R29.5><C2><B><p8> "  (IF AVAIL tt-temp-report AND oe-bolh.frt-pay EQ "T" THEN string(tt-temp-report.key-07 + ", " + tt-temp-report.key-08 + "  " + tt-temp-report.key-09) ELSE "") FORMAT "x(35)" "</B>" SKIP .
  PUT "<FArial><R25.5><C61><B><p5> Subject  to section T of conditions of  </B>" SKIP.      
    PUT "<FArial><R26><C60><B><p5> applicable bill of lading. If this shiphment   </B>" SKIP.   
    PUT "<FArial><R26.5><C60><B><p5> is to be deliverd to the consignee  </B>" SKIP.    
