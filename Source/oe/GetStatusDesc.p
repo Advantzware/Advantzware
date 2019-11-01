@@ -9,7 +9,7 @@
     CASE ipStatus:
       when "N" then cStatDesc = "N- New".
       when "D" then cStatDesc = "D- Deleted".
-      when "H" then cStatDesc = "H- Credit Hold".
+      when "H" then cStatDesc = "H- Hold".
       when "A" then cStatDesc = "A- Approved".     
       when "R" then cStatDesc = "R- Release".  
       when "I" then cStatDesc = "I- Invoiced".
