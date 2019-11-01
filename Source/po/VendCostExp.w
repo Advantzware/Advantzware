@@ -152,9 +152,6 @@ FUNCTION getValue RETURNS CHARACTER
 &ANALYZE-RESUME
 
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -1327,12 +1324,12 @@ DO WITH FRAME {&FRAME-NAME}:
              end_est-no:SCREEN-VALUE = "zzzzzzzz" .
          IF ipcExpires NE "" THEN
              ASSIGN
-             begin_date-eff:SCREEN-VALUE   = string(ipcExpires)
-             end_date-eff:SCREEN-VALUE = string(ipcExpires).
+             begin_date-exp:SCREEN-VALUE   = string(ipcExpires)
+             end_date-exp:SCREEN-VALUE = string(ipcExpires).
          IF ipcEffective NE "" THEN
              ASSIGN
-             begin_date-exp:SCREEN-VALUE   = string(ipcEffective)
-             begin_date-exp:SCREEN-VALUE   = string(ipcEffective).
+             begin_date-eff:SCREEN-VALUE   = string(ipcEffective)
+             begin_date-eff:SCREEN-VALUE   = string(ipcEffective).
 END.
 RETURN.
 
