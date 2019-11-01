@@ -92,8 +92,8 @@ DEFINE BUTTON Select_help
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_list 
-     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/jss_icon_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 

@@ -219,7 +219,7 @@ DEFINE IMAGE imageFolder
      SIZE 6.4 BY 1.52 TOOLTIP "View User Folder".
 
 DEFINE IMAGE imagePrinter
-     FILENAME "Graphics/32x32/jss_icon_32.ico":U TRANSPARENT
+     FILENAME "Graphics/32x32/printer.ico":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Reports".
 
 DEFINE IMAGE imageRunUlitity
