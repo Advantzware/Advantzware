@@ -371,9 +371,9 @@ DO:
 ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
     DO:
     IF AVAIL zMessage AND zMessage.currMessage NE "" THEN
-        MESSAGE zMessage.currMessage VIEW-AS ALERT-BOX INFO .
+        MESSAGE zMessage.currMessage  VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID)  .
     ELSE IF AVAIL zMessage  THEN
-        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO .
+        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID) .
   
     END.
 

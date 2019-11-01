@@ -5401,7 +5401,7 @@ PROCEDURE valid-b-num :
                 /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
                 /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
                     MESSAGE  cCurrentMessage
-                    VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans.
+                    VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans .
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
