@@ -57,7 +57,18 @@ if avail {&fil} then do:
     /* find first oe-rel use-index seq-no no-lock no-error. */
     /* v-nxt-r-no = (if avail oe-rel then oe-rel.r-no else 0) + 1. */
     RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
-
+    
+    /* This SHOULD take care of situations where an out-of-sequence r-no has been added, */
+    /* such that the sequence generator is updated to the latest (correct) r-no.         */
+    /* Since this is not a consistent error, there is some sequence of events/processes  */
+    /* that create this condition, but all reported cases have been resolved within 1-2  */
+    /* sequence numbers                                                                  */
+    DO WHILE CAN-FIND(FIRST oe-rel WHERE
+                        oe-rel.company EQ cocode AND
+                        oe-rel.r-no EQ v-nxt-r-no):
+        RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+    END.
+                       
     create oe-rel.
     assign oe-rel.company   = cocode
            oe-rel.loc       = locode
