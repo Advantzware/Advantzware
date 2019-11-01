@@ -1667,7 +1667,7 @@ FOR EACH ap-pay
       and ap-ledger.vend-no  eq ap-pay.vend-no      
       and ap-ledger.refnum   eq ("AC" + string(ap-pay.check-no,"999999"))      
       and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
-        /*use-index ap-ledger */NO-LOCK NO-ERROR.
+            /*use-index ap-ledger */NO-LOCK NO-ERROR.
 
     IF NOT AVAIL ap-ledger THEN DO:
          FIND FIRST bank NO-LOCK
@@ -1680,7 +1680,7 @@ FOR EACH ap-pay
             and ap-ledger.refnum   eq ("CHK# " + string(ap-pay.check-no) +
                                            " CD#" + bank.bank-code)      
             and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
-            /*use-index ap-ledger */NO-LOCK NO-ERROR.
+                /*use-index ap-ledger */NO-LOCK NO-ERROR.
     END.
 
 
@@ -1786,13 +1786,6 @@ FOR EACH ap-pay
      v-amt-disc  = 0. 
   END.
   
-    IF tb_excel THEN 
-    DO:
-        OUTPUT STREAM excel CLOSE.
-        IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
-    END. 
-
   
 END.
 
@@ -1957,7 +1950,13 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
-/* end ---------------------------------- copr. 2004 Advanced Software, Inc. */
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    END. 
+
 
 END PROCEDURE.
 
