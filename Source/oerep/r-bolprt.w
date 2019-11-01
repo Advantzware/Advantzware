@@ -967,7 +967,7 @@ DO:
    IF tb_print-DetPage AND rd_bolcert EQ "BOL" THEN DO:
        IF v-print-fmt = "Peachtree" OR v-print-fmt = "PeachtreeBC" OR v-print-fmt = "PeachtreeLotPO"  THEN do:
            EMPTY TEMP-TABLE tt-temp-report .
-           RUN oe/rep/d-ptree.w  .
+           RUN oe/rep/d-ptree.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
        END.
    END.
 
