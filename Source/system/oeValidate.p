@@ -218,21 +218,29 @@ PROCEDURE pOnHandInventory PRIVATE:
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER bcust FOR cust.
-    
     DEFINE BUFFER boe-ordl FOR oe-ordl.
     DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iOnHand AS INT NO-UNDO.
 
+    DEFINE BUFFER bcust   FOR cust.
+    DEFINE BUFFER bshipto FOR shipto.
+    DEFINE VARIABLE lActive AS LOG NO-UNDO.
+    
     FOR EACH boe-ordl NO-LOCK WHERE 
         boe-ordl.company EQ ipboe-ord.company AND 
         boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
         boe-ordl.line NE 0:
             
+        FIND FIRST bshipto NO-LOCK WHERE 
+            bshipto.company EQ ipboe-ord.company AND 
+            bshipto.cust-no EQ ipboe-ord.cust-no AND 
+            bshipto.ship-id EQ boe-ordl.ship-id
+            NO-ERROR.
+
         FOR EACH itemfg-loc NO-LOCK WHERE 
             itemfg-loc.company EQ boe-ordl.company AND 
             itemfg-loc.i-no    EQ boe-ordl.i-no AND 
-            itemfg-loc.loc     EQ ipboe-ord.loc:
+            itemfg-loc.loc     EQ bshipto.loc:
             ASSIGN 
                 iOnHand = iOnHand + itemfg-loc.q-onh.
         END.
