@@ -1597,12 +1597,6 @@ FOR EACH est
           SKIP. */
   END.
 
-    IF tb_excel THEN 
-    DO:
-        IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
-    END. 
-
 
 END.
 
@@ -1612,7 +1606,12 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
-/* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
+    IF tb_excel THEN 
+    DO:
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+    END. 
+
 
 end procedure.
 
