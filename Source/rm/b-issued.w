@@ -157,6 +157,8 @@ rm-rctd.s-num rm-rctd.b-num rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
 rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom ~
 calc-ext-cost() @ ext-cost display-dimension('W') @ lv-po-wid ~
 display-dimension('L') @ lv-po-len rm-rctd.user-id 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
       AND rm-rctd.company = cocode and ~
