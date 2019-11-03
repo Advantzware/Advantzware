@@ -8,7 +8,7 @@
   Change History:
 ------------------------------------------------------------------------*/
 &SCOPED-DEFINE cDir N:\Repositories\Advantzware
-&SCOPED-DEFINE cTarget N:\Repositories\Advantzware\Template\Patch\Admin\EnvAdmin
+&SCOPED-DEFINE cTarget N:\Repositories\Advantzware\Deployment\Patch\Admin\EnvAdmin
 
 DEF VAR cConnectDb AS CHAR NO-UNDO.
 DEF VAR cConnectAud AS CHAR NO-UNDO.
@@ -37,7 +37,7 @@ END.
 
 ASSIGN 
     cDir = FILE-INFO:FULL-PATHNAME
-    cTarget = cDir + "\Template\Patch\Admin\EnvAdmin".
+    cTarget = cDir + "\Deployment\Patch\Admin\EnvAdmin".
 
 
 INPUT FROM os-dir ("c:\asigui\databases\compile").
@@ -79,18 +79,18 @@ END.
 ELSE ASSIGN 
     cConnectDb = "-db c:\asigui\databases\compile\" + cDbName + " -1 -ld ASI"
     cConnectAud = "-db c:\asigui\databases\compile\" + replace(cDbName,"d","a") + " -1 -ld Audit"
-    propath = cDir + "\Template\BuildScript\ToCompile," + cDir + "\Legacy," + cDir + "\Resources," + propath
+    propath = cDir + "\Deployment\BuildScript\ToCompile," + cDir + "\Legacy," + cDir + "\Resources," + propath
     .
 
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiDbMaint.w") SAVE INTO value(cTarget).
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiLogin.w") SAVE INTO value(cTarget).
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdate.w") SAVE INTO value(cTarget).
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdateDb.w") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiDbMaint.w") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiLogin.w") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiUpdate.w") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiUpdateDb.w") SAVE INTO value(cTarget).
 
 CONNECT VALUE(cConnectDb).
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\prerun.p") SAVE INTO value(cTarget).
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiAuditTest.p") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\prerun.p") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiAuditTest.p") SAVE INTO value(cTarget).
 
 CONNECT VALUE(cConnectAud).
-COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdateEnv.w") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiUpdateEnv.w") SAVE INTO value(cTarget).
 

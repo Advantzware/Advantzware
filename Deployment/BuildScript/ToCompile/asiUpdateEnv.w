@@ -2397,9 +2397,7 @@ PROCEDURE ipCreateDataLoader:
     
     /* Ensure folder available for custom menus */
     ASSIGN
-        cCurrentDir = cDrive + "\" + 
-                      cTopDir + "\" +
-                      cEnvDir + "\" +
+        cCurrentDir = cEnvDir + "\" +
                       fiEnvironment:{&SV} + "\CustFiles\DataLoader".
     OS-CREATE-DIR VALUE(cCurrentDir).
     OS-COPY VALUE(cUpdDataDir + "\TestFile.txt") VALUE(cCurrentDir).
