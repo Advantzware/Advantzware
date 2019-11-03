@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session xmlns="http://winscp.net/schema/session/1.0" name="ASI@www.filegenie.com" start="2019-09-30T21:54:41.344Z">
+  <upload>
+    <filename value="\\localhost\asigui\Environments\Devel\CustFiles\APChecks\PayablesAdvantage_20190930165435.txt" />
+    <destination value="/PayablesAdvantage_20190930165435.txt" />
+    <result success="true" />
+  </upload>
+</session>

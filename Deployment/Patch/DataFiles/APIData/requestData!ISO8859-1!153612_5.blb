@@ -1,0 +1,1 @@
+{"Requester":"[STRING-REQ]","Company":"[STRING-REQ]","PONo":[INTEGER-REQ],"POLine":[INTEGER-REQ],"PrimaryID":"[STRING-REQ]","ItemType":"[STRING-REQ]","Quantity":[INTEGER-REQ],"QuantityPerSubUnit":[INTEGER-REQ],"StockIDAlias":"[STRING-REQ]","CreateReceipt":"[STRING-REQ]","RequesterNotes":"[STRING-REQ]"}

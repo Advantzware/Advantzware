@@ -1,0 +1,1 @@
+{"WarehouseID":"$WarehouseID$","LocationID":"$LocationID$","PrimaryID":"$PrimaryID$","Quantity":$Quantity$,"InventoryStockID":"$InventoryStockID$","ItemType":"$ItemType$","StockIDAlias":"$StockIDAlias$","QuanityUOM":"$QuanityUOM$","QuantityPerSubUnit":$QuantityPerSubUnit$,"QuantitySubUnitsPerUnit":$QuantitySubUnitsPerUnit$,"QuantityPartial":$QuantityPartial$}
