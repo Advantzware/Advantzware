@@ -262,7 +262,8 @@ PROCEDURE pValidate PRIVATE:
             AND vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
             AND vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
             AND vendItemCost.expirationDate EQ date(ipbf-ttImportVendCostMtx.expirationDate)
-            AND vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate) NO-ERROR .
+            AND (vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
+            OR vendItemCost.effectiveDate LT 01/01/1900) NO-ERROR .
 
         IF AVAIL vendItemCost THEN
         DO: 
