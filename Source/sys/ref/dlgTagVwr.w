@@ -216,7 +216,7 @@ PROCEDURE adm-create-objects :
        RUN resizeObject IN h_brwtag ( 9.05 , 110.00 ) NO-ERROR.
 
        RUN constructObject (
-             INPUT  'n:/repository/source/viewers/vwrtag.w':U ,
+             INPUT  'viewers/vwrtag.w':U ,
              INPUT  FRAME gDialog:HANDLE ,
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vwrtag-3 ).
