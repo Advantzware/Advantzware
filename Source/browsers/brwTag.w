@@ -104,7 +104,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tagType FORMAT "x(8)":U
       groupCode FORMAT "x(8)":U
-      description FORMAT "x(60)":U WIDTH 35
+      description FORMAT "x(60)":U WIDTH 50
       Note1 FORMAT "x(60)":U
       statusCode FORMAT "x(8)":U
       linkTable FORMAT "x(24)":U
@@ -203,7 +203,7 @@ ASSIGN
 "tagType" ? ? "character" ? ? ? ? ? ? no "?" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = _<SDO>.rowObject.groupCode
      _FldNameList[3]   > _<SDO>.rowObject.description
-"description" ? ? "character" ? ? ? ? ? ? no "?" no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"description" ? ? "character" ? ? ? ? ? ? no "?" no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > _<SDO>.rowObject.Note1
 "Note1" ? ? "character" ? ? ? ? ? ? no "?" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = _<SDO>.rowObject.statusCode

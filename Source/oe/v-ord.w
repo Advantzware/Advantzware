@@ -407,7 +407,7 @@ DEFINE BUTTON btnCalendar-6
 
 DEFINE BUTTON btnValidate 
      LABEL "Validate" 
-     SIZE 19 BY 1.05 TOOLTIP "PopUp Calendar".
+     SIZE 21 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE VARIABLE fiCustAddress AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -426,6 +426,7 @@ DEFINE VARIABLE fiSoldAddress AS CHARACTER FORMAT "X(256)":U
      SIZE 64.2 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiStatDesc AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Status" 
      VIEW-AS FILL-IN 
      SIZE 31 BY 1 NO-UNDO.
 
@@ -501,7 +502,7 @@ DEFINE RECTANGLE RECT-37
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiStatDesc AT ROW 9.33 COL 91 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
@@ -529,10 +530,9 @@ DEFINE FRAME F-Main
           LABEL "Last User"
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     oe-ord.stat AT ROW 9.33 COL 86 COLON-ALIGNED
-          LABEL "Status"
+     oe-ord.stat AT ROW 14.1 COL 146 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.2 BY 1
+          SIZE 4.2 BY 1 NO-TAB-STOP 
      oe-ord.cust-no AT ROW 2.67 COL 10.8 COLON-ALIGNED
           LABEL "Bill To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -722,7 +722,7 @@ DEFINE FRAME F-Main
           SIZE 17 BY 1
      fiSoldAddress AT ROW 5.81 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiShipAddress AT ROW 7.91 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     btnValidate AT ROW 9.33 COL 132
+     btnValidate AT ROW 9.33 COL 130
      oe-ord.spare-char-2 AT ROW 11 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.6 BY 1 NO-TAB-STOP 
@@ -732,7 +732,7 @@ DEFINE FRAME F-Main
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.6
      RECT-34 AT ROW 9.1 COL 78 WIDGET-ID 14
-     imgHoldRsn AT ROW 9.52 COL 126
+     imgHoldRsn AT ROW 9.33 COL 122
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -916,6 +916,9 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN oe-ord.stat IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
+ASSIGN 
+       oe-ord.stat:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN oe-ord.tax-gr IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms IN FRAME F-Main
@@ -6280,6 +6283,9 @@ PROCEDURE pValidate :
     
     RUN validateOrder IN spOeValidate (ROWID(oe-ord),OUTPUT lHoldError,OUTPUT cErrMessage).
     
+    ASSIGN 
+        cErrMessage = REPLACE(cErrMessage,"|",CHR(10)).
+        
     IF lHoldError                                                       /* ValidateALL has reported an error */
     AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */
         MESSAGE
