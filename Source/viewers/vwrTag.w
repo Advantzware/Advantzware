@@ -46,6 +46,8 @@ CREATE WIDGET-POOL.
 
 {src/adm2/widgetprto.i}
 
+DEF VAR cTableName AS CHAR NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -69,19 +71,20 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS RowObject.rec_key RowObject.linkRecKey ~
-RowObject.linkTable RowObject.createDT RowObject.updateDT ~
-RowObject.createUser RowObject.updateUser 
+RowObject.createDT RowObject.createUser RowObject.updateDT ~
+RowObject.updateUser 
 &Scoped-define ENABLED-TABLES RowObject
 &Scoped-define FIRST-ENABLED-TABLE RowObject
-&Scoped-Define DISPLAYED-FIELDS RowObject.rec_key RowObject.linkRecKey ~
-RowObject.linkTable RowObject.createDT RowObject.updateDT ~
-RowObject.createUser RowObject.updateUser RowObject.tagType ~
-RowObject.groupCode RowObject.statusCode RowObject.ownerUser ~
-RowObject.description RowObject.Note1 RowObject.Note2 RowObject.Note3 ~
-RowObject.Note4 RowObject.Note5 
+&Scoped-Define ENABLED-OBJECTS fiTableName 
+&Scoped-Define DISPLAYED-FIELDS RowObject.rec_key RowObject.linkTable ~
+RowObject.linkRecKey RowObject.tagType RowObject.groupCode ~
+RowObject.statusCode RowObject.ownerUser RowObject.description ~
+RowObject.Note1 RowObject.Note2 RowObject.Note3 RowObject.Note4 ~
+RowObject.Note5 RowObject.createDT RowObject.createUser RowObject.updateDT ~
+RowObject.updateUser 
 &Scoped-define DISPLAYED-TABLES RowObject
 &Scoped-define FIRST-DISPLAYED-TABLE RowObject
-
+&Scoped-Define DISPLAYED-OBJECTS fiTableName 
 
 /* Custom List Definitions                                              */
 /* ADM-ASSIGN-FIELDS,List-2,List-3,List-4,List-5,List-6                 */
@@ -95,63 +98,67 @@ RowObject.Note4 RowObject.Note5
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE fiTableName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Linked to" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 43 BY 1 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     RowObject.rec_key AT ROW 1.24 COL 14 COLON-ALIGNED
+     RowObject.rec_key AT ROW 1.24 COL 23 COLON-ALIGNED
+          LABEL "RecKey (this tag)"
           VIEW-AS FILL-IN 
           SIZE 43 BY 1
-     RowObject.linkRecKey AT ROW 2.43 COL 14 COLON-ALIGNED
+     fiTableName AT ROW 2.43 COL 23 COLON-ALIGNED
+     RowObject.linkTable AT ROW 2.43 COL 68 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 22 BY 1 NO-TAB-STOP 
+     RowObject.linkRecKey AT ROW 3.62 COL 23 COLON-ALIGNED
+          LABEL "Using RecKey"
           VIEW-AS FILL-IN 
           SIZE 43 BY 1
-     RowObject.linkTable AT ROW 2.43 COL 71 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 26 BY 1
-     RowObject.createDT AT ROW 4.1 COL 14 COLON-ALIGNED
-          LABEL "Created"
-          VIEW-AS FILL-IN 
-          SIZE 34.2 BY 1
-     RowObject.updateDT AT ROW 4.1 COL 71 COLON-ALIGNED
-          LABEL "Updated"
-          VIEW-AS FILL-IN 
-          SIZE 34.2 BY 1
-     RowObject.createUser AT ROW 5.29 COL 14 COLON-ALIGNED
-          LABEL "By"
-          VIEW-AS FILL-IN 
-          SIZE 18.2 BY 1
-     RowObject.updateUser AT ROW 5.29 COL 71 COLON-ALIGNED
-          LABEL "By"
-          VIEW-AS FILL-IN 
-          SIZE 18.2 BY 1
-     RowObject.tagType AT ROW 6.71 COL 4 COLON-ALIGNED NO-LABEL
+     RowObject.tagType AT ROW 4.81 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5.2 BY 1 NO-TAB-STOP 
-     RowObject.groupCode AT ROW 6.71 COL 10 COLON-ALIGNED NO-LABEL
+     RowObject.groupCode AT ROW 4.81 COL 11 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1 NO-TAB-STOP 
-     RowObject.statusCode AT ROW 6.71 COL 15 COLON-ALIGNED NO-LABEL
+     RowObject.statusCode AT ROW 4.81 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1 NO-TAB-STOP 
-     RowObject.ownerUser AT ROW 6.71 COL 20 COLON-ALIGNED NO-LABEL
+     RowObject.ownerUser AT ROW 4.81 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1 NO-TAB-STOP 
-     RowObject.description AT ROW 6.71 COL 25 COLON-ALIGNED NO-LABEL
+     RowObject.description AT ROW 4.81 COL 26 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
-     RowObject.Note1 AT ROW 6.71 COL 30 COLON-ALIGNED NO-LABEL
+     RowObject.Note1 AT ROW 4.81 COL 31 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1 NO-TAB-STOP 
-     RowObject.Note2 AT ROW 6.71 COL 35 COLON-ALIGNED NO-LABEL
+     RowObject.Note2 AT ROW 4.81 COL 36 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
-     RowObject.Note3 AT ROW 6.71 COL 40 COLON-ALIGNED NO-LABEL
+     RowObject.Note3 AT ROW 4.81 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
-     RowObject.Note4 AT ROW 6.71 COL 45 COLON-ALIGNED NO-LABEL
+     RowObject.Note4 AT ROW 4.81 COL 46 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1 NO-TAB-STOP 
-     RowObject.Note5 AT ROW 6.71 COL 51 COLON-ALIGNED NO-LABEL
+     RowObject.Note5 AT ROW 4.81 COL 52 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
+     RowObject.createDT AT ROW 4.81 COL 58 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
+     RowObject.createUser AT ROW 4.81 COL 63 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
+     RowObject.updateDT AT ROW 4.81 COL 68 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
+     RowObject.updateUser AT ROW 4.81 COL 73 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY USE-DICT-EXPS 
@@ -193,7 +200,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW vTable ASSIGN
-         HEIGHT             = 6.91
+         HEIGHT             = 5.19
          WIDTH              = 112.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -223,17 +230,36 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN RowObject.createDT IN FRAME F-Main
    EXP-LABEL                                                            */
+ASSIGN 
+       RowObject.createDT:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN RowObject.createUser IN FRAME F-Main
    EXP-LABEL                                                            */
+ASSIGN 
+       RowObject.createUser:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN RowObject.description IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        RowObject.description:HIDDEN IN FRAME F-Main           = TRUE.
 
+ASSIGN 
+       fiTableName:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN RowObject.groupCode IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        RowObject.groupCode:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN RowObject.linkRecKey IN FRAME F-Main
+   EXP-LABEL                                                            */
+ASSIGN 
+       RowObject.linkRecKey:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR FILL-IN RowObject.linkTable IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       RowObject.linkTable:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR FILL-IN RowObject.Note1 IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
@@ -265,6 +291,11 @@ ASSIGN
 ASSIGN 
        RowObject.ownerUser:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN RowObject.rec_key IN FRAME F-Main
+   EXP-LABEL                                                            */
+ASSIGN 
+       RowObject.rec_key:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN RowObject.statusCode IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -277,8 +308,14 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN RowObject.updateDT IN FRAME F-Main
    EXP-LABEL                                                            */
+ASSIGN 
+       RowObject.updateDT:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN RowObject.updateUser IN FRAME F-Main
    EXP-LABEL                                                            */
+ASSIGN 
+       RowObject.updateUser:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -325,6 +362,30 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayRecord vTable 
+PROCEDURE displayRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  RUN SUPER.
+
+  /* Code placed here will execute AFTER standard behavior.    */
+    FIND FIRST _file NO-LOCK WHERE 
+        _file._file-name EQ rowobject.linkTable:SCREEN-VALUE IN FRAME {&frame-name}
+        NO-ERROR. 
+    ASSIGN 
+        fiTableName = IF AVAIL _file THEN _file._file-label ELSE "".
+        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

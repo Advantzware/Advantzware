@@ -491,7 +491,7 @@ PROCEDURE ValidateOrder:
                 ASSIGN
                     iCountHold = iCountHold + 1
                     oplHold = TRUE
-                    opcMessage = ttValidation.cHoldMessage.
+                    opcMessage = opcMessage + "|" + ttValidation.cHoldMessage.
             END.    
             ELSE 
             DO:
@@ -500,9 +500,8 @@ PROCEDURE ValidateOrder:
             END.          
         END.
     END.
-    IF iCountHold GT 1 THEN 
-        opcMessage = "Multiple Reasons".
-     
+    ASSIGN 
+        opcMessage = TRIM(opcMessage,"|").
     
 END PROCEDURE.
 
