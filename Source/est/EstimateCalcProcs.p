@@ -2191,9 +2191,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
         RELEASE bf-ttPack.           
     END.
 /*Add corrugated banding calculation here*/
-    FOR EACH estPacking NO-LOCK:
-        /*Do Code*/
-    END.
+
     
 END PROCEDURE.
 
