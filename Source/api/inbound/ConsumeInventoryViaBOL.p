@@ -1115,39 +1115,9 @@
                 IF bf-oe-boll1.partial GE bf-oe-boll1.qty-case AND bf-fg-bin.partial-count EQ 0 THEN
                     bf-oe-boll1.cases = TRUNC(bf-oe-boll1.qty / bf-oe-boll1.qty-case,0).
 
-                bf-oe-boll1.partial = bf-oe-boll1.qty - (bf-oe-boll1.cases * bf-oe-boll1.qty-case).
-
-                FIND FIRST reftable EXCLUSIVE-LOCK
-                    WHERE reftable.reftable EQ "oe-boll.selected"
-                      AND reftable.company  EQ bf-fg-bin.company
-                      AND reftable.loc      EQ bf-fg-bin.i-no
-                      AND reftable.code     EQ STRING(bf-fg-bin.job-no,"x(10)") +
-                                               STRING(bf-fg-bin.job-no2,"9999999999")
-                      AND reftable.code2    EQ STRING(bf-fg-bin.loc,"x(10)")     +
-                                               STRING(bf-fg-bin.loc-bin,"x(10)") +
-                                               STRING(bf-fg-bin.tag,"x(40)")     +
-                                               STRING(bf-fg-bin.cust-no,"x(10)")
-                      AND reftable.rec_key  EQ bf-oe-boll1.rec_key
-                    NO-ERROR.
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "oe-boll.selected"
-                        reftable.company  = bf-fg-bin.company
-                        reftable.loc      = bf-fg-bin.i-no
-                        reftable.code     = STRING(bf-fg-bin.job-no,"x(10)") +
-                                            STRING(bf-fg-bin.job-no2,"9999999999")
-                        reftable.code2    = STRING(bf-fg-bin.loc,"x(10)")     +
-                                            STRING(bf-fg-bin.loc-bin,"x(10)") +
-                                            STRING(bf-fg-bin.tag,"x(40)")     +
-                                            STRING(bf-fg-bin.cust-no,"x(10)")
-                        reftable.rec_key  = bf-oe-boll1.rec_key
-                        .
-                END.
-
                 ASSIGN
-                    reftable.val[1]    = 1
-                    bf-oe-boll1.weight = bf-oe-boll1.qty / 100 * bf-itemfg.weight-100
+                    bf-oe-boll1.partial = bf-oe-boll1.qty - (bf-oe-boll1.cases * bf-oe-boll1.qty-case)
+                    bf-oe-boll1.weight  = bf-oe-boll1.qty / 100 * bf-itemfg.weight-100
                     .
                 
                 /* Important: Release the bf-oe-boll1 here. If not released this will 
