@@ -49,32 +49,4 @@ IF {1}l.partial GE {1}l.qty-case AND fg-bin.partial-count EQ 0 THEN
 
 {1}l.partial = {1}l.qty - ({1}l.cases * {1}l.qty-case).
 
-FIND FIRST reftable
-    WHERE reftable.reftable EQ TRIM("{1}") + "l.selected"
-      AND reftable.company  EQ fg-bin.company
-      AND reftable.loc      EQ fg-bin.i-no
-      AND reftable.code     EQ STRING(fg-bin.job-no,"x(10)") +
-                               STRING(fg-bin.job-no2,"9999999999")
-      AND reftable.code2    EQ STRING(fg-bin.loc,"x(10)")     +
-                               STRING(fg-bin.loc-bin,"x(10)") +
-                               STRING(fg-bin.tag,"x(40)")     +
-                               STRING(fg-bin.cust-no,"x(10)")
-      AND reftable.rec_key  EQ {1}l.rec_key 
-    NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-  CREATE reftable.
-  ASSIGN
-   reftable.reftable = TRIM("{1}") + "l.selected"
-   reftable.company  = fg-bin.company
-   reftable.loc      = fg-bin.i-no
-   reftable.code     = STRING(fg-bin.job-no,"x(10)") +
-                       STRING(fg-bin.job-no2,"9999999999")
-   reftable.code2    = STRING(fg-bin.loc,"x(10)")     +
-                       STRING(fg-bin.loc-bin,"x(10)") +
-                       STRING(fg-bin.tag,"x(40)")     +
-                       STRING(fg-bin.cust-no,"x(10)")
-   reftable.rec_key  = {1}l.rec_key.
-END.
-reftable.val[1] = 1.
-
 /* end ---------------------------------- copr. 1999  advanced software, inc. */
