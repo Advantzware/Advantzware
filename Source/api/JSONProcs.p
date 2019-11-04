@@ -32,8 +32,6 @@ PROCEDURE ReadRequestData:
     DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldString AS CHARACTER NO-UNDO.
 
-    OUTPUT TO "C:\temp\consume.txt".
-    EXPORT STRING(iplcRequestData).    
     /* Remove curly braces from request JSON string at the start and end */
     ASSIGN 
         iplcRequestData = REPLACE(iplcRequestData,'~{"','')
@@ -101,10 +99,6 @@ PROCEDURE ReadRequestData:
                             iCounter.
         END.
     END.
-    FOR EACH ttRequest:
-        EXPORT ttRequest.
-    END.
-    OUTPUT CLOSE.
 END PROCEDURE.
 
 PROCEDURE JSON_GetFieldValueByName:    
