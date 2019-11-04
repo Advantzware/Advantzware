@@ -31,10 +31,15 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i}
+{sys/inc/var.i NEW SHARED}
+{sys/inc/varasgn.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cRequestURLModified AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -233,9 +238,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* API Inbound Tester */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    RUN setUserPrint.
+    
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,10 +322,37 @@ DO:
     /* Put Response Data from Temporary file into a variable */
     COPY-LOB FILE cResponseFile TO lcResponseData. 
     
-    edResponseData:SCREEN-VALUE = lcResponseData.
+    edResponseData:SCREEN-VALUE = IF STRING(lcResponseData) NE "" THEN
+                                      STRING(lcResponseData)
+                                  ELSE
+                                      "Could not get any response".
     
     OS-DELETE VALUE(cRequestFile).
     OS-DELETE VALUE(cResponseFile).    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiRequestURL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRequestURL C-Win
+ON ENTRY OF fiRequestURL IN FRAME DEFAULT-FRAME /* Request URL */
+DO:
+    cRequestURLModified = SELF:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRequestURL C-Win
+ON LEAVE OF fiRequestURL IN FRAME DEFAULT-FRAME /* Request URL */
+DO:
+    IF cRequestURLModified NE SELF:SCREEN-VALUE THEN
+        RUN pUpdateRequestData (
+            INPUT SELF:SCREEN-VALUE
+            ) NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,6 +384,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  RUN pInit.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -398,6 +433,76 @@ PROCEDURE enable_UI :
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit C-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    {custom/usrprint.i}
+    
+    APPLY "LEAVE" TO fiRequestURL.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRequestData C-Win 
+PROCEDURE pUpdateRequestData :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcAPIRoute AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAPIRoute AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    cAPIRoute = "/api/" 
+              + ENTRY(NUM-ENTRIES(ipcAPIRoute,"/"), ipcAPIRoute, "/").
+              
+    FIND FIRST APIInbound NO-LOCK
+         WHERE APIInbound.apiRoute EQ cAPIRoute
+         NO-ERROR.
+    IF AVAILABLE APIInbound THEN
+        edRequestData:SCREEN-VALUE = STRING(APIInbound.requestData).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserPrint C-Win 
+PROCEDURE setUserPrint :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN custom/setUserPrint.p (
+        INPUT g_company,
+        INPUT "APIInboundTest.",
+        INPUT "cbRequestVerb,cbRequestDataType,fiRequestURL,fiUserName,fiPassword",
+        INPUT cbRequestVerb:SCREEN-VALUE + ',' + 
+              cbRequestDataType:SCREEN-VALUE + ',' + 
+              fiRequestURL:SCREEN-VALUE + ',' +
+              fiUserName:SCREEN-VALUE + ',' +
+              fiPassword:SCREEN-VALUE
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
