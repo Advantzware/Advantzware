@@ -71,9 +71,9 @@ DEFINE VARIABLE employee-name AS CHARACTER NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table machemp.employee ~
 Employee-Name(machtran.company,machemp.employee) @ employee-name ~
 machtran.machine machemp.start_date ~
-STRING(machemp.start_time,'HH:MM am') @ start-time machemp.end_date ~
-machemp.shift Time_String(machemp.end_time,yes) @ end-time machemp.ratetype ~
-machemp.posted Time_String(machemp.total_time,no) @ total-time 
+DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time machemp.end_date ~
+machemp.shift DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time machemp.ratetype ~
+machemp.posted DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machemp WHERE ~{&KEY-PHRASE} ~
       AND machemp.posted = no USE-INDEX postemp NO-LOCK, ~
@@ -192,13 +192,13 @@ DEFINE BROWSE Browser-Table
       Employee-Name(machtran.company,machemp.employee) @ employee-name COLUMN-LABEL "Name" FORMAT "X(14)":U
       machtran.machine FORMAT "x(6)":U
       machemp.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      STRING(machemp.start_time,'HH:MM am') @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
       machemp.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       machemp.shift FORMAT "XX":U LABEL-BGCOLOR 14
-      Time_String(machemp.end_time,yes) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
       machemp.ratetype FORMAT "X(12)":U LABEL-BGCOLOR 14
       machemp.posted FORMAT "yes/no":U LABEL-BGCOLOR 14
-      Time_String(machemp.total_time,no) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 142 BY 18.1
@@ -320,19 +320,19 @@ employee.employee eq machemp.employee"
      _FldNameList[4]   > machemp.start_date
 "machemp.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"STRING(machemp.start_time,'HH:MM am') @ start-time" "Started" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time" "Started" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > machemp.end_date
 "machemp.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > machemp.shift
 "machemp.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"Time_String(machemp.end_time,yes) @ end-time" "Ended" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time" "Ended" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > machemp.ratetype
 "machemp.ratetype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > machemp.posted
 "machemp.posted" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
-"Time_String(machemp.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

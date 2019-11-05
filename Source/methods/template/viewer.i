@@ -78,6 +78,10 @@ DEFINE VAR copy-record AS LOG NO-UNDO.
 {methods/template/viewrhlp.i}
 {sys/inc/f3help.i}  /* asi field contents help */
 {methods/pSessionAuditKey.i}
+{methods/timeTriggers.i}
+&IF INDEX("{&TIME-FIELDS}","lunch_") NE 0 &THEN
+{methods/timeTriggers.i "lunch_"}
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -268,6 +272,7 @@ PROCEDURE max-widget :
   Notes:       
 ------------------------------------------------------------------------------*/
   {custom/resizmx2.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,7 +285,7 @@ PROCEDURE restore-widget :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-{custom/resizrs2.i}
+  {custom/resizrs2.i}
 
 END PROCEDURE.
 
