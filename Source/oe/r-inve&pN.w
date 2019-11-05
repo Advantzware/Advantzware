@@ -2517,6 +2517,8 @@ PROCEDURE run-report :
         AND inv-head.inv-date GE v-s-date
         AND inv-head.inv-date LE v-e-date
         AND inv-head.stat     NE "H"
+        AND ( CAN-FIND(FIRST inv-line WHERE inv-line.r-no = inv-head.r-no )
+            OR CAN-FIND(FIRST inv-misc WHERE inv-misc.r-no = inv-head.r-no ))
       USE-INDEX prnt,
 
       FIRST cust NO-LOCK

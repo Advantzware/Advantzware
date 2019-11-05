@@ -1126,6 +1126,7 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-inv FOR ar-inv.
+  DEFINE BUFFER bf-invl FOR ar-invl.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF ar-inv.posted THEN DO:
@@ -1141,14 +1142,31 @@ PROCEDURE local-delete-record :
   ASSIGN bf-inv.net = bf-inv.net - ar-invl.amt
          bf-inv.gross = bf-inv.gross - ar-invl.amt
          .
-  {ar/ar-invk.i bf-inv}
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+  {ar/ar-invk.i bf-inv}
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"invhead-target", OUTPUT char-hdl).
   RUN reopen-query IN WIDGET-HANDLE(char-hdl).
+
+  IF AVAIL bf-inv THEN
+      FIND FIRST bf-invl NO-LOCK
+           WHERE bf-invl.x-no = bf-inv.x-no NO-ERROR .
+  IF AVAIL bf-inv AND NOT AVAIL bf-invl THEN DO:
+      MESSAGE "The last line item is deleted, are you sure to delete Invoice Header ?"  
+          VIEW-AS ALERT-BOX QUESTION 
+          BUTTONS YES-NO UPDATE lcheckflg as logical .
+      IF lcheckflg THEN DO:
+          FIND CURRENT bf-inv EXCLUSIVE-LOCK NO-ERROR .
+          DELETE bf-inv .
+          RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"deletehead-target",OUTPUT char-hdl).
+          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+              RUN local-open-query IN WIDGET-HANDLE(char-hdl) NO-ERROR.
+      END.
+  END.
 
 END PROCEDURE.
 

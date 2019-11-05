@@ -1102,6 +1102,7 @@ do transaction on error undo with width 255:
         and ar-inv.inv-no   le v-e-inv-no
         and ar-inv.inv-date ge v-s-date
         and ar-inv.inv-date le v-e-date
+        AND CAN-FIND(FIRST ar-invl WHERE ar-invl.x-no = ar-inv.x-no )
       on error undo post-1, leave post-1:
 
     put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>9") .
@@ -1204,7 +1205,7 @@ do transaction on error undo with width 255:
   FIND CURRENT cust NO-LOCK NO-ERROR.
 
   RUN post-gl.
-  RUN clear-ar.
+  /*RUN clear-ar.*/   /* ticket 54620*/
 end. /* post-1 */
 
 END PROCEDURE.
