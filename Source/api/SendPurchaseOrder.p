@@ -268,7 +268,7 @@
                 cItemWidth            = STRING(po-ordl.s-wid)
                 cItemLength           = STRING(po-ordl.s-len)
                 cItemDepth            = STRING(po-ordl.s-dep)
-                cCostPerUOM           = STRING(po-ordl.cost,"->,>>>,>>9.99<<<<")
+                cCostPerUOM           = STRING(po-ordl.cost,"->>>>>>9.99<<<<")
                 cCostUOM              = STRING(po-ordl.pr-uom)
                 cCostSetup            = STRING(po-ordl.setup)
                 cCostDiscount         = STRING(po-ordl.disc)

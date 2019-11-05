@@ -86,12 +86,12 @@ DEFINE VARIABLE edErrorMessage AS CHARACTER
      SIZE 119 BY 2.48
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE edRequestData AS CHARACTER 
+DEFINE VARIABLE edRequestData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 5.71
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE edResponseData AS CHARACTER 
+DEFINE VARIABLE edResponseData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 5.95
      FGCOLOR 9  NO-UNDO.
@@ -439,6 +439,7 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lcData AS LONGCHAR NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -447,8 +448,10 @@ PROCEDURE pInit :
          NO-ERROR.
     IF AVAILABLE APIInboundEvent THEN DO:
         ASSIGN
-            edRequestData:SCREEN-VALUE  = STRING(APIInboundEvent.requestData)
-            edResponseData:SCREEN-VALUE = STRING(APIInboundEvent.responseData)                    
+            lcData                      = APIInboundEvent.requestData
+            edRequestData:SCREEN-VALUE  = lcData
+            lcData                      = APIInboundEvent.responseData
+            edResponseData:SCREEN-VALUE = lcData
             edErrorMessage:SCREEN-VALUE = IF APIInboundEvent.success THEN
                                               "SUCCESS:" + "~n" + APIInboundEvent.errorMessage
                                           ELSE
@@ -459,7 +462,7 @@ PROCEDURE pInit :
                                               12            
             fiRecordSource:SCREEN-VALUE = APIInboundEvent.recordSource 
             fiExternalID:SCREEN-VALUE   = APIInboundEvent.externalID                                                
-            .            
+            NO-ERROR.            
     
        FIND FIRST APIInbound NO-LOCK 
             WHERE APIInbound.apiRoute EQ APIInboundEvent.apiRoute 
@@ -471,7 +474,7 @@ PROCEDURE pInit :
                edDescription:SCREEN-VALUE  = APIInbound.description
                fiapiRoute:SCREEN-VALUE     = APIInbound.apiRoute
                fiCanBeQueued:SCREEN-VALUE  = STRING(APIInbound.canBeQueued,"YES/NO")
-                .
+               NO-ERROR.
     END.
 END PROCEDURE.
 
