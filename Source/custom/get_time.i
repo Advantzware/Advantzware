@@ -1,6 +1,12 @@
 /* get_time.i */
 
-ASSIGN
-  {&hour} = SUBSTR(STRING({&field},"HH:MM AM"),1,2)
-  {&minute} = SUBSTR(STRING({&field},"HH:MM AM"),4,2)
-  {&ampm} = SUBSTR(STRING({&field},"HH:MM AM"),7,2).
+DO WITH FRAME {&FRAME-NAME}:
+    RUN spParseTime (
+        {&field},
+        {&hour}:HANDLE,
+        {&minute}:HANDLE,
+        ?,
+        {&ampm}:HANDLE
+        ).
+    ASSIGN {&TIME-FIELDS}.
+END. /* with frame */

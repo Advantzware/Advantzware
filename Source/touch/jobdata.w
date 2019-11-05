@@ -127,11 +127,12 @@ Btn_Quantity Btn_Waste Btn_complete
 v-completed timerStatus 
 
 /* Custom List Definitions                                              */
-/* JOB-DATA-FIELDS,JOB-DATA-BUTTONS,List-3,List-4,List-5,List-6         */
+/* JOB-DATA-FIELDS,JOB-DATA-BUTTONS,List-3,List-4,TIME-FIELDS,List-6    */
 &Scoped-define JOB-DATA-FIELDS time-hour time-minute run-qty waste-qty ~
 v-completed 
 &Scoped-define JOB-DATA-BUTTONS Btn_Hour Btn_Minute Btn_AMPM Btn_Quantity ~
 Btn_Waste Btn_complete 
+&Scoped-define TIME-FIELDS time-hour time-minute 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -139,9 +140,8 @@ Btn_Waste Btn_complete
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTotalTime s-object
-FUNCTION fTotalTime RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTotalTime s-object 
+FUNCTION fTotalTime RETURNS INTEGER
   (ipdtStartDate AS DATE,
     ipdtEndDate AS DATE,
     ipiStartTime AS INTEGER,
@@ -150,7 +150,12 @@ FUNCTION fTotalTime RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD ftsDockSec s-object 
+FUNCTION ftsDockSec RETURNS LOGICAL
+  (ipiTime AS INTEGER) FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getNumForms s-object 
 FUNCTION getNumForms RETURNS INTEGER
@@ -165,14 +170,6 @@ FUNCTION setTimerStatus RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD ftsDockSec s-object
-FUNCTION ftsDockSec RETURNS LOGICAL 
-  (ipiTime AS INTEGER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -352,9 +349,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN run-qty IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN time-hour IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 5                                                        */
 /* SETTINGS FOR FILL-IN time-minute IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 5                                                        */
 /* SETTINGS FOR FILL-IN timerStatus IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-completed IN FRAME F-Main
@@ -436,10 +433,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_complete s-object
 ON CHOOSE OF Btn_complete IN FRAME F-Main /* Complete? */
 DO:
-  /*RUN Reset_Field_Colors.
-  h_field = v-completed:HANDLE.
-  RUN Set_Field_Colors.
-  */
     ASSIGN
       v-completed
       v-completed = NOT v-completed.
@@ -454,8 +447,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Hour s-object
 ON CHOOSE OF Btn_Hour IN FRAME F-Main /* Hour */
 DO:
-  
-
   ASSIGN
     v-time-clock-off = YES
     timerStatus:SCREEN-VALUE = setTimerStatus(v-time-clock-off).
@@ -472,8 +463,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Minute s-object
 ON CHOOSE OF Btn_Minute IN FRAME F-Main /* Minute */
 DO:
-  
-
   ASSIGN
     v-time-clock-off = YES
     timerStatus:SCREEN-VALUE = setTimerStatus(v-time-clock-off).
@@ -521,13 +510,14 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Notes:       
 ------------------------------------------------------------------------------*/
     IF timerStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} MATCHES "*on*" THEN DO:
-        ASSIGN
-            lv-timer = lv-timer + 1
-            time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
-            time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2)
-            .
-        IF time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "12" THEN
-        Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2).
+        lv-timer = lv-timer + 1.
+        {custom/get_time.i
+            &field="lv-timer"
+            &hour="time-hour"
+            &minute="time-minute"
+            &ampm="btn_ampm"
+        }
+        Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO.
     END.
   
 END PROCEDURE.
@@ -583,17 +573,6 @@ IF NOT v-tsqty-log THEN RETURN.
 {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
 {methods/run_link.i "CONTAINER" "Get_Value" "('charge_code',OUTPUT charge_code)"}    
 
-/*
-FOR EACH bf-machtran NO-LOCK WHERE bf-machtran.company = company_code AND
-                           bf-machtran.machine = machine_code AND
-                           bf-machtran.job_number = job_number AND
-                           bf-machtran.job_sub = INTEGER(job_sub) AND
-                           bf-machtran.form_number = INTEGER(form_number) AND
-                           bf-machtran.blank_number = INTEGER(blank_number) AND
-                           bf-machtran.pass_sequence = INTEGER(pass_sequence):        
-    v-total-sheet-qty = v-total-sheet-qty + bf-machtran.RUN_qty + bf-machtran.waste_qty.
-END.
-*/
 FIND FIRST job-mch WHERE job-mch.company = company_code AND
                          job-mch.job-no = job_number AND
                          job-mch.job-no2 = INTEGER(job_sub) AND
@@ -610,8 +589,7 @@ IF AVAIL job-mch THEN DO:
                            bf-machtran.job_number = job_number AND
                            bf-machtran.job_sub = INTEGER(job_sub) AND
                            bf-machtran.form_number = INTEGER(form_number) 
-                           /*bf-machtran.blank_number = INTEGER(blank_number) AND
-                           bf-machtran.pass_sequence = INTEGER(pass_sequence)*/:        
+                           :        
       ASSIGN v-on = 1
              v-up = 1
              v-out = 1.
@@ -936,10 +914,14 @@ PROCEDURE Init_Job :
         RUN pSetSensitive ("SetTiDO",NO).
     END.
     FIND LAST jobseq NO-LOCK NO-ERROR.
+    {custom/get_time.i
+        &field="TIME"
+        &hour="time-hour"
+        &minute="time-minute"
+        &ampm="btn_ampm"
+    }
     ASSIGN
-      Btn_AMPM:LABEL = SUBSTR(STRING(TIME,'HH:MM AM'),7,2)
-      time-hour:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),1,2)
-      time-minute:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),4,2)
+      Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
       run-qty:HIDDEN = FALSE
       run-qty:SCREEN-VALUE = ''
       waste-qty:SCREEN-VALUE = ''
@@ -978,6 +960,7 @@ PROCEDURE Init_Job :
       ASSIGN btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
              btn_minute:SENSITIVE = NO
              btn_ampm:SENSITIVE = NO
+             Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
              .              
       RUN pSetSensitive ("ResetTime",NO).
       RUN pSetSensitive ("SetTime",NO).
@@ -1636,9 +1619,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Job_Data_Collection_2 s-object
-PROCEDURE Job_Data_Collection_2:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Job_Data_Collection_2 s-object 
+PROCEDURE Job_Data_Collection_2 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1787,11 +1769,9 @@ PROCEDURE Job_Data_Collection_2:
     END.  /* last seq */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke s-object 
 PROCEDURE Key_Stroke :
@@ -1800,16 +1780,17 @@ PROCEDURE Key_Stroke :
   Parameters:  Input Keystroke
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-     AND (h_field:NAME = "time-hour" OR h_field:NAME = "time-minute")
+  IF btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} EQ NO
+     AND (h_field:NAME EQ "time-hour" OR h_field:NAME EQ "time-minute")
   THEN RETURN.
 
   {touch/keystrok.i}
   
-  IF h_field:NAME = "time-hour" OR h_field:NAME = "time-minute" THEN DO:
-     lv-timer = int(time-hour:SCREEN-VALUE) * 3600 +
-               INT(time-minute:SCREEN-VALUE) * 60.
+  IF h_field:NAME EQ "time-hour" OR h_field:NAME EQ "time-minute" THEN DO:
+     lv-timer = INTEGER(time-hour:SCREEN-VALUE) * 3600
+              + INTEGER(time-minute:SCREEN-VALUE) * 60.
   END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1851,9 +1832,11 @@ PROCEDURE local-view :
   {touch/localview.i}
   ASSIGN
     v-time-clock-off = NO
-    timerStatus:SCREEN-VALUE = setTimerStatus(NO).
-
+    timerStatus:SCREEN-VALUE = setTimerStatus(NO)
+    Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+    .
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1878,6 +1861,8 @@ PROCEDURE pClick :
     DEFINE VARIABLE v-start AS INT INIT 1 NO-UNDO.
     DEFINE VARIABLE v-entered-start-date AS DATE NO-UNDO.
     DEFINE VARIABLE v-valid AS LOG INIT TRUE NO-UNDO.
+    DEFINE VARIABLE iHourMax AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iHourMin AS INTEGER NO-UNDO.
   
     DEF BUFFER bf-machtran FOR machtran.
     DEF BUFFER bf2-machtran FOR machtran.
@@ -1890,11 +1875,13 @@ PROCEDURE pClick :
             {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
         END.
         WHEN "ResetTime" THEN DO:
-            ASSIGN
-                time-hour:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),1,2)
-                time-minute:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),4,2)
-                Btn_AMPM:LABEL = SUBSTR(STRING(TIME,'HH:MM AM'),7,2)
-                .
+            {custom/get_time.i
+                &field="TIME"
+                &hour="time-hour"
+                &minute="time-minute"
+                &ampm="btn_ampm"
+            }
+            Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO.
         END.
         WHEN "SetTime" THEN DO:
             {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
@@ -1915,27 +1902,34 @@ PROCEDURE pClick :
                    AND (machtran.end_time     NE 0
                     OR machtran.total_time    NE 0)
                  NO-ERROR.
-            IF AVAILABLE machtran THEN
-            ASSIGN 
-              time-hour:SCREEN-VALUE = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),1,2)
-              time-minute:SCREEN-VALUE = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),4,2)
-              Btn_AMPM:LABEL = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),7,2)
-              ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-              lv-timer = int(time-hour:SCREEN-VALUE) * 3600
-                       + INT(time-minute:SCREEN-VALUE) * 60
-                       + ampm /* ampm adds in 12 hours for a PM time */
-                       .             
+            IF AVAILABLE machtran THEN DO:
+              {custom/get_time.i
+                  &field="machtran.end_time"
+                  &hour="time-hour"
+                  &minute="time-minute"
+                  &ampm="btn_ampm"
+              }
+              ASSIGN
+                  Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+                  ampm = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+                  lv-timer = INT(time-hour:SCREEN-VALUE) * 3600
+                           + INT(time-minute:SCREEN-VALUE) * 60
+                           + ampm /* ampm adds in 12 hours for a PM time */
+                           .             
+            END.
             ELSE
             RUN pSetSensitive ("ResetTime",NO).
         END.
         WHEN "AcceptEntry" THEN DO:          
             ASSIGN
+               iHourMax = DYNAMIC-FUNCTION("sfHourMax")
+               iHourMin = DYNAMIC-FUNCTION("sfHourMin")
                time-hour time-minute run-qty waste-qty
                v-time-hour = time-hour
-               v-today = TODAY.
-          
-            IF time-hour LT 1 OR time-hour GT 12 THEN DO:
-              MESSAGE 'INVALID HOUR - ENTER BETWEEN 1 AND 12' VIEW-AS ALERT-BOX ERROR.
+               v-today = TODAY
+               .          
+            IF time-hour LT iHourMin OR time-hour GT iHourMax THEN DO:
+              MESSAGE 'INVALID HOUR - ENTER BETWEEN' iHourMin 'AND' STRING(iHourMax) VIEW-AS ALERT-BOX ERROR.
               APPLY 'CHOOSE' TO Btn_Hour.
               RETURN NO-APPLY.
             END.
@@ -1949,9 +1943,10 @@ PROCEDURE pClick :
                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             END.
           
-            ASSIGN ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-                   v-time-hour = IF Btn_AMPM:LABEL = 'AM' AND time-hour = 12 THEN 0 ELSE v-time-hour.
-          
+            ASSIGN
+                ampm        = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+                v-time-hour = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN 0 ELSE v-time-hour
+                .          
             /* check machine's running. If yes, don't create new transaction. End it first */
             {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
             {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}     
@@ -2110,9 +2105,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-form-cmplt s-object 
 PROCEDURE proc-form-cmplt :
 /*------------------------------------------------------------------------------
@@ -2157,26 +2149,6 @@ PROCEDURE proc-form-cmplt :
   IF v-est-type GT 4 THEN v-est-type = v-est-type - 4.
 
   v-assembled = NO.
-/*
-  IF v-est-type EQ 2 THEN
-  FOR FIRST job-hdr
-      WHERE job-hdr.company  EQ company_code
-        AND job-hdr.job      EQ job.job
-        AND job-hdr.job-no   EQ job.job-no
-        AND job-hdr.job-no2  EQ job.job-no2
-      NO-LOCK,
-      FIRST itemfg
-      WHERE itemfg.company   EQ company_code
-        AND itemfg.i-no      EQ job-hdr.i-no
-        AND itemfg.isaset
-        AND itemfg.alloc     NE YES
-      NO-LOCK:
-
-    ASSIGN
-     v-assembled = YES
-     v-est-type  = 4.
-  END.
-??? */
 
  /* IF v-assembled THEN do for both assembled or unassembled */
   FOR EACH reftable
@@ -2197,22 +2169,6 @@ PROCEDURE proc-form-cmplt :
       FIRST itemfg
       WHERE itemfg.company EQ job-hdr.company
         AND itemfg.i-no    EQ reftable.code2 NO-LOCK:
-
-    /*IF itemfg.isaset AND itemfg.alloc NE YES THEN DO:
-      ASSIGN
-       v-set  = itemfg.i-no
-       v-qty  = pc-prdd.qty.
-            
-      RUN fg/checkset.p (RECID(itemfg), ?, INPUT-OUTPUT v-qty).
-          
-      IF v-qty LT pc-prdd.qty THEN DO:
-        choice = NO.
-        MESSAGE "Insufficient components for AUTOPOST, process anyway?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                UPDATE choice.
-        IF NOT choice THEN RETURN ERROR.
-      END.
-    END.*/    
 
     RUN fg/autopost.p (ROWID(itemfg), job-hdr.job-no, job-hdr.job-no2,
                        OUTPUT v-loc, OUTPUT v-loc-bin).
@@ -3218,9 +3174,8 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTotalTime s-object
-FUNCTION fTotalTime RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTotalTime s-object 
+FUNCTION fTotalTime RETURNS INTEGER
   (ipdtStartDate AS DATE,
     ipdtEndDate AS DATE,
     ipiStartTime AS INTEGER,
@@ -3245,11 +3200,23 @@ FUNCTION fTotalTime RETURNS INTEGER
     RETURN iTotalTime.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION ftsDockSec s-object 
+FUNCTION ftsDockSec RETURNS LOGICAL
+  (ipiTime AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN tsdocksec-log AND SUBSTRING(STRING(ipiTime,"HH:MM:SS"),7,2) EQ "59".
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getNumForms s-object 
 FUNCTION getNumForms RETURNS INTEGER
@@ -3316,19 +3283,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION ftsDockSec s-object
-FUNCTION ftsDockSec RETURNS LOGICAL 
-  (ipiTime AS INTEGER):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RETURN tsdocksec-log AND SUBSTRING(STRING(ipiTime,"HH:MM:SS"),7,2) EQ "59".
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 

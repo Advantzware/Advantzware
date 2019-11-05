@@ -74,8 +74,8 @@ DEFINE QUERY external_tables FOR mach.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table machshft.shift ~
 shift_description(machshft.shift) @ shifts_description ~
-STRING(machshft.start_time,'HH:MM:SS am') @ machshft_start_time ~
-STRING(machshft.end_time,'HH:MM:SS am') @ machshft_end_time 
+DYNAMIC-FUNCTION('sfTimeDisplay', machshft.start_time, YES, YES) @ machshft_start_time ~
+DYNAMIC-FUNCTION('sfTimeDisplay', machshft.end_time, YES, YES) @ machshft_end_time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH machshft WHERE machshft.company = mach.company ~
   AND machshft.machine = mach.m-code NO-LOCK ~
@@ -173,9 +173,9 @@ DEFINE BROWSE br_table
       machshft.shift FORMAT "xx":U LABEL-BGCOLOR 14
       shift_description(machshft.shift) @ shifts_description COLUMN-LABEL "Description" FORMAT "x(40)":U
             WIDTH 40.6
-      STRING(machshft.start_time,'HH:MM:SS am') @ machshft_start_time COLUMN-LABEL "Start Time" FORMAT "x(12)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machshft.start_time, YES, YES) @ machshft_start_time COLUMN-LABEL "Start Time" FORMAT "x(12)":U
             WIDTH 15.6 LABEL-BGCOLOR 14
-      STRING(machshft.end_time,'HH:MM:SS am') @ machshft_end_time COLUMN-LABEL "End Time" FORMAT "x(12)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machshft.end_time, YES, YES) @ machshft_end_time COLUMN-LABEL "End Time" FORMAT "x(12)":U
             WIDTH 15.6 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -275,9 +275,9 @@ ASSIGN
      _FldNameList[2]   > "_<CALC>"
 "shift_description(machshft.shift) @ shifts_description" "Description" "x(40)" ? ? ? ? ? ? ? no ? no no "40.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
-"STRING(machshft.start_time,'HH:MM:SS am') @ machshft_start_time" "Start Time" "x(12)" ? ? ? ? 14 ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machshft.start_time, YES, YES) @ machshft_start_time" "Start Time" "x(12)" ? ? ? ? 14 ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"STRING(machshft.end_time,'HH:MM:SS am') @ machshft_end_time" "End Time" "x(12)" ? ? ? ? 14 ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machshft.end_time, YES, YES) @ machshft_end_time" "End Time" "x(12)" ? ? ? ? 14 ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

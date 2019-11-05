@@ -403,11 +403,11 @@ PROCEDURE build-table :
       assign tt-login.employee = emplogin.employee
                 tt-login.s-dt = emplogin.start_date
                 tt-login.e-dt = emplogin.end_date
-                tt-login.s-time = string(emplogin.start_time,"HH:MM am")
+                tt-login.s-time = DYNAMIC-FUNCTION("sfTimeDisplay", emplogin.start_time, YES, NO) 
                 tt-login.s-time-sec = emplogin.start_time
                 tt-login.tt-recid = recid(tt-login)
                 tt-login.e-time = if emplogin.end_date <> ?
-                                  then string(emplogin.end_time,"HH:MM am")
+                                  then DYNAMIC-FUNCTION("sfTimeDisplay", emplogin.end_time, YES, NO)
                                   else ""
                 li-t-time = emplogin.total_time
                 tt-login.t-time = STRING(TRUNCATE(li-t-time / 3600,0),">>>>9") + ":" + 
