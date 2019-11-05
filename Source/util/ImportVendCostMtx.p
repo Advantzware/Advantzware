@@ -26,8 +26,8 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD formNo                  AS INTEGER FORMAT ">>" INITIAL 0 COLUMN-LABEL "Form" HELP "Optional - Integer"
     FIELD blankNo                 AS INTEGER FORMAT ">>" INITIAL 0 COLUMN-LABEL "Blank" HELP "Optional - Integer"
     FIELD vendorItemID            AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Vendor Item" HELP "Optional - Size:16"
-    FIELD effectiveDate           AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Effective" HELP "Optional - Date"
-    FIELD expirationDate          AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Expires" HELP "Optional - Date"
+    FIELD effectiveDate           AS DATE COLUMN-LABEL "Effective" HELP "Optional - Date"
+    FIELD expirationDate          AS DATE COLUMN-LABEL "Expires" HELP "Optional - Date"
     FIELD vendorUOM               AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Vendor Uom" HELP "Required - Size:3"
     FIELD dimWidthMinimum         AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Minimum" HELP "Optional - Decimal"
     FIELD dimWidthMaximum         AS DECIMAL FORMAT "->>,>>9.9999" INITIAL 0 COLUMN-LABEL "Width Maximum" HELP "Optional - Decimal"
@@ -142,8 +142,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportVendCostMtx.formNo, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.formNo).                                       
     RUN pAssignValueI (ipbf-ttImportVendCostMtx.blankNo, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.blankNo).                                         
     RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorItemID, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.vendorItemID).                      
-    RUN pAssignValueCToDt (ipbf-ttImportVendCostMtx.effectiveDate, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.effectiveDate).                                 
-    RUN pAssignValueCToDt (ipbf-ttImportVendCostMtx.expirationDate, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.expirationDate).                                     
+    RUN pAssignValueDate (ipbf-ttImportVendCostMtx.effectiveDate, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.effectiveDate).                                 
+    RUN pAssignValueDate (ipbf-ttImportVendCostMtx.expirationDate, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.expirationDate).                                     
     RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorUOM, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.vendorUOM).                                                 
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthMinimum, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthMinimum).                   
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthMaximum, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthMaximum).                                         
@@ -225,6 +225,22 @@ PROCEDURE pValidate PRIVATE:
 
     IF oplValid THEN 
     DO:
+        IF date(ipbf-ttImportVendCostMtx.expirationDate) EQ ? THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Expires Date is Blank".
+    END.
+
+    IF oplValid THEN 
+    DO:
+        IF date(ipbf-ttImportVendCostMtx.effectiveDate) EQ ? THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Effective Date is Blank".
+    END.
+    
+    IF oplValid THEN 
+    DO:
         IF ipbf-ttImportVendCostMtx.itemID EQ '' THEN 
             ASSIGN 
                 oplValid = NO
@@ -262,7 +278,8 @@ PROCEDURE pValidate PRIVATE:
             AND vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
             AND vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
             AND vendItemCost.expirationDate EQ date(ipbf-ttImportVendCostMtx.expirationDate)
-            AND vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate) NO-ERROR .
+            AND (vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
+            OR vendItemCost.effectiveDate LT 01/01/1900) NO-ERROR .
 
         IF AVAIL vendItemCost THEN
         DO: 

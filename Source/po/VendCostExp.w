@@ -30,8 +30,8 @@ DEFINE INPUT PARAMETER ipcItem       AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcVendor     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomer   AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcEstimate   AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcExpires    AS CHARACTER  NO-UNDO.
 DEFINE INPUT PARAMETER ipcEffective  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcExpires    AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
@@ -1156,10 +1156,10 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
         AND vendItemCost.customerID LE end_cust-no
         AND vendItemCost.estimateNo GE begin_est-no
         AND vendItemCost.estimateNo LE end_est-no
-        AND vendItemCost.effectiveDate GE begin_date-eff
-        AND vendItemCost.effectiveDate LE end_date-eff
-        AND vendItemCost.expirationDate GE  begin_date-exp
-        AND vendItemCost.expirationDate LE end_date-exp :
+        AND (vendItemCost.effectiveDate GE begin_date-eff OR (begin_date-eff LE 01/01/1900 AND vendItemCost.effectiveDate LE 01/01/1900))
+        AND (vendItemCost.effectiveDate LE end_date-eff OR (begin_date-eff LE 01/01/1900 AND vendItemCost.effectiveDate LE 01/01/1900))
+        AND (vendItemCost.expirationDate GE  begin_date-exp OR vendItemCost.expirationDate EQ ?)
+        AND (vendItemCost.expirationDate LE end_date-exp OR vendItemCost.expirationDate EQ ?) :
 
     v-excel-detail-lines = "".
     
@@ -1171,7 +1171,9 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
             appendXLLine(getValue(BUFFER vendItemCost,ttRptSelected.FieldList)).
         END.
         ELSE IF ttRptSelected.FieldList EQ "effectiveDate" THEN do:
-             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCost.effectiveDate,"99/99/9999")).
+            IF vendItemCost.effectiveDate LE 01/01/1900 THEN
+             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string("01/01/1900")).
+            ELSE v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCost.effectiveDate,"99/99/9999")).
         END.
         ELSE do:
            i = 1 .
@@ -1322,14 +1324,23 @@ DO WITH FRAME {&FRAME-NAME}:
          ELSE ASSIGN
              begin_est-no:SCREEN-VALUE   = ""
              end_est-no:SCREEN-VALUE = "zzzzzzzz" .
+
          IF ipcExpires NE "" THEN
              ASSIGN
              begin_date-exp:SCREEN-VALUE   = string(ipcExpires)
              end_date-exp:SCREEN-VALUE = string(ipcExpires).
-         IF ipcEffective NE "" THEN
+         ELSE IF ipcExpires EQ ? THEN
              ASSIGN
+             begin_date-exp:SCREEN-VALUE   = string("01/01/1900")
+             end_date-exp:SCREEN-VALUE = string("12/31/2031").
+         
+         IF date(ipcEffective) LT 01/01/1900 OR ipcEffective EQ ? THEN 
+             ASSIGN
+             begin_date-eff:SCREEN-VALUE   = string("01/01/1900")
+             end_date-eff:SCREEN-VALUE   = string("01/01/1900").
+         ELSE  ASSIGN
              begin_date-eff:SCREEN-VALUE   = string(ipcEffective)
-             begin_date-eff:SCREEN-VALUE   = string(ipcEffective).
+             end_date-eff:SCREEN-VALUE   = string(ipcEffective).
 END.
 RETURN.
 
