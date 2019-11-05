@@ -559,15 +559,15 @@ PROCEDURE local-create-record :
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-zMessage FOR zMessage.
     DEFINE VARIABLE li-next-num AS INTEGER NO-UNDO.
-
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-  
-    FIND LAST bf-zMessage NO-LOCK NO-ERROR.
-    IF AVAILABLE bf-zMessage THEN li-next-num = INTEGER(bf-zMessage.msgID) + 1.
-    ELSE li-next-num = 1.
-  
-    zMessage.msgID = STRING(li-next-num).
-    DISPLAY zMessage.msgID WITH FRAME {&frame-name}.
+
+    /*FIND LAST bf-zMessage NO-LOCK NO-ERROR.                                     */
+    /*IF AVAILABLE bf-zMessage THEN li-next-num = INTEGER(bf-zMessage.msgID) + 1. */
+    /*ELSE li-next-num = 1.                                                       */
+    /*                                                                            */
+    /*zMessage.msgID = STRING(li-next-num).                                       */
+    /*DISPLAY zMessage.msgID WITH FRAME {&frame-name}.                            */
 
 
 END PROCEDURE.

@@ -50,6 +50,13 @@ DEFINE BUFFER c-usercomp  FOR usercomp.
 DEFINE TEMP-TABLE ttProcedure NO-UNDO
     FIELD hProcedure AS HANDLE.
 
+DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -528,6 +535,7 @@ PROCEDURE pCloseProcedures:
     
     DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
     
+    
     EMPTY TEMP-TABLE ttProcedure.
     hProc = SESSION:FIRST-PROCEDURE.
     DO WHILE VALID-HANDLE(hProc):
@@ -540,18 +548,21 @@ PROCEDURE pCloseProcedures:
         hProc = hProc:NEXT-SIBLING.
     END. /* do while */
     IF CAN-FIND(FIRST ttProcedure) THEN DO:
-        MESSAGE
-            "Changing Company/Location will CLOSE all currently OPEN Programs." SKIP(1)
-            "Continue?"
+        RUN pGetMessageProcs IN hMessageProcs (INPUT "11", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+        IF NOT lSuppressMessage THEN do:
+            MESSAGE
+             cCurrentMessage 
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        UPDATE oplClose.
+        TITLE cCurrentTitle UPDATE oplClose.
+        END.
+        ELSE oplClose = TRUE .
         IF oplClose THEN
         FOR EACH ttProcedure:
             IF VALID-HANDLE(ttProcedure.hProcedure) THEN
             DELETE PROCEDURE ttProcedure.hProcedure.
         END. /* each ttprocedure */
     END. /* if can-find */
-
+   
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
