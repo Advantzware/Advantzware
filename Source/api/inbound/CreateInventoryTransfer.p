@@ -65,7 +65,7 @@ lValidCompany = CAN-FIND(FIRST company NO-LOCK
         
 IF NOT lValidCompany THEN DO:
     ASSIGN 
-        opcMessage = "Invalid Company"
+        opcMessage = "Invalid Company " + ipcCompany
         oplSuccess = NO
         .
     RETURN.
@@ -80,7 +80,7 @@ RUN ValidateLoc IN hdInventoryProcs (
 
 IF NOT lValidLoc THEN DO:
     ASSIGN 
-        opcMessage = "Invalid WareHouseID"                     
+        opcMessage = "Invalid WareHouseID " + ipcWareHouseID                 
         oplSuccess = NO
         .
     RETURN.
@@ -96,7 +96,7 @@ RUN ValidateBin IN hdInventoryProcs (
 
 IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
     ASSIGN 
-        opcMessage = "Invalid LocationID"
+        opcMessage = "Invalid LocationID " + ipcLocationID
         oplSuccess = NO 
         .
     RETURN.
@@ -105,7 +105,7 @@ END.
 /* Validate tag */
 IF ipcInventoryStockIDTag EQ "" THEN
     ASSIGN 
-        opcMessage = "Invalid inventoryStockIDTag"
+        opcMessage = "Empty inventoryStockIDTag"
         oplSuccess = NO
         .
 
@@ -113,9 +113,9 @@ IF ipcInventoryStockIDTag EQ "" THEN
 IF ipcPrimaryID EQ "" THEN
     ASSIGN 
         opcMessage = IF opcMessage EQ "" THEN 
-                         "Invalid PrimaryID"
+                         "Empty PrimaryID"
                      ELSE
-                         opcMessage + ", " + "Invalid PrimaryID"
+                         opcMessage + ", " + "Empty PrimaryID"
         oplSuccess = NO
         .
 
@@ -123,9 +123,9 @@ IF ipcPrimaryID EQ "" THEN
 IF ipcItemType EQ "" THEN
     ASSIGN 
         opcMessage = IF opcMessage EQ "" THEN 
-                         "Invalid ItemType"
+                         "Empty ItemType"
                      ELSE
-                         opcMessage + ", " + "Invalid ItemType"
+                         opcMessage + ", " + "Empty ItemType"
         oplSuccess = NO
         .
         
@@ -142,7 +142,7 @@ IF ipcItemType EQ "FG" THEN DO:
                           AND loadtag.tag-no    = ipcInventoryStockIDTag NO-LOCK NO-ERROR.
      IF NOT AVAILABLE loadtag THEN DO:
          ASSIGN
-            opcMessage = "Invalid Loadtag#." 
+            opcMessage = "Invalid Loadtag# " + ipcInventoryStockIDTag 
             oplSuccess = NO
             .
          RETURN.  
@@ -156,7 +156,7 @@ IF ipcItemType EQ "FG" THEN DO:
                          NO-LOCK NO-ERROR.
      IF NOT AVAILABLE fg-bin THEN DO:
          ASSIGN
-            opcMessage = "Invalid Inventory for the tag" 
+            opcMessage = "Invalid Inventory for the tag " + ipcInventoryStockIDTag
             oplSuccess = NO
             .
          RETURN.
@@ -166,7 +166,7 @@ IF ipcItemType EQ "FG" THEN DO:
      IF fg-bin.loc     EQ ipcWareHouseID AND
         fg-bin.loc-bin EQ ipcLocationID  THEN DO:
          ASSIGN
-            opcMessage = "To Whse/Bin may not be the same as From Whse/Bin" 
+            opcMessage = "To Whse/Bin may not be the same as From Whse/Bin for item " + ipcPrimaryID
             oplSuccess = NO
             .
          RETURN.
@@ -180,6 +180,10 @@ IF ipcItemType EQ "FG" THEN DO:
         IF AVAILABLE fg-rctd AND fg-rctd.r-no GT iRNo THEN 
             iRNo = fg-rctd.r-no.
 
+    FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+        IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT iRNo THEN 
+            iRNo = fg-rcpth.r-no.
+        
     /* Creates fg-rctd record for new bin & location */     
     CREATE fg-rctd.
     ASSIGN
@@ -227,7 +231,12 @@ IF ipcItemType EQ "FG" THEN DO:
         INPUT        ipcUsername,
         INPUT-OUTPUT oplSuccess,
         INPUT-OUTPUT opcMessage
-        ).
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error while posting Finished Good"
+            .
 END.
 
 
