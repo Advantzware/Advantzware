@@ -94,6 +94,19 @@ bt-ok bt-cancel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetSelectedWhse Dialog-Frame
+FUNCTION fGetSelectedWhse RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -242,7 +255,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = loc.loc:screen-value in browse {&browse-name} + "," +
+   DEF VAR cReturnList AS CHAR NO-UNDO.
+   cReturnList = fGetSelectedWhse().
+   op-char-val = cReturnList + "|" +
                  loc.dscr:screen-value in browse {&browse-name}
                  .
    apply "window-close" to frame {&frame-name}. 
@@ -274,16 +289,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   DEF VAR iRowPoint AS INT NO-UNDO.
+   
    DEF VAR cReturnList AS CHAR NO-UNDO.
-   cReturnList = "".
-   DO iRowPoint = 1 TO browse {&browse-name}:NUM-SELECTED-ROWS:
-        browse {&browse-name}:FETCH-SELECTED-ROW(iRowPoint).
-        GET CURRENT {&browse-name}.
-
-        cReturnList = cReturnList + loc.loc + ",".
-   END.
-   cReturnList = TRIM(cReturnlist, ",").
+   cReturnList = fGetSelectedWhse().
    op-char-val = cReturnList + "|" +
                  loc.dscr:screen-value in browse {&browse-name}
                  .
@@ -404,4 +412,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetSelectedWhse Dialog-Frame
+FUNCTION fGetSelectedWhse RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cReturnList AS CHARACTER NO-UNDO.
+   DEF VAR iRowPoint AS INT NO-UNDO.   
+   
+   cReturnList = "".
+   DO iRowPoint = 1 TO BROWSE {&browse-name}:NUM-SELECTED-ROWS:
+        BROWSE {&browse-name}:FETCH-SELECTED-ROW(iRowPoint).
+        GET CURRENT {&browse-name}.
+
+        cReturnList = cReturnList + loc.loc + ",".
+   END.
+   cReturnList = TRIM(cReturnlist, ",").
+		RETURN cReturnList.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
