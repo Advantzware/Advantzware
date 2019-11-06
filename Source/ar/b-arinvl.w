@@ -1156,7 +1156,7 @@ PROCEDURE local-delete-record :
       FIND FIRST bf-invl NO-LOCK
            WHERE bf-invl.x-no = bf-inv.x-no NO-ERROR .
   IF AVAIL bf-inv AND NOT AVAIL bf-invl THEN DO:
-      MESSAGE "The last line item is deleted, are you sure to delete Invoice Header ?"  
+      MESSAGE "You have deleted the last line item for this invoice.  Do you want to delete the invoice header as well?"  
           VIEW-AS ALERT-BOX QUESTION 
           BUTTONS YES-NO UPDATE lcheckflg as logical .
       IF lcheckflg THEN DO:
