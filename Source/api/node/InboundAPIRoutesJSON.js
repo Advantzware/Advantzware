@@ -56,4 +56,8 @@ router.post('/createinventoryreceipt', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+//This will consume the inventory via BOL 
+router.post('/consumeinventoryviabol', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;
