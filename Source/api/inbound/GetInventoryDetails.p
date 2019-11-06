@@ -201,7 +201,8 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
            + (IF lValidItem THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
            + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
-           + "AND fg-bin.qty NE 0".
+           + "AND fg-bin.qty NE 0 "
+           + "AND fg-bin.qty NE ?".
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
@@ -251,7 +252,8 @@ ELSE DO:
            + (IF lValidItem THEN " AND rm-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND rm-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
            + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
-           + "AND fg-bin.qty NE 0".
+           + "AND rm-bin.qty NE 0 " 
+           + "AND rm-bin.qty NE ?".
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
