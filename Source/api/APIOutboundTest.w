@@ -145,12 +145,12 @@ DEFINE VARIABLE edEventDesc AS CHARACTER
      SIZE 95.6 BY 2.86
      FGCOLOR 1  NO-UNDO.
 
-DEFINE VARIABLE edRequestData AS CHARACTER 
+DEFINE VARIABLE edRequestData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 133 BY 6.76
      FGCOLOR 1  NO-UNDO.
 
-DEFINE VARIABLE edResponseData AS CHARACTER 
+DEFINE VARIABLE edResponseData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 133 BY 5.14
      FGCOLOR 1  NO-UNDO.
@@ -626,7 +626,7 @@ DO:
         ).
 
     ASSIGN
-        edResponseData:SCREEN-VALUE  = STRING(lcResponseData)
+        edResponseData:SCREEN-VALUE  = lcResponseData
         edErrorMessage:SCREEN-VALUE  = IF lSuccess THEN 
                                            "SUCCESS" + "~n" + cMessage
                                        ELSE
@@ -812,7 +812,7 @@ DO:
     END.
 
     ASSIGN
-        edRequestData:SCREEN-VALUE  = STRING(lcRequestData)
+        edRequestData:SCREEN-VALUE  = lcRequestData
         btSubmit:SENSITIVE          = TRUE
         edRequestData:SENSITIVE     = TRUE
         edResponseData:SCREEN-VALUE = ""

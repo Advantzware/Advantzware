@@ -322,8 +322,8 @@ DO:
     /* Put Response Data from Temporary file into a variable */
     COPY-LOB FILE cResponseFile TO lcResponseData. 
     
-    edResponseData:SCREEN-VALUE = IF STRING(lcResponseData) NE "" THEN
-                                      STRING(lcResponseData)
+    edResponseData:SCREEN-VALUE = IF lcResponseData NE "" THEN
+                                      lcResponseData
                                   ELSE
                                       "Could not get any response".
     
@@ -466,7 +466,8 @@ PROCEDURE pUpdateRequestData :
     DEFINE INPUT PARAMETER ipcAPIRoute AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cAPIRoute AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE lcData    AS LONGCHAR  NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -477,7 +478,10 @@ PROCEDURE pUpdateRequestData :
          WHERE APIInbound.apiRoute EQ cAPIRoute
          NO-ERROR.
     IF AVAILABLE APIInbound THEN
-        edRequestData:SCREEN-VALUE = STRING(APIInbound.requestData).
+        ASSIGN
+            lcData                     = APIInbound.requestData
+            edRequestData:SCREEN-VALUE = lcData
+            .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

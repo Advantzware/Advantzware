@@ -502,17 +502,22 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lcData AS LONGCHAR NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+
     FIND FIRST APIOutboundEvent NO-LOCK 
          WHERE ROWID(APIOutboundEvent) EQ ipriOutboundEvent 
          NO-ERROR.
     IF AVAILABLE APIOutboundEvent THEN DO:
         ASSIGN
-            edRequestData:SCREEN-VALUE  = STRING(APIOutboundEvent.requestData)
-            edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)                    
-            edNotes:SCREEN-VALUE        = STRING(APIOutboundEvent.notes)
+            lcData                      = APIOutboundEvent.requestData
+            edRequestData:SCREEN-VALUE  = lcData
+            lcData                      = APIOutboundEvent.responseData
+            edResponseData:SCREEN-VALUE = lcData
+            lcData                      = APIOutboundEvent.notes
+            edNotes:SCREEN-VALUE        = lcData
             fiAPIID:SCREEN-VALUE        = APIOutboundEvent.apiID
             fiClientID:SCREEN-VALUE     = APIOutboundEvent.clientID
             fiTriggerID:SCREEN-VALUE    = APIOutboundEvent.sourceTriggerID
