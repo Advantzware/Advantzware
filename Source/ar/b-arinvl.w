@@ -1146,7 +1146,7 @@ PROCEDURE local-delete-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  {ar/ar-invk.i bf-inv}
+  {ar/ar-invk.i bf-inv}  /*recalculate invoice header totals*/ 
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"invhead-target", OUTPUT char-hdl).
