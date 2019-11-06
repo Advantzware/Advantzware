@@ -197,10 +197,12 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     CREATE QUERY hdQuery.
     
     cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
-           + (IF lValidTag THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidTag THEN "  AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
            + (IF lValidItem THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "").
+           + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + "AND fg-bin.qty NE 0 "
+           + "AND fg-bin.qty NE ?".
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
@@ -249,7 +251,9 @@ ELSE DO:
            + (IF lValidTag  THEN " AND rm-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
            + (IF lValidItem THEN " AND rm-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND rm-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "").
+           + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + "AND rm-bin.qty NE 0 " 
+           + "AND rm-bin.qty NE ?".
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
