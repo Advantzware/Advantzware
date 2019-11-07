@@ -297,8 +297,11 @@ FOR EACH report
                        END.*/
 
                     END.
-                    ELSE DO:
+                    ELSE DO:  
                       ASSIGN cBoard = bf-item.i-name.
+                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "EXE1002" AND 
+                           AVAIL eb AND eb.est-type LE 4 THEN 
+                           ASSIGN cBoard = cBoard + "/C1S".
                     END.
 
                     ASSIGN 
