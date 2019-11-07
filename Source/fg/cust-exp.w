@@ -61,7 +61,13 @@ DO TRANSACTION:
 END.
 
 DEFINE STREAM excel.
-
+DEFINE NEW SHARED VARIABLE chExcelApplication   AS COM-HANDLE 						  NO-UNDO.
+DEFINE NEW SHARED VARIABLE chWorkBook           AS COM-HANDLE 						  NO-UNDO.
+DEFINE NEW SHARED VARIABLE chWorksheet          AS COM-HANDLE 						  NO-UNDO.
+DEFINE NEW SHARED VARIABLE chHyper              AS COM-HANDLE 						  NO-UNDO. 
+DEFINE VARIABLE chFile AS CHAR NO-UNDO.
+DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
+define variable WshNetwork as com-handle.
 
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
@@ -72,22 +78,24 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
                            "Flat Comm%,Area Code,Phone#,Broker Comm%,Fax#,Prefix,Country,Terms,Terms Dscr,Cr Acct#,Grace Days,$,Credit Rating," +
                            "Price Level,Credit Limit,Credit Hold,Order Limit,Finance Charges,Discount%,Auto Reprice,Currency,EDI,Factored,Invoice Per," +
-                           "Taxable,Tax Code,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
+                           "Taxable,Tax Prep Code,Tax Code,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
                            "Delivery Zone,Delivery Dscr,Territory,Territory Dscr,Pallet ID,Underrun%,Pallet,Overrun%,Case/Bundle,Mark-up,No Load Tags,Whse Days," +
                            "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
                            "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR," +
-                           "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?,Contract Pricing"
+                           "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?,Contract Pricing," +
+                           "Contract Pricing,Bank Account,Swift Code,Routing"
 
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
                            "cust-level,cr-lim,cr-hold,ord-lim,fin-chg,disc,auto-reprice,curr-code,an-edi-cust,factored,inv-meth," +
-                           "sort,tax-gr,tax-dscr,tax-id,date-field[2],frt-pay,fob-code,ship-part,loc,loc-dscr,carrier,carrier-dscr," +
+                           "sort,spare-char-1,tax-gr,tax-dscr,tax-id,date-field[2],frt-pay,fob-code,ship-part,loc,loc-dscr,carrier,carrier-dscr," +
                            "del-zone,del-dscr,terr,terr-dscr,spare-int-1,under-pct,pallet,over-pct,case-bundle,markup,int-field[1],ship-days," +
                            "po-mand,manf-day,show-set,ptd-sales,ytd-sales,lyr-sales,cost[1],cost[5],cost[6],ptd-profit,ytd-profit,lyr-profit," +
                            "ptd-profit-pct,ytd-profit-pct,lyr-profit-pct,comm[1],comm[5],comm[6],total-msf,ytd-msf,lyytd-msf," +
                            "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id," +
-                           "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1],cnt-price" .
+                           "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1],cnt-price," +
+                           "imported,bank-acct,SwiftBIC,Bank-RTN"  .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +
@@ -96,8 +104,8 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                                  "Contact,Date Added,CSR,Cr Acct#,Credit Rating,Order Limit,Discount%,Currency,Finance Charges," +
                                  "Auto Reprice,EDI,Factored,Grace Days,$,Invoice Per,Freight Payment,FOB,Location,Carrier,Delivery Zone," + 
                                  "Territory,Pallet ID,Overrun%,Underrun%,Pallet,Case/Bundle,Mark-up,No Load Tags,Whse Days,Pallet Positions," +
-                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Code,Tax Resale#,Exp," +
-                                 "Email,Group,Broker Comm%,Flat Comm%,Prefix" .
+                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
+                                 "Email,Group,Broker Comm%,Flat Comm%,Prefix,Contract Pricing,Bank Account,Swift Code,Routing" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -201,7 +209,7 @@ DEFINE VARIABLE end_cust-type AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-frmitm.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cust.xls" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
@@ -937,15 +945,38 @@ DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEFINE VARIABLE cexcelheader AS CHARACTER NO-UNDO .
 DEF BUFFER b-cust FOR cust.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE iRowCount AS INTEGER NO-UNDO .
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+/*RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .*/
+
+cFileName  =   SUBSTRING(fi_file,1,INDEX(fi_file,".") - 1) .
+cFileName  = cFileName + "_" + STRING(year(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ".xls" .
+
+RUN sys/ref/getFileFullPathName.p ("Template\ExportData.xls", OUTPUT chFile).
+  IF chFile = ? THEN  
+    APPLY 'CLOSE':U TO THIS-PROCEDURE.
+
+  CREATE "Excel.Application" chExcelApplication NO-ERROR.
+
+IF NOT(VALID-HANDLE(chExcelApplication)) THEN
+DO :
+  MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
+  RETURN ERROR.
+END.
+
+CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\ExportData.xls") - 2)
+          no-error.
+
+chExcelApplication:VISIBLE = FALSE.
+
+ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)
+               chExcelApplication:ScreenUpdating = FALSE.
+
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
-IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
-
+iRowCount = 2 .
 FOR EACH b-cust WHERE b-cust.company = cocode
         AND b-cust.cust-no GE begin_cust-type
         AND b-cust.cust-no LE end_cust-type
@@ -953,74 +984,56 @@ FOR EACH b-cust WHERE b-cust.company = cocode
         NO-LOCK:
 
     v-excel-detail-lines = "".
-
+    j = 1 .
     FOR EACH ttRptSelected:
-       
-       v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER b-cust,ttRptSelected.FieldList)).
-/*         CASE ttRptSelected.FieldList:                                                               */
-/*             WHEN "itemfg.i-no" THEN                                                                 */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
-/*             WHEN "itemfg.procat" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.procat).          */
-/*             WHEN "itemfg.i-name" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-name).          */
-/*             WHEN "itemfg.part-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-no).         */
-/*             WHEN "itemfg.est-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.est-no).          */
-/*             WHEN "itemfg.item" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.item).           */
-/*             WHEN "itemfg.cust-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cust-no).         */
-/*             WHEN "itemfg.part-dscr1" THEN                                                           */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-dscr1).      */
-/*             WHEN "itemfg.i-code" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-code).          */
-/*             WHEN "itemfg.cad-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cad-no).          */
-/*             WHEN "itemfg.spc-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.spc-no).          */
-/*             WHEN "itemfg.stocked" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.stocked)). */
-/*             WHEN "itemfg.q-onh" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.q-onh)).   */
-/*         END CASE.                                                                                   */
+      
+       chExcelApplication:Goto("R" + STRING(iRowCount) + "C" + string(j) ) NO-ERROR.
+        ASSIGN chExcelApplication:ActiveCell:Value = getValue-itemfg(BUFFER b-cust,ttRptSelected.FieldList) .
+       j = j + 1 .
     END.
-
-    PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP. 
+    iRowCount = iRowCount + 1.
     
     IF tb_phone THEN
     FOR EACH phone WHERE phone.table_rec_key = b-cust.rec_key NO-LOCK:
         v-excel-detail-lines = "".
+        j = 1 .
        FOR EACH ttRptSelected:
           IF LOOKUP(ttRptSelected.TextList, "Contact,Title,Email,CPhone,Ext,Area Code") <> 0    THEN do:
               IF ttRptSelected.TextList = "Contact" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(phone.attention).
+              v-excel-detail-lines =  appendXLLine(phone.attention).
               IF ttRptSelected.TextList = "Title" THEN do:
                   FIND FIRST titlcode WHERE titlcode.titlcode = phone.titlcode NO-LOCK NO-ERROR.
                   IF AVAIL titlcode THEN
-                      v-excel-detail-lines = v-excel-detail-lines + appendXLLine(titlcode.description).
+                      v-excel-detail-lines =  (titlcode.description).
                   ELSE
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine("").
+                     v-excel-detail-lines =  ("").
               END.
-              IF ttRptSelected.TextList = "Email" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(phone.e_mail).
-              IF ttRptSelected.TextList = "CPhone" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(phone.phone).
-              IF ttRptSelected.TextList = "Ext" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(phone.phone_ext). 
-              IF ttRptSelected.TextList = "Area Code" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(phone.phone_city_code). 
+              IF ttRptSelected.TextList = "Email" THEN do:
+              v-excel-detail-lines =  (phone.e_mail).
+              END.
+              IF ttRptSelected.TextList = "CPhone" THEN do:
+              v-excel-detail-lines =  (phone.phone).
+              END.
+              IF ttRptSelected.TextList = "Ext" THEN do:
+              v-excel-detail-lines =  (phone.phone_ext). 
+              END.
+              IF ttRptSelected.TextList = "Area Code" THEN do:
+              v-excel-detail-lines =  (phone.phone_city_code). 
+              END.
+
+              chExcelApplication:Goto("R" + STRING(iRowCount) + "C" + string(j) ) NO-ERROR.
+               ASSIGN chExcelApplication:ActiveCell:Value = v-excel-detail-lines  .
+                     j = j + 1 .
           END.
 
           ELSE do:
-              v-excel-detail-lines = v-excel-detail-lines + 
-                  appendXLLine(getValue-itemfg(BUFFER b-cust,ttRptSelected.FieldList)).
+               chExcelApplication:Goto("R" + STRING(iRowCount) + "C" + string(j) ) NO-ERROR.
+               ASSIGN chExcelApplication:ActiveCell:Value = getValue-itemfg(BUFFER b-cust,ttRptSelected.FieldList)  .
+                     j = j + 1 .
           END.
         END.  /* each ttrptse */
 
-       PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+        iRowCount =  iRowCount +  1 .
 
     END. /* for each phone */
     
@@ -1029,26 +1042,60 @@ FOR EACH b-cust WHERE b-cust.company = cocode
             WHERE notes.rec_key EQ b-cust.rec_key 
               AND notes.note_type <> "o" BREAK BY notes.note_date  :
 
-            cexcelheader = ",,Title,Note,Date,Time,User ID,Type,Group,Dept".
-            IF FIRST(notes.note_date) THEN
-            PUT STREAM excel UNFORMATTED '"' REPLACE(cexcelheader,',','","') '"' skip.
+            
+            IF FIRST(notes.note_date) THEN do:
+               
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C3") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Title"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C4") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Note"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C5") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Date"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C6") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Time"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C7") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "User ID"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C8") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Type"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C9") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Group"  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C10") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = "Dept"  .
+                iRowCount =  iRowCount +  1 .
+            END.
 
-            PUT STREAM excel UNFORMATTED
-               '"'              '",'
-               '"'              '",'
-               '"' notes.note_title '",' 
-               '"' notes.note_text '",' 
-               '"' notes.note_date '",'
-               '"' string(notes.note_time,"hh:mm am") '",'
-               '"' notes.user_id '",'
-               '"' notes.note_type '",' 
-               '"' notes.note_group '",'
-               '"' notes.note_code '",' 
-               SKIP. 
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C3") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.note_title  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C4") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.note_text  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C5") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.note_date  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C6") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = string(notes.note_time,"hh:mm am")  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C7") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.user_id  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C8") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.note_type  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C9") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.note_group  .
+                chExcelApplication:Goto("R" + STRING(iRowCount) + "C10") NO-ERROR.
+                ASSIGN chExcelApplication:ActiveCell:Value = notes.note_code  .
+                iRowCount =  iRowCount +  1 .
         END.
     END.
 
 END. /* cust */
+
+ chExcelApplication:ActiveSheet:SaveAs(cFileName) .
+
+ chExcelApplication:ScreenUpdating = TRUE.
+
+ chExcelApplication:Quit() no-error.
+
+RELEASE OBJECT chWorkbook NO-ERROR.
+RELEASE OBJECT chWorkSheet NO-ERROR.
+RELEASE OBJECT WshNetwork NO-ERROR.
+RELEASE OBJECT chExcelApplication NO-ERROR.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
@@ -1145,20 +1192,14 @@ FUNCTION buildHeader RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
 DEF VAR lc-header AS CHAR NO-UNDO.
-
+j = 1 .
 FOR EACH ttRptSelected:
     lc-header = lc-header + appendXLLine(ttRptSelected.TextList).
+    chExcelApplication:Goto("R1C" + string(j) ) NO-ERROR.
+        ASSIGN chExcelApplication:ActiveCell:Value = ttRptSelected.TextList .
+    j = j + 1 .
 END.
-/*     lc-header = lc-header + appendXLLine ("PO #").      */
-/*     lc-header = lc-header + appendXLLine ("Vendor #").  */
-/*     lc-header = lc-header + appendXLLine ("Due Date").  */
-/*     lc-header = lc-header + appendXLLine ("Ship ID").   */
-/*     lc-header = lc-header + appendXLLine ("Ship Name"). */
-/*     lc-header = lc-header + appendXLLine ("Job #").     */
-/*     lc-header = lc-header + appendXLLine ("Item #").    */
-/*     lc-header = lc-header + appendXLLine ("Item Name"). */
 
-  
     RETURN lc-header.   /* Function return value. */
 
 END FUNCTION.
@@ -1436,6 +1477,9 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END. 
         WHEN "cnt-price"  THEN DO:
             lc-return = IF ipb-itemfg.imported EQ TRUE then "Yes" ELSE "No" .
+        END.
+        WHEN "Bank-RTN"  THEN DO:
+            lc-return = string(ipb-itemfg.Bank-RTN,"999999999").
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/

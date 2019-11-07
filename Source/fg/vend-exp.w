@@ -47,11 +47,19 @@ assign
  locode = gloc.
 
 DEFINE STREAM excel.
+DEFINE NEW SHARED VARIABLE chExcelApplication   AS COM-HANDLE 						  NO-UNDO.
+DEFINE NEW SHARED VARIABLE chWorkBook           AS COM-HANDLE 							NO-UNDO.
+DEFINE NEW SHARED VARIABLE chWorksheet          AS COM-HANDLE 							NO-UNDO.
+DEFINE NEW SHARED VARIABLE chHyper              AS COM-HANDLE 							NO-UNDO. 
+DEFINE VARIABLE chFile AS CHAR NO-UNDO.
+DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
+define variable WshNetwork as com-handle.
 
 
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,Country,Postal Code,Tax ID#,Type,Type Name,Contact,Buyer,Buyer Name,Area code,Phone," +
                            "Fax Area Code,Fax,Fax prefix,Fax Country,Overrun Percentage,Underrun Percentage,Default G/L#,G/L Dscr,Remit to,Remit Address1,Remit Address2,Remit City," +
                            "Remit State,Remit Zip,Remit Country,Remit Postal Code,Check Memo,Currency Code,Currency Dscr,Tax,1099 Code,EDI,Credit Card/ACH,Terms,Terms Dscr,Discount%,POEXPORT," +
@@ -61,6 +69,10 @@ ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,
                            "fax-area,fax,fax-prefix,fax-country,over-pct,under-pct,actnum,actdscr,remit,r-add1,r-add2,r-city," +
                            "r-state,r-zip,r-country,r-postal,check-memo,curr-code,curr-dscr,tax-gr,code-1099,an-edi-vend,tb-cc,terms,terms-dscr,disc-%,po-export," +
                            "loc,rebate-%,frt-pay,disc-days,carrier,carrier-dscr,fob-code,pay-type,Bank-Acct,SwiftBIC,Bank-RTN" .
+
+     ASSIGN cTextListToDefault  = "Vendor,Name,Address1,Address2,City,State,Country,Postal Code,Zip,Remit to,Remit Address1,Remit Address2,Remit City,Remit State,Remit Postal Code,Remit Zip," +
+                                 "Terms,Default G/L#,Area code,Phone,Fax Area Code,Fax,1099 Code,Tax ID#,Type,Tax,Carrier,Account#,Swift Code,Routing"  .
+
 {sys/inc/ttRptSel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -80,7 +92,7 @@ ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_vend end_vend ~
 sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
-btn-ok btn-cancel 
+btn-ok btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_vend end_vend  ~
  sl_avail ~
 sl_selected tb_excel tb_runExcel fi_file 
@@ -152,6 +164,10 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
+     SIZE 16 BY 1.
+
 DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "x(10)" 
      LABEL "From Vendor" 
      VIEW-AS FILL-IN 
@@ -162,7 +178,7 @@ DEFINE VARIABLE end_vend AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-frmitm.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-frmitm.xls" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
@@ -208,14 +224,16 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Vendor Number" WIDGET-ID 142
      end_vend AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Vendor" WIDGET-ID 144
+     Btn_Def AT ROW 12.24 COL 44 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 12.24 COL 44 HELP
+     Btn_Add AT ROW 13.43 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 13.43 COL 44 HELP
+     Btn_Remove AT ROW 14.62 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 14.62 COL 44 WIDGET-ID 136
-     btn_down AT ROW 15.81 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 15.81 COL 44 WIDGET-ID 136
+     btn_down AT ROW 16.91 COL 44 WIDGET-ID 132
      tb_excel AT ROW 18.91 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 18.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 19.86 COL 34 COLON-ALIGNED HELP
@@ -400,6 +418,20 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -700,6 +732,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+  
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI rd-fgexp  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -716,7 +771,7 @@ PROCEDURE enable_UI :
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_vend end_vend  sl_avail Btn_Add 
          sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         btn-cancel Btn_Def
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -798,56 +853,63 @@ DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-vend FOR vend.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+cFileName  =   SUBSTRING(fi_file,1,INDEX(fi_file,".") - 1) .
+cFileName  = cFileName + "_" + STRING(year(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ".xls" .
+
+RUN sys/ref/getFileFullPathName.p ("Template\ExportData.xls", OUTPUT chFile).
+  IF chFile = ? THEN  
+    APPLY 'CLOSE':U TO THIS-PROCEDURE.
+
+CREATE "Excel.Application" chExcelApplication NO-ERROR.
+
+IF NOT(VALID-HANDLE(chExcelApplication)) THEN
+DO :
+  MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
+  RETURN ERROR.
+END.
+
+CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\ExportData.xls") - 2)
+          no-error.
+
+chExcelApplication:VISIBLE = FALSE.
+
+ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)
+               chExcelApplication:ScreenUpdating = FALSE.
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
-IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
+i = 2 .
 FOR EACH b-vend WHERE b-vend.company = cocode
         AND b-vend.vend-no GE begin_vend
         AND b-vend.vend-no LE end_vend
         NO-LOCK:
 
     v-excel-detail-lines = "".
-
+    j = 1 .
     FOR EACH ttRptSelected:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue-itemfg(BUFFER b-vend,ttRptSelected.FieldList)).
-/*         CASE ttRptSelected.FieldList:                                                               */
-/*             WHEN "itemfg.i-no" THEN                                                                 */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
-/*             WHEN "itemfg.procat" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.procat).          */
-/*             WHEN "itemfg.i-name" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-name).          */
-/*             WHEN "itemfg.part-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-no).         */
-/*             WHEN "itemfg.est-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.est-no).          */
-/*             WHEN "itemfg.item" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.item).           */
-/*             WHEN "itemfg.vend-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.vend-no).         */
-/*             WHEN "itemfg.part-dscr1" THEN                                                           */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-dscr1).      */
-/*             WHEN "itemfg.i-code" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-code).          */
-/*             WHEN "itemfg.cad-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cad-no).          */
-/*             WHEN "itemfg.spc-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.spc-no).          */
-/*             WHEN "itemfg.stocked" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.stocked)). */
-/*             WHEN "itemfg.q-onh" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.q-onh)).   */
-/*         END CASE.                                                                                   */
-    END.
 
-    PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+        chExcelApplication:Goto("R" + STRING(i) + "C" + string(j) ) NO-ERROR.
+        ASSIGN chExcelApplication:ActiveCell:Value = getValue-itemfg(BUFFER b-vend,ttRptSelected.FieldList) .
+       j = j + 1 .
+    END.
+     i = i + 1.        
 END.
+
+ chExcelApplication:ActiveSheet:SaveAs(cFileName) .
+
+ chExcelApplication:ScreenUpdating = TRUE.
+
+ chExcelApplication:Quit() no-error.
+
+RELEASE OBJECT chWorkbook NO-ERROR.
+RELEASE OBJECT chWorkSheet NO-ERROR.
+RELEASE OBJECT WshNetwork NO-ERROR.
+RELEASE OBJECT chExcelApplication NO-ERROR.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
@@ -944,9 +1006,12 @@ FUNCTION buildHeader RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
 DEF VAR lc-header AS CHAR NO-UNDO.
-
+j = 1 .
 FOR EACH ttRptSelected:
     lc-header = lc-header + appendXLLine(ttRptSelected.TextList).
+    chExcelApplication:Goto("R1C" + string(j) ) NO-ERROR.
+        ASSIGN chExcelApplication:ActiveCell:Value = ttRptSelected.TextList .
+    j = j + 1 .
 END.
 /*     lc-header = lc-header + appendXLLine ("PO #").      */
 /*     lc-header = lc-header + appendXLLine ("Vendor #").  */
@@ -1052,10 +1117,16 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             ELSE
                 lc-return = "".
                       
+        END. 
+        WHEN "Bank-RTN"  THEN DO:
+            FIND FIRST vend WHERE vend.company EQ ipb-itemfg.company
+                AND vend.vend-no EQ ipb-itemfg.vend-no NO-LOCK NO-ERROR.
+            IF AVAIL vend THEN 
+                lc-return = string(vend.Bank-RTN,"999999999").
+            ELSE
+                lc-return = "".
+                      
         END.
-
-
-        
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
         END.
