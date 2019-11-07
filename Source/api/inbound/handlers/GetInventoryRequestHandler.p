@@ -150,6 +150,14 @@ FOR EACH ttItem NO-LOCK:
         lcResponseData           = REPLACE(lcResponseData, "$QuantityPerSubUnit$", STRING(ttItem.QuantityPerSubUnit))
         lcResponseData           = REPLACE(lcResponseData, "$QuantitySubUnitsPerUnit$", STRING(ttItem.QuantitySubUnitsPerUnit))
         lcResponseData           = REPLACE(lcResponseData, "$QuantityPartial$", STRING(ttItem.QuantityPartial))
+        lcResponseData           = REPLACE(lcResponseData, "$Units$", STRING(ttItem.Units))
+        lcResponseData           = REPLACE(lcResponseData, "$JobNo$", ttItem.JobNo)
+        lcResponseData           = REPLACE(lcResponseData, "$JobNo2$", STRING(ttItem.JobNo2))
+        lcResponseData           = REPLACE(lcResponseData, "$POID$", STRING(ttItem.POID))
+        lcResponseData           = REPLACE(lcResponseData, "$UnitLength$",STRING(ttItem.UnitLength,"->>>>>>>>9.9<<<<<"))
+        lcResponseData           = REPLACE(lcResponseData, "$UnitHeight$",STRING(ttItem.UnitHeight,"->>>>>>>>9.9<<<<<"))
+        lcResponseData           = REPLACE(lcResponseData, "$UnitWidth$",STRING(ttItem.UnitWidth,"->>>>>>>>9.9<<<<<"))
+        lcResponseData           = REPLACE(lcResponseData, "$StackHeight$",STRING(ttItem.StackHeight))
         lcConcatResponseData     = lcConcatResponseData + "," + lcResponseData
         .
 END.
