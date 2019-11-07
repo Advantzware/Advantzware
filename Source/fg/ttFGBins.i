@@ -54,7 +54,10 @@ DEFINE {1} TEMP-TABLE ttFGBins NO-UNDO
             tag
             rita-code
             .
-
+DEFINE {1} TEMP-TABLE ttHistDelete NO-UNDO
+    FIELD riFGRcpth AS ROWID
+    FIELD riFGRdtlh AS ROWID
+    .
 /* ********************  Preprocessor Definitions  ******************** */
 
 

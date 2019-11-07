@@ -30,7 +30,7 @@ DEFINE VARIABLE gcDefaultExportPath AS CHARACTER INITIAL "C:\Temp".
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE BuildBinsForItemAndPurge:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper Proc that doesn't purge
+     Purpose: Wrapper Proc that purges
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriFGItem AS ROWID NO-UNDO.
@@ -140,8 +140,9 @@ PROCEDURE pBuildBinsForItem PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiCountOfProcessed AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcExportPath AS CHARACTER NO-UNDO.
-
     
+    EMPTY TEMP-TABLE ttFGBins.
+    EMPTY TEMP-TABLE ttHistDelete.
     IF iplPurge THEN DO:
         RUN pInitializeOutput(ipcExportPath, ipdtAsOf).
     END.
@@ -274,14 +275,23 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                 DELETE ttFGBins.
             END.
             iopiCountOfProcessed = iopiCountOfProcessed + 1.
-            IF iplPurge THEN DO:
-                RUN pPurgeAndExport(BUFFER fg-rcpth, BUFFER fg-rdtlh).
+            IF iplPurge THEN DO: 
+                /*Store records to be deleted.  This is to work around the delete trigger killing one side of transfer transaction during this process*/
+                CREATE ttHistDelete.
+                ASSIGN 
+                    ttHistDelete.riFGRcpth = ROWID(fg-rcpth)
+                    ttHistDelete.riFGRdtlh = ROWID(fg-rdtlh)
+                    .
             END.
         END.  /*each history record */
     END.
     IF iplPurge THEN DO:
-         OUTPUT STREAM sExport1 CLOSE.
-         OUTPUT STREAM sExport2 CLOSE.
+        /*Run all deletions and export each deleted record*/
+        FOR EACH ttHistDelete:
+            RUN pPurgeAndExport(ttHistDelete.riFGRcpth, ttHistDelete.riFGRdtlh).
+        END.
+        OUTPUT STREAM sExport1 CLOSE.
+        OUTPUT STREAM sExport2 CLOSE.
     END.
         
 END PROCEDURE.
@@ -312,18 +322,26 @@ PROCEDURE pPurgeAndExport PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-fg-rcpth FOR fg-rcpth.
-    DEFINE PARAMETER BUFFER ipbf-fg-rdtlh FOR fg-rdtlh.
+    DEFINE INPUT PARAMETER ipriFGRcpth AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipriFGRdtlh AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
 
-    EXPORT STREAM sExport1 ipbf-fg-rcpth.
-    EXPORT STREAM sExport2 ipbf-fg-rdtlh.
-       
-    FIND CURRENT ipbf-fg-rcpth EXCLUSIVE-LOCK.
-    DELETE ipbf-fg-rcpth.
+    FIND FIRST bf-fg-rdtlh EXCLUSIVE-LOCK
+        WHERE ROWID(bf-fg-rdtlh) EQ ipriFGRdtlh
+        NO-ERROR.
+    IF AVAILABLE bf-fg-rdtlh THEN 
+        EXPORT STREAM sExport2 bf-fg-rdtlh.
+    /*Delete of fg-rdtlh handled in delete trigger of fg-rctph*/
+    
+    FIND FIRST bf-fg-rcpth EXCLUSIVE-LOCK
+        WHERE ROWID(bf-fg-rcpth) EQ ipriFGRcpth
+        NO-ERROR.
+    IF AVAILABLE bf-fg-rcpth THEN DO:
+        EXPORT STREAM sExport1 bf-fg-rcpth.
+        DELETE bf-fg-rcpth.
+    END.
 
-/*Delete of fg-rdtlh handled in delete trigger of fg-rctph*/
-/*    FIND CURRENT ipbf-fg-rdtlh EXCLUSIVE-LOCK.*/
-/*    DELETE ipbf-fg-rdtlh.                     */
     
 END PROCEDURE.
 
