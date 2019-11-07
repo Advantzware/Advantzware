@@ -25,7 +25,7 @@ router.use((req, res, next) => {
         if (err) {
             res.setHeader('Content-Type', 'text/xml');
 			console.log(lib.getDateTimeString() + " " + err);
-            const response = lib.XMLResponse(400,"Bad request XML (Syntax Error)");
+            const response = lib.XMLResponse(400,"Bad request XML - "+err);
 			res.status(400).send(response);
             return;
         }
