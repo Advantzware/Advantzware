@@ -94,7 +94,7 @@ est-prep.qty est-prep.dscr est-prep.simon est-prep.cost est-prep.mkup ~
 est-prep.spare-dec-1 est-prep.ml est-prep.amtz est-prep.orderID
 &Scoped-define DISPLAYED-TABLES est-prep
 &Scoped-define FIRST-DISPLAYED-TABLE est-prep
-
+&Scoped-Define DISPLAYED-OBJECTS fiTotalCost fiTotalPrice
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -136,6 +136,16 @@ DEFINE RECTANGLE RECT-38
     SIZE 127 BY 10.71
     BGCOLOR 15.
 
+DEFINE VARIABLE fiTotalCost AS DECIMAL FORMAT ">>>>>>>99.99" 
+     LABEL "Total"
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiTotalPrice AS DECIMAL FORMAT ">>>>>>>99.99"
+     LABEL "Total"
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
@@ -161,15 +171,15 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 31.6 BY 1
     BGCOLOR 15 FONT 1
-    est-prep.qty AT ROW 3.67 COL 80.6 COLON-ALIGNED
-    LABEL "Qty" FORMAT "->>,>>9.9"
-    VIEW-AS FILL-IN 
-    SIZE 16.4 BY 1
-    BGCOLOR 15 FONT 1
-    est-prep.dscr AT ROW 4.91 COL 28.4 COLON-ALIGNED
+    est-prep.dscr AT ROW 3.67 COL 80.6 COLON-ALIGNED
     LABEL "Desc." FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 31.6 BY 1
+    BGCOLOR 15 FONT 1
+    est-prep.qty AT ROW 4.91  COL 28.4  COLON-ALIGNED
+    LABEL "Qty" FORMAT "->>,>>9.9"
+    VIEW-AS FILL-IN 
+    SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
     est-prep.simon AT ROW 4.91 COL 80.6 COLON-ALIGNED
     LABEL "SIMON" FORMAT "x"
@@ -177,17 +187,18 @@ DEFINE FRAME Dialog-Frame
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
     est-prep.cost AT ROW 6.14 COL 28.4 COLON-ALIGNED
-    LABEL "Cost" FORMAT "->>,>>9.99"
+    LABEL "Unit Cost" FORMAT "->>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
-    est-prep.mkup AT ROW 6.14 COL 80.6 COLON-ALIGNED
+    fiTotalCost AT ROW 6.14 COL 52 COLON-ALIGNED 
+    est-prep.amtz AT ROW 6.14 COL 80.6 COLON-ALIGNED
+    LABEL "Amort" FORMAT ">>9.99"
+    VIEW-AS FILL-IN 
+    SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
+   est-prep.mkup AT ROW 7.38 COL 28.4 COLON-ALIGNED
     LABEL "Markup" FORMAT "->>9.9999"
-    VIEW-AS FILL-IN 
-    SIZE 16.4 BY 1
-    BGCOLOR 15 FONT 1
-    est-prep.spare-dec-1 AT ROW 7.38 COL 28.4 COLON-ALIGNED
-    LABEL "Price" FORMAT "->>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
@@ -196,11 +207,12 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
-    est-prep.amtz AT ROW 8.67 COL 28.4 COLON-ALIGNED
-    LABEL "Amort" FORMAT ">>9.99"
+     est-prep.spare-dec-1 AT ROW 8.67  COL 28.4  COLON-ALIGNED
+    LABEL "Unit Price" FORMAT "->>,>>9.99"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
+    fiTotalPrice AT ROW 8.67 COL 52 COLON-ALIGNED 
     est-prep.orderID  AT ROW 8.67 COL 80.6 COLON-ALIGNED
     LABEL "Order #" FORMAT "x(9)"
     VIEW-AS FILL-IN 
@@ -268,6 +280,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN est-prep.simon IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN fiTotalCost IN FRAME Dialog-Frame
+   NO-ENABLE EXP-LABEL                                                   */
+/* SETTINGS FOR FILL-IN fiTotalPrice IN FRAME Dialog-Frame
+   NO-ENABLE EXP-LABEL                                                   */
 /* SETTINGS FOR FILL-IN est-prep.spare-dec-1 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN est-prep.orderID IN FRAME Dialog-Frame
@@ -580,12 +596,24 @@ ON VALUE-CHANGED OF est-prep.code IN FRAME Dialog-Frame /* Code */
                 OUTPUT v-qty).
 
             est-prep.qty:screen-value = STRING(v-qty).
+            fiTotalCost:SCREEN-VALUE = STRING( v-qty * prep.cost) .
+            fiTotalPrice:screen-value = STRING( v-qty * prep.spare-dec-1) .
         END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME est-prep.qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.qty Dialog-Frame
+ON VALUE-CHANGED OF est-prep.qty IN FRAME Dialog-Frame /* qty */
+    DO:
+         fiTotalCost:SCREEN-VALUE = STRING( decimal(est-prep.qty:SCREEN-VALUE) * decimal(est-prep.cost:SCREEN-VALUE)) .
+         fiTotalPrice:screen-value = STRING( decimal(est-prep.qty:SCREEN-VALUE) * decimal(est-prep.spare-dec-1:SCREEN-VALUE)) .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME est-prep.cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.cost Dialog-Frame
@@ -868,11 +896,13 @@ PROCEDURE display-item :
         ------------------------------------------------------------------------------*/
     IF AVAILABLE est-prep  THEN 
     DO:
+        fiTotalCost  = est-prep.cost * est-prep.qty .
+        fiTotalPrice = est-prep.spare-dec-1 * est-prep.qty .
         
         DISPLAY est-prep.s-num est-prep.b-num 
             est-prep.code est-prep.qty est-prep.dscr est-prep.simon est-prep.cost 
             est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz est-prep.orderID
-            WITH FRAME Dialog-Frame.
+            fiTotalCost fiTotalPrice WITH FRAME Dialog-Frame.
     END.
 
 
@@ -904,7 +934,7 @@ PROCEDURE enable_UI :
     IF AVAILABLE est-prep THEN 
         DISPLAY est-prep.s-num est-prep.b-num est-prep.code est-prep.qty est-prep.dscr 
             est-prep.simon est-prep.cost est-prep.mkup est-prep.spare-dec-1 
-            est-prep.ml est-prep.amtz est-prep.orderID
+            est-prep.ml est-prep.amtz est-prep.orderID fiTotalCost fiTotalPrice
             WITH FRAME Dialog-Frame.
     ENABLE est-prep.s-num est-prep.b-num est-prep.code est-prep.qty est-prep.dscr 
         est-prep.simon est-prep.cost est-prep.mkup est-prep.spare-dec-1 
@@ -940,6 +970,10 @@ PROCEDURE UpdateMarkup :
     
         IF dMkup LT 1000 AND dMkup GT -1000  THEN
             est-prep.mkup:SCREEN-VALUE  = STRING(dMkup).
+
+        fiTotalCost:SCREEN-VALUE = STRING( DECIMAL(est-prep.qty:SCREEN-VALUE) * dCost ) .
+        fiTotalPrice:screen-value = STRING( DECIMAL(est-prep.qty:SCREEN-VALUE) * dPrice) .
+
     END.
 
 END PROCEDURE.
@@ -967,6 +1001,8 @@ PROCEDURE UpdatePrice :
         ELSE
             dPrice = dCost * (1 + (dMkup / 100)).
         est-prep.spare-dec-1:SCREEN-VALUE  = STRING(dPrice).
+        fiTotalCost:SCREEN-VALUE = STRING( DECIMAL(est-prep.qty:SCREEN-VALUE) * dCost ) .
+        fiTotalPrice:screen-value = STRING( DECIMAL(est-prep.qty:SCREEN-VALUE) * dPrice) .
     END.
 
 END PROCEDURE.
