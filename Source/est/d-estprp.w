@@ -191,7 +191,7 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
-    fiTotalCost AT ROW 6.14 COL 52 COLON-ALIGNED 
+    fiTotalCost AT ROW 6.14 COL 52 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
     est-prep.amtz AT ROW 6.14 COL 80.6 COLON-ALIGNED
     LABEL "Amort" FORMAT ">>9.99"
     VIEW-AS FILL-IN 
@@ -212,7 +212,7 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
-    fiTotalPrice AT ROW 8.67 COL 52 COLON-ALIGNED 
+    fiTotalPrice AT ROW 8.67 COL 52 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
     est-prep.orderID  AT ROW 8.67 COL 80.6 COLON-ALIGNED
     LABEL "Order #" FORMAT "x(9)"
     VIEW-AS FILL-IN 
@@ -281,9 +281,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN est-prep.simon IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fiTotalCost IN FRAME Dialog-Frame
-   NO-ENABLE EXP-LABEL                                                   */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                        */
 /* SETTINGS FOR FILL-IN fiTotalPrice IN FRAME Dialog-Frame
-   NO-ENABLE EXP-LABEL                                                   */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                        */
 /* SETTINGS FOR FILL-IN est-prep.spare-dec-1 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN est-prep.orderID IN FRAME Dialog-Frame
