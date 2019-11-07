@@ -21,7 +21,7 @@ router.use(bodyParser.json());
 // check the syntax of request JSON 
 router.use(function(err, req, res, next) {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-	res.status(400).send(lib.JSONResponse(400,"Bad request JSON (Syntax Error)"));
+	res.status(400).send(lib.JSONResponse(400,"Bad request JSON - "+err));
   } else next();
 });
 
