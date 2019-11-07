@@ -2233,6 +2233,8 @@ PROCEDURE import-price :
   DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cParmList          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cReturnValues      AS CHARACTER NO-UNDO.
   
   DEFINE BUFFER bff-probe FOR probe .
 
@@ -2244,10 +2246,16 @@ PROCEDURE import-price :
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
   IF lMultiRecords THEN do:
       RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-    IF NOT lSuppressMessage THEN
-        MESSAGE cCurrentMessage
-        VIEW-AS ALERT-BOX QUESTION 
-        BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
+    IF NOT lSuppressMessage THEN do:
+        cParmList =
+        "type=literal,name=fi4,row=3,col=18,enable=false,width=58,scrval=" + cCurrentMessage + ",FORMAT=X(158)"
+        + "|type=literal,name=fi2,row=5,col=72,enable=false,width=15,scrval=Message Id: 7 ,FORMAT=X(15)"
+        + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
+        + "|type=win,name=fi3,enable=true,label=" + cCurrentTitle + ",FORMAT=X(30),height=9".
+    
+       RUN custom/d-prompt.w (INPUT "yes-no", cParmList, "", OUTPUT cReturnValues).
+       lcheckflg = LOGICAL(ENTRY(2,cReturnValues)) NO-ERROR .
+    END.
   END.
 
  FOR EACH bff-probe NO-LOCK

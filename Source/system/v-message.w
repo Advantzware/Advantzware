@@ -370,11 +370,17 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Test V-table-Win
 ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
     DO:
-    IF AVAIL zMessage AND zMessage.currMessage NE "" THEN
-        MESSAGE zMessage.currMessage  VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID)  .
-    ELSE IF AVAIL zMessage  THEN
-        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID) .
-  
+    DEFINE VARIABLE cParmList          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnValues      AS CHARACTER NO-UNDO.
+
+    cParmList =
+        "type=literal,name=fi4,row=3,col=18,enable=false,width=58,scrval=" + zMessage.currMessage + ",FORMAT=X(158)"
+        + "|type=literal,name=fi2,row=5,col=72,enable=false,width=15,scrval=Message Id: " + string(zMessage.msgID) + ",FORMAT=X(15)"
+        + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
+        + "|type=win,name=fi3,enable=true,label=" + zMessage.currentTitle + ",FORMAT=X(30),height=9".
+    
+    RUN custom/d-prompt.w (INPUT "yes-no", cParmList, "", OUTPUT cReturnValues).
+    
     END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -44,12 +44,12 @@ PROCEDURE pGetMessageProcs:
     IF AVAIL zMessage then
         ASSIGN
         oplSuppressMessage = zMessage.userSuppress 
-        opcCurrentTitle    = zMessage.currentTitle + " Message#:" + STRING(ipcMessageID) 
+        opcCurrentTitle    = zMessage.currentTitle  
         opcCurrentMessage  = zMessage.currMessage .
 
     IF opcCurrentMessage EQ "" AND AVAIL zMessage THEN
         ASSIGN
-           opcCurrentTitle    = zMessage.defaultTitle + " Message#:" + STRING(ipcMessageID) 
+           opcCurrentTitle    = zMessage.defaultTitle 
            opcCurrentMessage  = zMessage.defaultMsg .
 
     IF AVAIL zMessage AND NOT zMessage.displayOptions THEN

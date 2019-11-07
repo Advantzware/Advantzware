@@ -5368,6 +5368,8 @@ PROCEDURE valid-b-num :
     DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cParmList          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnValues      AS CHARACTER NO-UNDO.
   
     RELEASE xpo-ordl.
     DO WITH FRAME {&FRAME-NAME}:
@@ -5400,8 +5402,14 @@ PROCEDURE valid-b-num :
                 /*MESSAGE "Purchase order " +                              */
                 /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
                 /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
-                    MESSAGE  cCurrentMessage
-                    VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans .
+                   cParmList =
+                "type=literal,name=fi4,row=3,col=18,enable=false,width=58,scrval=" + cCurrentMessage + ",FORMAT=X(158)"
+                + "|type=literal,name=fi2,row=5,col=72,enable=false,width=15,scrval=Message Id: 5 ,FORMAT=X(15)"
+                + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
+                + "|type=win,name=fi3,enable=true,label=" + cCurrentTitle + ",FORMAT=X(30),height=9".
+
+                   RUN custom/d-prompt.w (INPUT "yes-no", cParmList, "", OUTPUT cReturnValues).
+                   ll-ans = LOGICAL(ENTRY(2,cReturnValues)) NO-ERROR .
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".

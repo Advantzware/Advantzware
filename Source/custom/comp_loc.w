@@ -532,7 +532,8 @@ PROCEDURE pCloseProcedures:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplClose AS LOGICAL NO-UNDO INITIAL YES.
-    
+    DEFINE VARIABLE cParmList          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnValues      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
     
     
@@ -550,10 +551,15 @@ PROCEDURE pCloseProcedures:
     IF CAN-FIND(FIRST ttProcedure) THEN DO:
         RUN pGetMessageProcs IN hMessageProcs (INPUT "11", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
         IF NOT lSuppressMessage THEN do:
-            MESSAGE
-             cCurrentMessage 
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        TITLE cCurrentTitle UPDATE oplClose.
+            cParmList =
+                "type=literal,name=fi4,row=3,col=18,enable=false,width=58,scrval=" + cCurrentMessage + ",FORMAT=X(158)"
+                + "|type=literal,name=fi2,row=5,col=72,enable=false,width=15,scrval=Message Id: 11 ,FORMAT=X(15)"
+                + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
+                + "|type=win,name=fi3,enable=true,label=" + cCurrentTitle + ",FORMAT=X(30),height=9".
+            
+            RUN custom/d-prompt.w (INPUT "yes-no", cParmList, "", OUTPUT cReturnValues).
+            oplClose = LOGICAL(ENTRY(2,cReturnValues)) NO-ERROR .
+            
         END.
         ELSE oplClose = TRUE .
         IF oplClose THEN
