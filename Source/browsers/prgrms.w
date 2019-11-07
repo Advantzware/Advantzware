@@ -150,9 +150,9 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      prgrms.prgmname FORMAT "X(20)":U WIDTH 22.2
+      prgrms.prgmname FORMAT "X(32)":U WIDTH 37.2
       prgrms.prgtitle FORMAT "X(30)":U WIDTH 35.2
-      prgrms.dir_group FORMAT "X(20)":U WIDTH 16.4
+      prgrms.dir_group FORMAT "X(20)":U WIDTH 12.4
       prgrms.menu_item FORMAT "yes/no":U WIDTH 6.2
       prgrms.menuOrder FORMAT ">>>9":U WIDTH 8.2
       prgrms.menuLevel FORMAT "->,>>>,>>9":U
@@ -275,11 +275,11 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > ASI.prgrms.prgmname
-"prgrms.prgmname" ? "x(20)" "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.prgmname" ? "x(32)" "character" ? ? ? ? ? ? no ? no no "37.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.prgrms.prgtitle
 "prgrms.prgtitle" ? ? "character" ? ? ? ? ? ? no ? no no "35.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.prgrms.dir_group
-"prgrms.dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no "16.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.prgrms.menu_item
 "prgrms.menu_item" ? ? "logical" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.prgrms.menuOrder
