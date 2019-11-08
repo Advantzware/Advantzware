@@ -40,11 +40,16 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
-           + "JobCardPrintScores,POChangeDueDate,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail"
+           + "JobCardPrintScores,POChangeDueDate,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
+    WHEN "RMIssueWIP" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                INPUT "Automatically create WIP tags when posting issues for board",
+                INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "LoadTagSSCC" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                 INPUT "Load Tag SSCC",
