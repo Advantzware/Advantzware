@@ -68,6 +68,9 @@ DEF VAR ll-casetag AS LOG NO-UNDO.
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */
 DEF BUFFER xrm-rdtlh FOR rm-rdtlh. /* for tag validation */
 
+&Scoped-define NEW NEW
+{rmrep/ttLoadTag.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1379,6 +1382,31 @@ if avail rm-rctd and rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} <> "" th
   disp ext-cost with browse {&BROWSE-NAME}.
 end.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE LoadTag B-table-Win 
+PROCEDURE LoadTag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Notes:       
+------------------------------------------------------------------------------*/
+    GET FIRST {&BROWSE-NAME}.
+    DO WHILE AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:
+        CREATE ttLoadTag.
+        ASSIGN
+            ttLoadTag.loadtag = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.tag
+            ttLoadTag.qty     = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.qty
+            .
+        GET NEXT {&BROWSE-NAME}.
+    END. /* repeat */
+    IF NOT CAN-FIND(FIRST ttLoadTag) THEN RETURN.
+    RUN Get_Procedure IN Persistent-Handle ("rmloadtg4a.", OUTPUT run-proc, NO).
+    IF run-proc NE "" THEN
+    RUN VALUE(run-proc) PERSISTENT (YES, "").
 
 END PROCEDURE.
 
