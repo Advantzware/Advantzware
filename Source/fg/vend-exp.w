@@ -52,6 +52,8 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+
 ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,Country,Postal Code,Tax ID#,Type,Type Name,Contact,Buyer,Buyer Name,Area code,Phone," +
                            "Fax Area Code,Fax,Fax prefix,Fax Country,Overrun Percentage,Underrun Percentage,Default G/L#,G/L Dscr,Remit to,Remit Address1,Remit Address2,Remit City," +
                            "Remit State,Remit Zip,Remit Country,Remit Postal Code,Check Memo,Currency Code,Currency Dscr,Tax,1099 Code,EDI,Credit Card/ACH,Terms,Terms Dscr,Discount%,POEXPORT," +
@@ -61,6 +63,9 @@ ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,
                            "fax-area,fax,fax-prefix,fax-country,over-pct,under-pct,actnum,actdscr,remit,r-add1,r-add2,r-city," +
                            "r-state,r-zip,r-country,r-postal,check-memo,curr-code,curr-dscr,tax-gr,code-1099,an-edi-vend,tb-cc,terms,terms-dscr,disc-%,po-export," +
                            "loc,rebate-%,frt-pay,disc-days,carrier,carrier-dscr,fob-code,pay-type,Bank-Acct,SwiftBIC,Bank-RTN" .
+
+        ASSIGN cTextListToDefault  = "Vendor,Name,Address1,Address2,City,State,Country,Postal Code,Zip,Remit to,Remit Address1,Remit Address2,Remit City,Remit State,Remit Postal Code,Remit Zip," +
+                                 "Terms,Default G/L#,Area code,Phone,Fax Area Code,Fax,1099 Code,Tax ID#,Type,Tax,Carrier,Account#,Swift Code,Routing"  .
 {sys/inc/ttRptSel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -80,7 +85,7 @@ ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_vend end_vend ~
 sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
-btn-ok btn-cancel 
+btn-ok btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_vend end_vend  ~
  sl_avail ~
 sl_selected tb_excel tb_runExcel fi_file 
@@ -135,6 +140,10 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
+     SIZE 16 BY 1.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
@@ -209,13 +218,14 @@ DEFINE FRAME rd-fgexp
      end_vend AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Vendor" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 12.24 COL 44 HELP
+     Btn_Def AT ROW 12.24 COL 44  WIDGET-ID 56
+     Btn_Add AT ROW 13.43 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 13.43 COL 44 HELP
+     Btn_Remove AT ROW 14.62 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 14.62 COL 44 WIDGET-ID 136
-     btn_down AT ROW 15.81 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 15.81 COL 44 WIDGET-ID 136
+     btn_down AT ROW 16.91 COL 44 WIDGET-ID 132
      tb_excel AT ROW 18.91 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 18.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 19.86 COL 34 COLON-ALIGNED HELP
@@ -400,6 +410,20 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -700,6 +724,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI rd-fgexp  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -716,7 +765,7 @@ PROCEDURE enable_UI :
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_vend end_vend  sl_avail Btn_Add 
          sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         btn-cancel Btn_Def
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -1053,8 +1102,14 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 lc-return = "".
                       
         END.
-
-
+        WHEN "Bank-RTN"  THEN DO:
+            FIND FIRST vend WHERE vend.company EQ ipb-itemfg.company
+                AND vend.vend-no EQ ipb-itemfg.vend-no NO-LOCK NO-ERROR.
+            IF AVAIL vend THEN 
+                lc-return = string(vend.Bank-RTN,"999999999").
+            ELSE
+                lc-return = "".
+        END.
         
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/

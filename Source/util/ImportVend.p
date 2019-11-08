@@ -46,6 +46,9 @@ DEFINE TEMP-TABLE ttImportVend
     FIELD VendType        AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Type" HELP "Optional - Validated - Size:8"
     FIELD TaxGroup        AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Tax" HELP "Optional - Validated - Size:3"
     FIELD Carrier         AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Carrier" HELP "Optional - Size:5"
+    FIELD BankAcct        AS CHARACTER FORMAT "x(18)" COLUMN-LABEL "Account#" HELP "Optional - Validated - Size:18"
+    FIELD SwiftBIC        AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
+    FIELD BankRTN         AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -194,7 +197,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportVend.Carrier, YES, INPUT-OUTPUT vend.carrier).
     RUN pAssignValueC (ipbf-ttImportVend.GL, YES, INPUT-OUTPUT vend.actnum).
     RUN pAssignValueC (ipbf-ttImportVend.FedID, iplIgnoreBlanks, INPUT-OUTPUT vend.tax-id).
-    
+    RUN pAssignValueC (ipbf-ttImportVend.BankAcct, YES, INPUT-OUTPUT vend.Bank-Acct).
+    RUN pAssignValueC (ipbf-ttImportVend.SwiftBIC, YES, INPUT-OUTPUT vend.SwiftBIC).
+    RUN pAssignValueC (ipbf-ttImportVend.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT vend.Bank-RTN).
     
     IF vend.country = "Canada" THEN 
         vend.curr-code = "CAD".
