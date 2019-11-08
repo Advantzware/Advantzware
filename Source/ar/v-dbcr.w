@@ -590,7 +590,7 @@ PROCEDURE reftable-values :
     DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
     IF AVAIL ar-cash THEN DO:
-        
+      FIND CURRENT ar-cash EXCLUSIVE-LOCK NO-ERROR .  
       IF ar-cash.stat = "" THEN ar-cash.stat = "N".      
 
       IF ip-display THEN
@@ -599,7 +599,7 @@ PROCEDURE reftable-values :
       ELSE
         ar-cash.stat = IF lv-status:SCREEN-VALUE EQ "ON HOLD" THEN "H"
                         ELSE "R".
-
+      FIND CURRENT ar-cash NO-LOCK NO-ERROR .
     END.
   END.
 END PROCEDURE.
