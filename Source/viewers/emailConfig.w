@@ -117,38 +117,38 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     emailConfig.configID AT ROW 1.24 COL 21 COLON-ALIGNED WIDGET-ID 34
+     emailConfig.configID AT ROW 1.24 COL 20.6 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
      emailConfig.isActive AT ROW 1.24 COL 50 WIDGET-ID 62
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
-     emailConfig.smtpServer AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 52 FORMAT "x(30)"
+     emailConfig.smtpServer AT ROW 2.43 COL 20.6 COLON-ALIGNED WIDGET-ID 52 FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 40 BY 1
           BGCOLOR 15 
-     emailConfig.smtpPort AT ROW 3.62 COL 21 COLON-ALIGNED WIDGET-ID 50
+     emailConfig.smtpPort AT ROW 3.62 COL 20.6 COLON-ALIGNED WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
-     emailConfig.smtpUser AT ROW 4.81 COL 21 COLON-ALIGNED WIDGET-ID 54
+     emailConfig.smtpUser AT ROW 4.81 COL 20.6 COLON-ALIGNED WIDGET-ID 54
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 15 
-     emailConfig.smtpPassword AT ROW 6 COL 21 COLON-ALIGNED WIDGET-ID 48
+     emailConfig.smtpPassword AT ROW 6 COL 20.6 COLON-ALIGNED WIDGET-ID 48 PASSWORD-FIELD 
           VIEW-AS FILL-IN 
           SIZE 21.2 BY 1
           BGCOLOR 15 
-     emailConfig.subject AT ROW 7.19 COL 9 WIDGET-ID 56
+     emailConfig.subject AT ROW 7.19 COL 8.6 WIDGET-ID 56
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.attachment AT ROW 8.38 COL 4.4 WIDGET-ID 30
+     emailConfig.attachment AT ROW 8.38 COL 3.6 WIDGET-ID 30
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.body AT ROW 9.57 COL 23 NO-LABEL WIDGET-ID 58
+     emailConfig.body AT ROW 9.57 COL 22.6 NO-LABEL WIDGET-ID 58
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 130 BY 4
           BGCOLOR 15 
@@ -156,15 +156,15 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.recipientsSendCC AT ROW 15.05 COL 2.8 WIDGET-ID 44
+     emailConfig.recipientsSendCC AT ROW 15.05 COL 2.6 WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.recipientsSendBcc AT ROW 16.24 COL 1.8 WIDGET-ID 42
+     emailConfig.recipientsSendBcc AT ROW 16.24 COL 2.2 WIDGET-ID 42
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
-     emailConfig.recipientsReplyTo AT ROW 17.43 COL 2.6 WIDGET-ID 40
+     emailConfig.recipientsReplyTo AT ROW 17.43 COL 2.4 WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 130 BY 1
           BGCOLOR 15 
