@@ -564,21 +564,19 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE externalStatusFile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE externalStatusUserID AS CHARACTER NO-UNDO.
   DEFINE VARIABLE charHandle AS CHARACTER NO-UNDO.
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  externalStatusFile = SEARCH('{&updates}\' + ID + '\inUse.dat').
-  IF externalStatusFile NE ? THEN DO:
-    INPUT FROM VALUE(externalStatusFile) NO-ECHO.
-    IMPORT ^ externalStatusUserID.
-    INPUT CLOSE.
-    IF externalStatusUserID NE USERID('ASI') THEN DO:
+  FIND FIRST reftable NO-LOCK
+       WHERE reftable.reftable EQ "SBCheckoff"
+         AND reftable.code     EQ ID
+       NO-ERROR.
+  IF AVAILABLE reftable THEN DO:
+    IF reftable.code2 NE USER('ASI') THEN DO:
       MESSAGE
         'External Status Checkoffs in Use by'
-        externalStatusUserID SKIP
+        reftable.code2
         'Please try again shortly.'
       VIEW-AS ALERT-BOX.
       IF VALID-HANDLE(adm-broker-hdl) THEN DO:
@@ -596,9 +594,12 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  OUTPUT TO VALUE('{&updates}\' + ID + '\inUse.dat').
-  EXPORT NO USERID('ASI').
-  OUTPUT CLOSE.
+  CREATE reftable.
+  ASSIGN
+    reftable.reftable = "SBCheckoffs"
+    reftable.code     = ID
+    reftable.code2    = USERID('ASI')
+    .
   FOR EACH pendingJob NO-LOCK:
     CREATE ttblJob.
     BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob
