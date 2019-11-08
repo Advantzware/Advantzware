@@ -90,6 +90,19 @@ fiSnapshotFolder fiSnapshotFile
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win
+FUNCTION fAddSpaceToList RETURNS CHARACTER 
+  ( ipcList AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -460,11 +473,6 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-/* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
-/* Job Summary Report                                                         */
-/* -------------------------------------------------------------------------- */
-
-
 
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader1 AS CHARACTER NO-UNDO.
@@ -507,7 +515,7 @@ SESSION:SET-WAIT-STATE ("general").
      (input cocode,  
       input fiFromItem, 
       input fiEndItem,  
-      input fiWhseList,
+      input fAddSpaceToList(fiWhseList),
       INPUT fiSnapshotFolder + "\" + fiSnapshotFile
       ).  
       
@@ -645,6 +653,37 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win
+FUNCTION fAddSpaceToList RETURNS CHARACTER 
+  ( ipcList AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:  Needed because some loc values contained spaces at the end
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cList2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cList3 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIter AS INTEGER NO-UNDO.
+    
+    DO iIter = 1 to NUM-ENTRIES(ipcList):
+      cList2 = cList2 + TRIM(ENTRY(iIter, ipcList)) + ",".
+      cList3 = cList3 + TRIM(ENTRY(iIter, ipcList)) + " " + ",".
+    END.
+    
+    cList2 = trim(cList2, ",").
+    cList3 = trim(cList3, ",").
+    cResult = cList2 + "," + cList3.
+    RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
