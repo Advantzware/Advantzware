@@ -28,7 +28,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD CustPhone     AS CHARACTER FORMAT "xxx-xxxx" COLUMN-LABEL "Phone" HELP "Optional - Size:7"
     FIELD CustFax       AS CHARACTER FORMAT "xxx-xxxx" COLUMN-LABEL "Fax #" HELP "Optional - Size:7"
     FIELD CreditLimit   AS DECIMAL   FORMAT ">>>,>>>,>>9.99" COLUMN-LABEL "Credit Limit" HELP "Optional - Decimal" 
-    FIELD CustStatus    AS CHARACTER FORMAT "X(11)" COLUMN-LABEL "Status" HELP "Optional - Size:1"
+    FIELD CustStatus    AS CHARACTER FORMAT "X(11)" COLUMN-LABEL "Status" HELP "Optional - Size:11"
     FIELD CreditHold    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Credit Hold" HELP "Optional - Yes or N0"  
     FIELD CustType      AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer Type" HELP "Required - Size:8"   
     FIELD Terms         AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Terms Code" HELP "Required - Size:5" 
@@ -88,6 +88,9 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD dFltComm      AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Flat Comm%" HELP "Optional - Decimal" 
     FIELD cPrefix       AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Prefix" HELP "Optional - Size:3"
     FIELD cCntPrice     AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Contract Pricing" HELP "Optional - Yes or N0"
+    FIELD BankAcct      AS CHARACTER FORMAT "x(18)" COLUMN-LABEL "Account#" HELP "Optional - Validated - Size:18"
+    FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
+    FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -270,7 +273,7 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "A,X,S,E,I", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Statement,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustSman NE "" THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -352,6 +355,16 @@ PROCEDURE pValidate PRIVATE:
          ipbf-ttImportCust.cTaxable = "Y".
     ELSE ipbf-ttImportCust.cTaxable = "N".
 
+    IF ipbf-ttImportCust.CustStatus EQ "Active" THEN 
+        ipbf-ttImportCust.CustStatus = "A".
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Inactive" THEN 
+        ipbf-ttImportCust.CustStatus = "I".
+    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Inhouse" THEN 
+        ipbf-ttImportCust.CustStatus = "X".
+    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Statement" THEN 
+        ipbf-ttImportCust.CustStatus = "S".
+    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Service" THEN 
+        ipbf-ttImportCust.CustStatus = "E".
 
     
 END PROCEDURE.
@@ -444,6 +457,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportCust.dFltComm, iplIgnoreBlanks, INPUT-OUTPUT cust.flatCommPct).
     RUN pAssignValueC (ipbf-ttImportCust.cPrefix, iplIgnoreBlanks, INPUT-OUTPUT cust.fax-prefix).
     RUN pAssignValueC (ipbf-ttImportCust.cCntPrice, YES, INPUT-OUTPUT cust.imported).
+    RUN pAssignValueC (ipbf-ttImportCust.BankAcct, YES, INPUT-OUTPUT cust.Bank-Acct).
+    RUN pAssignValueC (ipbf-ttImportCust.SwiftBIC, YES, INPUT-OUTPUT cust.SwiftBIC).
+    RUN pAssignValueC (ipbf-ttImportCust.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT cust.Bank-RTN).
 
     FIND FIRST shipto EXCLUSIVE-LOCK 
         WHERE shipto.company EQ cust.company
