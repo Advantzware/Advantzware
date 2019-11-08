@@ -255,25 +255,24 @@ END.
 ON CHOOSE OF btnRecalc IN FRAME Dialog-Frame /* Recalculate Cost */
 DO:
     DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
-    DEFINE VARIABLE lChkUnpstTrnsMsg AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lProcess AS LOGICAL NO-UNDO.
     SESSION:SET-WAIT-STATE('general').
     
+    lProcess = YES.
     IF begin_i-no:SCREEN-VALUE EQ end_i-no:SCREEN-VALUE THEN DO:
         FOR EACH fg-rctd WHERE fg-rctd.company eq cocode 
             AND fg-rctd.i-no EQ begin_i-no:SCREEN-VALUE 
             AND (fg-rctd.rita-code eq "R")
             NO-LOCK:
-
-            lChkUnpstTrnsMsg = YES.
-            MESSAGE "There are unposted transactions for item # '" + begin_i-no:SCREEN-VALUE + "' that would affect the balance for this item."
-                VIEW-AS ALERT-BOX WARNING BUTTON OK-CANCEL UPDATE lChkUnpstTrnsMsg.
-
-            IF lChkUnpstTrnsMsg THEN RUN RunProcess(OUTPUT iCount).
-            ELSE RETURN.
+            
+            MESSAGE "There are unposted receipt transactions for item # '" + begin_i-no:SCREEN-VALUE + "' that would affect the balance for this item." SKIP
+                "Do you want to process anyway?"
+                VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE lProcess.
+            LEAVE.
 
         END.
     END.
-    ELSE RUN RunProcess(OUTPUT iCount).
+    IF lProcess THEN RUN RunProcess(OUTPUT iCount).
     
     SESSION:SET-WAIT-STATE('').
     MESSAGE FRAME {&FRAME-NAME}:TITLE "Recalculation completed. " SKIP
