@@ -165,6 +165,9 @@ PROCEDURE exportSnapshot:
         AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0
         AND fg-bin.qty NE 0
         AND fg-bin.tag NE ""
+        AND CAN-FIND (FIRST itemfg NO-LOCK 
+                         WHERE itemfg.company EQ fg-bin.company 
+                           AND itemfg.i-no EQ fg-bin.i-no )        
         :
         icnt = icnt + 1.
         CREATE ttSnapshot.
@@ -447,6 +450,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0
             AND fg-bin.qty NE 0
             AND fg-bin.tag NE ""
+            AND CAN-FIND (FIRST itemfg NO-LOCK 
+                            WHERE itemfg.company EQ fg-bin.company 
+                              AND itemfg.i-no EQ fg-bin.i-no )
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ fg-bin.company
@@ -632,12 +638,18 @@ PROCEDURE pCheckBinDups:
           AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0 
           AND fg-bin.qty GT 0
           AND fg-bin.tag GT "" 
+          AND CAN-FIND (FIRST itemfg NO-LOCK 
+                           WHERE itemfg.company EQ fg-bin.company 
+                             AND itemfg.i-no EQ fg-bin.i-no )
           .
         FIND FIRST bf-fg-bin NO-LOCK
             WHERE bf-fg-bin.company EQ fg-bin.company
             AND bf-fg-bin.tag EQ fg-bin.tag
             AND ROWID(bf-fg-bin) NE ROWID(fg-bin)
             AND bf-fg-bin.qty GT 0 
+            AND CAN-FIND (FIRST itemfg NO-LOCK 
+                           WHERE itemfg.company EQ bf-fg-bin.company 
+                             AND itemfg.i-no EQ bf-fg-bin.i-no )
             NO-ERROR.
         IF AVAILABLE bf-fg-bin THEN 
         DO:
@@ -897,10 +909,10 @@ PROCEDURE pCreateTransferCounts:
             fg-rctd.partial  = 0
             fg-rctd.t-qty    = 0
             fg-rctd.ext-cost = 0
-            fg-rctd.cost     = 0
+            fg-rctd.cost     = (IF AVAIL bf-fg-rctd THEN bf-fg-rctd.cost ELSE 0)
             fg-rctd.cost-uom = fg-bin.pur-uom
             .
-       
+
         IF fg-rctd.pur-uom = "" THEN
             fg-rctd.pur-uom = fg-rctd.cost-uom.
         IF fg-rctd.ext-cost EQ ? THEN fg-rctd.ext-cost = 0.

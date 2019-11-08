@@ -91,6 +91,19 @@ tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win
+FUNCTION fAddSpaceToList RETURNS CHARACTER 
+  ( ipcList AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -856,7 +869,7 @@ SESSION:SET-WAIT-STATE ("general").
         INPUT fiTransDate,
         INPUT fiFromItem,
         INPUT fiEndItem,
-        INPUT fiWhseList,        /* st whse */        
+        INPUT fAddSpaceToList(fiWhseList),        /* st whse */        
         INPUT fiFromBin,        /* start bin */
         INPUT fiToBin, /* end bin */
         INPUT YES,        /* scans only */
@@ -1025,4 +1038,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win
+FUNCTION fAddSpaceToList RETURNS CHARACTER 
+  ( ipcList AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Needed because some loc values contained spaces at the end
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cList2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cList3 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIter AS INTEGER NO-UNDO.
+    
+    DO iIter = 1 to NUM-ENTRIES(ipcList):
+      cList2 = cList2 + TRIM(ENTRY(iIter, ipcList)) + ",".
+      cList3 = cList3 + TRIM(ENTRY(iIter, ipcList)) + " " + ",".
+    END.
+    
+    cList2 = trim(cList2, ",").
+    cList3 = trim(cList3, ",").
+    cResult = cList2 + "," + cList3.
+    RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

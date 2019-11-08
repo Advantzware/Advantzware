@@ -169,6 +169,9 @@ PROCEDURE exportSnapshot:
         AND lookup(rm-bin.loc, ipcWhseList) GT 0        
         AND rm-bin.qty NE 0
         AND rm-bin.tag NE ""
+        AND CAN-FIND (FIRST ITEM NO-LOCK 
+                        WHERE ITEM.company EQ rm-bin.company
+                          AND ITEM.i-no    EQ rm-bin.i-no)
         :
         CREATE ttSnapshot.
         ASSIGN 
@@ -447,6 +450,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0   
             AND rm-bin.qty NE 0
             AND rm-bin.tag NE ""
+            AND CAN-FIND (FIRST ITEM NO-LOCK 
+                        WHERE ITEM.company EQ rm-bin.company
+                          AND ITEM.i-no    EQ rm-bin.i-no)
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ rm-bin.company
@@ -651,12 +657,18 @@ PROCEDURE pCheckBinDups:
         AND rm-bin.i-no LE ipcFGItemEnd
         AND lookup(rm-bin.loc, ipcWhseList) GT 0   
         AND rm-bin.tag GT "" 
+        AND CAN-FIND (FIRST ITEM NO-LOCK 
+                        WHERE ITEM.company EQ rm-bin.company
+                          AND ITEM.i-no    EQ rm-bin.i-no)
         :
         FIND FIRST bf-rm-bin NO-LOCK
             WHERE bf-rm-bin.company EQ rm-bin.company
             AND bf-rm-bin.tag EQ rm-bin.tag
             AND ROWID(bf-rm-bin) NE ROWID(rm-bin)
             AND bf-rm-bin.qty GT 0 
+            AND CAN-FIND (FIRST ITEM NO-LOCK 
+                       WHERE ITEM.company EQ bf-rm-bin.company
+                         AND ITEM.i-no    EQ bf-rm-bin.i-no)
             NO-ERROR.
         IF AVAILABLE bf-rm-bin THEN 
         DO:
@@ -862,6 +874,7 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.tag        = rm-bin.tag
             rm-rctd.po-no      = STRING(rm-bin.po-no)
             lv-tag             = rm-bin.tag
+            rm-rctd.cost       = (IF AVAIL bf-rm-rctd THEN bf-rm-rctd.cost ELSE 0)
             .
         CREATE ttToPost.
         ttToPost.rRmRctd = ROWID(rm-rctd). 
