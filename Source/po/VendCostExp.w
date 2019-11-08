@@ -1327,7 +1327,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
         ASSIGN
             begin_date-exp:SCREEN-VALUE   = ""
-            end_date-exp:SCREEN-VALUE     = string("12/31/2031")
+            end_date-exp:SCREEN-VALUE     = string("12/31/2099")
             begin_date-eff:SCREEN-VALUE   = string("01/01/1900")
             end_date-eff:SCREEN-VALUE     = string(TODAY).
          
