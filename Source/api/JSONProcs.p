@@ -34,8 +34,8 @@ PROCEDURE ReadRequestData:
 
     /* Remove curly braces from request JSON string at the start and end */
     ASSIGN 
-        iplcRequestData = REPLACE(iplcRequestData,'~{"','')
-        iplcRequestData = REPLACE(iplcRequestData,'"}','')
+        iplcRequestData = REPLACE(iplcRequestData,'~{','')
+        iplcRequestData = REPLACE(iplcRequestData,'}','')
         oplSuccess = YES
         .
 
