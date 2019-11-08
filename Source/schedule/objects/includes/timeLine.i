@@ -17,23 +17,20 @@ IF autoMonitor THEN DO WITH FRAME {&FRAME-NAME}:
 END. /* if automonitor */
 &IF '{&Board}' EQ 'Pro' &THEN
 ELSE DO:
-    externalStatusFile = SEARCH('{&updates}\' + ID + '\inUse.dat').
-    IF externalStatusFile NE ? THEN DO:
-        INPUT FROM VALUE(externalStatusFile) NO-ECHO.
-        IMPORT externalStatusChecked externalStatusUserID.
-        INPUT CLOSE.
-        IF NOT externalStatusChecked THEN DO:
+    FIND FIRST reftable NO-LOCK
+         WHERE reftable.reftable EQ "SBCheckoffs"
+           AND reftable.code     EQ ID
+         NO-ERROR.
+    IF AVAILABLE reftable THEN DO:
+        IF reftable.dscr NE "Viewed" THEN DO TRANSACTION:
             MESSAGE
                 'External Status Checkoffs in Use by'
-                externalStatusUserID 
+                reftable.code2
             VIEW-AS ALERT-BOX.
-            externalStatusFile = SEARCH('{&updates}\' + ID + '\inUse.dat').
-            IF externalStatusFile NE ? THEN DO:
-                OUTPUT TO VALUE(externalStatusFile) NO-ECHO.
-                EXPORT YES externalStatusUserID.
-                OUTPUT CLOSE.
-            END. /* if file still exists */
-        END. /* if checked */
-    END. /* if */
+            FIND CURRENT reftable EXCLUSIVE-LOCK.
+            reftable.dscr = "Viewed".
+            RELEASE reftable.
+        END. /* if not viewed */
+    END. /* if avail */
 END. /* else */
 &ENDIF
