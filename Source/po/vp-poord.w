@@ -47,9 +47,11 @@ DEF TEMP-TABLE tt-po-ordl NO-UNDO LIKE po-ordl.
 {windows/l-jobmt1.i NEW}
 {oe/tt-item-qty-price.i}
 
-DO TRANSACTION:    
-    {sys/inc/vendItemCost.i} 
-END.
+DEF VAR vic-log AS LOG  NO-UNDO.
+DEF VAR cReturn AS CHAR NO-UNDO.
+DEF VAR lFound  AS LOG  NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -372,9 +372,15 @@ DO TRANSACTION:
     {sys/inc/oeautofg.i}
     {sys/inc/pouom.i}
     {sys/inc/aptax.i}
-    {sys/inc/vendItemCost.i} 
+/*    {sys/inc/vendItemCost.i}*/
 END.
 
+DEF VAR vic-log AS LOG NO-UNDO.
+DEF VAR cReturn AS CHAR NO-UNDO.
+DEF VAR lFound AS LOG NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+    
 /* Check if authorized to create PO's */
 IF oeautofg-log THEN
     RUN methods/prgsecur.p
