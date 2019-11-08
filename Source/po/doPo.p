@@ -3648,7 +3648,7 @@ PROCEDURE RevCreateTtEiv:
     
     IF bf-w-job-mat.est-no NE "" THEN 
     DO:
-            
+      v-index = 0.      
       FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
                                      AND vendItemCost.estimateNo EQ bf-w-job-mat.est-no
                                      AND vendItemCost.formNo EQ bf-w-job-mat.frm
@@ -3664,7 +3664,7 @@ PROCEDURE RevCreateTtEiv:
                 AND tt-eiv.i-no      EQ bf-w-job-mat.i-no
                 AND tt-eiv.vend-no   EQ e-itemfg-vend.vend-no) THEN 
             */
-                
+            v-index = v-index + 1.    
             FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
             IF NOT AVAIL tt-eiv THEN 
             DO:       
@@ -3681,20 +3681,22 @@ PROCEDURE RevCreateTtEiv:
                        tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no.
                        .
             END.  
-            IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 THEN 
+            IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
+               v-index GT 0 AND v-index LE 20 THEN 
                 ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
                        tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                        tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
                        .
-            IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30 THEN           
+            IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30*/
+                v-index GT 0 AND v-index LE 30 THEN           
                 assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                        .
                     
         
       END. /* each vendcostitem */
     END. /* if est-no <> "" */ 
-
+    v-index = 0.
     IF NOT CAN-FIND(FIRST tt-eiv) THEN
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
 /*        AND vendItemCost.estimateNo EQ bf-w-job-mat.est-no*/
@@ -3706,6 +3708,7 @@ PROCEDURE RevCreateTtEiv:
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
         BY vendItemCostLevel.vendItemCostLevelID:    
     
+        v-index = v-index + 1.
             IF NOT CAN-FIND(FIRST tt-eiv
                 WHERE tt-eiv.company   EQ vendItemCost.company
                 AND tt-eiv.i-no      EQ vendItemCost.ItemId
@@ -3726,13 +3729,15 @@ PROCEDURE RevCreateTtEiv:
                 
                 gvrTT-eiv = ROWID(tt-eiv).
                 
-                IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 THEN 
+                IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
+                  v-index GT 0 AND v-index LE 20 THEN 
                     ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
                         tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                         tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
                         .
-                IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30 THEN           
+                IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30 */
+                   v-index GT 0 AND v-index LE 30 THEN           
                     assign tt-eiv.roll-w[v-index] = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                         .                        
                 
