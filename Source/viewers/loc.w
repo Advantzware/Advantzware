@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
+ DEFINE VARIABLE lCheckBinMessage AS LOGICAL NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -504,14 +505,29 @@ DO:
     IF AVAIL wip-bin THEN ASSIGN 
         lFound = TRUE.
         
-    IF NOT lFound THEN DO:
+    IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
         MESSAGE 
-            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables."
-            VIEW-AS ALERT-BOX.
-        APPLY 'entry' TO SELF.
-        RETURN NO-APPLY.
+            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables." SKIP
+            "Do you want to add the new bin."
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS YES-NO UPDATE lcheckflg as logical .
+        IF NOT lcheckflg THEN do:
+            APPLY 'entry' TO SELF.
+            RETURN NO-APPLY.
+        END.
+        ELSE lCheckBinMessage = YES .
     END. 
                
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME location.defaultBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.defaultBin V-table-Win
+ON VALUE-CHANGED OF location.defaultBin IN FRAME F-Main /* Default Bin */
+DO: 
+  lCheckBinMessage = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,8 +730,29 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+    lCheckBinMessage = NO .     
         
-        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  lCheckBinMessage = NO .
 
 END PROCEDURE.
 
