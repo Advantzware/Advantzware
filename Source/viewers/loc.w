@@ -507,8 +507,7 @@ DO:
         
     IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
         MESSAGE 
-            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables." SKIP
-            "Do you want to add the new bin."
+            "Do you want to add the new bin?"
             VIEW-AS ALERT-BOX QUESTION 
             BUTTONS YES-NO UPDATE lcheckflg as logical .
         IF NOT lcheckflg THEN do:
