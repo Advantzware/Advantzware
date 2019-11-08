@@ -1058,7 +1058,8 @@ OR RETURN OF fiPassword
 DO:
     DEF VAR lPwdOK AS LOG NO-UNDO.
     
-    IF LASTKEY EQ -1 THEN RETURN.
+    IF LASTKEY EQ -1 
+        THEN RETURN.
     
     RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
     IF NOT lPwdOK THEN DO:
@@ -1470,7 +1471,7 @@ PROCEDURE ipChangePassword :
             CREATE userPwdHist.
             ASSIGN
                 userPwdHist.user_id = _user._userID
-                userPwdHist.pwdDate = today
+                userPwdHist.pwdDate = TODAY 
                 userPwdHist.createDate = TODAY
                 userPwdHist.createTime = TIME
                 userPwdHist.createUser = USERID(LDBNAME(1)).
@@ -1489,7 +1490,8 @@ PROCEDURE ipChangePassword :
     ASSIGN  
         fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = _user._password
         fiPassword:SENSITIVE = FALSE
-        bChgPwd:SENSITIVE = TRUE.          
+        bChgPwd:SENSITIVE = TRUE
+        fiPassword:MODIFIED = FALSE.          
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
 
@@ -2117,6 +2119,17 @@ PROCEDURE local-update-record :
                 RETURN.
             END.
         END.            
+    END.
+    IF fiPassword:MODIFIED THEN DO:
+        RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
+        IF NOT lPwdOK THEN 
+        DO:
+            ASSIGN 
+                fiPassword:SCREEN-VALUE = "".
+            RETURN NO-APPLY.
+        END.
+        IF NOT lAdd THEN 
+            RUN ipChangePassword (fiPassword:SCREEN-VALUE).
     END.
                     
     IF lAdd THEN DO:
