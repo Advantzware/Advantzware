@@ -131,8 +131,10 @@ PROCEDURE pLastRoutingEmail:
     DEFINE VARIABLE cFGItem           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobCompleteEmail AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMachine          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lJobCompleteEmail AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER bJobMch FOR job-mch.
 
@@ -174,14 +176,16 @@ PROCEDURE pLastRoutingEmail:
                   + cFGItem + ")"
                   .
             RUN spSendEmail (
-                INPUT iConfigID, /* emailConfig.ConfigID */
-                INPUT "",        /* Override for Email RecipientsinTo */
-                INPUT "",        /* Override for Email RecipientsinReplyTo */
-                INPUT "",        /* Override for Email RecipientsinCC */
-                INPUT "",        /* Override for Email RecipientsinBCC */
-                INPUT "",        /* Override for Email Subject */
-                INPUT cBody,     /* Override for Email Body */
-                INPUT ""         /* Email Attachment */
+                iConfigID,       /* emailConfig.ConfigID */
+                "",              /* Override for Email RecipientsinTo */
+                "",              /* Override for Email RecipientsinReplyTo */
+                "",              /* Override for Email RecipientsinCC */
+                "",              /* Override for Email RecipientsinBCC */
+                "",              /* Override for Email Subject */
+                cBody,           /* Override for Email Body */
+                "",              /* Email Attachment */
+                OUTPUT lSuccess, /* Email success or not */
+                OUTPUT cMessage  /* Reason for failure in case email is not sent */
                 ).
         END. /* if ljobcompleteemail */
     END. /* if avail */

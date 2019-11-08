@@ -31,16 +31,16 @@ RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 RUN spSendEmail (
-    INPUT  iSystemEmailConfigID, /* emailConfig.ConfigID */
-    INPUT  cRecipients,          /* Override for Email RecipientsinTo */
-    INPUT  "",                   /* Override for Email RecipientsinReplyTo */
-    INPUT  "",                   /* Override for Email RecipientsinCC */
-    INPUT  "",                   /* Override for Email RecipientsinBCC */
-    INPUT  cSubject,             /* Override for Email Subject */
-    INPUT  cBody,                /* Override for Email Body */
-    INPUT  cAttachment,          /* Email Attachment */
-    OUTPUT lSuccess,             /* Email success or not */
-    OUTPUT cMessage              /* Reason for failure in case email is not sent */
+    iSystemEmailConfigID, /* emailConfig.ConfigID */
+    cRecipients,          /* Override for Email RecipientsinTo */
+    "",                   /* Override for Email RecipientsinReplyTo */
+    "",                   /* Override for Email RecipientsinCC */
+    "",                   /* Override for Email RecipientsinBCC */
+    cSubject,             /* Override for Email Subject */
+    cBody,                /* Override for Email Body */
+    cAttachment,          /* Email Attachment */
+    OUTPUT lSuccess,      /* Email success or not */
+    OUTPUT cMessage       /* Reason for failure in case email is not sent */
     ).
 RUN spCreateAuditHdr ("TASK", "ASI", "TaskEmail", cRecKey, OUTPUT iAuditID).
 RUN spCreateAuditDtl (iAuditID, "Subject",    0, cSubject,    "", NO).
