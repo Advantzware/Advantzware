@@ -1325,22 +1325,12 @@ DO WITH FRAME {&FRAME-NAME}:
              begin_est-no:SCREEN-VALUE   = ""
              end_est-no:SCREEN-VALUE = "zzzzzzzz" .
 
-         IF ipcExpires NE "" THEN
-             ASSIGN
-             begin_date-exp:SCREEN-VALUE   = string(ipcExpires)
-             end_date-exp:SCREEN-VALUE = string(ipcExpires).
-         ELSE IF ipcExpires EQ ? THEN
-             ASSIGN
-             begin_date-exp:SCREEN-VALUE   = string("01/01/1900")
-             end_date-exp:SCREEN-VALUE = string("12/31/2031").
+        ASSIGN
+            begin_date-exp:SCREEN-VALUE   = ""
+            end_date-exp:SCREEN-VALUE     = string("12/31/2099")
+            begin_date-eff:SCREEN-VALUE   = string("01/01/1900")
+            end_date-eff:SCREEN-VALUE     = string(TODAY).
          
-         IF date(ipcEffective) LT 01/01/1900 OR ipcEffective EQ ? THEN 
-             ASSIGN
-             begin_date-eff:SCREEN-VALUE   = string("01/01/1900")
-             end_date-eff:SCREEN-VALUE   = string("01/01/1900").
-         ELSE  ASSIGN
-             begin_date-eff:SCREEN-VALUE   = string(ipcEffective)
-             end_date-eff:SCREEN-VALUE   = string(ipcEffective).
 END.
 RETURN.
 
