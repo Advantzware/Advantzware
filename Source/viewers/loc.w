@@ -507,8 +507,7 @@ DO:
         
     IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
         MESSAGE 
-            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables." SKIP
-            "Do you want to add the new bin."
+            "Do you want to add the new bin?"
             VIEW-AS ALERT-BOX QUESTION 
             BUTTONS YES-NO UPDATE lcheckflg as logical .
         IF NOT lcheckflg THEN do:
@@ -730,6 +729,51 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+    IF lCheckBinMessage THEN DO:
+        IF rsBinType:SCREEN-VALUE EQ "FG" THEN DO:
+            FIND FIRST fg-bin NO-LOCK WHERE 
+                fg-bin.company EQ g_company AND 
+                fg-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                fg-bin.loc-bin EQ location.defaultBin 
+                NO-ERROR.
+            IF NOT AVAIL fg-bin THEN do: 
+                CREATE fg-bin .
+                ASSIGN
+                    fg-bin.company = g_company
+                    fg-bin.loc = loc.loc
+                    fg-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "FG"*/
+        ELSE IF rsBinType:SCREEN-VALUE EQ "RM" THEN DO:
+            FIND FIRST rm-bin NO-LOCK WHERE 
+                rm-bin.company EQ g_company AND 
+                rm-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                rm-bin.loc-bin EQ location.defaultBin
+                NO-ERROR.
+            IF NOT AVAIL rm-bin THEN do: 
+                CREATE rm-bin .
+                ASSIGN
+                    rm-bin.company = g_company
+                    rm-bin.loc = loc.loc
+                    rm-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "rm"*/
+        ELSE IF rsBinType:SCREEN-VALUE EQ "wp" THEN DO:
+            FIND FIRST wip-bin NO-LOCK WHERE 
+                wip-bin.company EQ g_company AND 
+                wip-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                wip-bin.loc-bin EQ location.defaultBin
+                NO-ERROR.
+            IF NOT AVAIL wip-bin THEN do: 
+                CREATE wip-bin .
+                ASSIGN
+                    wip-bin.company = g_company
+                    wip-bin.loc = loc.loc
+                    wip-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "wp"*/
+    END.
+    
     lCheckBinMessage = NO .     
         
 
