@@ -170,7 +170,8 @@ PROCEDURE pValidate PRIVATE:
                     
         END.
     END.
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pCreateNewInvoice:

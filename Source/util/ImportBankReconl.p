@@ -104,7 +104,8 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN 
         ASSIGN 
         opcNote = "Update record - Cleared fields to be overwritten" .
-
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
     
 END PROCEDURE.
 

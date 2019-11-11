@@ -155,7 +155,8 @@ PROCEDURE pValidate PRIVATE:
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     IF ipbf-ttImportBin.BinAct EQ "" THEN
         ipbf-ttImportBin.BinAct = "Yes" .
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
     
 END PROCEDURE.
 

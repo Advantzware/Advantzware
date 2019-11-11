@@ -123,7 +123,8 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportReOrdLevel.cLoc, YES, ipbf-ttImportReOrdLevel.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

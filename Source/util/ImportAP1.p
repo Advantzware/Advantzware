@@ -384,48 +384,43 @@ PROCEDURE pValidate PRIVATE:
         OUTPUT cPOLineDetails[4]
         ).
   
-    IF ipbf-ttImportAP1.Company EQ '' THEN DO:
+    IF ipbf-ttImportAP1.Company EQ '' AND oplValid THEN DO:
         ASSIGN 
             oplValid = NO
             opcNote  = "Key Field Blank: Company"
-            .
-        RETURN.
+            .        
     END.
  
-    IF ipbf-ttImportAP1.VendorID EQ '' THEN DO:
+    IF ipbf-ttImportAP1.VendorID EQ '' AND oplValid THEN DO:
         ASSIGN 
             oplValid = NO
             opcNote  = "Key Field Blank: VendorID"
             .        
-        RETURN.
     END.
     
-    IF ipbf-ttImportAP1.InvoiceNo EQ '' THEN DO:
+    IF ipbf-ttImportAP1.InvoiceNo EQ '' AND oplValid THEN DO:
         ASSIGN 
             oplValid = NO
             opcNote  = "Key Field Blank: Invoice#"
-            .
-        RETURN.
+            .       
     END.
     
-    IF ipbf-ttImportAP1.InvoiceDate EQ ? THEN DO:
+    IF ipbf-ttImportAP1.InvoiceDate EQ ? AND oplValid THEN DO:
         ASSIGN 
             oplValid = NO
             opcNote  = "Key Field Blank: InvoiceDate#"
-            .
-       RETURN.
+            .       
     END.
     
     FIND FIRST vend NO-LOCK 
          WHERE vend.company EQ ipbf-ttImportAP1.Company
            AND vend.vend-no EQ ipbf-ttImportAP1.VendorID
          NO-ERROR. 
-    IF NOT AVAILABLE vend THEN DO:
+    IF NOT AVAILABLE vend AND oplValid THEN DO:
         ASSIGN 
             oplValid = NO 
             opcNote  = "Key Field Invalid: VendorID"
-            .
-        RETURN.
+            .       
     END.
 
     FIND FIRST bf-ttImportAP1 NO-LOCK 
@@ -442,12 +437,11 @@ PROCEDURE pValidate PRIVATE:
           AND bf-ttImportAP1.LineAccount4  EQ ipbf-ttImportAP1.LineAccount4
           AND ROWID(bf-ttImportAP1)        NE ROWID(ipbf-ttImportAP1)
         NO-ERROR.        
-    IF AVAILABLE bf-ttImportAP1 THEN DO:
+    IF AVAILABLE bf-ttImportAP1 AND oplValid THEN DO:
         ASSIGN 
             oplValid = NO 
             opcNote  = "Duplicate Record in Import File"
-            .
-        RETURN.
+            .       
     END.
 
     FIND FIRST ap-inv NO-LOCK 
@@ -455,11 +449,10 @@ PROCEDURE pValidate PRIVATE:
           AND ap-inv.vend-no EQ ipbf-ttImportAP1.VendorID
           AND ap-inv.inv-no  EQ ipbf-ttImportAP1.InvoiceNo
         NO-ERROR.
-    IF NOT AVAILABLE ap-inv THEN DO:   
+    IF NOT AVAILABLE ap-inv AND oplValid THEN DO:   
         ASSIGN 
             opcNote = "Add record"
             .
-        RETURN.
     END.
     
     /* Additional validation to check if PO lines are existing in invoice.
@@ -502,17 +495,19 @@ PROCEDURE pValidate PRIVATE:
         END.
     END.    
     
-    IF lDuplicateLines THEN DO:
+    IF lDuplicateLines AND oplValid THEN DO:
         ASSIGN
             oplValid = FALSE
             opcNote  = "Duplicate Lines - Will be skipped"
             .
-        RETURN.
+       
     END.
-    
-    ASSIGN
-        opcNote = "Add record"
-        .           
+    IF oplValid THEN 
+        ASSIGN
+            opcNote = "Add record"
+            .           
+    IF VALID-HANDLE(hdValidator) THEN 
+    DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 /* Creates New Invoice */

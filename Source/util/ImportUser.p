@@ -179,7 +179,8 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Invalid database".
     END.         
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

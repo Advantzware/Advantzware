@@ -143,7 +143,8 @@ PROCEDURE pValidate PRIVATE:
     END.
     
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
     
 END PROCEDURE.
 

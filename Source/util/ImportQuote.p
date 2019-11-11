@@ -193,7 +193,8 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportQuote.DeliveryDate = TODAY .
     ipbf-ttImportQuote.EstNo = fill(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) +
                                                    TRIM(ipbf-ttImportQuote.EstNo).
-     
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
     
 END PROCEDURE.
 

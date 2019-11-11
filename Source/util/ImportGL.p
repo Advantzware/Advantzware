@@ -109,7 +109,8 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
         RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

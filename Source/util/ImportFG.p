@@ -371,6 +371,7 @@ PROCEDURE pValidate PRIVATE:
         ASSIGN ipbf-ttImportFG.UnitCount = 1 . 
     IF ipbf-ttImportFG.UnitsPerPallet EQ 0 THEN
         ASSIGN ipbf-ttImportFG.UnitsPerPallet = 1 .
-
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
 END PROCEDURE.
 

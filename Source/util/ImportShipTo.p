@@ -206,7 +206,8 @@ PROCEDURE pValidate PRIVATE:
     IF ipbf-ttImportShipTo.cInactive EQ "Yes" THEN
          ipbf-ttImportShipTo.cInactive = "I".
     ELSE ipbf-ttImportShipTo.cInactive = "".
-    
+    IF VALID-HANDLE(hdValidator) THEN 
+        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
