@@ -100,7 +100,7 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-26 btTest btExit btFilter fieventID ~
-btAPIIDLookup cbSuccess fiAPIId btExport btRestart btBeginRequestDateCal ~
+btAPIIDLookup cbSuccess fiAPIId btExport btBeginRequestDateCal ~
 fiBeginRequestDate fiEndRequestDate btEndRequestDateCal BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fieventID fiSuccessLabel ~
 cbSuccess fiAPIIdLabel fiAPIId fiBeginRequestDatelabel fiBeginRequestDate ~
@@ -326,6 +326,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB BROWSE-2 btEndRequestDateCal DEFAULT-FRAME */
 ASSIGN 
        BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+/* SETTINGS FOR BUTTON btRestart IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       btRestart:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR FILL-IN fiAPIIdLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
@@ -762,7 +767,7 @@ PROCEDURE enable_UI :
           fiEndRequestDate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-26 btTest btExit btFilter fieventID btAPIIDLookup cbSuccess 
-         fiAPIId btExport btRestart btBeginRequestDateCal fiBeginRequestDate 
+         fiAPIId btExport btBeginRequestDateCal fiBeginRequestDate 
          fiEndRequestDate btEndRequestDateCal BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}

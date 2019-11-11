@@ -39,7 +39,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cRequestURLModified AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdJSONProcs AS HANDLE NO-UNDO.
+
+RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -56,12 +58,14 @@ DEFINE VARIABLE cRequestURLModified AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-19 RECT-20 btSend cbRequestVerb ~
-cbRequestDataType fiRequestURL fiUserName fiPassword edRequestData ~
-edResponseData 
+&Scoped-Define ENABLED-OBJECTS RECT-19 RECT-20 Btn_Cancel cbRequestVerb ~
+cbRequestDataType fiRequestURL cbAPI btSend fiUserName fiPassword ~
+edRequestData tbViewTableAs btValidateRequestJSON btBeautifyRequestData ~
+edResponseData tbViewResponseAs btVaidateResponseData ~
+btBeautifyResponseData 
 &Scoped-Define DISPLAYED-OBJECTS cbRequestVerb cbRequestDataType ~
-fiRequestURL fiUserName fiPassword fiResponseTime edRequestData ~
-edResponseData 
+fiRequestURL cbAPI fiUserName fiPassword fiResponseTime edRequestData ~
+tbViewTableAs edResponseData tbViewResponseAs 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -77,10 +81,38 @@ edResponseData
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btBeautifyRequestData 
+     LABEL "Beautify" 
+     SIZE 20 BY 2.62.
+
+DEFINE BUTTON btBeautifyResponseData 
+     LABEL "Beautify" 
+     SIZE 20 BY 2.62.
+
+DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     LABEL "Cancel" 
+     SIZE 20 BY 2.62 TOOLTIP "Exit"
+     BGCOLOR 8 .
+
 DEFINE BUTTON btSend 
      IMAGE-UP FILE "Graphics/32x32/check.ico":U
      LABEL "Send" 
-     SIZE 17.8 BY 3.
+     SIZE 20 BY 2.62.
+
+DEFINE BUTTON btVaidateResponseData 
+     LABEL "View in Browser" 
+     SIZE 20 BY 2.62.
+
+DEFINE BUTTON btValidateRequestJSON 
+     LABEL "View in Browser" 
+     SIZE 20 BY 2.62.
+
+DEFINE VARIABLE cbAPI AS CHARACTER FORMAT "X(256)":U 
+     LABEL "API" 
+     VIEW-AS COMBO-BOX INNER-LINES 8
+     DROP-DOWN-LIST
+     SIZE 63.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U INITIAL "JSON" 
      LABEL "Request Datatype" 
@@ -98,11 +130,11 @@ DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U INITIAL "POST"
 
 DEFINE VARIABLE edRequestData AS LONGCHAR 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL LARGE
-     SIZE 157 BY 8.24 NO-UNDO.
+     SIZE 133 BY 8.24 NO-UNDO.
 
 DEFINE VARIABLE edResponseData AS LONGCHAR 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL LARGE
-     SIZE 157 BY 12.62 NO-UNDO.
+     SIZE 133 BY 11 NO-UNDO.
 
 DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
      LABEL "Password" 
@@ -112,7 +144,7 @@ DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiRequestURL AS CHARACTER FORMAT "X(256)":U 
      LABEL "Request URL" 
      VIEW-AS FILL-IN 
-     SIZE 118.8 BY 1 NO-UNDO.
+     SIZE 99.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiResponseTime AS CHARACTER FORMAT "X(256)":U 
      LABEL "Time" 
@@ -127,31 +159,49 @@ DEFINE VARIABLE fiUserName AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 137.2 BY 3.1.
+     SIZE 133.2 BY 4.29.
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 115 BY 1.67.
+     SIZE 133.2 BY 1.67.
+
+DEFINE VARIABLE tbViewResponseAs AS LOGICAL INITIAL no 
+     LABEL "Table View" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.8 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tbViewTableAs AS LOGICAL INITIAL no 
+     LABEL "Table View" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btSend AT ROW 1.52 COL 142 WIDGET-ID 24
+     Btn_Cancel AT ROW 1.57 COL 140 WIDGET-ID 132
      cbRequestVerb AT ROW 1.81 COL 18.4 COLON-ALIGNED WIDGET-ID 2
-     cbRequestDataType AT ROW 1.81 COL 59 COLON-ALIGNED WIDGET-ID 4
+     cbRequestDataType AT ROW 1.81 COL 65.6 COLON-ALIGNED WIDGET-ID 4
      fiRequestURL AT ROW 3.1 COL 18.2 COLON-ALIGNED WIDGET-ID 6
-     fiUserName AT ROW 5.05 COL 17.6 COLON-ALIGNED WIDGET-ID 10
-     fiPassword AT ROW 5.05 COL 61.6 COLON-ALIGNED WIDGET-ID 12 PASSWORD-FIELD 
-     fiResponseTime AT ROW 5.1 COL 126 COLON-ALIGNED WIDGET-ID 26
-     edRequestData AT ROW 7.29 COL 3 NO-LABEL WIDGET-ID 16
-     edResponseData AT ROW 16.52 COL 3 NO-LABEL WIDGET-ID 20
+     cbAPI AT ROW 4.43 COL 18.2 COLON-ALIGNED WIDGET-ID 136
+     btSend AT ROW 5.05 COL 139.8 WIDGET-ID 24
+     fiUserName AT ROW 6.43 COL 15.4 COLON-ALIGNED WIDGET-ID 10
+     fiPassword AT ROW 6.43 COL 58.2 COLON-ALIGNED WIDGET-ID 12 PASSWORD-FIELD 
+     fiResponseTime AT ROW 6.43 COL 100.4 COLON-ALIGNED WIDGET-ID 26
+     edRequestData AT ROW 8.86 COL 3 NO-LABEL WIDGET-ID 16
+     tbViewTableAs AT ROW 8.91 COL 140.2 WIDGET-ID 154
+     btValidateRequestJSON AT ROW 9.95 COL 139.8 WIDGET-ID 144
+     btBeautifyRequestData AT ROW 13.81 COL 139.8 WIDGET-ID 138
+     edResponseData AT ROW 18.14 COL 3 NO-LABEL WIDGET-ID 20
+     tbViewResponseAs AT ROW 18.19 COL 140.2 WIDGET-ID 156
+     btVaidateResponseData AT ROW 19.38 COL 139.8 WIDGET-ID 142
+     btBeautifyResponseData AT ROW 23.33 COL 139.8 WIDGET-ID 140
      "Response:" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.76 COL 3.2 WIDGET-ID 22
-     "Request Body:" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 6.52 COL 3.4 WIDGET-ID 18
-     RECT-19 AT ROW 1.48 COL 2.8 WIDGET-ID 8
-     RECT-20 AT ROW 4.71 COL 2.8 WIDGET-ID 14
+          SIZE 18 BY .62 AT ROW 17.24 COL 3.2 WIDGET-ID 22
+     "Request:" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 8.1 COL 3.4 WIDGET-ID 18
+     RECT-19 AT ROW 1.71 COL 2 WIDGET-ID 8
+     RECT-20 AT ROW 6.1 COL 2 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -249,6 +299,67 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btBeautifyRequestData
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btBeautifyRequestData C-Win
+ON CHOOSE OF btBeautifyRequestData IN FRAME DEFAULT-FRAME /* Beautify */
+DO:
+    ASSIGN
+        edRequestData.
+
+    IF edRequestData EQ "" THEN DO:
+        MESSAGE "Empty request data" VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    edRequestData:SCREEN-VALUE = DYNAMIC-FUNCTION(
+                                     "fBeautifyJSON" IN hdJSONProcs,
+                                     edRequestData
+                                     ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btBeautifyResponseData
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btBeautifyResponseData C-Win
+ON CHOOSE OF btBeautifyResponseData IN FRAME DEFAULT-FRAME /* Beautify */
+DO:
+    ASSIGN
+        edResponseData.
+
+    IF edResponseData EQ "" THEN DO:
+        MESSAGE "Empty response data" VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+        
+    edResponseData:SCREEN-VALUE = DYNAMIC-FUNCTION(
+                                      "fBeautifyJSON" IN hdJSONProcs,
+                                      edResponseData
+                                      ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
+ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
+DO:
+    RUN setUserPrint.
+
+    IF VALID-HANDLE(hdJSONProcs) THEN
+        DELETE OBJECT hdJSONProcs.
+        
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btSend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSend C-Win
 ON CHOOSE OF btSend IN FRAME DEFAULT-FRAME /* Send */
@@ -259,6 +370,7 @@ DO:
     DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.    
     DEFINE VARIABLE iTimeElapsed   AS INT64     NO-UNDO.
+    DEFINE VARIABLE cRequestURL    AS CHARACTER NO-UNDO.
     
     IF fiRequestURL:SCREEN-VALUE EQ "" THEN DO:
         MESSAGE "Request URL cannot be empty"
@@ -277,6 +389,12 @@ DO:
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.     
+    
+    IF cbAPI:SCREEN-VALUE EQ "" OR cbAPI:SCREEN-VALUE EQ ? THEN DO:
+        MESSAGE "API cannot be empty"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.    
+    END.
 
     IF SEARCH("curl.exe") EQ ? THEN DO:
         MESSAGE "curl not found!"
@@ -287,17 +405,26 @@ DO:
     ASSIGN
         cRequestFile  = "C:\Tmp\request"
         cResponseFile = "C:\Tmp\response"
+        cRequestURL   = (IF SUBSTRING(fiRequestURL:SCREEN-VALUE, LENGTH(fiRequestURL:SCREEN-VALUE), 1) EQ "/" OR
+                            SUBSTRING(fiRequestURL:SCREEN-VALUE, LENGTH(fiRequestURL:SCREEN-VALUE), 1) EQ "\" THEN
+                             SUBSTRING(fiRequestURL:SCREEN-VALUE, 1, LENGTH(fiRequestURL:SCREEN-VALUE) - 1)
+                         ELSE
+                             fiRequestURL:SCREEN-VALUE)                        
+                      + cbAPI:SCREEN-VALUE
         .
-            
+
     cCommand = SEARCH("curl.exe") + ' --user '
-              + fiUserName:SCREEN-VALUE + ':' + fiPassword:SCREEN-VALUE + ' '
-              + '-H "Content-Type: application/' +  lc(cbRequestDataType:SCREEN-VALUE + '"') /* handles XML or JSON only - not RAW */
-              + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -d "@' + cRequestFile + '" ' ELSE '')
-              + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -X ' + cbRequestVerb:SCREEN-VALUE ELSE '')  + ' '
-              + fiRequestURL:SCREEN-VALUE
-              + ' > ' + cResponseFile.    
+             + fiUserName:SCREEN-VALUE + ':' + fiPassword:SCREEN-VALUE + ' '
+             + '-H "Content-Type: application/' +  lc(cbRequestDataType:SCREEN-VALUE + '"') /* handles XML or JSON only - not RAW */
+             + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -d "@' + cRequestFile + '" ' ELSE '')
+             + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -X ' + cbRequestVerb:SCREEN-VALUE ELSE '')  + ' '
+             + cRequestURL
+             + ' > ' + cResponseFile.    
     
-    lcRequestData = edRequestData:SCREEN-VALUE.
+    ASSIGN
+        edRequestData
+        lcRequestData = edRequestData
+        .
     
     /* Put Request Data from a variable into a Temporary file */
     COPY-LOB lcRequestData TO FILE cRequestFile.
@@ -335,30 +462,98 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiRequestURL
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRequestURL C-Win
-ON ENTRY OF fiRequestURL IN FRAME DEFAULT-FRAME /* Request URL */
+&Scoped-define SELF-NAME btVaidateResponseData
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btVaidateResponseData C-Win
+ON CHOOSE OF btVaidateResponseData IN FRAME DEFAULT-FRAME /* View in Browser */
 DO:
-    cRequestURLModified = SELF:SCREEN-VALUE.
+    DEFINE VARIABLE cTitle    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHTMLFile AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        edResponseData
+        tbViewResponseAs
+        cbAPI
+        cHTMLFile     = "C:\Tmp\NEW_jsonHTMLTable.html"
+        cTitle        = cbAPI + " | response | " + cHTMLFile
+        .
+
+    IF edResponseData EQ "" THEN DO:
+        MESSAGE "Empty response data" VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+            
+    RUN pGenerateHTMLTableFromJSON (
+        INPUT cTitle,
+        INPUT IF tbViewResponseAs THEN "CreateTableView" ELSE "CreateDetailView",
+        INPUT edResponseData,
+        INPUT cHTMLFile,
+        INPUT YES  /* lOpenInBrowser */
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRequestURL C-Win
-ON LEAVE OF fiRequestURL IN FRAME DEFAULT-FRAME /* Request URL */
+&Scoped-define SELF-NAME btValidateRequestJSON
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btValidateRequestJSON C-Win
+ON CHOOSE OF btValidateRequestJSON IN FRAME DEFAULT-FRAME /* View in Browser */
 DO:
-    IF cRequestURLModified NE SELF:SCREEN-VALUE THEN
-        RUN pUpdateRequestData (
-            INPUT SELF:SCREEN-VALUE
-            ) NO-ERROR.
+    DEFINE VARIABLE cTitle    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHTMLFile AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        edRequestData
+        tbViewTableAs
+        cbAPI
+        cHTMLFile     = "C:\Tmp\NEW_jsonHTMLTable.html"
+        cTitle        = cbAPI + " | request | " + cHTMLFile
+        .
+    
+    IF edRequestData EQ "" THEN DO:
+        MESSAGE "Empty request data" VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+        
+    RUN pGenerateHTMLTableFromJSON (
+        INPUT cTitle,
+        INPUT IF tbViewTableAs THEN "CreateTableView" ELSE "CreateDetailView",
+        INPUT edRequestData,
+        INPUT cHTMLFile,
+        INPUT YES  /* lOpenInBrowser */
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cbAPI
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbAPI C-Win
+ON VALUE-CHANGED OF cbAPI IN FRAME DEFAULT-FRAME /* API */
+DO:
+    RUN pUpdateRequestData (
+        INPUT SELF:SCREEN-VALUE
+        ) NO-ERROR.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbRequestDataType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbRequestDataType C-Win
+ON VALUE-CHANGED OF cbRequestDataType IN FRAME DEFAULT-FRAME /* Request Datatype */
+DO:
+    RUN pUpdateAPI.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbViewResponseAs
+&Scoped-define SELF-NAME tbViewTableAs
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -425,14 +620,69 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbRequestVerb cbRequestDataType fiRequestURL fiUserName fiPassword 
-          fiResponseTime edRequestData edResponseData 
+  DISPLAY cbRequestVerb cbRequestDataType fiRequestURL cbAPI fiUserName 
+          fiPassword fiResponseTime edRequestData tbViewTableAs edResponseData 
+          tbViewResponseAs 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-19 RECT-20 btSend cbRequestVerb cbRequestDataType fiRequestURL 
-         fiUserName fiPassword edRequestData edResponseData 
+  ENABLE RECT-19 RECT-20 Btn_Cancel cbRequestVerb cbRequestDataType 
+         fiRequestURL cbAPI btSend fiUserName fiPassword edRequestData 
+         tbViewTableAs btValidateRequestJSON btBeautifyRequestData 
+         edResponseData tbViewResponseAs btVaidateResponseData 
+         btBeautifyResponseData 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGenerateHTMLTableFromJSON C-Win 
+PROCEDURE pGenerateHTMLTableFromJSON :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcHTMLPageTitle AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcViewAS        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplcJSONData     AS LONGCHAR  NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcHTMLFilePath  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplOpenInBrowser AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE lcHTML           AS LONGCHAR   NO-UNDO.
+    DEFINE VARIABLE lcJSONData       AS LONGCHAR   NO-UNDO.
+    DEFINE VARIABLE lcPrettyJSONData AS LONGCHAR   NO-UNDO.
+
+    DEFINE VARIABLE iOffSet AS INTEGER     NO-UNDO.
+       
+    ASSIGN
+        lcJSONData       = DYNAMIC-FUNCTION(
+                               "fBeautifyJSON" IN hdJSONProcs,
+                               iplcJSONData
+                               )
+        lcPrettyJSONData = lcJSONData
+        iplcJSONData     = REPLACE (iplcJSONData, CHR(10), "")
+        iplcJSONData     = REPLACE (iplcJSONData, CHR(13), "")
+        .
+
+    lcHTML = '<html>' +
+             '<head><style>table~{border-collapse~:collapse~;~}table,th,td~{border~:1px solid black~;text-align~: left~;vertical-align~:top~;~}</style></head>' + 
+             '<body><h1>' + ipcHTMLPageTitle + '</h1><div id="jsonData">Rendering...</div>' +
+             '<script language="JavaScript">var errorPos=0~; function CreateTableView(t)~{var e="object"!=typeof t?JSON.parse(t)~:new Array(t),r=Object.keys(e[0]),a="<table>"~;for(var o in a+="<thead><tr>",r)a+=~'<th scope="col">~'+r[o]+"</th>"~;a+="</tr></thead>",a+="<tbody>"~;for(var n=0~;n<e.length~;n++)~{for(var o in a+=n%2==0?~'<tr class="alt">~'~:"<tr>",r)~{var l=e[n][r[o]]~;if("object"==typeof l&&null!==l)if(Array.isArray(l))~{for(var i in a+="<td>",l)a+=CreateTableView(l[i])~;a+="</td>"~}else a+="<td>"+CreateTableView(l)+"</td>"~;else a+="<td>"+l+"</td>"~}a+="</tr>"~}return a+="</tbody>",a+="</table>"~}function CreateDetailView(t)~{var e="object"!=typeof t?JSON.parse(t)~:new Array(t),r=Object.keys(e[0]),a=~'<table style="cursor~:pointer">~'~;a+="<tbody>"~;for(var o=0~;o<e.length~;o++)~{var n=0~;for(var l in r)~{var i=e[o][r[l]]~;if(a+=n%2==0?~'<tr class="alt">~'~:"<tr>",a+=~'<th scope="row">~'+r[l]+"</th>","object"==typeof i&&null!==i)if(Array.isArray(i))~{for(var d in a+="<td>",i)a+=CreateDetailView(i[d])~;a+="</td>"~}else a+="<td>"+CreateDetailView(i)+"</td>"~;else a+="<td>"+i+"</td>"~;a+="</tr>",n++~}~}return a+="</tbody>",a+="</table>"~}var json=""~;function validateJSON(t)~{try~{json=JSON.parse(t),document.getElementById("jsonData").innerHTML=' + ipcViewAS + '(json)~}catch(t)~{document.getElementById("jsonData").innerHTML="<font color=red>Invalid JSON - "+t.message+"</font>&nbsp;<button onclick=showMeTheError()>Locate</button>" ~; errorPos=t.message.split(":")[2]~;~}~}validateJSON(~'' + iplcJSONData + '~')~;</script>' +
+             '<br><table border=0><tr><td style="background-color:#e6f3ff">Raw JSON</td><td style="background-color:#e6f3ff">Pretty JSON</td></tr><tr><td><textarea name="JSONEditor" id="JSONEditor" rows="30" cols="70">' + iplcJSONData + '</textarea></td>' + 
+             '<td><textarea name="JSONEditorPretty" id="JSONEditorPretty" rows="30" cols="70" readonly>' + lcPrettyJSONData + '</textarea></td></tr></table><br>' + 
+             '<script language="JavaScript">' + 
+             'function showMeTheError()~{' +
+             'document.getElementById(~'JSONEditor~').focus()~;document.getElementById(~'JSONEditor~').setSelectionRange(errorPos - 1, errorPos)~;' +
+             '~}' +
+             '</script>' +
+             '</body></html>'.
+
+    COPY-LOB FROM lcHTML TO FILE ipcHTMLFilePath.
+
+    IF iplOpenInBrowser AND SEARCH(ipcHTMLFilePath) <> ? THEN
+        OS-COMMAND SILENT VALUE("start " + ipcHTMLFilePath).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,13 +694,41 @@ PROCEDURE pInit :
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/   
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN pUpdateAPI.
+            
     {custom/usrprint.i}
     
     APPLY "LEAVE" TO fiRequestURL.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateAPI C-Win 
+PROCEDURE pUpdateAPI :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAPIList AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    FOR EACH APIInbound NO-LOCK
+        WHERE APIInbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE
+          AND APIInbound.isActive:
+        cAPIList = cAPIList + "," + APIInbound.apiRoute.
+    END.
+    
+    cAPIList = TRIM(cAPIList,",").
+    
+    cbAPI:LIST-ITEMS = cAPIList.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,18 +748,15 @@ PROCEDURE pUpdateRequestData :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    cAPIRoute = "/api/" 
-              + ENTRY(NUM-ENTRIES(ipcAPIRoute,"/"), ipcAPIRoute, "/").
-              
+                  
     FIND FIRST APIInbound NO-LOCK
-         WHERE APIInbound.apiRoute EQ cAPIRoute
+         WHERE APIInbound.apiRoute EQ ipcAPIRoute
          NO-ERROR.
     IF AVAILABLE APIInbound THEN
         ASSIGN
             lcData                     = APIInbound.requestData
             edRequestData:SCREEN-VALUE = lcData
-            .
+            NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -496,7 +771,7 @@ PROCEDURE setUserPrint :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+
     RUN custom/setUserPrint.p (
         INPUT g_company,
         INPUT "APIInboundTest.",
