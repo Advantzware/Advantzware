@@ -242,7 +242,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
             ttItem.QuantityPerSubUnit      = hdBuffer:BUFFER-FIELD("case-count"):BUFFER-VALUE
             ttItem.QuantitySubUnitsPerUnit = hdBuffer:BUFFER-FIELD("cases-unit"):BUFFER-VALUE
             ttItem.QuantityPartial         = hdBuffer:BUFFER-FIELD("partial-count"):BUFFER-VALUE
-            ttItem.Units                   = hdBuffer:BUFFER-FIELD("cases"):BUFFER-VALUE
+            ttItem.Units                   = TRUNC((hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE - ttItem.QuantityPartial) / ttItem.QuantityPerSubUnit,0)
             ttItem.JobNo                   = hdBuffer:BUFFER-FIELD("job-no"):BUFFER-VALUE
             ttItem.JobNo2                  = hdBuffer:BUFFER-FIELD("job-no2"):BUFFER-VALUE
             ttItem.POID                    = hdBuffer:BUFFER-FIELD("po-no"):BUFFER-VALUE
