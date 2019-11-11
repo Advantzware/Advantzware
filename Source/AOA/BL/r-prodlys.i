@@ -365,7 +365,7 @@ PROCEDURE pProductionAnalysis1:
             ELSE
             ttProductionAnalysis.runStdHr = job-mch.run-hr.
             ASSIGN
-                ttProductionAnalysis.mrStdHr   = job-mch.mr-hr * (ttProductionAnalysis.mrActHr / ttProductionAnalysis.xxTotMRHrs)
+                ttProductionAnalysis.mrStdHr   = job-mch.mr-hr * (ttProductionAnalysis.mrActHr / ttProductionAnalysis.zzTotMRHrs)
                 ttProductionAnalysis.qtyExpect = IF job-mch.speed NE 0 THEN
                                                 (IF ttProductionAnalysis.runActHr NE 0 THEN ttProductionAnalysis.runActHr
                                                  ELSE ttProductionAnalysis.runStdHr) * job-mch.speed ELSE job-mch.run-qty
@@ -593,8 +593,8 @@ PROCEDURE pProductionAnalysis2:
         IF ttProductionAnalysis.dtHrsEff    EQ ? THEN ttProductionAnalysis.dtHrsEff    = 0.
         IF ttProductionAnalysis.totStdHrs   EQ ? THEN ttProductionAnalysis.totStdHrs   = 0.
         IF ttProductionAnalysis.totEffPct   EQ ? THEN ttProductionAnalysis.totEffPct   = 0.
-        IF ttProductionAnalysis.xxTotMRHrs  EQ ? THEN ttProductionAnalysis.xxTotMRHrs  = 0.
-        IF ttProductionAnalysis.xxTotRunHrs EQ ? THEN ttProductionAnalysis.xxTotRunHrs = 0.
+        IF ttProductionAnalysis.zzTotMRHrs  EQ ? THEN ttProductionAnalysis.zzTotMRHrs  = 0.
+        IF ttProductionAnalysis.zzTotRunHrs EQ ? THEN ttProductionAnalysis.zzTotRunHrs = 0.
     END. /* each ttProductionAnalysis */
 END PROCEDURE.
 
@@ -616,9 +616,9 @@ PROCEDURE pProRateMR:
         WHERE bJobCode.code EQ bMchAct.code
         :
         IF bJobCode.cat EQ "RUN" THEN
-        ttProductionAnalysis.xxTotRunHrs = ttProductionAnalysis.xxTotRunHrs + bMchAct.hours.
+        ttProductionAnalysis.zzTotRunHrs = ttProductionAnalysis.zzTotRunHrs + bMchAct.hours.
         ELSE IF bJobCode.cat EQ "MR" THEN
-             ttProductionAnalysis.xxTotMRHrs = ttProductionAnalysis.xxTotMRHrs + bMchAct.hours.
+             ttProductionAnalysis.zzTotMRHrs = ttProductionAnalysis.zzTotMRHrs + bMchAct.hours.
     END. /* each bmchact */
 END PROCEDURE.
 
