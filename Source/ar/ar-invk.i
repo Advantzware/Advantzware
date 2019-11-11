@@ -47,7 +47,13 @@ END.
 
 
    {1}.tax-amt = tax + ftax.   
+   
+   {1}.disc-taken = ((sub-tot) * {1}.disc-% / 100) .    
 
   assign 
    {1}.gross = sub-tot + {1}.tax-amt  
    {1}.due = {1}.gross - {1}.paid - {1}.disc-taken.
+
+   if {1}.disc-taken LE -1 then
+    {1}.disc-taken = {1}.disc-taken * -1 .
+
