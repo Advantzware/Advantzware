@@ -14,6 +14,9 @@
 
 {api/inbound/ttRequest.i}
 
+FUNCTION fBeautifyJSON RETURNS LONGCHAR
+    (iplcJSON AS LONGCHAR) FORWARD.
+
 FUNCTION fFormatJSONFieldValue RETURNS CHARACTER PRIVATE
     (ipcFieldValue AS CHARACTER) FORWARD.
     
@@ -181,6 +184,66 @@ PROCEDURE JSON_GetRecordCountByNameAndParent:
     RELEASE bf-ttRequest.    
 END PROCEDURE.
 
+FUNCTION fBeautifyJSON RETURNS LONGCHAR
+    (iplcJSON AS LONGCHAR):
+    DEFINE VARIABLE cIndentation      AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cFormattedJSON    AS LONGCHAR    NO-UNDO.
+    DEFINE VARIABLE cTemp             AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE iIndentationLevel AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE iCtr              AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE iCtr2             AS INTEGER     NO-UNDO.
+
+    ASSIGN
+        cIndentation      = "  "
+        iIndentationLevel = 0
+        cFormattedJSON    = ""
+        cTemp             = ""
+        .
+
+    DO iCtr = 1 TO LENGTH(iplcJSON):
+        cTemp = SUBSTRING (iplcJSON, iCtr, 1).
+        CASE cTemp:
+            WHEN '\\' THEN DO:
+                cFormattedJSON = cFormattedJSON + cTemp.
+            END.
+            WHEN '~{' OR WHEN  '[' THEN DO:
+                ASSIGN
+                    cFormattedJSON    = cFormattedJSON + cTemp
+                    cFormattedJSON    = cFormattedJSON + "~n"
+                    iIndentationLevel = iIndentationLevel + 1
+                    .
+                do iCtr2 = 1 TO iIndentationLevel:
+                    cFormattedJSON = cFormattedJSON + cIndentation.
+                END.
+            END.
+            WHEN '~}' OR WHEN ']' THEN DO:
+                ASSIGN
+                    cFormattedJSON    = cFormattedJSON + "~n"
+                    IindentationLevel = iIndentationLevel - 1
+                    .
+                DO iCtr2 = 1 TO iIndentationLevel:
+                    cFormattedJSON = cFormattedJSON + cIndentation.
+                END.
+    
+                cFormattedJSON = cFormattedJSON + cTemp.
+            END.
+            WHEN ',' THEN DO:
+                ASSIGN
+                    cFormattedJSON = cFormattedJSON + cTemp
+                    cFormattedJSON = cFormattedJSON + "~n"
+                    .
+                DO iCtr2 = 1 TO iIndentationLevel:
+                    cFormattedJSON = cFormattedJSON + cIndentation.
+                END.
+                
+            END.
+            OTHERWISE
+                cFormattedJSON = cFormattedJSON + cTemp.     
+        END.
+    END.
+    RETURN cFormattedJSON.
+END FUNCTION.    
+    
 FUNCTION fFormatJSONFieldValue RETURNS CHARACTER PRIVATE
     (ipcFieldValue AS CHARACTER):
     DEFINE VARIABLE cFieldValue AS CHARACTER NO-UNDO.
