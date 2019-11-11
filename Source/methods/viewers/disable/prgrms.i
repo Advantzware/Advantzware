@@ -1,9 +1,6 @@
 /* prgrms.i - rstark - 11.5.2019 */
 
-IF lSuperAdmin EQ NO THEN 
-DISABLE {&MENU-FIELDS} WITH FRAME {&FRAME-NAME}.
-
-ENABLE
+DISABLE
     btnParam-0
     btnParam-1
     btnParam-2

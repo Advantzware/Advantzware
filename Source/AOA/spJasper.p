@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE aoaJasper 7
+&SCOPED-DEFINE aoaJasper 8
 &SCOPED-DEFINE aoaJasperGap 5
 &SCOPED-DEFINE noBrowseRefresh
 
@@ -704,7 +704,7 @@ PROCEDURE pJasperGroupFooter :
         IF ENTRY(1,ttGroupCalc.ttCalcType,"|") EQ "Calculated" THEN
         cPattern = fJasperCalcPattern(ENTRY(3,ttGroupCalc.ttCalcType,"|")).
         ELSE
-        cPAttern = fJasperPattern(bttColumn.ttFormat).
+        cPattern = fJasperPattern(bttColumn.ttFormat).
         PUT UNFORMATTED
             "                <textField isBlankWhenNull=~"true~" pattern=~"" cPattern "~">" SKIP
             "                    <reportElement "
@@ -842,7 +842,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperJSON Procedure
 PROCEDURE pJasperJSON:
 /*------------------------------------------------------------------------------
-  Purpose:     Export temp-table contents to XML Format
+  Purpose:     Export temp-table contents to JSON Format
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
