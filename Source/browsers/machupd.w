@@ -443,36 +443,35 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-FIND FIRST machtran WHERE
-     ROWID(machtran) EQ ip-rowid
-     NO-LOCK.
-
-ASSIGN
-   scr-machine = machtran.machine
-   scr-job-no = machtran.job_number
-   scr-job-no-2 = machtran.job_sub
-   scr-sheet = machtran.form_number
-   scr-blank = machtran.blank_number
-   scr-pass = machtran.pass_sequence
-   scr-charge = machtran.charge_code
-   scr-start-date = machtran.start_date
-   scr-end-date = machtran.end_date
-   scr-shift = machtran.shift
-   scr-run-qty = machtran.run_qty.
-
-{custom/get_time.i
-      &field="machtran.start_time"
-      &hour="start_hour"
-      &minute="start_minute"
-      &ampm="start_ampm"}
-      
-{custom/get_time.i
-      &field="machtran.end_time"
-      &hour="end_hour"
-      &minute="end_minute"
-      &ampm="end_ampm"}
-
-{src/adm/template/dialogmn.i}
+DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST machtran NO-LOCK
+         WHERE ROWID(machtran) EQ ip-rowid.
+    ASSIGN
+        scr-machine    = machtran.machine
+        scr-job-no     = machtran.job_number
+        scr-job-no-2   = machtran.job_sub
+        scr-sheet      = machtran.form_number
+        scr-blank      = machtran.blank_number
+        scr-pass       = machtran.pass_sequence
+        scr-charge     = machtran.charge_code
+        scr-start-date = machtran.start_date
+        scr-end-date   = machtran.end_date
+        scr-shift      = machtran.shift
+        scr-run-qty    = machtran.run_qty
+        .
+    {custom/get_time.i
+          &field="machtran.start_time"
+          &hour="start_hour"
+          &minute="start_minute"
+          &ampm="start_ampm"}
+          
+    {custom/get_time.i
+          &field="machtran.end_time"
+          &hour="end_hour"
+          &minute="end_minute"
+          &ampm="end_ampm"}
+    {src/adm/template/dialogmn.i}
+END. /* with frame */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
