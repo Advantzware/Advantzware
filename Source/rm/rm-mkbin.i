@@ -20,7 +20,7 @@ END.
 
 if ld-cst ne ?                              and
    (rm-rcpth.rita-code eq "R" or
-    (can-do("A,T",rm-rcpth.rita-code) and
+    (can-do("A,T,C",rm-rcpth.rita-code) and
      ld-cst ne 0))                          then do:
 
   IF rm-rcpth.rita-code EQ "A" THEN {1}rm-bin.cost = ld-cst.
