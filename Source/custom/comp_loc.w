@@ -532,7 +532,7 @@ PROCEDURE pCloseProcedures:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplClose AS LOGICAL NO-UNDO INITIAL YES.
-    
+    DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO .
     DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
     
     
@@ -548,14 +548,13 @@ PROCEDURE pCloseProcedures:
         hProc = hProc:NEXT-SIBLING.
     END. /* do while */
     IF CAN-FIND(FIRST ttProcedure) THEN DO:
-        RUN pGetMessageProcs IN hMessageProcs (INPUT "11", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-        IF NOT lSuppressMessage THEN do:
-            MESSAGE
-             cCurrentMessage 
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        TITLE cCurrentTitle UPDATE oplClose.
-        END.
+
+        RUN pGetMessageFlag IN hMessageProcs (INPUT "11", OUTPUT lCheckMessage ).
+
+        IF NOT lCheckMessage THEN
+            RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "11", OUTPUT oplClose ).
         ELSE oplClose = TRUE .
+
         IF oplClose THEN
         FOR EACH ttProcedure:
             IF VALID-HANDLE(ttProcedure.hProcedure) THEN

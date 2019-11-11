@@ -46,6 +46,10 @@ FIND FIRST users NO-LOCK WHERE
 IF AVAILABLE users THEN ASSIGN 
         iSecurityLevel = users.securityLevel.
 
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -187,7 +191,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15
      zMessage.currMessage AT ROW 8.38 COL 23.6 COLON-ALIGNED
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 70 BY 3.1
+          SIZE 71 BY 3.1
           BGCOLOR 15
      zMessage.displayOptions AT ROW 8.62 COL 98
           VIEW-AS TOGGLE-BOX
@@ -370,10 +374,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Test V-table-Win
 ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
     DO:
-    IF AVAIL zMessage AND zMessage.currMessage NE "" THEN
-        MESSAGE zMessage.currMessage  VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID)  .
-    ELSE IF AVAIL zMessage  THEN
-        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID) .
+    DEFINE VARIABLE oplClose AS LOGICAL NO-UNDO .
+    
+    RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT STRING(zMessage.msgID), OUTPUT oplClose ).
   
     END.
 

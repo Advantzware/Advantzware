@@ -2243,11 +2243,8 @@ PROCEDURE import-price :
 
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
   IF lMultiRecords THEN do:
-      RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-    IF NOT lSuppressMessage THEN
-        MESSAGE cCurrentMessage
-        VIEW-AS ALERT-BOX QUESTION 
-        BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
+     
+      RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "7", OUTPUT lcheckflg ).
   END.
 
  FOR EACH bff-probe NO-LOCK
