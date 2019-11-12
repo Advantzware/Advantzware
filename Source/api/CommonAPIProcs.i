@@ -31,8 +31,8 @@ PROCEDURE updateRequestData:
     
     /* This will add an escape character (\) before a (") so JSON won't throw error */
     ASSIGN
-        ipcValue = REPLACE(ipcValue, '"','\"')
         ipcValue = REPLACE(ipcValue, '\','\\')
+        ipcValue = REPLACE(ipcValue, '"','\"')
         .
     
     ioplcRequestData = REPLACE(ioplcRequestData, cFieldValuePrefix + ipcField + cFieldValueSuffix, ipcValue).
