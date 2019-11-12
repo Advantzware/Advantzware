@@ -31,6 +31,7 @@ DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
 /* cue card variables */
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
@@ -127,6 +128,19 @@ FUNCTION sfHourMax RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHourMin Procedure
 FUNCTION sfHourMin RETURNS INTEGER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfIsUserSuperAdmin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfIsUserSuperAdmin Procedure
+FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL 
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +311,11 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
 FIND FIRST users NO-LOCK
      WHERE users.user_id EQ USERID("ASI")
      NO-ERROR.
-lUserAMPM = AVAILABLE users AND users.AMPM.
+IF AVAILABLE users THEN 
+ASSIGN 
+    lUserAMPM = users.AMPM
+    lSuperAdmin = users.securityLevel GE 1000
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1779,6 +1797,26 @@ FUNCTION sfHourMin RETURNS INTEGER
  Notes:
 ------------------------------------------------------------------------------*/
 	RETURN IF lUserAMPM THEN 1 ELSE 0.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfIsUserSuperAdmin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserSuperAdmin Procedure
+FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:  Returns logical if current user is super admin
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN lSuperAdmin.
 
 END FUNCTION.
 	
