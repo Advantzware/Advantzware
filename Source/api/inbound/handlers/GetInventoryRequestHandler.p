@@ -146,7 +146,7 @@ FOR EACH ttItem NO-LOCK:
         lcResponseData           = REPLACE(lcResponseData, "$Quantity$",STRING(ttItem.Quantity,"->>>>>>>>9.9<<<<<"))
         lcResponseData           = REPLACE(lcResponseData, "$ItemType$", ttItem.ItemType)
         lcResponseData           = REPLACE(lcResponseData, "$StockIDAlias$", ttItem.StockIDAlias)
-        lcResponseData           = REPLACE(lcResponseData, "$QuanityUOM$", ttItem.QuantityUOM)
+        lcResponseData           = REPLACE(lcResponseData, "$QuantityUOM$", ttItem.QuantityUOM)
         lcResponseData           = REPLACE(lcResponseData, "$QuantityPerSubUnit$", STRING(ttItem.QuantityPerSubUnit))
         lcResponseData           = REPLACE(lcResponseData, "$QuantitySubUnitsPerUnit$", STRING(ttItem.QuantitySubUnitsPerUnit))
         lcResponseData           = REPLACE(lcResponseData, "$QuantityPartial$", STRING(ttItem.QuantityPartial))
