@@ -20,11 +20,12 @@ PROCEDURE Select_{&ITEM{1}}:
     &IF "{&ITEM{1}}" EQ "List" &THEN
     DEFINE VARIABLE adm-current-page AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cBufferValue     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRowID           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hBuffer          AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hTable           AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQuery           AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable           AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx              AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iSubjectID       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE rRowID           AS ROWID     NO-UNDO.
     
     DEFINE BUFFER bDynPrgrmsPage FOR dynPrgrmsPage.
     
@@ -43,8 +44,7 @@ PROCEDURE Select_{&ITEM{1}}:
     IF iSubjectID NE 0 AND
        CAN-FIND(FIRST dynSubject WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
         /* check override parameters exists */
-        &IF "{&FIRST-EXTERNAL-TABLE}" NE "" &THEN
-        rRowID = ROWID({&FIRST-EXTERNAL-TABLE}).
+        &IF "{&EXTERNAL-TABLES}" NE "" &THEN
         FOR EACH bDynPrgrmsPage
             WHERE bDynPrgrmsPage.prgmName  EQ b-prgrms.prgmName
               AND bDynPrgrmsPage.pageTab   EQ iDynSubjectPage
@@ -52,24 +52,29 @@ PROCEDURE Select_{&ITEM{1}}:
             BREAK BY bDynPrgrmsPage.tableName
             :
             IF FIRST-OF(bDynPrgrmsPage.tableName) THEN DO:
-                CREATE QUERY hQuery.
-                CREATE BUFFER hBuffer FOR TABLE bDynPrgrmsPage.tableName.
-                hQuery:ADD-BUFFER(hBuffer).
-                hQuery:QUERY-PREPARE(
-                    "FOR EACH " + bDynPrgrmsPage.tableName + " NO-LOCK " +
-                    "WHERE ROWID(" + bDynPrgrmsPage.tableName + ") EQ TO-ROWID(~"" +
-                    STRING(rRowID) + "~")"
-                    ).
-                hQuery:QUERY-OPEN().
-                hQuery:GET-FIRST().
-                hTable = hQuery:GET-BUFFER-HANDLE(bDynPrgrmsPage.tableName).
+                IF bDynPrgrmsPage.tableName NE "" THEN DO:
+                    RUN send-records (bDynPrgrmsPage.tableName, OUTPUT cRowID).
+                    IF cRowID NE "?":U THEN DO:
+                        CREATE QUERY hQuery.
+                        CREATE BUFFER hBuffer FOR TABLE bDynPrgrmsPage.tableName.
+                        hQuery:ADD-BUFFER(hBuffer).
+                        hQuery:QUERY-PREPARE(
+                            "FOR EACH " + bDynPrgrmsPage.tableName + " NO-LOCK " +
+                            "WHERE ROWID(" + bDynPrgrmsPage.tableName + ") EQ TO-ROWID(~"" +
+                            cRowID + "~")"
+                            ).
+                        hQuery:QUERY-OPEN().
+                        hQuery:GET-FIRST().
+                        hTable = hQuery:GET-BUFFER-HANDLE(bDynPrgrmsPage.tableName).
+                    END. /* if crowid */
+                END. /* if tablename */
                 FOR EACH dynPrgrmsPage NO-LOCK
-                    WHERE dynPrgrmsPage.prgmName  EQ b-prgrms.prgmName
-                      AND dynPrgrmsPage.pageTab   EQ iDynSubjectPage
-                      AND dynPrgrmsPage.subjectID EQ iSubjectID
+                    WHERE dynPrgrmsPage.prgmName  EQ bDynPrgrmsPage.prgmName
+                      AND dynPrgrmsPage.pageTab   EQ bDynPrgrmsPage.pageTab
+                      AND dynPrgrmsPage.subjectID EQ bDynPrgrmsPage.subjectID
                       AND dynPrgrmsPage.tableName EQ bDynPrgrmsPage.tableName
                     :
-                    IF dynPrgrmsPage.paramInitValue NE "" THEN
+                    IF dynPrgrmsPage.tableName EQ "" THEN
                     cBufferValue = dynPrgrmsPage.paramInitValue.
                     ELSE
                     cBufferValue = hTable:BUFFER-FIELD(dynPrgrmsPage.fieldName):BUFFER-VALUE().
@@ -79,20 +84,24 @@ PROCEDURE Select_{&ITEM{1}}:
                         .
                 END. /* each dynprgrmspage */
             END. /* if first-of */
-            ASSIGN
-                cParamList  = TRIM(cParamList,"|")
-                cParamValue = TRIM(cParamValue,"|")
-                .
-            IF cParamList NE "" THEN
-            RUN pInitDynParamValue (
-                iSubjectID,
-                USERID("ASI"),
-                b-prgrms.prgmName,
-                0,
-                cParamList,
-                cParamValue
-                ).
-        END. /* can-find first dynpargrmspage */
+            IF VALID-HANDLE(hQuery) THEN
+            DELETE OBJECT hQuery.
+            IF VALID-HANDLE(hTable) THEN
+            DELETE OBJECT hTable.
+        END. /* each bdynpargrmspage */
+        ASSIGN
+            cParamList  = TRIM(cParamList,"|")
+            cParamValue = TRIM(cParamValue,"|")
+            .
+        IF cParamList NE "" THEN
+        RUN pInitDynParamValue (
+            iSubjectID,
+            USERID("ASI"),
+            b-prgrms.prgmName,
+            0,
+            cParamList,
+            cParamValue
+            ).
         &ENDIF
         run-proc = "AOA/Jasper.r".
         IF SEARCH(run-proc) EQ ? THEN
