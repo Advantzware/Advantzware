@@ -315,6 +315,8 @@ PROCEDURE runProcess :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE excelheader    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE tot-paid AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dInvamt AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO.
     EMPTY TEMP-TABLE ttSelected.
     
     IF tb_excel THEN 
@@ -328,6 +330,7 @@ PROCEDURE runProcess :
     
     STATUS DEFAULT "Running report...".
     FOR EACH ar-inv WHERE ar-inv.company EQ lv-comp
+      AND ar-inv.due GT 0
         :
   
       tot-paid = 0.
@@ -340,7 +343,19 @@ PROCEDURE runProcess :
           tot-paid = tot-paid + ar-cashl.amt-paid + ar-cashl.amt-disc.     
       END.
       
-      IF tot-paid GT ar-inv.paid THEN DO:
+      if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
+        dInvAmt = ar-inv.net.
+      else
+        dInvAmt = ar-inv.gross.
+
+      dAmountDue = ar-inv.due .
+        
+      IF dInvAmt EQ ? THEN dInvAmt = 0.
+      
+      IF ABS(dInvAmt) GT ABS(ar-inv.paid) 
+         AND ABS(tot-paid) GE ABS(dInvAmt) 
+         AND ABS(dInvamt) - ABS(tot-paid) NE ABS(ar-inv.due) 
+         AND ABS(dInvamt) - ABS(tot-paid) GT 0 THEN DO:
         
            CREATE ttSelected.
            ASSIGN
@@ -351,15 +366,16 @@ PROCEDURE runProcess :
             DO:
                 EXPORT STREAM excel DELIMITER "," 
                  ar-inv.cust-no ar-inv.inv-no ar-inv.inv-date ar-inv.gross ar-inv.net ar-inv.paid 
-                   (if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN ar-inv.net ELSE ar-inv.gross)  - tot-paid ar-inv.due 
+                   dInvAmt - tot-paid ar-inv.due 
                  .
             END. /* Excel Report */  
                 
       END.
-
    
     END.
+    
     STATUS DEFAULT "Report Completed.".
+    
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
