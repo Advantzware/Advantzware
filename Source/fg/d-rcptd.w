@@ -1300,7 +1300,7 @@ DO:
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
         /*IF SELF:MODIFIED THEN*/ 
-        IF adm-new-record OR adm-adding-record THEN
+        IF (adm-new-record OR adm-adding-record) AND fg-rctd.job-no:SCREEN-VALUE EQ "" THEN
             RUN get-def-values.
         IF fg-rctd.partial:SCREEN-VALUE  EQ ? 
             OR fg-rctd.partial:SCREEN-VALUE  EQ "?" THEN
@@ -3174,7 +3174,7 @@ PROCEDURE new-job-no :
 
                     RUN get-def-values.
                     IF NOT lUpdateRecords THEN
-                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE) .
+                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,job-hdr.job-no,job-hdr.job-no2) .
                       
                     LEAVE.
                 END.
@@ -3523,7 +3523,8 @@ PROCEDURE pGetUnitCountFromJob :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
-    
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO .
     DEFINE BUFFER bf-itemfg FOR itemfg .
 
       DO WITH FRAME {&FRAME-NAME}: 
@@ -3531,7 +3532,9 @@ PROCEDURE pGetUnitCountFromJob :
           FIND FIRST oe-ordl NO-LOCK
               WHERE oe-ordl.company EQ cocode
               AND oe-ordl.ord-no  EQ ipiOrder
-              AND oe-ordl.i-no    EQ ipcFGItem NO-ERROR.
+              AND oe-ordl.i-no    EQ ipcFGItem
+              AND oe-ordl.job-no  EQ ipcJobNo
+              AND oe-ordl.job-no2 EQ ipiJobNo2 NO-ERROR.
           IF AVAIL oe-ordl THEN
               fg-rctd.qty-case:SCREEN-VALUE = string(oe-ordl.cas-cnt) .
           ELSE do:
