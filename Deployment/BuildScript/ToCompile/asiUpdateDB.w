@@ -124,12 +124,6 @@ DEF VAR cEnvVer AS CHAR NO-UNDO.
 DEF VAR iFromDelta AS INT NO-UNDO.
 DEF VAR iToDelta AS INT NO-UNDO.
 DEF VAR cDeltaFile AS CHAR NO-UNDO.
-DEF VAR wDbList AS CHAR NO-UNDO.
-DEF VAR wDbVerList AS CHAR NO-UNDO.
-DEF VAR wAudDbList AS CHAR NO-UNDO.
-DEF VAR wAudPortList AS CHAR NO-UNDO.
-DEF VAR wAudDirList AS CHAR NO-UNDO.
-DEF VAR wAudVerList AS CHAR NO-UNDO.
 
 PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
     DEFINE INPUT        PARAMETER intBufferSize AS LONG.
@@ -1278,37 +1272,6 @@ PROCEDURE ipUpgradeDBs :
         iopiStatus = iopiStatus + 2
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75)
         lSuccess = TRUE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipWriteIniFile C-Win 
-PROCEDURE ipWriteIniFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF VAR cThisElement AS CHAR NO-UNDO.
-
-    RUN ipStatus ("Writing advantzware.ini file...").
-
-    FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = wDbVerList.
-    FIND ttIniFile WHERE ttIniFile.cVarName = "audVerList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = wAudVerList.
-
-    OUTPUT TO VALUE(cIniLoc).
-    FOR EACH ttIniFile BY ttIniFile.iPos:
-        IF ttIniFile.cVarName BEGINS "#" THEN
-            PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
-        ELSE IF ttIniFile.cVarName NE "" THEN
-            PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
-        ELSE NEXT.
-    END.
-    OUTPUT CLOSE.
 
 END PROCEDURE.
 
