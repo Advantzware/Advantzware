@@ -12,6 +12,7 @@
   ----------------------------------------------------------------------*/
 {inventory/ttinventory.i "NEW SHARED"}.
 {fg/invrecpt.i NEW}
+{jc/jcgl-sh.i  NEW}
 
 DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiPONo               AS INTEGER   NO-UNDO.
@@ -21,9 +22,13 @@ DEFINE INPUT  PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit AS DECIMAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcStockIDAlias       AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcWareHouseID        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocationID         AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUsername           AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCreateReceipt      AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcInventoryStockID   AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcLoadtagFormat      AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiTagQuantity        AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess            AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage            AS CHARACTER NO-UNDO.
 
@@ -34,14 +39,68 @@ DEFINE VARIABLE lValidPOLine     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iTagNo           AS INTEGER NO-UNDO.
 DEFINE VARIABLE lFGRecpt         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iRNo             AS INTEGER NO-UNDO.
+DEFINE VARIABLE lValidLoc        AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValidBin        AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTransfer        AS CHARACTER NO-UNDO INITIAL "R".
+DEFINE VARIABLE cItemFG          AS CHARACTER NO-UNDO INITIAL "FG".
+DEFINE VARIABLE cItemRM          AS CHARACTER NO-UNDO INITIAL "RM".
+DEFINE VARIABLE cCustNo          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dStdCost             AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dExtCost             AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dFrtCost             AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lAverageCost         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdCostProcs          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lFGPOFrt             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturn              AS CHARACTER NO-UNDO.
+RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
+/* This will eventually move to setsession */
+&SCOPED-DEFINE NEW NEW
+{methods/defines/globdefs.i}
+{methods/defines/hndldefs.i}
+  
+DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
+  
+g_company=ipcCompany.
+  
+RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
+RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+  
+RUN system/session.p  PERSISTENT SET hSession.
+SESSION:ADD-SUPER-PROCEDURE (hSession).
+RUN system/TagProcs.p PERSISTENT SET hTags.
+SESSION:ADD-SUPER-PROCEDURE (hTags).
+{sys/inc/var.i "new shared"}
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
+RUN system\CostProcs.p PERSISTENT SET hdCostProcs. 
+
+RUN sys/ref/nk1look.p (
+    INPUT ipcCompany, 
+    INPUT "FGPOFRT", 
+    INPUT "L", 
+    INPUT NO, 
+    INPUT NO, 
+    INPUT "", "", 
+    OUTPUT cReturn, 
+    OUTPUT lRecFound
+    ).
 
 ASSIGN
     oplSuccess    = YES
     lValidCompany = YES
     lValidPONo    = YES
     lValidPOLine  = YES
+    lValidLoc     = (ipcWareHouseID NE "")
+    lValidBin     = (ipcLocationID  NE "")
+    ipcItemType   = IF ipcItemType NE cItemFG OR ipcItemType NE cItemRM  THEN
+                        cItemFG
+                    ELSE
+                        ipcItemType
+    lFGPOFrt      = lRecFound AND cReturn EQ "YES".
     .
 
 /* Validate company */
@@ -50,7 +109,7 @@ lValidCompany = CAN-FIND(FIRST company NO-LOCK
       
 IF NOT lValidCompany THEN DO:
     ASSIGN 
-        opcMessage = "Invalid Company"
+        opcMessage = "Invalid Company (" + ipcCompany + ") entered for item (" + ipcPrimaryID + ")"
         oplSuccess = NO
         .
     RETURN.
@@ -65,54 +124,114 @@ RUN ValidatePO IN hdInventoryProcs (
 
 IF NOT lValidPONo THEN DO:
     ASSIGN 
-        opcMessage = "Invalid POID"                     
+        opcMessage = "Invalid PO Number (" + STRING(ipiPONo) + ") entered for item (" + ipcPrimaryID + ")"                 
         oplSuccess = NO
         .
     RETURN.
 END.
 
-/* Validate PO Line and if PO Line is not valid, then it dafults to 1*/
+/* Validate PO Line */
 lValidPOLine = CAN-FIND(FIRST po-ordl NO-LOCK
                          WHERE po-ordl.company EQ ipcCompany
                            AND po-ordl.po-no   EQ ipiPONo
                            AND po-ordl.line    EQ ipiPOLine).
-IF NOT lValidPOLine THEN
-    ipiPOLine = 1.
+IF NOT lValidPOLine THEN DO:
+    ASSIGN 
+        opcMessage = "Invalid PO Line (" + STRING(ipiPOLine) + ") entered for item (" + ipcPrimaryID + ")"                  
+        oplSuccess = NO
+        .
+        
+    RETURN.
+END.
+
+/* Validates item */
+IF ipcItemType EQ cItemFG THEN DO:
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ ipcCompany
+           AND itemfg.i-no    EQ ipcPrimaryID
+         NO-ERROR.
+    IF NOT AVAILABLE itemfg THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Item (" + ipcPrimaryID + ")"                  
+            oplSuccess = NO
+            .
+            
+        RETURN.
+    END.
+    
+    IF NOT lValidLoc OR NOT lValidBin THEN
+        ASSIGN
+            ipcWarehouseID = itemfg.def-loc
+            ipcLocationID  = itemfg.def-loc-bin
+            .
+END.
+ELSE DO:
+    FIND FIRST item NO-LOCK
+     WHERE item.company EQ ipcCompany
+       AND item.i-no    EQ ipcPrimaryID
+     NO-ERROR.
+IF NOT AVAILABLE item THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Item (" + ipcPrimaryID + ")"                   
+            oplSuccess = NO
+            .
+            
+        RETURN.
+    END.
+    IF NOT lValidLoc OR NOT lValidBin THEN
+        ASSIGN
+            ipcWarehouseID = item.loc
+            ipcLocationID  = item.loc-bin
+            .
+END.
+
+/* Validates loc and bin for non-blank values */   
+IF lValidLoc AND lValidBin THEN DO:
+
+    /* Validate warehouse */        
+    RUN ValidateLoc IN hdInventoryProcs (
+        ipcCompany,
+        ipcWareHouseID,
+        OUTPUT lValidLoc
+        ).
+    IF NOT lValidLoc THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid WareHouseID (" + ipcWarehouseID + ") entered for item (" + ipcPrimaryID + ")"                    
+            oplSuccess = NO
+            .
+            
+        RETURN.
+    END.
+    
+    /* Validate location */
+    RUN ValidateBin IN hdInventoryProcs (
+        ipcCompany,
+        ipcWareHouseID,
+        ipcLocationID,
+        OUTPUT lValidBin
+        ).
+
+    IF NOT lValidBin THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid LocationID (" + ipcLocationID + ") entered for item (" + ipcPrimaryID + ")"
+            oplSuccess = NO 
+            .
+            
+        RETURN.
+    END.
+END.
 
 /* Validate CreateReceipt */
 IF ipcCreateReceipt EQ "" OR (ipcCreateReceipt NE "YES" AND ipcCreateReceipt NE "NO") THEN DO:
     ASSIGN 
-        opcMessage = "Please enter valid option (yes / no) for creating receipt"
+        opcMessage = "Please enter valid option (yes / no) to create receipt for item (" + ipcPrimaryID + ")"
         oplSuccess = NO
         .
         RETURN.
 END.
    
-/* Validate primary id */
-IF ipcPrimaryID EQ "" THEN
-    ASSIGN 
-        opcMessage = IF opcMessage EQ "" THEN 
-                         "Invalid PrimaryID"
-                     ELSE
-                         opcMessage + ", " + "Invalid PrimaryID"
-        oplSuccess = NO
-        .
-
-/* Validate item type */
-IF ipcItemType EQ "" THEN
-    ASSIGN 
-        opcMessage = IF opcMessage EQ "" THEN 
-                         "Invalid ItemType"
-                     ELSE
-                         opcMessage + ", " + "Invalid ItemType"
-        oplSuccess = NO
-        .
-
-IF NOT oplSuccess THEN
-    RETURN.
-    
-/* This block will be modified with extra logic to handle inventory stockalias for po creation */
-IF ipcItemType EQ "FG" THEN DO: 
+/* Tag creation for FG Items */
+IF ipcItemType EQ cItemFG THEN DO: 
     FIND FIRST loadtag NO-LOCK WHERE loadtag.company     EQ ipcCompany
                                  AND loadtag.item-type   EQ NO
                                  AND loadtag.is-case-tag EQ NO
@@ -120,7 +239,7 @@ IF ipcItemType EQ "FG" THEN DO:
     
     IF NOT AVAILABLE loadtag THEN DO:
         ASSIGN
-            opcMessage = "company " + ipcCompany + "is not available to create loadtag"
+            opcMessage = "company " + ipcCompany + "is not available to create loadtag for item (" + ipcPrimaryID + ")"
             oplSuccess = NO
             .
         RETURN. 
@@ -129,7 +248,11 @@ IF ipcItemType EQ "FG" THEN DO:
     FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ loadtag.company
                                 AND po-ord.po-no   EQ ipiPONo 
                               NO-ERROR.
-                      
+    cCustNo = IF po-ord.cust-no NE "" THEN
+                  po-ord.cust-no
+              ELSE
+                  "KELLOGS"
+              .     
     FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
                                  AND po-ordl.po-no   EQ po-ord.po-no
                                  AND po-ordl.line    EQ ipiPOLine
@@ -137,9 +260,10 @@ IF ipcItemType EQ "FG" THEN DO:
                                NO-ERROR.
     IF NOT AVAILABLE po-ordl THEN DO:
         ASSIGN 
-            opcMessage = "Primary ID is not available for the given PO Number and PO Line" 
+            opcMessage = "Primary ID ("+ ipcPrimaryID + ") is not available for the given PO Number (" + STRING(ipiPONo) + ") and PO Line (" + STRING(ipiPOLine) + ")" 
             oplSuccess = NO
             .
+            
         RETURN.
     END.
             
@@ -160,19 +284,42 @@ IF ipcItemType EQ "FG" THEN DO:
                                 AND fg-bin.job-no  EQ loadtag.job-no
                                 AND fg-bin.tag     EQ loadtag.tag-no  
                               NO-ERROR.
+                       
+    RUN sys\ref\nk1look.p(
+        INPUT ipcCompany,
+        INPUT "BARDIR",
+        INPUT "C",
+        INPUT YES,
+        INPUT YES,
+        INPUT cCustNo,
+        INPUT "",
+        OUTPUT opcLoadtagFormat,  
+        OUTPUT lRecFound
+        ).
 
- /* Creates a new TAG number */
+    RUN sys\ref\nk1look.p(
+        INPUT ipcCompany,
+        INPUT "BARDIR",
+        INPUT "I",
+        INPUT YES,
+        INPUT YES,
+        INPUT cCustNo,
+        INPUT "",
+        OUTPUT opiTagQuantity,
+        OUTPUT lRecFound
+        ).
+        
+    /* Creates a new TAG number */
     RUN GetNextLoadtagNumber (
         INPUT  ipcCompany, 
         INPUT  ipcPrimaryID, 
         OUTPUT iTagNo
         ).
      
-     
     DO TRANSACTION ON ERROR UNDO,LEAVE:
       
         /* Creates a new loadtag table record*/
-        RUN CreateLoadTag (
+        RUN CreateLoadTagForFGItem (
             INPUT  ipcCompany, 
             INPUT  ipiPONo, 
             INPUT  ipiPOLine, 
@@ -183,7 +330,7 @@ IF ipcItemType EQ "FG" THEN DO:
             INPUT  ipcStockIDAlias, 
             INPUT  iTagNo,
             OUTPUT opcInventoryStockID
-            ).
+            )NO-ERROR.
       
         /* Checking sys-cntrl to create FG reciept for the given company*/     
         FIND FIRST sys-ctrl NO-LOCK
@@ -197,10 +344,34 @@ IF ipcItemType EQ "FG" THEN DO:
         IF AVAILABLE fg-rctd AND fg-rctd.r-no GT iRNo THEN 
             iRNo = fg-rctd.r-no.
         
+        FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+        IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT iRNo THEN 
+            iRNo = fg-rcpth.r-no.
+            
         /* Creates a new FGRctd table record  */
-        IF ipcCreateReceipt EQ "yes" THEN	
+        IF ipcCreateReceipt EQ "yes" THEN	 DO:
             RUN FGReceiptCreation.
-     
+            
+        /* Posts Receipts */
+        RUN PostFinishedGoodsForUser IN hdInventoryProcs(
+            INPUT        ipcCompany,
+            INPUT        cTransfer,
+            INPUT        ipcUsername,
+            INPUT-OUTPUT oplSuccess,
+            INPUT-OUTPUT opcMessage
+            )NO-ERROR.
+                    
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                opcMessage = "Unable to Post receipt - " + ERROR-STATUS:GET-MESSAGE(1)
+                oplSuccess = NO
+                .
+                
+            RETURN.
+        END.
+        
+        END.
+
         /* Catches error if do transaction block fails*/
         CATCH eSysError AS Progress.Lang.SysError:
             ASSIGN
@@ -250,7 +421,7 @@ PROCEDURE GetNextLoadtagNumber PRIVATE :
 END PROCEDURE.
 
 
-PROCEDURE CreateLoadTag PRIVATE :
+PROCEDURE CreateLoadTagForFGItem PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:Creates new record in loadtag table
  Notes:
@@ -338,25 +509,81 @@ PROCEDURE FGReceiptCreation PRIVATE :
         fg-rctd.po-no      = TRIM(STRING(loadtag.po-no,">>>>>>>>>>")).
         fg-rctd.po-line    = loadtag.line 
         .
-    
+        
+    RUN GetCostsFromPO (
+        INPUT  ipcCompany, 
+        INPUT  ipiPONo,
+        INPUT  ipiPOLine,
+        INPUT  ipcPrimaryID,
+        INPUT  ipdQuantity,
+        OUTPUT dStdCost, 
+        OUTPUT cCostUOM, 
+        OUTPUT dExtCost, 
+        OUTPUT dFrtCost
+        ). 
+        
+    ASSIGN
+        fg-rctd.std-cost  = dStdCost
+        fg-rctd.cost-uom  = cCostUOM
+        fg-rctd.ext-cost  = dExtCost
+        fg-rctd.frt-cost  = dFrtCost
+        .
+           
     IF fg-rctd.cases EQ 0 AND fg-rctd.partial NE 0 THEN
         ASSIGN 
             fg-rctd.cases    = (IF fg-rctd.partial LT 0 THEN -1 ELSE 1)
             fg-rctd.qty-case = (IF fg-rctd.partial LT 0 THEN - fg-rctd.partial ELSE fg-rctd.partial)
             fg-rctd.partial  = 0
             .
-    
-    IF loadtag.po-no GT 0 THEN
-        ASSIGN 
-            fg-rctd.job-no = ""
-            fg-rctd.job-no2 = 0
-            .
 END PROCEDURE.
 
-
-
+DELETE PROCEDURE hdCostProcs.
 DELETE PROCEDURE hdInventoryProcs.
 
+PROCEDURE GetCostsFromPO:
+/*------------------------------------------------------------------------------
+ Purpose: Gets costs from PO values
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPONumber         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine           AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty              AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOM       AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCostUOM          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotalFreight AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE dCostPerEA        AS DECIMAL.
+    DEFINE VARIABLE dCostFreight      AS DECIMAL.
+    DEFINE VARIABLE dCostFreightPerEA AS DECIMAL.
+    DEFINE VARIABLE lFound            AS LOGICAL.
+
+    RUN GetCostForPOLine IN hdCostProcs (
+        INPUT ipcCompany, 
+        INPUT ipiPONumber, 
+        INPUT ipiPOLine, 
+        INPUT ipcFGItemID, 
+        OUTPUT opdCostPerUOM, 
+        OUTPUT opcCostUOM, 
+        OUTPUT dCostFreight, 
+        OUTPUT lFound
+        ).
+
+    ASSIGN
+        dCostPerEA          = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM)
+        dCostFreightPerEA   = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight)
+        opdCostTotal        = ipdQty * dCostPerEA
+        opdCostTotalFreight = ipdQty * dCostFreightPerEA
+        opdCostTotal        = IF lFGPOFrt THEN 
+                                  opdCostTotal + opdCostTotalFreight
+                              ELSE
+                                  0
+        .
+
+
+END PROCEDURE.
 
 
 

@@ -24,34 +24,43 @@ DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcAPIInboundEvent        AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdttRequestData     AS HANDLE     NO-UNDO. 
 DEFINE VARIABLE hdJSONProcs         AS HANDLE     NO-UNDO.
-DEFINE VARIABLE hdttBuffer          AS HANDLE     NO-UNDO.
-DEFINE VARIABLE hdttQuery           AS HANDLE     NO-UNDO.
-DEFINE VARIABLE iCount              AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cCompany            AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE iPONo               AS INTEGER    NO-UNDO.
 DEFINE VARIABLE iPOLine             AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cPrimaryID          AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType           AS CHARACTER  NO-UNDO. 
 DEFINE VARIABLE dQuantity           AS DECIMAL    NO-UNDO.
-DEFINE VARIABLE dQuantityPerSubUnit AS DECIMAL    NO-UNDO.
+DEFINE VARIABLE iQuantityPerSubUnit AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cStockIDAlias       AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockID   AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cCreateReceipt      AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cWarehouseID        AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cLocationID         AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE lcTags              AS LONGCHAR   NO-UNDO.
+DEFINE VARIABLE cLoadtagFormat      AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE iTagQuantity        AS INTEGER    NO-UNDO.
 
 {api/inbound/ttRequest.i}
+/* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
+   create trigger, only if session.p is running persistently, else will be populated with empty value.
+   ( refer methods/triggers/create.i ) */
+
+DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+RUN system/session.p PERSISTENT SET hdSession.
+SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs). 
 
 /* Get request data fields in a temp-table */
-RUN ReadRequestData IN hdJSONProcs (
+RUN ReadRequestData (
     INPUT  iplcRequestData,
     OUTPUT oplSuccess,
     OUTPUT opcMessage,
     OUTPUT TABLE ttRequest
-    ).
-        
+    ) NO-ERROR.
+    
 IF NOT oplSuccess THEN DO:   
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.
     
@@ -72,81 +81,19 @@ IF NOT oplSuccess THEN DO:
 
    RETURN.
 END.        
-        
-/* This will fetch fields from request data */
-FOR EACH ttRequest:
-    CASE ttRequest.FieldName:
-        WHEN "Company" THEN
-           cCompany = ttRequest.FieldValue.
-        WHEN "PONo" THEN
-           iPONo = INT(ttRequest.FieldValue).
-        WHEN "POLine" THEN
-           iPOLine = INT(ttRequest.FieldValue).
-        WHEN "PrimaryID" THEN
-           cPrimaryID = ttRequest.FieldValue.
-        WHEN "ItemType" THEN
-           cItemType = ttRequest.FieldValue.
-        WHEN "Quantity" THEN
-           dQuantity = INT(ttRequest.FieldValue).
-        WHEN "QuantityPerSubUnit" THEN
-           dQuantityPerSubUnit = INT(ttRequest.FieldValue).
-        WHEN "StockIDAlias" THEN
-           cStockIDAlias = ttRequest.FieldValue.
-        WHEN "CreateReceipt" THEN
-           cCreateReceipt = ttRequest.FieldValue.
-        WHEN "Requester" THEN
-           ipcRequestedBy = ttRequest.FieldValue.
-        WHEN "RequesterNotes" THEN
-           ipcNotes = ttRequest.FieldValue.
-    END CASE.
-END.
-
-/* This is to fetch response data*/ 
-RUN api\inbound\CreateTagForPO.p (
-    INPUT  cCompany, 
-    INPUT  iPONo,
-    INPUT  iPOLine, 
-    INPUT  cPrimaryID,
-    INPUT  cItemType,
-    INPUT  dQuantity,
-    INPUT  dQuantityPerSubUnit,  
-    INPUT  cStockIDAlias,
-    INPUT  ipcUsername,
-    INPUT  cCreateReceipt,
-    OUTPUT cInventoryStockID,  
+RUN pProcessInputs (
     OUTPUT oplSuccess,
-    OUTPUT opcMessage
-    ).
+    OUTPUT opcMessage,
+    OUTPUT lcTags
+    ) NO-ERROR.
 
-IF NOT oplSuccess THEN
-DO:
-   ASSIGN 
-       oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
-  
-  /* Log the request to APIInboundEvent */
-   RUN api\CreateAPIInboundEvent.p (
-       INPUT ipcRoute,
-       INPUT iplcRequestData,
-       INPUT oplcResponseData,
-       INPUT oplSuccess,
-       INPUT opcMessage,
-       INPUT NOW,
-       INPUT ipcRequestedBy,
-       INPUT ipcRecordSource,
-       INPUT ipcNotes,
-       INPUT  "", /* PayloadID */
-       OUTPUT opcAPIInboundEvent
-       ).
-   
-   RETURN.  
-END.
- 
-ASSIGN
-    oplcResponseData = iplcResponseDataStructure
-    oplcResponseData = REPLACE(oplcResponseData,"$InventoryStockID$",cInventoryStockID)
-    opcMessage = "Success"
-    oplcResponseData  = '~{"response_code": 200,"response_message":"' + opcMessage + '","response_data":[' + oplcResponseData + ']}'. 
-    .
+IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN 
+    oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'. 
+ELSE
+    ASSIGN
+        opcMessage = "Success"
+        oplcResponseData  = '~{"response_code": 200,"response_message":"' + opcMessage + '","response_data":[~{"Tags":[' + lcTags + ']~}]~}'.
+        .
 
 /* Log the request to APIInboundEvent */
 RUN api\CreateAPIInboundEvent.p (
@@ -162,7 +109,185 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT  "", /* PayloadID */
     OUTPUT opcAPIInboundEvent
     ).
-    
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
 DELETE PROCEDURE hdJSONProcs.
 
-                                                      
+PROCEDURE pProcessInputs:
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcTags AS LONGCHAR  NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound            AS LOGICAL    NO-UNDO.
+    DEFINE VARIABLE iTagCounter     AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iIndex               AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iTagsFieldOrder AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iTopLevelParent      AS INTEGER    NO-UNDO  INITIAL 0.
+
+    /* Fetch Requestor */          
+    RUN JSON_GetFieldValueByName (
+        INPUT  "Requester",
+        OUTPUT lRecFound,
+        OUTPUT ipcRequestedBy
+        ) NO-ERROR.  
+        
+    /* Get the count of Tag records */
+    RUN JSON_GetRecordCountByNameAndParent (
+        INPUT  "Tags", 
+        INPUT  iTopLevelParent, 
+        OUTPUT iTagCounter
+        ) NO-ERROR.
+
+    /* Browse through all the Tag records */
+    DO TRANSACTION ON ERROR UNDO, LEAVE:                  
+        DO iIndex = 0 TO iTagCounter - 1:
+            ASSIGN
+                iTagsFieldOrder = 0
+                cCompany             = ""
+                cWareHouseID         = ""
+                cLocationID          = ""
+                cInventoryStockID    = ""
+                ipcNotes             = ""
+                .
+            
+            /* Fetch the Rceipts field order, which will be further used as 
+               parent to fetch it's child records */    
+            RUN JSON_GetFieldOrderByNameValueAndParent (
+                INPUT  "Tags", 
+                INPUT  STRING(iIndex), 
+                INPUT  iTopLevelParent, 
+                OUTPUT lRecFound, 
+                OUTPUT iTagsFieldOrder
+                ) NO-ERROR.
+    
+            /* Fetch company code */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "Company", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cCompany
+                ) NO-ERROR.
+    
+            /* Fetch warehouse ID */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "WareHouseID", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cWareHouseID
+                ) NO-ERROR.
+    
+            /* Fetch location id */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "LocationID", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cLocationID
+                ) NO-ERROR.
+                
+            /* Fetch inventory quantity */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "Quantity", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT dQuantity
+                ) NO-ERROR.
+                
+            /* Fetch inventory PO number */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "PONo", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT iPONo
+                ) NO-ERROR.
+
+            /* Fetch inventory PO Line */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "POLine", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT iPOLine
+                ) NO-ERROR.
+
+            /* Fetch inventory QuantityPerSubUnit */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "QuantityPerSubUnit", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT iQuantityPerSubUnit
+                ) NO-ERROR.  
+            
+            /* Fetch inventory ItemType */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "ItemType", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cItemType
+                ) NO-ERROR.  
+            
+            /* Fetch inventory ItemType */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "PrimaryID", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cPrimaryID
+                ) NO-ERROR.  
+             
+            /* Fetch Requestor */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "RequesterNotes", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT ipcNotes
+                ) NO-ERROR.
+            
+            /* Fetch Receipt creation */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "CreateReceipt", 
+                INPUT  iTagsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cCreateReceipt
+                ) NO-ERROR.   
+                   
+            /* This is to fetch response data*/
+            RUN api\inbound\CreateTagForPO.p (
+                INPUT  cCompany,
+                INPUT  iPONo,
+                INPUT  iPOLine,
+                INPUT  cPrimaryID,
+                INPUT  cItemType,
+                INPUT  dQuantity,
+                INPUT  iQuantityPerSubUnit,
+                INPUT  cStockIDAlias,
+                INPUT  cWarehouseID,
+                INPUT  cLocationID,
+                INPUT  ipcUsername,
+                INPUT  cCreateReceipt,
+                OUTPUT cInventoryStockID,
+                OUTPUT cLoadtagFormat,
+                OUTPUT iTagQuantity,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+          
+           ASSIGN
+                oplcResponseData = iplcResponseDataStructure
+                oplcResponseData = REPLACE(oplcResponseData,"$PONo$",STRING(iPONo))
+                oplcResponseData = REPLACE(oplcResponseData,"$POLine$",STRING(iPOLine))
+                oplcResponseData = REPLACE(oplcResponseData,"$Item$",cPrimaryID)
+                oplcResponseData = REPLACE(oplcResponseData,"$InventoryStockID$",cInventoryStockID)
+                oplcResponseData = REPLACE(oplcResponseData,"$ReceiptCreation$",cCreateReceipt)
+                oplcResponseData = REPLACE(oplcResponseData,"$LoadtagFormat$",cLoadtagFormat)
+                oplcResponseData = REPLACE(oplcResponseData,"$TagQuantity$",STRING(iTagQuantity))
+                oplcTags         = IF oplcTags EQ "" THEN
+                                       oplcResponseData 
+                                   ELSE 
+                                       oplcTags + "," + oplcResponseData
+                                       .
+     
+            IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
+                UNDO, LEAVE.
+        END.
+    END.
+END PROCEDURE.            
+
+SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
+DELETE PROCEDURE hdSession.
