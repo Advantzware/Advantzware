@@ -157,6 +157,11 @@ PROCEDURE os-Process-Hold-Status :
    DEFINE VARIABLE vcStatus   LIKE oe-ord.stat NO-UNDO.
 
    DEFINE VARIABLE vi AS INT NO-UNDO INIT 0.
+   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE lHold AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+   RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 
    /* Find the order record. */
@@ -178,8 +183,14 @@ PROCEDURE os-Process-Hold-Status :
    IF b-oe-ord.stat = "H" THEN DO:
        
        /* Prompt user to remove hold status. */
-       MESSAGE "Take Order off Hold Status?"
-           VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
+       /*MESSAGE "Take Order off Hold Status?"                                   */
+       /*    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.*/
+       
+       RUN pGetMessageFlag IN hMessageProcs (INPUT "10", OUTPUT lSuppressMessage ).
+
+       IF NOT lSuppressMessage THEN
+           RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "10", OUTPUT lContinue) .
+       ELSE lContinue = TRUE .
        
        IF NOT lContinue THEN RETURN.
 
@@ -196,8 +207,14 @@ PROCEDURE os-Process-Hold-Status :
    IF b-oe-ord.stat <> "H" THEN DO:
 
        /* Prompt user to place hold status. */
-       MESSAGE "Place Order on Hold?"
-           VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lHold AS LOGICAL.
+       /*MESSAGE "Place Order on Hold?"                                     */
+       /*    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lHold AS LOGICAL.*/
+       
+       RUN pGetMessageFlag IN hMessageProcs (INPUT "9", OUTPUT lSuppressMessage ).
+
+       IF NOT lSuppressMessage THEN
+           RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "9", OUTPUT lHold) .
+       ELSE lHold = TRUE .
        
        IF NOT lHold THEN RETURN.
 
@@ -251,7 +268,7 @@ PROCEDURE os-Process-Hold-Status :
 
    /* reset item update flag. */
    ASSIGN glStatTypeItemUpdate = NO.
-
+   DELETE OBJECT hMessageProcs.
 
 END PROCEDURE.
 
