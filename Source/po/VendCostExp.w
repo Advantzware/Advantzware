@@ -1158,7 +1158,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
         AND vendItemCost.estimateNo LE end_est-no
         AND (vendItemCost.effectiveDate GE begin_date-eff OR (begin_date-eff LE 01/01/1900 AND vendItemCost.effectiveDate LE 01/01/1900))
         AND (vendItemCost.effectiveDate LE end_date-eff OR (begin_date-eff LE 01/01/1900 AND vendItemCost.effectiveDate LE 01/01/1900))
-        AND (vendItemCost.expirationDate GE  begin_date-exp OR vendItemCost.expirationDate EQ ?)
+        AND (vendItemCost.expirationDate GE  begin_date-exp OR (vendItemCost.expirationDate EQ ? OR begin_date-exp EQ ?))
         AND (vendItemCost.expirationDate LE end_date-exp OR vendItemCost.expirationDate EQ ?) :
 
     v-excel-detail-lines = "".
