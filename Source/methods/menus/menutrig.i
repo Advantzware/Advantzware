@@ -26,6 +26,8 @@ PROCEDURE Select_{&ITEM{1}}:
     DEFINE VARIABLE iSubjectID       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE rRowID           AS ROWID     NO-UNDO.
     
+    DEFINE BUFFER bDynPrgrmsPage FOR dynPrgrmsPage.
+    
     RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
     ASSIGN
         iDynSubjectPage = INTEGER(RETURN-VALUE)
@@ -40,37 +42,43 @@ PROCEDURE Select_{&ITEM{1}}:
     /* run dynamic subject if subject id ne 0 */
     IF iSubjectID NE 0 AND
        CAN-FIND(FIRST dynSubject WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
-        /* if check override parameters exists */
-        IF CAN-FIND(FIRST dynPrgrmsPage
+        /* check override parameters exists */
+        &IF "{&FIRST-EXTERNAL-TABLE}" NE "" &THEN
+        rRowID = ROWID({&FIRST-EXTERNAL-TABLE}).
+        FOR EACH bDynPrgrmsPage
+            WHERE bDynPrgrmsPage.prgmName  EQ b-prgrms.prgmName
+              AND bDynPrgrmsPage.pageTab   EQ iDynSubjectPage
+              AND bDynPrgrmsPage.subjectID EQ iSubjectID
+            BREAK BY bDynPrgrmsPage.tableName
+            :
+            IF FIRST-OF(bDynPrgrmsPage.tableName) THEN DO:
+                CREATE QUERY hQuery.
+                CREATE BUFFER hBuffer FOR TABLE bDynPrgrmsPage.tableName.
+                hQuery:ADD-BUFFER(hBuffer).
+                hQuery:QUERY-PREPARE(
+                    "FOR EACH " + bDynPrgrmsPage.tableName + " NO-LOCK " +
+                    "WHERE ROWID(" + bDynPrgrmsPage.tableName + ") EQ TO-ROWID(~"" +
+                    STRING(rRowID) + "~")"
+                    ).
+                hQuery:QUERY-OPEN().
+                hQuery:GET-FIRST().
+                hTable = hQuery:GET-BUFFER-HANDLE(bDynPrgrmsPage.tableName).
+                FOR EACH dynPrgrmsPage NO-LOCK
                     WHERE dynPrgrmsPage.prgmName  EQ b-prgrms.prgmName
                       AND dynPrgrmsPage.pageTab   EQ iDynSubjectPage
-                      AND dynPrgrmsPage.subjectID EQ iSubjectID) THEN DO:
-            rRowID = ROWID({&FIRST-EXTERNAL-TABLE}).
-            CREATE QUERY hQuery.
-            CREATE BUFFER hBuffer FOR TABLE "{&FIRST-EXTERNAL-TABLE}".
-            hQuery:ADD-BUFFER(hBuffer).
-            hQuery:QUERY-PREPARE(
-                "FOR EACH {&FIRST-EXTERNAL-TABLE} NO-LOCK " +
-                "WHERE ROWID({&FIRST-EXTERNAL-TABLE}) EQ TO-ROWID(~"" +
-                STRING(rRowID) + "~")"
-                ).
-            hQuery:QUERY-OPEN().
-            hQuery:GET-FIRST().
-            hTable = hQuery:GET-BUFFER-HANDLE("{&FIRST-EXTERNAL-TABLE}").
-            FOR EACH dynPrgrmsPage NO-LOCK
-                WHERE dynPrgrmsPage.prgmName  EQ b-prgrms.prgmName
-                  AND dynPrgrmsPage.pageTab   EQ iDynSubjectPage
-                  AND dynPrgrmsPage.subjectID EQ iSubjectID
-                :
-                IF dynPrgrmsPage.paramInitValue NE "" THEN
-                cBufferValue = dynPrgrmsPage.paramInitValue.
-                ELSE
-                cBufferValue = hTable:BUFFER-FIELD(dynPrgrmsPage.fieldName):BUFFER-VALUE().
-                ASSIGN
-                    cParamList  = cParamList  + dynPrgrmsPage.paramName + "|"
-                    cParamValue = cParamValue + cBufferValue + "|"
-                    .
-            END. /* each dynprgrmspage */
+                      AND dynPrgrmsPage.subjectID EQ iSubjectID
+                      AND dynPrgrmsPage.tableName EQ bDynPrgrmsPage.tableName
+                    :
+                    IF dynPrgrmsPage.paramInitValue NE "" THEN
+                    cBufferValue = dynPrgrmsPage.paramInitValue.
+                    ELSE
+                    cBufferValue = hTable:BUFFER-FIELD(dynPrgrmsPage.fieldName):BUFFER-VALUE().
+                    ASSIGN
+                        cParamList  = cParamList  + dynPrgrmsPage.paramName + "|"
+                        cParamValue = cParamValue + cBufferValue + "|"
+                        .
+                END. /* each dynprgrmspage */
+            END. /* if first-of */
             ASSIGN
                 cParamList  = TRIM(cParamList,"|")
                 cParamValue = TRIM(cParamValue,"|")
@@ -85,6 +93,7 @@ PROCEDURE Select_{&ITEM{1}}:
                 cParamValue
                 ).
         END. /* can-find first dynpargrmspage */
+        &ENDIF
         run-proc = "AOA/Jasper.r".
         IF SEARCH(run-proc) EQ ? THEN
         run-proc = "AOA/Jasper.p".
