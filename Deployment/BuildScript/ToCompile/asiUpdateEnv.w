@@ -95,6 +95,11 @@ DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
+DEF TEMP-TABLE ttAPIOutbound 
+    FIELD apiOutboundID AS INT64 
+    FIELD username AS CHAR 
+    FIELD password AS CHAR 
+    FIELD endpoint AS CHAR.        
  
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
@@ -2465,6 +2470,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161300.
     IF fIntVer(cThisEntry) LT 16140000 THEN 
         RUN ipDataFix161400.
+    IF fIntVer(cThisEntry) LT 16140100 THEN  
+        RUN ipDataFix161401.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2839,8 +2846,6 @@ PROCEDURE ipDataFix161200:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161200...").
 
-    RUN ipLoadAPIData.
-    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2883,6 +2888,22 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161401 C-Win
+PROCEDURE ipDataFix161401:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161401...").
+    
+    RUN ipConvertVendorCosts.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -2894,6 +2915,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
+    RUN ipLoadAPIData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
@@ -3674,46 +3696,34 @@ PROCEDURE ipLoadAPIData:
     END.
     INPUT CLOSE.
 
-&SCOPED-DEFINE tablename APIInboundEvent
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
-    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
-    REPEAT:
-        CREATE {&tablename}.
-        IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
-            DELETE {&tablename}.
-    END.
-    INPUT CLOSE.
-
 &SCOPED-DEFINE tablename APIOutbound
     FOR EACH {&tablename}:
+        CREATE tt{&tablename}.
+        ASSIGN 
+            tt{&tablename}.apiOutboundID = {&tablename}.apiOutboundID
+            tt{&tablename}.endPoint = {&tablename}.endPoint
+            tt{&tablename}.userName = tt{&tablename}.userName
+            tt{&tablename}.password = {&tablename}.password.
         DELETE {&tablename}.
     END.
+    
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
         IF ERROR-STATUS:ERROR THEN 
             DELETE {&tablename}.
+        FIND tt{&tablename} WHERE 
+            tt{&tablename}.apiOutboundID EQ {&tablename}.apiOutboundID
+            NO-ERROR.
+        IF AVAIL tt{&tablename} THEN ASSIGN 
+            {&tablename}.endPoint = tt{&tablename}.endPoint
+            {&tablename}.userName = tt{&tablename}.userName
+            {&tablename}.password = tt{&tablename}.password.
     END.
     INPUT CLOSE.
-
+        
 &SCOPED-DEFINE tablename APIOutboundDetail
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
-    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
-    REPEAT:
-        CREATE {&tablename}.
-        IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
-            DELETE {&tablename}.
-    END.
-    INPUT CLOSE.
-
-&SCOPED-DEFINE tablename APIOutboundEvent
     FOR EACH {&tablename}:
         DELETE {&tablename}.
     END.
@@ -5013,10 +5023,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 20
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF fIntVer(fiFromVer:SCREEN-VALUE) LT 161400 THEN DO:
-        RUN ipConvertVendorCosts.
-    END.
-            
     IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipRefTableConv.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -6104,45 +6110,6 @@ PROCEDURE ipVerifyNK1Changes :
         END.    
         OUTPUT STREAM logStream CLOSE.
     END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipWriteIniFile C-Win 
-PROCEDURE ipWriteIniFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    OUTPUT TO VALUE(cIniLoc).
-    FOR EACH ttIniFile BY ttIniFile.iPos:
-        IF ttIniFile.cVarName BEGINS "#" THEN
-            PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
-        ELSE IF ttIniFile.cVarName NE "" THEN DO:
-            IF ttIniFile.cVarName EQ "modeList" THEN ASSIGN 
-                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"Addon,","").
-            IF ttIniFile.cVarName EQ "pgmList" THEN ASSIGN 
-                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain.w,","")
-                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain2.w,","")
-                .
-            /* #53853 New 'mode': AutoLogout */
-            IF ttIniFile.cVarName EQ "modeList"
-            AND LOOKUP("AutoLogout",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                ttIniFile.cVarValue = ttIniFile.cVarValue + ",AutoLogout". 
-            IF ttIniFile.cVarName EQ "pgmList"
-            AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
-            PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
-        END.
-        ELSE NEXT.
-    END.
-    OUTPUT CLOSE.
-    
-    ASSIGN 
-        lSuccess = TRUE.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
