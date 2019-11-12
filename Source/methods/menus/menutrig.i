@@ -54,6 +54,7 @@ PROCEDURE Select_{&ITEM{1}}:
             IF FIRST-OF(bDynPrgrmsPage.tableName) THEN DO:
                 IF bDynPrgrmsPage.tableName NE "" THEN DO:
                     RUN send-records (bDynPrgrmsPage.tableName, OUTPUT cRowID).
+                    IF ERROR-STATUS:ERROR THEN RETURN. /* getting rowid failed */
                     IF cRowID NE "?":U THEN DO:
                         CREATE QUERY hQuery.
                         CREATE BUFFER hBuffer FOR TABLE bDynPrgrmsPage.tableName.
