@@ -775,7 +775,7 @@ PROCEDURE local-update-record :
     END.
     
     lCheckBinMessage = NO .     
-        
+    adm-new-record = NO .    
 
 END PROCEDURE.
 
@@ -797,6 +797,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lCheckBinMessage = NO .
+  adm-new-record = NO .
 
 END PROCEDURE.
 
