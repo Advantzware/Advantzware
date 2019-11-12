@@ -3239,8 +3239,8 @@ PROCEDURE local-update-record :
   
   RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
 
-  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3,NO).
-  ELSE IF framechk-i-changed AND NOT lSuppressMessage THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2,YES).
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
+  ELSE IF framechk-i-changed AND NOT lSuppressMessage THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
 
   ASSIGN
    ll-unit-calc   = NO
@@ -3351,7 +3351,7 @@ IF eb.form-no NE 0 THEN DO:
 
   RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
 
-  IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
+  IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
 END.
 
 END PROCEDURE.
