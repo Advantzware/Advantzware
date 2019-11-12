@@ -107,7 +107,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 22.52
          VIRTUAL-WIDTH      = 150
-         SHOW-IN-TASKBAR    = no
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -187,12 +186,12 @@ DO:
      and its descendents to terminate properly on exit. */
   IF sendChange THEN RUN sendChange IN h_Status.
   IF closeOK THEN DO TRANSACTION:
-        FIND FIRST reftable EXCLUSIVE-LOCK
-             WHERE reftable.reftable EQ "SBCheckoffs"
-               AND reftable.code     EQ ID
-             NO-ERROR.
-        IF AVAILABLE reftable THEN
-        DELETE reftable. 
+      FOR EACH reftable EXCLUSIVE-LOCK
+          WHERE reftable.reftable EQ "SBCheckoffs"
+            AND reftable.code     EQ ID
+          :
+          DELETE reftable. 
+      END. /* each reftable */
   END. /* if close */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
