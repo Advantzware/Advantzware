@@ -119,7 +119,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: NOSWEAT.prgrms
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -139,7 +139,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 320
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes

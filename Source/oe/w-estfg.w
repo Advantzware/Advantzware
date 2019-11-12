@@ -642,7 +642,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_v-eitem ).
        RUN set-position IN h_v-eitem ( 2.67 , 59.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.62 , 99.00 ) */
+       /* Size in UIB:  ( 19.52 , 99.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updncp.w':U ,
@@ -651,7 +651,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updncp ).
-       RUN set-position IN h_p-updncp ( 20.52 , 69.00 ) NO-ERROR.
+       RUN set-position IN h_p-updncp ( 22.91 , 69.00 ) NO-ERROR.
        RUN set-size IN h_p-updncp ( 2.14 , 58.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -659,7 +659,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pricechg ).
-       RUN set-position IN h_pricechg ( 20.52 , 129.00 ) NO-ERROR.
+       RUN set-position IN h_pricechg ( 22.91 , 128.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
