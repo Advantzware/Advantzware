@@ -148,6 +148,9 @@ IF SEARCH(APIInbound.requestHandler) EQ ? AND
     RETURN.
 END.
 
+/* Set the user id of asi database to current user name */
+SETUSERID(ipcUsername,ipcPassword,LDBNAME(1)).
+
 /* Run the request handler program from the API Inbound configuration */
 RUN VALUE(APIInbound.requestHandler)(
     INPUT  ipcRoute,
