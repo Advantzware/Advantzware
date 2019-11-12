@@ -826,7 +826,9 @@ PROCEDURE ReleaseOrder :
                 LEAVE REL-LINES.
            END.
         END.     
-
+        FIND FIRST bf-oe-relh NO-LOCK
+            WHERE ROWID(bf-oe-relh) EQ rOeRelh
+            NO-ERROR.
         iRelNo = iRelNo + 1.
         RUN pCreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT oplError, OUTPUT opcMessage).
      END. 
@@ -1568,7 +1570,7 @@ PROCEDURE pOrderProcsCreateBOL PRIVATE:
     DEFINE INPUT        PARAMETER ipcBolPost   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiBOLNo    AS INTEGER   NO-UNDO.  
-    
+
     DEFINE VARIABLE cFRTPay  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFOBCode AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFRTList AS CHARACTER NO-UNDO.
@@ -1692,11 +1694,27 @@ PROCEDURE pOrderProcsCreateBOL PRIVATE:
          USE-INDEX b-no NO-ERROR.
     IF AVAILABLE oe-bolh THEN 
         x = oe-bolh.b-no + 1.
-  
+        
+    FIND FIRST shipto NO-LOCK
+     WHERE shipto.company EQ oe-relh.company
+       AND shipto.cust-no EQ oe-relh.cust-no
+       AND shipto.ship-id EQ oe-relh.ship-id
+     NO-ERROR.
+         
+    IF NOT AVAILABLE shipto THEN 
+        FIND FIRST loc NO-LOCK
+             WHERE loc.company EQ ipcCompany
+             NO-ERROR.
+             
     CREATE oe-bolh.
     ASSIGN
         oe-bolh.company  = oe-relh.company
-        oe-bolh.loc      = locode
+        oe-bolh.loc      = IF AVAILABLE shipto THEN
+                               shipto.loc
+                           ELSE IF AVAILABLE loc THEN
+                               loc.loc
+                           ELSE
+                               ""
         oe-bolh.b-no     = x
         oe-bolh.bol-no   = iopiBOLNo
         oe-bolh.release# = oe-relh.release#

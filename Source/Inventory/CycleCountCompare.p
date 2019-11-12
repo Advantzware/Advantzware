@@ -165,6 +165,9 @@ PROCEDURE exportSnapshot:
         AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0
         AND fg-bin.qty NE 0
         AND fg-bin.tag NE ""
+        AND CAN-FIND (FIRST itemfg NO-LOCK 
+                         WHERE itemfg.company EQ fg-bin.company 
+                           AND itemfg.i-no EQ fg-bin.i-no )        
         :
         icnt = icnt + 1.
         CREATE ttSnapshot.
@@ -447,6 +450,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0
             AND fg-bin.qty NE 0
             AND fg-bin.tag NE ""
+            AND CAN-FIND (FIRST itemfg NO-LOCK 
+                            WHERE itemfg.company EQ fg-bin.company 
+                              AND itemfg.i-no EQ fg-bin.i-no )
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ fg-bin.company
@@ -632,12 +638,18 @@ PROCEDURE pCheckBinDups:
           AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0 
           AND fg-bin.qty GT 0
           AND fg-bin.tag GT "" 
+          AND CAN-FIND (FIRST itemfg NO-LOCK 
+                           WHERE itemfg.company EQ fg-bin.company 
+                             AND itemfg.i-no EQ fg-bin.i-no )
           .
         FIND FIRST bf-fg-bin NO-LOCK
             WHERE bf-fg-bin.company EQ fg-bin.company
             AND bf-fg-bin.tag EQ fg-bin.tag
             AND ROWID(bf-fg-bin) NE ROWID(fg-bin)
             AND bf-fg-bin.qty GT 0 
+            AND CAN-FIND (FIRST itemfg NO-LOCK 
+                           WHERE itemfg.company EQ bf-fg-bin.company 
+                             AND itemfg.i-no EQ bf-fg-bin.i-no )
             NO-ERROR.
         IF AVAILABLE bf-fg-bin THEN 
         DO:
@@ -842,7 +854,7 @@ PROCEDURE pCreateTransferCounts:
                      
             /* Finding a count record from within the past 2 weeks on assumption it will */
         /* be part of the current physical                                           */
-        FIND FIRST bf-fg-rctd NO-LOCK 
+        FIND FIRST bf-fg-rctd EXCLUSIVE-LOCK 
             WHERE bf-fg-rctd.company EQ  ttCycleCountCompare.cCompany
             AND bf-fg-rctd.i-no    EQ ttCycleCountCompare.cFGItemID   
             AND bf-fg-rctd.tag     EQ ttCycleCountCompare.cTag        
@@ -851,10 +863,11 @@ PROCEDURE pCreateTransferCounts:
             AND bf-fg-rctd.rita-code EQ "C"
             AND bf-fg-rctd.rct-date GE TODAY - 14
             NO-ERROR.    
-        /* The transfer should happen before the count */
+       
         IF AVAILABLE bf-fg-rctd THEN DO:
-            ASSIGN  
-                dTransDate = bf-fg-rctd.rct-date
+            IF dTransDate NE ? THEN 
+                bf-fg-rctd.rct-date = dTransDate.
+            ASSIGN                  
                 iTransTime = bf-fg-rctd.trans-time
                 cEnteredBy = bf-fg-rctd.enteredBy
                 dtmEnteredDate = bf-fg-rctd.enteredDT       
@@ -862,7 +875,8 @@ PROCEDURE pCreateTransferCounts:
             CREATE ttToPost.
             ttToPost.rFgRctd = ROWID(bf-fg-rctd). 
         END.
-            
+        FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
+        
         FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
             AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
 
@@ -895,10 +909,10 @@ PROCEDURE pCreateTransferCounts:
             fg-rctd.partial  = 0
             fg-rctd.t-qty    = 0
             fg-rctd.ext-cost = 0
-            fg-rctd.cost     = 0
+            fg-rctd.cost     = (IF AVAIL bf-fg-rctd THEN bf-fg-rctd.cost ELSE 0)
             fg-rctd.cost-uom = fg-bin.pur-uom
             .
-       
+
         IF fg-rctd.pur-uom = "" THEN
             fg-rctd.pur-uom = fg-rctd.cost-uom.
         IF fg-rctd.ext-cost EQ ? THEN fg-rctd.ext-cost = 0.
@@ -910,7 +924,7 @@ PROCEDURE pCreateTransferCounts:
             fg-rctd.upd-date = TODAY
             fg-rctd.upd-time = TIME
             fg-rctd.enteredBy = cEnteredBy 
-            fg-rctd.enteredDT = dtmEnteredDate  
+            fg-rctd.enteredDT = DATETIME(TODAY, MTIME)
             .
         IF AVAILABLE itemfg THEN 
         DO:

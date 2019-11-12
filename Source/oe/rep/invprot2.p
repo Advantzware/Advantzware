@@ -5,6 +5,7 @@
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
+{oe/ttSaveLine.i "SHARED"}
 
 DEF VAR v-salesman      AS CHAR FORMAT "x(14)" NO-UNDO.
 DEF VAR v-salesname     AS CHAR FORMAT "x(30)" NO-UNDO.
@@ -112,7 +113,6 @@ DEF VAR lv-taxable AS CHAR INIT "Y" NO-UNDO.
 DEF VAR lv-line LIKE oe-ordl.e-num NO-UNDO.
 DEF VAR lv-bolno LIKE oe-bolh.bol-no NO-UNDO.
 DEF BUFFER b-inv-h FOR inv-head.
-DEF BUFFER b-save-line FOR reftable.
 DEF BUFFER b-inv-head FOR inv-head.
 DEF VAR lv-carrier LIKE inv-head.carrier NO-UNDO.
 DEF VAR lv-fob LIKE inv-head.fob NO-UNDO.
@@ -683,12 +683,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 /*         PUT SKIP. */
 /*         ASSIGN v-printline = v-printline + 2. */
         IF inv-head.multi-invoice THEN
-        DO: /*since r-no is set to same for all inv-misc in this case, need to go through reftable to find original bol*/
-            FOR EACH b-save-line WHERE b-save-line.reftable EQ "save-line" + v-term-id:
-                FIND FIRST inv-misc WHERE RECID(inv-misc) EQ INT(b-save-line.val[3]) NO-ERROR.
+        DO: /*since r-no is set to same for all inv-misc in this case, need to go through ttSaveLine to find original bol*/
+            FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id:
+                FIND FIRST inv-misc WHERE ROWID(inv-misc) EQ ttSaveLine.invRowID NO-ERROR.
                 IF AVAIL inv-misc THEN 
                 DO:
-                    FIND FIRST b-inv-head WHERE b-inv-head.r-no = INT(b-save-line.val[1]) NO-LOCK NO-ERROR.
+                    FIND FIRST b-inv-head WHERE b-inv-head.r-no = ttSaveLine.invMiscRNo NO-LOCK NO-ERROR.
                     IF AVAIL b-inv-head THEN 
                     DO:
                         FIND FIRST oe-bolh WHERE oe-bolh.company = b-inv-head.company AND

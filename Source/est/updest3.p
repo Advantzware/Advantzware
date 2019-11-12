@@ -6,6 +6,7 @@ DEFINE INPUT PARAMETER ipiType  AS INTEGER NO-UNDO.  /* 1 is inks,
                                               3 is packing
                                               4 is freight
                                               ? is all */
+DEFINE INPUT PARAMETER iplDisplayPopup AS LOGICAL NO-UNDO .
 
 DEFINE BUFFER b-eb  FOR eb.
 DEFINE BUFFER b-eb1 FOR eb.
@@ -61,21 +62,22 @@ DO:
     IF lMatchFGItem OR lMatchPart OR lMatchCad THEN 
         FIND FIRST b-eb NO-LOCK 
             WHERE b-eb.company EQ eb.company
-            AND (b-eb.stock-no EQ eb.stock-no AND eb.stock-no NE "" OR NOT lMatchFGItem)
-            AND (b-eb.cad-no EQ eb.cad-no OR NOT lMatchCad)
-            AND (b-eb.part-no EQ eb.part-no OR NOT lMatchPart) 
+            AND ((b-eb.stock-no EQ eb.stock-no AND eb.stock-no NE "" AND lMatchFGItem)
+            OR (b-eb.cad-no EQ eb.cad-no AND eb.cad-no NE "" AND  lMatchCad)
+            OR (b-eb.part-no EQ eb.part-no AND eb.part-no NE "" AND lMatchPart) )
             AND ROWID(b-eb)   NE ip-rowid1
             AND ROWID(b-eb)   NE ip-rowid2
             NO-ERROR.
         
     IF AVAILABLE b-eb THEN DO:                
-        RUN est\dUpdEst.w (cCriteria, INPUT-OUTPUT lUpdInks, INPUT-OUTPUT lUpdPack, INPUT-OUTPUT lUpdFreight).
+        IF iplDisplayPopup THEN
+            RUN est\dUpdEst.w (cCriteria, INPUT-OUTPUT lUpdInks, INPUT-OUTPUT lUpdPack, INPUT-OUTPUT lUpdFreight). 
         IF lUpdInks OR lUpdPack OR lUpdFreight THEN 
             FOR EACH b-eb 
                 WHERE b-eb.company EQ eb.company
-                AND (b-eb.stock-no EQ eb.stock-no AND eb.stock-no NE "" OR NOT lMatchFGItem)
-                AND (b-eb.cad-no EQ eb.cad-no OR NOT lMatchCad)
-                AND (b-eb.part-no EQ eb.part-no OR NOT lMatchPart) 
+                AND ((b-eb.stock-no EQ eb.stock-no AND eb.stock-no NE "" AND lMatchFGItem)
+                OR (b-eb.cad-no EQ eb.cad-no AND eb.cad-no NE "" AND lMatchCad)
+                OR (b-eb.part-no EQ eb.part-no AND eb.part-no NE "" AND  lMatchPart) )
                 AND ROWID(b-eb)   NE ip-rowid1
                 AND ROWID(b-eb)   NE ip-rowid2
                 :

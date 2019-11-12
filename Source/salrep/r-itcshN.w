@@ -108,16 +108,16 @@ ASSIGN cTextListToSelect = "Fg Item,Item Name,Customer#,Customer Name,Customer P
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 tb_cust-list ~
 btnCustList begin_cust-no end_cust-no begin_ship end_ship begin_slmn ~
 end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date end_inv-date ~
-begin_shipfrom end_shipfrom tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def ~
-sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel begin_cust-part end_cust-part
+begin_shipfrom end_shipfrom begin_cust-part end_cust-part tb_detailed ~
+tb_fin-chg rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
+btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
+tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps begin_i-no ~
 end_i-no begin_inv-date end_inv-date begin_shipfrom end_shipfrom ~
-tb_detailed tb_fin-chg lbl_sort rd_sort sl_avail sl_selected rd-dest ~
-lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file begin_cust-part end_cust-part
+begin_cust-part end_cust-part tb_detailed tb_fin-chg lbl_sort rd_sort ~
+sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -170,13 +170,13 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)" 
-     LABEL "Beginning Item#" 
+DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(15)" 
+     LABEL "Beginning Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(15)" 
-     LABEL "Beginning Customer Part#" 
+DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)" 
+     LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -205,13 +205,13 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
-     LABEL "Ending Item#" 
+DEFINE VARIABLE end_cust-part AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_cust-part AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
-     LABEL "Ending Customer Part#" 
+DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending Item#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -293,7 +293,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 70 BY 7.62.
+     SIZE 70 BY 8.91.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -371,28 +371,28 @@ DEFINE FRAME FRAME-A
           "Enter starting ship from location." WIDGET-ID 158
      end_shipfrom AT ROW 8.57 COL 69 COLON-ALIGNED HELP
           "Enter ending ship from location." WIDGET-ID 160
-     begin_cust-part AT ROW 9.37 COL 28 COLON-ALIGNED HELP
+     begin_cust-part AT ROW 9.38 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Part Number"
-     end_cust-part AT ROW 9.37 COL 69 COLON-ALIGNED HELP
+     end_cust-part AT ROW 9.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer part Number"
      tb_detailed AT ROW 10.43 COL 50 RIGHT-ALIGNED
      tb_fin-chg AT ROW 10.43 COL 56.2
-     lbl_sort AT ROW 11.62 COL 26 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 11.62 COL 35 NO-LABEL
-     sl_avail AT ROW 13.81 COL 27.2 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 13.81 COL 55.6 HELP
+     lbl_sort AT ROW 11.95 COL 25.8 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11.95 COL 34.8 NO-LABEL
+     sl_avail AT ROW 14.14 COL 27 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 14.14 COL 55.4 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 13.81 COL 70.8 NO-LABEL WIDGET-ID 148
-     Btn_Add AT ROW 15 COL 55.6 HELP
+     sl_selected AT ROW 14.14 COL 70.6 NO-LABEL WIDGET-ID 148
+     Btn_Add AT ROW 15.33 COL 55.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 16.14 COL 55.6 HELP
+     Btn_Remove AT ROW 16.48 COL 55.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 17.38 COL 55.6 WIDGET-ID 144
-     btn_down AT ROW 18.57 COL 55.6 WIDGET-ID 140
+     btn_Up AT ROW 17.71 COL 55.4 WIDGET-ID 144
+     btn_down AT ROW 18.91 COL 55.4 WIDGET-ID 140
      rd-dest AT ROW 21.62 COL 7 NO-LABEL
      lv-ornt AT ROW 21.86 COL 31 NO-LABEL
      lines-per-page AT ROW 21.86 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 23.76 COL 34 COLON-ALIGNED
+     lv-font-no AT ROW 23.38 COL 33 COLON-ALIGNED
      lv-font-name AT ROW 24.71 COL 28 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 25.91 COL 30
      tb_excel AT ROW 27.48 COL 50.4 RIGHT-ALIGNED
@@ -402,15 +402,22 @@ DEFINE FRAME FRAME-A
      btn-ok AT ROW 30.05 COL 23
      btn-cancel AT ROW 30.05 COL 59
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 12.86 COL 28.2 WIDGET-ID 150
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.86 COL 61.8 WIDGET-ID 152
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 20.81 COL 5
+          SIZE 20 BY .62 AT ROW 13.19 COL 28 WIDGET-ID 150
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.29 COL 5
           BGCOLOR 2 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.81 COL 5
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 13.19 COL 61.6 WIDGET-ID 152
      RECT-6 AT ROW 21.19 COL 2
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1.6 ROW 1.24
+         SIZE 106.4 BY 30.57.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME FRAME-A
      RECT-7 AT ROW 1.05 COL 2
      RECT-8 AT ROW 11.62 COL 26.6 WIDGET-ID 154
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -475,10 +482,11 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-ASSIGN 
        begin_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -510,10 +518,11 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-ASSIGN 
        end_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -634,6 +643,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-part C-Win
+ON LEAVE OF begin_cust-part IN FRAME FRAME-A /* Beginning Customer Part# */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
 ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Beginning Item# */
@@ -644,15 +664,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_cust-part
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-part C-Win
-ON LEAVE OF begin_cust-part IN FRAME FRAME-A /* Beginning Cust Part */
-DO:
-   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv-date C-Win
@@ -675,9 +686,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME begin_shipfrom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
-ON HELP OF begin_shipfrom IN FRAME FRAME-A /* Beginning Customer# */
+ON HELP OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From WH */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
@@ -691,26 +703,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_shipfrom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
-ON LEAVE OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From */
+ON LEAVE OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From WH */
 DO:
   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_shipfrom
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
-ON HELP OF end_shipfrom IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,6 +923,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-part C-Win
+ON LEAVE OF end_cust-part IN FRAME FRAME-A /* Ending Customer Part# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
 ON LEAVE OF end_i-no IN FRAME FRAME-A /* Ending Item# */
@@ -937,15 +944,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_cust-part
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-part C-Win
-ON LEAVE OF end_cust-part IN FRAME FRAME-A /* Ending Customer Part# */
-DO:
-     assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-date C-Win
@@ -971,7 +969,22 @@ END.
 
 &Scoped-define SELF-NAME end_shipfrom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
-ON LEAVE OF end_shipfrom IN FRAME FRAME-A /* Ending Ship From */
+ON HELP OF end_shipfrom IN FRAME FRAME-A /* Ending Ship From WH */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
+ON LEAVE OF end_shipfrom IN FRAME FRAME-A /* Ending Ship From WH */
 DO:
   assign {&self-name}.
 END.
@@ -1533,21 +1546,54 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust-no end_cust-no begin_ship end_ship begin_slmn 
           end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date 
-          end_inv-date begin_shipfrom end_shipfrom tb_detailed tb_fin-chg 
-          lbl_sort rd_sort sl_avail sl_selected rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
-          begin_cust-part end_cust-part
+          end_inv-date begin_shipfrom end_shipfrom begin_cust-part end_cust-part 
+          tb_detailed tb_fin-chg lbl_sort rd_sort sl_avail sl_selected rd-dest 
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no 
          end_cust-no begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps 
          begin_i-no end_i-no begin_inv-date end_inv-date begin_shipfrom 
-         end_shipfrom tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def 
-         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
-         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel begin_cust-part end_cust-part
+         end_shipfrom begin_cust-part end_cust-part tb_detailed tb_fin-chg 
+         rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
+         btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ExcelEmail C-Win 
+PROCEDURE ExcelEmail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+IF tb_excel THEN DO:
+     {custom/asimailx.i &TYPE = "Excel"
+                             &begin_cust= begin_cust-no
+                             &END_cust=end_cust-no
+                             &mail-subject=c-win:title
+                             &mail-body=c-win:title
+                             &mail-file=fi_file }  
+END.
+ELSE DO:
+    {custom/asimailr.i &TYPE = "Customer"
+                             &begin_cust= begin_cust-no
+                             &END_cust=end_cust-no
+                             &mail-subject=c-win:title
+                             &mail-body=c-win:title
+                             &mail-file=list-name }
+
+
+END.
+        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1940,39 +1986,6 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ExcelEmail C-Win 
-PROCEDURE ExcelEmail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-IF tb_excel THEN DO:
-     {custom/asimailx.i &TYPE = "Excel"
-                             &begin_cust= begin_cust-no
-                             &END_cust=end_cust-no
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
-                             &mail-file=fi_file }  
-END.
-ELSE DO:
-    {custom/asimailr.i &TYPE = "Customer"
-                             &begin_cust= begin_cust-no
-                             &END_cust=end_cust-no
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
-                             &mail-file=list-name }
-
-
-END.
-        
 
 END PROCEDURE.
 

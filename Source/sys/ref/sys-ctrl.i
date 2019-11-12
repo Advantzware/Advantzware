@@ -56,7 +56,8 @@ ASSIGN
               + "PremierX,CSC,Elite,OTTPkg,APC,ConsBox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,"
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
-              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN,LancoYork,POPrint-Mex,POPrint-CAN2"
+              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN,LancoYork,POPrint-Mex,POPrint-CAN2,"
+              + "Mclean"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,PremTarget,CSC-GA,CardedX," +
@@ -250,7 +251,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[159] = "Transit Days,Dock Appt Days,Transit&Dock"
        str-init[160] = "UnderRuns and OverRun,OverRuns Only,UnderRuns Only"
        str-init[161] = ",QtyInRange,QtyMatch,EffDateAge,QtyQuoted"
-       str-init[162] = "FG Item #,CAD #,Customer Part #"
+       str-init[162] = ",FG Item #,CAD #,Customer Part #"
        str-init[163] = "HOLD,INFO"
        str-init[164] = "HOLD"
        str-init[165] = "HOLD"

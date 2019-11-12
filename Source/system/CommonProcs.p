@@ -28,7 +28,41 @@
 
 /* **********************  Internal Procedures  *********************** */
 
-
+PROCEDURE Common_ValidateValueByDataType:
+    /*------------------------------------------------------------------------------
+     Purpose: Validate if a given value can be converted to given data type.
+              Returns error in case of failure
+     Notes:
+    ------------------------------------------------------------------------------*/	
+                
+    DEFINE INPUT  PARAMETER ipcValue    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDataType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid    AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE dDecimalValidator AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE daDateValidator   AS DATE    NO-UNDO.
+    
+    CASE ipcDataType:
+        WHEN "DECIMAL" OR
+        WHEN "INTEGER" THEN DO:
+            dDecimalValidator = DECIMAL(ipcValue) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                oplValid   = FALSE.
+                RETURN.
+            END.
+        END.
+        WHEN "DATE" THEN DO:
+            daDateValidator = DATE(ipcValue) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                oplValid = FALSE.
+                RETURN.
+            END.
+        END.
+    END CASE.
+    
+    oplValid = TRUE.
+END PROCEDURE.
+    
 /* ************************  Function Implementations ***************** */
 
 FUNCTION Common_GetNumberOfDaysInMonth RETURNS INTEGER 

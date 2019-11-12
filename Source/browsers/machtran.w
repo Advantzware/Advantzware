@@ -77,10 +77,10 @@ DEFINE VARIABLE total-time AS CHARACTER NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table machtran.machine ~
 machtran.job_number machtran.job_sub machtran.form_number ~
 machtran.blank_number machtran.pass_sequence machtran.charge_code ~
-machtran.start_date STRING(machtran.start_time,'HH:MM am') @ start-time ~
+machtran.start_date DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO) @ start-time ~
 machtran.end_date machtran.shift ~
-Time_String(machtran.end_time,yes) @ end-time machtran.run_qty ~
-Time_String(machtran.total_time,no) @ total-time 
+DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO) @ end-time machtran.run_qty ~
+DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO) @ total-time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machtran WHERE ~{&KEY-PHRASE} ~
       AND machtran.company = gcompany ~
@@ -112,13 +112,6 @@ auto_find
 
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD Time_String B-table-Win 
-FUNCTION Time_String RETURNS CHARACTER
-  (ip-time AS INTEGER,ip-clock-time AS LOGICAL) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -187,14 +180,14 @@ DEFINE BROWSE Browser-Table
       machtran.pass_sequence FORMAT ">>9":U LABEL-BGCOLOR 14
       machtran.charge_code FORMAT "X(5)":U LABEL-BGCOLOR 14
       machtran.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      STRING(machtran.start_time,'HH:MM am') @ start-time COLUMN-LABEL "Log In" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO) @ start-time COLUMN-LABEL "Log In" FORMAT "X(8)":U
             LABEL-BGCOLOR 14
       machtran.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       machtran.shift FORMAT "xx":U LABEL-BGCOLOR 14
-      Time_String(machtran.end_time,yes) @ end-time COLUMN-LABEL "Log Out" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO) @ end-time COLUMN-LABEL "Log Out" FORMAT "X(8)":U
             LABEL-BGCOLOR 14
       machtran.run_qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
-      Time_String(machtran.total_time,no) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -329,17 +322,17 @@ AND ~{&KEY-PHRASE}"
      _FldNameList[8]   > machtran.start_date
 "machtran.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
-"STRING(machtran.start_time,'HH:MM am') @ start-time" "Log In" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO) @ start-time" "Log In" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > machtran.end_date
 "machtran.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > machtran.shift
 "machtran.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"Time_String(machtran.end_time,yes) @ end-time" "Log Out" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO) @ end-time" "Log Out" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > machtran.run_qty
 "machtran.run_qty" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
-"Time_String(machtran.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO)" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -669,24 +662,4 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION Time_String B-table-Win 
-FUNCTION Time_String RETURNS CHARACTER
-  (ip-time AS INTEGER,ip-clock-time AS LOGICAL):
-/*------------------------------------------------------------------------------
-  Purpose:  return time in string format
-    Notes:  
-------------------------------------------------------------------------------*/
-  IF ip-time = 0 AND machtran.end_date EQ ? THEN
-  RETURN ''.
-  ELSE
-  IF ip-clock-time THEN
-  RETURN STRING(ip-time,'HH:MM am').
-  ELSE
-  RETURN STRING(ip-time,'HH:MM').
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 

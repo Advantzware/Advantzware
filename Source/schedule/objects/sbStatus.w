@@ -186,8 +186,14 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   IF sendChange THEN RUN sendChange IN h_Status.
-  IF closeOK THEN
-  OS-DELETE VALUE('{&updates}\' + ID + '\inUse.dat').
+  IF closeOK THEN DO TRANSACTION:
+        FIND FIRST reftable EXCLUSIVE-LOCK
+             WHERE reftable.reftable EQ "SBCheckoffs"
+               AND reftable.code     EQ ID
+             NO-ERROR.
+        IF AVAILABLE reftable THEN
+        DELETE reftable. 
+  END. /* if close */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.

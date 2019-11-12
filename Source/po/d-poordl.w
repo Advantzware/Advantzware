@@ -5401,7 +5401,7 @@ PROCEDURE valid-b-num :
                 /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
                 /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
                     MESSAGE  cCurrentMessage
-                    VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans.
+                    VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans .
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
@@ -6880,7 +6880,7 @@ PROCEDURE GetFirstMach :
     DEFINE OUTPUT PARAMETER opMachine AS CHAR NO-UNDO.
     
  DO WITH FRAME {&FRAME-NAME}:
-      IF AVAILABLE po-ordl THEN
+      IF AVAILABLE po-ordl AND po-ordl.job-no:SCREEN-VALUE NE "" THEN
         FOR EACH job-mch NO-LOCK
           WHERE job-mch.company EQ cocode
             AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE

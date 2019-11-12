@@ -532,6 +532,17 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON RETURN OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
+DO:
+    // Discard carriage returns at this point - user must tab out or cancel
+    APPLY 'tab' TO rm-rctd.tag IN BROWSE Browser-Table.    
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME rm-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
@@ -1310,8 +1321,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom B-table-Win
-PROCEDURE valid-uom:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom B-table-Win 
+PROCEDURE valid-uom :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1345,7 +1356,7 @@ PROCEDURE valid-uom:
   END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

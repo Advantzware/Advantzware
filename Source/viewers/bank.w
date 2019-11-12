@@ -227,7 +227,7 @@ DEFINE FRAME F-Main
           SIZE 25 BY 1
           FONT 4
      bank.RTN AT ROW 13.19 COL 86 COLON-ALIGNED
-          LABEL "Routing#" FORMAT ">>>>>>>>>"
+          LABEL "Routing#" FORMAT "999999999"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
           FONT 4

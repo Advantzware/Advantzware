@@ -116,29 +116,31 @@ DEFINE BUFFER bttUsers FOR ttUsers.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.showCueCards users.positionMnemonic ~
-users.showMnemonic users.menuSize users.userLanguage users.user_name ~
-users.phone-cnty users.mobile users.image_filename users.user_program[1] ~
-users.user_program[2] users.user_program[3] users.track_usage ~
-users.use_colors users.use_fonts users.developer users.isLocked users.isManager ~
-users.userImage[1] users.showMenuImages users.manager users.department
+&Scoped-Define ENABLED-FIELDS users.AMPM users.user_name users.phone-cnty ~
+users.isManager users.isLocked users.mobile users.image_filename ~
+users.user_program[1] users.user_program[2] users.user_program[3] ~
+users.userImage[1] users.track_usage users.use_colors users.use_fonts ~
+users.menuSize users.developer users.userLanguage users.showMenuImages ~
+users.showCueCards users.showMnemonic users.positionMnemonic 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-Define DISPLAYED-FIELDS users.showCueCards users.positionMnemonic ~
-users.showMnemonic users.menuSize users.userLanguage users.user_id ~
-users.user_name users.userAlias users.phone-cnty users.phone users.mobile ~
-users.fax users.image_filename users.user_program[1] users.user_program[2] ~
-users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
-users.developer users.securityLevel users.isActive users.isLocked users.isManager ~
-users.userImage[1] users.showMenuImages users.manager users.department
+&Scoped-Define DISPLAYED-FIELDS users.AMPM users.user_id users.user_name ~
+users.userAlias users.department users.phone-cnty users.phone ~
+users.securityLevel users.isActive users.isManager users.isLocked ~
+users.mobile users.fax users.image_filename users.user_program[1] ~
+users.user_program[2] users.user_program[3] users.userImage[1] ~
+users.track_usage users.use_colors users.manager users.use_fonts ~
+users.menuSize users.developer users.userLanguage users.showMenuImages ~
+users.showCueCards users.showMnemonic users.positionMnemonic 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
-lv-phone-num slEnvironments slDatabases slModes 
+lv-phone-num slModes slEnvironments slDatabases 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELDS,List-5,F1 */
-&Scoped-define ADM-CREATE-FIELDS users.user_id 
+&Scoped-define ADM-CREATE-FIELDS users.user_id users.department ~
+users.manager 
 &Scoped-define ADM-ASSIGN-FIELDS users.phone-cnty fi_phone-area ~
 lv-phone-num users.mobile users.image_filename 
 &Scoped-define DISPLAY-FIELDS users.phone-cnty fi_phone-area lv-phone-num ~
@@ -383,6 +385,9 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     users.AMPM AT ROW 19.1 COL 23 WIDGET-ID 534
+          VIEW-AS TOGGLE-BOX
+          SIZE 11 BY 1
      users.user_id AT ROW 1.24 COL 21 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
@@ -402,7 +407,7 @@ DEFINE FRAME F-Main
           LABEL "Dept"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-          BGCOLOR 15
+          BGCOLOR 15 
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      bChgPwd AT ROW 2.43 COL 61 WIDGET-ID 82 NO-TAB-STOP 
      users.phone-cnty AT ROW 3.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 12
@@ -426,7 +431,6 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
      users.isManager AT ROW 3.62 COL 112 WIDGET-ID 90
-          LABEL "Manager?"
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
      users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
@@ -459,12 +463,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      users.user_program[3] AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 36
           LABEL "Document Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
@@ -475,6 +473,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 48 BY 1
           BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      users.track_usage AT ROW 11.95 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
@@ -485,7 +489,7 @@ DEFINE FRAME F-Main
           LABEL "Manager"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-          BGCOLOR 15
+          BGCOLOR 15 
      users.use_fonts AT ROW 13.86 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
@@ -514,8 +518,8 @@ DEFINE FRAME F-Main
                     "None", "None":U,
 "All", "All":U,
 "Programs Only", "Program":U
-          SIZE 33 BY 1
-     users.positionMnemonic AT ROW 16.71 COL 66 NO-LABEL WIDGET-ID 126
+          SIZE 34 BY 1
+     users.positionMnemonic AT ROW 17.91 COL 23 NO-LABEL WIDGET-ID 126
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Begin", "Begin":U,
@@ -534,6 +538,34 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 69 WIDGET-ID 512
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 62 WIDGET-ID 514
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 18.14 COL 43 WIDGET-ID 518
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 20.05 COL 43 WIDGET-ID 516
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 43 WIDGET-ID 520
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 19.57 COL 79 WIDGET-ID 522
+          FGCOLOR 0 FONT 6
+     "Mobile:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 4.81 COL 15.6 WIDGET-ID 94
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "Time Display Use" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 19.1 COL 6 WIDGET-ID 536
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -544,8 +576,8 @@ DEFINE FRAME F-Main
           SIZE 20 BY 1 AT ROW 16.71 COL 3 WIDGET-ID 124
      "Options:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
-     "Pos.:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.71 COL 61 WIDGET-ID 130
+     "HotKey Position:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 17.91 COL 6 WIDGET-ID 130
      "Databases:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
           FONT 4
@@ -555,58 +587,32 @@ DEFINE FRAME F-Main
      "(#)" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
           BGCOLOR 15 
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 18.14 COL 38 WIDGET-ID 512
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 18.14 COL 31 WIDGET-ID 514
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 18.14 COL 12 WIDGET-ID 518
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 20.05 COL 12 WIDGET-ID 516
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 520
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 19.57 COL 48 WIDGET-ID 522
-          FGCOLOR 0 FONT 6
-     "Mobile:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 4.81 COL 15.6 WIDGET-ID 94
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
-     colorChoice-0 AT ROW 18.86 COL 53 WIDGET-ID 472
-     colorChoice-1 AT ROW 18.86 COL 60 WIDGET-ID 474
-     colorChoice-2 AT ROW 18.86 COL 67 WIDGET-ID 488
-     colorChoice-3 AT ROW 18.86 COL 74 WIDGET-ID 490
-     colorChoice-4 AT ROW 18.86 COL 81 WIDGET-ID 492
-     colorChoice-5 AT ROW 18.86 COL 88 WIDGET-ID 494
-     colorChoice-6 AT ROW 18.86 COL 95 WIDGET-ID 496
-     colorChoice-7 AT ROW 18.86 COL 102 WIDGET-ID 498
-     colorChoice-8 AT ROW 20.05 COL 53 WIDGET-ID 500
-     colorChoice-9 AT ROW 20.05 COL 60 WIDGET-ID 502
-     colorChoice-10 AT ROW 20.05 COL 67 WIDGET-ID 476
-     colorChoice-11 AT ROW 20.05 COL 74 WIDGET-ID 478
-     colorChoice-12 AT ROW 20.05 COL 81 WIDGET-ID 480
-     colorChoice-13 AT ROW 20.05 COL 88 WIDGET-ID 482
-     colorChoice-14 AT ROW 20.05 COL 95 WIDGET-ID 484
-     colorChoice-15 AT ROW 20.05 COL 102 WIDGET-ID 486
-     colorChoice-default AT ROW 19.33 COL 46 WIDGET-ID 504
-     FGColor-1 AT ROW 18.86 COL 22 WIDGET-ID 506
-     FGColor-2 AT ROW 18.86 COL 29 WIDGET-ID 508
-     FGColor-3 AT ROW 18.86 COL 36 WIDGET-ID 510
-     BGColor-1 AT ROW 20.05 COL 22 WIDGET-ID 466
-     BGColor-2 AT ROW 20.05 COL 29 WIDGET-ID 468
-     BGColor-3 AT ROW 20.05 COL 36 WIDGET-ID 470
-     RECT-1 AT ROW 17.91 COL 10 WIDGET-ID 524
+     colorChoice-0 AT ROW 18.86 COL 84 WIDGET-ID 472
+     colorChoice-1 AT ROW 18.86 COL 91 WIDGET-ID 474
+     colorChoice-2 AT ROW 18.86 COL 98 WIDGET-ID 488
+     colorChoice-3 AT ROW 18.86 COL 105 WIDGET-ID 490
+     colorChoice-4 AT ROW 18.86 COL 112 WIDGET-ID 492
+     colorChoice-5 AT ROW 18.86 COL 119 WIDGET-ID 494
+     colorChoice-6 AT ROW 18.86 COL 126 WIDGET-ID 496
+     colorChoice-7 AT ROW 18.86 COL 133 WIDGET-ID 498
+     colorChoice-8 AT ROW 20.05 COL 84 WIDGET-ID 500
+     colorChoice-9 AT ROW 20.05 COL 91 WIDGET-ID 502
+     colorChoice-10 AT ROW 20.05 COL 98 WIDGET-ID 476
+     colorChoice-11 AT ROW 20.05 COL 105 WIDGET-ID 478
+     colorChoice-12 AT ROW 20.05 COL 112 WIDGET-ID 480
+     colorChoice-13 AT ROW 20.05 COL 119 WIDGET-ID 482
+     colorChoice-14 AT ROW 20.05 COL 126 WIDGET-ID 484
+     colorChoice-15 AT ROW 20.05 COL 133 WIDGET-ID 486
+     colorChoice-default AT ROW 19.33 COL 77 WIDGET-ID 504
+     FGColor-1 AT ROW 18.86 COL 53 WIDGET-ID 506
+     FGColor-2 AT ROW 18.86 COL 60 WIDGET-ID 508
+     FGColor-3 AT ROW 18.86 COL 67 WIDGET-ID 510
+     BGColor-1 AT ROW 20.05 COL 53 WIDGET-ID 466
+     BGColor-2 AT ROW 20.05 COL 60 WIDGET-ID 468
+     BGColor-3 AT ROW 20.05 COL 67 WIDGET-ID 470
+     RECT-1 AT ROW 17.91 COL 41 WIDGET-ID 524
      RECT-2 AT ROW 1 COL 1 WIDGET-ID 526
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -640,7 +646,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 20.76
+         HEIGHT             = 20.71
          WIDTH              = 142.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -788,13 +794,13 @@ ASSIGN
 
 /* SETTINGS FOR IMAGE cUserImage IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN users.department IN FRAME F-Main
+   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN users.fax IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
 ASSIGN 
        users.fax:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN users.mobile IN FRAME F-Main
-   2 4 EXP-LABEL EXP-FORMAT EXP-HELP                                    */
 /* SETTINGS FOR RECTANGLE FGColor-1 IN FRAME F-Main
    NO-ENABLE 6                                                          */
 ASSIGN 
@@ -823,6 +829,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lv-phone-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN users.manager IN FRAME F-Main
+   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN users.mobile IN FRAME F-Main
+   2 4 EXP-LABEL EXP-FORMAT EXP-HELP                                    */
 /* SETTINGS FOR FILL-IN users.phone IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
 ASSIGN 
@@ -858,10 +868,6 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN users.user_program[3] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN users.manager IN FRAME F-Main
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN users.department IN FRAME F-Main
-   NO-ENABLE 1 EXP-LABEL                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -989,6 +995,37 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME users.department
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.department V-table-Win
+ON HELP OF users.department IN FRAME F-Main /* Dept */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        g_company, 
+        "dept", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+    
+    IF lookupField NE "" THEN 
+    DO:
+        users.department:SCREEN-VALUE = lookupField.
+    
+        APPLY "LEAVE" TO SELF.
+    END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME FGColor-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FGColor-1 V-table-Win
 ON SELECTION OF FGColor-1 IN FRAME F-Main
@@ -1021,7 +1058,8 @@ OR RETURN OF fiPassword
 DO:
     DEF VAR lPwdOK AS LOG NO-UNDO.
     
-    IF LASTKEY EQ -1 THEN RETURN.
+    IF LASTKEY EQ -1 
+        THEN RETURN.
     
     RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
     IF NOT lPwdOK THEN DO:
@@ -1030,6 +1068,37 @@ DO:
     END.
     IF NOT lAdd THEN 
         RUN ipChangePassword (SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.manager
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.manager V-table-Win
+ON HELP OF users.manager IN FRAME F-Main /* Manager */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        g_company, 
+        "users-manager", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+    
+    IF lookupField NE "" THEN 
+    DO:
+        users.manager:SCREEN-VALUE = lookupField.
+    
+        APPLY "LEAVE" TO SELF.
+    END. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1257,65 +1326,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME users.department
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.department V-table-Win
-ON HELP OF users.department IN FRAME F-Main /* Department */
-DO:
-    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
-  
-    RUN system/openlookup.p (
-        g_company, 
-        "dept", /* lookup field */
-        0,   /* Subject ID */
-        "",  /* User ID */
-        0,   /* Param value ID */
-        OUTPUT returnFields, 
-        OUTPUT lookupField, 
-        OUTPUT recVal
-        ). 
-    
-    IF lookupField NE "" THEN 
-    DO:
-        users.department:SCREEN-VALUE = lookupField.
-    
-        APPLY "LEAVE" TO SELF.
-    END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME users.manager
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.manager V-table-Win
-ON HELP OF users.manager IN FRAME F-Main /* Manager */
-DO:
-    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
-  
-    RUN system/openlookup.p (
-        g_company, 
-        "users-manager", /* lookup field */
-        0,   /* Subject ID */
-        "",  /* User ID */
-        0,   /* Param value ID */
-        OUTPUT returnFields, 
-        OUTPUT lookupField, 
-        OUTPUT recVal
-        ). 
-    
-    IF lookupField NE "" THEN 
-    DO:
-        users.manager:SCREEN-VALUE = lookupField.
-    
-        APPLY "LEAVE" TO SELF.
-    END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1461,7 +1471,7 @@ PROCEDURE ipChangePassword :
             CREATE userPwdHist.
             ASSIGN
                 userPwdHist.user_id = _user._userID
-                userPwdHist.pwdDate = today
+                userPwdHist.pwdDate = TODAY 
                 userPwdHist.createDate = TODAY
                 userPwdHist.createTime = TIME
                 userPwdHist.createUser = USERID(LDBNAME(1)).
@@ -1480,7 +1490,8 @@ PROCEDURE ipChangePassword :
     ASSIGN  
         fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = _user._password
         fiPassword:SENSITIVE = FALSE
-        bChgPwd:SENSITIVE = TRUE.          
+        bChgPwd:SENSITIVE = TRUE
+        fiPassword:MODIFIED = FALSE.          
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
 
@@ -2108,6 +2119,17 @@ PROCEDURE local-update-record :
                 RETURN.
             END.
         END.            
+    END.
+    IF fiPassword:MODIFIED THEN DO:
+        RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
+        IF NOT lPwdOK THEN 
+        DO:
+            ASSIGN 
+                fiPassword:SCREEN-VALUE = "".
+            RETURN NO-APPLY.
+        END.
+        IF NOT lAdd THEN 
+            RUN ipChangePassword (fiPassword:SCREEN-VALUE).
     END.
                     
     IF lAdd THEN DO:

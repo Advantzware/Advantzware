@@ -2409,7 +2409,7 @@ for each pc-prdd
 
       if v-tot-fg gt v-tot-rm THEN do:
           IF NOT lSuppressMessage THEN DO:
-              MESSAGE cCurrentMessage VIEW-AS ALERT-BOX INFO .
+              MESSAGE cCurrentMessage VIEW-AS ALERT-BOX INFO title cCurrentTitle .
               ll-ok-to-post = NO .
               RETURN NO-APPLY .
           END.

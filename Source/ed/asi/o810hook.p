@@ -62,6 +62,8 @@ DO:
     NO-LOCK NO-ERROR.
   IF NOT AVAILABLE edmast THEN
   RETURN "NO EDMAST FOR: " + WS_BILLTO.
+  IF edmast.partner EQ "" THEN 
+    RETURN "Invalid EDMAST FOR: " + WS_BILLTO.
   ASSIGN
     ws_edmast_rec = RECID(edmast)
     .

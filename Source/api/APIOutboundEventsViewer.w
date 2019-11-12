@@ -796,7 +796,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTest C-Win
 ON CHOOSE OF btTest IN FRAME DEFAULT-FRAME /* Test */
 DO:
-    RUN api/APIOutboundTest.w.
+    DEFINE VARIABLE cRunProc AS CHARACTER NO-UNDO.
+    
+    RUN Get_Procedure IN Persistent-Handle (
+        "APIOutboundTest.",
+        OUTPUT cRunProc,
+        TRUE
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */

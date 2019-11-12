@@ -55,15 +55,21 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF TEMP-TABLE tt-po NO-UNDO
+DEFINE TEMP-TABLE tt-po NO-UNDO
     FIELD po-no AS INT
-    FIELD LINE AS INT
+    FIELD line AS INT
     FIELD tot-rec-qty AS DEC
     FIELD cons-uom AS CHAR
     FIELD overrun-qty AS DEC
     FIELD tot-converted-qty AS DEC
-    INDEX po po-no ASC LINE ASC.
+    INDEX po po-no line
+    .
+&IF DEFINED(AutoReprint) EQ 0 &THEN
+&Scoped-define NEW NEW
+&ENDIF
+{rmrep/ttLoadTag.i}
 
+/*DEFINE VARIABLE lInteractive AS LOGICAL NO-UNDO.*/
 DEF VAR lines-per-page AS INT NO-UNDO.
 DEF VAR v-overrun AS DEC NO-UNDO.
 DEF VAR v-mch-cod     AS CHAR INIT " " NO-UNDO.
@@ -633,6 +639,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+  IF reprintTag AND reprintLoadTag:SCREEN-VALUE NE "" THEN
+  APPLY "LEAVE":U TO reprintLoadTag.
   RUN ok-button.
 END.
 
@@ -947,6 +955,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     APPLY "entry" TO v-po-list.
+    &IF DEFINED(AutoReprint) NE 0 &THEN
+    {&WINDOW-NAME}:WINDOW-STATE = 2.
+    RUN ok-button.
+    RUN disable_UI.
+    &ENDIF
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -2033,79 +2046,95 @@ PROCEDURE reprintTag :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE numberTags AS INTEGER NO-UNDO.
 
-  FIND loadtag NO-LOCK WHERE loadtag.company EQ cocode
-                         AND loadtag.item-type EQ YES
-                         AND (loadtag.tag-no EQ reprintLoadtag OR loadtag.misc-char[1] EQ reprintLoadtag ) NO-ERROR.
-  IF NOT AVAILABLE loadtag THEN DO:
-    MESSAGE 'Loadtag Record Not Found!' VIEW-AS ALERT-BOX ERROR.
-    RETURN.
-  END.
-  FIND po-ord NO-LOCK WHERE po-ord.company EQ loadtag.company
-                        AND po-ord.po-no EQ loadtag.po-no NO-ERROR.
-  /*
-  IF NOT AVAILABLE po-ord THEN DO:
-    MESSAGE 'PO Record Not Found!' VIEW-AS ALERT-BOX ERROR.
-    RETURN.
-  END.
-  */
-  IF AVAILABLE po-ordl THEN
-  RELEASE po-ordl.
-  IF AVAILABLE po-ord THEN
-  FIND po-ordl WHERE
-       po-ordl.company EQ po-ord.company AND
-       po-ordl.po-no EQ po-ord.po-no AND
-       po-ordl.i-no EQ loadtag.i-no NO-LOCK NO-ERROR.
-  /*
-  IF NOT AVAILABLE po-ordl THEN DO:
-    MESSAGE 'PO Line Record Not Found!' VIEW-AS ALERT-BOX ERROR.
-    RETURN.
-  END.
-  */
-  FIND cust NO-LOCK WHERE cust.company EQ po-ord.company
-                      AND cust.cust-no EQ po-ord.cust-no NO-ERROR.
-  IF AVAILABLE po-ord AND AVAILABLE po-ordl THEN
-  RUN createWPO.
-  ELSE
-  RUN createWPOfromItem (loadtag.i-no,loadtag.i-no).
-
-  FIND FIRST rm-bin
-      WHERE rm-bin.company EQ loadtag.company
-        AND rm-bin.tag     EQ loadtag.tag-no
-        AND rm-bin.i-no    EQ loadtag.i-no
-        AND rm-bin.loc     EQ loadtag.loc
-        AND rm-bin.loc-bin EQ loadtag.loc-bin 
-      NO-LOCK NO-ERROR.
-  ASSIGN
-    w-po.rcpt-qty = IF AVAIL rm-bin THEN rm-bin.qty ELSE loadtag.pallet-count
-    w-po.tag-date = loadtag.tag-date
-    w-po.total-tags = IF AVAILABLE cust AND cust.int-field[1] GT 0 THEN cust.int-field[1]
-                      ELSE IF v-mult GT 0 THEN v-mult ELSE 1.
-  IF cBarCodeProgram EQ "" THEN DO:
-      ERROR-STATUS:ERROR = NO.
-      RUN setOutputFile.
-      IF ERROR-STATUS:ERROR THEN RETURN.
-      OUTPUT TO VALUE(v-out).
-      RUN outputTagHeader.
-      DO numberTags = 1 TO w-po.total-tags:
-        RUN outputTagLine (w-po.rcpt-qty).
+  FOR EACH ttLoadTag
+      WHERE ttLoadTag.loadTag GT ""
+      :
+      reprintLoadTag = ttLoadTag.loadTag.
+      FIND FIRST loadtag NO-LOCK
+           WHERE loadtag.company      EQ cocode
+             AND loadtag.item-type    EQ YES
+             AND (loadtag.tag-no      EQ reprintLoadTag
+              OR loadtag.misc-char[1] EQ reprintLoadTag)
+           NO-ERROR.
+      IF NOT AVAILABLE loadtag THEN DO:
+        &IF DEFINED(AutoReprint) EQ 0 &THEN
+        MESSAGE 'Loadtag Record Not Found!' VIEW-AS ALERT-BOX ERROR.
+        &ENDIF
+        RETURN.
       END.
-      OUTPUT CLOSE.
-
-      RUN AutoPrint.
-  END.
-
-  IF cBarCodeProgram EQ "xprint" THEN do:
-      CREATE tt-po-print .
-      BUFFER-COPY w-po TO tt-po-print .
-      ASSIGN 
-          tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE ""
-          tt-po-print.vend-tag = IF AVAIL loadtag THEN loadtag.misc-char[1] ELSE "" .
-
-      RUN xprint-tag .
-  END.
-
+      FIND FIRST po-ord NO-LOCK
+           WHERE po-ord.company EQ loadtag.company
+             AND po-ord.po-no   EQ loadtag.po-no
+           NO-ERROR.
+      IF AVAILABLE po-ordl THEN
+      RELEASE po-ordl.
+      IF AVAILABLE po-ord THEN
+      FIND FIRST po-ordl NO-LOCK
+           WHERE po-ordl.company EQ po-ord.company
+             AND po-ordl.po-no   EQ po-ord.po-no
+             AND po-ordl.i-no    EQ loadtag.i-no
+           NO-ERROR.
+      FIND FIRST cust NO-LOCK
+           WHERE cust.company EQ po-ord.company
+             AND cust.cust-no EQ po-ord.cust-no
+           NO-ERROR.
+      IF AVAILABLE po-ord AND AVAILABLE po-ordl THEN
+      RUN createWPO.
+      ELSE
+      RUN createWPOfromItem (loadtag.i-no,loadtag.i-no).
+    
+      FIND FIRST rm-bin NO-LOCK
+           WHERE rm-bin.company EQ loadtag.company
+             AND rm-bin.tag     EQ loadtag.tag-no
+             AND rm-bin.i-no    EQ loadtag.i-no
+             AND rm-bin.loc     EQ loadtag.loc
+             AND rm-bin.loc-bin EQ loadtag.loc-bin 
+           NO-ERROR.
+      ASSIGN
+        &IF DEFINED(AutoReprint) EQ 0 &THEN
+        w-po.rcpt-qty   = IF AVAILABLE rm-bin THEN rm-bin.qty ELSE loadtag.pallet-count
+        &ELSE
+        w-po.rcpt-qty   = ttLoadTag.qty
+        &ENDIF
+        w-po.tag-date   = loadtag.tag-date
+        w-po.total-tags = IF AVAILABLE cust AND cust.int-field[1] GT 0 THEN cust.int-field[1]
+                          ELSE IF v-mult GT 0 THEN v-mult ELSE 1.
+      CASE cBarCodeProgram:
+          WHEN "" THEN DO:
+              ERROR-STATUS:ERROR = NO.
+              RUN setOutputFile.
+              IF ERROR-STATUS:ERROR THEN RETURN.
+              OUTPUT TO VALUE(v-out) APPEND.
+              RUN outputTagHeader.
+              DO numberTags = 1 TO w-po.total-tags:
+                RUN outputTagLine (w-po.rcpt-qty).
+              END.
+              OUTPUT CLOSE.
+          END.
+          WHEN "xprint" THEN DO:
+              CREATE tt-po-print.
+              BUFFER-COPY w-po TO tt-po-print.
+              ASSIGN 
+                  tt-po-print.tag-no   = IF AVAILABLE loadtag THEN loadtag.tag-no       ELSE ""
+                  tt-po-print.vend-tag = IF AVAILABLE loadtag THEN loadtag.misc-char[1] ELSE ""
+                  .    
+          END.
+      END CASE.
+  END. /* each ttloadtag */
+  CASE cBarCodeProgram:
+      WHEN "" THEN DO:
+          RUN AutoPrint.
+          OUTPUT TO VALUE(v-out).
+          OUTPUT CLOSE.
+      END.
+      WHEN "xprint" THEN
+      RUN xprint-tag.
+  END CASE.
+  EMPTY TEMP-TABLE ttLoadTag.
+  &IF DEFINED(AutoReprint) EQ 0 &THEN
   MESSAGE 'Loadtag Reprint Complete!' VIEW-AS ALERT-BOX.
   APPLY 'ENTRY':U TO reprintLoadtag IN FRAME {&FRAME-NAME}.
+  &ENDIF
 
 END PROCEDURE.
 
@@ -2706,6 +2735,10 @@ PROCEDURE validLoadtag :
         op-valid = NO.
         MESSAGE 'Invalid Loadtag, Please Try Again ...' VIEW-AS ALERT-BOX ERROR.
         APPLY 'ENTRY':U TO reprintLoadtag.
+     END.
+     ELSE DO:
+         CREATE ttLoadTag.
+         ttLoadTag.loadTag = reprintLoadTag.
      END.
   END.
 

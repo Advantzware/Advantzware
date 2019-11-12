@@ -114,18 +114,11 @@ DEFINE FRAME F-Main
          SIZE 151.2 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME FRAME-C
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 145 ROW 3.14
-         SIZE 7 BY 1.19
-         BGCOLOR 15 FGCOLOR 15 .
-
-DEFINE FRAME message-frame
+DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1.24
-         SIZE 73 BY 1.91
+         AT COL 77 ROW 1
+         SIZE 75 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME frame-misc
@@ -135,12 +128,19 @@ DEFINE FRAME frame-misc
          SIZE 6 BY 1.43
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
+DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 77 ROW 1
-         SIZE 75 BY 1.91
+         AT COL 2 ROW 1.24
+         SIZE 73 BY 1.91
          BGCOLOR 15 .
+
+DEFINE FRAME FRAME-C
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 145 ROW 3.14
+         SIZE 7 BY 1.19
+         BGCOLOR 15 FGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -640,7 +640,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-7 ).
-       RUN set-position IN h_v-job-7 ( 4.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-7 ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 148.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

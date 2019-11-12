@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE aoaJasper 7
+&SCOPED-DEFINE aoaJasper 8
 &SCOPED-DEFINE aoaJasperGap 5
 &SCOPED-DEFINE noBrowseRefresh
 
@@ -221,6 +221,7 @@ PROCEDURE pGetUserParamValue:
 
     DEFINE VARIABLE cField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTemp  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
     DEFINE VARIABLE dWidth AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
@@ -265,8 +266,11 @@ PROCEDURE pGetUserParamValue:
             IF CAN-FIND(FIRST dynSubject
                         WHERE dynSubject.subjectID     EQ dynParamValue.subjectID
                           AND dynSubject.businessLogic EQ "") THEN DO:
+                cTemp = cField.
+                IF INDEX(cTemp,"[") NE 0 THEN
+                cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).
                 CREATE BUFFER hTable FOR TABLE cTable.
-                dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+                dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
             END. /* if not business logic */
         END. /* if table.field */
         ELSE
@@ -498,6 +502,8 @@ PROCEDURE pJasperDetailBand :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiSize AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER ttColumn FOR ttColumn.
     
@@ -541,8 +547,13 @@ PROCEDURE pJasperDetailBand :
         PUT UNFORMATTED
             "                <textElement textAlignment=~"Right~"/>" SKIP
             .
+        ASSIGN
+            cFieldName = ttColumn.ttField
+            cFieldName = REPLACE(cFieldName,"[","")
+            cFieldName = REPLACE(cFieldName,"]","")
+            . 
         PUT UNFORMATTED
-            "                <textFieldExpression><![CDATA[$F~{" ttColumn.ttField
+            "                <textFieldExpression><![CDATA[$F~{" cFieldName
             "}]]></textFieldExpression>" SKIP
             "            </textField>" SKIP
             .
@@ -568,7 +579,8 @@ PROCEDURE pJasperFieldDeclarations :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDataType  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER ttColumn FOR ttColumn.
     
@@ -589,10 +601,15 @@ PROCEDURE pJasperFieldDeclarations :
             OTHERWISE
             cDataType = "String".
         END CASE.
+        ASSIGN
+            cFieldName = ttColumn.ttField
+            cFieldName = REPLACE(cFieldName,"[","")
+            cFieldName = REPLACE(cFieldName,"]","")
+            .
         PUT UNFORMATTED
-            "    <field name=~"" ttColumn.ttField "~" class=~"java.lang." cDataType "~">" SKIP
-            "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" ttColumn.ttField "~"/>" SKIP
-            "        <fieldDescription><![CDATA[" ttColumn.ttField "]]></fieldDescription>" SKIP
+            "    <field name=~"" cFieldName "~" class=~"java.lang." cDataType "~">" SKIP
+            "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" cFieldName "~"/>" SKIP
+            "        <fieldDescription><![CDATA[" cFieldName "]]></fieldDescription>" SKIP
             "    </field>" SKIP
             .
     END. /* each ttColumn */
@@ -687,7 +704,7 @@ PROCEDURE pJasperGroupFooter :
         IF ENTRY(1,ttGroupCalc.ttCalcType,"|") EQ "Calculated" THEN
         cPattern = fJasperCalcPattern(ENTRY(3,ttGroupCalc.ttCalcType,"|")).
         ELSE
-        cPAttern = fJasperPattern(bttColumn.ttFormat).
+        cPattern = fJasperPattern(bttColumn.ttFormat).
         PUT UNFORMATTED
             "                <textField isBlankWhenNull=~"true~" pattern=~"" cPattern "~">" SKIP
             "                    <reportElement "
@@ -754,7 +771,8 @@ PROCEDURE pJasperGroupType :
     
     DEFINE BUFFER ttColumn FOR ttColumn.
     
-    DEFINE VARIABLE cPattern AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPattern   AS CHARACTER NO-UNDO.
     
     FOR EACH ttColumn
         WHERE ttColumn.ttGroupCalc NE "",
@@ -796,12 +814,17 @@ PROCEDURE pJasperGroupType :
         PUT UNFORMATTED
             "                    <bottomPen lineWidth=~"1.0~"/>" SKIP
             .
+        ASSIGN
+            cFieldName = ttColumn.ttField
+            cFieldName = REPLACE(cFieldName,"[","")
+            cFieldName = REPLACE(cFieldName,"]","")
+            .
         PUT UNFORMATTED
             "                </box>" SKIP
             "                <textElement textAlignment=~"Right~">" SKIP
             "                    <font isBold=~"true~"/>" SKIP
             "                </textElement>" SKIP
-            "                <textFieldExpression><![CDATA[$V~{" ttColumn.ttField
+            "                <textFieldExpression><![CDATA[$V~{" cFieldName
             "_" ttGroupCalc.ttGroup "Footer}]]></textFieldExpression>" SKIP
             "            </textField>" SKIP
             .
@@ -819,13 +842,14 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperJSON Procedure
 PROCEDURE pJasperJSON:
 /*------------------------------------------------------------------------------
-  Purpose:     Export temp-table contents to XML Format
+  Purpose:     Export temp-table contents to JSON Format
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cColumns     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE fieldName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iColumn      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
@@ -880,15 +904,20 @@ PROCEDURE pJasperJSON:
                 WHERE ttColumn.isActive    EQ YES
                    OR ttColumn.isGroup     EQ YES
                    OR ttColumn.ttGroupCalc NE ""
-                BREAK BY ttColumn.ttField:
-                ASSIGN 
-                    fieldName    = ttColumn.ttField
-                    cBufferValue = fFormatValue(hTable, hTable:BUFFER-FIELD(fieldName):NAME)
+                BREAK BY ttColumn.ttField
+                :
+                ASSIGN
+                    cFullName    = ttColumn.ttField
+                    fieldName    = IF INDEX(cFullName,"[") EQ 0 THEN cFullName
+                                   ELSE SUBSTRING(cFullName,1,INDEX(cFullName,"[") - 1)
+                    cBufferValue = fFormatValue(hTable, fieldName)
                     cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
+                    cFullName    = REPLACE(cFullName,"[","")
+                    cFullName    = REPLACE(cFullName,"]","")
                     .
                 PUT UNFORMATTED
                     FILL(" ",8)
-                    "~"" fieldName "~": ~""
+                    "~"" cFullName "~": ~""
                     IF cBufferValue NE "" THEN cBufferValue ELSE " "
                     "~""
                     .
@@ -1725,13 +1754,21 @@ FUNCTION fFormatValue RETURNS CHARACTER
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cStr AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx  AS INTEGER   NO-UNDO.
 
-    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(),
+    IF INDEX(ipcField,"[") NE 0 THEN
+    ASSIGN
+        cStr = SUBSTRING(ipcField,INDEX(ipcField,"[") + 1)
+        cStr = REPLACE(cStr,"]","")
+        idx  = INTEGER(cStr)
+        ipcField = SUBSTRING(ipcField,1,INDEX(ipcField,"[") - 1)
+        .
+    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx),
                   iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
     /* error raised if invalid format for field value */
     IF ERROR-STATUS:NUM-MESSAGES NE 0 OR
        iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 
-    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE().
+    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx).
     
     RETURN LEFT-TRIM(TRIM(cStr)).
 

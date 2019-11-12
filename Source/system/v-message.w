@@ -371,9 +371,9 @@ DO:
 ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
     DO:
     IF AVAIL zMessage AND zMessage.currMessage NE "" THEN
-        MESSAGE zMessage.currMessage VIEW-AS ALERT-BOX INFO .
+        MESSAGE zMessage.currMessage  VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID)  .
     ELSE IF AVAIL zMessage  THEN
-        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO .
+        MESSAGE zMessage.defaultMsg VIEW-AS ALERT-BOX INFO TITLE zMessage.currentTitle + " Message Id: " +  string(zMessage.msgID) .
   
     END.
 
@@ -559,15 +559,15 @@ PROCEDURE local-create-record :
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-zMessage FOR zMessage.
     DEFINE VARIABLE li-next-num AS INTEGER NO-UNDO.
-
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-  
-    FIND LAST bf-zMessage NO-LOCK NO-ERROR.
-    IF AVAILABLE bf-zMessage THEN li-next-num = INTEGER(bf-zMessage.msgID) + 1.
-    ELSE li-next-num = 1.
-  
-    zMessage.msgID = STRING(li-next-num).
-    DISPLAY zMessage.msgID WITH FRAME {&frame-name}.
+
+    /*FIND LAST bf-zMessage NO-LOCK NO-ERROR.                                     */
+    /*IF AVAILABLE bf-zMessage THEN li-next-num = INTEGER(bf-zMessage.msgID) + 1. */
+    /*ELSE li-next-num = 1.                                                       */
+    /*                                                                            */
+    /*zMessage.msgID = STRING(li-next-num).                                       */
+    /*DISPLAY zMessage.msgID WITH FRAME {&frame-name}.                            */
 
 
 END PROCEDURE.

@@ -169,6 +169,9 @@ PROCEDURE exportSnapshot:
         AND lookup(rm-bin.loc, ipcWhseList) GT 0        
         AND rm-bin.qty NE 0
         AND rm-bin.tag NE ""
+        AND CAN-FIND (FIRST ITEM NO-LOCK 
+                        WHERE ITEM.company EQ rm-bin.company
+                          AND ITEM.i-no    EQ rm-bin.i-no)
         :
         CREATE ttSnapshot.
         ASSIGN 
@@ -447,6 +450,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0   
             AND rm-bin.qty NE 0
             AND rm-bin.tag NE ""
+            AND CAN-FIND (FIRST ITEM NO-LOCK 
+                        WHERE ITEM.company EQ rm-bin.company
+                          AND ITEM.i-no    EQ rm-bin.i-no)
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ rm-bin.company
@@ -651,12 +657,18 @@ PROCEDURE pCheckBinDups:
         AND rm-bin.i-no LE ipcFGItemEnd
         AND lookup(rm-bin.loc, ipcWhseList) GT 0   
         AND rm-bin.tag GT "" 
+        AND CAN-FIND (FIRST ITEM NO-LOCK 
+                        WHERE ITEM.company EQ rm-bin.company
+                          AND ITEM.i-no    EQ rm-bin.i-no)
         :
         FIND FIRST bf-rm-bin NO-LOCK
             WHERE bf-rm-bin.company EQ rm-bin.company
             AND bf-rm-bin.tag EQ rm-bin.tag
             AND ROWID(bf-rm-bin) NE ROWID(rm-bin)
             AND bf-rm-bin.qty GT 0 
+            AND CAN-FIND (FIRST ITEM NO-LOCK 
+                       WHERE ITEM.company EQ bf-rm-bin.company
+                         AND ITEM.i-no    EQ bf-rm-bin.i-no)
             NO-ERROR.
         IF AVAILABLE bf-rm-bin THEN 
         DO:
@@ -693,7 +705,7 @@ PROCEDURE pCheckBinDups:
         MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
+        OS-COMMAND NO-WAIT VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 
@@ -731,10 +743,10 @@ PROCEDURE pCheckCountDups:
         END.
     END.
     oplDups = lIsDups.
-    cDupOutputFile = "c:\tmp\dupCountTags.csv".
+    cDupOutputFile = "c:\tmp\dupCountTagsRm.csv".
     IF lIsDups THEN 
     DO:
-        OUTPUT TO VALUE(cDupOutputFile).
+        OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
         PUT STREAM sOutput UNFORMATTED "Item #,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags:
             PUT STREAM sOutput UNFORMATTED  
@@ -748,7 +760,7 @@ PROCEDURE pCheckCountDups:
         MESSAGE "Cannot post because some tags were counted more than once." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
+        OS-COMMAND NO-WAIT VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 
@@ -827,7 +839,7 @@ PROCEDURE pCreateTransferCounts:
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.              
         /* Finding a count record from within the past week on assumption it will    */
         /* be part of the current physical                                           */
-        FIND FIRST bf-rm-rctd NO-LOCK 
+        FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
             WHERE bf-rm-rctd.company EQ  ttCycleCountCompare.cCompany
             AND bf-rm-rctd.i-no    EQ ttCycleCountCompare.cFGItemID   
             AND bf-rm-rctd.tag     EQ ttCycleCountCompare.cTag        
@@ -836,7 +848,13 @@ PROCEDURE pCreateTransferCounts:
             AND bf-rm-rctd.rita-code EQ "C"
             AND bf-rm-rctd.rct-date GE TODAY - 7
             NO-ERROR.    
-        
+        IF AVAIL bf-rm-rctd THEN DO:
+             IF ipdtTransDate NE ? THEN
+                bf-rm-rctd.rct-date = ipdtTransDate.
+            CREATE ttToPost.                
+             ttToPost.rRmRctd = ROWID(bf-rm-rctd). 
+        END.
+        FIND CURRENT bf-rm-rctd NO-LOCK NO-ERROR. 
         /* ttCycleCountCompare.cSysLoc/bin is the original location of the tag, so 0 that out */
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
@@ -856,12 +874,11 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.tag        = rm-bin.tag
             rm-rctd.po-no      = STRING(rm-bin.po-no)
             lv-tag             = rm-bin.tag
+            rm-rctd.cost       = (IF AVAIL bf-rm-rctd THEN bf-rm-rctd.cost ELSE 0)
             .
         CREATE ttToPost.
         ttToPost.rRmRctd = ROWID(rm-rctd). 
-        IF AVAIL bf-rm-rctd THEN DO:
-             ttToPost.rRmRctd = ROWID(bf-rm-rctd). 
-        END.
+
         IF rm-rctd.pur-uom = "" THEN
             rm-rctd.pur-uom = rm-rctd.cost-uom.
 
@@ -1447,6 +1464,7 @@ PROCEDURE pPostCounts:
                     rm-bin.cost    = rm-rctd.cost
                     rm-bin.po-no   = INTEGER(rm-rctd.po-no)
                     .
+
             END. /* not avail rm-bin */
 
             rm-bin.qty = rm-rctd.qty.

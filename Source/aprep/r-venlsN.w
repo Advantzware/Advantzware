@@ -1418,7 +1418,7 @@ if td-show-parm then run show-param.
                   WHEN "pay-type"     THEN cVarValue = STRING(vend.payment-type,"X(20)") .                                                                                                     
                   WHEN "Bank-Acct"    THEN cVarValue = STRING(vend.Bank-Acct,"X(18)") .                                                                                                     
                   WHEN "SwiftBIC"     THEN cVarValue =   STRING(vend.SwiftBIC,"X(11)")  .                                                                                                
-                  WHEN "Bank-RTN"     THEN cVarValue =  IF vend.Bank-RTN NE 0 THEN STRING(vend.Bank-RTN,">>>>>>>>9") ELSE "" .
+                  WHEN "Bank-RTN"     THEN cVarValue =  IF vend.Bank-RTN NE 0 THEN STRING(vend.Bank-RTN,"999999999") ELSE "" .
 
              END CASE.
 

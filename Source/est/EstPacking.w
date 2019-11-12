@@ -216,7 +216,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
     QUERY BROWSE-1 NO-LOCK DISPLAY
     fget-type-name(estPacking.materialType) @ cTypeName LABEL "Type" FORMAT "x(15)":U WIDTH 18
-    estPacking.noCharge LABEL "NC" WIDTH 3 FORMAT "C/N"
+    estPacking.noCharge LABEL "NC" WIDTH 3 FORMAT "Y/N"
     estPacking.rmItemID LABEL "Material" WIDTH 15 
     fget-mat-name() @ cMatName COLUMN-LABEL "Material Name" FORMAT "x(25)":U
     estPacking.quantity LABEL "Quantity" FORMAT ">>>,>>9.9<<":U WIDTH 14 

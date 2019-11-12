@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: write of po-ordl</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: write of po-ordl</h1>
+<div class="progressCode">
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">UPDATE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME po-ordl
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR WRITE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">OLD BUFFER</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">write</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-prep">{sys/inc/<span class="src-keyword">var</span><!--src-keyword-->.i <span class="src-keyword">NEW</span><!--src-keyword--> SHARED}</span><!--src-p<span class="src-keyword">SHARED</span><!--src-keyword-->
+ 
+<span class="src-prep">{custom/globdefs.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">ASSIGN</span><!--src-keyword-->
+ cocode = g_company
+ locode = g_loc.
+ 
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ld-qty <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-qty <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> v-basis-w <span class="src-keyword">AS DEC NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> v-len <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> v-wid <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-wid <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> v-dep <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> fg-uom-list <span class="src-keyword">AS CHAR NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> llRecFound <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> cReturn <span class="src-keyword">AS CHAR NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> poPaperClip-int <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
+ 
+<span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/uom-fg.p (<span class="src-number">?</span><!--src-number-->, <span class="src-keyword">OUTPUT</span><!--src-keyword--> fg-uom-list).
+ 
+<span class="src-keyword">RUN</span><!--src-keyword--> po/updordpo.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->).
+ 
+ 
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-num = <span class="src-number">0</span><!--src-number-->.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">AND</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.item-type <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+    <span class="src-keyword">FIND FIRST item NO-LOCK</span><!--src-keyword-->
+         <span class="src-keyword">WHERE item</span><!--src-keyword-->.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+           <span class="src-keyword">AND item</span><!--src-keyword-->.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF AVAIL item THEN</span><!--src-keyword-->
+    <span class="src-keyword">FIND FIRST</span><!--src-keyword--> e-item <span class="src-keyword">OF item NO-LOCK NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF AVAIL</span><!--src-keyword--> e-item <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = e-item.std-uom.
+    <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = <span class="src-keyword">item</span><!--src-keyword-->.pur-uom.
+    <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = <span class="src-keyword">item</span><!--src-keyword-->.cons-uom.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">ELSE DO</span><!--src-keyword-->:
+    <span class="src-keyword">FIND FIRST</span><!--src-keyword--> itemfg
+        <span class="src-keyword">WHERE</span><!--src-keyword--> itemfg.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+          <span class="src-keyword">AND</span><!--src-keyword--> itemfg.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">NO-LOCK NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF AVAIL</span><!--src-keyword--> itemfg <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = itemfg.pur-uom.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = <span class="src-char">"EA"</span><!--src-char-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+  <span class="src-keyword">IF LOOKUP</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,<span class="src-char">"L,LOT"</span><!--src-char-->) <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-cost = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cost.
+ 
+  <span class="src-keyword">ELSE DO</span><!--src-keyword-->:
+    <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.item-type <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+      <span class="src-keyword">FIND FIRST item NO-LOCK</span><!--src-keyword-->
+           <span class="src-keyword">WHERE item</span><!--src-keyword-->.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+             <span class="src-keyword">AND item</span><!--src-keyword-->.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+      <span class="src-keyword">IF AVAIL ITEM THEN</span><!--src-keyword-->
+        <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+         v-basis-w = <span class="src-keyword">item</span><!--src-keyword-->.basis-w
+         v-dep     = <span class="src-keyword">item</span><!--src-keyword-->.s-dep.
+    <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+    <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+     v-len  = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len
+     v-wid  = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-wid
+     ld-qty = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-qty.
+ 
+    <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom       <span class="src-keyword">AND</span><!--src-keyword-->
+       (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.item-type                           <span class="src-keyword">OR</span><!--src-keyword-->
+        <span class="src-keyword">LOOKUP</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom,fg-uom-list) <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">OR</span><!--src-keyword-->
+        <span class="src-keyword">LOOKUP</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,fg-uom-list)     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->)   <span class="src-keyword">THEN</span><!--src-keyword-->
+      <span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/convquom.p(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom, <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,
+                             v-basis-w, v-len, v-wid, v-dep,
+                             ld-qty, <span class="src-keyword">OUTPUT</span><!--src-keyword--> ld-qty).
+ 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-cost = (ld-qty <span class="src-keyword">*</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cost) + <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.setup.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-cost = <span class="src-keyword">ROUND</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-cost <span class="src-keyword">*</span><!--src-keyword--> ((<span class="src-number">100</span><!--src-number--> <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.disc) / <span class="src-number">100</span><!--src-number-->),<span class="src-number">2</span><!--src-number-->).
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">RELEASE item</span><!--src-keyword-->.
+<span class="src-keyword">RELEASE</span><!--src-keyword--> e-item.
+<span class="src-keyword">RELEASE</span><!--src-keyword--> itemfg.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-wid <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-wid <span class="src-keyword">OR</span><!--src-keyword-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len)       <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->                              <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->                            <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.item-type                               <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-keyword">CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST item</span><!--src-keyword-->
+            <span class="src-keyword">WHERE item</span><!--src-keyword-->.company  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+              <span class="src-keyword">AND item</span><!--src-keyword-->.i-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+              <span class="src-keyword">AND INDEX</span><!--src-keyword-->(<span class="src-char">"BPRA1234"</span><!--src-char-->,<span class="src-keyword">item</span><!--src-keyword-->.mat-type) <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->) <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+ 
+  <span class="src-keyword">FIND FIRST</span><!--src-keyword--> job
+      <span class="src-keyword">WHERE</span><!--src-keyword--> job.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> job.job-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no
+        <span class="src-keyword">AND</span><!--src-keyword--> job.job-no2 <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no2
+      <span class="src-keyword">NO-LOCK NO-ERROR</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">IF AVAIL</span><!--src-keyword--> job <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> job-mat
+      <span class="src-keyword">WHERE</span><!--src-keyword--> job-mat.company  <span class="src-keyword">EQ</span><!--src-keyword--> job.company
+        <span class="src-keyword">AND</span><!--src-keyword--> job-mat.job      <span class="src-keyword">EQ</span><!--src-keyword--> job.job
+        <span class="src-keyword">AND</span><!--src-keyword--> job-mat.job-no   <span class="src-keyword">EQ</span><!--src-keyword--> job.job-no
+        <span class="src-keyword">AND</span><!--src-keyword--> job-mat.job-no2  <span class="src-keyword">EQ</span><!--src-keyword--> job.job-no2
+        <span class="src-keyword">AND</span><!--src-keyword--> job-mat.frm      <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-num
+        <span class="src-keyword">AND CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST item</span><!--src-keyword-->
+                     <span class="src-keyword">WHERE item</span><!--src-keyword-->.company  <span class="src-keyword">EQ</span><!--src-keyword--> job-mat.company
+                       <span class="src-keyword">AND item</span><!--src-keyword-->.i-no     <span class="src-keyword">EQ</span><!--src-keyword--> job-mat.i-no
+                       <span class="src-keyword">AND INDEX</span><!--src-keyword-->(<span class="src-char">"BPRA1234"</span><!--src-char-->,<span class="src-keyword">item</span><!--src-keyword-->.mat-type) <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->):
+    <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+     job-mat.wid = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-wid
+     job-mat.len = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> po-ord.
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> po-ord
+    <span class="src-keyword">WHERE</span><!--src-keyword--> po-ord.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+      <span class="src-keyword">AND</span><!--src-keyword--> po-ord.po-no   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.po-no:
+ 
+  <span class="src-keyword">IF</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.po-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">AND</span><!--src-keyword-->
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.stat <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">"U"</span><!--src-char-->    <span class="src-keyword">AND</span><!--src-keyword-->
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.stat <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">"C"</span><!--src-char-->    <span class="src-keyword">AND</span><!--src-keyword-->
+     po-ord.printed              <span class="src-keyword">AND</span><!--src-keyword-->
+     po-ord.opened               <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.stat = <span class="src-char">"U"</span><!--src-char-->.
+ 
+  <span class="src-keyword">RUN</span><!--src-keyword--> po/po-total.p (<span class="src-keyword">RECID</span><!--src-keyword-->(po-ord)).
+ 
+  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;tablename}</span><!--src-prep-->.i-no <span class="src-keyword">NE</span><!--src-keyword--> OLD-<span class="src-prep">{&amp;tablename}</span><!--src-prep-->.i-no <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+      <span class="src-comment">/* If required, copy attachments from item master */</span><!--src-comment-->
+      <span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/nk1look.p (g_company, <span class="src-char">"POPaperClip"</span><!--src-char-->, <span class="src-char">"I"</span><!--src-char-->, <span class="src-keyword">no</span><!--src-keyword-->, <span class="src-keyword">no</span><!--src-keyword-->, <span class="src-char">""</span><!--src-char-->, <span class="src-char">""</span><!--src-char-->, 
+                            <span class="src-keyword">Output</span><!--src-keyword--> cReturn, <span class="src-keyword">output</span><!--src-keyword--> llRecFound).
+      <span class="src-keyword">If</span><!--src-keyword--> llRecFound <span class="src-keyword">then</span><!--src-keyword-->
+      	poPaperClip-INT = <span class="src-keyword">INT</span><!--src-keyword-->(cReturn).
+ 
+      <span class="src-keyword">IF</span><!--src-keyword--> poPaperClip-INT <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">1</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+          <span class="src-keyword">RUN</span><!--src-keyword--> po/copyItemAttach.p (<span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">"PO"</span><!--src-char-->, <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->, <span class="src-keyword">INPUT ROWID</span><!--src-keyword-->(po-ord)).
+  <span class="src-keyword">END</span><!--src-keyword-->.
+  <span class="src-keyword">LEAVE</span><!--src-keyword-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.rec_key) <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+  <span class="src-prep">{custom/fibreaud.i}</span><!--src-prep-->
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
+ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
+</div><!--progresscode-->
+</body>
+</html>

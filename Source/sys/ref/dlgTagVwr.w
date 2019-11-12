@@ -79,7 +79,7 @@ DEF VAR cNewQueryString AS CHAR NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_brwtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_sdotag AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_vwrtag AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vwrtag-3 AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_OK AUTO-GO 
@@ -96,7 +96,7 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
 DEFINE FRAME gDialog
      Btn_OK AT ROW 1.24 COL 98
      fiMessage AT ROW 1.48 COL 1 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     SPACE(31.59) SKIP(20.75)
+     SPACE(31.59) SKIP(14.70)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Tag Viewer"
@@ -213,25 +213,25 @@ PROCEDURE adm-create-objects :
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brwtag ).
        RUN repositionObject IN h_brwtag ( 2.91 , 3.00 ) NO-ERROR.
-       RUN resizeObject IN h_brwtag ( 6.67 , 110.00 ) NO-ERROR.
+       RUN resizeObject IN h_brwtag ( 9.05 , 110.00 ) NO-ERROR.
 
        RUN constructObject (
              INPUT  'viewers/vwrtag.w':U ,
              INPUT  FRAME gDialog:HANDLE ,
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
-             OUTPUT h_vwrtag ).
-       RUN repositionObject IN h_vwrtag ( 9.81 , 3.00 ) NO-ERROR.
-       /* Size in AB:  ( 12.67 , 110.00 ) */
+             OUTPUT h_vwrtag-3 ).
+       RUN repositionObject IN h_vwrtag-3 ( 12.19 , 3.00 ) NO-ERROR.
+       /* Size in AB:  ( 4.81 , 91.00 ) */
 
        /* Links to SmartDataBrowser h_brwtag. */
        RUN addLink ( h_sdotag , 'Data':U , h_brwtag ).
        RUN addLink ( h_brwtag , 'Update':U , h_sdotag ).
 
-       /* Links to SmartDataViewer h_vwrtag. */
-       RUN addLink ( h_sdotag , 'Data':U , h_vwrtag ).
+       /* Links to SmartDataViewer h_vwrtag-3. */
+       RUN addLink ( h_sdotag , 'Data':U , h_vwrtag-3 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjustTabOrder ( h_vwrtag ,
+       RUN adjustTabOrder ( h_vwrtag-3 ,
              h_brwtag , 'AFTER':U ).
     END. /* Page 0 */
 
@@ -281,8 +281,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject gDialog
-PROCEDURE initializeObject:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject gDialog 
+PROCEDURE initializeObject :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -301,8 +301,7 @@ PROCEDURE initializeObject:
         cNewQueryString = "tag.linkRecKey EQ '" + ipcRecKey + "' AND tag.tagType EQ " + (IF ipcTagType EQ "" THEN "tag.tagType" ELSE "'" + ipcTagType + "'").
     RUN chgQueryWhere IN h_sdotag (cNewQueryString).
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

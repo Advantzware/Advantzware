@@ -429,6 +429,7 @@ PROCEDURE adm-create-objects :
 
        RUN add-link IN adm-broker-hdl ( h_b-arinvl , 'buttons':U , h_p-cashl ).
        RUN add-link IN adm-broker-hdl ( h_b-arinvl  , 'Record':U , h_p-cashl ).
+       RUN add-link IN adm-broker-hdl ( h_b-arinvl , 'deletehead':U , h_b-arinv ) .
 
        /* Links to SmartPanel h_p-cashl. */
        RUN add-link IN adm-broker-hdl ( h_v-arinv , 'add-line':U , h_p-cashl ).

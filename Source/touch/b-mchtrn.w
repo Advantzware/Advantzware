@@ -78,11 +78,11 @@ DEF VAR lv-run-total AS INT LABEL "Total Run" FORM "->>,>>>,>>9" NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table machtran.charge_code ~
-machtran.start_date STRING(machtran.start_time,'HH:MM am') @ start-time ~
+machtran.start_date DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO) @ start-time ~
 machtran.end_date machtran.shift ~
-Time_String(machtran.end_time,yes,machtran.end_date) @ end-time ~
+DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO) @ end-time ~
 machtran.run_qty machtran.waste_qty ~
-Time_String(machtran.total_time,no,machtran.end_date) @ total-time ~
+DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO) @ total-time ~
 machtran.completed display-run-total() @ lv-run-total 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machtran WHERE ~{&KEY-PHRASE} ~
@@ -186,13 +186,13 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       machtran.charge_code FORMAT "X(5)":U
       machtran.start_date FORMAT "99/99/9999":U
-      STRING(machtran.start_time,'HH:MM am') @ start-time COLUMN-LABEL "Log In" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO) @ start-time COLUMN-LABEL "Log In" FORMAT "X(8)":U
       machtran.end_date FORMAT "99/99/9999":U
       machtran.shift FORMAT "X":U
-      Time_String(machtran.end_time,yes,machtran.end_date) @ end-time COLUMN-LABEL "Log Out" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO) @ end-time COLUMN-LABEL "Log Out" FORMAT "X(8)":U
       machtran.run_qty FORMAT "->>,>>>,>>9":U
       machtran.waste_qty FORMAT "->>>>9":U
-      Time_String(machtran.total_time,no,machtran.end_date) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
       machtran.completed FORMAT "yes/no":U
       display-run-total() @ lv-run-total
 /* _UIB-CODE-BLOCK-END */
@@ -305,15 +305,15 @@ machtran.pass_sequence = INTEGER(pass_sequence)"
      _FldNameList[1]   = machtran.charge_code
      _FldNameList[2]   = machtran.start_date
      _FldNameList[3]   > "_<CALC>"
-"STRING(machtran.start_time,'HH:MM am') @ start-time" "Log In" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO) @ start-time" "Log In" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[4]   = machtran.end_date
      _FldNameList[5]   = machtran.shift
      _FldNameList[6]   > "_<CALC>"
-"Time_String(machtran.end_time,yes,machtran.end_date) @ end-time" "Log Out" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO) @ end-time" "Log Out" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[7]   = machtran.run_qty
      _FldNameList[8]   = machtran.waste_qty
      _FldNameList[9]   > "_<CALC>"
-"Time_String(machtran.total_time,no,machtran.end_date) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[10]   = machtran.completed
      _FldNameList[11]   > "_<CALC>"
 "display-run-total() @ lv-run-total" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""

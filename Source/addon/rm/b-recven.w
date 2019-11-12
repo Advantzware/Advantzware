@@ -162,6 +162,8 @@ DEF TEMP-TABLE tt-email NO-UNDO
 DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
                               FIELD qty LIKE job-mat.qty
                               INDEX frm frm.
+&Scoped-define NEW NEW
+{rmrep/ttLoadTag.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2717,6 +2719,31 @@ PROCEDURE leave-tag-proc :
           RETURN NO-APPLY.
         END.*/
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE LoadTag B-table-Win 
+PROCEDURE LoadTag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Notes:       
+------------------------------------------------------------------------------*/
+    GET FIRST {&BROWSE-NAME}.
+    DO WHILE AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:
+        CREATE ttLoadTag.
+        ASSIGN
+            ttLoadTag.loadtag = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.tag
+            ttLoadTag.qty     = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.qty
+            .
+        GET NEXT {&BROWSE-NAME}.
+    END. /* repeat */
+    IF NOT CAN-FIND(FIRST ttLoadTag) THEN RETURN.
+    RUN Get_Procedure IN Persistent-Handle ("rmloadtg4a.", OUTPUT run-proc, NO).
+    IF run-proc NE "" THEN
+    RUN VALUE(run-proc) PERSISTENT (YES, "").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

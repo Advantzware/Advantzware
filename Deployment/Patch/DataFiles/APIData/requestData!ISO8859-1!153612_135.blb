@@ -1,0 +1,1 @@
+{"Requester":"Premier","Company":"001","InventoryStockID":"sbs014        00004","Quantity":100,"QuantityUOM":"","PONo":0,"POLine":0,"JobID":"","JobID2":"","QuantityPerSubUnit":100,"QuantitySubUnitsPerUnit":1,"WarehouseID":"MAIN","LocationID":"A-201","RequesterNotes":"Test RequesterNotes for createInventoryReceipt"}

@@ -197,10 +197,12 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     CREATE QUERY hdQuery.
     
     cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
-           + (IF lValidTag THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidTag THEN "  AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
            + (IF lValidItem THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "").
+           + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + "AND fg-bin.qty NE 0 "
+           + "AND fg-bin.qty NE ?".
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
@@ -218,7 +220,12 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
                AND loadtag.item-type EQ NO
                AND loadtag.tag-no    EQ hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
              NO-ERROR.
-      
+             
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
+               AND itemfg.i-no    EQ hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
+             NO-ERROR.
+             
         CREATE ttItem.
         ASSIGN
             ttItem.WarehouseID             = hdBuffer:BUFFER-FIELD("loc"):BUFFER-VALUE
@@ -234,7 +241,28 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
             ttItem.QuantityUOM             = hdBuffer:BUFFER-FIELD("pur-uom"):BUFFER-VALUE
             ttItem.QuantityPerSubUnit      = hdBuffer:BUFFER-FIELD("case-count"):BUFFER-VALUE
             ttItem.QuantitySubUnitsPerUnit = hdBuffer:BUFFER-FIELD("cases-unit"):BUFFER-VALUE
-            ttItem.QuantityPartial         = hdBuffer:BUFFER-FIELD("partial-total"):BUFFER-VALUE
+            ttItem.QuantityPartial         = hdBuffer:BUFFER-FIELD("partial-count"):BUFFER-VALUE
+            ttItem.Units                   = TRUNC((hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE - ttItem.QuantityPartial) / ttItem.QuantityPerSubUnit,0)
+            ttItem.JobNo                   = hdBuffer:BUFFER-FIELD("job-no"):BUFFER-VALUE
+            ttItem.JobNo2                  = hdBuffer:BUFFER-FIELD("job-no2"):BUFFER-VALUE
+            ttItem.POID                    = hdBuffer:BUFFER-FIELD("po-no"):BUFFER-VALUE
+            ttItem.UnitLength              = IF AVAILABLE itemfg THEN
+                                                  itemfg.unitlength
+                                              ELSE
+                                                  0
+            ttItem.UnitHeight              = IF AVAILABLE itemfg THEN
+                                                  itemfg.unitHeight
+                                              ELSE
+                                                  0
+            ttItem.UnitWidth               = IF AVAILABLE itemfg THEN
+                                                  itemfg.unitWidth
+                                              ELSE
+                                                  0
+            ttItem.StackHeight             = IF AVAILABLE itemfg THEN
+                                                  itemfg.stackHeight
+                                              ELSE
+                                                  0
+
             .
         
         hdQuery:GET-NEXT().
@@ -249,7 +277,9 @@ ELSE DO:
            + (IF lValidTag  THEN " AND rm-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
            + (IF lValidItem THEN " AND rm-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND rm-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "").
+           + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + "AND rm-bin.qty NE 0 " 
+           + "AND rm-bin.qty NE ?".
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
@@ -267,6 +297,7 @@ ELSE DO:
                AND loadtag.item-type EQ YES
                AND loadtag.tag-no    EQ hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
              NO-ERROR.
+             
         FIND FIRST item NO-LOCK
              WHERE item.company EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
                AND item.i-no    EQ hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
@@ -291,6 +322,7 @@ ELSE DO:
             ttItem.QuantityPerSubUnit      = 0
             ttItem.QuantitySubUnitsPerUnit = 0
             ttItem.QuantityPartial         = 0
+            ttItem.POID                    = hdBuffer:BUFFER-FIELD("po-no"):BUFFER-VALUE
             .
         
         hdQuery:GET-NEXT().

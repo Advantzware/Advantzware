@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
+ DEFINE VARIABLE lCheckBinMessage AS LOGICAL NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -72,7 +73,7 @@ location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
 location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
-location.lActive
+location.lActive 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -86,7 +87,7 @@ loc.owner location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
 location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
-location.lActive
+location.lActive 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -271,17 +272,17 @@ DEFINE FRAME F-Main
           LABEL "API Enabled"
           VIEW-AS TOGGLE-BOX
           SIZE 19.6 BY .81
-     location.lActive AT ROW 17.33 COL 55 
-          HELP "Flag to indicate that location supports consignment materials."
+     location.lActive AT ROW 17.33 COL 55 HELP
+          "Flag to indicate that location supports consignment materials."
           LABEL "Consignment"
           VIEW-AS TOGGLE-BOX
           SIZE 18.4 BY .81
-     "Capacity:" VIEW-AS TEXT
-          SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
-     "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.86 COL 3
      "Notes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 14.1 COL 5
+     "Address:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.86 COL 3
+     "Capacity:" VIEW-AS TEXT
+          SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -345,11 +346,12 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX loc.active IN FRAME F-Main
-   EXP-LABEL                                                            */ 
-/* SETTINGS FOR TOGGLE-BOX location.lActive IN FRAME F-Main
-   EXP-LABEL EXP-HELP                                                   */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.company IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       loc.company:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.division IN FRAME F-Main
@@ -368,6 +370,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX loc.isAPIEnabled IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX location.lActive IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN loc.loc IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN loc.locationSquareFeet IN FRAME F-Main
@@ -501,14 +505,28 @@ DO:
     IF AVAIL wip-bin THEN ASSIGN 
         lFound = TRUE.
         
-    IF NOT lFound THEN DO:
+    IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
         MESSAGE 
-            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables."
-            VIEW-AS ALERT-BOX.
-        APPLY 'entry' TO SELF.
-        RETURN NO-APPLY.
+            "Do you want to add the new bin?"
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS YES-NO UPDATE lcheckflg as logical .
+        IF NOT lcheckflg THEN do:
+            APPLY 'entry' TO SELF.
+            RETURN NO-APPLY.
+        END.
+        ELSE lCheckBinMessage = YES .
     END. 
                
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME location.defaultBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.defaultBin V-table-Win
+ON VALUE-CHANGED OF location.defaultBin IN FRAME F-Main /* Default Bin */
+DO: 
+  lCheckBinMessage = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,8 +729,74 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+    IF lCheckBinMessage THEN DO:
+        IF rsBinType:SCREEN-VALUE EQ "FG" THEN DO:
+            FIND FIRST fg-bin NO-LOCK WHERE 
+                fg-bin.company EQ g_company AND 
+                fg-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                fg-bin.loc-bin EQ location.defaultBin 
+                NO-ERROR.
+            IF NOT AVAIL fg-bin THEN do: 
+                CREATE fg-bin .
+                ASSIGN
+                    fg-bin.company = g_company
+                    fg-bin.loc = loc.loc
+                    fg-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "FG"*/
+        ELSE IF rsBinType:SCREEN-VALUE EQ "RM" THEN DO:
+            FIND FIRST rm-bin NO-LOCK WHERE 
+                rm-bin.company EQ g_company AND 
+                rm-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                rm-bin.loc-bin EQ location.defaultBin
+                NO-ERROR.
+            IF NOT AVAIL rm-bin THEN do: 
+                CREATE rm-bin .
+                ASSIGN
+                    rm-bin.company = g_company
+                    rm-bin.loc = loc.loc
+                    rm-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "rm"*/
+        ELSE IF rsBinType:SCREEN-VALUE EQ "wp" THEN DO:
+            FIND FIRST wip-bin NO-LOCK WHERE 
+                wip-bin.company EQ g_company AND 
+                wip-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                wip-bin.loc-bin EQ location.defaultBin
+                NO-ERROR.
+            IF NOT AVAIL wip-bin THEN do: 
+                CREATE wip-bin .
+                ASSIGN
+                    wip-bin.company = g_company
+                    wip-bin.loc = loc.loc
+                    wip-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "wp"*/
+    END.
+    
+    lCheckBinMessage = NO .     
         
-        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  lCheckBinMessage = NO .
 
 END PROCEDURE.
 

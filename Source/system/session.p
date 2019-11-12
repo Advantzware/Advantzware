@@ -30,6 +30,7 @@ DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 /* cue card variables */
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
@@ -83,11 +84,77 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 &ENDIF
 
-
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtPermissionsHandle Procedure
 FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfHideAMPM) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHideAMPM Procedure
+FUNCTION sfHideAMPM RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfHourMax) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHourMax Procedure
+FUNCTION sfHourMax RETURNS INTEGER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfHourMin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHourMin Procedure
+FUNCTION sfHourMin RETURNS INTEGER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfTimeDisplay) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfTimeDisplay Procedure
+FUNCTION sfTimeDisplay RETURNS CHARACTER 
+  (ipiTime AS INTEGER,
+   iplClockTime AS LOGICAL,
+   iplSeconds AS LOGICAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfUserAMPM) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfUserAMPM Procedure
+FUNCTION sfUserAMPM RETURNS LOGICAL 
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,6 +297,7 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
 FIND FIRST users NO-LOCK
      WHERE users.user_id EQ USERID("ASI")
      NO-ERROR.
+lUserAMPM = AVAILABLE users AND users.AMPM.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -805,6 +873,59 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spParseTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spParseTime Procedure
+PROCEDURE spParseTime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiTime    AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iphHour    AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER iphMinute  AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER iphSeconds AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER iphAMPM    AS HANDLE  NO-UNDO.
+
+    DEFINE VARIABLE cTime AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE kdx   AS INTEGER   NO-UNDO.
+
+    ASSIGN
+        idx   = IF lUserAMPM THEN 1  ELSE 0
+        jdx   = IF lUserAMPM THEN 12 ELSE 24
+        cTime = IF lUserAMPM THEN STRING(ipiTime,"HH:MM:SS AM")
+                ELSE STRING(ipiTime,"HH:MM:SS")
+              .    
+    IF iphHour:TYPE EQ "COMBO-BOX" THEN DO:
+        iphHour:LIST-ITEMS = " ".
+        DO kdx = jdx TO idx BY -1:
+            iphHour:LIST-ITEMS = iphHour:LIST-ITEMS + STRING(kdx) + ",".
+        END. /* do kdx */
+        iphHour:LIST-ITEMS = TRIM(iphHour:LIST-ITEMS,",").
+    END. /* if combo-box */
+
+    IF VALID-HANDLE(iphHour) THEN
+    iphHour:SCREEN-VALUE = SUBSTRING(cTime,1,2).
+    IF VALID-HANDLE(iphMinute) THEN
+    iphMinute:SCREEN-VALUE = SUBSTRING(cTime,4,2).
+    IF VALID-HANDLE(iphSeconds) THEN
+    iphSeconds:SCREEN-VALUE = SUBSTRING(cTime,7,2).
+    IF VALID-HANDLE(iphAMPM) THEN DO:
+        IF iphAMPM:TYPE EQ "BUTTON" THEN
+        iphAMPM:LABEL = IF lUserAMPM THEN SUBSTRING(cTime,10,2) ELSE "".
+        ELSE
+        iphAMPM:SCREEN-VALUE = IF lUserAMPM THEN SUBSTRING(cTime,10,2) ELSE "".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSendEmail Procedure
@@ -813,14 +934,16 @@ PROCEDURE spSendEmail:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcConfigID          AS INTEGER   NO-UNDO. /* Mandatory - This is configID value as stored in emailConfig table */
-    DEFINE INPUT PARAMETER ipcRecipientsSendTo  AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsSendTo value */
-    DEFINE INPUT PARAMETER ipcRecipientsReplyTo AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsReplyTo value */
-    DEFINE INPUT PARAMETER ipcRecipientsSendCC  AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsSendCC value */
-    DEFINE INPUT PARAMETER ipcRecipientsSendBCC AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsSendBCC value */
-    DEFINE INPUT PARAMETER ipcSubject           AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.subject value */
-    DEFINE INPUT PARAMETER ipcBody              AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.body value */
-    DEFINE INPUT PARAMETER ipcAttachment        AS CHARACTER NO-UNDO. /* Optional - This is the full file path to be attached */
+    DEFINE INPUT  PARAMETER ipiConfigID          AS INTEGER   NO-UNDO. /* Mandatory - This is configID value as stored in emailConfig table */
+    DEFINE INPUT  PARAMETER ipcRecipientsSendTo  AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsSendTo value */
+    DEFINE INPUT  PARAMETER ipcRecipientsReplyTo AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsReplyTo value */
+    DEFINE INPUT  PARAMETER ipcRecipientsSendCC  AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsSendCC value */
+    DEFINE INPUT  PARAMETER ipcRecipientsSendBCC AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.recipientsSendBCC value */
+    DEFINE INPUT  PARAMETER ipcSubject           AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.subject value */
+    DEFINE INPUT  PARAMETER ipcBody              AS CHARACTER NO-UNDO. /* Optional(Override) - This overrides emailConfig.body value */
+    DEFINE INPUT  PARAMETER ipcAttachment        AS CHARACTER NO-UNDO. /* Optional - This is the full file path to be attached */
+    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cMail              AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE idx                AS INTEGER    NO-UNDO.
@@ -833,102 +956,140 @@ PROCEDURE spSendEmail:
     DEFINE VARIABLE cRecipientsSendCC  AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRecipientsSendBCC AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRecipientsReplyTo AS CHARACTER  NO-UNDO.
-      
-    ASSIGN
+    
+    ASSIGN 
+        oplSuccess = YES
+        opcMessage = "Success"
         FILE-INFO:FILE-NAME  = SEARCH("CMail.exe")
         cMail                = FILE-INFO:FULL-PATHNAME
         FILE-INFO:FILE-NAME  = ipcAttachment
         ipcAttachment        = FILE-INFO:FULL-PATHNAME
-        .    
+        . 
+
     FIND FIRST emailConfig NO-LOCK
-         WHERE emailConfig.configID EQ ipcConfigID
-           AND emailConfig.isActive EQ YES
+         WHERE emailConfig.configID EQ ipiConfigID
          NO-ERROR.
-    /* Sends email only if configID is available in emailConfig table */
-    IF AVAILABLE emailConfig AND emailConfig.smtpServer NE "" THEN DO:   
-        /* If value for input recipientsinTo is null, then gets value from emailConfig table */
-        IF ipcRecipientsSendTO EQ "" THEN
-        ipcRecipientsSendTO = emailConfig.recipientsSendTo.        
-     /* If value for recipientsinTo is null in emailConfig table, then code execution stops */
-        IF ipcRecipientsSendTO EQ "" THEN
-        RETURN.		
-        /* If value for input recipientsinBCC is null, then gets value from emailConfig table */
-        IF ipcRecipientsSendBCC EQ "" THEN
-        ipcRecipientsSendBCC = emailConfig.recipientsSendBCC.        
-     /* If value for input recipientsinCC is null, then gets value from emailConfig table */			
-        IF ipcRecipientsSendCC EQ "" THEN
-        ipcRecipientsSendCC = emailConfig.recipientsSendCC.        
-     /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */			
-        IF ipcRecipientsReplyTo EQ "" THEN
-        ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.        
+    
+    IF NOT AVAILABLE emailConfig THEN DO:
+         ASSIGN
+             oplSuccess = NO
+             opcMessage = "emailConfig record not found for configID " + STRING(ipiConfigID)
+             .
+         RETURN.
+    END.  
+    
+    IF NOT emailConfig.isActive THEN DO:
+         ASSIGN
+             oplSuccess = NO
+             opcMessage = "emailConfig record for configID " +  STRING(ipiConfigID) + " is not active"
+             .
+         RETURN.
+    END.  
+    
+    IF emailConfig.smtpServer EQ "" THEN DO:
+         ASSIGN
+             oplSuccess = NO
+             opcMessage = "smtpServer field is blank in emailConfig record for configID " +  STRING(ipiConfigID)
+             .
+         RETURN.
+    END.  
+    
+    IF emailConfig.smtpUser EQ "" THEN DO:
+         ASSIGN
+             oplSuccess = NO
+             opcMessage = "smtpUser field is blank in emailConfig record for configID " +  STRING(ipiConfigID)
+             .
+         RETURN.
+    END. 
+    
+    IF emailConfig.smtpPassword EQ "" THEN DO:
+         ASSIGN
+             oplSuccess = NO
+             opcMessage = "smtpPassword field is blank in emailConfig record for configID " +  STRING(ipiConfigID)
+             .
+         RETURN.
+    END.  
+     
+    /* If value for input recipientsinTo is null, then gets value from emailConfig table */
+    IF ipcRecipientsSendTO EQ "" THEN
+        ipcRecipientsSendTO = emailConfig.recipientsSendTo.    
+            
+    /* If value for recipientsinTo is null in emailConfig table, then code execution stops */
+    IF ipcRecipientsSendTO EQ "" THEN DO:
         ASSIGN
-            ipcRecipientsSendTO  = TRIM(REPLACE(ipcRecipientsSendTO,";",","))
-            ipcRecipientsSendCC  = TRIM(REPLACE(ipcRecipientsSendCC,";",","))
-            ipcRecipientsSendBCC = TRIM(REPLACE(ipcRecipientsSendBCC,";",","))
-            ipcRecipientsReplyTo = TRIM(REPLACE(ipcRecipientsReplyTo,";",","))
-            .            
-     /* If value for input body is null, then gets value from emailConfig table */
-        IF ipcBody EQ "" THEN
+            oplSuccess = NO
+            opcMessage = "Email recipients are not available"
+            .
+        RETURN.
+    END.		
+    
+    /* If value for input recipientsinBCC is null, then gets value from emailConfig table */
+    IF ipcRecipientsSendBCC EQ "" THEN
+        ipcRecipientsSendBCC = emailConfig.recipientsSendBCC. 
+               
+    /* If value for input recipientsinCC is null, then gets value from emailConfig table */			
+    IF ipcRecipientsSendCC EQ "" THEN
+        ipcRecipientsSendCC = emailConfig.recipientsSendCC.  
+              
+    /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */			
+    IF ipcRecipientsReplyTo EQ "" THEN
+        ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.      
+          
+    ASSIGN
+        ipcRecipientsSendTO  = TRIM(REPLACE(ipcRecipientsSendTO,";",","))
+        ipcRecipientsSendCC  = TRIM(REPLACE(ipcRecipientsSendCC,";",","))
+        ipcRecipientsSendBCC = TRIM(REPLACE(ipcRecipientsSendBCC,";",","))
+        ipcRecipientsReplyTo = TRIM(REPLACE(ipcRecipientsReplyTo,";",","))
+        .            
+       
+    /* If value for input body is null, then gets value from emailConfig table */
+    IF ipcBody EQ "" THEN
         ipcBody = emailConfig.body.        
-     /* If value for input subject is null, then gets value from emailConfig table */
-        IF ipcSubject EQ "" THEN
-        ipcSubject = emailConfig.subject.        
-     /* If value for input attachment is valid, then only attachment will be sent in email  */
-        IF ipcAttachment NE ? THEN
-        cAttachments = cAttachments + " -a:" + ipcAttachment.		
-     /* cMail don't supports adding multiple recipients to a single (to/cc/bcc/reply-to) field. 
-           Only one recipient can be added to a single (to/cc/bcc/reply-to) field. 
+        
+    /* If value for input subject is null, then gets value from emailConfig table */
+    IF ipcSubject EQ "" THEN
+        ipcSubject = emailConfig.subject.   
+             
+    /* If value for input attachment is valid, then only attachment will be sent in email  */
+    IF ipcAttachment NE ? THEN
+        cAttachments = cAttachments + " -a:" + ipcAttachment.	
+        	
+    /* cMail don't supports adding multiple recipients to a single (to/cc/bcc/reply-to) field. 
+       Only one recipient can be added to a single (to/cc/bcc/reply-to) field. 
 	 So,This setting may be required multiple times based on the number of receipients */
-        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
-            cRecipientsSendTo = cRecipientsSendTo + " -to:" + ENTRY(idx,ipcRecipientsSendTO).
-        END. /*do idx*/
+    DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
+        cRecipientsSendTo = cRecipientsSendTo + " -to:" + ENTRY(idx,ipcRecipientsSendTO).
+    END. /*do idx*/
 
-        IF ipcRecipientsSendCC NE "" THEN
-            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendCC):
-                cRecipientsSendCC = cRecipientsSendCC + " -cc:" + ENTRY(idx,ipcRecipientsSendCC).
-            END. /* do idx */
-            
-        IF ipcRecipientsSendBCC NE "" THEN
-            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendBCC):
-                cRecipientsSendBCC = cRecipientsSendBCC + " -bcc:" + ENTRY(idx,ipcRecipientsSendBCC).
-            END. /* do idx */
-            
-        IF ipcRecipientsReplyTo NE "" THEN
-            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsReplyTo):
-                cRecipientsReplyTo = cRecipientsReplyTo + " -reply-to:" + ENTRY(idx,ipcRecipientsReplyTo).
-            END. /* do idx */
-
-        cMail = cMail + " -host:"
-              + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
-              + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
-              + " -starttls" + cAttachments
-              + " ~"-subject:" + ipcSubject + "~""
-              + " ~"-body:" + ipcBody + "~""
-              + " -from:" + emailConfig.smtpUser
-              + cRecipientsSendTo
-              + cRecipientsSendCC
-              + cRecipientsSendBCC
-              + cRecipientsReplyTo
-              .
-        OS-COMMAND SILENT VALUE(cMail).
-    END.
-    ELSE DO:
-        CREATE "Outlook.Application" objOutlook.
-        objOutlookMsg = objOutlook:CreateItem(0).
-        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
-            objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipientsSendTO)).
+    IF ipcRecipientsSendCC NE "" THEN
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendCC):
+            cRecipientsSendCC = cRecipientsSendCC + " -cc:" + ENTRY(idx,ipcRecipientsSendCC).
         END. /* do idx */
-        objOutlookRecip:Type  = 1.
-        objOutlookMsg:Subject = ipcSubject.
-        objOutlookMsg:Body    = ipcBody.    
-        objOutlookMsg:Attachments:Add(ipcAttachment).
-        objOutlookRecip:Resolve.
-        objOutlookMsg:Send.
-      /*objOutlook:Quit().*/
-        RELEASE OBJECT objOutlook.
-        RELEASE OBJECT objOutlookMsg.
-        RELEASE OBJECT objOutlookRecip.
-    END. /* else */
+        
+    IF ipcRecipientsSendBCC NE "" THEN
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendBCC):
+            cRecipientsSendBCC = cRecipientsSendBCC + " -bcc:" + ENTRY(idx,ipcRecipientsSendBCC).
+        END. /* do idx */
+        
+    IF ipcRecipientsReplyTo NE "" THEN
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsReplyTo):
+            cRecipientsReplyTo = cRecipientsReplyTo + " -reply-to:" + ENTRY(idx,ipcRecipientsReplyTo).
+        END. /* do idx */
+
+    cMail = cMail + " -host:"
+          + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
+          + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
+          + " -starttls" + cAttachments
+          + " ~"-subject:" + ipcSubject + "~""
+          + " ~"-body:" + ipcBody + "~""
+          + " -from:" + emailConfig.smtpUser
+          + cRecipientsSendTo
+          + cRecipientsSendCC
+          + cRecipientsSendBCC
+          + cRecipientsReplyTo
+          .
+    OS-COMMAND SILENT VALUE(cMail).
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1552,9 +1713,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 
@@ -1572,9 +1731,108 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfHideAMPM) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfHideAMPM Procedure
+FUNCTION sfHideAMPM RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN NOT lUserAMPM.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfHourMax) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfHourMax Procedure
+FUNCTION sfHourMax RETURNS INTEGER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN IF lUserAMPM THEN 12 ELSE 24.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfHourMin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfHourMin Procedure
+FUNCTION sfHourMin RETURNS INTEGER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN IF lUserAMPM THEN 1 ELSE 0.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfTimeDisplay) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfTimeDisplay Procedure
+FUNCTION sfTimeDisplay RETURNS CHARACTER 
+  (ipiTime AS INTEGER, iplClockTime AS LOGICAL, iplSeconds AS LOGICAL):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFormat        AS CHARACTER NO-UNDO INITIAL "HH:MM".
+	DEFINE VARIABLE opcTimeDisplay AS CHARACTER NO-UNDO.
+
+    IF iplSeconds THEN
+    cFormat = cFormat + ":SS".
+    IF iplClockTime AND lUserAMPM THEN
+    cFormat = cFormat + " AM".    
+    opcTimeDisplay = STRING(ipiTime,cFormat).
+
+    RETURN opcTimeDisplay.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfUserAMPM) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfUserAMPM Procedure
+FUNCTION sfUserAMPM RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN lUserAMPM.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 

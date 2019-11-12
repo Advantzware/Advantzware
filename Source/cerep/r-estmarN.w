@@ -579,11 +579,6 @@ DO:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-  IF tb_excel THEN DO:
-    IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
-  END. 
-
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
@@ -1601,6 +1596,8 @@ FOR EACH est
           '"'                       '",'
           SKIP. */
   END.
+
+
 END.
 
 OUTPUT STREAM st-excel CLOSE.
@@ -1609,7 +1606,12 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
-/* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
+    IF tb_excel THEN 
+    DO:
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+    END. 
+
 
 end procedure.
 

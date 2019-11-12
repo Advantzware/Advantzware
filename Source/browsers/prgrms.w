@@ -118,11 +118,11 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 91 BY 1 NO-UNDO.
+     SIZE 102 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 148 BY 1.43.
+     SIZE 158 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -150,12 +150,12 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      prgrms.prgmname FORMAT "X(10)":U WIDTH 22.2
+      prgrms.prgmname FORMAT "X(32)":U WIDTH 37.2
       prgrms.prgtitle FORMAT "X(30)":U WIDTH 35.2
-      prgrms.dir_group FORMAT "X(20)":U WIDTH 16.4
+      prgrms.dir_group FORMAT "X(20)":U WIDTH 12.4
       prgrms.menu_item FORMAT "yes/no":U WIDTH 6.2
       prgrms.menuOrder FORMAT ">>>9":U WIDTH 8.2
-      prgrms.menuLevel FORMAT "->,>>>,>>9":U WIDTH 11.2
+      prgrms.menuLevel FORMAT "->,>>>,>>9":U
       prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U WIDTH 9.2
       prgrms.itemParent FORMAT "x(10)":U WIDTH 12.2
       prgrms.systemType FORMAT "x(8)":U WIDTH 9.2
@@ -168,7 +168,7 @@ DEFINE BROWSE Browser-Table
       prgrms.mfgroup COLUMN-LABEL "Parent(s)" FORMAT "X(50)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 16.67
+    WITH NO-ASSIGN SEPARATORS SIZE 158 BY 23.81
          FGCOLOR 1 FONT 4.
 
 
@@ -177,17 +177,17 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     btnRun AT ROW 17.91 COL 98 HELP
+     btnRun AT ROW 25.05 COL 108 HELP
           "Run Selected Program" WIDGET-ID 2
-     browse-order AT ROW 17.91 COL 6 HELP
+     browse-order AT ROW 25.05 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 17.91 COL 112 COLON-ALIGNED HELP
+     auto_find AT ROW 25.05 COL 122 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.91 COL 135 HELP
+     Btn_Clear_Find AT ROW 25.05 COL 145 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 17.91 COL 2
-     RECT-4 AT ROW 17.67 COL 1
+          SIZE 4 BY 1 AT ROW 25.05 COL 2
+     RECT-4 AT ROW 24.81 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -220,8 +220,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 18.1
-         WIDTH              = 148.
+         HEIGHT             = 25.24
+         WIDTH              = 158.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -246,7 +246,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -275,17 +275,16 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > ASI.prgrms.prgmname
-"prgrms.prgmname" ? ? "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.prgmname" ? "x(32)" "character" ? ? ? ? ? ? no ? no no "37.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.prgrms.prgtitle
 "prgrms.prgtitle" ? ? "character" ? ? ? ? ? ? no ? no no "35.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.prgrms.dir_group
-"prgrms.dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no "16.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.prgrms.menu_item
 "prgrms.menu_item" ? ? "logical" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.prgrms.menuOrder
 "prgrms.menuOrder" ? ? "integer" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.prgrms.menuLevel
-"prgrms.menuLevel" ? ? "integer" ? ? ? ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   = ASI.prgrms.menuLevel
      _FldNameList[7]   > ASI.prgrms.mnemonic
 "prgrms.mnemonic" "Hotkey" "x(6)" "character" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.prgrms.itemParent

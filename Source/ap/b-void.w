@@ -112,20 +112,25 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table ap-pay.bank-code ~
-ap-pay.vend-no vend.name ap-pay.check-no ap-pay.check-date ~
-display-amount() @ ap-pay.check-amt 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no ap-pay.check-no ~
+ap-pay.bank-code ap-pay.check-date ap-pay.check-amt ap-pay.man-check ~
+display-voided() @ cleared 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-pay.vend-no ~
-vend.name ap-pay.check-no ap-pay.check-date 
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-pay vend
+ap-pay.check-no ap-pay.bank-code 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-pay
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ap-pay
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table vend
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ap-pay WHERE ~{&KEY-PHRASE} ~
-      AND ap-pay.check-no gt 999999999 NO-LOCK, ~
+      AND ap-pay.company EQ g_company AND ~
+ASI.ap-pay.reconciled EQ NO AND ~
+ASI.ap-pay.check-amt NE 0 AND ~
+ASI.ap-pay.check-no GT 999999999 NO-LOCK, ~
       EACH vend OF ap-pay NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH ap-pay WHERE ~{&KEY-PHRASE} ~
-      AND ap-pay.check-no gt 999999999 NO-LOCK, ~
+      AND ap-pay.company EQ g_company AND ~
+ASI.ap-pay.reconciled EQ NO AND ~
+ASI.ap-pay.check-amt NE 0 AND ~
+ASI.ap-pay.check-no GT 999999999 NO-LOCK, ~
       EACH vend OF ap-pay NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table ap-pay vend
@@ -221,20 +226,21 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-pay.bank-code FORMAT "x(8)":U WIDTH 12.8
-      ap-pay.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U WIDTH 17.2
+      ap-pay.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U WIDTH 16.2
             LABEL-BGCOLOR 14
-      vend.name FORMAT "x(30)":U LABEL-BGCOLOR 14
-      ap-pay.check-no COLUMN-LABEL "Memo#" FORMAT ">>>>>>>>>>":U
-            WIDTH 19.2 LABEL-BGCOLOR 14
-      ap-pay.check-date COLUMN-LABEL "Memo Date" FORMAT "99/99/9999":U
-            WIDTH 18.2 LABEL-BGCOLOR 14
-      display-amount() @ ap-pay.check-amt COLUMN-LABEL "Amount" FORMAT "->>>,>>>,>>9.99":U
+      ap-pay.check-no COLUMN-LABEL "Check#" FORMAT "99999999":U
+            WIDTH 17.2 LABEL-BGCOLOR 14
+      ap-pay.bank-code FORMAT "x(8)":U LABEL-BGCOLOR 14
+      ap-pay.check-date COLUMN-LABEL "Check Date" FORMAT "99/99/9999":U
+            WIDTH 14.2 LABEL-BGCOLOR 14
+      ap-pay.check-amt FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ap-pay.man-check COLUMN-LABEL "Manual Check" FORMAT "Yes/No":U
+            WIDTH 17.2 LABEL-BGCOLOR 14
+      display-voided() @ cleared COLUMN-LABEL "Voided" LABEL-BGCOLOR 14
   ENABLE
       ap-pay.vend-no
-      vend.name
       ap-pay.check-no
-      ap-pay.check-date
+      ap-pay.bank-code
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.19
@@ -335,19 +341,24 @@ ASSIGN
      _TblList          = "ASI.ap-pay,ASI.vend OF ASI.ap-pay"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ","
-     _Where[1]         = "ASI.ap-pay.check-no gt 999999999"
-     _FldNameList[1]   > ASI.ap-pay.bank-code
-"ap-pay.bank-code" ? ? "character" ? ? ? ? ? ? no ? no no "12.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.ap-pay.vend-no
-"ap-pay.vend-no" "Vendor#" ? "character" ? ? ? 14 ? ? yes ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.vend.name
-"vend.name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.ap-pay.check-no
-"ap-pay.check-no" "Memo#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.ap-pay.check-date
-"ap-pay.check-date" "Memo Date" ? "date" ? ? ? 14 ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > "_<CALC>"
-"display-amount() @ ap-pay.check-amt" "Amount" "->>>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Where[1]         = "ASI.ap-pay.company EQ g_company AND
+ASI.ap-pay.reconciled EQ NO AND
+ASI.ap-pay.check-amt NE 0 AND
+ASI.ap-pay.check-no GT 999999999"
+     _FldNameList[1]   > ASI.ap-pay.vend-no
+"ap-pay.vend-no" "Vendor#" ? "character" ? ? ? 14 ? ? yes ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.ap-pay.check-no
+"ap-pay.check-no" "Check#" ? "integer" ? ? ? 14 ? ? yes ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.ap-pay.bank-code
+"ap-pay.bank-code" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.ap-pay.check-date
+"ap-pay.check-date" "Check Date" ? "date" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.ap-pay.check-amt
+"ap-pay.check-amt" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.ap-pay.man-check
+"ap-pay.man-check" "Manual Check" ? "logical" ? ? ? 14 ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > "_<CALC>"
+"display-voided() @ cleared" "Voided" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

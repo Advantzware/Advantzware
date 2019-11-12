@@ -137,19 +137,18 @@ RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
 &Scoped-define INTERNAL-TABLES fg-rctd
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame fg-rctd.i-no fg-rctd.i-name ~
-fg-rctd.tag fg-rctd.stack-code fg-rctd.rct-date fg-rctd.job-no ~
-fg-rctd.job-no2 fg-rctd.po-no fg-rctd.po-line fg-rctd.cases ~
-fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.t-qty ~
-fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost ~
-fg-rctd.tot-wt fg-rctd.loc fg-rctd.loc-bin fg-rctd.created-by fg-rctd.r-no ~
-fg-rctd.updated-by 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame fg-rctd.i-no ~
-fg-rctd.tag fg-rctd.stack-code fg-rctd.rct-date fg-rctd.job-no ~
-fg-rctd.job-no2 fg-rctd.po-no fg-rctd.po-line fg-rctd.cases ~
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame fg-rctd.rct-date fg-rctd.tag ~
+fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line fg-rctd.job-no ~
+fg-rctd.job-no2 fg-rctd.i-no fg-rctd.i-name fg-rctd.loc fg-rctd.loc-bin ~
+fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial ~
+fg-rctd.t-qty fg-rctd.tot-wt fg-rctd.std-cost fg-rctd.cost-uom ~
+fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by ~
+fg-rctd.r-no 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame fg-rctd.rct-date ~
+fg-rctd.tag fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line fg-rctd.job-no ~
+fg-rctd.job-no2 fg-rctd.i-no fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases ~
 fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.std-cost ~
-fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.loc ~
-fg-rctd.loc-bin 
+fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame fg-rctd
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame fg-rctd
@@ -200,226 +199,226 @@ FUNCTION maxComponentQty RETURNS DECIMAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Done" 
-    SIZE 17 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Done" 
+     SIZE 17 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Save" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE VARIABLE cTransTime AS CHARACTER FORMAT "x(8)":U 
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Tr Time" 
-    VIEW-AS FILL-IN 
-    SIZE 23.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     LABEL "Tr Time" 
+     VIEW-AS FILL-IN 
+     SIZE 23.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 50 BY 3.81
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 50 BY 3.81
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-2
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 50 BY 5
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 50 BY 5
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-3
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 50 BY 6.19
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 50 BY 6.19
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-4
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 50 BY 3.81
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 50 BY 3.81
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-5
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 50 BY 6.19
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 50 BY 6.19
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 50 BY 5
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 50 BY 5
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 19 BY 2.38
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 19 BY 2.38
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-    fg-rctd SCROLLING.
+      fg-rctd SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    Btn_Cancel AT ROW 17.19 COL 94
-    cTransTime AT ROW 1.48 COL 37 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-    Btn_Done AT ROW 17.19 COL 85
-    fg-rctd.rct-date AT ROW 1.48 COL 18 COLON-ALIGNED
-    LABEL "Receipt Date" FORMAT "99/99/9999"
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-1 AT ROW 1.48 COL 34
-    fg-rctd.tag AT ROW 2.67 COL 18 COLON-ALIGNED
-    LABEL "Tag" FORMAT "x(20)"
-    VIEW-AS FILL-IN 
-    SIZE 31.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.stack-code AT ROW 3.86 COL 18 COLON-ALIGNED
-    LABEL "FG Lot#" FORMAT "x(20)"
-    VIEW-AS FILL-IN 
-    SIZE 31.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.po-no AT ROW 1.48 COL 72 COLON-ALIGNED
-    LABEL "PO #" FORMAT "x(9)"
-    VIEW-AS FILL-IN 
-    SIZE 23.8 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.po-line AT ROW 2.67 COL 72 COLON-ALIGNED
-    LABEL "PO Ln#" FORMAT ">>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.job-no AT ROW 3.86 COL 72 COLON-ALIGNED
-    LABEL "Job#" FORMAT "x(6)"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.job-no2 AT ROW 3.86 COL 91.2 COLON-ALIGNED NO-LABEL FORMAT "99"
-    VIEW-AS FILL-IN 
-    SIZE 4.8 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.i-no AT ROW 5.52 COL 18 COLON-ALIGNED
-    LABEL "Item No" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 31.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.i-name AT ROW 6.71 COL 18 COLON-ALIGNED
-    LABEL "Name/Desc" FORMAT "x(30)"
-    VIEW-AS FILL-IN 
-    SIZE 31.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.loc AT ROW 7.91 COL 18 COLON-ALIGNED
-    LABEL "Warehouse" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.loc-bin AT ROW 9.1 COL 18 COLON-ALIGNED
-    LABEL "Bin" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.cases AT ROW 5.52 COL 72 COLON-ALIGNED
-    LABEL "Units" FORMAT "->>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.qty-case AT ROW 6.71 COL 72 COLON-ALIGNED
-    LABEL "Unit Count" FORMAT ">>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.cases-unit AT ROW 7.91 COL 72 COLON-ALIGNED
-    LABEL "Units/Skid" FORMAT ">>>9"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.partial AT ROW 9.1 COL 72 COLON-ALIGNED
-    LABEL "Partial" FORMAT "->>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.t-qty AT ROW 10.29 COL 72 COLON-ALIGNED
-    LABEL "Total Qty" FORMAT "->>>,>>>,>>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.tot-wt AT ROW 15.52 COL 18 COLON-ALIGNED
-    LABEL "Total Weight" FORMAT ">>,>>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.std-cost AT ROW 10.76 COL 18 COLON-ALIGNED
-    LABEL "Cost/UOM" FORMAT ">,>>>,>>9.99<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
+     Btn_Cancel AT ROW 17.43 COL 94
+     cTransTime AT ROW 1.48 COL 37 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     Btn_Done AT ROW 17.43 COL 85
+     fg-rctd.rct-date AT ROW 1.48 COL 18 COLON-ALIGNED
+          LABEL "Receipt Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 FONT 1
+     btnCalendar-1 AT ROW 1.48 COL 34
+     fg-rctd.tag AT ROW 2.67 COL 18 COLON-ALIGNED
+          LABEL "Tag" FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.stack-code AT ROW 3.86 COL 18 COLON-ALIGNED
+          LABEL "FG Lot#" FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.po-no AT ROW 1.48 COL 72 COLON-ALIGNED
+          LABEL "PO #" FORMAT "x(9)"
+          VIEW-AS FILL-IN 
+          SIZE 23.8 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.po-line AT ROW 2.67 COL 72 COLON-ALIGNED
+          LABEL "PO Ln#" FORMAT ">>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.job-no AT ROW 3.86 COL 72 COLON-ALIGNED
+          LABEL "Job#" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.job-no2 AT ROW 3.86 COL 91.2 COLON-ALIGNED NO-LABEL FORMAT "99"
+          VIEW-AS FILL-IN 
+          SIZE 4.8 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.i-no AT ROW 5.52 COL 18 COLON-ALIGNED
+          LABEL "Item No" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.i-name AT ROW 6.71 COL 18 COLON-ALIGNED
+          LABEL "Name/Desc" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc AT ROW 7.91 COL 18 COLON-ALIGNED
+          LABEL "Warehouse" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc-bin AT ROW 9.1 COL 18 COLON-ALIGNED
+          LABEL "Bin" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.cases AT ROW 5.52 COL 72 COLON-ALIGNED
+          LABEL "Units" FORMAT "->>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.qty-case AT ROW 6.71 COL 72 COLON-ALIGNED
+          LABEL "Unit Count" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.cases-unit AT ROW 7.91 COL 72 COLON-ALIGNED
+          LABEL "Units/Skid" FORMAT ">>>9"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.partial AT ROW 9.1 COL 72 COLON-ALIGNED
+          LABEL "Partial" FORMAT "->>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.t-qty AT ROW 10.29 COL 72 COLON-ALIGNED
+          LABEL "Total Qty" FORMAT "->>>,>>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.tot-wt AT ROW 15.52 COL 18 COLON-ALIGNED
+          LABEL "Total Weight" FORMAT ">>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.std-cost AT ROW 10.76 COL 18 COLON-ALIGNED
+          LABEL "Cost/UOM" FORMAT ">,>>>,>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    fg-rctd.cost-uom AT ROW 11.95 COL 18 COLON-ALIGNED
-    LABEL "UOM" FORMAT "x(3)"
-    VIEW-AS FILL-IN 
-    SIZE 17.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.frt-cost AT ROW 13.14 COL 18 COLON-ALIGNED
-    LABEL "Freight Cost" FORMAT ">>>,>>9.99<<"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.ext-cost AT ROW 14.33 COL 18 COLON-ALIGNED
-    LABEL "Extended Cost" FORMAT "->,>>>,>>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fi_tr-time AT ROW 11.95 COL 72 COLON-ALIGNED
-    fg-rctd.created-by AT ROW 13.14 COL 72 COLON-ALIGNED
-    LABEL "Created By" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 23.8 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.updated-by AT ROW 14.33 COL 72 COLON-ALIGNED
-    LABEL "Last Updated By" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 23.8 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.r-no AT ROW 15.52 COL 72 COLON-ALIGNED
-    LABEL "Seq#" FORMAT ">>>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    Btn_OK AT ROW 17.19 COL 85
-    RECT-7 AT ROW 16.95 COL 84
-    RECT-2 AT ROW 5.29 COL 2
-    RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 2
-    RECT-4 AT ROW 1.24 COL 53 WIDGET-ID 4
-    RECT-3 AT ROW 10.52 COL 2 WIDGET-ID 6
-    RECT-5 AT ROW 5.29 COL 53 WIDGET-ID 8
-    RECT-6 AT ROW 11.71 COL 53 WIDGET-ID 10
-    SPACE(0.00) SKIP(2.62)
+     fg-rctd.cost-uom AT ROW 11.95 COL 18 COLON-ALIGNED
+          LABEL "UOM" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 17.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.frt-cost AT ROW 13.14 COL 18 COLON-ALIGNED
+          LABEL "Freight Cost" FORMAT ">>>,>>9.99<<"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.ext-cost AT ROW 14.33 COL 18 COLON-ALIGNED
+          LABEL "Extended Cost" FORMAT "->,>>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fi_tr-time AT ROW 11.95 COL 72 COLON-ALIGNED NO-TAB-STOP 
+     fg-rctd.created-by AT ROW 13.14 COL 72 COLON-ALIGNED
+          LABEL "Created By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 23.8 BY 1
+          BGCOLOR 15 FONT 1 NO-TAB-STOP 
+     fg-rctd.updated-by AT ROW 14.33 COL 72 COLON-ALIGNED
+          LABEL "Last Updated By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 23.8 BY 1
+          BGCOLOR 15 FONT 1 NO-TAB-STOP 
+     fg-rctd.r-no AT ROW 15.52 COL 72 COLON-ALIGNED
+          LABEL "Seq#" FORMAT ">>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1 NO-TAB-STOP 
+     Btn_OK AT ROW 17.43 COL 85
+     RECT-7 AT ROW 17.19 COL 84
+     RECT-2 AT ROW 5.29 COL 2
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 2
+     RECT-4 AT ROW 1.24 COL 53 WIDGET-ID 4
+     RECT-3 AT ROW 10.52 COL 2 WIDGET-ID 6
+     RECT-5 AT ROW 5.29 COL 53 WIDGET-ID 8
+     RECT-6 AT ROW 11.71 COL 53 WIDGET-ID 10
+     SPACE(0.00) SKIP(3.19)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Warehouse Transaction(Finished Goods) Update".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Warehouse Transaction(Finished Goods) Update".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -449,8 +448,8 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME Dialog-Frame
    3                                                                    */
@@ -462,12 +461,18 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.created-by IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+ASSIGN 
+       fg-rctd.created-by:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR FILL-IN cTransTime IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fg-rctd.ext-cost IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fi_tr-time IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+ASSIGN 
+       fi_tr-time:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR FILL-IN fg-rctd.frt-cost IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.i-name IN FRAME Dialog-Frame
@@ -492,6 +497,9 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.r-no IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+ASSIGN 
+       fg-rctd.r-no:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR FILL-IN fg-rctd.rct-date IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Dialog-Frame
@@ -520,6 +528,9 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rctd.updated-by IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+ASSIGN 
+       fg-rctd.updated-by:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -544,7 +555,7 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
-    DO:
+DO:
         DEFINE VARIABLE ll-tag#   AS LOG     NO-UNDO.
         DEFINE VARIABLE rec-val   AS RECID   NO-UNDO.
         DEFINE VARIABLE char-val  AS cha     NO-UNDO.
@@ -759,7 +770,7 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
-    ANYWHERE
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -771,7 +782,7 @@ ON RETURN OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF fg-rctd .
     
         IF AVAILABLE fg-rctd THEN
@@ -796,7 +807,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) U
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 Dialog-Frame
 ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
-    DO:
+DO:
         {methods/btnCalendar.i fg-rctd.rct-date}
         APPLY "entry" TO fg-rctd.rct-date .
     END.
@@ -808,17 +819,19 @@ ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF fg-rctd .
     
         IF AVAILABLE fg-rctd THEN
             op-rowid = ROWID(fg-rctd) .
 
-        IF lv-item-recid NE ? THEN 
+        IF lv-item-recid NE ? 
+        OR lFatalQtyError THEN 
         DO:
-            FIND FIRST fg-rctd EXCLUSIVE-LOCK
-                WHERE RECID(fg-rctd) EQ lv-item-recid  NO-ERROR.
-            IF AVAILABLE fg-rctd THEN DELETE fg-rctd .
+            IF AVAIL fg-rctd THEN DO:
+                FIND CURRENT fg-rctd EXCLUSIVE.
+                DELETE fg-rctd .
+            END.
             op-rowid = ? .
         END.
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
@@ -831,9 +844,20 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
         IF AVAILABLE fg-rctd THEN
             ASSIGN op-rowid = ROWID(fg-rctd) .
+        
+        IF lv-item-recid NE ? 
+        OR lFatalQtyError THEN 
+        DO:
+            IF AVAIL fg-rctd THEN 
+            DO:
+                FIND CURRENT fg-rctd EXCLUSIVE.
+                DELETE fg-rctd .
+            END.
+            op-rowid = ? .
+        END.
   &IF DEFINED (adm-panel) NE 0 &THEN
         RUN dispatch IN THIS-PROCEDURE ('exit').
   &ELSE
@@ -848,7 +872,7 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         DEFINE BUFFER bf-rctd     FOR fg-rctd .
         DEFINE BUFFER bf-reftable FOR reftable .
         DEFINE VARIABLE v-tag-change  AS CHARACTER NO-UNDO.
@@ -968,9 +992,11 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         IF ERROR-STATUS:ERROR THEN 
         DO:   
             ASSIGN 
-                lv-rct-date-checked = FALSE
-                lFatalQtyError = FALSE .
+                lv-rct-date-checked = FALSE.
             RUN delete-tt.
+            IF lFatalQtyError THEN DO:
+                APPLY 'choose' TO btn_Cancel.
+            END.
             RETURN NO-APPLY. 
         END.
         
@@ -1097,7 +1123,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &Scoped-define SELF-NAME fg-rctd.cases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cases Dialog-Frame
 ON LEAVE OF fg-rctd.cases IN FRAME Dialog-Frame /* Units */
-    DO:
+DO:
         /* If it's in cases, needs to validate before continuing */
         IF LASTKEY = -1 AND NOT FOCUS:NAME EQ "cases" THEN RETURN .
         RUN new-qty.
@@ -1113,7 +1139,7 @@ ON LEAVE OF fg-rctd.cases IN FRAME Dialog-Frame /* Units */
 &Scoped-define SELF-NAME fg-rctd.cases-unit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cases-unit Dialog-Frame
 ON LEAVE OF fg-rctd.cases-unit IN FRAME Dialog-Frame /* Units/Skid */
-    DO:
+DO:
         RUN new-qty.
     END.
 
@@ -1124,7 +1150,7 @@ ON LEAVE OF fg-rctd.cases-unit IN FRAME Dialog-Frame /* Units/Skid */
 &Scoped-define SELF-NAME fg-rctd.cost-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cost-uom Dialog-Frame
 ON ENTRY OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* UOM */
-    DO:
+DO:
         IF LASTKEY NE -1                                                      AND
             (ip-set-parts OR
             TRIM(fg-rctd.job-no:SCREEN-VALUE ) NE "") THEN 
@@ -1143,7 +1169,7 @@ ON ENTRY OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* UOM */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cost-uom Dialog-Frame
 ON LEAVE OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* UOM */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-uom NO-ERROR.
@@ -1160,7 +1186,7 @@ ON LEAVE OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* UOM */
 &Scoped-define SELF-NAME fg-rctd.frt-cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.frt-cost Dialog-Frame
 ON ENTRY OF fg-rctd.frt-cost IN FRAME Dialog-Frame /* Freight Cost */
-    DO:
+DO:
         IF LASTKEY NE -1                                                      AND
             (ip-set-parts OR
             TRIM(fg-rctd.job-no:SCREEN-VALUE ) NE "") THEN 
@@ -1179,7 +1205,7 @@ ON ENTRY OF fg-rctd.frt-cost IN FRAME Dialog-Frame /* Freight Cost */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.frt-cost Dialog-Frame
 ON LEAVE OF fg-rctd.frt-cost IN FRAME Dialog-Frame /* Freight Cost */
-    DO:
+DO:
         RUN get-matrix (NO).
     END.
 
@@ -1190,7 +1216,7 @@ ON LEAVE OF fg-rctd.frt-cost IN FRAME Dialog-Frame /* Freight Cost */
 &Scoped-define SELF-NAME fg-rctd.i-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-name Dialog-Frame
 ON ENTRY OF fg-rctd.i-name IN FRAME Dialog-Frame /* Name/Desc */
-    DO:
+DO:
         IF LASTKEY NE -1 AND ip-set-parts THEN 
         DO:
             IF KEYFUNCTION(LASTKEY) EQ "SHIFT-TAB" THEN
@@ -1208,7 +1234,7 @@ ON ENTRY OF fg-rctd.i-name IN FRAME Dialog-Frame /* Name/Desc */
 &Scoped-define SELF-NAME fg-rctd.i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
 ON ENTRY OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
-    DO:
+DO:
         IF LASTKEY NE -1 AND ip-set-parts THEN 
         DO:
             IF KEYFUNCTION(LASTKEY) EQ "SHIFT-TAB" THEN
@@ -1222,20 +1248,10 @@ ON ENTRY OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
-ON VALUE-CHANGED OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
-    DO:
-
-    RUN pGetLocBin . 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
 ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
-    DO:
+DO:
         IF LASTKEY = -1 THEN RETURN.
 
         IF INT(fg-rctd.po-no:SCREEN-VALUE ) NE 0 AND
@@ -1299,10 +1315,21 @@ ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
+ON VALUE-CHANGED OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
+DO:
+
+    RUN pGetLocBin . 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fg-rctd.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no Dialog-Frame
 ON ENTRY OF fg-rctd.job-no IN FRAME Dialog-Frame /* Job# */
-    DO:
+DO:
         lv-job-no = fg-rctd.job-no:SCREEN-VALUE .
 
         IF LASTKEY NE -1 AND ip-set-parts THEN 
@@ -1330,7 +1357,7 @@ ON ENTRY OF fg-rctd.job-no IN FRAME Dialog-Frame /* Job# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no Dialog-Frame
 ON LEAVE OF fg-rctd.job-no IN FRAME Dialog-Frame /* Job# */
-    DO: 
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             IF glFGRecpt AND NOT glFGReceiptPassWord THEN
@@ -1351,7 +1378,7 @@ ON LEAVE OF fg-rctd.job-no IN FRAME Dialog-Frame /* Job# */
 &Scoped-define SELF-NAME fg-rctd.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Dialog-Frame
 ON ENTRY OF fg-rctd.job-no2 IN FRAME Dialog-Frame
-    DO:
+DO:
         lv-job-no = fg-rctd.job-no:SCREEN-VALUE .
         lv-prev-job2 =  SELF:SCREEN-VALUE.
 
@@ -1379,7 +1406,7 @@ ON ENTRY OF fg-rctd.job-no2 IN FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Dialog-Frame
 ON LEAVE OF fg-rctd.job-no2 IN FRAME Dialog-Frame
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-no2 NO-ERROR.
@@ -1398,7 +1425,7 @@ ON LEAVE OF fg-rctd.job-no2 IN FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Dialog-Frame
 ON VALUE-CHANGED OF fg-rctd.job-no2 IN FRAME Dialog-Frame
-    DO:
+DO:
     /*RUN new-job-no.*/
     END.
 
@@ -1409,7 +1436,7 @@ ON VALUE-CHANGED OF fg-rctd.job-no2 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Dialog-Frame
 ON LEAVE OF fg-rctd.loc IN FRAME Dialog-Frame /* Warehouse */
-    DO:
+DO:
         DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
         IF LASTKEY = -1 THEN RETURN.
 
@@ -1431,7 +1458,7 @@ ON LEAVE OF fg-rctd.loc IN FRAME Dialog-Frame /* Warehouse */
 &Scoped-define SELF-NAME fg-rctd.loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin Dialog-Frame
 ON LEAVE OF fg-rctd.loc-bin IN FRAME Dialog-Frame /* Bin */
-    DO:
+DO:
         DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
         IF LASTKEY = -1 THEN RETURN .
 
@@ -1455,7 +1482,7 @@ ON LEAVE OF fg-rctd.loc-bin IN FRAME Dialog-Frame /* Bin */
 &Scoped-define SELF-NAME fg-rctd.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Dialog-Frame
 ON VALUE-CHANGED OF fg-rctd.partial IN FRAME Dialog-Frame /* Partial */
-    DO:
+DO:
         RUN new-qty.
     END.
 
@@ -1466,7 +1493,7 @@ ON VALUE-CHANGED OF fg-rctd.partial IN FRAME Dialog-Frame /* Partial */
 &Scoped-define SELF-NAME fg-rctd.po-line
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-line Dialog-Frame
 ON ENTRY OF fg-rctd.po-line IN FRAME Dialog-Frame /* PO Ln# */
-    DO:
+DO:
     
         IF LASTKEY NE -1                                                  AND
             (ip-set-parts                                               OR
@@ -1488,7 +1515,7 @@ ON ENTRY OF fg-rctd.po-line IN FRAME Dialog-Frame /* PO Ln# */
 &Scoped-define SELF-NAME fg-rctd.po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
 ON ENTRY OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
-    DO:
+DO:
         gcPoBeforeChange = fg-rctd.po-no:SCREEN-VALUE  .
         IF LASTKEY NE -1                                                  AND
             (ip-set-parts                                               OR
@@ -1509,7 +1536,7 @@ ON ENTRY OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
 ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
-    DO: 
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             IF INT({&self-name}:SCREEN-VALUE ) EQ 0 THEN
@@ -1575,6 +1602,7 @@ ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
                 END.
         END.
 END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1582,7 +1610,7 @@ END.
 &Scoped-define SELF-NAME fg-rctd.qty-case
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Dialog-Frame
 ON ENTRY OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Unit Count */
-    DO:
+DO:
         ll-qty-case-ent = YES.
     END.
 
@@ -1592,7 +1620,7 @@ ON ENTRY OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Unit Count */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Dialog-Frame
 ON LEAVE OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Unit Count */
-    DO:
+DO:
         RUN new-qty.
     END.
 
@@ -1603,7 +1631,7 @@ ON LEAVE OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Unit Count */
 &Scoped-define SELF-NAME fg-rctd.rct-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.rct-date Dialog-Frame
 ON ENTRY OF fg-rctd.rct-date IN FRAME Dialog-Frame /* Receipt Date */
-    DO:
+DO:
         IF LASTKEY NE -1 AND ip-set-parts THEN 
         DO:
             IF KEYFUNCTION(LASTKEY) EQ "SHIFT-TAB" THEN
@@ -1621,7 +1649,7 @@ ON ENTRY OF fg-rctd.rct-date IN FRAME Dialog-Frame /* Receipt Date */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.rct-date Dialog-Frame
 ON HELP OF fg-rctd.rct-date IN FRAME Dialog-Frame /* Receipt Date */
-    DO:
+DO:
         {methods/calpopup.i}
     END.
 
@@ -1631,7 +1659,7 @@ ON HELP OF fg-rctd.rct-date IN FRAME Dialog-Frame /* Receipt Date */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.rct-date Dialog-Frame
 ON LEAVE OF fg-rctd.rct-date IN FRAME Dialog-Frame /* Receipt Date */
-    DO:
+DO:
         IF LASTKEY <> -1 THEN 
         DO:
             {custom/currentDatePrompt.i SELF:SCREEN-VALUE}
@@ -1646,7 +1674,7 @@ ON LEAVE OF fg-rctd.rct-date IN FRAME Dialog-Frame /* Receipt Date */
 &Scoped-define SELF-NAME fg-rctd.stack-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.stack-code Dialog-Frame
 ON LEAVE OF fg-rctd.stack-code IN FRAME Dialog-Frame /* FG Lot# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:    
             RUN valid-lot# (FOCUS) NO-ERROR.
@@ -1661,7 +1689,7 @@ ON LEAVE OF fg-rctd.stack-code IN FRAME Dialog-Frame /* FG Lot# */
 &Scoped-define SELF-NAME fg-rctd.std-cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.std-cost Dialog-Frame
 ON ENTRY OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/UOM */
-    DO:
+DO:
         IF LASTKEY NE -1                                                      AND
             (ip-set-parts OR
             TRIM(fg-rctd.job-no:SCREEN-VALUE ) NE "") THEN 
@@ -1680,7 +1708,7 @@ ON ENTRY OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/UOM */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.std-cost Dialog-Frame
 ON LEAVE OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/UOM */
-    DO:
+DO:
         RUN get-matrix (NO).
     END.
 
@@ -1691,7 +1719,7 @@ ON LEAVE OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/UOM */
 &Scoped-define SELF-NAME fg-rctd.tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
 ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
-    DO:    
+DO:    
         DEFINE VARIABLE lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO: 
@@ -1712,6 +1740,16 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
 
             END.
         END.  
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
+ON VALUE-CHANGED OF fg-rctd.tag IN FRAME Dialog-Frame /* Tag */
+DO:
+        RUN new-tag.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1741,8 +1779,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
     RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
     
-    IF ip-type EQ "copy" THEN lv-item-recid = ip-recid.
-    IF ip-type EQ "add" THEN adm-adding-record = YES.
+    IF ip-type EQ "copy" THEN ASSIGN 
+        lv-item-recid = ip-recid.
+    IF ip-type EQ "add" THEN ASSIGN 
+        adm-adding-record = YES.
 
     IF ip-recid EQ ? THEN 
     DO:
@@ -1770,6 +1810,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_cancel:HIDDEN                         = YES.
         adm-new-record                            = NO .
     END.
+    APPLY 'entry' TO fg-rctd.po-no.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -1783,7 +1824,7 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE convert-vend-comp-curr Dialog-Frame 
 PROCEDURE convert-vend-comp-curr :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -1837,7 +1878,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-from-po Dialog-Frame 
 PROCEDURE create-from-po :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -1965,7 +2006,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                   Purpose:     
                   PARAMs:  <none>
                   Notes:       
@@ -2037,7 +2078,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-loadtag Dialog-Frame 
 PROCEDURE create-loadtag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       From r-loadtg.w
@@ -2180,7 +2221,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete-tt Dialog-Frame 
 PROCEDURE delete-tt :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2207,7 +2248,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DeleteSetParts Dialog-Frame 
 PROCEDURE DeleteSetParts :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2234,16 +2275,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2251,7 +2292,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                   Purpose:     
                   PARAMs:  <none>
                   Notes:       
@@ -2308,7 +2349,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-po Dialog-Frame 
 PROCEDURE display-po :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2325,8 +2366,7 @@ PROCEDURE display-po :
             fg-rctd.i-no:SCREEN-VALUE     = po-ordl.i-no
             fg-rctd.i-name:SCREEN-VALUE   = po-ordl.i-name
             fg-rctd.cost-uom:SCREEN-VALUE = po-ordl.pr-uom
-            fg-rctd.po-line:SCREEN-VALUE  = STRING(po-ordl.line)
-            .
+            fg-rctd.po-line:SCREEN-VALUE  = STRING(po-ordl.line).
             
         RUN pDisplayPO(NO).
 
@@ -2339,33 +2379,33 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY cTransTime fi_tr-time 
-        WITH FRAME Dialog-Frame.
-    IF AVAILABLE fg-rctd THEN 
-        DISPLAY fg-rctd.rct-date fg-rctd.tag fg-rctd.stack-code fg-rctd.po-no 
-            fg-rctd.po-line fg-rctd.job-no fg-rctd.job-no2 fg-rctd.i-no 
-            fg-rctd.i-name fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases 
-            fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.t-qty 
-            fg-rctd.tot-wt fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost 
-            fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by fg-rctd.r-no 
-            WITH FRAME Dialog-Frame.
-    ENABLE Btn_Cancel Btn_Done fg-rctd.rct-date btnCalendar-1 fg-rctd.tag 
-        fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line fg-rctd.job-no 
-        fg-rctd.job-no2 fg-rctd.i-no fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases 
-        fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.std-cost 
-        fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost Btn_OK 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY cTransTime fi_tr-time 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE fg-rctd THEN 
+    DISPLAY fg-rctd.rct-date fg-rctd.tag fg-rctd.stack-code fg-rctd.po-no 
+          fg-rctd.po-line fg-rctd.job-no fg-rctd.job-no2 fg-rctd.i-no 
+          fg-rctd.i-name fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases 
+          fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.t-qty 
+          fg-rctd.tot-wt fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost 
+          fg-rctd.ext-cost fg-rctd.created-by fg-rctd.updated-by fg-rctd.r-no 
+      WITH FRAME Dialog-Frame.
+  ENABLE Btn_Cancel Btn_Done fg-rctd.rct-date btnCalendar-1 fg-rctd.tag 
+         fg-rctd.stack-code fg-rctd.po-no fg-rctd.po-line fg-rctd.job-no 
+         fg-rctd.job-no2 fg-rctd.i-no fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases 
+         fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.std-cost 
+         fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost Btn_OK 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2373,7 +2413,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-current-qty Dialog-Frame 
 PROCEDURE get-current-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2391,7 +2431,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-def-values Dialog-Frame 
 PROCEDURE get-def-values :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2416,7 +2456,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-fg-bin-cost Dialog-Frame 
 PROCEDURE get-fg-bin-cost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2445,7 +2485,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-first-r-no Dialog-Frame 
 PROCEDURE get-first-r-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2483,7 +2523,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-freight-cost Dialog-Frame 
 PROCEDURE get-freight-cost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2523,7 +2563,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-job-no Dialog-Frame 
 PROCEDURE get-job-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2553,7 +2593,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-linker Dialog-Frame 
 PROCEDURE get-linker :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2576,7 +2616,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-matrix Dialog-Frame 
 PROCEDURE get-matrix :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2680,7 +2720,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-matrix-all Dialog-Frame 
 PROCEDURE get-matrix-all :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2786,7 +2826,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-next-tag Dialog-Frame 
 PROCEDURE get-next-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2815,7 +2855,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-set-full-qty Dialog-Frame 
 PROCEDURE get-set-full-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -2926,7 +2966,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-values Dialog-Frame 
 PROCEDURE get-values :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3079,7 +3119,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
 PROCEDURE local-exit :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -3101,7 +3141,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-job-no Dialog-Frame 
 PROCEDURE new-job-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3148,7 +3188,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-qty Dialog-Frame 
 PROCEDURE new-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3175,7 +3215,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-tag Dialog-Frame 
 PROCEDURE new-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3283,7 +3323,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE non-blank-job-po Dialog-Frame 
 PROCEDURE non-blank-job-po :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                  Purpose:
                  Notes:
                 ------------------------------------------------------------------------------*/
@@ -3329,7 +3369,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayFG Dialog-Frame 
 PROCEDURE pDisplayFG PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -3358,7 +3398,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayPO Dialog-Frame 
 PROCEDURE pDisplayPO PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
              Purpose: Encapsulates displaying the PO given current screen-values
              Notes:
             ------------------------------------------------------------------------------*/
@@ -3389,7 +3429,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCostsFromPO Dialog-Frame 
 PROCEDURE pGetCostsFromPO PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
              Purpose:
              Notes:
             ------------------------------------------------------------------------------*/
@@ -3422,9 +3462,95 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetLocBin Dialog-Frame 
+PROCEDURE pGetLocBin :
+/*------------------------------------------------------------------------------
+    Purpose:     
+    Parameters:  <none>
+    Notes:       
+    ------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}: 
+    FIND FIRST itemfg {sys/look/itemfgrlW.i}
+        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE 
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE itemfg THEN
+        ASSIGN
+        fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
+        fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
+        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnassembledItem Dialog-Frame 
+PROCEDURE pGetUnassembledItem :
+/*------------------------------------------------------------------------------
+    Purpose:     
+    Parameters:  <none>
+    Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
+    DEFINE BUFFER bf-itemfg FOR itemfg .
+DO WITH FRAME {&FRAME-NAME}: 
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ ipcCompany
+          AND bf-itemfg.i-no    EQ ipcFGItem
+          AND bf-itemfg.isaset  EQ YES
+          AND bf-itemfg.alloc   EQ YES NO-ERROR .  /* bf-itemfg.alloc EQ YES use for unassemble */
+    IF AVAIL bf-itemfg THEN
+        FIND FIRST fg-set NO-LOCK
+        WHERE fg-set.company = bf-itemfg.company 
+        AND fg-set.set-no = bf-itemfg.i-no NO-ERROR .
+    IF AVAIL bf-itemfg AND AVAIL fg-set THEN
+        fg-rctd.i-no:SCREEN-VALUE     = fg-set.part-no .
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitCountFromJob Dialog-Frame 
+PROCEDURE pGetUnitCountFromJob :
+/*------------------------------------------------------------------------------
+    Purpose:     
+    Parameters:  <none>
+    Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg .
+
+      DO WITH FRAME {&FRAME-NAME}: 
+          
+          FIND FIRST oe-ordl NO-LOCK
+              WHERE oe-ordl.company EQ cocode
+              AND oe-ordl.ord-no  EQ ipiOrder
+              AND oe-ordl.i-no    EQ ipcFGItem NO-ERROR.
+          IF AVAIL oe-ordl THEN
+              fg-rctd.qty-case:SCREEN-VALUE = string(oe-ordl.cas-cnt) .
+          ELSE do:
+              FIND FIRST bf-itemfg NO-LOCK
+                  WHERE bf-itemfg.company EQ cocode
+                  AND bf-itemfg.i-no    EQ ipcFGItem NO-ERROR .  
+               IF AVAIL bf-itemfg THEN
+                   fg-rctd.qty-case:SCREEN-VALUE     = string(bf-itemfg.case-count) .
+          END.
+      END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGlobalSettings Dialog-Frame 
 PROCEDURE pSetGlobalSettings PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
              Purpose: Sets all NK1 Global Variables for the program
              Notes:
             ------------------------------------------------------------------------------*/
@@ -3489,7 +3615,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-bin-info Dialog-Frame 
 PROCEDURE show-bin-info :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3517,7 +3643,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-freight Dialog-Frame 
 PROCEDURE show-freight :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3545,7 +3671,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tag-sequence Dialog-Frame 
 PROCEDURE tag-sequence :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3621,7 +3747,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-tt Dialog-Frame 
 PROCEDURE update-tt :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3648,7 +3774,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-ttt Dialog-Frame 
 PROCEDURE update-ttt :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3675,7 +3801,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank-qty Dialog-Frame 
 PROCEDURE valid-blank-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3706,7 +3832,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cases Dialog-Frame 
 PROCEDURE valid-cases :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3771,7 +3897,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no Dialog-Frame 
 PROCEDURE valid-i-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3830,7 +3956,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no Dialog-Frame 
 PROCEDURE valid-job-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3871,7 +3997,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no2 Dialog-Frame 
 PROCEDURE valid-job-no2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3973,7 +4099,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-lot# Dialog-Frame 
 PROCEDURE valid-lot# :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -3998,7 +4124,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no Dialog-Frame 
 PROCEDURE valid-po-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -4076,13 +4202,13 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-porec-qty Dialog-Frame 
 PROCEDURE valid-porec-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
-        
+
     IF glFGUnderOver 
     AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
     AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
@@ -4119,7 +4245,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-qty Dialog-Frame 
 PROCEDURE valid-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -4158,7 +4284,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag Dialog-Frame 
 PROCEDURE valid-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -4319,7 +4445,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom Dialog-Frame 
 PROCEDURE valid-uom :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -4354,7 +4480,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-record Dialog-Frame 
 PROCEDURE validate-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -4362,6 +4488,7 @@ PROCEDURE validate-record :
     DEFINE VARIABLE li-max-qty AS INTEGER NO-UNDO.
     DEFINE VARIABLE ll         AS LOG     NO-UNDO.
     DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:  
         FIND itemfg WHERE itemfg.company = cocode
             AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE 
@@ -4491,94 +4618,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetLocBin Dialog-Frame 
-PROCEDURE pGetLocBin :
-    /*------------------------------------------------------------------------------
-    Purpose:     
-    Parameters:  <none>
-    Notes:       
-    ------------------------------------------------------------------------------*/
-DO WITH FRAME {&FRAME-NAME}: 
-    FIND FIRST itemfg {sys/look/itemfgrlW.i}
-        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE 
-        NO-LOCK NO-ERROR.
-    IF AVAILABLE itemfg THEN
-        ASSIGN
-        fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
-        fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
-        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnassembledItem Dialog-Frame 
-PROCEDURE pGetUnassembledItem :
-    /*------------------------------------------------------------------------------
-    Purpose:     
-    Parameters:  <none>
-    Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO .
-    DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
-    DEFINE BUFFER bf-itemfg FOR itemfg .
-DO WITH FRAME {&FRAME-NAME}: 
-    FIND FIRST bf-itemfg NO-LOCK
-        WHERE bf-itemfg.company EQ ipcCompany
-          AND bf-itemfg.i-no    EQ ipcFGItem
-          AND bf-itemfg.isaset  EQ YES
-          AND bf-itemfg.alloc   EQ YES NO-ERROR .  /* bf-itemfg.alloc EQ YES use for unassemble */
-    IF AVAIL bf-itemfg THEN
-        FIND FIRST fg-set NO-LOCK
-        WHERE fg-set.company = bf-itemfg.company 
-        AND fg-set.set-no = bf-itemfg.i-no NO-ERROR .
-    IF AVAIL bf-itemfg AND AVAIL fg-set THEN
-        fg-rctd.i-no:SCREEN-VALUE     = fg-set.part-no .
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitCountFromJob Dialog-Frame 
-PROCEDURE pGetUnitCountFromJob :
-    /*------------------------------------------------------------------------------
-    Purpose:     
-    Parameters:  <none>
-    Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO .
-    DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
-    
-    DEFINE BUFFER bf-itemfg FOR itemfg .
-
-      DO WITH FRAME {&FRAME-NAME}: 
-          
-          FIND FIRST oe-ordl NO-LOCK
-              WHERE oe-ordl.company EQ cocode
-              AND oe-ordl.ord-no  EQ ipiOrder
-              AND oe-ordl.i-no    EQ ipcFGItem NO-ERROR.
-          IF AVAIL oe-ordl THEN
-              fg-rctd.qty-case:SCREEN-VALUE = string(oe-ordl.cas-cnt) .
-          ELSE do:
-              FIND FIRST bf-itemfg NO-LOCK
-                  WHERE bf-itemfg.company EQ cocode
-                  AND bf-itemfg.i-no    EQ ipcFGItem NO-ERROR .  
-               IF AVAIL bf-itemfg THEN
-                   fg-rctd.qty-case:SCREEN-VALUE     = string(bf-itemfg.case-count) .
-          END.
-      END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 

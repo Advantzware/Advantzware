@@ -1,0 +1,1 @@
+{"Requester":"Premier","Company":"001","InventoryStockID":".85 BUBBLE     00001","Quantity":100,"QuantityUOM":"","PONo":0,"POLine":0,"JobID":"","JobID2":"","QuantityPerSubUnit":100,"QuantitySubUnitsPerUnit":1,"WarehouseID":"MAIN","LocationID":"FLOOR","RequesterNotes":"Test RequesterNotes for createInventoryReceipt"}

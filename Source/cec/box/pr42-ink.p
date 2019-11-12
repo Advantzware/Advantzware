@@ -176,19 +176,23 @@ for each ink WHERE
    if iqty < item.min-lbs then iqty = item.min-lbs.
    IF v-tmp-qty < ITEM.min-lbs THEN v-tmp-qty = ITEM.min-lbs.
 
-   {est/matcost.i v-tmp-qty icost ink}
+   if ink.NoCharge THEN
+        icost = 0. 
+   ELSE DO: 
+    {est/matcost.i v-tmp-qty icost ink}
 
-   IF NOT vmclean2 AND PROGRAM-NAME(4) EQ "jc/jc-calc.p" THEN
-      iqty = ink.i-qty.
+    IF NOT vmclean2 AND PROGRAM-NAME(4) EQ "jc/jc-calc.p" THEN
+        iqty = ink.i-qty.
 
-   IF v-do-all-forms-ink AND AVAIL tt-all-forms-ink AND
-      tt-all-forms-ink.i-qty NE 0 THEN
-      lv-setup-ink = lv-setup-ink * ( iqty / tt-all-forms-ink.i-qty).
+       IF v-do-all-forms-ink AND AVAIL tt-all-forms-ink AND
+          tt-all-forms-ink.i-qty NE 0 THEN
+        lv-setup-ink = lv-setup-ink * ( iqty / tt-all-forms-ink.i-qty).
 
-   ASSIGN
-    icost     = (icost * iqty) + lv-setup-ink
-    dm-tot[5] = dm-tot[5] + icost.
-
+       ASSIGN
+        icost     = (icost * iqty) + lv-setup-ink
+        dm-tot[5] = dm-tot[5] + icost.
+   END.  /*inkNoCharge = NO*/
+   
    find first brd where brd.form-no = ink.snum and
                         brd.blank-no = ink.bnum and
                         brd.i-no    = ink.i-code

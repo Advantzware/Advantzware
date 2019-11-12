@@ -285,10 +285,12 @@ FOR EACH ef
   END.
 
   IF {&TABLENAME}.pur-man NE old-{&TABLENAME}.pur-man THEN 
-   assign ef.nc = NOT {&TABLENAME}.pur-man
-   	  {&TABLENAME}.trNoCharge = NOT {&TABLENAME}.pur-man
-   	  {&TABLENAME}.casNoCharge = NOT {&TABLENAME}.pur-man.
-
+   assign 
+    ef.nc = NOT {&TABLENAME}.pur-man
+    {&TABLENAME}.trNoCharge = {&TABLENAME}.pur-man
+    {&TABLENAME}.casNoCharge = {&TABLENAME}.pur-man
+    {&TABLENAME}.inkNoCharge = {&TABLENAME}.pur-man
+    .
   LEAVE.
 END.
 

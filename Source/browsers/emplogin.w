@@ -75,9 +75,9 @@ DEFINE QUERY external_tables FOR employee.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emplogin.start_date ~
-STRING(emplogin.start_time,'HH:MM:SS am') @ start-time emplogin.machine ~
-emplogin.end_date Time_String(emplogin.end_time,yes) @ end-time ~
-emplogin.shift Time_String(emplogin.total_time,no) @ total-time 
+DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.start_time, YES, YES) @ start-time emplogin.machine ~
+emplogin.end_date DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.end_time, YES, YES) @ end-time ~
+emplogin.shift DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.total_time, NO, YES) @ total-time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH emplogin OF employee WHERE ~{&KEY-PHRASE} ~
       AND ~{&KEY-PHRASE} NO-LOCK ~
@@ -104,13 +104,6 @@ Btn_Clear_Find
 
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD Time_String B-table-Win 
-FUNCTION Time_String RETURNS CHARACTER
-  (ip-time AS INTEGER,ip-clock-time AS LOGICAL) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -160,12 +153,12 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       emplogin.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      STRING(emplogin.start_time,'HH:MM:SS am') @ start-time COLUMN-LABEL "Logged In" FORMAT "X(11)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.start_time, YES, YES) @ start-time COLUMN-LABEL "Logged In" FORMAT "X(11)":U
       emplogin.machine FORMAT "x(6)":U LABEL-BGCOLOR 14
       emplogin.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      Time_String(emplogin.end_time,yes) @ end-time COLUMN-LABEL "Logged Out" FORMAT "X(11)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.end_time, YES, YES) @ end-time COLUMN-LABEL "Logged Out" FORMAT "X(11)":U
       emplogin.shift FORMAT "XX":U LABEL-BGCOLOR 14
-      Time_String(emplogin.total_time,no) @ total-time COLUMN-LABEL "Total" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.total_time, NO, YES) @ total-time COLUMN-LABEL "Total" FORMAT "X(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 98 BY 16.19
@@ -277,17 +270,17 @@ ASSIGN
      _FldNameList[1]   > emplogin.start_date
 "emplogin.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
-"STRING(emplogin.start_time,'HH:MM:SS am') @ start-time" "Logged In" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION(~"sfTimeDisplay~", emplogin.start_time, YES, YES) @ start-time" "Logged In" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > emplogin.machine
 "emplogin.machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > emplogin.end_date
 "emplogin.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"Time_String(emplogin.end_time,yes) @ end-time" "Logged Out" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION(~"sfTimeDisplay~", emplogin.end_time, YES, YES) @ end-time" "Logged Out" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > emplogin.shift
 "emplogin.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"Time_String(emplogin.total_time,no) @ total-time" "Total" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION(~"sfTimeDisplay~", emplogin.total_time, NO, YES) @ total-time" "Total" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -551,24 +544,4 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION Time_String B-table-Win 
-FUNCTION Time_String RETURNS CHARACTER
-  (ip-time AS INTEGER,ip-clock-time AS LOGICAL):
-/*------------------------------------------------------------------------------
-  Purpose:  return time in string format
-    Notes:  
-------------------------------------------------------------------------------*/
-  IF ip-time = 0 AND emplogin.end_date EQ ? THEN
-  RETURN ''.
-  ELSE
-  IF ip-clock-time THEN
-  RETURN STRING(ip-time,'HH:MM:SS am').
-  ELSE
-  RETURN STRING(ip-time,'HH:MM:SS').
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
