@@ -13,7 +13,6 @@
     DEFINE INPUT  PARAMETER ipcRoute                  AS CHARACTER  NO-UNDO.
     DEFINE INPUT  PARAMETER ipcVerb                   AS CHARACTER  NO-UNDO.
     DEFINE INPUT  PARAMETER iplcRequestData           AS LONGCHAR   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcUserName               AS CHARACTER  NO-UNDO.
     DEFINE OUTPUT PARAMETER ipcRequestedBy            AS CHARACTER  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
@@ -246,19 +245,6 @@
         OUTPUT lRecFound,
         OUTPUT cTrailerID
         ) NO-ERROR.
-    /* Trailer ID validation */
-    IF lRecFound AND cTrailerID NE "" AND
-       NOT CAN-FIND(FIRST truck NO-LOCK
-                    WHERE truck.company    EQ cCompany
-                      AND truck.loc        EQ cLocationID
-                      AND truck.carrier    EQ cCarrierID
-                      AND truck.truck-code EQ cTrailerID) THEN DO:
-        ASSIGN
-            opcMessage = "Invalid TrailerID"
-            oplSuccess = NO
-            .
-        RETURN.
-    END.
     
     /* Fetch freight terms from request data */
     RUN JSON_GetFieldValueByName (
@@ -622,12 +608,10 @@
                     UNDO, LEAVE.
                 
                 /* Update the oe-bolh.user-id and oe-boll.printed */
-                FIND FIRST oe-bolh EXCLUSIVE-LOCK
+                FIND FIRST oe-bolh NO-LOCK
                      WHERE oe-bolh.company EQ ttInputs.company
                        and oe-bolh.bol-no  EQ ttInputs.BOLID NO-ERROR.
-                IF AVAILABLE oe-bolh THEN DO:
-                    oe-bolh.user-id = ipcUserName.
-                    
+                IF AVAILABLE oe-bolh THEN DO:                    
                     FOR EACH oe-boll EXCLUSIVE-LOCK
                         WHERE oe-boll.company EQ oe-bolh.company
                           AND oe-boll.b-no    EQ oe-bolh.b-no:
@@ -635,7 +619,6 @@
                     END.                
                 END.
 
-                RELEASE oe-bolh.
                 RELEASE oe-boll.                
             END.
         END.
