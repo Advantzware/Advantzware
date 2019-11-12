@@ -174,14 +174,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
 
- RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-    glEstimateCalcNew = lRecFound AND cRtnChar EQ "New".
- RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "I" /* Character */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-    glEstimateCalcNewPrompt = glEstimateCalcNew AND lRecFound AND cRtnChar EQ "1".
  RUN sys/ref/nk1look.p (INPUT cocode, "CEFormat", "C" /* Character */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT gcEstimateFormat, OUTPUT lRecFound).
@@ -2630,7 +2622,57 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+PROCEDURE pGetCEVersionCalcSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    glEstimateCalcNew = lFound AND cReturn EQ "New".
+ 
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    IF lRecFound THEN 
+        iCEVersion = INTEGER(cReturn).
+        
+    IF glEstimateCalcNew THEN 
+        CASE iCEVersion:
+            WHEN 1 THEN 
+                ASSIGN 
+                    glEstimateCalcNewPrompt = glEstimateCalcNew.
+            WHEN 2 THEN 
+                DO:
+                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNew = NO.            
+                    ASSIGN 
+                        glEstimateCalcNewPrompt = glEstimateCalcNew.
+                END.
+            WHEN 3 THEN 
+                DO:
+                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNewPrompt = YES.
+                    ELSE 
+                        glEstimateCalcNewPrompt = NO.            
+                END.
+            WHEN 4 THEN 
+                DO:
+                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
+                        ASSIGN 
+                            glEstimateCalcNew       = NO
+                            glEstimateCalcNewPrompt = NO.
+                END.
+        END CASE.
+
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
@@ -3706,6 +3748,7 @@ PROCEDURE run-whatif :
   lv-eb-recid = RECID(eb).
   lv-ef-recid = RECID(ef).
   
+  RUN pGetCEVersionCalcSettings(BUFFER est).
   IF glEstimateCalcNew THEN 
     DO:
         IF glEstimateCalcNewPrompt THEN 
