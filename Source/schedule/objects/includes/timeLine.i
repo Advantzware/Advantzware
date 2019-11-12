@@ -21,16 +21,16 @@ ELSE DO:
          WHERE reftable.reftable EQ "SBCheckoffs"
            AND reftable.code     EQ ID
          NO-ERROR.
-    IF AVAILABLE reftable THEN DO:
-        IF reftable.dscr NE "Viewed" THEN DO TRANSACTION:
-            MESSAGE
-                'External Status Checkoffs in Use by'
-                reftable.code2
-            VIEW-AS ALERT-BOX.
+    IF AVAILABLE reftable AND reftable.dscr NE "Viewed" THEN DO:
+        MESSAGE
+            'External Status Checkoffs in Use by'
+            reftable.code2
+        VIEW-AS ALERT-BOX.
+        DO TRANSACTION:
             FIND CURRENT reftable EXCLUSIVE-LOCK.
             reftable.dscr = "Viewed".
             RELEASE reftable.
-        END. /* if not viewed */
+        END. /* do trans */
     END. /* if avail */
 END. /* else */
 &ENDIF

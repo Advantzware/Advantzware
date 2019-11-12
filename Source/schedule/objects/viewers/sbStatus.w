@@ -569,37 +569,40 @@ PROCEDURE local-initialize :
   
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND FIRST reftable NO-LOCK
-       WHERE reftable.reftable EQ "SBCheckoff"
+       WHERE reftable.reftable EQ "SBCheckoffs"
          AND reftable.code     EQ ID
        NO-ERROR.
   IF AVAILABLE reftable THEN DO:
-    IF reftable.code2 NE USER('ASI') THEN DO:
-      MESSAGE
-        'External Status Checkoffs in Use by'
-        reftable.code2
-        'Please try again shortly.'
-      VIEW-AS ALERT-BOX.
-      IF VALID-HANDLE(adm-broker-hdl) THEN DO:
-        RUN get-link-handle IN adm-broker-hdl
-            (THIS-PROCEDURE,'CONTAINER-SOURCE':U,OUTPUT charHandle).
-        pHandle = WIDGET-HANDLE(charHandle).
-        IF VALID-HANDLE(pHandle) THEN
-        RUN inUseClose IN pHandle.
-        RETURN.
-      END. /* if valid-handle */
-    END. /* if search */
-  END. /* if different user */
+      IF reftable.code2 NE USERID('ASI') THEN DO:
+          MESSAGE
+              'External Status Checkoffs in Use by'
+              reftable.code2 SKIP(1)
+              'Please try again shortly.'
+          VIEW-AS ALERT-BOX.
+          IF VALID-HANDLE(adm-broker-hdl) THEN DO:
+              RUN get-link-handle IN adm-broker-hdl
+                  (THIS-PROCEDURE,'CONTAINER-SOURCE':U,OUTPUT charHandle).
+              pHandle = WIDGET-HANDLE(charHandle).
+              IF VALID-HANDLE(pHandle) THEN
+              RUN inUseClose IN pHandle.
+              RETURN.
+          END. /* if valid-handle */
+      END. /* if code2 */
+  END. /* if avail */
+  ELSE DO TRANSACTION:
+      CREATE reftable.
+      ASSIGN
+        reftable.reftable = "SBCheckoffs"
+        reftable.code     = ID
+        reftable.code2    = USERID('ASI')
+        .
+  END. /* else */
+  RELEASE reftable.
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ).
 
   /* Code placed here will execute AFTER standard behavior.    */
-  CREATE reftable.
-  ASSIGN
-    reftable.reftable = "SBCheckoffs"
-    reftable.code     = ID
-    reftable.code2    = USERID('ASI')
-    .
   FOR EACH pendingJob NO-LOCK:
     CREATE ttblJob.
     BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob
