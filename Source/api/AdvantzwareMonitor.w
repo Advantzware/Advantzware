@@ -50,6 +50,7 @@ DEFINE VARIABLE cAppServerPort   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAppServerName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNameServerName  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNameServerPort  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cServerHostName  AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos      AS INTEGER
@@ -643,7 +644,7 @@ PROCEDURE pFetchAPIElements :
     DEF VARIABLE iLine       AS INTEGER   NO-UNDO.
     
     /* Create the temp-table and load var names */
-    cIniVarList = "# Setup Variables,DLCDir,
+    cIniVarList = "# Setup Variables,DLCDir,hostname,
                    # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,".
     
     EMPTY TEMP-TABLE ttIniFile.
@@ -691,6 +692,8 @@ PROCEDURE pFetchAPIElements :
             cNameServerName = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "NameServerPort" THEN
             cNameServerPort = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "hostname" THEN
+            cServerHostName = ttIniFile.cVarValue.
     END.
 END PROCEDURE.
 
@@ -704,11 +707,19 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lIsServer      AS LOGICAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN pValidateClientServer (
+        OUTPUT lIsServer
+        ).
+
+    IF NOT lIsServer THEN
+        RETURN.
+        
     RUN pStoreHandles.
     
     PROCESS EVENTS.
@@ -777,6 +788,42 @@ PROCEDURE pupdateColor :
             hdCurCol         = WIDGET-HANDLE(ENTRY(iCounter,cColumnHandles))
             hdCurCol:BGCOLOR = ipiColor.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateClientServer C-Win 
+PROCEDURE pValidateClientServer :
+/*------------------------------------------------------------------------------
+  Purpose: Validates if the API Monitor is run from a work station
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplIsServer AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cClientHostName AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    cClientHostName = OS-GETENV("COMPUTERNAME").
+
+    IF cClientHostName NE cServerHostName THEN DO:
+        MESSAGE "Advantzware Monitor should not be run from workstation"
+            VIEW-AS ALERT-BOX ERROR.
+        
+        ASSIGN
+            btStart:SENSITIVE        = FALSE
+            btStop:SENSITIVE         = FALSE
+            btRefresh:SENSITIVE      = FALSE
+            {&BROWSE-NAME}:SENSITIVE = FALSE
+            CtrlFrame:SENSITIVE      = FALSE
+            .
+        RETURN.
+    END.  
+    
+    oplIsServer = TRUE.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
