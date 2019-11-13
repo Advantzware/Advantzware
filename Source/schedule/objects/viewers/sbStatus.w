@@ -575,6 +575,7 @@ PROCEDURE local-initialize:
   /* Code placed here will execute AFTER standard behavior.    */
   FOR EACH pendingJob:
       CREATE ttblJob.
+      BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob.
       ASSIGN
           ttblJob.jobSequence = 999
           ttblJob.jobType     = 'P'
