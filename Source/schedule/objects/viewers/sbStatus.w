@@ -559,6 +559,43 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize sObject
+PROCEDURE local-initialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  FOR EACH pendingJob:
+      CREATE ttblJob.
+      ASSIGN
+          ttblJob.jobSequence = 999
+          ttblJob.jobType     = 'P'
+          ttblJob.startDate   = {{&includes}/firstDate.i}
+          ttblJob.endDate     = {{&includes}/lastDate.i}
+          .
+  END. /* each pendingjob */
+  RUN setColorDynamic.
+  RUN getConfiguration.
+  customCheckoffValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(customCheckoff).
+  RUN getResources.
+  RUN getSBStatus.
+  RUN displayFields NO-ERROR.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExternalClose sObject
 PROCEDURE pExternalClose:
 /*------------------------------------------------------------------------------
@@ -580,7 +617,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE sendChange sObject 
