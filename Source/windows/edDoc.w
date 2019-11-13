@@ -401,7 +401,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_eddoc-2. */
        RUN add-link IN adm-broker-hdl ( h_eddoc , 'Record':U , h_eddoc-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_eddoc-2 ).
-
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_eddoc-2 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_eddoc-2 ,
              h_folder , 'AFTER':U ).
