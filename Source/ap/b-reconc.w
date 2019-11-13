@@ -736,6 +736,7 @@ ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
                             END.
         END.
         /* Ensure browser saves change */
+        RUN local-display-fields .
         APPLY 'row-leave' TO BROWSE {&browse-name}.
         RETURN NO-APPLY.
     END.
