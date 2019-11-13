@@ -624,7 +624,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 DO:
     DEFINE VARIABLE dOldAmount AS DECIMAL NO-UNDO .
-    DEFINE VARIABLE dOldFright AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dOldFreight AS DECIMAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
 
      IF ar-invl.actnum:MODIFIED  THEN DO:
@@ -678,14 +678,14 @@ DO:
     END.
 
  ASSIGN dOldAmount = IF AVAIL ar-invl THEN ar-invl.amt ELSE 0 .
- ASSIGN dOldFright = IF AVAIL ar-invl THEN ar-invl.t-freight ELSE 0 .
+ ASSIGN dOldFreight = IF AVAIL ar-invl THEN ar-invl.t-freight ELSE 0 .
   DO TRANSACTION:
       FIND CURRENT ar-invl EXCLUSIVE-LOCK NO-ERROR.
       
       DO WITH FRAME {&FRAME-NAME}:
           ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
       END.
-      RUN update-ar-invl(dOldAmount,dOldFright) .
+      RUN update-ar-invl(dOldAmount,dOldFreight) .
   END.
 
  FIND CURRENT ar-invl NO-LOCK NO-ERROR.
@@ -1302,7 +1302,7 @@ PROCEDURE update-ar-invl :
   IF  ip-type EQ "update"  THEN do:  /* update */
        
     ASSIGN bf-inv.gross = bf-inv.gross - ipAmount - (IF bf-inv.f-bill THEN ipFreight ELSE 0)
-           bf-inv.net   = bf-inv.net - ipAmount  
+           bf-inv.net   = bf-inv.net - ipAmount  - (IF bf-inv.f-bill THEN ipFreight ELSE 0) 
            bf-inv.freight = bf-inv.freight - ipFreight .  
   END.
   
@@ -1318,9 +1318,10 @@ PROCEDURE update-ar-invl :
    ar-invl.amt     = if   (out-qty * ar-invl.unit-pr) eq 0
                      then (ar-invl.qty * ar-invl.unit-pr)
                      else (out-qty * ar-invl.unit-pr)  
+   ar-invl.amt     = ar-invl.amt * (1 - ar-invl.disc / 100)
    ar-invl.amt-msf = ((ar-invl.qty * ar-invl.sf-sht) / 1000.0)
-   bf-inv.gross    = bf-inv.gross + ar-invl.amt + (IF bf-inv.f-bill THEN ipFreight ELSE 0)
-   bf-inv.net      = bf-inv.net + ar-invl.amt
+   bf-inv.gross    = bf-inv.gross + ar-invl.amt
+   bf-inv.net      = bf-inv.net + ar-invl.amt 
    bf-inv.freight  = bf-inv.freight + ar-invl.t-Freight        .
   
    /*find first cust where cust.company eq g_company
