@@ -82,6 +82,7 @@ DEF TEMP-TABLE ttCueCard LIKE cueCard.
 DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
+DEF TEMP-TABLE ttDynPrgrmsPage LIKE dynPrgrmsPage.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
 DEF TEMP-TABLE ttNotes LIKE notes.
 DEF TEMP-TABLE ttModule LIKE module.
@@ -3911,6 +3912,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDynPrgrmsPage C-Win
+PROCEDURE ipLoadDynPrgrmsPage:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading dynPrgrmsPage Records").
+
+    &SCOPED-DEFINE tablename dynPrgrmsPage
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename} EXCLUSIVE:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
     /*------------------------------------------------------------------------------
@@ -5769,6 +5801,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
         RUN ipLoadZmessage IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
+        RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

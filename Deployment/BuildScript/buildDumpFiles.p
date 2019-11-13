@@ -176,3 +176,9 @@ FOR EACH dynParamValue NO-LOCK WHERE
     EXPORT dynParamValue.
 END. /* each dynParamValue */
 OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynPrgrmsPage.d").
+FOR EACH dynPrgrmsPage NO-LOCK :
+    EXPORT dynPrgrmsPage.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
