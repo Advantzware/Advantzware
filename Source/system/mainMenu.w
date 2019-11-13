@@ -2057,6 +2057,7 @@ DO:
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.
+    RUN pOpenProcedures.
     RUN pSetUserSettings (NO).
     RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
@@ -3063,6 +3064,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenProcedures MAINMENU
+PROCEDURE pOpenProcedures:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE pHandle      AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hNextSibling AS HANDLE NO-UNDO.
+
+    pHandle = SESSION:FIRST-PROCEDURE.
+    DO WHILE VALID-HANDLE(pHandle):
+        IF INDEX(pHandle:FILE-NAME,"sbStatus.") NE 0 THEN DO:
+            hNextSibling = pHandle:NEXT-SIBLING.
+            RUN pExternalClose IN pHandle.
+            pHandle = hNextSibling.
+            NEXT.
+        END. /* if index */
+        pHandle = pHandle:NEXT-SIBLING.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessClick MAINMENU 
 PROCEDURE pProcessClick :

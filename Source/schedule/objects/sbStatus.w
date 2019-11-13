@@ -37,9 +37,9 @@ CREATE WIDGET-POOL.
 
 DEFINE SHARED VARIABLE ID AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE sendChange AS LOGICAL NO-UNDO.
-DEFINE VARIABLE sbStatus AS CHARACTER NO-UNDO.
-DEFINE VARIABLE closeOK AS LOGICAL NO-UNDO INITIAL YES.
+DEFINE VARIABLE sendChange AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE sbStatus   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE closeOK    AS LOGICAL   NO-UNDO.
 
 SESSION:SET-WAIT-STATE('').
 
@@ -302,20 +302,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE inUseClose W-Win 
-PROCEDURE inUseClose :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  closeOK = NO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
 PROCEDURE local-create-objects :
 /*------------------------------------------------------------------------------
@@ -336,6 +322,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win
+PROCEDURE local-view:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  FIND FIRST reftable NO-LOCK
+       WHERE reftable.reftable EQ "SBCheckoffs"
+         AND reftable.code     EQ ID
+       NO-ERROR.
+  IF AVAILABLE reftable THEN DO:
+      IF reftable.code2 NE USERID('ASI') THEN DO:
+          MESSAGE
+              'External Status Checkoffs in Use by'
+              reftable.code2 SKIP(1)
+              'Please try again shortly.'
+          VIEW-AS ALERT-BOX.
+          APPLY "CLOSE":U TO THIS-PROCEDURE.
+      END. /* if code2 */
+      ELSE
+      closeOK = YES.
+  END. /* if avail */
+  ELSE DO TRANSACTION:
+      CREATE reftable.
+      ASSIGN
+        reftable.reftable = "SBCheckoffs"
+        reftable.code     = ID
+        reftable.code2    = USERID('ASI')
+        closeOK           = YES
+        .
+  END. /* else */
+  RELEASE reftable.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE passHandle W-Win 
 PROCEDURE passHandle :
 /*------------------------------------------------------------------------------
@@ -353,6 +384,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExternalClose W-Win
+PROCEDURE pExternalClose:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    closeOK = YES.
+    APPLY "WINDOW-CLOSE":U TO {&WINDOW-NAME}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE sendChange W-Win 
 PROCEDURE sendChange :
