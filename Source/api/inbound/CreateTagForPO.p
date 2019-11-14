@@ -343,20 +343,7 @@ IF ipcItemType EQ cItemFG THEN DO:
             OUTPUT opcLoadtagFormat,  
             OUTPUT lRecFound
             ).
-            
-    IF opcLoadtagFormat EQ "" THEN
-        RUN sys\ref\nk1look.p(
-            INPUT ipcCompany,
-            INPUT "BARDIR",
-            INPUT "C",
-            INPUT NO,
-            INPUT YES,
-            INPUT cCustNo,
-            INPUT "",
-            OUTPUT opcLoadtagFormat,  
-            OUTPUT lRecFound
-            ). 
-                 
+  
     IF opiTagCopies EQ 0 THEN
         opiTagCopies = 1.
               
