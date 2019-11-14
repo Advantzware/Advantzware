@@ -209,11 +209,7 @@ PROCEDURE GetNewCostsN:
         DO:
             CREATE tt-e-item.
             ASSIGN 
-                tt-e-item.std-uom = vendItemCost.vendorUOM /*e-item.std-uom*/ .
-                
-                
-                          
-                       
+                tt-e-item.std-uom = vendItemCost.vendorUOM /*e-item.std-uom*/ .                                                
             
             /*            FIND FIRST e-item-vend NO-LOCK                                                          */
             /*                WHERE e-item-vend.company EQ e-item.company                                         */

@@ -42,6 +42,12 @@ def NEW shared var v-po-msf like sys-ctrl.int-fld no-undo.
 {windows/l-jobmt1.i NEW}
 {oe/tt-item-qty-price.i}
 
+DEF VAR vic-log AS LOG  NO-UNDO.
+DEF VAR cReturn AS CHAR NO-UNDO.
+DEF VAR lFound  AS LOG  NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -198,7 +204,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View V-table-Win
 ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
-   run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view") . 
+   IF vic-log THEN run po/d-poordlN.w (recid(po-ordl), po-ord.po-no, "view") . 
+   ELSE run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view") .
 END.
 
 /* _UIB-CODE-BLOCK-END */

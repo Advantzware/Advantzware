@@ -911,7 +911,11 @@ PROCEDURE buildRptRecs :
       
             IF gvlDebug THEN
                 PUT STREAM sDebug UNFORMATTED "buildRptRec - choose vendor " + bf-w-job-mat.i-no SKIP.
-            RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid,
+            IF vic-log THEN 
+                RUN po/d-vndcstN.w (v-term, bf-w-job-mat.w-recid,
+                bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no,
+                INPUT v-qty-comp, INPUT v-job-mat-uom).   
+            ELSE RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid,
                 bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no,
                 INPUT v-qty-comp, INPUT v-job-mat-uom).
       
@@ -1404,6 +1408,84 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-calcLenWidN) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcLenWidN Procedure
+PROCEDURE calcLenWidN:
+    /*------------------------------------------------------------------------------
+          Purpose:     Calculate len & width values 
+          Parameters:  <none>
+          Notes:       
+            INputs:
+              po-ordl
+              b-item
+              po-ord
+              
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprPoOrd AS ROWID       NO-UNDO.
+    DEFINE INPUT  PARAMETER iprPoOrdl AS ROWID       NO-UNDO.
+    DEFINE INPUT  PARAMETER iprItem AS ROWID       NO-UNDO.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER b-item     FOR ITEM.
+
+    FIND bf-po-ord WHERE ROWID(bf-po-ord) EQ iprPoOrd NO-LOCK NO-ERROR.
+    FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
+    FIND b-item WHERE ROWID(b-item) EQ iprItem NO-LOCK NO-ERROR.
+
+    ASSIGN
+        v-len = 0
+        v-wid = 0
+        v-dep = 0.
+
+    IF AVAILABLE b-item THEN 
+    DO:
+
+        FIND FIRST vendItemCost WHERE vendItemCost.company EQ cocode 
+                                  AND vendItemCost.itemID EQ bf-po-ordl.i-no 
+                                  AND vendItemCost.vendorID EQ bf-po-ord.vend-no
+            NO-LOCK NO-ERROR.
+
+        IF AVAILABLE vendItemCost AND vendItemCost.vendorItemID NE "" THEN
+            bf-po-ordl.vend-i-no = vendItemCost.vendorItemID.
+        ELSE
+            IF b-item.vend-no EQ bf-po-ord.vend-no THEN
+                bf-po-ordl.vend-i-no = b-item.vend-item.
+            ELSE
+                IF b-item.vend2-no EQ bf-po-ord.vend-no THEN
+                    bf-po-ordl.vend-i-no = b-item.vend2-item.
+
+        IF INDEX("1234BPR",b-item.mat-type) GT 0 THEN 
+        DO:
+            ASSIGN
+                v-basis-w = b-item.basis-w
+                v-len     = b-item.s-len
+                v-wid     = b-item.s-wid
+                v-dep     = b-item.s-dep.
+     
+            IF v-wid EQ 0 THEN v-wid = b-item.r-wid.
+        END. /* if index(... */
+    END. /* Avail b-item */
+  
+    /* Cust-no from order or job */
+    bf-po-ordl.cust-no = IF AVAILABLE bf-ord THEN bf-ord.cust-no
+    ELSE
+        IF AVAILABLE job-hdr THEN job-hdr.cust-no
+        ELSE "".
+    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
+    RELEASE bf-po-ordl.
+    RELEASE bf-po-ord.
+    RELEASE b-item.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-calcMSF) = 0 &THEN
 
@@ -3351,7 +3433,10 @@ PROCEDURE processJobMat :
         END. /* run poOrdlAddVals */   
 
         /* Get len, wid, depth from item. Set po-ordl.cust-no */
-        RUN calcLenWid (INPUT gvrPoOrd,
+        IF vic-log THEN RUN calcLenWidN (INPUT gvrPoOrd,
+                INPUT gvrPoOrdl,
+                INPUT gvrItem).
+        ELSE RUN calcLenWid (INPUT gvrPoOrd,
             INPUT gvrPoOrdl,
             INPUT gvrItem).
 

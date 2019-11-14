@@ -1769,8 +1769,8 @@ DO:
      FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 
 
-IF po-ordl.item-type:SCREEN-VALUE EQ "RM" THEN 
-DO:
+/*IF po-ordl.item-type:SCREEN-VALUE EQ "RM" THEN*/
+/*DO:                                           */
 /*    FIND FIRST e-item NO-LOCK                          */
 /*        WHERE e-item.company EQ cocode                 */
 /*        AND e-item.i-no    EQ po-ordl.i-no:SCREEN-VALUE*/
@@ -1789,11 +1789,11 @@ DO:
 /*            NO-ERROR.                                  */
 /*                                                       */
 /*    END.                                               */
-END.
-ELSE 
-DO:
-    
-    
+/*END.*/
+/*ELSE*/
+/*DO: */
+/*    */
+/*    */
 /*    FIND FIRST e-itemfg NO-LOCK                                          */
 /*        WHERE e-itemfg.company EQ cocode                                 */
 /*        AND e-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE                */
@@ -1839,10 +1839,10 @@ DO:
 /*                                                                         */
 /*                                                                         */
 /*    END.                                                                 */
-    
-END.
+/*    */
+/*END.*/
 
-RUN GetVendItem (cocode, po-ordl.i-no:screen-value, "FG", OUTPUT llExist, OUTPUT cItemId, OUTPUT cVendorItemId).
+RUN GetVendItem (cocode, po-ordl.i-no:screen-value, po-ordl.item-type:screen-value, OUTPUT llExist, OUTPUT cItemId, OUTPUT cVendorItemId).
 
 IF ip-type NE "Update" THEN
     v-import = DEC(lv-save-ord-qty) NE DEC({&self-name}:SCREEN-VALUE).
@@ -4270,7 +4270,7 @@ PROCEDURE GetVendItemCost :
     RUN GetVendorCost(vendItemCost.company, 
         vendItemCost.ItemID, 
         vendItemCost.itemType, 
-        "STAPLES", 
+        vendItemCost.vendorID, 
         vendItemCost.customerID, 
         "", 
         0, 
@@ -4926,18 +4926,18 @@ PROCEDURE po-adder2 :
                 RUN GetVendorCost(vendItemCost.company, 
                     vendItemCost.ItemID, 
                     vendItemCost.itemType, 
-                    "STAPLES", 
+                    vendItemCost.vendorID, 
                     vendItemCost.customerID, 
                     "", 
                     0, 
                     0,
                 DEC(po-ordl.ord-qty:SCREEN-VALUE IN FRAME {&frame-name}), 
                 vendItemCost.vendorUOM,
-                    itemfg.t-len, 
-                    itemfg.t-wid, 
+                    item.s-len, 
+                    item.s-wid, 
                     0, 
                     "IN", 
-                    itemfg.weight-100 / 100, 
+                    item.basis-w, 
                     "LB/EA", 
                     NO,
                     OUTPUT dCostPerUOM, 
@@ -6624,7 +6624,6 @@ PROCEDURE vend-cost :
     DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
-
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     
@@ -6666,15 +6665,15 @@ PROCEDURE vend-cost :
                 ASSIGN 
                     tt-ei.std-uom = vendItemCost.vendorUOM /*e-item.std-uom*/.
       
-                FIND itemfg NO-LOCK WHERE itemfg.company = cocode
-                    AND itemfg.i-no = vendItemCost.itemID NO-ERROR.
+                FIND item NO-LOCK WHERE item.company = cocode
+                    AND item.i-no = vendItemCost.itemID NO-ERROR.
                     /* call GetVendorCost in super procedure system/vendcostProc.p */
                 
                     
                 RUN GetVendorCost(vendItemCost.company, 
                     vendItemCost.ItemID, 
                     vendItemCost.itemType, 
-                    "STAPLES", 
+                    vendItemCost.vendorID, 
                     vendItemCost.customerID, 
                     "", 
                 0, 
@@ -6771,7 +6770,7 @@ PROCEDURE vend-cost :
                 RUN GetVendorCost(vendItemCost.company, 
                     vendItemCost.ItemID, 
                     vendItemCost.itemType, 
-                    "STAPLES", 
+                    vendItemCost.vendorID, 
                     vendItemCost.customerID, 
                     "", 
                     0, 
@@ -7103,7 +7102,7 @@ PROCEDURE vend-cost :
         /*            END. /* ip calc cost ne ? */                                                                          */
         /*        END. /* avail tt-eiv */                                                                                   */
 
-            RUN po\RecostBoardPO.p(INPUT ROWID(po-ord),INPUT YES).
+            RUN po\RecostBoardPO.p(INPUT ROWID(po-ord),INPUT No).
 /*                                                               */
 /*            v-save-qty = v-qty.                                */
 /*            IF po-ordl.job-no:SCREEN-VALUE NE "" THEN          */
