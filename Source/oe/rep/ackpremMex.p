@@ -80,7 +80,7 @@ DEF VAR cShipmentDate AS CHAR NO-UNDO.
 DEF SHARED VAR v-UntCnt AS LOG NO-UNDO.
 DEF SHARED VAR v-Shpnot AS LOG NO-UNDO.
 DEF SHARED VAR v-print-tot AS LOG NO-UNDO.
-
+DEFINE BUFFER bf-shipto FOR shipto .
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -229,6 +229,23 @@ ASSIGN v-comp-add1 = ""
             END.
          END.
       END.
+
+      RUN oe/custxship.p (oe-ord.company,
+                        oe-ord.cust-no,
+                        oe-ord.ship-id,
+                        BUFFER bf-shipto).
+      IF AVAIL bf-shipto AND bf-shipto.broker then DO:
+       ASSIGN
+          lv-comp-name = oe-ord.sold-name
+          v-comp-add1 = oe-ord.sold-addr[1]
+          v-comp-add2 = oe-ord.sold-addr[2]
+          v-comp-add3 =  oe-ord.sold-city + ", " + oe-ord.sold-state + "  " + oe-ord.sold-zip
+          v-comp-add4 = "Teléfono:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999")
+          v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
+          lv-email    = "Email:  " + cust.email  .
+
+      END.
+
       /* bpv 05291402 */
       ASSIGN
         cXMLPayloadID = oe-ord.spare-char-3
