@@ -49,7 +49,7 @@ DEFINE VARIABLE iFrameBGColor      AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 DEFINE VARIABLE iFrameFGColor      AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 DEFINE VARIABLE iRectangleBGColor  AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 DEFINE VARIABLE iRectangleFGColor  AS INTEGER   NO-UNDO INITIAL {&FGColor}.
-DEFINE VARIABLE iSecurityLevelUser AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hColorWidget       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lAdmin             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRebuildMenu       AS LOGICAL   NO-UNDO.
@@ -1021,12 +1021,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        WHERE users.user_id EQ USERID("ASI")
        NO-ERROR.
   ASSIGN
-    iSecurityLevelUser = users.securityLevel
+    iUserSecurityLevel = users.securityLevel
     cActiveUser        = USERID("ASI")
     .
   RUN pInit.
   RUN pGetUserSettings.
-  RUN pGetCopyUsers.
+  RUN pGetUsers.
   RUN pBuildttMenuTree.
   menuTreeMsg:HIDDEN = YES.
   RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
@@ -1108,7 +1108,7 @@ PROCEDURE pBuildttMenuTree :
           AND prgrms.menuOrder GT 0
           AND prgrms.menuLevel GT 0
           AND prgrms.mnemonic  NE ""
-          AND prgrms.securityLevelUser LE iSecurityLevelUser
+          AND prgrms.securityLevelUser LE iUserSecurityLevel
         BY prgrms.menuOrder
         :
         IF cCEMenu EQ "Both" OR 
@@ -1186,7 +1186,7 @@ PROCEDURE pCopyToUser :
     MESSAGE 
         "Copy from User" copyFromUser "Complete."
     VIEW-AS ALERT-BOX.
-    RUN pGetCopyUsers.
+    RUN pGetUsers.
     
     /* if current user, need to rebuild menu and redisplay */
     IF lCurrentUser THEN
@@ -1197,21 +1197,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCopyUsers Dialog-Frame 
-PROCEDURE pGetCopyUsers :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUsers Dialog-Frame 
+PROCEDURE pGetUsers :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             copyFromUser:LIST-ITEM-PAIRS = ?
             copyToUser:LIST-ITEM-PAIRS   = ?
+            cUser:LIST-ITEM-PAIRS        = ?
             .
         FOR EACH xUserMenu NO-LOCK
-            BREAK BY xUserMenu.user_id
-            :
+            BREAK BY xUserMenu.user_id:
             IF FIRST-OF(xUserMenu.user_id) THEN DO:
                 FIND FIRST users OF xUserMenu NO-LOCK NO-ERROR.
                 copyFromUser:ADD-LAST(xUserMenu.user_id
@@ -1220,12 +1219,7 @@ PROCEDURE pGetCopyUsers :
                     .
             END. /* first-of */
         END. /* each xusermenu */
-        ASSIGN
-            cUser:LIST-ITEM-PAIRS = ?
-            iUserSecurityLevel    = DYNAMIC-FUNCTION("sfUserSecurityLevel")
-            .
-        FOR EACH users NO-LOCK
-            :
+        FOR EACH users NO-LOCK:
             IF lAdmin OR users.user_id EQ cActiveUser THEN
             cUser:ADD-LAST(users.user_id + " - "
                 + REPLACE(users.user_name,","," "),
