@@ -379,15 +379,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME ap-inv.disc-days
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-inv.disc-days V-table-Win
-ON LEAVE OF ap-inv.disc-days IN FRAME F-Main /* Days */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
+ON ENTRY OF btTags IN FRAME F-Main
 DO:
-  /* Task# 19219593 
-  IF LASTKEY  <> -1  THEN DO:
-      APPLY "entry" TO ap-inv.vend-no.
-      RETURN NO-APPLY.
-   END.*/
+    IF adm-new-record THEN DO:
+        APPLY "ENTRY":U TO ap-inv.vend-no.
+        APPLY "TAB":U TO ap-inv.vend-no.
+        APPLY "ENTRY":U TO ap-inv.inv-no.
+        RETURN NO-APPLY.
+    END. /* if adm-new-record */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -848,7 +848,7 @@ PROCEDURE local-create-record :
   END. 
 
   RUN dispatch ('row-changed').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
