@@ -1555,7 +1555,7 @@ PROCEDURE Rebuild-Stds :
            and job-hdr.job     EQ job.job
            and job-hdr.job-no  EQ job.job-no
          and job-hdr.job-no2 EQ job.job-no2 NO-LOCK ,
-         FIRST itemfg FIELDS(pur-man) WHERE
+         FIRST itemfg FIELDS(pur-man isaset) WHERE
                itemfg.company EQ job-hdr.company AND
                itemfg.i-no EQ job-hdr.i-no NO-LOCK:
          FIND FIRST eb NO-LOCK
