@@ -291,20 +291,20 @@ IF ipcItemType EQ cItemFG THEN DO:
         
     cCustNo = IF po-ordl.cust-no NE "" THEN
                   po-ordl.cust-no
-              ELSE IF oe-ordl.cust-no NE "" THEN
+              ELSE IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN
                   oe-ordl.cust-no
               ELSE
-                  "KELLOGS".
+                  "".
                               
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ ipcCompany
            AND cust.cust-no EQ cCustNo
          NO-ERROR.
     
-    FIND FIRST cust-par NO-LOCK
-         WHERE cust-par.company EQ ipcCompany
-           AND cust-par.cust-no EQ cCustNo
-           AND cust-par.i-no    EQ ipcPrimaryID
+    FIND FIRST cust-part NO-LOCK
+         WHERE cust-part.company EQ ipcCompany
+           AND cust-part.cust-no EQ cCustNo
+           AND cust-part.i-no    EQ ipcPrimaryID
          NO-ERROR.
     
     ASSIGN    
