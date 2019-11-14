@@ -39,7 +39,7 @@ DEFINE VARIABLE cWarehouseID        AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cLocationID         AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE lcTags              AS LONGCHAR   NO-UNDO.
 DEFINE VARIABLE cLoadtagFormat      AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE iTagQuantity        AS INTEGER    NO-UNDO.
+DEFINE VARIABLE iTagCopies        AS INTEGER    NO-UNDO.
 
 {api/inbound/ttRequest.i}
 /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
@@ -263,7 +263,7 @@ PROCEDURE pProcessInputs:
                 INPUT  cCreateReceipt,
                 OUTPUT cInventoryStockID,
                 OUTPUT cLoadtagFormat,
-                OUTPUT iTagQuantity,
+                OUTPUT iTagCopies,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
@@ -276,7 +276,7 @@ PROCEDURE pProcessInputs:
                 oplcResponseData = REPLACE(oplcResponseData,"$InventoryStockID$",cInventoryStockID)
                 oplcResponseData = REPLACE(oplcResponseData,"$ReceiptCreation$",cCreateReceipt)
                 oplcResponseData = REPLACE(oplcResponseData,"$LoadtagFormat$",cLoadtagFormat)
-                oplcResponseData = REPLACE(oplcResponseData,"$TagQuantity$",STRING(iTagQuantity))
+                oplcResponseData = REPLACE(oplcResponseData,"$TagCopies$",STRING(iTagCopies))
                 oplcTags         = IF oplcTags EQ "" THEN
                                        oplcResponseData 
                                    ELSE 
