@@ -28,7 +28,7 @@ DEFINE INPUT  PARAMETER ipcUsername           AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCreateReceipt      AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcInventoryStockID   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcLoadtagFormat      AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opiTagQuantity        AS INTEGER   NO-UNDO.
+DEFINE OUTPUT PARAMETER opiTagCopies        AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess            AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage            AS CHARACTER NO-UNDO.
 
@@ -115,18 +115,27 @@ IF NOT lValidCompany THEN DO:
     RETURN.
 END.
 
-/* Validate PO Number */
-RUN ValidatePO IN hdInventoryProcs (
-    ipcCompany,
-    ipiPONo,
-    OUTPUT lValidPONo
-    ).
-
-IF NOT lValidPONo THEN DO:
+/* Validates PO Number */
+FIND FIRST po-ord NO-LOCK
+    WHERE po-ord.company EQ ipcCompany
+      AND po-ord.po-no   EQ ipiPoNo
+    NO-ERROR.
+IF NOT AVAILABLE po-ord THEN DO:
     ASSIGN 
         opcMessage = "Invalid PO Number (" + STRING(ipiPONo) + ") entered for item (" + ipcPrimaryID + ")"                 
         oplSuccess = NO
         .
+        
+    RETURN.
+END.
+
+/* Validates whether PO Number is in Hold / not */
+IF po-ord.stat EQ "H" THEN DO:
+    ASSIGN 
+        opcMessage = "PO# (" + STRING(ipiPoNo) + ") is on hold and cannot print load tags for a PO on hold"                
+        oplSuccess = NO
+        .
+        
     RETURN.
 END.
 
@@ -227,6 +236,7 @@ IF ipcCreateReceipt EQ "" OR (ipcCreateReceipt NE "YES" AND ipcCreateReceipt NE 
         opcMessage = "Please enter valid option (yes / no) to create receipt for item (" + ipcPrimaryID + ")"
         oplSuccess = NO
         .
+        
         RETURN.
 END.
    
@@ -248,11 +258,7 @@ IF ipcItemType EQ cItemFG THEN DO:
     FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ loadtag.company
                                 AND po-ord.po-no   EQ ipiPONo 
                               NO-ERROR.
-    cCustNo = IF po-ord.cust-no NE "" THEN
-                  po-ord.cust-no
-              ELSE
-                  "KELLOGS"
-              .     
+  
     FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
                                  AND po-ordl.po-no   EQ po-ord.po-no
                                  AND po-ordl.line    EQ ipiPOLine
@@ -266,14 +272,6 @@ IF ipcItemType EQ cItemFG THEN DO:
             
         RETURN.
     END.
-            
-    FIND FIRST cust NO-LOCK WHERE cust.company EQ ipcCompany
-                              AND cust.cust-no EQ po-ord.cust-no 
-                            NO-ERROR.
-    
-    FIND FIRST vend NO-LOCK WHERE vend.company EQ ipcCompany
-                              AND vend.vend-no EQ po-ord.vend-no 
-                            NO-ERROR.
     
     FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ ipcCompany
                                 AND itemfg.i-no    EQ po-ordl.i-no 
@@ -284,31 +282,71 @@ IF ipcItemType EQ cItemFG THEN DO:
                                 AND fg-bin.job-no  EQ loadtag.job-no
                                 AND fg-bin.tag     EQ loadtag.tag-no  
                               NO-ERROR.
-                       
-    RUN sys\ref\nk1look.p(
-        INPUT ipcCompany,
-        INPUT "BARDIR",
-        INPUT "C",
-        INPUT YES,
-        INPUT YES,
-        INPUT cCustNo,
-        INPUT "",
-        OUTPUT opcLoadtagFormat,  
-        OUTPUT lRecFound
-        ).
-
-    RUN sys\ref\nk1look.p(
-        INPUT ipcCompany,
-        INPUT "BARDIR",
-        INPUT "I",
-        INPUT YES,
-        INPUT YES,
-        INPUT cCustNo,
-        INPUT "",
-        OUTPUT opiTagQuantity,
-        OUTPUT lRecFound
-        ).
+    
+    IF po-ordl.cust-no EQ "" THEN
+        FIND FIRST oe-ordl NO-LOCK
+             WHERE oe-ordl.company EQ ipcCompany
+               AND oe-ordl.ord-no  EQ po-ordl.ord-no
+             NO-ERROR.
         
+    cCustNo = IF po-ordl.cust-no NE "" THEN
+                  po-ordl.cust-no
+              ELSE IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN
+                  oe-ordl.cust-no
+              ELSE
+                  "".
+                              
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ ipcCompany
+           AND cust.cust-no EQ cCustNo
+         NO-ERROR.
+    
+    FIND FIRST cust-part NO-LOCK
+         WHERE cust-part.company EQ ipcCompany
+           AND cust-part.cust-no EQ cCustNo
+           AND cust-part.i-no    EQ ipcPrimaryID
+         NO-ERROR.
+    
+    ASSIGN    
+        opiTagCopies = IF AVAILABLE cust THEN
+                            cust.int-field[1]
+                         ELSE
+                             0
+        opcLoadtagFormat = IF AVAILABLE cust-part THEN
+                               cust-part.labelPallet
+                           ELSE
+                               ""
+        .
+                         
+    IF opiTagCopies EQ 0 THEN
+        RUN sys\ref\nk1look.p(
+            INPUT ipcCompany,
+            INPUT "LOADTAG",
+            INPUT "I",
+            INPUT YES,
+            INPUT YES,
+            INPUT cCustNo,
+            INPUT "",
+            OUTPUT opiTagCopies,
+            OUTPUT lRecFound
+            ).
+            
+    IF opcLoadtagFormat EQ "" THEN               
+        RUN sys\ref\nk1look.p(
+            INPUT ipcCompany,
+            INPUT "BARDIR",
+            INPUT "C",
+            INPUT YES,
+            INPUT YES,
+            INPUT cCustNo,
+            INPUT "",
+            OUTPUT opcLoadtagFormat,  
+            OUTPUT lRecFound
+            ).
+  
+    IF opiTagCopies EQ 0 THEN
+        opiTagCopies = 1.
+              
     /* Creates a new TAG number */
     RUN GetNextLoadtagNumber (
         INPUT  ipcCompany, 
@@ -454,16 +492,10 @@ PROCEDURE CreateLoadTagForFGItem PRIVATE :
         loadtag.tag-date      = TODAY
         loadtag.tag-time      = TIME
         loadtag.misc-char[1]  = ipcStockIDAlias
-        /*
-        loadtag.misc-dec[1]   = w-ord.unit-wt  
-        loadtag.misc-dec[2]   = w-ord.pallt-wt
-        loadtag.misc-char[2]  = w-ord.lot
-        loadtag.spare-char-1  = w-ord.SSCC
-        */
         loadtag.po-no         = INT(ipiPONo)
         loadtag.line          = ipiPOLine
-        loadtag.loc           = IF AVAILABLE fg-bin THEN fg-bin.loc ELSE ""
-        loadtag.loc-bin       = IF AVAILABLE fg-bin THEN fg-bin.loc-bin ELSE ""
+        loadtag.loc           = ipcWarehouseID
+        loadtag.loc-bin       = ipcLocationID
         loadtag.qty-case      = ipdQuantityPerSubUnit
         loadtag.case-bundle   = IF AVAILABLE itemfg AND itemfg.case-pall NE 0 THEN itemfg.case-pall  ELSE 1
         loadtag.pallet-no     = IF AVAILABLE itemfg THEN itemfg.trno ELSE ""
