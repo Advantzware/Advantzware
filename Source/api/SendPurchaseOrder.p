@@ -98,6 +98,7 @@
     DEFINE VARIABLE cJobID2            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDFormNo       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineStatus      AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
@@ -281,6 +282,7 @@
                 cCostDiscount         = STRING(po-ordl.disc)
                 cCustomerID           = STRING(po-ordl.cust-no)
                 cOrderNo              = STRING(po-ordl.ord-no)
+                cPoLineStatus         = STRING(po-ordl.stat)
                 cOperationID          = ""
                 cQtyPerPack           = ""
                 cStackHeight          = "0"
@@ -321,6 +323,7 @@
                 ).
                                                          
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityUOM", cQuantityUOM).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemType", cItemType).
