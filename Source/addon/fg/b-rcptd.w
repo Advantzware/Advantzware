@@ -115,6 +115,9 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iFGUnderOver AS INTEGER NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -161,6 +164,18 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        OUTPUT lFound).
 IF lFound THEN
     iFGUnderOver = integer(cFGSetAssembly) NO-ERROR .
+
+RUN methods/prgsecur.p
+	    (INPUT "FGUnOvAllow",
+	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+IF lAllowUserOverRun THEN ASSIGN iFGUnderOver = 0 .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
