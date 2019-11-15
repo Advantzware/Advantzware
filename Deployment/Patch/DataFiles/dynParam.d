@@ -22,3 +22,7 @@
 23 "CAD" "System" "CAD" "Character" "x(15)" "Fill-In" "" "" 1 20 0 "" "" "" ? "" "201906206890803526360"
 24 "JobNo" "System" "Job" "Character" "x(6)" "Fill-In" "" "" 1 9 0 "" "" "" ? "" "201906206895803526361"
 25 "JobNo2" "System" ":" "Integer" ">9" "Fill-In" "" "99" 1 5 0 "" "" "" ? "" "201906206914003526362"
+10 "InventoryStockID" "System" "Inventory Stock ID" "Character" "x(14)" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "201910106089504351450"
+26 "EstimateNo" "System" "Estimate Number" "Character" "x(8)" "Fill-In" "" "" 1 11 0 "" "" "" ? "" "201910255766204353519"
+27 "ItemID" "System" "Item ID" "Character" "x(20)" "Fill-In" "" "" 1 24 0 "" "" "" ? "" "201910255798504353524"
+28 "CorrectData" "System" "Correct Data" "Logical" "yes/no" "Toggle-Box" "" "yes" 1 16 0 "" "" "" ? "" "201911064450004355512"

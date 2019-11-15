@@ -1,1 +1,1 @@
-run N:\Repositories\Advantzware\Template\BuildScript\HTMLDict\launch.p.
+run N:\Repositories\Advantzware\Deployment\BuildScript\HTMLDict\launch.p.

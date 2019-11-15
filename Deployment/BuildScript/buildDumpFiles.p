@@ -15,7 +15,7 @@ DEFINE STREAM s2.
 DEFINE STREAM s3.
 DEFINE STREAM s4.
 
-DEF VAR cOutDir AS CHAR INIT "{&cDir}\Template\Patch\DataFiles" NO-UNDO.
+DEF VAR cOutDir AS CHAR INIT "{&cDir}\Deployment\Patch\DataFiles" NO-UNDO.
 
 &SCOPED-DEFINE cFile audittbl
 
@@ -176,3 +176,4 @@ FOR EACH dynParamValue NO-LOCK WHERE
     EXPORT dynParamValue.
 END. /* each dynParamValue */
 OUTPUT CLOSE.
+

@@ -40,7 +40,7 @@ ASSIGN
     cTarget = cDir + "\Deployment\Patch\Admin\EnvAdmin".
 
 
-INPUT FROM os-dir ("c:\asigui\databases\compile").
+INPUT FROM os-dir ("c:\asigui\databases\comp").
 REPEAT:
     IMPORT cRaw.
     IF (cRaw BEGINS "asi" OR INDEX(cRaw,"d.lg") NE 0)
@@ -77,9 +77,9 @@ IF iIndex = 0 THEN DO:
     QUIT.
 END. 
 ELSE ASSIGN 
-    cConnectDb = "-db c:\asigui\databases\compile\" + cDbName + " -1 -ld ASI"
-    cConnectAud = "-db c:\asigui\databases\compile\" + replace(cDbName,"d","a") + " -1 -ld Audit"
-    propath = cDir + "\Deployment\BuildScript\ToCompile," + cDir + "\Legacy," + cDir + "\Resources," + propath
+    cConnectDb = "-db c:\asigui\databases\comp\" + cDbName + " -1 -ld ASI"
+    cConnectAud = "-db c:\asigui\databases\comp\" + replace(cDbName,"d","a") + " -1 -ld Audit"
+    propath = cDir + "\Deployment\BuildScript\ToCompile," + cDir + "\Source," + cDir + "\Resources," + propath
     .
 
 COMPILE VALUE(cDir + "\Deployment\BuildScript\ToCompile\asiDbMaint.w") SAVE INTO value(cTarget).
