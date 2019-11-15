@@ -921,27 +921,35 @@ PROCEDURE Init_Job :
         &ampm="btn_ampm"
     }
     ASSIGN
-      Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
-      run-qty:HIDDEN = FALSE
-      run-qty:SCREEN-VALUE = ''
-      waste-qty:SCREEN-VALUE = ''
-      waste-qty:HIDDEN = FALSE
-      v-completed:HIDDEN = FALSE
-      v-completed:SCREEN-VALUE =  IF (v-tsfinish-char-val = "Last Machine" AND AVAILABLE jobseq AND jobseq.charge_code <> charge_code) OR
-         v-tsfinish-char-val = "NO" OR (tsendwash-log EQ YES AND job_sequence BEGINS "END WASH UP") THEN "NO" ELSE "YES".
+      Btn_AMPM:HIDDEN          = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+      run-qty:HIDDEN           = FALSE
+      run-qty:SCREEN-VALUE     = ''
+      waste-qty:SCREEN-VALUE   = ''
+      waste-qty:HIDDEN         = FALSE
+      v-completed:HIDDEN       = FALSE
+      v-completed:SCREEN-VALUE = IF  v-tsfinish-char-val EQ "All Machines" THEN "YES"
+                            ELSE IF  v-tsfinish-char-val EQ "YES"          THEN "YES"
+                            ELSE IF (v-tsfinish-char-val EQ "Last Machine"
+                                 AND AVAILABLE jobseq
+                                 AND jobseq.charge_code  NE charge_code)
+                                  OR v-tsfinish-char-val EQ "NO"
+                                  OR (tsendwash-log      EQ YES
+                                 AND job_sequence    BEGINS "END WASH UP") THEN "NO"
+                            ELSE "YES"
+                            .
 
     IF job_sequence BEGINS 'START' OR
-       NOT CAN-FIND(jobseq WHERE jobseq.charge_code = charge_code) THEN
+       NOT CAN-FIND(jobseq WHERE jobseq.charge_code EQ charge_code) THEN
     DO: 
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
-        v-completed:SCREEN-VALUE = "No" 
+        v-completed:SCREEN-VALUE = "NO" 
         .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.
     ELSE
-    IF AVAILABLE job-code AND job-code.cat = 'MR' THEN
+    IF AVAILABLE job-code AND job-code.cat EQ 'MR' THEN
     DO:
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
@@ -956,7 +964,7 @@ PROCEDURE Init_Job :
     v-time-clock-off = NO
     timerStatus:SCREEN-VALUE = setTimerStatus(NO).
 
-  IF NOT v-can-update AND tstimeb-log = NO THEN DO:
+  IF NOT v-can-update AND tstimeb-log EQ NO THEN DO:
       ASSIGN btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
              btn_minute:SENSITIVE = NO
              btn_ampm:SENSITIVE = NO
@@ -1682,7 +1690,7 @@ PROCEDURE Job_Data_Collection_2 :
                 WHERE job-mch.company EQ company_code
                   AND job-mch.job-no  EQ job_number
                   AND job-mch.job-no2 EQ INTEGER(job_sub)
-                  AND job-mch.frm     EQ integer(form_number)                                 
+                  AND job-mch.frm     EQ integer(form_number)
                 USE-INDEX line-idx NO-ERROR.
             IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
                 IF LOOKUP(machine_code,tspostfg-char) GT 0 AND tspostfg-int EQ 1 THEN DO:
@@ -1863,6 +1871,7 @@ PROCEDURE pClick :
     DEFINE VARIABLE v-valid AS LOG INIT TRUE NO-UNDO.
     DEFINE VARIABLE iHourMax AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHourMin AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lRunComplete AS LOGICAL NO-UNDO.
   
     DEF BUFFER bf-machtran FOR machtran.
     DEF BUFFER bf2-machtran FOR machtran.
@@ -1941,11 +1950,19 @@ PROCEDURE pClick :
             IF job_sequence BEGINS 'END' THEN DO: /* task 10050516*/
                RUN check-tsqty NO-ERROR.
                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+               IF v-tsfinish THEN DO:
+                   lRunComplete = v-tsfinish-char-val EQ "YES".
+                   MESSAGE
+                       "Run Complete this Operation?"
+                   VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                   UPDATE lRunComplete.
+                   v-completed:SCREEN-VALUE = STRING(lRunComplete).
+               END. /* if char yes */
             END.
           
             ASSIGN
                 ampm        = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-                v-time-hour = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN 0 ELSE v-time-hour
+                v-time-hour = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN     0 ELSE v-time-hour
                 .          
             /* check machine's running. If yes, don't create new transaction. End it first */
             {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
