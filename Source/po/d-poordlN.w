@@ -1296,7 +1296,7 @@ DO:
         IF lv-save-cust-no NE {&self-name}:SCREEN-VALUE OR
       {&self-name}:SCREEN-VALUE NE "" THEN
    DO :
-        RUN GetVendItem (cocode, po-ordl.i-no:screen-value, "FG", OUTPUT llExist, OUTPUT cItemId, OUTPUT cVendorItemId). 
+       RUN GetVendItem (cocode, po-ordl.i-no:screen-value, po-ordl.item-type:screen-value, OUTPUT llExist, OUTPUT cItemId, OUTPUT cVendorItemId).        
         
 /*        FIND FIRST e-itemfg NO-LOCK                                      */
 /*            WHERE e-itemfg.company EQ cocode                             */
@@ -6874,17 +6874,17 @@ PROCEDURE vend-cost :
   
             END.
         END. /* if item-type ne RM */
-        
-        ASSIGN po-ordl.cost:SCREEN-VALUE  = STRING(dCostPerUOM,po-ordl.cost:FORMAT)
+        IF ip-calc-cost THEN DO:  
+          ASSIGN po-ordl.cost:SCREEN-VALUE  = STRING(dCostPerUOM,po-ordl.cost:FORMAT)
                po-ordl.setup:SCREEN-VALUE = STRING(dCostSetup,po-ordl.setup:FORMAT)
                po-ordl.cons-cost:SCREEN-VALUE = STRING(dCostPerUOM,po-ordl.cons-cost:FORMAT)
                lv-t-cost = dCostTotal
                 .
                     
-        IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
+          IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
                 lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
-        po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).                      
-                        
+          po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).                      
+        END.                
         /*        IF AVAILABLE tt-eiv THEN                                                                                  */
         /*        DO:                                                                                                       */
         /*            ASSIGN                                                                                                */
@@ -7102,7 +7102,7 @@ PROCEDURE vend-cost :
         /*            END. /* ip calc cost ne ? */                                                                          */
         /*        END. /* avail tt-eiv */                                                                                   */
 
-            RUN po\RecostBoardPO.p(INPUT ROWID(po-ord),INPUT No).
+           IF ip-calc-cost THEN RUN po\RecostBoardPO.p(INPUT ROWID(po-ord),INPUT No).
 /*                                                               */
 /*            v-save-qty = v-qty.                                */
 /*            IF po-ordl.job-no:SCREEN-VALUE NE "" THEN          */
