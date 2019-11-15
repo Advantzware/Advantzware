@@ -77,7 +77,7 @@ DEFINE QUERY external_tables FOR ap-inv.
 ap-inv.due-date ap-inv.tax-gr ap-inv.disc-% ap-inv.disc-days ap-inv.tax-amt 
 &Scoped-define ENABLED-TABLES ap-inv
 &Scoped-define FIRST-ENABLED-TABLE ap-inv
-&Scoped-Define ENABLED-OBJECTS btTags RECT-1 RECT-5 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ap-inv.vend-no ap-inv.inv-no ~
 ap-inv.inv-date ap-inv.due-date ap-inv.tax-gr ap-inv.disc-% ~
 ap-inv.disc-days ap-inv.stat ap-inv.tax-amt ap-inv.net ap-inv.paid ~
@@ -163,7 +163,6 @@ DEFINE VARIABLE tg_overwrite-tax AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btTags AT ROW 2.43 COL 76.4 WIDGET-ID 12
      ap-inv.vend-no AT ROW 1.24 COL 17 COLON-ALIGNED
           LABEL "Vendor#"
           VIEW-AS FILL-IN 
@@ -179,11 +178,11 @@ DEFINE FRAME F-Main
      ap-inv.due-date AT ROW 4.1 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     btn-exrate AT ROW 5.52 COL 2 NO-TAB-STOP
      ap-inv.tax-gr AT ROW 2.43 COL 51.2 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+     btn-exrate AT ROW 5.52 COL 2 NO-TAB-STOP 
      ap-inv.disc-% AT ROW 3.43 COL 51.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -217,6 +216,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      tg_overwrite-tax AT ROW 2.67 COL 122
+     btTags AT ROW 2.43 COL 76.4 WIDGET-ID 12
      "Manual Check#" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 4.76 COL 63 WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
@@ -285,6 +285,8 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btn-exrate IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btTags IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cb_freq IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ap-inv.due IN FRAME F-Main
@@ -324,7 +326,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -373,21 +375,6 @@ ON CHOOSE OF btTags IN FRAME F-Main
 DO:
     IF AVAILABLE ap-inv THEN
         RUN sys/ref/dlgTagVwr.w (ap-inv.rec_key,"HOLD","").  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
-ON ENTRY OF btTags IN FRAME F-Main
-DO:
-    IF adm-new-record THEN DO:
-        APPLY "ENTRY":U TO ap-inv.vend-no.
-        APPLY "TAB":U TO ap-inv.vend-no.
-        APPLY "ENTRY":U TO ap-inv.inv-no.
-        RETURN NO-APPLY.
-    END. /* if adm-new-record */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -446,6 +433,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tg_overwrite-tax
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_overwrite-tax V-table-Win
+ON CHOOSE OF tg_overwrite-tax IN FRAME F-Main /* Overwrite Tax? */
+DO:
+ APPLY "tab" TO tg_overwrite-tax .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ap-inv.vend-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-inv.vend-no V-table-Win
 ON ENTRY OF ap-inv.vend-no IN FRAME F-Main /* Vendor# */
@@ -491,16 +489,6 @@ END.
 ON VALUE-CHANGED OF ap-inv.vend-no IN FRAME F-Main /* Vendor# */
 DO:
   RUN new-vend-no.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME       
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_overwrite-tax V-table-Win
-ON CHOOSE  OF tg_overwrite-tax IN FRAME F-Main /* Vendor# */
-DO:
- APPLY "tab" TO tg_overwrite-tax .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1130,8 +1118,10 @@ PROCEDURE proc-enable :
   END.
 
   ASSIGN
-   ll-first        = YES
-   ll-date-warning = NO.
+   ll-first         = YES
+   ll-date-warning  = NO
+   btTags:SENSITIVE = YES
+   .
 
 END PROCEDURE.
 
