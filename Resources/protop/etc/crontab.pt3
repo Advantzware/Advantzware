@@ -1,5 +1,0 @@
-# ProTop 3.x Monitoring
-#
-# launching every 15 minutes allows quick restart after system reboots or db crashes
-#
-0,15,30,45 * * * * C:\Users\Administrator.WIN-SIDPMPLNDIB\Downloads\protop/bin/dbmonitor.sh >> C:\Users\Administrator.WIN-SIDPMPLNDIB\Downloads\protop\log/dbmonitor.cron.log 2>&1

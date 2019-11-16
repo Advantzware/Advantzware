@@ -1,0 +1,1355 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema ASI.Task</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="tag.html">tag</a></td>
+    <td class="navbar" style="width:20%;">  <a href="taskemail.html">taskEmail</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>ASI.Task</h1>
+<p>Tasks for Batch Scheduler</p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> task      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> Task Master      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td>       </td></tr>
+    </table>
+  </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg\task.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg\task.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg\task.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>430</td>
+    <td>access</td>
+    <td><a href="00-cross-a.html#access"><small>X</small></a></td>
+    <td>Access</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>System</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>allData</td>
+    <td><a href="00-cross-a.html#allData"><small>X</small></a></td>
+    <td>All Date</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>380</td>
+    <td>cFromTime</td>
+    <td><a href="00-cross-c.html#cFromTime"><small>X</small></a></td>
+    <td>From Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>410</td>
+    <td>cLastTime</td>
+    <td><a href="00-cross-c.html#cLastTime"><small>X</small></a></td>
+    <td>Last Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>390</td>
+    <td>cNextTime</td>
+    <td><a href="00-cross-c.html#cNextTime"><small>X</small></a></td>
+    <td>Next Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>10</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>370</td>
+    <td>cTaskTime</td>
+    <td><a href="00-cross-c.html#cTaskTime"><small>X</small></a></td>
+    <td>Task Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>400</td>
+    <td>cToTime</td>
+    <td><a href="00-cross-c.html#cToTime"><small>X</small></a></td>
+    <td>To Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>160</td>
+    <td>dayOfMonth</td>
+    <td><a href="00-cross-d.html#dayOfMonth"><small>X</small></a></td>
+    <td>Day of Month</td>
+    <td>logical [31]</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>150</td>
+    <td>dayOfWeek</td>
+    <td><a href="00-cross-d.html#dayOfWeek"><small>X</small></a></td>
+    <td>Day Of Week</td>
+    <td>logical [7]</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>300</td>
+    <td>dayOfWeek1</td>
+    <td><a href="00-cross-d.html#dayOfWeek1"><small>X</small></a></td>
+    <td>Sunday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>310</td>
+    <td>dayOfWeek2</td>
+    <td><a href="00-cross-d.html#dayOfWeek2"><small>X</small></a></td>
+    <td>Monday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>320</td>
+    <td>dayOfWeek3</td>
+    <td><a href="00-cross-d.html#dayOfWeek3"><small>X</small></a></td>
+    <td>Tuesday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>330</td>
+    <td>dayOfWeek4</td>
+    <td><a href="00-cross-d.html#dayOfWeek4"><small>X</small></a></td>
+    <td>Wednesday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>340</td>
+    <td>dayOfWeek5</td>
+    <td><a href="00-cross-d.html#dayOfWeek5"><small>X</small></a></td>
+    <td>Thursday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>350</td>
+    <td>dayOfWeek6</td>
+    <td><a href="00-cross-d.html#dayOfWeek6"><small>X</small></a></td>
+    <td>Friday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>360</td>
+    <td>dayOfWeek7</td>
+    <td><a href="00-cross-d.html#dayOfWeek7"><small>X</small></a></td>
+    <td>Saturday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>endDate</td>
+    <td><a href="00-cross-e.html#endDate"><small>X</small></a></td>
+    <td>End Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>endTime</td>
+    <td><a href="00-cross-e.html#endTime"><small>X</small></a></td>
+    <td>End Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>110</td>
+    <td>frequency</td>
+    <td><a href="00-cross-f.html#frequency"><small>X</small></a></td>
+    <td>Freguency</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>Daily</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>fromTime</td>
+    <td><a href="00-cross-f.html#fromTime"><small>X</small></a></td>
+    <td>From Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>isActive</td>
+    <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
+    <td>Active</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>460</td>
+    <td>isRunning</td>
+    <td><a href="00-cross-i.html#isRunning"><small>X</small></a></td>
+    <td>Is Running</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>lastDate</td>
+    <td><a href="00-cross-l.html#lastDate"><small>X</small></a></td>
+    <td>Last Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>170</td>
+    <td>lastOfMonth</td>
+    <td><a href="00-cross-l.html#lastOfMonth"><small>X</small></a></td>
+    <td>Last Day of Month</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>270</td>
+    <td>lastTime</td>
+    <td><a href="00-cross-l.html#lastTime"><small>X</small></a></td>
+    <td>Last Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>280</td>
+    <td>lastUser</td>
+    <td><a href="00-cross-l.html#lastUser"><small>X</small></a></td>
+    <td>Last User</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>module</td>
+    <td><a href="00-cross-m.html#module"><small>X</small></a></td>
+    <td>Module</td>
+    <td>character</td>
+    <td>x(4)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>nextDate</td>
+    <td><a href="00-cross-n.html#nextDate"><small>X</small></a></td>
+    <td>Next Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>250</td>
+    <td>nextTime</td>
+    <td><a href="00-cross-n.html#nextTime"><small>X</small></a></td>
+    <td>Next Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>paramValueID</td>
+    <td><a href="00-cross-p.html#paramValueID"><small>X</small></a></td>
+    <td>Parameter Value ID</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>440</td>
+    <td>permissions</td>
+    <td><a href="00-cross-p.html#permissions"><small>X</small></a></td>
+    <td>Permissions</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td>*</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>40</td>
+    <td><a href="prgrms.html">prgmName</a></td>
+    <td><a href="00-cross-p.html#prgmName"><small>X</small></a></td>
+    <td>Program Name</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>190</td>
+    <td>recipients</td>
+    <td><a href="00-cross-r.html#recipients"><small>X</small></a></td>
+    <td>Recipients</td>
+    <td>character</td>
+    <td>x(256)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>480</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>x(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>450</td>
+    <td>runNow</td>
+    <td><a href="00-cross-r.html#runNow"><small>X</small></a></td>
+    <td>Run Now</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>scheduled</td>
+    <td><a href="00-cross-s.html#scheduled"><small>X</small></a></td>
+    <td>Scheduled</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>420</td>
+    <td>securityLevel</td>
+    <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
+    <td>Security Level</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>200</td>
+    <td>startDate</td>
+    <td><a href="00-cross-s.html#startDate"><small>X</small></a></td>
+    <td>Start Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>210</td>
+    <td>startTime</td>
+    <td><a href="00-cross-s.html#startTime"><small>X</small></a></td>
+    <td>Start Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>20</td>
+    <td><a href="dynsubject.html">subjectID</a></td>
+    <td><a href="00-cross-s.html#subjectID"><small>X</small></a></td>
+    <td>Subject ID</td>
+    <td>integer</td>
+    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>180</td>
+    <td>taskFormat</td>
+    <td><a href="00-cross-t.html#taskFormat"><small>X</small></a></td>
+    <td>Format</td>
+    <td>character</td>
+    <td>x(6)</td>
+    <td>PDF</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>taskID</td>
+    <td><a href="00-cross-t.html#taskID"><small>X</small></a></td>
+    <td>Task ID</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>taskName</td>
+    <td><a href="00-cross-t.html#taskName"><small>X</small></a></td>
+    <td>Task Name</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>120</td>
+    <td>taskTime</td>
+    <td><a href="00-cross-t.html#taskTime"><small>X</small></a></td>
+    <td>Task Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>470</td>
+    <td>taskType</td>
+    <td><a href="00-cross-t.html#taskType"><small>X</small></a></td>
+    <td>Task Type</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>140</td>
+    <td>toTime</td>
+    <td><a href="00-cross-t.html#toTime"><small>X</small></a></td>
+    <td>To Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>30</td>
+    <td>user-id</td>
+    <td><a href="00-cross-u.html#user-id"><small>X</small></a></td>
+    <td>User ID</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td><a href="dynsubject.html">subjectID</a></td>
+    <td><a href="00-cross-s.html#subjectID"><small>X</small></a></td>
+    <td>Subject ID</td>
+    <td>integer</td>
+    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>30</td>
+    <td>user-id</td>
+    <td><a href="00-cross-u.html#user-id"><small>X</small></a></td>
+    <td>User ID</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td><a href="prgrms.html">prgmName</a></td>
+    <td><a href="00-cross-p.html#prgmName"><small>X</small></a></td>
+    <td>Program Name</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td>paramValueID</td>
+    <td><a href="00-cross-p.html#paramValueID"><small>X</small></a></td>
+    <td>Parameter Value ID</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>60</td>
+    <td>isActive</td>
+    <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
+    <td>Active</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>scheduled</td>
+    <td><a href="00-cross-s.html#scheduled"><small>X</small></a></td>
+    <td>Scheduled</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>taskName</td>
+    <td><a href="00-cross-t.html#taskName"><small>X</small></a></td>
+    <td>Task Name</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>taskID</td>
+    <td><a href="00-cross-t.html#taskID"><small>X</small></a></td>
+    <td>Task ID</td>
+    <td>integer</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>module</td>
+    <td><a href="00-cross-m.html#module"><small>X</small></a></td>
+    <td>Module</td>
+    <td>character</td>
+    <td>x(4)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>frequency</td>
+    <td><a href="00-cross-f.html#frequency"><small>X</small></a></td>
+    <td>Freguency</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>Daily</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>taskTime</td>
+    <td><a href="00-cross-t.html#taskTime"><small>X</small></a></td>
+    <td>Task Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>fromTime</td>
+    <td><a href="00-cross-f.html#fromTime"><small>X</small></a></td>
+    <td>From Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>toTime</td>
+    <td><a href="00-cross-t.html#toTime"><small>X</small></a></td>
+    <td>To Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>dayOfWeek</td>
+    <td><a href="00-cross-d.html#dayOfWeek"><small>X</small></a></td>
+    <td>Day Of Week</td>
+    <td>logical [7]</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>160</td>
+    <td>dayOfMonth</td>
+    <td><a href="00-cross-d.html#dayOfMonth"><small>X</small></a></td>
+    <td>Day of Month</td>
+    <td>logical [31]</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>170</td>
+    <td>lastOfMonth</td>
+    <td><a href="00-cross-l.html#lastOfMonth"><small>X</small></a></td>
+    <td>Last Day of Month</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>180</td>
+    <td>taskFormat</td>
+    <td><a href="00-cross-t.html#taskFormat"><small>X</small></a></td>
+    <td>Format</td>
+    <td>character</td>
+    <td>x(6)</td>
+    <td>PDF</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>recipients</td>
+    <td><a href="00-cross-r.html#recipients"><small>X</small></a></td>
+    <td>Recipients</td>
+    <td>character</td>
+    <td>x(256)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>200</td>
+    <td>startDate</td>
+    <td><a href="00-cross-s.html#startDate"><small>X</small></a></td>
+    <td>Start Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>startTime</td>
+    <td><a href="00-cross-s.html#startTime"><small>X</small></a></td>
+    <td>Start Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>endDate</td>
+    <td><a href="00-cross-e.html#endDate"><small>X</small></a></td>
+    <td>End Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>endTime</td>
+    <td><a href="00-cross-e.html#endTime"><small>X</small></a></td>
+    <td>End Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>nextDate</td>
+    <td><a href="00-cross-n.html#nextDate"><small>X</small></a></td>
+    <td>Next Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>nextTime</td>
+    <td><a href="00-cross-n.html#nextTime"><small>X</small></a></td>
+    <td>Next Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>lastDate</td>
+    <td><a href="00-cross-l.html#lastDate"><small>X</small></a></td>
+    <td>Last Date</td>
+    <td>date</td>
+    <td>99/99/9999</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>lastTime</td>
+    <td><a href="00-cross-l.html#lastTime"><small>X</small></a></td>
+    <td>Last Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>lastUser</td>
+    <td><a href="00-cross-l.html#lastUser"><small>X</small></a></td>
+    <td>Last User</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>allData</td>
+    <td><a href="00-cross-a.html#allData"><small>X</small></a></td>
+    <td>All Date</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>dayOfWeek1</td>
+    <td><a href="00-cross-d.html#dayOfWeek1"><small>X</small></a></td>
+    <td>Sunday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>dayOfWeek2</td>
+    <td><a href="00-cross-d.html#dayOfWeek2"><small>X</small></a></td>
+    <td>Monday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>dayOfWeek3</td>
+    <td><a href="00-cross-d.html#dayOfWeek3"><small>X</small></a></td>
+    <td>Tuesday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>330</td>
+    <td>dayOfWeek4</td>
+    <td><a href="00-cross-d.html#dayOfWeek4"><small>X</small></a></td>
+    <td>Wednesday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>340</td>
+    <td>dayOfWeek5</td>
+    <td><a href="00-cross-d.html#dayOfWeek5"><small>X</small></a></td>
+    <td>Thursday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>350</td>
+    <td>dayOfWeek6</td>
+    <td><a href="00-cross-d.html#dayOfWeek6"><small>X</small></a></td>
+    <td>Friday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>360</td>
+    <td>dayOfWeek7</td>
+    <td><a href="00-cross-d.html#dayOfWeek7"><small>X</small></a></td>
+    <td>Saturday</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>370</td>
+    <td>cTaskTime</td>
+    <td><a href="00-cross-c.html#cTaskTime"><small>X</small></a></td>
+    <td>Task Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>380</td>
+    <td>cFromTime</td>
+    <td><a href="00-cross-c.html#cFromTime"><small>X</small></a></td>
+    <td>From Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>390</td>
+    <td>cNextTime</td>
+    <td><a href="00-cross-c.html#cNextTime"><small>X</small></a></td>
+    <td>Next Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>400</td>
+    <td>cToTime</td>
+    <td><a href="00-cross-c.html#cToTime"><small>X</small></a></td>
+    <td>To Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>410</td>
+    <td>cLastTime</td>
+    <td><a href="00-cross-c.html#cLastTime"><small>X</small></a></td>
+    <td>Last Time</td>
+    <td>character</td>
+    <td>99:99</td>
+    <td>0000</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>420</td>
+    <td>securityLevel</td>
+    <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
+    <td>Security Level</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>430</td>
+    <td>access</td>
+    <td><a href="00-cross-a.html#access"><small>X</small></a></td>
+    <td>Access</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td>System</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>440</td>
+    <td>permissions</td>
+    <td><a href="00-cross-p.html#permissions"><small>X</small></a></td>
+    <td>Permissions</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td>*</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>450</td>
+    <td>runNow</td>
+    <td><a href="00-cross-r.html#runNow"><small>X</small></a></td>
+    <td>Run Now</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>460</td>
+    <td>isRunning</td>
+    <td><a href="00-cross-i.html#isRunning"><small>X</small></a></td>
+    <td>Is Running</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>470</td>
+    <td>taskType</td>
+    <td><a href="00-cross-t.html#taskType"><small>X</small></a></td>
+    <td>Task Type</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>480</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Rec Key</td>
+    <td>character</td>
+    <td>x(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>pi-Task</td>
+    <td>P       </td>
+    <td>subjectID (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>user-id (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>prgmName (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>paramValueID (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-access</td>
+    <td>        </td>
+    <td>access (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-company</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>subjectID (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>user-id (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-frequency</td>
+    <td>        </td>
+    <td>frequency (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-isActive</td>
+    <td>        </td>
+    <td>isActive (+)</td>
+    <td>logical</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-isRunning</td>
+    <td>        </td>
+    <td>isRunning (+)</td>
+    <td>logical</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-lastUser</td>
+    <td>        </td>
+    <td>lastUser (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-prgmName</td>
+    <td>        </td>
+    <td>prgmName (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-rec_key</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-runNow</td>
+    <td>        </td>
+    <td>runNow (+)</td>
+    <td>logical</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-scheduled</td>
+    <td>        </td>
+    <td>scheduled (+)</td>
+    <td>logical</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-securityLevel</td>
+    <td>        </td>
+    <td>securityLevel (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-taskID</td>
+    <td>        </td>
+    <td>taskID (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-taskName</td>
+    <td>        </td>
+    <td>taskName (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>si-taskType</td>
+    <td>        </td>
+    <td>taskType (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>si-user-id</td>
+    <td>        </td>
+    <td>user-id (+)</td>
+    <td>character</td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="dynParamValue.html">dynParamValue</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 15-11-2019 12:47</small></i></td></tr>
+</table>
+</body>
+</html>

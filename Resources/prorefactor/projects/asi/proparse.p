@@ -1,1 +1,0 @@
-schema_file=p\:\\asi10test\\rco1010/prorefactor/projects/asi/prorefactor.schema

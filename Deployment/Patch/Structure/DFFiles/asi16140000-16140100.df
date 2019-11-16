@@ -1,0 +1,72 @@
+UPDATE TABLE "dynPrgrmsPage"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dynPrgrmsPage.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dynPrgrmsPage.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dynPrgrmsPage.p" CRC "?"
+
+UPDATE FIELD "prgmName" OF "dynPrgrmsPage"
+  FORMAT "X(20)"
+
+UPDATE FIELD "rec_key" OF "dynPrgrmsPage"
+  ORDER 90
+
+ADD FIELD "fieldName" OF "dynPrgrmsPage" AS character
+  FORMAT "x(40)"
+  POSITION 8
+  INITIAL ""
+  HELP "Enter Field Name"
+  LABEL "Field Name"
+  ORDER 70
+  MAX-WIDTH 40
+
+ADD FIELD "tableName" OF "dynPrgrmsPage" AS character
+  FORMAT "x(20)"
+  POSITION 9
+  INITIAL ""
+  HELP "Enter Table Name"
+  LABEL "Table Name"
+  ORDER 60
+  MAX-WIDTH 40
+
+ADD FIELD "paramInitValue" OF "dynPrgrmsPage" AS character
+  FORMAT "x(30)"
+  POSITION 10
+  INITIAL ""
+  HELP "Enter Parameter Init Value"
+  LABEL "Parameter Init Value"
+  ORDER 80
+  MAX-WIDTH 60
+
+ADD FIELD "paramName" OF "dynPrgrmsPage" AS character
+  FORMAT "x(20)"
+  POSITION 11
+  INITIAL ""
+  HELP "Enter Parameter Name"
+  LABEL "Parameter Name"
+  ORDER 50
+  MAX-WIDTH 40
+
+DROP INDEX "ParamID" ON "dynPrgrmsPage"
+
+DROP FIELD "paramID" OF "dynPrgrmsPage"
+
+ADD FIELD "adjustmentCode" OF "rm-rcpth" AS character
+  FORMAT "x"
+  POSITION 35
+  INITIAL ""
+  LABEL "Adj. Code"
+  ORDER 420
+  MAX-WIDTH 2
+
+ADD FIELD "adjustmentCode" OF "rm-rctd" AS character
+  FORMAT "x"
+  POSITION 58
+  INITIAL ""
+  LABEL "Adj. Code"
+  ORDER 560
+  MAX-WIDTH 2
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001538
