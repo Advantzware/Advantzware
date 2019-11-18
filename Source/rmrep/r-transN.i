@@ -80,7 +80,7 @@
          FIND FIRST vend WHERE vend.company = cocode AND
              vend.vend-no = po-ordl.vend-no NO-LOCK NO-ERROR.
      
-     IF AVAIL vend THEN 
+     IF AVAIL vend AND AVAIL po-ordl  THEN 
          ASSIGN cVender = vend.NAME .
         
         ASSIGN
