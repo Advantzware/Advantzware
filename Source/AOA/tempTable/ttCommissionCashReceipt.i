@@ -18,10 +18,10 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     FIELD commAmt     AS DECIMAL   LABEL "Comm Amt"     FORMAT "$->>>,>>9.99"
     FIELD basis       AS CHARACTER LABEL "Basis"        FORMAT "x"
     FIELD totalCost   AS DECIMAL   LABEL "Total Cost"
-    FIELD xxAmtPaid   AS DECIMAL
-    FIELD xxAmtD      AS DECIMAL
-    FIELD xxCost      AS DECIMAL
-    FIELD xxCommPct   AS DECIMAL
+    FIELD zzAmtPaid   AS DECIMAL
+    FIELD zzAmtD      AS DECIMAL
+    FIELD zzCost      AS DECIMAL
+    FIELD zzCommPct   AS DECIMAL
     FIELD rec-id      AS RECID
     FIELD row-id      AS ROWID
         INDEX sortBy IS PRIMARY rowType salesRep custNo invoiceNo invDate

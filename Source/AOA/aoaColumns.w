@@ -570,6 +570,9 @@ END.
 ON "ENTRY":U OF ttColumn.isActive
 DO:
     IF ttColumn.ttField BEGINS "xx" THEN DO:
+        MESSAGE
+            "Column" ttColumn.ttField "is not Selectable."
+        VIEW-AS ALERT-BOX.
         APPLY "TAB":U TO ttColumn.isActive IN BROWSE ttColumn.
         RETURN NO-APPLY.
     END. /* if xx */

@@ -114,10 +114,24 @@ DEFINE VARIABLE giFGRecpt           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glAverageCost       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcPoBeforeChange    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Settings*/
 
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
+RUN methods/prgsecur.p
+	    (INPUT "FGUnOvAllow",
+	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1300,7 +1314,7 @@ DO:
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
         /*IF SELF:MODIFIED THEN*/ 
-        IF adm-new-record OR adm-adding-record THEN
+        IF (adm-new-record OR adm-adding-record) AND fg-rctd.job-no:SCREEN-VALUE EQ "" THEN
             RUN get-def-values.
         IF fg-rctd.partial:SCREEN-VALUE  EQ ? 
             OR fg-rctd.partial:SCREEN-VALUE  EQ "?" THEN
@@ -3174,7 +3188,7 @@ PROCEDURE new-job-no :
 
                     RUN get-def-values.
                     IF NOT lUpdateRecords THEN
-                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE) .
+                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,job-hdr.job-no,job-hdr.job-no2) .
                       
                     LEAVE.
                 END.
@@ -3523,7 +3537,8 @@ PROCEDURE pGetUnitCountFromJob :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
-    
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO .
     DEFINE BUFFER bf-itemfg FOR itemfg .
 
       DO WITH FRAME {&FRAME-NAME}: 
@@ -3531,7 +3546,9 @@ PROCEDURE pGetUnitCountFromJob :
           FIND FIRST oe-ordl NO-LOCK
               WHERE oe-ordl.company EQ cocode
               AND oe-ordl.ord-no  EQ ipiOrder
-              AND oe-ordl.i-no    EQ ipcFGItem NO-ERROR.
+              AND oe-ordl.i-no    EQ ipcFGItem
+              AND oe-ordl.job-no  EQ ipcJobNo
+              AND oe-ordl.job-no2 EQ ipiJobNo2 NO-ERROR.
           IF AVAIL oe-ordl THEN
               fg-rctd.qty-case:SCREEN-VALUE = string(oe-ordl.cas-cnt) .
           ELSE do:
@@ -4208,7 +4225,7 @@ PROCEDURE valid-porec-qty :
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
-
+    IF lAllowUserOverRun THEN ASSIGN giFGUnderOver = 0 .
     IF glFGUnderOver 
     AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
     AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  

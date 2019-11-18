@@ -2133,12 +2133,38 @@ PROCEDURE ipConvertVendorCosts:
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hCommonProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
     ASSIGN
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
     
+        IF NOT VALID-HANDLE(hSession) THEN DO:
+            RUN system/session.p PERSISTENT SET hSession.
+            SESSION:ADD-SUPER-PROCEDURE (hSession).
+        END. 
+        IF NOT VALID-HANDLE(hTags) THEN DO: 
+            RUN system/TagProcs.p PERSISTENT SET hTags.
+            SESSION:ADD-SUPER-PROCEDURE (hTags).
+        END.
+        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
+            RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
+        END.
+        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
+            RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
+        END.
+        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
+            RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
+        END.
+
     RUN util/dev/VendorCostConvProcs PERSISTENT SET hVendCostProcs.
     FOR EACH company NO-LOCK:
         RUN ConvertLegacyToNew IN hVendCostProcs (company.company,
@@ -3721,6 +3747,10 @@ PROCEDURE ipLoadAPIData:
             {&tablename}.endPoint = tt{&tablename}.endPoint
             {&tablename}.userName = tt{&tablename}.userName
             {&tablename}.password = tt{&tablename}.password.
+        ELSE ASSIGN
+            {&tablename}.endPoint = ""
+            {&tablename}.userName = ""
+            {&tablename}.password = "".
     END.
     INPUT CLOSE.
         
@@ -4994,6 +5024,29 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 4
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
+    IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipArchiveFiles.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 10
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
+    END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 10
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+    
+    IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipExpandFiles.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 20
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
+    END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 20
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
+
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -5033,28 +5086,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 2
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipArchiveFiles.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 10
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 10
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-    
-    IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipExpandFiles.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 20
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 20
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-
     IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipRefTableConv.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -5069,10 +5100,9 @@ PROCEDURE ipProcessAll :
     IF tbUpdateIni:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateTTIniFile.
         RUN ipWriteIniFile.
-        IF lSuccess EQ TRUE THEN ASSIGN 
+        ASSIGN 
             iopiStatus = iopiStatus + 5
             rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
     END.
     ELSE ASSIGN 
         iopiStatus = iopiStatus + 5
@@ -5960,6 +5990,9 @@ PROCEDURE ipUpdateTTIniFile :
 
     FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
     ASSIGN ENTRY(iListEntry,ttIniFile.cVarValue) = fiToVer:{&SV}.
+    
+    ASSIGN
+        lSuccess = TRUE.
     
 END PROCEDURE.
 

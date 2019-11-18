@@ -67,6 +67,8 @@ DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
 
+DEFINE BUFFER bf-shipto FOR shipto .
+
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
@@ -215,6 +217,22 @@ find first company where company.company eq cocode no-lock no-error.
          END.
       END.
       lv-due-date = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE oe-ord.due-date.
+
+      RUN oe/custxship.p (oe-ord.company,
+                        oe-ord.cust-no,
+                        oe-ord.ship-id,
+                        BUFFER bf-shipto).
+      IF AVAIL bf-shipto AND bf-shipto.broker then DO:
+       ASSIGN
+          lv-comp-name = oe-ord.sold-name
+          v-comp-add1 = oe-ord.sold-addr[1]
+          v-comp-add2 = oe-ord.sold-addr[2]
+          v-comp-add3 =  oe-ord.sold-city + ", " + oe-ord.sold-state + "  " + oe-ord.sold-zip
+          v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999")
+          v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
+          lv-email    = "Email:  " + cust.email  .
+
+      END.
       /*
       format header
           "ACKNOWLEDGEMENT" at 62 skip

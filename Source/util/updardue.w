@@ -352,10 +352,8 @@ PROCEDURE runProcess :
         
       IF dInvAmt EQ ? THEN dInvAmt = 0.
       
-      IF ABS(dInvAmt) GT ABS(ar-inv.paid) 
-         AND ABS(tot-paid) GE ABS(dInvAmt) 
-         AND ABS(dInvamt) - ABS(tot-paid) NE ABS(ar-inv.due) 
-         AND ABS(dInvamt) - ABS(tot-paid) GT 0 THEN DO:
+      IF ABS(dInvamt) - ABS(tot-paid) NE ABS(ar-inv.due) 
+         AND ABS(dInvamt) - ABS(tot-paid) GE 0 THEN DO:
         
            CREATE ttSelected.
            ASSIGN
