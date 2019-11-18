@@ -111,7 +111,7 @@ DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -125,14 +125,14 @@ DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1.24
-         SIZE 60 BY 1.91
+         SIZE 50 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 1
-         SIZE 88 BY 1.91
+         SIZE 89 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME FRAME-D
@@ -325,14 +325,14 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.48 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
+       /* Size in UIB:   ( 1.14 , 32.00 )*/
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 17.40 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 24.50 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -349,7 +349,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 25.40 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 32.40 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -372,12 +372,20 @@ PROCEDURE adm-create-objects :
              h_options , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (                  
              INPUT  'viewers/movecol.w':U ,                     /*Task# 01071407*/
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_movecol2 ).
-       RUN set-position IN h_movecol2 ( 1.00 , 1.80 ) NO-ERROR.
+       RUN set-position IN h_movecol2 ( 1.00 , 8.90 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -385,7 +393,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 9.60 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 16.80 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -398,6 +406,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+         /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartViewer h_movecol2. */
        RUN add-link IN adm-broker-hdl ( h_item , 'move-columns':U , h_movecol2 ).
@@ -822,6 +833,22 @@ PROCEDURE enable_UI :
   VIEW FRAME FRAME-D IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-D}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impItemFold.p .
+ RUN local-open-query IN h_item .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
