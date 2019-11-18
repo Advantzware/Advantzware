@@ -114,10 +114,24 @@ DEFINE VARIABLE giFGRecpt           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glAverageCost       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcPoBeforeChange    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Settings*/
 
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
+RUN methods/prgsecur.p
+	    (INPUT "FGUnOvAllow",
+	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4211,7 +4225,7 @@ PROCEDURE valid-porec-qty :
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
-
+    IF lAllowUserOverRun THEN ASSIGN giFGUnderOver = 0 .
     IF glFGUnderOver 
     AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
     AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
