@@ -161,7 +161,6 @@ ll-sort-asc = NO /*oeinq*/.
     IF lv-sort-by EQ 'i-name'    THEN oe-ordl.i-name ELSE ~
     IF lv-sort-by EQ 'part-no'   THEN oe-ordl.part-no ELSE ~
     IF lv-sort-by EQ 'po-no'     THEN oe-ordl.po-no ELSE ~
-    IF lv-sort-by EQ 'lot-no'    THEN oe-ordl.lot-no ELSE ~
     IF lv-sort-by EQ 'est-no'    THEN oe-ordl.est-no ELSE ~
     IF lv-sort-by EQ 'job-no'    THEN STRING(oe-ordl.job-no,'x(6)') + STRING(oe-ordl.job-no2,'99')ELSE ~
     IF lv-sort-by EQ 'cad-no'    THEN itemfg.cad-no ELSE ~
@@ -208,7 +207,7 @@ ll-initial = browser-log.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
 getRS() @ lc-rs getMI() @ lc-mi getstat() @ cstatus oe-ord.ord-date oe-ordl.req-date ~
-oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.lot-no ~
+oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no ~
 oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
 get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-xfer-qty () @ ld-xfer-qty ~
 oe-ordl.inv-qty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
@@ -490,7 +489,6 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.i-no
       oe-ordl.part-no
       oe-ordl.po-no
-      oe-ordl.lot-no
       oe-ordl.est-no
       oe-ordl.job-no
       oe-ordl.job-no2
@@ -527,7 +525,6 @@ DEFINE BROWSE Browser-Table
       oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.lot-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 12
@@ -748,58 +745,56 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-ordl.po-no
 "oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.oe-ordl.lot-no
-"oe-ordl.lot-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.oe-ordl.est-no
+     _FldNameList[12]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.oe-ordl.job-no
+     _FldNameList[13]   > ASI.oe-ordl.job-no
 "oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.oe-ordl.job-no2
+     _FldNameList[14]   > ASI.oe-ordl.job-no2
 "oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.itemfg.cad-no
+     _FldNameList[15]   > ASI.itemfg.cad-no
 "itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.oe-ordl.qty
+     _FldNameList[16]   > ASI.oe-ordl.qty
 "oe-ordl.qty" "Ordered Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > "_<CALC>"
+     _FldNameList[17]   > "_<CALC>"
 "get-prod(li-bal) @ li-prod" "Prod. Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.oe-ordl.ship-qty
+     _FldNameList[18]   > ASI.oe-ordl.ship-qty
 "oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > "_<CALC>"
+     _FldNameList[19]   > "_<CALC>"
 "get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.oe-ordl.inv-qty
+     _FldNameList[20]   > ASI.oe-ordl.inv-qty
 "oe-ordl.inv-qty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > "_<CALC>"
+     _FldNameList[21]   > "_<CALC>"
 "get-bal(li-qoh) @ li-bal" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > "_<CALC>"
+     _FldNameList[22]   > "_<CALC>"
 "get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > "_<CALC>"
+     _FldNameList[23]   > "_<CALC>"
 "get-wip() @ li-wip" "Production!Balance" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > "_<CALC>"
+     _FldNameList[24]   > "_<CALC>"
 "get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > "_<CALC>"
+     _FldNameList[25]   > "_<CALC>"
 "get-fgitem() @ lc-fgitem" "FG Item#" "x(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.oe-ordl.i-name
+     _FldNameList[26]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.oe-ordl.line
+     _FldNameList[27]   > ASI.oe-ordl.line
 "oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > ASI.oe-ordl.po-no-po
+     _FldNameList[28]   > ASI.oe-ordl.po-no-po
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[30]   = ASI.oe-ordl.e-num
-     _FldNameList[31]   > ASI.oe-ordl.whsed
+     _FldNameList[29]   = ASI.oe-ordl.e-num
+     _FldNameList[30]   > ASI.oe-ordl.whsed
 "oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > "_<CALC>"
+     _FldNameList[31]   > "_<CALC>"
 "get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > "_<CALC>"
+     _FldNameList[32]   > "_<CALC>"
 "getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > "_<CALC>"
+     _FldNameList[33]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > ASI.oe-ordl.s-man[1]
+     _FldNameList[34]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > "_<CALC>"
+     _FldNameList[35]   > "_<CALC>"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[37]   > ASI.oe-ordl.managed
+     _FldNameList[36]   > ASI.oe-ordl.managed
 "oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-_FldNameList[38]   > "_<CALC>"
+_FldNameList[37]   > "_<CALC>"
 "fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder" "Prev Order" ">>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
