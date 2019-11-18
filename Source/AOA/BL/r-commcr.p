@@ -189,10 +189,10 @@ FOR EACH ar-inv NO-LOCK
             ttCommissionCashReceipt.invoiceNo  = ar-inv.inv-no
             ttCommissionCashReceipt.invQty     = ar-invl.inv-qty * dSalesPct / 100
             ttCommissionCashReceipt.invAmt     = dAmt * dInvPct * dSalesPct / 100
-            ttCommissionCashReceipt.xxAmtD     = dAmtD * dInvPct * dSalesPct / 100
-            ttCommissionCashReceipt.xxAmtPaid  = dAmtPaid * dInvPct * dSalesPct / 100
-            ttCommissionCashReceipt.delta      = ttCommissionCashReceipt.invAmt - ttCommissionCashReceipt.xxAmtD
-            ttCommissionCashReceipt.xxCost     = ar-invl.t-cost * dSalesPct / 100
+            ttCommissionCashReceipt.zzAmtD     = dAmtD * dInvPct * dSalesPct / 100
+            ttCommissionCashReceipt.zzAmtPaid  = dAmtPaid * dInvPct * dSalesPct / 100
+            ttCommissionCashReceipt.delta      = ttCommissionCashReceipt.invAmt - ttCommissionCashReceipt.zzAmtD
+            ttCommissionCashReceipt.zzCost     = ar-invl.t-cost * dSalesPct / 100
             ttCommissionCashReceipt.commission = IF ar-invl.sman[idx] EQ "" AND AVAIL sman
                                                  THEN sman.scomm ELSE ar-invl.s-comm[idx]
             ttCommissionCashReceipt.cashDate   = dtDate
@@ -259,16 +259,16 @@ FOR EACH ttCommissionCashReceipt,
       OUTPUT cCommBasis
       ).
 
-  IF ttCommissionCashReceipt.xxCost EQ ? THEN ttCommissionCashReceipt.xxCost = 0.
+  IF ttCommissionCashReceipt.zzCost EQ ? THEN ttCommissionCashReceipt.zzCost = 0.
   IF ttCommissionCashReceipt.commission EQ ? THEN ttCommissionCashReceipt.commission = 0.
   
-  ttCommissionCashReceipt.xxCommPct = 0.
+  ttCommissionCashReceipt.zzCommPct = 0.
   
   ASSIGN
-      dProfit = ttCommissionCashReceipt.invAmt - ttCommissionCashReceipt.xxCost
+      dProfit = ttCommissionCashReceipt.invAmt - ttCommissionCashReceipt.zzCost
       ttCommissionCashReceipt.commAmt     = IF cCommBasis EQ "G" THEN (dProfit * ttCommissionCashReceipt.commission / 100)
                                             ELSE (ttCommissionCashReceipt.invAmt * (ttCommissionCashReceipt.commission / 100))
-      ttCommissionCashReceipt.xxCommPct   = ttCommissionCashReceipt.commission
+      ttCommissionCashReceipt.zzCommPct   = ttCommissionCashReceipt.commission
       ttCommissionCashReceipt.grossProfit = ROUND(dProfit / ttCommissionCashReceipt.invAmt * 100,2)
       ttCommissionCashReceipt.commAmt     = ROUND(ttCommissionCashReceipt.commAmt,2)
       ttCommissionCashReceipt.invDate     = ar-inv.inv-date
@@ -282,7 +282,7 @@ FOR EACH ttCommissionCashReceipt,
 
   IF lCalc AND ttCommissionCashReceipt.delta GT 0 THEN ttCommissionCashReceipt.commAmt = 0.
 
-  IF ttCommissionCashReceipt.xxCommPct EQ ? THEN ttCommissionCashReceipt.xxCommPct = 0.
+  IF ttCommissionCashReceipt.zzCommPct EQ ? THEN ttCommissionCashReceipt.zzCommPct = 0.
   IF ttCommissionCashReceipt.grossProfit EQ ? THEN ttCommissionCashReceipt.grossProfit = 0.
 
   {sys/inc/roundup.i ttCommissionCashReceipt.invQty}
