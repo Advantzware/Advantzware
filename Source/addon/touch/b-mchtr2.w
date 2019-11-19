@@ -436,9 +436,9 @@ FOR EACH machtran WHERE machtran.company = company_code AND
     BUFFER-COPY machtran TO tt-tran.
     ASSIGN lv-run-total    = lv-run-total + machtran.run_qty
            tt-tran.rec-id  = RECID(machtran)
-           tt-tran.startx  = DYNAMIC-FUNCTION('sfTimeDisplay', machtran.start_time, YES, NO)
-           tt-tran.endx    = DYNAMIC-FUNCTION('sfTimeDisplay', machtran.end_time, YES, NO)
-           tt-tran.totalx  = DYNAMIC-FUNCTION('sfTimeDisplay', machtran.total_time, NO, NO)
+           tt-tran.startx  = DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machtran.start_time, YES, NO)
+           tt-tran.endx    = DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machtran.end_time, YES, NO)
+           tt-tran.totalx  = DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machtran.total_time, NO, NO)
            tt-tran.tot-run = lv-run-total
            .
 END.

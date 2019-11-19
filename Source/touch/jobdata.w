@@ -517,7 +517,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
             &minute="time-minute"
             &ampm="btn_ampm"
         }
-        Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO.
+        Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO.
     END.
   
 END PROCEDURE.
@@ -921,12 +921,12 @@ PROCEDURE Init_Job :
         &ampm="btn_ampm"
     }
     ASSIGN
-      Btn_AMPM:HIDDEN          = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
-      run-qty:HIDDEN           = FALSE
-      run-qty:SCREEN-VALUE     = ''
-      waste-qty:SCREEN-VALUE   = ''
-      waste-qty:HIDDEN         = FALSE
-      v-completed:HIDDEN       = FALSE
+      Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
+      run-qty:HIDDEN = FALSE
+      run-qty:SCREEN-VALUE = ''
+      waste-qty:SCREEN-VALUE = ''
+      waste-qty:HIDDEN = FALSE
+      v-completed:HIDDEN = FALSE
       v-completed:SCREEN-VALUE = IF  v-tsfinish-char-val EQ "All Machines" THEN "YES"
                             ELSE IF  v-tsfinish-char-val EQ "YES"          THEN "YES"
                             ELSE IF (v-tsfinish-char-val EQ "Last Machine"
@@ -968,7 +968,7 @@ PROCEDURE Init_Job :
       ASSIGN btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
              btn_minute:SENSITIVE = NO
              btn_ampm:SENSITIVE = NO
-             Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+             Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
              .              
       RUN pSetSensitive ("ResetTime",NO).
       RUN pSetSensitive ("SetTime",NO).
@@ -1690,7 +1690,7 @@ PROCEDURE Job_Data_Collection_2 :
                 WHERE job-mch.company EQ company_code
                   AND job-mch.job-no  EQ job_number
                   AND job-mch.job-no2 EQ INTEGER(job_sub)
-                  AND job-mch.frm     EQ integer(form_number)
+                  AND job-mch.frm     EQ integer(form_number)                                 
                 USE-INDEX line-idx NO-ERROR.
             IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
                 IF LOOKUP(machine_code,tspostfg-char) GT 0 AND tspostfg-int EQ 1 THEN DO:
@@ -1841,7 +1841,7 @@ PROCEDURE local-view :
   ASSIGN
     v-time-clock-off = NO
     timerStatus:SCREEN-VALUE = setTimerStatus(NO)
-    Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+    Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
     .
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
 
@@ -1890,7 +1890,7 @@ PROCEDURE pClick :
                 &minute="time-minute"
                 &ampm="btn_ampm"
             }
-            Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO.
+            Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO.
         END.
         WHEN "SetTime" THEN DO:
             {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
@@ -1919,7 +1919,7 @@ PROCEDURE pClick :
                   &ampm="btn_ampm"
               }
               ASSIGN
-                  Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+                  Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
                   ampm = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
                   lv-timer = INT(time-hour:SCREEN-VALUE) * 3600
                            + INT(time-minute:SCREEN-VALUE) * 60
@@ -1931,8 +1931,8 @@ PROCEDURE pClick :
         END.
         WHEN "AcceptEntry" THEN DO:          
             ASSIGN
-               iHourMax = DYNAMIC-FUNCTION("sfHourMax")
-               iHourMin = DYNAMIC-FUNCTION("sfHourMin")
+               iHourMax = DYNAMIC-FUNCTION("sfCommon_HourMax")
+               iHourMin = DYNAMIC-FUNCTION("sfCommon_HourMin")
                time-hour time-minute run-qty waste-qty
                v-time-hour = time-hour
                v-today = TODAY
@@ -1962,7 +1962,7 @@ PROCEDURE pClick :
           
             ASSIGN
                 ampm        = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-                v-time-hour = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN     0 ELSE v-time-hour
+                v-time-hour = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN 0 ELSE v-time-hour
                 .          
             /* check machine's running. If yes, don't create new transaction. End it first */
             {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}

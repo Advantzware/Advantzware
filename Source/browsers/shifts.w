@@ -71,8 +71,8 @@ ASSIGN cocode = g_company
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table shifts.shift ~
 shifts.description ~
-DYNAMIC-FUNCTION('sfTimeDisplay', shifts.start_time, YES, YES) @ shifts_start_time ~
-DYNAMIC-FUNCTION('sfTimeDisplay', shifts.end_time, YES, YES) @ shifts_end_time 
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', shifts.start_time, YES, YES) @ shifts_start_time ~
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', shifts.end_time, YES, YES) @ shifts_end_time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH shifts WHERE TRUE /* Join to company incomplete */ ~
       AND shifts.company = gcompany ~
@@ -146,9 +146,9 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       shifts.shift FORMAT "xx":U LABEL-BGCOLOR 14
       shifts.description FORMAT "x(20)":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', shifts.start_time, YES, YES) @ shifts_start_time COLUMN-LABEL "Start Time" FORMAT "X(12)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', shifts.start_time, YES, YES) @ shifts_start_time COLUMN-LABEL "Start Time" FORMAT "X(12)":U
             WIDTH 15.6
-      DYNAMIC-FUNCTION('sfTimeDisplay', shifts.end_time, YES, YES) @ shifts_end_time COLUMN-LABEL "End Time" FORMAT "X(12)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', shifts.end_time, YES, YES) @ shifts_end_time COLUMN-LABEL "End Time" FORMAT "X(12)":U
             WIDTH 15.6
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -263,9 +263,9 @@ AND ~{&KEY-PHRASE}"
      _FldNameList[2]   > shifts.description
 "shifts.description" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
-"DYNAMIC-FUNCTION('sfTimeDisplay', shifts.start_time, YES, YES) @ shifts_start_time" "Start Time" "X(12)" ? ? ? ? ? ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', shifts.start_time, YES, YES) @ shifts_start_time" "Start Time" "X(12)" ? ? ? ? ? ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"DYNAMIC-FUNCTION('sfTimeDisplay', shifts.end_time, YES, YES) @ shifts_end_time" "End Time" "X(12)" ? ? ? ? ? ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', shifts.end_time, YES, YES) @ shifts_end_time" "End Time" "X(12)" ? ? ? ? ? ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

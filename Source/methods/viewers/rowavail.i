@@ -14,13 +14,13 @@ END.
 
 &IF DEFINED(TIME-FIELDS) NE 0 &THEN
 ASSIGN
-    start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfHideAMPM")
-    end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfHideAMPM")
+    start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+    end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
     .
 &IF INDEX("{&TIME-FIELDS}","lunch_") NE 0 &THEN
 ASSIGN
-    lunch_start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfHideAMPM")
-    lunch_end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfHideAMPM")
+    lunch_start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+    lunch_end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
     .
 &ENDIF
 &ENDIF
