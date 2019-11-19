@@ -79,6 +79,9 @@ def var v-bol-qty like oe-boll.qty.
 def var temp-tax as dec init 0 no-undo.
 def var v-hold-list as CHAR NO-UNDO.
 DEF VAR v-invalid AS LOG NO-UNDO.
+DEFINE VARIABLE lAllowUserMultRelease AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList           AS CHARACTER NO-UNDO.
 
 DEF STREAM s-temp.
 
@@ -104,6 +107,16 @@ DEF VAR  v-chkflg AS LOG NO-UNDO.
 {sys/ref/relpost.i}
 
 {sys/inc/relcrhold.i}
+
+RUN methods/prgsecur.p
+ 	    (INPUT "MultReleaseAllow",
+ 	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+ 	     INPUT NO,    /* use the directory in addition to the program */
+ 	     INPUT NO,    /* Show a message if not authorized */
+ 	     INPUT NO,    /* Group overrides user security? */
+ 	     OUTPUT lAllowUserMultRelease, /* Allowed? Yes/NO */
+ 	     OUTPUT lAccessClose, /* used in template/windows.i  */
+ 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -877,6 +890,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       IF lv-last-assigned NE "YES" THEN DO:
          RUN disable-multi-release.
       END.
+  END.
+  IF NOT lAllowUserMultRelease THEN do: 
+      ASSIGN tgMultipleReleases:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No" 
+          tgMultipleReleases:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+      RUN disable-multi-release.
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
