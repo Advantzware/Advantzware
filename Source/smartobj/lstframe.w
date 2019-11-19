@@ -43,6 +43,8 @@ DEFINE VARIABLE progname AS CHARACTER NO-UNDO.
 DEFINE VARIABLE output-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE spooled AS LOGICAL NO-UNDO.
 DEFINE VARIABLE quick-print AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE.
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -632,10 +634,14 @@ PROCEDURE Output-to-Screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lFolderCreated AS LOGICAL NO-UNDO .
   {methods/run_link.i "CONTAINER-SOURCE" "Output-Name" "(OUTPUT output-name)"}
   output-name = "users~/" + USERID("NOSWEAT") + "~/" + output-name.
   IF NOT VALID-HANDLE(adm-broker-hdl) THEN
   output-name = "users~/" + USERID("NOSWEAT") + "~/Program Master List.rpt".
+
+  RUN pCreateFolder IN hdFileSysProcs ("users~/" + USERID("NOSWEAT") , OUTPUT lFolderCreated ).
+
   OUTPUT TO VALUE(output-name).
   OUTPUT CLOSE.
   RUN Process-Selections.

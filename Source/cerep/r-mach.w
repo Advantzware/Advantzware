@@ -48,8 +48,8 @@ def new shared var head as ch format "x(78)" extent 4.
 
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
-
-
+DEFINE VARIABLE hdFileSysProcs AS HANDLE.
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /* gdm - 10130802 */
 DEF STREAM excel.
 
@@ -780,6 +780,7 @@ DEF VAR v_numlw    AS CHAR NO-UNDO.
 DEF VAR v_col-pass AS CHAR NO-UNDO.
 DEF VAR v_coater   AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE lFolderCreated AS LOGICAL NO-UNDO .
 
 head[1] =
 " =============================  R  A  T  E  S  =============================  "
@@ -875,6 +876,8 @@ tdep     = end_dept
 sho-stds = tb_show-stds.
 
     {sys/inc/print1.i}
+
+    RUN pCreateFolder IN hdFileSysProcs (tmp-dir , OUTPUT lFolderCreated ).
 
     {sys/inc/outprint.i value(lines-per-page)}
 
