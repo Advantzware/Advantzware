@@ -202,6 +202,49 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_ValidateValueByDataType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_ValidateValueByDataType Procedure
+PROCEDURE spCommon_ValidateValueByDataType:
+/*------------------------------------------------------------------------------
+     Purpose: Validate if a given value can be converted to given data type.
+              Returns error in case of failure
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipcValue    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDataType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid    AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE dDecimalValidator AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE daDateValidator   AS DATE    NO-UNDO.
+
+    CASE ipcDataType:
+        WHEN "DECIMAL" OR
+        WHEN "INTEGER" THEN DO:
+            dDecimalValidator = DECIMAL(ipcValue) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                oplValid = FALSE.
+                RETURN.
+            END.
+        END.
+        WHEN "DATE" THEN DO:
+            daDateValidator = DATE(ipcValue) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                oplValid = FALSE.
+                RETURN.
+            END.
+        END.
+    END CASE.
+    oplValid = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
