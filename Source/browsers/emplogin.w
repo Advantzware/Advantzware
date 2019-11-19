@@ -75,9 +75,9 @@ DEFINE QUERY external_tables FOR employee.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emplogin.start_date ~
-DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.start_time, YES, YES) @ start-time emplogin.machine ~
-emplogin.end_date DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.end_time, YES, YES) @ end-time ~
-emplogin.shift DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.total_time, NO, YES) @ total-time 
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.start_time, YES, YES) @ start-time emplogin.machine ~
+emplogin.end_date DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.end_time, YES, YES) @ end-time ~
+emplogin.shift DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.total_time, NO, YES) @ total-time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH emplogin OF employee WHERE ~{&KEY-PHRASE} ~
       AND ~{&KEY-PHRASE} NO-LOCK ~
@@ -153,12 +153,12 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       emplogin.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.start_time, YES, YES) @ start-time COLUMN-LABEL "Logged In" FORMAT "X(11)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.start_time, YES, YES) @ start-time COLUMN-LABEL "Logged In" FORMAT "X(11)":U
       emplogin.machine FORMAT "x(6)":U LABEL-BGCOLOR 14
       emplogin.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.end_time, YES, YES) @ end-time COLUMN-LABEL "Logged Out" FORMAT "X(11)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.end_time, YES, YES) @ end-time COLUMN-LABEL "Logged Out" FORMAT "X(11)":U
       emplogin.shift FORMAT "XX":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', emplogin.total_time, NO, YES) @ total-time COLUMN-LABEL "Total" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.total_time, NO, YES) @ total-time COLUMN-LABEL "Total" FORMAT "X(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 98 BY 16.19
@@ -270,17 +270,17 @@ ASSIGN
      _FldNameList[1]   > emplogin.start_date
 "emplogin.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
-"DYNAMIC-FUNCTION(~"sfTimeDisplay~", emplogin.start_time, YES, YES) @ start-time" "Logged In" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION(~"sfCommon_TimeDisplay~", emplogin.start_time, YES, YES) @ start-time" "Logged In" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > emplogin.machine
 "emplogin.machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > emplogin.end_date
 "emplogin.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"DYNAMIC-FUNCTION(~"sfTimeDisplay~", emplogin.end_time, YES, YES) @ end-time" "Logged Out" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION(~"sfCommon_TimeDisplay~", emplogin.end_time, YES, YES) @ end-time" "Logged Out" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > emplogin.shift
 "emplogin.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"DYNAMIC-FUNCTION(~"sfTimeDisplay~", emplogin.total_time, NO, YES) @ total-time" "Total" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION(~"sfCommon_TimeDisplay~", emplogin.total_time, NO, YES) @ total-time" "Total" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

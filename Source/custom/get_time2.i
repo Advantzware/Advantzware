@@ -1,7 +1,7 @@
 /* get_time2.i */
 
 DO WITH FRAME {&FRAME-NAME}:
-    RUN spParseTime (
+    RUN spCommon_ParseTime (
         {&field},
         {&hour}:HANDLE,
         {&minute}:HANDLE,

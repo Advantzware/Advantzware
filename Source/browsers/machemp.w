@@ -81,9 +81,9 @@ DEFINE QUERY external_tables FOR machtran.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table machemp.employee ~
 Employee-Name(machtran.company,machemp.employee) @ employee-name ~
-machemp.start_date DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time ~
-machemp.end_date DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time machemp.shift ~
-DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time machemp.ratetype ~
+machemp.start_date DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time ~
+machemp.end_date DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time machemp.shift ~
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time machemp.ratetype ~
 Get_Rate(machemp.rate) @ rate machemp.posted 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machemp WHERE TRUE /* Join to machtran incomplete */ ~
@@ -184,13 +184,13 @@ DEFINE BROWSE Browser-Table
       Employee-Name(machtran.company,machemp.employee) @ employee-name COLUMN-LABEL "Name" FORMAT "X(14)":U
             LABEL-BGCOLOR 14
       machemp.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
             LABEL-BGCOLOR 14
       machemp.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
             LABEL-BGCOLOR 14
       machemp.shift FORMAT "XX":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
             LABEL-BGCOLOR 14
       machemp.ratetype FORMAT "X(12)":U LABEL-BGCOLOR 14
       Get_Rate(machemp.rate) @ rate COLUMN-LABEL "Rate" FORMAT ">>>>9.99<<<":U
@@ -314,15 +314,15 @@ ASSIGN
      _FldNameList[3]   > machemp.start_date
 "machemp.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time" "Started" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time" "Started" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > machemp.end_date
 "machemp.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time" "Ended" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time" "Ended" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > machemp.shift
 "machemp.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > machemp.ratetype
 "machemp.ratetype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
