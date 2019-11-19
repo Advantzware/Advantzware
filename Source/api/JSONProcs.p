@@ -184,6 +184,43 @@ PROCEDURE JSON_GetRecordCountByNameAndParent:
     RELEASE bf-ttRequest.    
 END PROCEDURE.
 
+PROCEDURE JSON_UpdateFieldValue:
+    DEFINE INPUT-OUTPUT PARAMETER ioplcJSONData AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcField      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcValue      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFieldValuePrefix AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldValueSuffix AS CHARACTER NO-UNDO.        
+    
+    ASSIGN
+        cFieldValuePrefix = "$"
+        cFieldValueSuffix = "$"
+        .
+        
+    RUN JSON_EscapeExceptionalCharacters (
+        INPUT-OUTPUT ipcValue
+        ).  
+    
+    ioplcJSONData = REPLACE(ioplcJSONData, cFieldValuePrefix + ipcField + cFieldValueSuffix, ipcValue).
+    
+END PROCEDURE. 
+
+PROCEDURE JSON_EscapeExceptionalCharacters:
+    DEFINE INPUT-OUTPUT PARAMETER ipcFieldValue AS CHARACTER NO-UNDO.
+    
+    IF ipcFieldValue EQ ? THEN
+        ipcFieldValue = "".
+    
+    /* This will add an escape character (\) before any JSON exceptional 
+       characters (double quote and backward slash) so JSON parsing won't 
+       throw error */
+    ASSIGN
+        ipcFieldValue = REPLACE(ipcFieldValue, '\','\\')
+        ipcFieldValue = REPLACE(ipcFieldValue, '/','\/')
+        ipcFieldValue = REPLACE(ipcFieldValue, '"','\"')
+        .
+END PROCEDURE. 
+
 FUNCTION fBeautifyJSON RETURNS LONGCHAR
     (iplcJSON AS LONGCHAR):
     DEFINE VARIABLE cIndentation      AS CHARACTER   NO-UNDO.
