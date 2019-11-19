@@ -41,6 +41,10 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 
  DEFINE VARIABLE lCheckBinMessage AS LOGICAL NO-UNDO .
+
+ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+  RUN util/Validate.p PERSISTENT SET hdValidator.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -826,33 +830,17 @@ PROCEDURE valid-default-bin :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplRetrunError AS LOGICAL    NO-UNDO.
-  DEF VAR lFound AS LOG NO-UNDO. 
-
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO. 
+  DEFINE VARIABLE cValidMessage AS CHARACTER NO-UNDO .
+ 
 DO WITH FRAME {&frame-name}:
-  FIND FIRST fg-bin NO-LOCK WHERE 
-        fg-bin.company EQ g_company AND 
-        fg-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        fg-bin.loc-bin EQ location.defaultBin:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL fg-bin THEN ASSIGN 
-        lFound = TRUE.
-        
-    FIND FIRST rm-bin NO-LOCK WHERE 
-        rm-bin.company EQ g_company AND 
-        rm-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        rm-bin.loc-bin EQ location.defaultBin:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL rm-bin THEN ASSIGN 
-        lFound = TRUE.
-
-    FIND FIRST wip-bin NO-LOCK WHERE 
-        wip-bin.company EQ g_company AND 
-        wip-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        wip-bin.loc-bin EQ location.defaultBin:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL wip-bin THEN ASSIGN 
-        lFound = TRUE.
-        
+    IF location.defaultBin:SCREEN-VALUE NE "" THEN
+        RUN pIsValidFGBinForLoc IN hdValidator (location.defaultBin:SCREEN-VALUE, loc.loc:SCREEN-VALUE, NO, g_company, OUTPUT lFound, OUTPUT cValidMessage).
+    IF lFound AND location.defaultBin:SCREEN-VALUE NE "" THEN 
+        RUN pIsValidRMBinForLoc IN hdValidator (location.defaultBin:SCREEN-VALUE, loc.loc:SCREEN-VALUE, NO, g_company, OUTPUT lFound, OUTPUT cValidMessage).
+    IF lFound AND location.defaultBin:SCREEN-VALUE NE "" THEN 
+        RUN pIsValidWipBinForLoc IN hdValidator (location.defaultBin:SCREEN-VALUE, loc.loc:SCREEN-VALUE, NO, g_company, OUTPUT lFound, OUTPUT cValidMessage).
+    
     IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
         MESSAGE 
             "Do you want to add the new bin?"
