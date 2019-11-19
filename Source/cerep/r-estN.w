@@ -600,7 +600,7 @@ DO:
      run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
 
      if char-val <> "" then do:                 
-            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+         FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
                                 begin_est:SCREEN-VALUE = eb.est-no.
@@ -830,7 +830,7 @@ DO:
      run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
 
      if char-val <> "" then do:                 
-            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+         FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
                                   end_est:SCREEN-VALUE = eb.est-no.
