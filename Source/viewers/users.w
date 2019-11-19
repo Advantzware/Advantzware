@@ -1456,7 +1456,8 @@ PROCEDURE ipChangePassword :
         _User._UserId = users.user_id 
         EXCLUSIVE-LOCK NO-ERROR.
 
-    IF AVAIL (_User) THEN DO:
+    IF AVAIL (_User) 
+    AND cNewPassword NE _User._password THEN DO: /* IF displayed value is already encoded password, don't change */
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
             tempUser._Password = ENCODE(cNewPassword).
@@ -1483,9 +1484,6 @@ PROCEDURE ipChangePassword :
             userPwdHist.updateUser = USERID(LDBNAME(1))
             .
     END.
-    ELSE MESSAGE 
-        "This Userid does not exist"
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
     ASSIGN  
         fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = _user._password
