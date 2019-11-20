@@ -169,7 +169,7 @@
     
     /* Validate BOL ID */
     IF lRecFound THEN DO:
-        RUN Common_ValidateValueByDataType (
+        RUN spCommon_ValidateValueByDataType (
             INPUT  cBOLID,
             INPUT  "INTEGER",
             OUTPUT lValidValue
