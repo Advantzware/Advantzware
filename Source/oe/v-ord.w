@@ -980,7 +980,7 @@ DO:
          WHEN "est-no" THEN DO:
               RUN windows/l-est.w (g_company,g_loc,oe-ord.est-no:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN DO:
-                 FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+                  FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                  IF AVAIL eb THEN DO:
                    oe-ord.est-no:screen-value = eb.est-no.
                    APPLY "value-changed" TO oe-ord.est-no.

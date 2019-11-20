@@ -337,13 +337,13 @@ ASSIGN
      _Where[1]         = "eb.company eq cocode and
 eb.est-no  eq ls-est-no"
      _FldNameList[1]   > asi.eb.form-no
-"eb.form-no" "S#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" ""
+"eb.form-no" "S#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.eb.blank-no
-"eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" ""
+"eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.eb.part-no
-"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "23.2" yes no no "U" "" ""
+"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "23.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.eb.stock-no
-"eb.stock-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" ""
+"eb.stock-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -376,7 +376,7 @@ DO:
       when "ls-est-no" then do:
               run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
               if char-val <> "" then do:                 
-                 FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+                  FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                  IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                   ls-cust-no:screen-value in frame {&frame-name} =  eb.cust-no
                                   ls-est-no:SCREEN-VALUE = eb.est-no

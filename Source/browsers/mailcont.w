@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -316,7 +316,7 @@ DO:
     lv-cont-recid = ?.
     run windows/l-contac.w (output char-val).
     if char-val <> "" then do:
-       find contact where string(recid(contact)) = char-val no-lock no-error.
+       FIND contact NO-LOCK WHERE RECID(contact) = INT(char-val) NO-ERROR.
        if avail contact then 
            assign lv-cont-recid = recid(contact)
                   mailcont.cust-no:screen-value in browse {&browse-name} = contact.cust-no
