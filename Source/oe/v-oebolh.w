@@ -1125,9 +1125,9 @@ FIND FIRST oe-relh WHERE oe-relh.company EQ oe-bolh.company
                      AND oe-relh.release# EQ oe-bolh.release#
                      EXCLUSIVE-LOCK NO-ERROR.
 
-/*if avail oe-relh THEN if v-do-bol then delete oe-relh.
-                      else*/ IF AVAIL oe-relh THEN oe-relh.posted = NO.
 IF AVAIL oe-relh THEN DO:
+    ASSIGN 
+        oe-relh.posted = NO.
     FIND CURRENT oe-relh NO-LOCK.
 END.
 
