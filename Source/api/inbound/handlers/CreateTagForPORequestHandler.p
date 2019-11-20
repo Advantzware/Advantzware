@@ -87,6 +87,10 @@ RUN pProcessInputs (
     OUTPUT lcTags
     ) NO-ERROR.
 
+RUN JSON_EscapeExceptionalCharacters (
+    INPUT-OUTPUT opcMessage
+    ) NO-ERROR. 
+        
 IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN 
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'. 
 ELSE
@@ -268,20 +272,19 @@ PROCEDURE pProcessInputs:
                 OUTPUT opcMessage
                 ).
           
-           ASSIGN
-                oplcResponseData = iplcResponseDataStructure
-                oplcResponseData = REPLACE(oplcResponseData,"$PONo$",STRING(iPONo))
-                oplcResponseData = REPLACE(oplcResponseData,"$POLine$",STRING(iPOLine))
-                oplcResponseData = REPLACE(oplcResponseData,"$Item$",cPrimaryID)
-                oplcResponseData = REPLACE(oplcResponseData,"$InventoryStockID$",cInventoryStockID)
-                oplcResponseData = REPLACE(oplcResponseData,"$ReceiptCreation$",cCreateReceipt)
-                oplcResponseData = REPLACE(oplcResponseData,"$LoadtagFormat$",cLoadtagFormat)
-                oplcResponseData = REPLACE(oplcResponseData,"$TagCopies$",STRING(iTagCopies))
-                oplcTags         = IF oplcTags EQ "" THEN
-                                       oplcResponseData 
-                                   ELSE 
-                                       oplcTags + "," + oplcResponseData
-                                       .
+           oplcResponseData = iplcResponseDataStructure.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "PONo", STRING(iPONo)) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "POLine", STRING(iPOLine)) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "Item", cPrimaryID) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "InventoryStockID", cInventoryStockID) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "ReceiptCreation", cCreateReceipt) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "LoadtagFormat", cLoadtagFormat) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "TagCopies", STRING(iTagCopies)) NO-ERROR.
+           oplcTags = IF oplcTags EQ "" THEN
+                         oplcResponseData 
+                      ELSE 
+                         oplcTags + "," + oplcResponseData
+                      .
      
             IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
                 UNDO, LEAVE.

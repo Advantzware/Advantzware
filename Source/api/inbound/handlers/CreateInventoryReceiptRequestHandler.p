@@ -75,6 +75,10 @@ RUN pProcessInputs (
     OUTPUT opcMessage
     ) NO-ERROR.
 
+RUN JSON_EscapeExceptionalCharacters (
+    INPUT-OUTPUT opcMessage
+    ) NO-ERROR.
+    
 IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.      
 ELSE
