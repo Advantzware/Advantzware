@@ -52,7 +52,7 @@ PROCEDURE ReadRequestData:
         IF ERROR-STATUS:ERROR THEN DO:
             ASSIGN
                 oplSuccess = NO
-                opcMessage = "Bad JSON Request"
+                opcMessage = "Bad JSON Request " + ERROR-STATUS:GET-MESSAGE(1) 
                 .
             LEAVE TEMP-TABLE-BLOCK.
         END.        
@@ -66,8 +66,8 @@ PROCEDURE ReadRequestData:
                 .
  
             FIND FIRST ttRequest
-                 WHERE ttRequest.fieldName   EQ REPLACE(ENTRY(iIndex2, cFieldName, "."),'"','')
-                   AND ttRequest.fieldValue  EQ REPLACE(cFieldString,'"','')
+                 WHERE ttRequest.fieldName   EQ fFormatJSONFieldValue(REPLACE(ENTRY(iIndex2, cFieldName, "."),'"',''))
+                   AND ttRequest.fieldValue  EQ fFormatJSONFieldValue(REPLACE(cFieldString,'"',''))
                    AND ttRequest.fieldParent EQ iParentID
                  NO-ERROR.
             IF AVAILABLE ttRequest THEN DO:
@@ -83,8 +83,9 @@ PROCEDURE ReadRequestData:
                 ttRequest.fieldParent = iParentID
                 ttRequest.fieldName   = ENTRY(iIndex2, cFieldName, ".")
                 ttRequest.fieldValue  = cFieldString
-                ttRequest.fieldName   = REPLACE(ttRequest.fieldName,'"','')
-                ttRequest.fieldValue  = REPLACE(ttRequest.fieldValue,'"','')
+                ttRequest.fieldName   = TRIM(ttRequest.fieldName,'"')
+                ttRequest.fieldValue  = TRIM(ttRequest.fieldValue,'"')
+                ttRequest.fieldName   = fFormatJSONFieldValue(ttRequest.fieldName)
                 ttRequest.fieldValue  = fFormatJSONFieldValue(ttRequest.fieldValue)
                 NO-ERROR.
                                 
@@ -286,7 +287,9 @@ FUNCTION fFormatJSONFieldValue RETURNS CHARACTER PRIVATE
     DEFINE VARIABLE cFieldValue AS CHARACTER NO-UNDO.
     
     ASSIGN
-        cFieldValue = REPLACE(ipcFieldValue,'<comma>',',')
+        cFieldValue = REPLACE(ipcFieldValue,'#comma#',',')
+        cFieldValue = REPLACE(cFieldValue,'#colon#',':')
+        cFieldValue = REPLACE(cFieldValue,'#period#','.')
         .
     
     RETURN cFieldValue.
