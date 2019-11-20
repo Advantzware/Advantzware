@@ -174,13 +174,14 @@ PROCEDURE spCommon_ParseTime:
         jdx   = IF lUserAMPM THEN 12 ELSE 24
         cTime = IF lUserAMPM THEN STRING(ipiTime,"HH:MM:SS AM")
                 ELSE STRING(ipiTime,"HH:MM:SS")
+        cTime = REPLACE(cTime," ","0")
               .    
     IF iphHour:TYPE EQ "COMBO-BOX" THEN DO:
         iphHour:LIST-ITEMS = " ".
         DO kdx = jdx TO idx BY -1:
             iphHour:LIST-ITEMS = iphHour:LIST-ITEMS + STRING(kdx,"99") + ",".
         END. /* do kdx */
-        iphHour:LIST-ITEMS = TRIM(iphHour:LIST-ITEMS,",").
+        iphHour:LIST-ITEMS = LEFT-TRIM(TRIM(iphHour:LIST-ITEMS,",")).
     END. /* if combo-box */
 
     IF VALID-HANDLE(iphHour) THEN
