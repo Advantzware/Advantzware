@@ -178,13 +178,13 @@ DEFINE BROWSE br_table
      tt-tran.job_number
      tt-tran.job_sub NO-LABEL 
      tt-tran.start_date
-     tt-tran.startx LABEL "Log In" FORM "99:99"
+     tt-tran.startx LABEL "Log In" /*FORM "99:99"*/
      tt-tran.end_date
      tt-tran.shift FORM "99"
-     tt-tran.endx LABEL "Log Out" FORM "99:99"
+     tt-tran.endx LABEL "Log Out" /*FORM "99:99"*/
      tt-tran.run_qty
      tt-tran.waste_qty
-     tt-tran.totalx LABEL "Total" FORM "99:99"
+     tt-tran.totalx LABEL "Total" /*FORM "99:99"*/
      tt-tran.completed
      tt-tran.tot-run  LABEL "Total Run"
      ENABLE tt-tran.start_date tt-tran.startx 
@@ -368,27 +368,6 @@ ASSIGN
       tt-tran.end_date:READ-ONLY IN BROWSE {&browse-name} = YES
       tt-tran.endx:READ-ONLY IN BROWSE {&browse-name} = YES.
 
-ON 'leave':U OF tt-tran.startx OR  'leave':U OF tt-tran.endx 
-DO:
-    IF LASTKEY = -1 THEN RETURN.
-
-    IF int(substring(SELF:SCREEN-VALUE,1,2)) < 0 OR
-       INT(substring(SELF:SCREEN-VALUE,1,2)) >= 24 THEN
-    DO:
-        MESSAGE "Invalid Time. " VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
-    END.
-
-    IF int(substring(SELF:SCREEN-VALUE,4,2)) < 0 OR
-       INT(substring(SELF:SCREEN-VALUE,4,2)) >= 60 THEN
-    DO:
-        MESSAGE "Invalid Minute. " VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
-    END.
-
-    RETURN.
-END.
-
 /* ***************************  Main Block  *************************** */
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -455,15 +434,13 @@ FOR EACH machtran WHERE machtran.company = company_code AND
     
     CREATE tt-tran.
     BUFFER-COPY machtran TO tt-tran.
-    ASSIGN lv-run-total = lv-run-total + machtran.run_qty
-           tt-tran.rec-id = RECID(machtran)
-           tt-tran.startx = SUBstring(STRING(machtran.start_time,"hh:mm"),1,2) +
-                            SUBstring(STRING(machtran.start_time,"hh:mm"),4,2)
-           tt-tran.endx = SUBstring(STRING(machtran.end_time,"hh:mm"),1,2) +
-                          SUBstring(STRING(machtran.end_time,"hh:mm"),4,2)
-           tt-tran.totalx = SUBstring(STRING(machtran.total_time,"hh:mm"),1,2) +
-                            SUBstring(STRING(machtran.total_time,"hh:mm"),4,2)
-           tt-tran.tot-run = lv-run-total.
+    ASSIGN lv-run-total    = lv-run-total + machtran.run_qty
+           tt-tran.rec-id  = RECID(machtran)
+           tt-tran.startx  = DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machtran.start_time, YES, NO)
+           tt-tran.endx    = DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machtran.end_time, YES, NO)
+           tt-tran.totalx  = DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machtran.total_time, NO, NO)
+           tt-tran.tot-run = lv-run-total
+           .
 END.
 END PROCEDURE.
 
@@ -567,65 +544,21 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   
-  ASSIGN tt-tran.startx = tt-tran.startx:SCREEN-VALUE IN BROWSE {&browse-name}
-         tt-tran.endx = tt-tran.endx:SCREEN-VALUE
-         tt-tran.start_date = date(tt-tran.start_date:SCREEN-VALUE)
-         tt-tran.end_date = date(tt-tran.end_date:SCREEN-VALUE)
-         tt-tran.completed = LOGICAL(tt-tran.completed:SCREEN-VALUE).
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  /*ASSIGN v-hour = int(SUBSTRING(tt-tran.startx,1,INDEX(tt-tran.startx,":") - 1))
-         v-min = int(SUBSTRING(tt-tran.startx,INDEX(tt-tran.startx,":") + 1,2)).*/
-  ASSIGN v-hour = int(SUBSTRING(tt-tran.startx,1,2))
-         v-min = int(SUBSTRING(tt-tran.startx,3,2))
-         tt-tran.start_time = v-hour * 3600 + v-min * 60
-         v-hour = int(SUBSTRING(tt-tran.endx,1,2))
-         v-min = int(SUBSTRING(tt-tran.endx,3,2))
-         tt-tran.end_time = v-hour * 3600 + v-min * 60.
 
-  IF (machtran.start_time <> tt-tran.start_time) OR
-     (machtran.end_time <> tt-tran.end_time) OR
-     (machtran.start_date <> tt-tran.start_date) OR
-     (machtran.end_date <> tt-tran.end_date) OR
-     machtran.run_qty <> tt-tran.run_qty OR
+  IF machtran.run_qty <> tt-tran.run_qty OR
      machtran.waste_qty <> tt-tran.waste_qty OR
      machtran.completed <> tt-tran.completed
   THEN DO:
       FIND CURRENT machtran EXCLUSIVE-LOCK.
 
-      ASSIGN machtran.start_time = tt-tran.start_time
-             machtran.end_time = tt-tran.end_time
-             machtran.start_date = tt-tran.start_date
-             machtran.end_date = tt-tran.end_date.
-
-      IF machtran.start_date = machtran.end_date THEN
-         machtran.total_time = machtran.end_time - machtran.start_time.
-      ELSE machtran.total_time = (86400 - machtran.start_time) +
-                     (machtran.end_date - machtran.start_date - 1) * 86400 +
-                      machtran.end_time.
-
-      if machtran.total_time < 0 OR machtran.TOTAL_time EQ ? then
-         machtran.total_time = 0.
-
-      tt-tran.totalx:SCREEN-VALUE  = STRING(machtran.TOTAL_time,"hh:mm").
-
       IF machtran.run_qty <> tt-tran.run_qty THEN machtran.run_qty = tt-tran.run_qty.
       IF machtran.waste_qty <> tt-tran.waste_qty THEN machtran.waste_qty = tt-tran.waste_qty.
       IF machtran.completed <> tt-tran.completed THEN machtran.completed = tt-tran.completed.
 
-      /*for each  machemp where machemp.table_rec_key = machtran.rec_key:
-         ASSIGN machemp.start_date = machtran.start_date
-                machemp.start_time = machtran.start_time
-                machemp.shift = machtran.shift
-                /*machemp.ratetype = 'Standard' 
-                  machemp.rate_usage = employee.rate_usage */
-                machemp.end_date = machtran.end_date
-                machemp.end_time = machtran.end_time
-                .
-      end. */                     
       RUN dispatch ('row-changed').
     END.
     RUN updateRouting (machtran.company,machtran.machine,machtran.job_number,
@@ -715,37 +648,6 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF int(substring(tt-tran.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) < 0 OR
-       INT(substring(tt-tran.startx:SCREEN-VALUE,1,2)) >= 24 THEN
-  DO:
-      MESSAGE "Invalid Time. " VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO tt-tran.startx.
-      RETURN NO-APPLY.
-  END.
-
-  IF int(substring(tt-tran.startx:SCREEN-VALUE,4,2)) < 0 OR
-       INT(substring(tt-tran.startx:SCREEN-VALUE,4,2)) >= 60 THEN
-  DO:
-        MESSAGE "Invalid Minute. " VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO tt-tran.startx.
-        RETURN NO-APPLY.
-  END.
-  IF int(substring(tt-tran.endx:SCREEN-VALUE ,1,2)) < 0 OR
-       INT(substring(tt-tran.endx:SCREEN-VALUE,1,2)) >= 24 THEN
-  DO:
-      MESSAGE "Invalid Time. " VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO tt-tran.endx.
-      RETURN NO-APPLY.
-  END.
-
-  IF int(substring(tt-tran.endx:SCREEN-VALUE,4,2)) < 0 OR
-       INT(substring(tt-tran.endx:SCREEN-VALUE,4,2)) >= 60 THEN
-  DO:
-        MESSAGE "Invalid Minute. " VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO tt-tran.endx.
-        RETURN NO-APPLY.
-  END.
-
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -820,14 +722,6 @@ PROCEDURE reopen-query :
 
   RUN build-table.
   {&open-query-{&browse-name}}
-  /* this does not work,
-     viewer is sending machtran rowid which is second table, need first
-  {&open-browse-{&browse-name}}
-  IF ip-rowid <> ? THEN DO:
-     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-     RUN dispatch ('row-change').
-  END.
-  */
   IF ttRowID <> ? THEN DO:
      REPOSITION {&browse-name} TO ROWID ttRowID NO-ERROR.
      RUN dispatch ('row-change').

@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -71,6 +73,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-recven AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updven AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO.
@@ -85,18 +88,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
          BGCOLOR 15 .
 
 
@@ -297,24 +300,30 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/loadtag.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_loadtag ).
+       RUN set-position IN h_loadtag ( 1.00 , 16.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/v-recven.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-recven ).
-       RUN set-position IN h_v-recven ( 5.29 , 5.00 ) NO-ERROR.
+       RUN set-position IN h_v-recven ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.05 , 143.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-recven.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  '':U ,
              OUTPUT h_b-recven ).
-       RUN set-position IN h_b-recven ( 9.57 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-recven ( 9.33 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-recven ( 12.52 , 146.00 ) NO-ERROR.
+       /* Position in AB:  ( 9.33 , 3.00 ) */
+       /* Size in UIB:  ( 12.52 , 146.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updven.w':U ,
@@ -324,7 +333,7 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updven ).
        RUN set-position IN h_p-updven ( 22.19 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_p-updven ( 1.76 , 82.00 ) NO-ERROR.
+       RUN set-size IN h_p-updven ( 1.91 , 82.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/v-post.w':U ,
@@ -334,21 +343,25 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-post ( 22.19 , 86.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
+       /* Links to SmartObject h_loadtag. */
+       RUN add-link IN adm-broker-hdl ( h_b-recven , 'LoadTag':U , h_loadtag ).
+
        /* Links to SmartViewer h_v-recven. */
        RUN add-link IN adm-broker-hdl ( h_p-updven , 'srch2':U , h_v-recven ).
 
-       /* Links to SmartNavBrowser h_b-recven. */
+       /* Links to  h_b-recven. */
        RUN add-link IN adm-broker-hdl ( h_p-updven , 'TableIO':U , h_b-recven ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-recven ).
        RUN add-link IN adm-broker-hdl ( h_v-recven , 'srch':U , h_b-recven ).
+       RUN add-link IN adm-broker-hdl ( h_b-recven , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_loadtag ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-recven ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-recven ,
-             h_v-recven , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updven ,
-             h_b-recven , 'AFTER':U ).
+             h_v-recven , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
              h_p-updven , 'AFTER':U ).
     END. /* Page 1 */

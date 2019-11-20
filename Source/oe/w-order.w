@@ -795,6 +795,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-ordt-2. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ordt-2 ).
        RUN add-link IN adm-broker-hdl ( h_b-ordm , 'oemisc':U , h_v-ordt-2 ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordm , 'update':U , h_p-ordmis ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-ord-3 ,
@@ -913,6 +914,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-orel-2 , 'ordrel':U , h_b-ordrel ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'relTicket':U , h_b-ordrel ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'maxsizerel':U , h_b-ordrel ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordrel , 'update':U , h_p-ordrel ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_relticket ,

@@ -1125,8 +1125,11 @@ FIND FIRST oe-relh WHERE oe-relh.company EQ oe-bolh.company
                      AND oe-relh.release# EQ oe-bolh.release#
                      EXCLUSIVE-LOCK NO-ERROR.
 
-/*if avail oe-relh THEN if v-do-bol then delete oe-relh.
-                      else*/ IF AVAIL oe-relh THEN oe-relh.posted = NO.
+IF AVAIL oe-relh THEN DO:
+    ASSIGN 
+        oe-relh.posted = NO.
+    FIND CURRENT oe-relh NO-LOCK.
+END.
 
 IF oe-bolh.posted THEN DO:
     oe-bolh.deleted = YES.
@@ -2193,14 +2196,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
+    FIND FIRST oe-boll NO-LOCK 
+        WHERE oe-boll.company EQ oe-bolh.company
+        AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
+    
     FIND FIRST carrier WHERE carrier.company = g_company
-                         AND carrier.loc = cShipFromLoc
+                         AND carrier.loc = (IF AVAIL oe-boll THEN oe-boll.loc ELSE cShipFromLoc)
                          AND carrier.carrier = oe-bolh.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME}                          
                          NO-LOCK NO-ERROR.
     IF NOT AVAIL carrier THEN DO:

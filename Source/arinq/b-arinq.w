@@ -173,13 +173,11 @@ ar-invl.part-no ar-invl.ord-no ar-invl.po-no ar-invl.est-no
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table tb_open tb_paid fi_inv-no ~
-fi_cust-no fi_bdate btnCalendar-1 fi_edate btnCalendar-2 fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
-fi_bol-no fi_est-no btn_go btn_show RECT-1 
+fi_cust-no fi_bdate btnCalendar-1 fi_edate btnCalendar-2 fi_actnum fi_i-no ~
+fi_part-no fi_ord-no fi_po-no fi_bol-no fi_est-no btn_go btn_show RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_sortBy tb_open tb_paid fi_inv-no ~
-fi_cust-no fi_bdate fi_edate fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
-fi_bol-no fi_est-no FI_moveCol 
-
-&Scoped-define btnCalendar-1 btnCalendar-2
+fi_cust-no fi_bdate fi_edate fi_actnum fi_i-no fi_part-no fi_ord-no ~
+fi_po-no fi_bol-no fi_est-no FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -193,6 +191,16 @@ fi_bol-no fi_est-no FI_moveCol
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
      SIZE 12 BY 1.
@@ -207,6 +215,12 @@ DEFINE VARIABLE fi_actnum AS CHARACTER FORMAT "X(25)":U
      SIZE 32 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE fi_bdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Begin Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE fi_bol-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "BOL#" 
      VIEW-AS FILL-IN 
@@ -219,27 +233,11 @@ DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_bdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Begin Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
-
 DEFINE VARIABLE fi_edate AS DATE FORMAT "99/99/9999" 
      LABEL "End Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
-
-DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Est#" 
@@ -505,7 +503,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -604,6 +602,28 @@ DO:
                              STRING(ar-inv.inv-date) + ',' + STRING(ar-inv.inv-date) + ',' +
                              STRING(ar-inv.printed) + ',' + STRING(ar-inv.posted)).
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_bdate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_edate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,6 +740,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fi_bdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bdate B-table-Win
+ON HELP OF fi_bdate IN FRAME F-Main /* Begin Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bdate B-table-Win
+ON LEAVE OF fi_bdate IN FRAME F-Main /* Begin Date */
+DO:
+  /*IF LASTKEY NE -1 THEN DO:
+    APPLY "choose" TO btn_go.
+  END.
+  */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_bol-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bol-no B-table-Win
 ON LEAVE OF fi_bol-no IN FRAME F-Main /* BOL# */
@@ -764,66 +808,24 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_bdate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bdate B-table-Win
-ON LEAVE OF fi_bdate IN FRAME F-Main /* Inv Date */
-DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    APPLY "choose" TO btn_go.
-  END.
-  */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 &Scoped-define SELF-NAME fi_edate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_edate B-table-Win
-ON LEAVE OF fi_edate IN FRAME F-Main /* Inv Date */
+ON HELP OF fi_edate IN FRAME F-Main /* End Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_edate B-table-Win
+ON LEAVE OF fi_edate IN FRAME F-Main /* End Date */
 DO:
   /*IF LASTKEY NE -1 THEN DO:
     APPLY "choose" TO btn_go.
   END.
   */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_bdate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bdate B-table-Win
-ON HELP OF fi_bdate IN FRAME F-Main /*  Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i fi_bdate}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-  &Scoped-define SELF-NAME fi_edate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_edate B-table-Win
-ON HELP OF fi_edate IN FRAME F-Main /*  Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
-ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i fi_edate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -975,9 +977,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/ctrl-a_browser.i}
 &SCOPED-DEFINE cellColumnDat arinqb-arinq
-
 {methods/browsers/setCellColumns.i}
 
 RUN sys/ref/CustList.p (INPUT cocode,
@@ -1075,6 +1076,49 @@ PROCEDURE Enable-Navigation :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEF VAR CustFrom AS CHAR NO-UNDO.
+ DEF VAR INvFrom AS INT NO-UNDO.
+ DEF VAR itemFrom AS CHAR NO-UNDO.
+ DEF VAR bolFrom AS INT NO-UNDO.
+ DEF VAR poFrom AS CHAR NO-UNDO.
+ DEF VAR CustTo AS CHAR NO-UNDO.
+ DEF VAR INvTo AS INT NO-UNDO.
+ DEF VAR itemTo AS CHAR NO-UNDO.
+ DEF VAR bolTo AS INT NO-UNDO.
+ DEF VAR poTo AS CHAR NO-UNDO.
+
+    GET FIRST Browser-Table .                        
+    IF AVAIL ar-invl THEN                              
+      ASSIGN                                 
+        CustFrom    = ar-invl.cust-no        
+        invFrom     = ar-invl.inv-no         
+        itemFrom    = ar-invl.i-no           
+        bolFrom     = ar-invl.bol-no
+        poFrom      = ar-invl.po-no .        
+
+    GET LAST Browser-Table .
+    IF AVAIL ar-invl THEN
+      ASSIGN
+        CustTo    = ar-invl.cust-no        
+        invTo     = ar-invl.inv-no         
+        itemTo    = ar-invl.i-no           
+        bolTo     = ar-invl.bol-no
+        poTo      = ar-invl.po-no . 
+
+ RUN arinq/rd-invexp.w (CustFrom,invFrom,itemFrom,bolFrom,poFrom,"",CustTo,invTo,itemTo,bolTo,poTo,"","") .
 
 END PROCEDURE.
 
@@ -1426,51 +1470,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEF VAR CustFrom AS CHAR NO-UNDO.
- DEF VAR INvFrom AS INT NO-UNDO.
- DEF VAR itemFrom AS CHAR NO-UNDO.
- DEF VAR bolFrom AS INT NO-UNDO.
- DEF VAR poFrom AS CHAR NO-UNDO.
- DEF VAR CustTo AS CHAR NO-UNDO.
- DEF VAR INvTo AS INT NO-UNDO.
- DEF VAR itemTo AS CHAR NO-UNDO.
- DEF VAR bolTo AS INT NO-UNDO.
- DEF VAR poTo AS CHAR NO-UNDO.
-
-    GET FIRST Browser-Table .                        
-    IF AVAIL ar-invl THEN                              
-      ASSIGN                                 
-        CustFrom    = ar-invl.cust-no        
-        invFrom     = ar-invl.inv-no         
-        itemFrom    = ar-invl.i-no           
-        bolFrom     = ar-invl.bol-no
-        poFrom      = ar-invl.po-no .        
-
-    GET LAST Browser-Table .
-    IF AVAIL ar-invl THEN
-      ASSIGN
-        CustTo    = ar-invl.cust-no        
-        invTo     = ar-invl.inv-no         
-        itemTo    = ar-invl.i-no           
-        bolTo     = ar-invl.bol-no
-        poTo      = ar-invl.po-no . 
-
- RUN arinq/rd-invexp.w (CustFrom,invFrom,itemFrom,bolFrom,poFrom,"",CustTo,invTo,itemTo,bolTo,poTo,"","") .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

@@ -523,7 +523,7 @@ DO:
      run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
 
      if char-val <> "" then do:                 
-            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+         FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
                                 begin_est:SCREEN-VALUE = eb.est-no.
@@ -578,11 +578,6 @@ DO:
   RUN GetSelectionList.
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
-
-  IF tb_excel THEN DO:
-    IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
-  END. 
 
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
@@ -745,7 +740,7 @@ DO:
      run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
 
      if char-val <> "" then do:                 
-            FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+         FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
                                   end_est:SCREEN-VALUE = eb.est-no.
@@ -1601,6 +1596,8 @@ FOR EACH est
           '"'                       '",'
           SKIP. */
   END.
+
+
 END.
 
 OUTPUT STREAM st-excel CLOSE.
@@ -1609,7 +1606,12 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
-/* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
+    IF tb_excel THEN 
+    DO:
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+    END. 
+
 
 end procedure.
 

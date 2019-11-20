@@ -60,8 +60,29 @@ END PROCEDURE.
 PROCEDURE pMonitor:
   
     FOR EACH serverResource 
-        WHERE serverResource.isActive NO-LOCK:
-        
+        WHERE serverResource.resourceType EQ "Node" AND 
+        serverResource.isActive NO-LOCK:
+        RUN updateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ "AppServer" AND 
+        serverResource.isActive NO-LOCK:
+        RUN updateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ "NameServer" AND 
+        serverResource.isActive NO-LOCK:
+        RUN updateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ "AdminServer" AND 
+        serverResource.isActive NO-LOCK:
         RUN updateStatus(
             INPUT ROWID(serverResource)
             ).
@@ -101,8 +122,8 @@ END PROCEDURE.
 PROCEDURE getNameServerStatus:
     DEFINE INPUT  PARAMETER ipcNameServerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerStatus  AS CHARACTER NO-UNDO.
-   
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -QUERY > VALUE(cPathDataFile).
+
+    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -PORT VALUE(ipcAdminServerPort) -QUERY > VALUE(cPathDataFile).
     IF SEARCH(cPathDataFile) = ? THEN RETURN.
 
     INPUT FROM VALUE(cPathDataFile).
@@ -117,7 +138,7 @@ PROCEDURE getNameServerStatus:
              opcNameServerStatus = "Running".
     END.
     INPUT CLOSE.
-    OS-DELETE VALUE(cPathDataFile).
+    OS-DELETE VALUE(cPathDataFile). 
 END PROCEDURE.
 
 /* Gets AdminServer Status */
@@ -145,6 +166,8 @@ PROCEDURE sendEmail:
     
     DEFINE VARIABLE cSubject  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBody     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
     
     IF AVAILABLE bufServerResource THEN DO:
 	
@@ -171,9 +194,11 @@ PROCEDURE sendEmail:
             INPUT "",                          /* Override for Email RecipientsinBCC */
             INPUT cSubject,                    /* Override for Email Subject */
             INPUT cBody,                       /* Override for Email Body */
-            INPUT ""                           /* Email Attachment */
+            INPUT "",                          /* Email Attachment */
+            OUTPUT lSuccess,                   /* Email success or not */
+            OUTPUT cMessage                    /* Reason for failure in case email is not sent */
             ).
-        oplSent = TRUE.
+        oplSent = lSuccess.
     END.
 END PROCEDURE.
 

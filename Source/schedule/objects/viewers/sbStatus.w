@@ -558,57 +558,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize sObject 
-PROCEDURE local-initialize :
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize sObject
+PROCEDURE local-initialize:
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE externalStatusFile AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE externalStatusUserID AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE charHandle AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  externalStatusFile = SEARCH('{&updates}\' + ID + '\inUse.dat').
-  IF externalStatusFile NE ? THEN DO:
-    INPUT FROM VALUE(externalStatusFile) NO-ECHO.
-    IMPORT ^ externalStatusUserID.
-    INPUT CLOSE.
-    IF externalStatusUserID NE USERID('ASI') THEN DO:
-      MESSAGE
-        'External Status Checkoffs in Use by'
-        externalStatusUserID SKIP
-        'Please try again shortly.'
-      VIEW-AS ALERT-BOX.
-      IF VALID-HANDLE(adm-broker-hdl) THEN DO:
-        RUN get-link-handle IN adm-broker-hdl
-            (THIS-PROCEDURE,'CONTAINER-SOURCE':U,OUTPUT charHandle).
-        pHandle = WIDGET-HANDLE(charHandle).
-        IF VALID-HANDLE(pHandle) THEN
-        RUN inUseClose IN pHandle.
-        RETURN.
-      END. /* if valid-handle */
-    END. /* if search */
-  END. /* if different user */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  OUTPUT TO VALUE('{&updates}\' + ID + '\inUse.dat').
-  EXPORT NO USERID('ASI').
-  OUTPUT CLOSE.
-  FOR EACH pendingJob NO-LOCK:
-    CREATE ttblJob.
-    BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob
+  FOR EACH pendingJob:
+      CREATE ttblJob.
+      BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob.
       ASSIGN
-        ttblJob.jobSequence = 999
-        ttblJob.jobType     = 'P'
-        ttblJob.startDate   = {{&includes}/firstDate.i}
-        ttblJob.endDate     = {{&includes}/lastDate.i}
-        .
-  END.
+          ttblJob.jobSequence = 999
+          ttblJob.jobType     = 'P'
+          ttblJob.startDate   = {{&includes}/firstDate.i}
+          ttblJob.endDate     = {{&includes}/lastDate.i}
+          .
+  END. /* each pendingjob */
   RUN setColorDynamic.
   RUN getConfiguration.
   customCheckoffValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(customCheckoff).
@@ -617,9 +591,34 @@ PROCEDURE local-initialize :
   RUN displayFields NO-ERROR.
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExternalClose sObject
+PROCEDURE pExternalClose:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE charHandle AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle    AS HANDLE    NO-UNDO.
+    
+    IF VALID-HANDLE(adm-broker-hdl) THEN DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE, "CONTAINER-SOURCE":U, OUTPUT charHandle).
+        pHandle = WIDGET-HANDLE(charHandle).
+        IF VALID-HANDLE(pHandle) THEN
+        RUN pExternalClose IN pHandle.
+    END. /* if valid-handle */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE sendChange sObject 
 PROCEDURE sendChange :

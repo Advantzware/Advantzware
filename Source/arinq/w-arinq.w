@@ -62,12 +62,12 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES cust
-&Scoped-define FIRST-EXTERNAL-TABLE cust
+&Scoped-define EXTERNAL-TABLES ar-invl
+&Scoped-define FIRST-EXTERNAL-TABLE ar-invl
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR cust.
+DEFINE QUERY external_tables FOR ar-invl.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -87,6 +87,7 @@ DEFINE VARIABLE h_b-arinq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-arinvl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-oeboll AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
@@ -99,7 +100,6 @@ DEFINE VARIABLE h_v-arbil AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-arcusi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-arinq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-nav2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -110,18 +110,18 @@ DEFINE FRAME F-Main
          SIZE 151.2 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 112 ROW 2.91
          SIZE 40 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -130,9 +130,9 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.cust
+   External Tables: ASI.ar-invl
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -346,6 +346,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 53.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/optinote.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -356,17 +364,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_movecol ).
        RUN set-position IN h_movecol ( 1.00 , 69.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/export.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 53.01 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -377,17 +377,19 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-arinq ( 4.57 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 20.00 , 148.00 ) */
 
-       /* Links to SmartViewer h_movecol. */
-       RUN add-link IN adm-broker-hdl ( h_b-arinq , 'move-columns':U , h_movecol ).
-
-       /* Links to SmartViewer h_export. */
+       /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_b-arinq , 'export-xl':U , h_export ).
+
+       /* Links to SmartObject h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-arinq , 'move-columns':U , h_movecol ).
 
        /* Links to SmartNavBrowser h_b-arinq. */
        RUN add-link IN adm-broker-hdl ( h_options , 'note-link':U , h_b-arinq ).
        RUN add-link IN adm-broker-hdl ( h_b-arinq , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_optinote ,
+             h_export , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
              h_optinote , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-arinq ,
@@ -516,7 +518,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_movecol-2 ).
        RUN set-position IN h_movecol-2 ( 1.00 , 69.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -532,7 +534,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_movecol-2. */
+       /* Links to SmartObject h_movecol-2. */
        RUN add-link IN adm-broker-hdl ( h_b-oeboll , 'move-columns':U , h_movecol-2 ).
 
        /* Links to SmartNavBrowser h_b-oeboll. */
@@ -567,13 +569,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "cust"}
+  {src/adm/template/row-list.i "ar-invl"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "cust"}
+  {src/adm/template/row-find.i "ar-invl"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -719,7 +721,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "cust"}
+  {src/adm/template/snd-list.i "ar-invl"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

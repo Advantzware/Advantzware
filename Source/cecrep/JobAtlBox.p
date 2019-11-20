@@ -364,7 +364,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
             "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
-            "<=OrderStart><R+1><RIGHT=C+25>Sell Price/EA: <#SellPrice>"
+            "<=OrderStart><R+1><RIGHT=C+25>Sell Price: <#SellPrice>"
             "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
             "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
@@ -500,6 +500,13 @@ DO v-local-loop = 1 TO v-local-copies:
           
           dTotalup = getTotalUp() .
 
+          IF AVAIL xoe-ordl THEN DO:
+              IF xoe-ordl.pr-uom NE "M" THEN
+                  RUN sys/ref/convcuom.p(xoe-ordl.pr-uom, "M", 0, 0, 0, 0,
+                                         xoe-ordl.price, OUTPUT dSalesPrice ).
+              ELSE dSalesPrice = xoe-ordl.price .
+          END.
+
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
@@ -526,7 +533,7 @@ DO v-local-loop = 1 TO v-local-copies:
                       trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
               "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
               "<=Printed><B>" TODAY  "</B>"
-              "<=SellPrice><B>" (IF AVAILABLE xoe-ordl THEN dSalesPrice ELSE 0) FORMAT ">>>>>>>>9.99<<<" "</B>"
+              "<=SellPrice><B>" (IF AVAILABLE xoe-ordl THEN xoe-ordl.price ELSE 0) FORMAT ">>>>>>>>9.99<<<" " / " (IF AVAILABLE xoe-ordl THEN xoe-ordl.pr-uom ELSE "") FORMAT "x(3)"  "</B>"
               "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
               "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
               "<FGColor=Blue><B>"
@@ -1013,13 +1020,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShipNotes3>" IF AVAILABLE shipto THEN shipto.notes[3] ELSE "" FORMAT "x(90)"
               "<=ShipNotes4>" IF AVAILABLE shipto THEN shipto.notes[4] ELSE "" FORMAT "x(90)" .
               PUT "<||3><R39.2><C1><FROM><C62><LINE><||3>" .
-
-              IF AVAIL xoe-ordl THEN DO:
-                  IF xoe-ordl.pr-uom NE "M" THEN
-                      RUN sys/ref/convcuom.p(xoe-ordl.pr-uom, "M", 0, 0, 0, 0,
-                               xoe-ordl.price, OUTPUT dSalesPrice ).
-                  ELSE dSalesPrice = xoe-ordl.price .
-              END.
+              
        PAGE.
 
             ls-fgitem-img = bf-itemfg.box-image.

@@ -1,8 +1,13 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME CURRENT-WINDOW
-&Scoped-define FRAME-NAME Dialog-Frame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
+&Scoped-define WINDOW-NAME W-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
   File: api/APIOutboundTest.w
@@ -50,11 +55,13 @@ ASSIGN
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Dialog-Box
+&Scoped-define PROCEDURE-TYPE SmartWindow
 &Scoped-define DB-AWARE no
 
+&Scoped-define ADM-CONTAINER WINDOW
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME Dialog-Frame
+&Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 Btn_Cancel ~
@@ -76,7 +83,8 @@ fiErrorMessageLabel edErrorMessage
 
 /* ***********************  Control Definitions  ********************** */
 
-/* Define a dialog box                                                  */
+/* Define the widget handle for the window                              */
+DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAPIIDLookup 
@@ -137,12 +145,12 @@ DEFINE VARIABLE edEventDesc AS CHARACTER
      SIZE 95.6 BY 2.86
      FGCOLOR 1  NO-UNDO.
 
-DEFINE VARIABLE edRequestData AS CHARACTER 
+DEFINE VARIABLE edRequestData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 133 BY 6.76
      FGCOLOR 1  NO-UNDO.
 
-DEFINE VARIABLE edResponseData AS CHARACTER 
+DEFINE VARIABLE edResponseData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 133 BY 5.14
      FGCOLOR 1  NO-UNDO.
@@ -231,8 +239,8 @@ DEFINE RECTANGLE RECT-3
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME Dialog-Frame
-     Btn_Cancel AT ROW 1.33 COL 140
+DEFINE FRAME F-Main
+     Btn_Cancel AT ROW 1.33 COL 140 WIDGET-ID 132
      btAPIIDLookup AT ROW 1.67 COL 60.8 WIDGET-ID 46
      fiAPIIDLabel AT ROW 1.71 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      fiAPIId AT ROW 1.71 COL 14.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
@@ -249,7 +257,7 @@ DEFINE FRAME Dialog-Frame
      fiPrimaryKey AT ROW 4.81 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      fiEventDescLabel AT ROW 6.1 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 124
      edEventDesc AT ROW 6.1 COL 30.4 NO-LABEL WIDGET-ID 126
-     btSubmit AT ROW 6.86 COL 139.8
+     btSubmit AT ROW 6.86 COL 139.8 WIDGET-ID 134
      fiMessage AT ROW 9.95 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 130
      fiEndPointLabel AT ROW 11.1 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      edEndpoint AT ROW 11.1 COL 25 NO-LABEL WIDGET-ID 14
@@ -262,96 +270,129 @@ DEFINE FRAME Dialog-Frame
      RECT-1 AT ROW 1.24 COL 3 WIDGET-ID 84
      RECT-2 AT ROW 9.81 COL 3 WIDGET-ID 86
      RECT-3 AT ROW 4.33 COL 6 WIDGET-ID 110
-     SPACE(30.99) SKIP(20.23)
-    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1 FONT 6
-         TITLE "Outbound API Tester"
-         CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 28.57
+         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: Dialog-Box
-   Allow: Basic,Browse,DB-Fields,Query
-   Other Settings: COMPILE
+   Type: SmartWindow
+   Allow: Basic,Browse,DB-Fields,Query,Smart,Window
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+/* *************************  Create Window  ************************** */
+
+&ANALYZE-SUSPEND _CREATE-WINDOW
+IF SESSION:DISPLAY-TYPE = "GUI":U THEN
+  CREATE WINDOW W-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Outbound API Tester"
+         HEIGHT             = 28.57
+         WIDTH              = 160
+         MAX-HEIGHT         = 28.57
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 28.57
+         VIRTUAL-WIDTH      = 160
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
+ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+/* END WINDOW DEFINITION                                                */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
+/* ************************* Included-Libraries *********************** */
+
+{src/adm/method/containr.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR DIALOG-BOX Dialog-Frame
+/* SETTINGS FOR WINDOW W-Win
+  VISIBLE,,RUN-PERSISTENT                                               */
+/* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btPrimaryKeyLookup IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btSubmit IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btUpdateRequest IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR EDITOR edEndpoint IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
-       FRAME Dialog-Frame:SCROLLABLE       = FALSE
-       FRAME Dialog-Frame:HIDDEN           = TRUE.
+       edEndpoint:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR BUTTON btPrimaryKeyLookup IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btSubmit IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btUpdateRequest IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR EDITOR edEndpoint IN FRAME Dialog-Frame
+/* SETTINGS FOR EDITOR edErrorMessage IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       edEndpoint:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       edErrorMessage:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR EDITOR edErrorMessage IN FRAME Dialog-Frame
+/* SETTINGS FOR EDITOR edEventDesc IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR EDITOR edRequestData IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR EDITOR edResponseData IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       edErrorMessage:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       edResponseData:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR EDITOR edEventDesc IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR EDITOR edRequestData IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiAPITriggerIDLabel IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR EDITOR edResponseData IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiClientIDlb IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       edResponseData:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       fiClientIDlb:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiAPITriggerIDLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiClientIDlb IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiEndPointLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       fiClientIDlb:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       fiEndPointLabel:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiEndPointLabel IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiErrorMessageLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       fiEndPointLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       fiErrorMessageLabel:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiErrorMessageLabel IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiEventDescLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiPrimaryKey IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiPrimaryKeyLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiRequestDataLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       fiRequestDataLabel:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiEventDescLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiMessage IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPrimaryKey IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPrimaryKeyLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiRequestDataLabel IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiResponseDataLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       fiRequestDataLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       fiResponseDataLabel:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiResponseDataLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-ASSIGN 
-       fiResponseDataLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -362,11 +403,27 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Dialog-Frame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Outbound API Tester */
+&Scoped-define SELF-NAME W-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON END-ERROR OF W-Win /* Outbound API Tester */
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
+  /* This case occurs when the user presses the "Esc" key.
+     In a persistently run window, just ignore this.  If we did not, the
+     application would exit. */
+  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON WINDOW-CLOSE OF W-Win /* Outbound API Tester */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+  /* This ADM code must be left here in order for the SmartWindow
+     and its descendents to terminate properly on exit. */
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -374,8 +431,8 @@ END.
 
 
 &Scoped-define SELF-NAME btAPIIDLookup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAPIIDLookup Dialog-Frame
-ON CHOOSE OF btAPIIDLookup IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAPIIDLookup W-Win
+ON CHOOSE OF btAPIIDLookup IN FRAME F-Main
 DO:
     APPLY "HELP" TO fiAPIId.
 END.
@@ -385,8 +442,8 @@ END.
 
 
 &Scoped-define SELF-NAME btClientIDLookup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClientIDLookup Dialog-Frame
-ON CHOOSE OF btClientIDLookup IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClientIDLookup W-Win
+ON CHOOSE OF btClientIDLookup IN FRAME F-Main
 DO:
     APPLY "HELP" TO fiAPIId.
 END.
@@ -396,8 +453,8 @@ END.
 
 
 &Scoped-define SELF-NAME btGo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo Dialog-Frame
-ON CHOOSE OF btGo IN FRAME Dialog-Frame /* Go */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo W-Win
+ON CHOOSE OF btGo IN FRAME F-Main /* Go */
 DO:
     DEFINE VARIABLE iAPIOutboundID        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAPIOutboundTriggerID AS INTEGER   NO-UNDO.
@@ -467,9 +524,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel W-Win
+ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* Cancel */
+DO:
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btPrimaryKeyLookup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrimaryKeyLookup Dialog-Frame
-ON CHOOSE OF btPrimaryKeyLookup IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrimaryKeyLookup W-Win
+ON CHOOSE OF btPrimaryKeyLookup IN FRAME F-Main
 DO:
     APPLY "HELP" TO fiPrimaryKey.
 END.
@@ -479,8 +548,8 @@ END.
 
 
 &Scoped-define SELF-NAME btSubmit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSubmit Dialog-Frame
-ON CHOOSE OF btSubmit IN FRAME Dialog-Frame /* Submit */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSubmit W-Win
+ON CHOOSE OF btSubmit IN FRAME F-Main /* Submit */
 DO:
     DEFINE VARIABLE cAPIID                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cClientID             AS CHARACTER NO-UNDO.
@@ -557,7 +626,7 @@ DO:
         ).
 
     ASSIGN
-        edResponseData:SCREEN-VALUE  = STRING(lcResponseData)
+        edResponseData:SCREEN-VALUE  = lcResponseData
         edErrorMessage:SCREEN-VALUE  = IF lSuccess THEN 
                                            "SUCCESS" + "~n" + cMessage
                                        ELSE
@@ -584,8 +653,8 @@ END.
 
 
 &Scoped-define SELF-NAME btTriggerIDLookup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTriggerIDLookup Dialog-Frame
-ON CHOOSE OF btTriggerIDLookup IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTriggerIDLookup W-Win
+ON CHOOSE OF btTriggerIDLookup IN FRAME F-Main
 DO:
     APPLY "HELP" TO fiTriggerId.
 END.
@@ -595,8 +664,8 @@ END.
 
 
 &Scoped-define SELF-NAME btUpdateRequest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateRequest Dialog-Frame
-ON CHOOSE OF btUpdateRequest IN FRAME Dialog-Frame /* Update Request */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateRequest W-Win
+ON CHOOSE OF btUpdateRequest IN FRAME F-Main /* Update Request */
 DO:
     DEFINE VARIABLE cParentProgram        AS CHARACTER NO-UNDO.   
     DEFINE VARIABLE iAPIOutboundID        AS INTEGER   NO-UNDO.
@@ -743,7 +812,7 @@ DO:
     END.
 
     ASSIGN
-        edRequestData:SCREEN-VALUE  = STRING(lcRequestData)
+        edRequestData:SCREEN-VALUE  = lcRequestData
         btSubmit:SENSITIVE          = TRUE
         edRequestData:SENSITIVE     = TRUE
         edResponseData:SCREEN-VALUE = ""
@@ -757,8 +826,8 @@ END.
 
 
 &Scoped-define SELF-NAME fiAPIId
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId Dialog-Frame
-ON HELP OF fiAPIId IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId W-Win
+ON HELP OF fiAPIId IN FRAME F-Main
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -797,8 +866,8 @@ END.
 
 
 &Scoped-define SELF-NAME fiPrimaryKey
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPrimaryKey Dialog-Frame
-ON HELP OF fiPrimaryKey IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPrimaryKey W-Win
+ON HELP OF fiPrimaryKey IN FRAME F-Main
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -903,8 +972,8 @@ END.
 
 
 &Scoped-define SELF-NAME fiTriggerID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTriggerID Dialog-Frame
-ON HELP OF fiTriggerID IN FRAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTriggerID W-Win
+ON HELP OF fiTriggerID IN FRAME F-Main
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -934,40 +1003,13 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
 
 
 /* ***************************  Main Block  *************************** */
 
-/* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
-THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
-
-/* Now enable the interface and wait for the exit condition.            */
-/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
-MAIN-BLOCK:
-DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
-    ASSIGN
-        edRequestData:WORD-WRAP  = TRUE
-        edResponseData:WORD-WRAP = TRUE
-        .
-
-    FIND FIRST company NO-LOCK 
-         WHERE company.company EQ cCompany
-         NO-ERROR .
-    IF AVAILABLE company THEN
-    FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE
-                              + " - {&awversion}" + " - " 
-                              + STRING(company.name) + " - " + cLocation.
-
-    RUN enable_UI.
-  
-    WAIT-FOR GO OF FRAME {&FRAME-NAME}.
-END.
-RUN disable_UI.
+/* Include custom  Main Block code for SmartWindows. */
+{src/adm/template/windowmn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -975,7 +1017,42 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win  _ADM-CREATE-OBJECTS
+PROCEDURE adm-create-objects :
+/*------------------------------------------------------------------------------
+  Purpose:     Create handles for all SmartObjects used in this procedure.
+               After SmartObjects are initialized, then SmartLinks are added.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win  _ADM-ROW-AVAILABLE
+PROCEDURE adm-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
+
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -985,14 +1062,16 @@ PROCEDURE disable_UI :
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME Dialog-Frame.
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+  THEN DELETE WIDGET W-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -1008,18 +1087,65 @@ PROCEDURE enable_UI :
           edEventDesc fiMessage fiEndPointLabel edEndpoint fiRequestDataLabel 
           edRequestData fiResponseDataLabel edResponseData fiErrorMessageLabel 
           edErrorMessage 
-      WITH FRAME Dialog-Frame.
+      WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE RECT-1 RECT-2 RECT-3 Btn_Cancel btAPIIDLookup fiAPIId btClientIDLookup 
          fiClientID btTriggerIDLookup btGo fiTriggerID 
-      WITH FRAME Dialog-Frame.
-  VIEW FRAME Dialog-Frame.
-  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+      WITH FRAME F-Main IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-F-Main}
+  VIEW W-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateArgs Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    ASSIGN
+        edRequestData:WORD-WRAP  IN FRAME {&FRAME-NAME} = TRUE
+        edResponseData:WORD-WRAP IN FRAME {&FRAME-NAME} = TRUE
+        .
+
+    FIND FIRST company NO-LOCK 
+         WHERE company.company EQ cCompany
+         NO-ERROR .
+    IF AVAILABLE company THEN
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
+                         + " - {&awversion}" + " - " 
+                         + STRING(company.name) + " - " + cLocation.
+  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
+PROCEDURE local-exit :
+/* -----------------------------------------------------------
+  Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+  Parameters:  <none>
+  Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+-------------------------------------------------------------*/
+   APPLY "CLOSE":U TO THIS-PROCEDURE.
+   
+   RETURN.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateArgs W-Win 
 PROCEDURE pCreateArgs :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1041,7 +1167,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateOutboundAPI Dialog-Frame 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateOutboundAPI W-Win 
 PROCEDURE pValidateOutboundAPI :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1077,6 +1203,37 @@ PROCEDURE pValidateOutboundAPI :
         OUTPUT oplValid,
         OUTPUT opcMessage
         ).    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
+PROCEDURE send-records :
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
+
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartWindow, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
+PROCEDURE state-changed :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
+  DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -63,20 +63,21 @@ const self = {
 				if (response.length > 0) {
 					response = JSON.parse(response);
 					if (!response) {
-						response = {"response_code":500,"response_message":"Internal Server Error at Node (#4)"};
+						response = {"response_code":500,"response_message":"Internal Server Error at Node (#4) - JSON response is Invalid"};
 					}
 					responseCode = response.response_code;
-					responseExceptionMessage = response.exception;
-					
+					if (response.exception) {
+						responseExceptionMessage = " - " + response.exception;
+					}
 					if (responseCode === 500 || response.response_code === 404){
 						// writes the request data to csv file in case AppServer is down
 						self.CSVFileDataCreate(req,JSONRequestData,JSON.stringify(response),responseExceptionMessage);
-						response = self.JSONResponse(response.response_code,response.response_message);
+						response = self.JSONResponse(response.response_code,response.response_message + responseExceptionMessage);
 					}   
 				}
 				else {
 					responseCode = 500;
-					response = self.JSONResponse(responseCode,"Internal Server Error at Node (#5)");						
+					response = self.JSONResponse(responseCode,"Internal Server Error at Node (#5) - JSON response is empty");						
 				}
 			}
 
@@ -85,7 +86,7 @@ const self = {
 		}
 		catch ( e ) {
 			console.log(self.getDateTimeString() + " " + e);
-			response = self.JSONResponse(400,"Internal Server Error at Node (#6)");
+			response = self.JSONResponse(400,"Internal Server Error at Node (#6) - " +e.message);
 			res.status(400).send(response);
 			res.end();      
 		}   
@@ -119,13 +120,16 @@ const self = {
 				if (response.length > 0) {
 					response = JSON.parse(response);
 					if (!response) {
-						response = {"response_code":500,"response_message":"Internal Server Error at Node (#1)"};
+						response = {"response_code":500,"response_message":"Internal Server Error at Node (#1) - XML issue with the response format"};
 					}
 					responseCode = response.response_code;	
 					responseMessage = response.response_message;
-					responseExceptionMessage = response.exception;
 					
-					response = self.cXMLResponse(response.response_code,response.response_message);
+					if (response.exception) {
+						responseExceptionMessage = " - " + response.exception;
+					}
+					
+					response = self.cXMLResponse(response.response_code,response.response_message + responseExceptionMessage);
 					
 					if (responseCode === 500 || responseCode === 404){
 						// writes the request data to csv file in case AppServer is down
@@ -135,7 +139,7 @@ const self = {
 				}
 				else {
 					responseCode = 500;
-					response = self.cXMLResponse(responseCode,"Internal Server Error at Node (#2)");						
+					response = self.cXMLResponse(responseCode,"Internal Server Error at Node (#2) - XML response is empty");						
 				}
 			}
 
@@ -148,7 +152,7 @@ const self = {
 		}
 		catch ( e ) {
 			console.log(self.getDateTimeString() + " " + e);
-			response = self.cXMLResponse(500,"Internal Server Error at Node (#3)");
+			response = self.cXMLResponse(500,"Internal Server Error at Node (#3) - "+e.message);
 			res.status(500).send(response);
 			res.end();      
 		}   
@@ -176,14 +180,13 @@ const self = {
 			Object.keys(obj).reduce((resultJSON, itemNum) => {
 				const prefixChar = prefix.length ? prefix + '.' : '';
 				if (typeof obj[itemNum] === 'object') 
-					Object.assign(resultJSON, convertToFlatJSON(obj[itemNum], prefixChar + itemNum));
+					Object.assign(resultJSON, convertToFlatJSON(obj[itemNum], prefixChar + itemNum.toString().replace(/,/g,'#comma#').replace(/:/g,'#colon#').replace(/\./g,'#period#')));
 				else 
-					resultJSON[prefixChar + itemNum] = obj[itemNum];
+					resultJSON[prefixChar + itemNum.toString().replace(/,/g,'#comma#').replace(/:/g,'#colon#').replace(/\./g,'#period#')] = obj[itemNum].toString().replace(/,/g,'#comma#').replace(/:/g,'#colon#'); // replace any comma, colon or period in the key and value, and handle in Progress				
 				return resultJSON;
 			}, {});
 		return convertToFlatJSON(data);
 	},
-	
 	// this function returns the content-type of the request data
 	getRequestDataType: function(req){
 		var contentType= req.headers['content-type'];

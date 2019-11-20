@@ -2417,8 +2417,13 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE BUFFER bf-ssrelbol FOR ssrelbol.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* browse is defaulting to the last column on update, so make the last column tag# */
+  APPLY "ENTRY":U TO tt-relbol.tag# IN BROWSE {&browse-name}.
+  
   RUN validate-rel# NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 
@@ -2432,9 +2437,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
-    /* Write out temp-table records that have changed */
-    RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
+  FIND FIRST bf-ssrelbol no-lock
+    WHERE bf-ssrelbol.company EQ cocode
+      AND bf-ssrelbol.release# EQ INTEGER(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
+      AND bf-ssrelbol.tag EQ tt-relbol.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+      NO-ERROR.
+  /* Write out temp-table records that have changed */
+  RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
     
   v-prev-rowid = ROWID(tt-relbol).
     FIND FIRST  ttNewlyEntered
@@ -2445,8 +2454,10 @@ PROCEDURE local-update-record :
   RUN display-qtys.
 
   RUN need-scroll.
+  /* If updating, bf-ssrelbol will be available so don't auto open new line */
+  IF (ssbol-int EQ 0 OR v-scan-qty LT v-rel-qty) AND NOT AVAIL bf-ssrelbol THEN      
+      RUN scan-next.
   
-  IF ssbol-int EQ 0 OR v-scan-qty LT v-rel-qty THEN RUN scan-next.
 
 END PROCEDURE.
 

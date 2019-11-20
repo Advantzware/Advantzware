@@ -46,6 +46,7 @@ DEFINE VARIABLE cFolder         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER NO-UNDO.
 
 DEFINE TEMP-TABLE ttDynLookup          NO-UNDO LIKE dynLookup.
+DEFINE TEMP-TABLE ttDynPrgrmsPage      NO-UNDO LIKE dynPrgrmsPage.
 DEFINE TEMP-TABLE ttDynParam           NO-UNDO LIKE dynParam.
 DEFINE TEMP-TABLE ttDynParamSet        NO-UNDO LIKE dynParamSet
     FIELD exportParamSet AS LOGICAL LABEL "Export".
@@ -57,6 +58,12 @@ DEFINE TEMP-TABLE ttDynSubjectColumn   NO-UNDO LIKE dynSubjectColumn.
 DEFINE TEMP-TABLE ttDynSubjectParamSet NO-UNDO LIKE dynSubjectParamSet.
 DEFINE TEMP-TABLE ttDynSubjectTable    NO-UNDO LIKE dynSubjectTable.
 DEFINE TEMP-TABLE ttDynSubjectWhere    NO-UNDO LIKE dynSubjectWhere.
+DEFINE TEMP-TABLE ttPrgrms             NO-UNDO
+    FIELD prgmName      LIKE prgrms.prgmName
+    FIELD subjectID     LIKE prgrms.subjectID
+    FIELD pageSubjectID LIKE prgrms.pageSubjectID
+        INDEX ttPrgrms IS PRIMARY prgmName
+        .
 
 {methods/defines/sortByDefs.i}
 
@@ -108,11 +115,11 @@ DEFINE TEMP-TABLE ttDynSubjectWhere    NO-UNDO LIKE dynSubjectWhere.
     ~{&OPEN-QUERY-subjectBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectBrowse btnExit paramSetBrowse ~
-btnExport lExportSubject lExportParamSet cImportExportFolder btnImport ~
-lExportDynLookup 
+&Scoped-Define ENABLED-OBJECTS subjectBrowse paramSetBrowse btnExit ~
+lExportSubject btnExport lExportParamSet cImportExportFolder ~
+lExportDynLookup lExportDynPageParams btnImport 
 &Scoped-Define DISPLAYED-OBJECTS lExportSubject lExportParamSet ~
-cImportExportFolder lExportDynLookup 
+cImportExportFolder lExportDynLookup lExportDynPageParams 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -160,6 +167,11 @@ DEFINE VARIABLE lExportDynLookup AS LOGICAL INITIAL no
      LABEL "Export Dynamic Lookup Table" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .81 NO-UNDO.
+
+DEFINE VARIABLE lExportDynPageParams AS LOGICAL INITIAL no 
+     LABEL "Export Dynamic Page Parameters" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE lExportParamSet AS LOGICAL INITIAL no 
      LABEL "" 
@@ -214,18 +226,19 @@ ttDynSubject.exportSubject
 
 DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 1 COL 2 WIDGET-ID 200
+     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      btnExit AT ROW 27.43 COL 118 HELP
           "Exit Design Layout Window" WIDGET-ID 32
-     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
-     btnExport AT ROW 27.43 COL 110 HELP
-          "Export" WIDGET-ID 26
      lExportSubject AT ROW 1.24 COL 55 WIDGET-ID 2
+     btnExport AT ROW 27.43 COL 102 HELP
+          "Export" WIDGET-ID 26
      lExportParamSet AT ROW 1.24 COL 118 WIDGET-ID 38
      cImportExportFolder AT ROW 26.24 COL 86 COLON-ALIGNED HELP
           "Enter Import~\Export Folder" WIDGET-ID 4
-     btnImport AT ROW 27.43 COL 102 HELP
+     lExportDynLookup AT ROW 27.43 COL 66 WIDGET-ID 36
+     lExportDynPageParams AT ROW 28.38 COL 66 WIDGET-ID 40
+     btnImport AT ROW 27.43 COL 110 HELP
           "Import" WIDGET-ID 24
-     lExportDynLookup AT ROW 27.91 COL 68 WIDGET-ID 36
      portRect AT ROW 26 COL 65 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -268,6 +281,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/32x32/jss_icon_32.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -281,7 +300,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB subjectBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse btnExit DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse subjectBrowse DEFAULT-FRAME */
 ASSIGN 
        paramSetBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -367,6 +386,7 @@ ON CHOOSE OF btnExport IN FRAME DEFAULT-FRAME /* Export */
 DO:
     ASSIGN
         lExportDynLookup
+        lExportDynPageParams
         cImportExportFolder
         .
     RUN pExport.
@@ -553,9 +573,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY lExportSubject lExportParamSet cImportExportFolder lExportDynLookup 
+          lExportDynPageParams 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE subjectBrowse btnExit paramSetBrowse btnExport lExportSubject 
-         lExportParamSet cImportExportFolder btnImport lExportDynLookup 
+  ENABLE subjectBrowse paramSetBrowse btnExit lExportSubject btnExport 
+         lExportParamSet cImportExportFolder lExportDynLookup 
+         lExportDynPageParams btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -671,6 +693,26 @@ PROCEDURE pExport :
             EXPORT dynLookup.
         END. /* each dynlookup */
     END. /* if avail */
+    FIND FIRST ASI._file NO-LOCK
+         WHERE ASI._file._file-name EQ "dynPrgrmsPage"
+         NO-ERROR.
+    IF AVAILABLE ASI._file THEN DO:
+        OUTPUT TO VALUE(cImportExportFolder + "\" + ASI._file._Dump-name + ".d").
+        IF lExportDynPageParams THEN
+        FOR EACH dynPrgrmsPage NO-LOCK:
+            EXPORT dynPrgrmsPage.
+        END. /* each dynlookup */
+    END. /* if avail */
+    FIND FIRST ASI._file NO-LOCK
+         WHERE ASI._file._file-name EQ "prgrms"
+         NO-ERROR.
+    IF AVAILABLE ASI._file THEN DO:
+        OUTPUT TO VALUE(cImportExportFolder + "\" + ASI._file._Dump-name + ".d").
+        IF lExportDynPageParams THEN
+        FOR EACH prgrms NO-LOCK:
+            EXPORT prgrms.prgmname prgrms.subjectID prgrms.pageSubjectID.
+        END. /* each dynlookup */
+    END. /* if avail */
     SESSION:SET-WAIT-STATE("").
     MESSAGE
         "Dynamic Table Export Complete"
@@ -727,7 +769,7 @@ PROCEDURE pImport :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDynamicFile  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDynamicTable AS CHARACTER NO-UNDO INITIAL "dynLookup,".
+    DEFINE VARIABLE cDynamicTable AS CHARACTER NO-UNDO INITIAL "prgrms,dynLookup,dynPrgrmsPage,".
     
     MESSAGE
         "Import Dynamic Tables from Folder: ~"" + cImportExportFolder + "~"?"
@@ -740,6 +782,8 @@ PROCEDURE pImport :
         cDynamicTable = cDynamicTable + cDynamicSubject + "," + cDynamicParam
         oplRefresh    = YES
         .    
+    EMPTY TEMP-TABLE ttPrgrms.
+    CREATE ttPrgrms.
     EMPTY TEMP-TABLE ttDynLookup.
     CREATE ttDynLookup.
     EMPTY TEMP-TABLE ttDynParam.
@@ -750,6 +794,7 @@ PROCEDURE pImport :
     CREATE ttDynParamSetDtl.
     EMPTY TEMP-TABLE ttDynParamValue.
     CREATE ttDynParamValue.
+    EMPTY TEMP-TABLE ttDynPrgrmsPage.
     EMPTY TEMP-TABLE ttDynSubject.
     CREATE ttDynSubject.
     EMPTY TEMP-TABLE ttDynSubjectColumn.
@@ -836,6 +881,19 @@ PROCEDURE pImport :
                     BUFFER-COPY ttDynParamValue TO dynParamValue.
                     RELEASE dynParamValue.
                 END. /* dynParamValue */
+                WHEN "dynPrgrmsPage" THEN DO:
+                    CREATE ttDynPrgrmsPage.
+                    IMPORT ttDynPrgrmsPage.
+                    FIND FIRST dynPrgrmsPage EXCLUSIVE-LOCK
+                         WHERE dynPrgrmsPage.prgmName  EQ ttDynPrgrmsPage.prgmName
+                           AND dynPrgrmsPage.pageTab   EQ ttDynPrgrmsPage.pageTab
+                           AND dynPrgrmsPage.subjectID EQ ttDynPrgrmsPage.subjectID
+                         NO-ERROR.
+                    IF NOT AVAILABLE dynPrgrmsPage THEN
+                    CREATE dynPrgrmsPage.
+                    BUFFER-COPY ttDynPrgrmsPage TO dynPrgrmsPage.
+                    RELEASE dynPrgrmsPage.
+                END. /* dynLookup */
                 WHEN "dynSubject" THEN DO:
                     IMPORT ttDynSubject.
                     FIND FIRST dynSubject EXCLUSIVE-LOCK
@@ -919,10 +977,30 @@ PROCEDURE pImport :
                     BUFFER-COPY ttDynSubjectWhere TO dynSubjectWhere.
                     RELEASE dynSubjectWhere.
                 END. /* dynSubjectWhere */
+                WHEN "prgrms" THEN DO:
+                    IMPORT ttPrgrms.
+                    FIND FIRST prgrms EXCLUSIVE-LOCK
+                         WHERE prgrms.prgmName  EQ ttPrgrms.prgmName
+                         NO-ERROR.
+                    IF NOT AVAILABLE prgrms THEN NEXT.
+                    ASSIGN
+                        prgrms.subjectID     = ttPrgrms.subjectID
+                        prgrms.pageSubjectID = ttPrgrms.pageSubjectID
+                        .
+                    RELEASE prgrms.
+                END. /* dynLookup */
             END CASE.
         END. /* repeat */
         INPUT CLOSE.
     END. /* do idx */
+    /* remove dynamic page parameters no longer used */
+    IF CAN-FIND(FIRST ttDynPrgrmsPage WHERE ttDynPrgrmsPage.prgmName NE "") THEN
+    FOR EACH dynPrgrmsPage EXCLUSIVE-LOCK:
+        IF CAN-FIND(FIRST ttDynPrgrmsPage
+                    WHERE ttDynPrgrmsPage.prgmName EQ dynPrgrmsPage.prgmName) THEN
+        NEXT.
+        DELETE dynPrgrmsPage.
+    END. /* each ttDynPrgrmsPage */
     RUN pInit.
     SESSION:SET-WAIT-STATE("").
     MESSAGE

@@ -48,7 +48,7 @@ RUN UserAuthenticationCheck (
 IF ERROR-STATUS:ERROR THEN DO:
     ASSIGN
         cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
-        cMessage         = "Internal Server Error at AppServer (#8)"
+        cMessage         = "Internal Server Error at AppServer (#8) - " + cErrorMessage
         oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
         .
      
@@ -148,6 +148,9 @@ IF SEARCH(APIInbound.requestHandler) EQ ? AND
     RETURN.
 END.
 
+/* Set the user id of asi database to current user name */
+SETUSERID(ipcUsername,ipcPassword,LDBNAME(1)).
+
 /* Run the request handler program from the API Inbound configuration */
 RUN VALUE(APIInbound.requestHandler)(
     INPUT  ipcRoute,
@@ -169,7 +172,7 @@ RUN VALUE(APIInbound.requestHandler)(
     ASSIGN 
         cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
         lSuccess         = NO
-        cMessage         = "Internal Server Error at AppServer (#9)"
+        cMessage         = "Internal Server Error at AppServer (#9) - " + cErrorMessage
         oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
         .
     
@@ -203,7 +206,7 @@ PROCEDURE UserAuthenticationCheck:
     IF NOT AVAILABLE ASI.users THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "Authentication Failed (#1)"
+            opcMessage = "Authentication Failed (#1) - user is not available"
             .
         
         RETURN.
@@ -215,7 +218,7 @@ PROCEDURE UserAuthenticationCheck:
     IF NOT AVAILABLE ASI._user THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "Authentication Failed (#2)"
+            opcMessage = "Authentication Failed (#2) - Internal DB user is not available (_user)"
             .
                
         RETURN.
@@ -225,7 +228,7 @@ PROCEDURE UserAuthenticationCheck:
     IF  ASI._user._password NE ipcPassword THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "Authentication Failed (#3)"
+            opcMessage = "Authentication Failed (#3) - Incorrect password"
             .
         
         RETURN.

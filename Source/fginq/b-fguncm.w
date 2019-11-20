@@ -78,7 +78,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    dtDateChar = date(cRtnChar) NO-ERROR. 
+    dtDateChar = date(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -227,8 +227,6 @@ DEFINE FRAME F-Main
      v-net AT ROW 2.91 COL 68 COLON-ALIGNED
      v-bal AT ROW 2.91 COL 98 COLON-ALIGNED
      v-opo AT ROW 2.91 COL 127 COLON-ALIGNED
-     "Text 2" VIEW-AS TEXT
-          SIZE 1 BY .71 AT ROW 1 COL 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -807,6 +805,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+DEF VAR last-cust AS CHAR NO-UNDO.
+
+/*GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no . */
+
+/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
+
+RUN fginq/fgu-exp.w (fi_i-no, fi_date).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -907,58 +930,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no B-table-Win 
-PROCEDURE valid-i-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    fi_i-no:SCREEN-VALUE = CAPS(fi_i-no:SCREEN-VALUE).
-
-    IF NOT CAN-FIND(FIRST itemfg WHERE itemfg.company EQ cocode
-                                   AND itemfg.i-no    EQ fi_i-no:screen-value)
-    THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO fi_i-no.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-
-/*GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no . */
-
-/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
-
-RUN fginq/fgu-exp.w (fi_i-no, fi_date).
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
 PROCEDURE valid-cust-user :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1003,3 +975,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no B-table-Win 
+PROCEDURE valid-i-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    fi_i-no:SCREEN-VALUE = CAPS(fi_i-no:SCREEN-VALUE).
+
+    IF NOT CAN-FIND(FIRST itemfg WHERE itemfg.company EQ cocode
+                                   AND itemfg.i-no    EQ fi_i-no:screen-value)
+    THEN DO:
+      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO fi_i-no.
+      RETURN ERROR.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

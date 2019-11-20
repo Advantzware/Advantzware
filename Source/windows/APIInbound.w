@@ -59,16 +59,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES APIInbound APIInboundDetail
+&Scoped-define EXTERNAL-TABLES APIInbound
 &Scoped-define FIRST-EXTERNAL-TABLE APIInbound
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR APIInbound, APIInboundDetail.
+DEFINE QUERY external_tables FOR APIInbound.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -117,7 +119,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.APIInbound,ASI.APIInboundDetail
+   External Tables: ASI.APIInbound
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
  */
@@ -309,6 +311,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_apiinbound. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_apiinbound ).
+       RUN add-link IN adm-broker-hdl ( h_apiinbound , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_apiinbound ,
@@ -429,14 +432,12 @@ PROCEDURE adm-row-available :
 
   /* Create a list of all the tables that we need to get.            */
   {src/adm/template/row-list.i "APIInbound"}
-  {src/adm/template/row-list.i "APIInboundDetail"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
   {src/adm/template/row-find.i "APIInbound"}
-  {src/adm/template/row-find.i "APIInboundDetail"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -536,7 +537,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "APIInbound"}
-  {src/adm/template/snd-list.i "APIInboundDetail"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

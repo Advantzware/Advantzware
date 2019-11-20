@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi       PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -127,12 +127,13 @@ vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state vend.r-zip ~
 vend.r-country vend.r-postal vend.check-memo vend.Bank-Acct vend.SwiftBIC ~
 vend.Bank-RTN vend.type vend.contact vend.buyer vend.area-code vend.phone ~
 vend.fax-area vend.fax vend.fax-prefix vend.fax-country vend.over-pct ~
-vend.under-pct vend.actnum vend.curr-code vend.tax-gr vend.code-1099 cb_paytype cb_codetype ~
-vend.an-edi-vend vend.terms vend.disc-% vend.rebate-% vend.frt-pay ~
+vend.under-pct vend.actnum vend.curr-code vend.an-edi-vend vend.tax-gr ~
+vend.code-1099 vend.terms vend.disc-% vend.rebate-% vend.frt-pay ~
 vend.disc-days vend.carrier vend.fob-code vend.loc 
 &Scoped-define ENABLED-TABLES vend
 &Scoped-define FIRST-ENABLED-TABLE vend
-&Scoped-Define ENABLED-OBJECTS  RECT-1 RECT-29 RECT-30 RECT-31
+&Scoped-Define ENABLED-OBJECTS cb_codetype cb_paytype RECT-1 RECT-29 ~
+RECT-30 RECT-31 
 &Scoped-Define DISPLAYED-FIELDS vend.vend-no vend.active vend.name ~
 vend.add1 vend.add2 vend.city vend.state vend.zip vend.country vend.Postal ~
 vend.tax-id vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state ~
@@ -140,13 +141,13 @@ vend.r-zip vend.r-country vend.r-postal vend.check-memo vend.Bank-Acct ~
 vend.SwiftBIC vend.Bank-RTN vend.type vend.contact vend.buyer ~
 vend.area-code vend.phone vend.fax-area vend.fax vend.fax-prefix ~
 vend.fax-country vend.over-pct vend.under-pct vend.actnum vend.actdscr ~
-vend.curr-code vend.tax-gr vend.code-1099 cb_paytype cb_codetype vend.an-edi-vend  vend.terms ~
+vend.curr-code vend.an-edi-vend vend.tax-gr vend.code-1099 vend.terms ~
 vend.disc-% vend.po-export vend.rebate-% vend.frt-pay vend.disc-days ~
 vend.carrier vend.fob-code vend.loc 
 &Scoped-define DISPLAYED-TABLES vend
 &Scoped-define FIRST-DISPLAYED-TABLE vend
-&Scoped-Define DISPLAYED-OBJECTS ventype_Dscr ~
-buyer_buyer-n terms_dscr carrier_dscr curr_dscr 
+&Scoped-Define DISPLAYED-OBJECTS ventype_Dscr buyer_buyer-n cb_codetype ~
+terms_dscr cb_paytype carrier_dscr curr_dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -339,6 +340,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
+     vend.Bank-RTN AT ROW 16.52 COL 18 COLON-ALIGNED
+          LABEL "Routing" FORMAT "999999999"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -346,11 +352,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     vend.Bank-RTN AT ROW 16.52 COL 18 COLON-ALIGNED
-          LABEL "Routing" FORMAT ">>>>>>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 FONT 4
      vend.type AT ROW 1.24 COL 83 COLON-ALIGNED
           LABEL "Type"
           VIEW-AS FILL-IN 
@@ -419,8 +420,8 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 
-     vend.code-1099 AT ROW 10.05 COL 97.4 COLON-ALIGNED FORMAT "X"
-          LABEL "1099 Box"
+     vend.code-1099 AT ROW 10.05 COL 97.4 COLON-ALIGNED
+          LABEL "1099 Box" FORMAT "X"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
@@ -581,7 +582,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN carrier_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vend.code-1099 IN FRAME F-Main
-   EXP-FORMAT EXP-LABEL                                                 */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN curr_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vend.disc-days IN FRAME F-Main
@@ -745,9 +746,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.city V-table-Win
+ON LEAVE OF vend.city IN FRAME F-Main /* City */
+DO:
+  if adm-new-record and vend.r-city:screen-value eq "" then
+    vend.r-city:screen-value = vend.city:screen-value.
+
+  IF LASTKEY NE -1 THEN
+  DO:
+     RUN vend-city.     
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME vend.code-1099
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.code-1099 V-table-Win
-ON HELP OF vend.code-1099 IN FRAME F-Main /* 1099 box */
+ON HELP OF vend.code-1099 IN FRAME F-Main /* 1099 Box */
 DO:
   DEF VAR char-val AS cha NO-UNDO.
   DEF VAR rec-val AS RECID NO-UNDO.
@@ -768,25 +786,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.city V-table-Win
-ON LEAVE OF vend.city IN FRAME F-Main /* City */
-DO:
-  if adm-new-record and vend.r-city:screen-value eq "" then
-    vend.r-city:screen-value = vend.city:screen-value.
-
-  IF LASTKEY NE -1 THEN
-  DO:
-     RUN vend-city.     
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vend.code-1099
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.code-1099 V-table-Win
-ON LEAVE OF vend.code-1099 IN FRAME F-Main /* 1099 Code */
+ON LEAVE OF vend.code-1099 IN FRAME F-Main /* 1099 Box */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-code-1099 NO-ERROR.
@@ -798,9 +799,8 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME vend.code-1099
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.code-1099 V-table-Win
-ON VALUE-CHANGED OF vend.code-1099 IN FRAME F-Main /* 1099 Code */
+ON VALUE-CHANGED OF vend.code-1099 IN FRAME F-Main /* 1099 Box */
 DO:
   IF LASTKEY NE -1 THEN DO:
    IF vend.code-1099:SCREEN-VALUE EQ "N" THEN do:
@@ -2019,13 +2019,13 @@ PROCEDURE vend-city :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.city:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.city EQ vend.city:SCREEN-VALUE
+    FIND FIRST asi.zipcode
+        WHERE asi.zipcode.city EQ vend.city:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL asi.zipcode THEN do:
       ASSIGN
-        vend.state:SCREEN-VALUE = nosweat.zipcode.state
-        vend.zip:SCREEN-VALUE = nosweat.zipcode.zipcode  .      
+        vend.state:SCREEN-VALUE = asi.zipcode.state
+        vend.zip:SCREEN-VALUE = asi.zipcode.zipcode  .      
     END.   
   END.
 END PROCEDURE.
@@ -2099,13 +2099,13 @@ PROCEDURE vend-zip :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ vend.zip:SCREEN-VALUE        
+    FIND FIRST asi.zipcode
+        WHERE asi.zipcode.zipcode EQ vend.zip:SCREEN-VALUE        
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL asi.zipcode THEN do:
       ASSIGN
-        vend.state:SCREEN-VALUE = nosweat.zipcode.state
-        vend.city:SCREEN-VALUE = nosweat.zipcode.city.    
+        vend.state:SCREEN-VALUE = asi.zipcode.state
+        vend.city:SCREEN-VALUE = asi.zipcode.city.    
     END.   
   END.
 END PROCEDURE.
@@ -2123,14 +2123,14 @@ PROCEDURE zip-carrier :
    DO WITH FRAME {&FRAME-NAME}:
 
    /* gdm - 10010913 */
-   FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ vend.zip:SCREEN-VALUE
+   FIND FIRST asi.zipcode
+        WHERE asi.zipcode.zipcode EQ vend.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
    ASSIGN
       vend.carrier:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                     TRIM(nosweat.zipcode.carrier) NE "" 
-                                    THEN nosweat.zipcode.carrier 
+                                     TRIM(asi.zipcode.carrier) NE "" 
+                                    THEN asi.zipcode.carrier 
                                     ELSE vend.carrier:SCREEN-VALUE.     
       /* gdm - 10010913 end*/
    END.

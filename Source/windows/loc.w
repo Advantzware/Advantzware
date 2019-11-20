@@ -41,6 +41,7 @@ DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAllowFGBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAllowRMBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAllowWIPBin AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "LocationFGBin",
 	     INPUT "ALL", /* based on run, create, update, delete or all */
@@ -60,6 +61,16 @@ RUN methods/prgsecur.p
 	     OUTPUT lAllowRMBin, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+        (INPUT "LocationWIPBin",
+        INPUT "ALL", /* based on run, create, update, delete or all */
+        INPUT NO,    /* use the directory in addition to the program */
+        INPUT NO,    /* Show a message if not authorized */
+        INPUT NO,    /* Group overrides user security? */
+        OUTPUT lAllowWIPBin, /* Allowed? Yes/NO */
+        OUTPUT lAccessClose, /* used in template/windows.i  */
+        OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN methods/prgsecur.p
 	    (INPUT "Location",
@@ -137,6 +148,10 @@ DEFINE VARIABLE h_rm-bin-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportfg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportrm AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportwip AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -231,7 +246,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -382,6 +397,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 26.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -403,6 +426,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+        /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'export-xl':U , h_export ).
@@ -461,6 +487,14 @@ PROCEDURE adm-create-objects :
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
+      RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exportfg ).
+       RUN set-position IN h_exportfg ( 1.00 , 34.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -498,6 +532,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_fg-bin , 'export-xl':U , h_exportfg ).
+
        /* Links to SmartViewer h_loc-3. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_loc-3 ).
 
@@ -519,6 +556,14 @@ PROCEDURE adm-create-objects :
              h_fg-bin-2 , 'AFTER':U ).
     END. /* Page 3 */
     WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exportrm ).
+       RUN set-position IN h_exportrm ( 1.00 , 34.20 ) NO-ERROR.
+
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -556,6 +601,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_rm-bin , 'export-xl':U , h_exportrm ).
+
        /* Links to SmartViewer h_loc-4. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_loc-4 ).
 
@@ -577,6 +625,14 @@ PROCEDURE adm-create-objects :
              h_rm-bin-2 , 'AFTER':U ).
     END. /* Page 4 */
     WHEN 5 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exportwip ).
+       RUN set-position IN h_exportwip ( 1.00 , 34.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -613,6 +669,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_wip-bin , 'export-xl':U , h_exportwip ).
 
        /* Links to SmartViewer h_loc-5. */
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_loc-5 ).
@@ -718,6 +777,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impWarehouse.p .
+ RUN local-open-query IN h_loc .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
@@ -745,6 +820,9 @@ DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
   END.
   ELSE IF il-cur-page = 4 AND NOT lAllowRMBin THEN DO:
       RUN set-buttons IN h_p-updsav-3 ('disable-all').
+  END.
+  ELSE IF il-cur-page = 5 AND NOT lAllowWIPBin THEN DO:
+      RUN set-buttons IN h_p-updsav-4 ('disable-all').
   END.
 
 

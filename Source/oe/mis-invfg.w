@@ -78,7 +78,7 @@ END.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 Btn_OK Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 btn_FGItem Btn_OK Btn_Cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -103,6 +103,11 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE BUTTON btn_FGItem AUTO-GO
+     LABEL "No FG Item" 
+     SIZE 20 BY 1.14
+     BGCOLOR 8 .
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
@@ -125,13 +130,14 @@ DEFINE BROWSE BROWSE-1
 
 DEFINE FRAME D-Dialog
      BROWSE-1 AT ROW 1.24 COL 1
-     Btn_OK AT ROW 8.52 COL 12.4
-     Btn_Cancel AT ROW 8.52 COL 44.4
-     SPACE(11.99) SKIP(1.00)
+     Btn_OK AT ROW 8.12 COL 8.4
+     btn_FGItem AT ROW 8.12 COL 24.4
+     Btn_Cancel AT ROW 8.12 COL 46.4
+     SPACE(10.59) SKIP(0.60)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 8 FONT 0
-         TITLE "Invoice FG item Selection"
+         TITLE "Invoice FG Item Selection"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
 
 
@@ -239,11 +245,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
+  
   op-vend-no = tt-report.key-01.
   
   RUN clean-up.
   
  END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btn_FGItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_FGItem D-Dialog
+ON CHOOSE OF btn_FGItem IN FRAME D-Dialog /* No FG Item */
+DO:
+  RUN clean-up. 
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -381,7 +398,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE BROWSE-1 Btn_OK Btn_Cancel 
+  ENABLE BROWSE-1 btn_FGItem Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

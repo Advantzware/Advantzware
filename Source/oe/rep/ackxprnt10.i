@@ -4,7 +4,8 @@ PUT "<FArial>".
      PUT "" SKIP. /* pacific package */ 
            
 PUT "<=1>" SKIP.
-/*PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
+IF AVAIL bf-shipto AND bf-shipto.broker THEN do:
+  PUT "<C1><#2>" 
     "<=2><R+1>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"     
    "<P10><=2><R+2>"
      v-comp-add1 AT 8 SKIP
@@ -12,8 +13,12 @@ PUT "<=1>" SKIP.
      v-comp-add3  AT 8 SKIP
      v-comp-add4  AT 8 skip
      v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-     lv-email AT 8 SKIP(1)*/
-    PUT "<C2><R2><#1><R+10><C+40><IMAGE#1=" ls-full-img1  SKIP
+     lv-email AT 8 SKIP(1) .
+END.
+ELSE do:
+    PUT "<C2><R2><#1><R+10><C+40><IMAGE#1=" ls-full-img1  SKIP .
+END.
+  PUT
    "<FCourier New>"
    "Bill To:" SPACE(30) "Sold To:"  SKIP
    SPACE(5) oe-ord.cust-name 
@@ -24,10 +29,10 @@ PUT "<=1>" SKIP.
     (IF oe-ord.sold-addr[2] = "" THEN oe-ord.addr[2] ELSE oe-ord.sold-addr[2]) AT 45 FORM "x(30)" SKIP
    SPACE(5) v-addr3  v-sold-addr3 AT 45 SKIP.
 
- /*IF lv-display-comp THEN
+ IF AVAIL bf-shipto AND bf-shipto.broker THEN
         PUT "<=2><C3><FGCOLOR=" trim(lv-comp-color) + ">"
             "<=2><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
-            "<P10>".*/
+            "<P10>".
 
 v-printline = v-printline + 14.
 PUT "<|10><R4><C50><#3><FROM><R10><C80><RECT>" SKIP.

@@ -169,11 +169,13 @@ for each ink where ink.snum EQ 0 AND ink.bnum eq 0 by ink.i-code by ink.i-dscr:
   if not avail item then next.
   find first e-item of item no-lock no-error.
   if ink.i-qty lt item.min-lbs then ink.i-qty = item.min-lbs.
+  IF ink.noCharge THEN 
+    ink.i-cost = 0.
+  ELSE DO:  
+    {est/matcost.i ink.i-qty ink.i-cost ink}
 
-  {est/matcost.i ink.i-qty ink.i-cost ink}
-
-  ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink.
-
+      ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink.
+  END. /*noCharge = NO*/
   for each ink2
       where ink2.i-code eq ink.i-code
         and ink2.i-dscr eq ink.i-dscr

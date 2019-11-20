@@ -115,6 +115,9 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iFGUnderOver AS INTEGER NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -161,6 +164,18 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        OUTPUT lFound).
 IF lFound THEN
     iFGUnderOver = integer(cFGSetAssembly) NO-ERROR .
+
+RUN methods/prgsecur.p
+	    (INPUT "FGUnOvAllow",
+	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+IF lAllowUserOverRun THEN ASSIGN iFGUnderOver = 0 .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1539,10 +1554,10 @@ FIND  FIRST itemfg WHERE itemfg.company EQ cocode
             USE-INDEX i-no NO-LOCK NO-ERROR.
 
 ASSIGN
- lv-cost-uom = itemfg.prod-uom
+ lv-cost-uom = IF AVAIL itemfg THEN itemfg.prod-uom ELSE ""
  v-bwt       = 0
- v-len       = itemfg.t-len
- v-wid       = itemfg.t-wid
+ v-len       = IF AVAIL itemfg THEN itemfg.t-len ELSE 0
+ v-wid       = IF AVAIL itemfg THEN itemfg.t-wid ELSE 0
  v-dep       = 0.
 
 IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO: /* for row-display */  
@@ -1831,11 +1846,11 @@ PROCEDURE get-values :
         NO-LOCK NO-ERROR.
 
     /*find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.*/
-
-    ASSIGN
-    fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
-    lv-qty-case = STRING(itemfg.case-count)
-    lv-cost-uom = IF itemfg.pur-man THEN itemfg.pur-uom ELSE itemfg.prod-uom.
+   IF AVAIL itemfg THEN 
+       ASSIGN
+       fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
+       lv-qty-case = STRING(itemfg.case-count)
+       lv-cost-uom = IF itemfg.pur-man THEN itemfg.pur-uom ELSE itemfg.prod-uom.
 
     RUN fg/autopost.p (ROWID(itemfg),
                        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -1851,7 +1866,7 @@ PROCEDURE get-values :
     IF AVAIL fg-bin THEN 
       ASSIGN
        lv-std-cost = IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" AND
-                                                  fg-rctd.job-no:SCREEN-VALUE = "" 
+                                                  fg-rctd.job-no:SCREEN-VALUE = "" AND AVAIL itemfg
                                                THEN STRING(itemfg.last-cost) 
                                                ELSE lv-std-cost
        lv-qty-case = /*IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" and
@@ -1859,8 +1874,8 @@ PROCEDURE get-values :
                                                 THEN   STRING(itemfg.case-count)
                                                 ELSE lv-qty-case
                                                 */
-                                                STRING(itemfg.case-count)
-       lv-cost-uom = itemfg.prod-uom.
+                                              IF AVAIL itemfg THEN  STRING(itemfg.case-count) ELSE ""
+       lv-cost-uom = IF AVAIL itemfg THEN itemfg.prod-uom else "".
 
     ASSIGN
      lv-save[1] = fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2428,6 +2443,11 @@ PROCEDURE local-update-record :
   IF lv-do-what = "delete" THEN DO:
      RUN valid-delete-tag(OUTPUT op-error).
      IF op-error THEN RETURN NO-APPLY.
+  END.
+
+  IF lv-do-what NE "delete" THEN DO:
+      RUN valid-loadtag-on-save (OUTPUT op-error).
+      IF op-error THEN RETURN NO-APPLY. 
   END.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3465,7 +3485,7 @@ PROCEDURE validate-record :
      END.
   END.
 
-  IF itemfg.isaset                                                        AND
+  IF AVAIL itemfg AND itemfg.isaset                                        AND
      (itemfg.alloc EQ NO                OR
       (itemfg.alloc EQ YES       AND
        fgrecpt-char EQ "AUTOPOST" AND
@@ -3630,6 +3650,37 @@ PROCEDURE valid-over-qty :
       IF iFGUnderOver EQ 1 AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN do:
           {fg/chkporun.i}
       END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loadtag-on-save B-table-Win 
+PROCEDURE valid-loadtag-on-save :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN do:
+      FIND FIRST loadtag NO-LOCK
+          WHERE loadtag.company   EQ g_company
+          AND loadtag.item-type EQ NO
+          AND loadtag.tag-no    EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+          NO-ERROR.
+      IF NOT AVAIL loadtag THEN DO:
+          MESSAGE "Invalid Loadtag#. " VIEW-AS ALERT-BOX ERROR.
+          fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "".
+          APPLY "entry" TO fg-rctd.tag .
+             op-error = YES .
+      END.
+    END.
   END.
 
 END PROCEDURE.

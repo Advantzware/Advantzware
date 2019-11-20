@@ -711,13 +711,13 @@ ASSIGN
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
- DEFINE VARIABLE lCheckInquiry AS LOGICAL NO-UNDO . 
+ DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO . 
  IF lUpdateReleaseItem THEN do:
-     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"inquiry-rel-source", OUTPUT char-hdl) NO-ERROR.
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target", OUTPUT char-hdl) NO-ERROR.
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         lCheckInquiry = YES .
+         lCheckUpdate = YES .
 
-     IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
+     IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND lCheckUpdate  THEN do:
          RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
          RUN reopen-query .
          RUN repo-query (ROWID(oe-rel)).
@@ -892,6 +892,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 SESSION:DATA-ENTRY-RETURN = YES.
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
 {sa/sa-sls01.i}
@@ -3497,6 +3498,26 @@ PROCEDURE local-initialize :
   END.
 
   /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN
+      oe-rel.s-code:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.stat:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.carrier:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.tot-qty:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.qty:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.lot-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.prom-date:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.cStatus:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.price:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.whsed:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.frt-pay:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.flute:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.spare-char-1:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-rel.spare-char-2:READ-ONLY IN BROWSE {&browse-name} = YES
+      tt-report.q-rel:READ-ONLY IN BROWSE {&browse-name} = YES
+      .
+
   /*{methods/winReSizeLocInit.i}*/
   IF NOT l-update-reason-perms OR (oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN DO:
 

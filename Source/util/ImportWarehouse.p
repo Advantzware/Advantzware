@@ -75,14 +75,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
 
-    FIND FIRST location EXCLUSIVE-LOCK 
-        WHERE location.company EQ ipbf-ttImportWarehouse.Company
-        AND location.locationCode EQ ipbf-ttImportWarehouse.locCode
-        NO-ERROR.
-
     FIND FIRST loc EXCLUSIVE-LOCK 
         WHERE loc.company EQ ipbf-ttImportWarehouse.Company
         AND loc.loc EQ ipbf-ttImportWarehouse.locCode
+        NO-ERROR.
+    IF AVAIL loc THEN
+        FIND FIRST location EXCLUSIVE-LOCK 
+           WHERE location.rec_key EQ loc.addrRecKey
+           AND location.locationCode EQ ipbf-ttImportWarehouse.locCode
         NO-ERROR.
 
     IF NOT AVAILABLE loc THEN 
@@ -182,11 +182,11 @@ PROCEDURE pValidate PRIVATE:
     /*Determine if Add or Update*/
     IF oplValid THEN 
     DO:
-        FIND FIRST location NO-LOCK 
-            WHERE location.company EQ ipbf-ttImportWarehouse.Company
-            AND location.locationCode EQ ipbf-ttImportWarehouse.locCode
+        FIND FIRST loc NO-LOCK 
+            WHERE loc.company EQ ipbf-ttImportWarehouse.Company
+            AND loc.loc EQ ipbf-ttImportWarehouse.locCode
             NO-ERROR .
-        IF AVAIL location THEN
+        IF AVAIL loc THEN
         DO: 
             IF NOT iplUpdateDuplicates THEN 
                 ASSIGN 

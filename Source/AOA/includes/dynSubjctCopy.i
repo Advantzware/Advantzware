@@ -3,7 +3,7 @@
 /* used in dynSubjct.w procedure pCRUD copy */
 
 FOR EACH dyn{1} NO-LOCK
-    WHERE dyn{1}.subjectID EQ iSubjectID
+    WHERE dyn{1}.subjectID EQ iCopySubjectID
     :
     CREATE bDyn{1}.
     BUFFER-COPY dyn{1} EXCEPT subjectID rec_key TO bDyn{1}

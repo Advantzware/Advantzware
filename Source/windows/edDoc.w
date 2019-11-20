@@ -53,16 +53,18 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES edcode
-&Scoped-define FIRST-EXTERNAL-TABLE edcode
+&Scoped-define EXTERNAL-TABLES EDDoc
+&Scoped-define FIRST-EXTERNAL-TABLE EDDoc
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR edcode.
+DEFINE QUERY external_tables FOR EDDoc.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -97,18 +99,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24.05
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -117,7 +119,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.edcode
+   External Tables: ASI.EDDoc
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -356,6 +358,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_eddoc. */
        RUN add-link IN adm-broker-hdl ( h_p-edsend , 'resend':U , h_eddoc ).
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_eddoc ).
+       RUN add-link IN adm-broker-hdl ( h_eddoc , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_eddoc ,
@@ -370,7 +373,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_eddoc-2 ).
        RUN set-position IN h_eddoc-2 ( 5.24 , 19.80 ) NO-ERROR.
-       /* Size in UIB:  ( 16.71 , 109.00 ) */
+       /* Size in UIB:  ( 16.48 , 109.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -398,7 +401,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_eddoc-2. */
        RUN add-link IN adm-broker-hdl ( h_eddoc , 'Record':U , h_eddoc-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_eddoc-2 ).
-
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_eddoc-2 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_eddoc-2 ,
              h_folder , 'AFTER':U ).
@@ -432,13 +435,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "edcode"}
+  {src/adm/template/row-list.i "EDDoc"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "edcode"}
+  {src/adm/template/row-find.i "EDDoc"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -537,7 +540,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "edcode"}
+  {src/adm/template/snd-list.i "EDDoc"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

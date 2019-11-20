@@ -162,12 +162,25 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
+DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
 
+ RUN sys/ref/nk1look.p (INPUT cocode, "CEFormat", "C" /* Character */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT gcEstimateFormat, OUTPUT lRecFound).
+  RUN sys/ref/nk1look.p (INPUT cocode, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT gcEstimateFont, OUTPUT lRecFound).
+    
 FIND FIRST sys-ctrl NO-LOCK WHERE
     sys-ctrl.company EQ cocode AND
     sys-ctrl.name    EQ "CESTCALC"
@@ -1059,6 +1072,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 &SCOPED-DEFINE cellColumnDat probe
@@ -1554,7 +1568,7 @@ IF CAN-FIND(FIRST xprobe
   IF NOT v-nk-found THEN
     lv-quo-price-char = "M".
 
-  IF est.est-type EQ 8 THEN DO:
+  IF est.est-type EQ 8 AND probe.spare-char-2 EQ "" THEN DO:
     FIND FIRST xjob NO-ERROR.
     IF NOT AVAILABLE xjob THEN DO:
       MESSAGE "You must calculate a combo estimate before creating a quote..."
@@ -2210,13 +2224,40 @@ PROCEDURE import-price :
   DEFINE VARIABLE lv-price AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lv-subprice AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lv-subquantity AS DECIMAL DECIMALS 10 NO-UNDO.
+  DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
   DEFINE BUFFER b-eb FOR eb.
+  DEFINE BUFFER bff-probe FOR probe .
+
+  DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+  RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
   
   {est/checkuse.i}
+
+  RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
+  IF lMultiRecords THEN do:
+      RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+      
+      IF NOT lSuppressMessage THEN
+          MESSAGE cCurrentMessage
+          VIEW-AS ALERT-BOX QUESTION 
+          BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
+  END.
+
+ FOR EACH bff-probe NO-LOCK
+     WHERE bff-probe.company = eb.company 
+       and bff-probe.est-no = eb.est-no 
+       AND bff-probe.probe-date ne ?
+       AND (lcheckflg OR ( NOT lcheckflg AND rowid(bff-probe) EQ ROWID(probe))) :
 
   RUN save-fields.
 
   DO WITH FRAME {&FRAME-NAME}:
+
+    REPOSITION {&browse-name} TO ROWID rowid(bff-probe) NO-ERROR.
 
     IF est.est-type NE 8 THEN
       FOR EACH quotehd OF est NO-LOCK,
@@ -2279,14 +2320,17 @@ PROCEDURE import-price :
           probe.sell-price:{&SVB} = STRING(ROUND(lv-subprice / lv-subquantity,2)).
        ELSE
           probe.sell-price:{&SVB} = "0".
-         
+
        RUN calc-fields NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN.
        
        RUN dispatch ("update-record").
     END.
   END.
-  
+ END.
+
+ DELETE OBJECT hMessageProcs.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2578,7 +2622,57 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+PROCEDURE pGetCEVersionCalcSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    glEstimateCalcNew = lFound AND cReturn EQ "New".
+ 
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    IF lRecFound THEN 
+        iCEVersion = INTEGER(cReturn).
+        
+    IF glEstimateCalcNew THEN 
+        CASE iCEVersion:
+            WHEN 1 THEN 
+                ASSIGN 
+                    glEstimateCalcNewPrompt = glEstimateCalcNew.
+            WHEN 2 THEN 
+                DO:
+                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNew = NO.            
+                    ASSIGN 
+                        glEstimateCalcNewPrompt = glEstimateCalcNew.
+                END.
+            WHEN 3 THEN 
+                DO:
+                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNewPrompt = YES.
+                    ELSE 
+                        glEstimateCalcNewPrompt = NO.            
+                END.
+            WHEN 4 THEN 
+                DO:
+                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
+                        ASSIGN 
+                            glEstimateCalcNew       = NO
+                            glEstimateCalcNewPrompt = NO.
+                END.
+        END CASE.
+
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
@@ -2661,6 +2755,10 @@ PROCEDURE local-update-record :
   END.
   ELSE
   IF vmclean THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
+
+  IF probe.spare-char-2 NE "" THEN
+    RUN pCalculatePricing(BUFFER probe). 
+
 /*
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -2779,6 +2877,76 @@ PROCEDURE per-1000 :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalculateEstimate B-table-Win
+PROCEDURE pCalculateEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Runs the calculation program to build the calculated estimate data
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO.
+        
+    FIND FIRST probe NO-LOCK 
+        WHERE probe.company EQ est.company
+        AND probe.est-no EQ est.est-no
+        NO-ERROR.
+    IF AVAIL probe THEN 
+        RUN est/d-probeu.w (OUTPUT lPurge).
+    
+    IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
+        RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
+    RUN CalculateEstimate IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
+    
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalculatePricing B-table-Win
+PROCEDURE pCalculatePricing PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: given a probe buffer, run the CalculateSellPrice procedure
+ inside the estimate calc to update headers, forms and items
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-probe FOR probe.
+
+    IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
+        RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
+    RUN ChangeSellPrice IN hdEstimateCalcProcs (ROWID(ipbf-probe)).
+
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintEstimate B-table-Win
+PROCEDURE pPrintEstimate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Estimate Print from DB Tables, not text files
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-probe FOR probe.
+
+DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+
+DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
+
+
+ASSIGN 
+    iEstCostHeaderID = INT64(ipbf-probe.spare-char-2)
+    cOutputFile = SESSION:TEMP-DIRECTORY + ipbf-probe.spare-char-2 + ".xpr"
+    .
+
+RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile, gcEstimateFormat, gcEstimateFont).
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3247,6 +3415,11 @@ PROCEDURE printProbe :
   DEFINE VARIABLE v-probe-fmt AS CHARACTER NO-UNDO.
   
   {est/checkuse.i}
+  
+  IF probe.spare-char-2 NE "" THEN DO: 
+    RUN pPrintEstimate(BUFFER probe).
+    RETURN.  
+  END.
   IF ipPrompt THEN DO:
     RUN est/d-estprt.w (OUTPUT v-prt-note,OUTPUT v-prt-box,OUTPUT v-from-dept,
                         OUTPUT v-to-dept,OUTPUT lv-dest,OUTPUT lv-font,
@@ -3553,6 +3726,7 @@ PROCEDURE run-whatif :
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
   DEFINE BUFFER bf-probe FOR probe.
   DEFINE VARIABLE ll-return AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE lUseNew AS LOGICAL NO-UNDO.
   
   IF AVAILABLE est THEN
   FIND FIRST est-summ NO-LOCK WHERE est-summ.company EQ est.company 
@@ -3573,6 +3747,28 @@ PROCEDURE run-whatif :
   vprint = YES.
   lv-eb-recid = RECID(eb).
   lv-ef-recid = RECID(ef).
+  
+  RUN pGetCEVersionCalcSettings(BUFFER est).
+  IF glEstimateCalcNew THEN 
+    DO:
+        IF glEstimateCalcNewPrompt THEN 
+            MESSAGE "Use New Estimate Calculation and Print Format?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "New Estimating System" UPDATE lUseNew.
+        ELSE lUseNew = YES.
+        IF lUseNew THEN 
+        DO:
+            RUN pCalculateEstimate. 
+            SESSION:SET-WAIT-STATE ("") .
+            FIND eb NO-LOCK 
+                WHERE RECID(eb) EQ lv-eb-recid.
+            FIND ef NO-LOCK 
+                WHERE RECID(ef) EQ lv-ef-recid.
+            FIND CURRENT est NO-LOCK NO-ERROR.
+            RUN dispatch ("open-query").
+            RUN dispatch ("open-query").
+            RETURN.
+        END.
+    END.
   
   FOR EACH mclean:
     DELETE mclean.
@@ -3979,6 +4175,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMultiRecords B-table-Win 
+PROCEDURE pCheckMultiRecords :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplMultiRecords AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bff-probe FOR probe .
+  i = 0 .
+  FOR EACH bff-probe NO-LOCK
+     WHERE bff-probe.company = eb.company 
+       and bff-probe.est-no = eb.est-no 
+       AND bff-probe.probe-date ne ?:
+     i = i + 1 .
+     IF i GE 2 THEN DO:
+        oplMultiRecords = YES .
+        LEAVE .
+     END.
+  END.   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ************************  Function Implementations ***************** */
 

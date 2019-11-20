@@ -40,6 +40,7 @@
     DEFINE VARIABLE cPoStatus          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoStatusExt       AS CHARACTER NO-UNDO.   /* Will store the extension of the PO Status. Eg: "Open", Delete */
     DEFINE VARIABLE cPoDate            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDueDate           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendorID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendorName        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendorAddress1    AS CHARACTER NO-UNDO.
@@ -88,10 +89,16 @@
     DEFINE VARIABLE cCustomerID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderNo           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOperationID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStackHeight       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletWidth       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletLength      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletHeight      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnitPallet        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID2            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDFormNo       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineStatus      AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
@@ -196,6 +203,7 @@
                                  ELSE
                                      "Open"
             cPoDate            = STRING(po-ord.po-date)
+            cDueDate           = STRING(po-ord.due-date)
             cVendorID          = STRING(po-ord.vend-no)
             cContact           = STRING(po-ord.contact)
             cShipToID          = STRING(po-ord.ship-id)
@@ -268,14 +276,20 @@
                 cItemWidth            = STRING(po-ordl.s-wid)
                 cItemLength           = STRING(po-ordl.s-len)
                 cItemDepth            = STRING(po-ordl.s-dep)
-                cCostPerUOM           = STRING(po-ordl.cost,"->,>>>,>>9.99<<<<")
+                cCostPerUOM           = STRING(po-ordl.cost,"->>>>>>9.99<<<<")
                 cCostUOM              = STRING(po-ordl.pr-uom)
                 cCostSetup            = STRING(po-ordl.setup)
                 cCostDiscount         = STRING(po-ordl.disc)
                 cCustomerID           = STRING(po-ordl.cust-no)
                 cOrderNo              = STRING(po-ordl.ord-no)
+                cPoLineStatus         = STRING(po-ordl.stat)
                 cOperationID          = ""
                 cQtyPerPack           = ""
+                cStackHeight          = "0"
+                cPalletWidth          = "0.00"
+                cPalletHeight         = "0.00"
+                cPalletLength         = "0.00"
+                cUnitPallet           = "0"
                 cPurchaseUnit         = STRING(po-ordl.pr-qty-uom)
                 cJobID                = STRING(po-ordl.job-no)
                 cJobID2               = STRING(po-ordl.job-no2)
@@ -288,7 +302,14 @@
                    AND itemfg.i-no    EQ po-ordl.i-no
                  NO-ERROR.
             IF AVAILABLE itemfg AND NOT po-ordl.item-type THEN
-                cQtyPerPack = STRING(itemfg.case-count).
+                ASSIGN
+                    cQtyPerPack   = STRING(itemfg.case-count)
+                    cStackHeight  = STRING(itemfg.stackHeight)
+                    cPalletWidth  = STRING(itemfg.unitWidth, ">>>>9.99")
+                    cPalletHeight = STRING(itemfg.unitHeight, ">>>>9.99")
+                    cPalletLength = STRING(itemfg.unitLength, ">>>>9.99")
+                    cUnitPallet   = STRING(itemfg.case-pall)
+                    .
 
             /* Fetch first operation id (job-mch.m-code) for the order line */
             RUN GetOperationForPO IN hdJobprocs (
@@ -302,6 +323,7 @@
                 ).
                                                          
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityUOM", cQuantityUOM).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemType", cItemType).
@@ -322,6 +344,11 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "costDiscount", cCostDiscount).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "customerID", cCustomerID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "orderNo", cOrderNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "stackHeight", cStackHeight).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "palletWidth", cPalletWidth).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "palletLength", cPalletLength).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "palletHeight", cPalletHeight).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "unitPallet", cUnitPallet).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "operationID", cOperationID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobID", cJobID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobID2", cJobID2).
@@ -445,6 +472,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatus", cPoStatus).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatusExt", cPoStatusExt).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poDate", cPoDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "dueDate", cDueDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorID", cVendorID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorName", cVendorName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorAddress1", cVendorAddress1).

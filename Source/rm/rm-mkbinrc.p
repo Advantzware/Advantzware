@@ -221,14 +221,19 @@ PROCEDURE rm-mkbin-i:
     
   END. /* R */
   
+  IF bf-rm-rcpth.rita-code EQ "C"
+     AND ld-cst NE 0 THEN 
+     bf-rm-bin.cost = ld-cst.
+     
   IF INDEX("RATC",bf-rm-rcpth.rita-code) NE 0 THEN DO:
 
-    bf-rm-bin.qty = ld-qty +
-                 IF bf-rm-rcpth.rita-code EQ "C" THEN 0 ELSE bf-rm-bin.qty.
+    IF bf-rm-rcpth.rita-code EQ "C" THEN 
+      bf-rm-bin.qty = ld-qty.
+    ELSE  
+      bf-rm-bin.qty = ld-qty + bf-rm-bin.qty.
     
-END.
+  END.
   ELSE DO:
-      
           bf-rm-bin.qty = bf-rm-bin.qty - ld-qty.
   END.
 

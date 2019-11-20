@@ -95,7 +95,7 @@ DEF VAR lv-fax-image    AS cha NO-UNDO.  /* fax imge file */
 DEF VAR vlSkipRec       AS LOG NO-UNDO.
 DEF NEW SHARED VAR LvOutputSelection AS CHAR NO-UNDO.
 DEF VAR v-stmt-char AS cha NO-UNDO.
-DEF VAR v-pdf-camp AS LOG NO-UNDO.
+
 def var v-print-hdr like sys-ctrl.log-fld no-undo.
 def var v-use-cust as log no-undo.
 DEF VAR vcDefaultForm AS CHAR NO-UNDO.
@@ -147,12 +147,12 @@ DEF BUFFER b-cust   FOR cust.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 stmt-date tb_cust-list ~
 btnCustList begin_cust-no end_cust-no stmt-msg fi_contact tb_detailed ~
-tb_past-due tb_curr-bal tb_HideDialog rd-dest tb_BatchMail tb_emailpdf ~
+tb_past-due tb_curr-bal tb_HideDialog rd-dest tb_BatchMail ~
 lines-per-page lv-ornt lv-font-no td-show-parm run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS stmt-date tb_cust-list begin_cust-no ~
 end_cust-no stmt-msg fi_contact lbl_detailed tb_detailed lbl_past-due ~
 tb_past-due lbl_curr-bal tb_curr-bal tb_HideDialog rd-dest tb_BatchMail ~
-tb_emailpdf lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm run_format
+lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -286,11 +286,6 @@ DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_emailpdf AS LOGICAL INITIAL no 
-     LABEL "&Email PDF (PDFCamp)" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26.8 BY 1 NO-UNDO.
-
 DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL no 
      LABEL "&Hide Dialog-Box" 
      VIEW-AS TOGGLE-BOX
@@ -333,7 +328,6 @@ DEFINE FRAME FRAME-A
      tb_HideDialog AT ROW 12.14 COL 46.6
      rd-dest AT ROW 13.14 COL 6 NO-LABEL
      tb_BatchMail AT ROW 13.19 COL 31
-     tb_emailpdf AT ROW 13.19 COL 67.2
      lines-per-page AT ROW 14.67 COL 84 COLON-ALIGNED
      lv-ornt AT ROW 14.71 COL 31 NO-LABEL
      lv-font-no AT ROW 16.33 COL 34 COLON-ALIGNED
@@ -449,10 +443,6 @@ ASSIGN
 
 ASSIGN 
        tb_detailed:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_emailpdf:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -990,17 +980,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_emailpdf
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_emailpdf C-Win
-ON VALUE-CHANGED OF tb_emailpdf IN FRAME FRAME-A /* Email PDF (PDFCamp) */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME tb_HideDialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_HideDialog C-Win
 ON VALUE-CHANGED OF tb_HideDialog IN FRAME FRAME-A /* Hide Dialog-Box */
@@ -1353,12 +1332,12 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY stmt-date tb_cust-list begin_cust-no end_cust-no stmt-msg fi_contact 
           lbl_detailed tb_detailed lbl_past-due tb_past-due lbl_curr-bal 
-          tb_curr-bal tb_HideDialog rd-dest tb_BatchMail tb_emailpdf 
+          tb_curr-bal tb_HideDialog rd-dest tb_BatchMail  
           lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 stmt-date tb_cust-list btnCustList begin_cust-no 
          end_cust-no stmt-msg fi_contact tb_detailed tb_past-due tb_curr-bal 
-         tb_HideDialog rd-dest tb_BatchMail tb_emailpdf lines-per-page lv-ornt 
+         tb_HideDialog rd-dest tb_BatchMail lines-per-page lv-ornt 
          lv-font-no td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1392,21 +1371,9 @@ PROCEDURE GenerateMail :
       /*Print PDF attachment*/
       IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") THEN
       DO:
-         IF tb_emailpdf:CHECKED THEN
-         DO:
-            RUN custom/printaspdf.p(INPUT list-name,
-                                    INPUT INT(lv-font-no),
-                                    INPUT lv-ornt).
-
-            OS-COMMAND SILENT VALUE("copy /y " + v-dir + "\asi.pdf " + v-dir + "\statement.pdf").
-
-            list-name = v-dir + "\statement.pdf".
-         END.
-         ELSE
-         DO:
-            OS-COMMAND SILENT VALUE("copy /y " + list-name + " " + list-name + ".txt").
+         OS-COMMAND SILENT VALUE("copy /y " + list-name + " " + list-name + ".txt").
             list-name = list-name + ".txt".
-         END.
+        
       END.
 
       IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', list-name).
@@ -5394,9 +5361,6 @@ PROCEDURE SetEmailBoxes :
   DO:
      ASSIGN tb_BatchMail:SENSITIVE = YES
             tb_HideDialog:SENSITIVE = YES.
-
-     IF v-pdf-camp THEN
-        tb_emailpdf:SENSITIVE = YES.
   END.
 
   ELSE
@@ -5404,8 +5368,7 @@ PROCEDURE SetEmailBoxes :
             tb_BatchMail:CHECKED    = no
             tb_HideDialog:SENSITIVE = no
             tb_HideDialog:CHECKED   = no
-            tb_emailpdf:SENSITIVE = no
-            tb_emailpdf:CHECKED = no.
+            .
 
 END PROCEDURE.
 
@@ -5510,10 +5473,7 @@ PROCEDURE pRunFormatValueChanged :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-
-        IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
-            lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
-            v-pdf-camp = YES.
+       
         IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "ARStmt3C" OR v-stmt-char = "SouleMed") THEN DO:
             fi_contact:HIDDEN IN FRAME {&FRAME-NAME} = NO.
             RUN setAttentionDefault.

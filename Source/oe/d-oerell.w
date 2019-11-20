@@ -1377,7 +1377,7 @@ PROCEDURE valid-cust-no :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF oe-rell.cust-no:SCREEN-VALUE /*IN BROWSE {&browse-name}*/ NE "" AND
-       (oe-rell.cust-no:SCREEN-VALUE /*IN BROWSE {&browse-name}*/ NE oe-bolh.cust-no OR
+       (oe-rell.cust-no:SCREEN-VALUE /*IN BROWSE {&browse-name}*/ NE oe-rell.cust-no OR
         NOT CAN-FIND(FIRST fg-bin 
                      WHERE fg-bin.company EQ cocode
                        AND fg-bin.i-no    EQ oe-rell.i-no:SCREEN-VALUE 

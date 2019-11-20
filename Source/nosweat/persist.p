@@ -5,6 +5,7 @@ DEFINE SHARED     VARIABLE g_track_usage AS LOGICAL       NO-UNDO.
 DEFINE            VARIABLE phandle       AS WIDGET-HANDLE NO-UNDO.
 DEFINE            VARIABLE is-running    AS LOGICAL       NO-UNDO.
 
+{system/fSuperRunning.i}
 
 &Scoped-define IAMPERSIST yes
 
@@ -183,22 +184,24 @@ PROCEDURE Get_Procedure :
             run-proc = "".
         END.
         ELSE DO:
-            IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:  
-                RUN spCreateAuditHdr (
-                    "TRACK",             /* type  */
-                    "ASI",               /* db    */
-                    proc-name,           /* table */
-                    buf-prgrms.mnemonic, /* key   */
-                    OUTPUT iAuditID
-                    ).
-                RUN spCreateAuditDtl (
-                    iAuditID, /* audit id     */
-                    "",       /* field        */
-                    0,        /* extent       */
-                    "",       /* before value */
-                    "",       /* after value  */
-                    NO        /* index field  */
-                    ).
+            IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:
+                IF fSuperRunning ("session.") THEN DO:
+                    RUN spCreateAuditHdr (
+                        "TRACK",             /* type  */
+                        "ASI",               /* db    */
+                        proc-name,           /* table */
+                        buf-prgrms.mnemonic, /* key   */
+                        OUTPUT iAuditID
+                        ).
+                    RUN spCreateAuditDtl (
+                        iAuditID, /* audit id     */
+                        "",       /* field        */
+                        0,        /* extent       */
+                        "",       /* before value */
+                        "",       /* after value  */
+                        NO        /* index field  */
+                        ).
+                END. /* if session.p running */
             END. /* if tracking usage */
             IF run-now THEN DO:
                 IF buf-prgrms.run_persistent THEN DO:
@@ -221,11 +224,13 @@ PROCEDURE Get_Procedure :
                 RUN running_procedures(run-proc, OUTPUT lDummy).
                 run-proc = "".
             END. /* if run-now */
-            RUN spTtPermissions (ROWID(buf-prgrms)).
-            /* if SysCtrlUsage viewer open, auto refresh */
-            hSysCtrlUsage = DYNAMIC-FUNCTION("sfGetSysCtrlUsageHandle").
-            IF VALID-HANDLE(hSysCtrlUsage) THEN
-            RUN pGetTtPermissions IN hSysCtrlUsage.
+            IF fSuperRunning ("session.") THEN DO:
+                RUN spTtPermissions (ROWID(buf-prgrms)).
+                /* if SysCtrlUsage viewer open, auto refresh */
+                hSysCtrlUsage = DYNAMIC-FUNCTION("sfGetSysCtrlUsageHandle").
+                IF VALID-HANDLE(hSysCtrlUsage) THEN
+                RUN pGetTtPermissions IN hSysCtrlUsage.
+            END. /* if session.p running */
         END. /* else do */
     END. /* avail buf-prgrms */
     ELSE IF NOT SESSION:BATCH-MODE THEN DO:

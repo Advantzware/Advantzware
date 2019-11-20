@@ -19,9 +19,13 @@ ASSIGN
     PROPATH = ENTRY(1,SESSION:PARAMETER,"+")
     rRowID  = TO-ROWID(ENTRY(2,SESSION:PARAMETER,"+"))
     .
-RUN system\session.p PERSISTENT SET hSession.
+RUN system/session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
+FIND FIRST emailConfig NO-LOCK
+     WHERE emailConfig.configID EQ 1
+       AND emailConfig.isActive EQ YES
+     NO-ERROR.
 FIND FIRST config NO-LOCK.
 FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ rRowID.
 
@@ -73,8 +77,8 @@ IF AVAILABLE user-print THEN DO:
                     CREATE taskEmail.
                     ASSIGN
                         taskEmail.subject    = cSubject
-                        taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
-                                               config.emailBody ELSE "AOA Task Result Attached"
+                        taskEmail.body       = IF AVAILABLE emailConfig AND emailConfig.body NE "" THEN
+                                               emailConfig.body ELSE "AOA Task Result Attached"
                         taskEmail.attachment = cJasperFile
                         taskEmail.recipients = Task.recipients
                         taskEmail.mustExist  = YES

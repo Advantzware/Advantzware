@@ -2170,6 +2170,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 DO WITH FRAME {&frame-name}:
@@ -3176,6 +3177,7 @@ PROCEDURE copy-2-form-zero :
            bf-eb.tr-dep    = eb.tr-dep
            bf-eb.casNoCharge = eb.casNoCharge
            bf-eb.trNoCharge = eb.trNoCharge
+           bf-eb.inkNoCharge = eb.inkNoCharge
             .
 
   RETURN.
@@ -5688,9 +5690,7 @@ PROCEDURE local-assign-record :
   END.
   
   IF eb.pur-man THEN
-  	assign ef.nc = NO
-	       eb.casNoCharge = NO
-	       eb.trNoCharge = NO.
+  	assign ef.nc = NO.
   IF lCheckPurMan THEN DO:
       FIND FIRST bff-itemfg EXCLUSIVE-LOCK
            WHERE bff-itemfg.company EQ cocode

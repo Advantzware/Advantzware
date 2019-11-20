@@ -345,7 +345,7 @@ DO:
   {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
-   {&methods/lValidateError.i NO}
+  {&methods/lValidateError.i NO}
 END.
 
 
@@ -696,7 +696,6 @@ PROCEDURE local-update-record :
          b-shifts.company = gcompany AND
          b-shifts.shift = STRING(fi_shift:SCREEN-VALUE)
          NO-LOCK NO-ERROR.
-
     IF NOT AVAIL b-shifts THEN
        DO:
           MESSAGE "Invalid Shift."
@@ -704,17 +703,20 @@ PROCEDURE local-update-record :
           APPLY "ENTRY" TO fi_shift IN FRAME {&FRAME-NAME}.
           RETURN NO-APPLY.
        END.
-
-    ASSIGN
-       start_hour:SCREEN-VALUE = SUBSTR(STRING(b-shifts.start_time,"HH:MM AM"),1,2)
-       start_minute:SCREEN-VALUE = SUBSTR(STRING(b-shifts.start_time,"HH:MM AM"),4,2)
-       start_second:SCREEN-VALUE = SUBSTR(STRING(b-shifts.start_time,"HH:MM:SS AM"),7,2)
-       start_ampm:SCREEN-VALUE = SUBSTR(STRING(b-shifts.start_time,"HH:MM AM"),7,2)
-       end_hour:SCREEN-VALUE = SUBSTR(STRING(b-shifts.end_time,"HH:MM AM"),1,2)
-       end_minute:SCREEN-VALUE = SUBSTR(STRING(b-shifts.end_time,"HH:MM AM"),4,2)
-       end_second:SCREEN-VALUE = SUBSTR(STRING(b-shifts.end_time,"HH:MM:SS AM"),7,2)
-       end_ampm:SCREEN-VALUE = SUBSTR(STRING(b-shifts.end_time,"HH:MM AM"),7,2)
-       {&TIME-FIELDS}.
+    {custom/get_time2.i
+      &field="machshft.start_time"
+      &hour="start_hour"
+      &minute="start_minute"
+      &second="start_second"
+      &ampm="start_ampm"
+    }
+    {custom/get_time2.i
+      &field="machshft.end_time"
+      &hour="end_hour"
+      &minute="end_minute"
+      &second="end_second"
+      &ampm="end_ampm"
+    }
   END.
   {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */

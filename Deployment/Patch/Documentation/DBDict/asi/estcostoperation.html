@@ -1,0 +1,1889 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../red.css">
+  <link rel="shortcut icon" href="../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../print.css">
+  <script src="../swapstyle.js"    type="text/javascript"></script>
+  <script src="../stylechooser.js" type="text/javascript"></script>
+  <script src="../dbchooser.js"    type="text/javascript"></script>
+  <script src="../htmldict.js"     type="text/javascript"></script>
+  <title> Schema ASI.estCostOperation</title>
+</head>
+
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+ 
+
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:40%;"><a href="../00-index.html"target="_top">DB</a>
+ | <a href="00-area.html"target="main">Areas</a>
+ | <a href="00-cross.html"target="main">X-idx</a>
+ | <a href="00-main.html"target="main">Tables</a>
+ | <a href="00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%;">  &lt;- <a href="estcostmisc.html">estCostMisc</a></td>
+    <td class="navbar" style="width:20%;">  <a href="estcostsummary.html">estCostSummary</a> -&gt;</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+<h1>ASI.estCostOperation</h1>
+<p>Calculated cost detail for each operation on the estimate. The estCostOperation is associated to a form (Printer) or a form/blank (gluer).</p>
+<hr>
+<div class="clearboth">
+  <div class="tbdetcol">
+    <h2>Table details</h2>
+    <table style="border-style:none;" >
+      <tr class="shadedrow"><th>Area</th>
+                            <td><a href="00-area.html">Data</a></td></tr>
+      <tr class="shadedrow"><th>Dumpname </th>
+                            <td> estcostoperation      </td></tr>
+      <tr class="shadedrow"><th>Label    </th>     
+                            <td> Estimate Cost Operation      </td></tr>
+      <tr class="shadedrow"><th>Val.exp  </th>     
+                            <td> ?      </td></tr>
+      <tr class="shadedrow"><th>Val.msg  </th>     
+                            <td>       </td></tr>
+    </table>
+  </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg\estCostOperation.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg\estCostOperation.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg\estCostOperation.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
+<div class="clearboth"></div>
+<hr style="margin-top:20px;">
+<h2>Fields</h2>
+
+<div id=SortName >
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Order<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>Field Name</th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
+    <td>blankNo</td>
+    <td><a href="00-cross-b.html#blankNo"><small>X</small></a></td>
+    <td>Blank</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Company Code</td>
+  </tr>
+  <tr class="oddrow">
+    <td>670</td>
+    <td>costMinimum</td>
+    <td><a href="00-cross-c.html#costMinimum"><small>X</small></a></td>
+    <td>Cost Minimum</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Minimum Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>470</td>
+    <td>costPerHourFORun</td>
+    <td><a href="00-cross-c.html#costPerHourFORun"><small>X</small></a></td>
+    <td>Cost/Hour Run FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Fixed Overhead portion of Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>430</td>
+    <td>costPerHourFOSetup</td>
+    <td><a href="00-cross-c.html#costPerHourFOSetup"><small>X</small></a></td>
+    <td>Cost/HourSetup FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Fixed Overhead portion of Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>490</td>
+    <td>costPerHourTotalRun</td>
+    <td><a href="00-cross-c.html#costPerHourTotalRun"><small>X</small></a></td>
+    <td>Cost/Hour Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost Per Hour for Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>450</td>
+    <td>costPerHourTotalSetup</td>
+    <td><a href="00-cross-c.html#costPerHourTotalSetup"><small>X</small></a></td>
+    <td>Cost/HourSetup</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost Per Hour for Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>480</td>
+    <td>costPerHourVORun</td>
+    <td><a href="00-cross-c.html#costPerHourVORun"><small>X</small></a></td>
+    <td>Cost/Hour Run VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Variable Overhead portion of Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>440</td>
+    <td>costPerHourVOSetup</td>
+    <td><a href="00-cross-c.html#costPerHourVOSetup"><small>X</small></a></td>
+    <td>Cost/HourSetup VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Variable Overhead portion of Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>460</td>
+    <td>costPerManHourDLRun</td>
+    <td><a href="00-cross-c.html#costPerManHourDLRun"><small>X</small></a></td>
+    <td>Cost/Man Hour Run DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Man Hour for Direct Labor portion of Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>420</td>
+    <td>costPerManHourDLSetup</td>
+    <td><a href="00-cross-c.html#costPerManHourDLSetup"><small>X</small></a></td>
+    <td>Cost/Man Hour Setup DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Man Hour for Direct Labor portion of Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>100</td>
+    <td>costTotal</td>
+    <td><a href="00-cross-c.html#costTotal"><small>X</small></a></td>
+    <td>Cost Total</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Total</td>
+  </tr>
+  <tr class="oddrow">
+    <td>510</td>
+    <td>costTotalDLRun</td>
+    <td><a href="00-cross-c.html#costTotalDLRun"><small>X</small></a></td>
+    <td>Cost Total Run DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run DL</td>
+  </tr>
+  <tr class="evenrow">
+    <td>550</td>
+    <td>costTotalDLSetup</td>
+    <td><a href="00-cross-c.html#costTotalDLSetup"><small>X</small></a></td>
+    <td>Cost Total Setup DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup DL</td>
+  </tr>
+  <tr class="oddrow">
+    <td>530</td>
+    <td>costTotalFORun</td>
+    <td><a href="00-cross-c.html#costTotalFORun"><small>X</small></a></td>
+    <td>Cost Total Run FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run FO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>570</td>
+    <td>costTotalFOSetup</td>
+    <td><a href="00-cross-c.html#costTotalFOSetup"><small>X</small></a></td>
+    <td>Cost Total Setup FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup FO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>600</td>
+    <td>costTotalMinDiff</td>
+    <td><a href="00-cross-c.html#costTotalMinDiff"><small>X</small></a></td>
+    <td>Cost Min Diff</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost Attributed to Minimum Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>640</td>
+    <td>costTotalMinDiffDLRun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffDLRun"><small>X</small></a></td>
+    <td>Cost Min Run DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run DL</td>
+  </tr>
+  <tr class="oddrow">
+    <td>610</td>
+    <td>costTotalMinDiffDLSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffDLSetup"><small>X</small></a></td>
+    <td>Cost Min Setup DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup DL</td>
+  </tr>
+  <tr class="evenrow">
+    <td>660</td>
+    <td>costTotalMinDiffFORun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffFORun"><small>X</small></a></td>
+    <td>Cost Min Run FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run FO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>630</td>
+    <td>costTotalMinDiffFOSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffFOSetup"><small>X</small></a></td>
+    <td>Cost Min Setup FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup FO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>590</td>
+    <td>costTotalMinDiffRun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffRun"><small>X</small></a></td>
+    <td>Cost Min Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>580</td>
+    <td>costTotalMinDiffSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffSetup"><small>X</small></a></td>
+    <td>Cost Min Setup</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>650</td>
+    <td>costTotalMinDiffVORun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffVORun"><small>X</small></a></td>
+    <td>Cost Min Run VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run VO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>620</td>
+    <td>costTotalMinDiffVOSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffVOSetup"><small>X</small></a></td>
+    <td>Cost Min Setup VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup VO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>130</td>
+    <td>costTotalPerMFinished</td>
+    <td><a href="00-cross-c.html#costTotalPerMFinished"><small>X</small></a></td>
+    <td>Cost Per M</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Thousand
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>500</td>
+    <td>costTotalRun</td>
+    <td><a href="00-cross-c.html#costTotalRun"><small>X</small></a></td>
+    <td>Cost Total Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>540</td>
+    <td>costTotalSetup</td>
+    <td><a href="00-cross-c.html#costTotalSetup"><small>X</small></a></td>
+    <td>Cost Total Setup</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup</td>
+  </tr>
+  <tr class="oddrow">
+    <td>520</td>
+    <td>costTotalVORun</td>
+    <td><a href="00-cross-c.html#costTotalVORun"><small>X</small></a></td>
+    <td>Cost Total Run VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run VO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>560</td>
+    <td>costTotalVOSetup</td>
+    <td><a href="00-cross-c.html#costTotalVOSetup"><small>X</small></a></td>
+    <td>Cost Total Setup VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup VO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>200</td>
+    <td>countCoats</td>
+    <td><a href="00-cross-c.html#countCoats"><small>X</small></a></td>
+    <td>Coats</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Coatings</td>
+  </tr>
+  <tr class="evenrow">
+    <td>220</td>
+    <td>countFountainChanges</td>
+    <td><a href="00-cross-c.html#countFountainChanges"><small>X</small></a></td>
+    <td>Fountains</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Fountain Changes</td>
+  </tr>
+  <tr class="oddrow">
+    <td>190</td>
+    <td>countInks</td>
+    <td><a href="00-cross-c.html#countInks"><small>X</small></a></td>
+    <td>Inks</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Inks</td>
+  </tr>
+  <tr class="evenrow">
+    <td>210</td>
+    <td>countPlateChanges</td>
+    <td><a href="00-cross-c.html#countPlateChanges"><small>X</small></a></td>
+    <td>Plates</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Plate Changes</td>
+  </tr>
+  <tr class="oddrow">
+    <td>400</td>
+    <td>crewSizeRun</td>
+    <td><a href="00-cross-c.html#crewSizeRun"><small>X</small></a></td>
+    <td>Run Crew</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Crew Required for Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>410</td>
+    <td>crewSizeSetup</td>
+    <td><a href="00-cross-c.html#crewSizeSetup"><small>X</small></a></td>
+    <td>Setup Crew</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Crew Required for Setup/Make Ready</td>
+  </tr>
+  <tr class="oddrow">
+    <td>360</td>
+    <td>departmentID</td>
+    <td><a href="00-cross-d.html#departmentID"><small>X</small></a></td>
+    <td>Departments</td>
+    <td>character [4]</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: All Departments for Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>350</td>
+    <td>departmentIDPrimary</td>
+    <td><a href="00-cross-d.html#departmentIDPrimary"><small>X</small></a></td>
+    <td>Department</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Primary Department for Operation</td>
+  </tr>
+  <tr class="oddrow">
+    <td>50</td>
+    <td><a href="estcostblank.html">estCostBlankID</a></td>
+    <td><a href="00-cross-e.html#estCostBlankID"><small>X</small></a></td>
+    <td>Blank ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique ID for Estimate Blank</td>
+  </tr>
+  <tr class="evenrow">
+    <td>40</td>
+    <td><a href="estcostform.html">estCostFormID</a></td>
+    <td><a href="00-cross-e.html#estCostFormID"><small>X</small></a></td>
+    <td>Form ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID for Estimate Form</td>
+  </tr>
+  <tr class="oddrow">
+    <td>60</td>
+    <td><a href="estcostheader.html">estCostHeaderID</a></td>
+    <td><a href="00-cross-e.html#estCostHeaderID"><small>X</small></a></td>
+    <td>Header ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID for Estimate Header</td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>estCostOperationID</td>
+    <td><a href="00-cross-e.html#estCostOperationID"><small>X</small></a></td>
+    <td>Operation Cost ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID for Operation Cost. Auto-generated.</td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>estimateNo</td>
+    <td><a href="00-cross-e.html#estimateNo"><small>X</small></a></td>
+    <td>Estimate</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimate Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>330</td>
+    <td>feedType</td>
+    <td><a href="00-cross-f.html#feedType"><small>X</small></a></td>
+    <td>Feed Type</td>
+    <td>character</td>
+    <td>x(1)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Feed Type (Blank, Sheet, Roll, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>80</td>
+    <td>formNo</td>
+    <td><a href="00-cross-f.html#formNo"><small>X</small></a></td>
+    <td>Form</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Form Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>370</td>
+    <td>hoursRun</td>
+    <td><a href="00-cross-h.html#hoursRun"><small>X</small></a></td>
+    <td>Run Hours</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Run Hours for Operation Quantity</td>
+  </tr>
+  <tr class="oddrow">
+    <td>380</td>
+    <td>hoursSetup</td>
+    <td><a href="00-cross-h.html#hoursSetup"><small>X</small></a></td>
+    <td>Setup Hours</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Setup/Make Ready Hours for Operation Quantity</td>
+  </tr>
+  <tr class="evenrow">
+    <td>300</td>
+    <td>isBlankMaker</td>
+    <td><a href="00-cross-i.html#isBlankMaker"><small>X</small></a></td>
+    <td>Blanker?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Die Cutter/Blanker?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>260</td>
+    <td>isCoater</td>
+    <td><a href="00-cross-i.html#isCoater"><small>X</small></a></td>
+    <td>Coater?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Coater?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>270</td>
+    <td>isGluer</td>
+    <td><a href="00-cross-i.html#isGluer"><small>X</small></a></td>
+    <td>Gluer?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Gluer?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>280</td>
+    <td>isLeafer</td>
+    <td><a href="00-cross-i.html#isLeafer"><small>X</small></a></td>
+    <td>Leafer?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Leafer/Foiler?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>isLocked</td>
+    <td><a href="00-cross-i.html#isLocked"><small>X</small></a></td>
+    <td>Locked?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation Locked from recalculated changes?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>isNetSheetMaker</td>
+    <td><a href="00-cross-i.html#isNetSheetMaker"><small>X</small></a></td>
+    <td>Sheeter?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Sheeter that makes Net Sheets out of Gross Sheets?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>250</td>
+    <td>isPrinter</td>
+    <td><a href="00-cross-i.html#isPrinter"><small>X</small></a></td>
+    <td>Printer?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Printer?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>isSpeedInLF</td>
+    <td><a href="00-cross-i.html#isSpeedInLF"><small>X</small></a></td>
+    <td>Speed in LF?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Speed in Lineal Feet (LF) per Hour</td>
+  </tr>
+  <tr class="evenrow">
+    <td>170</td>
+    <td>numOutDivisor</td>
+    <td><a href="00-cross-n.html#numOutDivisor"><small>X</small></a></td>
+    <td>Num Out Div</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Number Out Divisor</td>
+  </tr>
+  <tr class="oddrow">
+    <td>180</td>
+    <td>numOutForOperation</td>
+    <td><a href="00-cross-n.html#numOutForOperation"><small>X</small></a></td>
+    <td>Num Out</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Number Out for Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>310</td>
+    <td>operationID</td>
+    <td><a href="00-cross-o.html#operationID"><small>X</small></a></td>
+    <td>Mach Code</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Operation ID or Machine Code</td>
+  </tr>
+  <tr class="oddrow">
+    <td>320</td>
+    <td>operationName</td>
+    <td><a href="00-cross-o.html#operationName"><small>X</small></a></td>
+    <td>Mach Name</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Operation or Machine Name to override from machine file</td>
+  </tr>
+  <tr class="evenrow">
+    <td>340</td>
+    <td>outputType</td>
+    <td><a href="00-cross-o.html#outputType"><small>X</small></a></td>
+    <td>Output Type</td>
+    <td>character</td>
+    <td>x(1)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Output Type (Blank, Sheet, Roll, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>160</td>
+    <td>pass</td>
+    <td><a href="00-cross-p.html#pass"><small>X</small></a></td>
+    <td>Pass</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Pass of Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>680</td>
+    <td>quantityGrossSheets</td>
+    <td><a href="00-cross-q.html#quantityGrossSheets"><small>X</small></a></td>
+    <td>Gross Sheets</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Gross Sheets</td>
+  </tr>
+  <tr class="oddrow">
+    <td>690</td>
+    <td>quantityIn</td>
+    <td><a href="00-cross-q.html#quantityIn"><small>X</small></a></td>
+    <td>Qty In</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In to Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>700</td>
+    <td>quantityInAfterSetupWaste</td>
+    <td><a href="00-cross-q.html#quantityInAfterSetupWaste"><small>X</small></a></td>
+    <td>Qty In Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In After Setup Wasted (used for calculating Run Hours)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>710</td>
+    <td>quantityInAfterSetupWasteLF</td>
+    <td><a href="00-cross-q.html#quantityInAfterSetupWasteLF"><small>X</small></a></td>
+    <td>Qty In Run (LF)</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In After Setup Waste (LF)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>790</td>
+    <td>quantityInkLbsWastedPerColor</td>
+    <td><a href="00-cross-q.html#quantityInkLbsWastedPerColor"><small>X</small></a></td>
+    <td>Qty Ink Lbs Wasted Per Color</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity of Ink Wasted Per Color in Lbs</td>
+  </tr>
+  <tr class="oddrow">
+    <td>780</td>
+    <td>quantityInkLbsWastedPerSetup</td>
+    <td><a href="00-cross-q.html#quantityInkLbsWastedPerSetup"><small>X</small></a></td>
+    <td>Qty Ink Lbs Wasted Per Setup</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity of Ink Wasted Per Setup in Lbs</td>
+  </tr>
+  <tr class="evenrow">
+    <td>750</td>
+    <td>quantityInNoWaste</td>
+    <td><a href="00-cross-q.html#quantityInNoWaste"><small>X</small></a></td>
+    <td>Qty In No Waste</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In With No Waste</td>
+  </tr>
+  <tr class="oddrow">
+    <td>730</td>
+    <td>quantityInRunWaste</td>
+    <td><a href="00-cross-q.html#quantityInRunWaste"><small>X</small></a></td>
+    <td>Qty In Run Waste</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Wasted During Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>740</td>
+    <td>quantityInRunWastePercent</td>
+    <td><a href="00-cross-q.html#quantityInRunWastePercent"><small>X</small></a></td>
+    <td>Run Waste Pct</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Wasted During Run as a Percent of Run Quantity</td>
+  </tr>
+  <tr class="oddrow">
+    <td>720</td>
+    <td>quantityInSetupWaste</td>
+    <td><a href="00-cross-q.html#quantityInSetupWaste"><small>X</small></a></td>
+    <td>Qty In Setup Waste</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Wasted During Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>770</td>
+    <td>quantityInSetupWastePerColor</td>
+    <td><a href="00-cross-q.html#quantityInSetupWastePerColor"><small>X</small></a></td>
+    <td>Qty In Setup Waste Per Color</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Setup Waste Per Color</td>
+  </tr>
+  <tr class="oddrow">
+    <td>760</td>
+    <td>quantityOut</td>
+    <td><a href="00-cross-q.html#quantityOut"><small>X</small></a></td>
+    <td>Qty Out</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity Out of Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>10</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID Acroos DB for Record</td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>sequenceOfOperation</td>
+    <td><a href="00-cross-s.html#sequenceOfOperation"><small>X</small></a></td>
+    <td>Sequence</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Sequence of Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>390</td>
+    <td>speed</td>
+    <td><a href="00-cross-s.html#speed"><small>X</small></a></td>
+    <td>Speed</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Speed in Feeds Per Hour</td>
+  </tr>
+</table>
+</div>
+<div id=SortOrder  style="display:none;">
+<table style="width:100%; border-style:none;">
+  <tr>
+    <th>Order</th>
+    <th><script type="text/javascript">
+    <!--
+    writeToggleBegin();
+    // -->
+    </script>Field Name<script type="text/javascript">
+    <!--
+    writeToggleEnd();
+    // -->
+    </script></th>
+    <th>x</th>
+    <th>Label</th>
+    <th>Datatype</th>
+    <th>Format</th>
+    <th>Initial</th>
+    <th>Mand</th>
+    <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>10</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID Acroos DB for Record</td>
+  </tr>
+  <tr class="evenrow">
+    <td>20</td>
+    <td><a href="ap-ctrl.html">company</a></td>
+    <td><a href="00-cross-c.html#company"><small>X</small></a></td>
+    <td>Company</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Company Code</td>
+  </tr>
+  <tr class="oddrow">
+    <td>40</td>
+    <td><a href="estcostform.html">estCostFormID</a></td>
+    <td><a href="00-cross-e.html#estCostFormID"><small>X</small></a></td>
+    <td>Form ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID for Estimate Form</td>
+  </tr>
+  <tr class="evenrow">
+    <td>50</td>
+    <td><a href="estcostblank.html">estCostBlankID</a></td>
+    <td><a href="00-cross-e.html#estCostBlankID"><small>X</small></a></td>
+    <td>Blank ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Unique ID for Estimate Blank</td>
+  </tr>
+  <tr class="oddrow">
+    <td>60</td>
+    <td><a href="estcostheader.html">estCostHeaderID</a></td>
+    <td><a href="00-cross-e.html#estCostHeaderID"><small>X</small></a></td>
+    <td>Header ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID for Estimate Header</td>
+  </tr>
+  <tr class="evenrow">
+    <td>70</td>
+    <td>estimateNo</td>
+    <td><a href="00-cross-e.html#estimateNo"><small>X</small></a></td>
+    <td>Estimate</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Estimate Number</td>
+  </tr>
+  <tr class="oddrow">
+    <td>80</td>
+    <td>formNo</td>
+    <td><a href="00-cross-f.html#formNo"><small>X</small></a></td>
+    <td>Form</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Form Number</td>
+  </tr>
+  <tr class="evenrow">
+    <td>90</td>
+    <td>blankNo</td>
+    <td><a href="00-cross-b.html#blankNo"><small>X</small></a></td>
+    <td>Blank</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Blank Number</td>
+  </tr>
+  <tr class="oddrow">
+    <td>100</td>
+    <td>costTotal</td>
+    <td><a href="00-cross-c.html#costTotal"><small>X</small></a></td>
+    <td>Cost Total</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Total</td>
+  </tr>
+  <tr class="evenrow">
+    <td>130</td>
+    <td>costTotalPerMFinished</td>
+    <td><a href="00-cross-c.html#costTotalPerMFinished"><small>X</small></a></td>
+    <td>Cost Per M</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Thousand
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>140</td>
+    <td>estCostOperationID</td>
+    <td><a href="00-cross-e.html#estCostOperationID"><small>X</small></a></td>
+    <td>Operation Cost ID</td>
+    <td>int64</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+    <td>D: Unique ID for Operation Cost. Auto-generated.</td>
+  </tr>
+  <tr class="evenrow">
+    <td>150</td>
+    <td>sequenceOfOperation</td>
+    <td><a href="00-cross-s.html#sequenceOfOperation"><small>X</small></a></td>
+    <td>Sequence</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Sequence of Operation</td>
+  </tr>
+  <tr class="oddrow">
+    <td>160</td>
+    <td>pass</td>
+    <td><a href="00-cross-p.html#pass"><small>X</small></a></td>
+    <td>Pass</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Pass of Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>170</td>
+    <td>numOutDivisor</td>
+    <td><a href="00-cross-n.html#numOutDivisor"><small>X</small></a></td>
+    <td>Num Out Div</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Number Out Divisor</td>
+  </tr>
+  <tr class="oddrow">
+    <td>180</td>
+    <td>numOutForOperation</td>
+    <td><a href="00-cross-n.html#numOutForOperation"><small>X</small></a></td>
+    <td>Num Out</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Number Out for Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>190</td>
+    <td>countInks</td>
+    <td><a href="00-cross-c.html#countInks"><small>X</small></a></td>
+    <td>Inks</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Inks</td>
+  </tr>
+  <tr class="oddrow">
+    <td>200</td>
+    <td>countCoats</td>
+    <td><a href="00-cross-c.html#countCoats"><small>X</small></a></td>
+    <td>Coats</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Coatings</td>
+  </tr>
+  <tr class="evenrow">
+    <td>210</td>
+    <td>countPlateChanges</td>
+    <td><a href="00-cross-c.html#countPlateChanges"><small>X</small></a></td>
+    <td>Plates</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Plate Changes</td>
+  </tr>
+  <tr class="oddrow">
+    <td>220</td>
+    <td>countFountainChanges</td>
+    <td><a href="00-cross-c.html#countFountainChanges"><small>X</small></a></td>
+    <td>Fountains</td>
+    <td>integer</td>
+    <td>&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Fountain Changes</td>
+  </tr>
+  <tr class="evenrow">
+    <td>230</td>
+    <td>isSpeedInLF</td>
+    <td><a href="00-cross-i.html#isSpeedInLF"><small>X</small></a></td>
+    <td>Speed in LF?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Speed in Lineal Feet (LF) per Hour</td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>isLocked</td>
+    <td><a href="00-cross-i.html#isLocked"><small>X</small></a></td>
+    <td>Locked?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation Locked from recalculated changes?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>250</td>
+    <td>isPrinter</td>
+    <td><a href="00-cross-i.html#isPrinter"><small>X</small></a></td>
+    <td>Printer?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Printer?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>260</td>
+    <td>isCoater</td>
+    <td><a href="00-cross-i.html#isCoater"><small>X</small></a></td>
+    <td>Coater?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Coater?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>270</td>
+    <td>isGluer</td>
+    <td><a href="00-cross-i.html#isGluer"><small>X</small></a></td>
+    <td>Gluer?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Gluer?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>280</td>
+    <td>isLeafer</td>
+    <td><a href="00-cross-i.html#isLeafer"><small>X</small></a></td>
+    <td>Leafer?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Leafer/Foiler?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>isNetSheetMaker</td>
+    <td><a href="00-cross-i.html#isNetSheetMaker"><small>X</small></a></td>
+    <td>Sheeter?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Sheeter that makes Net Sheets out of Gross Sheets?</td>
+  </tr>
+  <tr class="oddrow">
+    <td>300</td>
+    <td>isBlankMaker</td>
+    <td><a href="00-cross-i.html#isBlankMaker"><small>X</small></a></td>
+    <td>Blanker?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Is Operation a Die Cutter/Blanker?</td>
+  </tr>
+  <tr class="evenrow">
+    <td>310</td>
+    <td>operationID</td>
+    <td><a href="00-cross-o.html#operationID"><small>X</small></a></td>
+    <td>Mach Code</td>
+    <td>character</td>
+    <td>x(10)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Operation ID or Machine Code</td>
+  </tr>
+  <tr class="oddrow">
+    <td>320</td>
+    <td>operationName</td>
+    <td><a href="00-cross-o.html#operationName"><small>X</small></a></td>
+    <td>Mach Name</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Operation or Machine Name to override from machine file</td>
+  </tr>
+  <tr class="evenrow">
+    <td>330</td>
+    <td>feedType</td>
+    <td><a href="00-cross-f.html#feedType"><small>X</small></a></td>
+    <td>Feed Type</td>
+    <td>character</td>
+    <td>x(1)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Feed Type (Blank, Sheet, Roll, etc)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>340</td>
+    <td>outputType</td>
+    <td><a href="00-cross-o.html#outputType"><small>X</small></a></td>
+    <td>Output Type</td>
+    <td>character</td>
+    <td>x(1)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Output Type (Blank, Sheet, Roll, etc)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>350</td>
+    <td>departmentIDPrimary</td>
+    <td><a href="00-cross-d.html#departmentIDPrimary"><small>X</small></a></td>
+    <td>Department</td>
+    <td>character</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Primary Department for Operation</td>
+  </tr>
+  <tr class="oddrow">
+    <td>360</td>
+    <td>departmentID</td>
+    <td><a href="00-cross-d.html#departmentID"><small>X</small></a></td>
+    <td>Departments</td>
+    <td>character [4]</td>
+    <td>x(2)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: All Departments for Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>370</td>
+    <td>hoursRun</td>
+    <td><a href="00-cross-h.html#hoursRun"><small>X</small></a></td>
+    <td>Run Hours</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Run Hours for Operation Quantity</td>
+  </tr>
+  <tr class="oddrow">
+    <td>380</td>
+    <td>hoursSetup</td>
+    <td><a href="00-cross-h.html#hoursSetup"><small>X</small></a></td>
+    <td>Setup Hours</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Setup/Make Ready Hours for Operation Quantity</td>
+  </tr>
+  <tr class="evenrow">
+    <td>390</td>
+    <td>speed</td>
+    <td><a href="00-cross-s.html#speed"><small>X</small></a></td>
+    <td>Speed</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Speed in Feeds Per Hour</td>
+  </tr>
+  <tr class="oddrow">
+    <td>400</td>
+    <td>crewSizeRun</td>
+    <td><a href="00-cross-c.html#crewSizeRun"><small>X</small></a></td>
+    <td>Run Crew</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Crew Required for Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>410</td>
+    <td>crewSizeSetup</td>
+    <td><a href="00-cross-c.html#crewSizeSetup"><small>X</small></a></td>
+    <td>Setup Crew</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Count of Crew Required for Setup/Make Ready</td>
+  </tr>
+  <tr class="oddrow">
+    <td>420</td>
+    <td>costPerManHourDLSetup</td>
+    <td><a href="00-cross-c.html#costPerManHourDLSetup"><small>X</small></a></td>
+    <td>Cost/Man Hour Setup DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Man Hour for Direct Labor portion of Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>430</td>
+    <td>costPerHourFOSetup</td>
+    <td><a href="00-cross-c.html#costPerHourFOSetup"><small>X</small></a></td>
+    <td>Cost/HourSetup FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Fixed Overhead portion of Setup</td>
+  </tr>
+  <tr class="oddrow">
+    <td>440</td>
+    <td>costPerHourVOSetup</td>
+    <td><a href="00-cross-c.html#costPerHourVOSetup"><small>X</small></a></td>
+    <td>Cost/HourSetup VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Variable Overhead portion of Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>450</td>
+    <td>costPerHourTotalSetup</td>
+    <td><a href="00-cross-c.html#costPerHourTotalSetup"><small>X</small></a></td>
+    <td>Cost/HourSetup</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost Per Hour for Setup</td>
+  </tr>
+  <tr class="oddrow">
+    <td>460</td>
+    <td>costPerManHourDLRun</td>
+    <td><a href="00-cross-c.html#costPerManHourDLRun"><small>X</small></a></td>
+    <td>Cost/Man Hour Run DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Man Hour for Direct Labor portion of Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>470</td>
+    <td>costPerHourFORun</td>
+    <td><a href="00-cross-c.html#costPerHourFORun"><small>X</small></a></td>
+    <td>Cost/Hour Run FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Fixed Overhead portion of Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>480</td>
+    <td>costPerHourVORun</td>
+    <td><a href="00-cross-c.html#costPerHourVORun"><small>X</small></a></td>
+    <td>Cost/Hour Run VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Per Hour for Variable Overhead portion of Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>490</td>
+    <td>costPerHourTotalRun</td>
+    <td><a href="00-cross-c.html#costPerHourTotalRun"><small>X</small></a></td>
+    <td>Cost/Hour Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost Per Hour for Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>500</td>
+    <td>costTotalRun</td>
+    <td><a href="00-cross-c.html#costTotalRun"><small>X</small></a></td>
+    <td>Cost Total Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run</td>
+  </tr>
+  <tr class="evenrow">
+    <td>510</td>
+    <td>costTotalDLRun</td>
+    <td><a href="00-cross-c.html#costTotalDLRun"><small>X</small></a></td>
+    <td>Cost Total Run DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run DL</td>
+  </tr>
+  <tr class="oddrow">
+    <td>520</td>
+    <td>costTotalVORun</td>
+    <td><a href="00-cross-c.html#costTotalVORun"><small>X</small></a></td>
+    <td>Cost Total Run VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run VO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>530</td>
+    <td>costTotalFORun</td>
+    <td><a href="00-cross-c.html#costTotalFORun"><small>X</small></a></td>
+    <td>Cost Total Run FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Run FO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>540</td>
+    <td>costTotalSetup</td>
+    <td><a href="00-cross-c.html#costTotalSetup"><small>X</small></a></td>
+    <td>Cost Total Setup</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>550</td>
+    <td>costTotalDLSetup</td>
+    <td><a href="00-cross-c.html#costTotalDLSetup"><small>X</small></a></td>
+    <td>Cost Total Setup DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup DL</td>
+  </tr>
+  <tr class="oddrow">
+    <td>560</td>
+    <td>costTotalVOSetup</td>
+    <td><a href="00-cross-c.html#costTotalVOSetup"><small>X</small></a></td>
+    <td>Cost Total Setup VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup VO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>570</td>
+    <td>costTotalFOSetup</td>
+    <td><a href="00-cross-c.html#costTotalFOSetup"><small>X</small></a></td>
+    <td>Cost Total Setup FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost for Setup FO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>580</td>
+    <td>costTotalMinDiffSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffSetup"><small>X</small></a></td>
+    <td>Cost Min Setup</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>590</td>
+    <td>costTotalMinDiffRun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffRun"><small>X</small></a></td>
+    <td>Cost Min Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>600</td>
+    <td>costTotalMinDiff</td>
+    <td><a href="00-cross-c.html#costTotalMinDiff"><small>X</small></a></td>
+    <td>Cost Min Diff</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Total Cost Attributed to Minimum Cost</td>
+  </tr>
+  <tr class="evenrow">
+    <td>610</td>
+    <td>costTotalMinDiffDLSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffDLSetup"><small>X</small></a></td>
+    <td>Cost Min Setup DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup DL</td>
+  </tr>
+  <tr class="oddrow">
+    <td>620</td>
+    <td>costTotalMinDiffVOSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffVOSetup"><small>X</small></a></td>
+    <td>Cost Min Setup VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup VO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>630</td>
+    <td>costTotalMinDiffFOSetup</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffFOSetup"><small>X</small></a></td>
+    <td>Cost Min Setup FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Setup FO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>640</td>
+    <td>costTotalMinDiffDLRun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffDLRun"><small>X</small></a></td>
+    <td>Cost Min Run DL</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run DL</td>
+  </tr>
+  <tr class="evenrow">
+    <td>650</td>
+    <td>costTotalMinDiffVORun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffVORun"><small>X</small></a></td>
+    <td>Cost Min Run VO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run VO</td>
+  </tr>
+  <tr class="oddrow">
+    <td>660</td>
+    <td>costTotalMinDiffFORun</td>
+    <td><a href="00-cross-c.html#costTotalMinDiffFORun"><small>X</small></a></td>
+    <td>Cost Min Run FO</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Cost Attributed to Minimum Cost for Run FO</td>
+  </tr>
+  <tr class="evenrow">
+    <td>670</td>
+    <td>costMinimum</td>
+    <td><a href="00-cross-c.html#costMinimum"><small>X</small></a></td>
+    <td>Cost Minimum</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Minimum Cost</td>
+  </tr>
+  <tr class="oddrow">
+    <td>680</td>
+    <td>quantityGrossSheets</td>
+    <td><a href="00-cross-q.html#quantityGrossSheets"><small>X</small></a></td>
+    <td>Gross Sheets</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Gross Sheets</td>
+  </tr>
+  <tr class="evenrow">
+    <td>690</td>
+    <td>quantityIn</td>
+    <td><a href="00-cross-q.html#quantityIn"><small>X</small></a></td>
+    <td>Qty In</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In to Operation</td>
+  </tr>
+  <tr class="oddrow">
+    <td>700</td>
+    <td>quantityInAfterSetupWaste</td>
+    <td><a href="00-cross-q.html#quantityInAfterSetupWaste"><small>X</small></a></td>
+    <td>Qty In Run</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In After Setup Wasted (used for calculating Run Hours)</td>
+  </tr>
+  <tr class="evenrow">
+    <td>710</td>
+    <td>quantityInAfterSetupWasteLF</td>
+    <td><a href="00-cross-q.html#quantityInAfterSetupWasteLF"><small>X</small></a></td>
+    <td>Qty In Run (LF)</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In After Setup Waste (LF)</td>
+  </tr>
+  <tr class="oddrow">
+    <td>720</td>
+    <td>quantityInSetupWaste</td>
+    <td><a href="00-cross-q.html#quantityInSetupWaste"><small>X</small></a></td>
+    <td>Qty In Setup Waste</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Wasted During Setup</td>
+  </tr>
+  <tr class="evenrow">
+    <td>730</td>
+    <td>quantityInRunWaste</td>
+    <td><a href="00-cross-q.html#quantityInRunWaste"><small>X</small></a></td>
+    <td>Qty In Run Waste</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Wasted During Run</td>
+  </tr>
+  <tr class="oddrow">
+    <td>740</td>
+    <td>quantityInRunWastePercent</td>
+    <td><a href="00-cross-q.html#quantityInRunWastePercent"><small>X</small></a></td>
+    <td>Run Waste Pct</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Wasted During Run as a Percent of Run Quantity</td>
+  </tr>
+  <tr class="evenrow">
+    <td>750</td>
+    <td>quantityInNoWaste</td>
+    <td><a href="00-cross-q.html#quantityInNoWaste"><small>X</small></a></td>
+    <td>Qty In No Waste</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In With No Waste</td>
+  </tr>
+  <tr class="oddrow">
+    <td>760</td>
+    <td>quantityOut</td>
+    <td><a href="00-cross-q.html#quantityOut"><small>X</small></a></td>
+    <td>Qty Out</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity Out of Operation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>770</td>
+    <td>quantityInSetupWastePerColor</td>
+    <td><a href="00-cross-q.html#quantityInSetupWastePerColor"><small>X</small></a></td>
+    <td>Qty In Setup Waste Per Color</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity In Setup Waste Per Color</td>
+  </tr>
+  <tr class="oddrow">
+    <td>780</td>
+    <td>quantityInkLbsWastedPerSetup</td>
+    <td><a href="00-cross-q.html#quantityInkLbsWastedPerSetup"><small>X</small></a></td>
+    <td>Qty Ink Lbs Wasted Per Setup</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity of Ink Wasted Per Setup in Lbs</td>
+  </tr>
+  <tr class="evenrow">
+    <td>790</td>
+    <td>quantityInkLbsWastedPerColor</td>
+    <td><a href="00-cross-q.html#quantityInkLbsWastedPerColor"><small>X</small></a></td>
+    <td>Qty Ink Lbs Wasted Per Color</td>
+    <td>decimal-6</td>
+    <td>-&gt;,&gt;&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Quantity of Ink Wasted Per Color in Lbs</td>
+  </tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Indexes</h2>
+<table style="width:100%;">
+  <tr>
+    <th>Index name</th>
+    <th>Flags</th>
+    <th>Fields</th>
+    <th>Datatype</th>
+  </tr>
+  <tr class="oddrow">
+    <td>estCostOperationID</td>
+    <td>P U     </td>
+    <td>estCostOperationID (+)</td>
+    <td>int64</td>
+  </tr>
+  <tr class="evenrow">
+    <td>estHeader</td>
+    <td>        </td>
+    <td>estCostHeaderID (+)</td>
+    <td>int64</td>
+  </tr>
+  <tr class="oddrow">
+    <td>estimate</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>estimateNo (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>formNo (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>blankNo (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="evenrow">
+    <td>rec_key</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+</table>
+<table style="width:100%; margin-top:10px;">
+  <tr>
+    <td>+ = Ascending</td>
+    <td>- = Descending</td>
+    <td>P = Primary</td>
+    <td>U = Unique</td>
+    <td>I = Inactive</td>
+    <td>W = Wordindex</td>
+  </tr>
+</table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="estcostblank.html">estCostBlank</a>&nbsp;&nbsp; <a href="estcostform.html">estCostForm</a>&nbsp;&nbsp; <a href="estcostheader.html">estCostHeader</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
+<hr>
+<table style="width:100%; margin-top:10px;">
+  <tr><td style="text-align:right;"><i><small>generated 15-11-2019 12:47</small></i></td></tr>
+</table>
+</body>
+</html>

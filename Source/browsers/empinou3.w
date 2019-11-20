@@ -79,10 +79,10 @@ def var ls-total-time as cha form "x(12)" no-undo.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table emplogin.employee ~
 emplogin.start_date ~
-Time_String(emplogin.start_time,yes,emplogin.start_date) @ ls-start-time ~
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.start_time, YES, YES) @ ls-start-time ~
 emplogin.end_date ~
-Time_String(emplogin.end_time,yes,emplogin.end_date) @ ls-end-time ~
-emplogin.shift Time_String(emplogin.total_time,no,?) @ ls-total-time 
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.end_time, YES, YES) @ ls-end-time ~
+emplogin.shift DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.total_time, NO, YES) @ ls-total-time 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH emplogin WHERE ~{&KEY-PHRASE} ~
       AND emplogin.company = g_company  ~
@@ -182,13 +182,13 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       emplogin.employee FORMAT "x(5)":U COLUMN-FONT 0
       emplogin.start_date FORMAT "99/99/9999":U COLUMN-FONT 0
-      Time_String(emplogin.start_time,yes,emplogin.start_date) @ ls-start-time COLUMN-LABEL "Start Time"
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.start_time, YES, YES) @ ls-start-time COLUMN-LABEL "Start Time"
             COLUMN-FONT 0
       emplogin.end_date FORMAT "99/99/9999":U COLUMN-FONT 0
-      Time_String(emplogin.end_time,yes,emplogin.end_date) @ ls-end-time COLUMN-LABEL "End Time"
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.end_time, YES, YES) @ ls-end-time COLUMN-LABEL "End Time"
             COLUMN-FONT 0
       emplogin.shift FORMAT "XX":U COLUMN-FONT 0
-      Time_String(emplogin.total_time,no,?) @ ls-total-time COLUMN-LABEL "Total Time"
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.total_time, NO, YES) @ ls-total-time COLUMN-LABEL "Total Time"
             COLUMN-FONT 0
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -281,15 +281,15 @@ and emplogin.start_date = lv-date
      _FldNameList[2]   > emplogin.start_date
 "emplogin.start_date" ? ? "date" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[3]   > "_<CALC>"
-"Time_String(emplogin.start_time,yes,emplogin.start_date) @ ls-start-time" "Start Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.start_time, YES, YES) @ ls-start-time" "Start Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[4]   > emplogin.end_date
 "emplogin.end_date" ? ? "date" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[5]   > "_<CALC>"
-"Time_String(emplogin.end_time,yes,emplogin.end_date) @ ls-end-time" "End Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.end_time, YES, YES) @ ls-end-time" "End Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[6]   > emplogin.shift
 "emplogin.shift" ? "XX" "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[7]   > "_<CALC>"
-"Time_String(emplogin.total_time,no,?) @ ls-total-time" "Total Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', emplogin.total_time, NO, YES) @ ls-total-time" "Total Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

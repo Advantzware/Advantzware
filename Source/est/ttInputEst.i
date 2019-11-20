@@ -62,6 +62,7 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD iStackHeight as INTEGER  /* Optional */
     FIELD iStackCode as CHARACTER  /* Optional */
     FIELD cFreightChargeMethod AS CHARACTER /*Optional - default "P"*/
+    FIELD iPartial AS INTEGER /* Optional*/
     .
 
 

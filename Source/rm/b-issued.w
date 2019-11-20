@@ -157,12 +157,9 @@ rm-rctd.s-num rm-rctd.b-num rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
 rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom ~
 calc-ext-cost() @ ext-cost display-dimension('W') @ lv-po-wid ~
 display-dimension('L') @ lv-po-len rm-rctd.user-id 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
-rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.i-no rm-rctd.i-name ~
-rm-rctd.s-num rm-rctd.b-num rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
-rm-rctd.qty rm-rctd.pur-uom 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
       AND rm-rctd.company = cocode and ~
 rm-rctd.rita-code = "I" NO-LOCK ~
@@ -178,8 +175,8 @@ rm-rctd.rita-code = "I" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
-auto_find Btn_Clear_Find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
@@ -232,11 +229,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
-
-DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 146 BY 17.14.
+     SIZE 146 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -275,42 +268,27 @@ DEFINE BROWSE Browser-Table
       display-dimension('W') @ lv-po-wid COLUMN-LABEL "Width"
       display-dimension('L') @ lv-po-len COLUMN-LABEL "Length"
       rm-rctd.user-id COLUMN-LABEL "UserId" FORMAT "x(8)":U
-  ENABLE
-      rm-rctd.rct-date
-      rm-rctd.po-no
-      rm-rctd.job-no
-      rm-rctd.job-no2
-      rm-rctd.i-no
-      rm-rctd.i-name
-      rm-rctd.s-num
-      rm-rctd.b-num
-      rm-rctd.loc
-      rm-rctd.loc-bin
-      rm-rctd.tag
-      rm-rctd.qty
-      rm-rctd.pur-uom
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 144 BY 15.24
+    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 15.71
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 2 HELP
+     Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 16.71 COL 7 HELP
+     browse-order AT ROW 16.95 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     fi_sortby AT ROW 16.71 COL 85 COLON-ALIGNED NO-LABEL
-     auto_find AT ROW 16.71 COL 115 COLON-ALIGNED HELP
+     fi_sortby AT ROW 16.95 COL 84 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 16.95 COL 114 COLON-ALIGNED HELP
           "Enter Auto Find Value" NO-LABEL
-     Btn_Clear_Find AT ROW 16.71 COL 138 HELP
+     Btn_Clear_Find AT ROW 16.95 COL 137 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.71 COL 3
-     RECT-4 AT ROW 16.48 COL 2
-     RECT-5 AT ROW 1 COL 1
+          SIZE 4 BY 1 AT ROW 16.95 COL 2
+     RECT-4 AT ROW 16.71 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -398,31 +376,30 @@ rm-rctd.rita-code = ""I"""
      _FldNameList[1]   > asi.rm-rctd.r-no
 "r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.rct-date
-"rct-date" "Issue Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rct-date" "Issue Date" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.po-no
-"po-no" ? "x(6)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-no" ? "x(6)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.job-no
-"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > asi.rm-rctd.job-no2
-"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   = asi.rm-rctd.job-no2
      _FldNameList[6]   > asi.rm-rctd.i-no
-"i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-no" "Item" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.i-name
-"i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.s-num
-"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"s-num" "S" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.b-num
-"b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"b-num" "B" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.rm-rctd.loc
-"loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.rm-rctd.loc-bin
-"loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc-bin" "Bin" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.rm-rctd.tag
-"tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.rm-rctd.qty
-"qty" "Qty" ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"qty" "Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.rm-rctd.pur-uom
-"pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > asi.rm-rctd.cost
 "cost" "Cost" "->>>,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.rm-rctd.cost-uom
@@ -697,6 +674,22 @@ PROCEDURE create-item :
 
     /* run rm/item.p */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
+PROCEDURE delete_item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+   RUN local-delete-record .
+  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1486,6 +1479,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  ASSIGN
+   adm-new-record      = NO
+   adm-adding-record   = NO
+   ll-is-copy-record   = NO.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -1527,32 +1544,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
-PROCEDURE local-cancel-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  /* Code placed here will execute PRIOR to standard behavior. */  
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-  ASSIGN
-   adm-new-record      = NO
-   adm-adding-record   = NO
-   ll-is-copy-record   = NO.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -1601,23 +1592,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
-PROCEDURE delete_item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-   RUN local-delete-record .
-  
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -1852,9 +1826,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 /* ************************  Function Implementations ***************** */
 

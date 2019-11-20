@@ -22,6 +22,8 @@ IF NOT EXIST !dbDrive!\!topDir!\!dbDir!\Structure\STFiles\progress.dev (
     ) 
 
 ECHO ...Starting Advantzware_API appserver
+!drive!
+CD !DLCDir!\bin
 CALL asbman -name !AppServerName! -host !hostname! -port !adminPort! -start
 
 :QUIT

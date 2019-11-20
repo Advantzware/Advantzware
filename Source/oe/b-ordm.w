@@ -435,9 +435,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF br_table IN FRAME F-Main
 DO:
-   
    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-   IF AVAIL oe-ordm AND lUpdateMiscItem THEN do:
+   DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO .
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target",OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         lCheckUpdate = YES .
+
+  
+   IF AVAIL oe-ordm AND lUpdateMiscItem AND lCheckUpdate THEN do:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
 
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
@@ -445,7 +451,15 @@ DO:
        PUBLISH "DispOrdTot" .
        RUN reopen-query (lv-rowid).
    END.
-   
+   ELSE IF AVAIL oe-ordm THEN DO:
+       RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "View", OUTPUT lv-rowid) .
+
+       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+
+       PUBLISH "DispOrdTot" .
+       RUN reopen-query (lv-rowid).
+   END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,6 +534,7 @@ FIND FIRST cust
         AND cust.cust-no EQ oe-ord.cust-no
       NO-LOCK NO-ERROR.
 
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1241,6 +1256,54 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizeLocInit.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  
+  /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN
+      oe-ordm.charge:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.amt:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.actnum:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.dscr:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.cost:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.ord-i-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.ord-line:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.po-no-po:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-man[1]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-pct[1]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-comm[1]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-man[2]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-pct[2]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-comm[2]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-man[3]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-pct[3]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.s-comm[3]:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.tax:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.bill:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.spare-int-1:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.spare-char-1:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.spare-char-2:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.est-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.form-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-ordm.blank-no:READ-ONLY IN BROWSE {&browse-name} = YES
+      .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

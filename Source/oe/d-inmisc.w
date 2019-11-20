@@ -45,7 +45,7 @@ DEFINE            VARIABLE lv-new-recid    AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-valid-charge AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE char-hdl        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE ilogic          AS LOGICAL   NO-UNDO .
-
+DEFINE            VARIABLE lErrorPopClose  AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -483,10 +483,18 @@ ON HELP OF FRAME Dialog-Frame /* Misc. Charge Item Update */
                     RUN windows/l-ponopo.w (inv-head.company,YES,lw-focus:SCREEN-VALUE, OUTPUT char-val).
                     IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val) .         
                 END.
-            /* when "est-no" then do:
-                  run windows/l-est3.w (inv-head.company,"",inv-misc.est-no:SCREEN-VALUE, output char-val).
+            WHEN "est-no" then do:
+                  run windows/l-est2.w (inv-head.company,"",inv-misc.est-no:SCREEN-VALUE, output char-val).
+                  if char-val <> "" THEN do:
+                      FIND FIRST eb WHERE recid(eb) EQ INTEGER(char-val) NO-LOCK NO-ERROR .
+                      IF AVAIL eb THEN
+                          assign inv-misc.est-no:SCREEN-VALUE = string(eb.est-no) . 
+                  END.
+            END.
+            when "ord-no" then do:
+                  run windows/l-ordl.w (inv-head.company,inv-misc.ord-no:SCREEN-VALUE, output char-val,OUTPUT look-recid).
                   if char-val <> "" then assign inv-misc.est-no:SCREEN-VALUE = entry(1,char-val) .         
-             end.*/
+             end.
             WHEN "spare-char-2" THEN 
                 DO:
                     RUN windows/l-itemfg.w (inv-head.company,"",inv-misc.spare-char-2:SCREEN-VALUE, OUTPUT char-val).
@@ -656,6 +664,15 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         RUN valid-s-pct (0,OUTPUT lCheckError) NO-ERROR.
         IF lCheckError THEN RETURN NO-APPLY.
 
+        RUN valid-est(OUTPUT lCheckError) NO-ERROR.
+         IF lCheckError THEN RETURN NO-APPLY.
+
+        RUN valid-ord-no(OUTPUT lCheckError) NO-ERROR.
+         IF lCheckError THEN RETURN NO-APPLY.
+
+        RUN valid-spare-char-2(OUTPUT lCheckError) NO-ERROR.
+         IF lCheckError THEN RETURN NO-APPLY.
+
         RUN valid-bill(OUTPUT lCheckError) NO-ERROR.
         IF lCheckError THEN RETURN NO-APPLY.
  
@@ -714,9 +731,41 @@ ON VALUE-CHANGED OF inv-misc.charge IN FRAME Dialog-Frame /* Charge */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.est-no Dialog-Frame
 ON LEAVE OF inv-misc.est-no IN FRAME Dialog-Frame /* Estimate */
     DO:
+       DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
-           
+            RUN valid-est(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-misc.ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.ord-no Dialog-Frame
+ON LEAVE OF inv-misc.ord-no IN FRAME Dialog-Frame /* Estimate */
+    DO:
+       DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-ord-no(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-misc.spare-char-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.spare-char-2 Dialog-Frame
+ON LEAVE OF inv-misc.spare-char-2 IN FRAME Dialog-Frame /* Estimate */
+    DO:
+       DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-spare-char-2(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
         END.
     END.
 
@@ -1047,8 +1096,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_cancel:HIDDEN                         = YES.
     END.
 
-   
+    IF lErrorPopClose THEN DO:
+        APPLY "choose" TO Btn_Cancel IN FRAME {&FRAME-NAME}.
+        RETURN NO-APPLY .
+    END.
+    
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+
 END.
 RUN disable_UI.
 
@@ -1069,7 +1123,7 @@ PROCEDURE create-item :
     DEFINE VARIABLE z        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE li-line  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-fgitem AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lv-error AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bf-inv-line FOR inv-line .
     
     i = 0 .
@@ -1079,7 +1133,7 @@ PROCEDURE create-item :
 
     IF i GT 1 THEN 
     DO:
-        RUN oe/mis-invfg.w (RECID(inv-head),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
+        RUN oe/mis-invfg.w (RECID(inv-head),OUTPUT v-fgitem,OUTPUT lErrorPopClose ) NO-ERROR.
     END.
 
     /* Code placed here will execute PRIOR to standard behavior. */
@@ -1573,38 +1627,94 @@ PROCEDURE valid-est :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
-    DEFINE VARIABLE lv-est-no LIKE oe-ordm.est-no NO-UNDO.
-    DEFINE BUFFER bf-inv-line FOR inv-line .
+     DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+     DEFINE VARIABLE lv-est-no AS CHARACTER NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
-        IF AVAILABLE inv-misc THEN 
-        DO:
-            ASSIGN 
-                lv-est-no                    = TRIM(inv-misc.est-no:SCREEN-VALUE )
-                lv-est-no                    = FILL(" ", 8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
-                inv-misc.est-no:SCREEN-VALUE = lv-est-no.
+       ASSIGN 
+           lv-est-no                    = TRIM(inv-misc.est-no:SCREEN-VALUE )
+           lv-est-no                    = FILL(" ", 8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
+           inv-misc.est-no:SCREEN-VALUE = lv-est-no.
 
-            IF inv-misc.est-no:SCREEN-VALUE NE "" THEN 
-            DO:
-                FIND FIRST bf-inv-line WHERE bf-inv-line.company EQ inv-misc.company
-                    AND bf-inv-line.r-no EQ inv-misc.r-no 
-                    AND bf-inv-line.est-no EQ inv-misc.est-no:SCREEN-VALUE NO-LOCK NO-ERROR.
+       IF inv-misc.est-no:SCREEN-VALUE NE "" THEN DO:
+           FIND FIRST eb NO-LOCK
+               WHERE eb.company EQ cocode
+               AND eb.est-no EQ inv-misc.est-no:SCREEN-VALUE NO-ERROR.
 
-                IF NOT AVAILABLE bf-inv-line THEN 
-                DO:
-                    MESSAGE "Estimate is not on Invoice..."
-                        VIEW-AS ALERT-BOX ERROR.
-                    APPLY "entry" TO ip-focus.
-                    RETURN ERROR.
-                END.
-            END.
-        END.
+           IF NOT AVAILABLE eb THEN DO:
+               MESSAGE "Estimate is not valid..."
+                   VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO inv-misc.est-no.
+               opReturnError = YES .
+           END.
+       END.
     END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-no Dialog-Frame 
+PROCEDURE valid-ord-no :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+    
+    DO WITH FRAME {&FRAME-NAME}:
+       
+       IF inv-misc.ord-no:SCREEN-VALUE NE "" AND inv-misc.ord-no:SCREEN-VALUE NE "0" THEN DO:
+           FIND FIRST oe-ord NO-LOCK
+               WHERE oe-ord.company EQ cocode
+               AND oe-ord.ord-no EQ INTEGER(inv-misc.ord-no:SCREEN-VALUE) NO-ERROR.
+
+           IF NOT AVAILABLE oe-ord THEN DO:
+               MESSAGE "Order is not valid..."
+                   VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO inv-misc.ord-no .
+               opReturnError = YES .
+           END.
+       END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-spare-char-2 Dialog-Frame 
+PROCEDURE valid-spare-char-2 :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+    
+    DO WITH FRAME {&FRAME-NAME}:
+       
+       IF inv-misc.spare-char-2:SCREEN-VALUE NE "" THEN DO:
+           FIND FIRST itemfg NO-LOCK
+               WHERE itemfg.company EQ cocode
+               AND itemfg.i-no EQ inv-misc.spare-char-2:SCREEN-VALUE NO-ERROR.
+
+           IF NOT AVAILABLE itemfg THEN DO:
+               MESSAGE "FG Item is not valid..."
+                   VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO inv-misc.spare-char-2 .
+               opReturnError = YES .
+           END.
+       END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-i-no Dialog-Frame 
 PROCEDURE valid-inv-i-no :

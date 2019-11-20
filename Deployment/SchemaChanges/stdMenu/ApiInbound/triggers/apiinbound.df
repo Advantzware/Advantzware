@@ -1,4 +1,0 @@
-UPDATE TABLE "APIInbound"
-  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\apiInbound.p" CRC ? 
-  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\apiInbound.p" CRC ?
-  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\apiInbound.p" CRC ?

@@ -222,7 +222,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -360,42 +360,42 @@ ASSIGN
      _Where[1]         = "fg-rctd.company = g_company and
 fg-rctd.rita-code = ""R"""
      _FldNameList[1]   > ASI.fg-rctd.tag
-"tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
-"loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rctd.loc-bin
-"loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.cases
-"cases" "Units" "->>>,>>9" "integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.cases" "Units" "->>>,>>9" "integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.fg-rctd.qty-case
-"qty-case" "Unit!Count" "->>>,>>9" "integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.qty-case" "Unit!Count" "->>>,>>9" "integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.fg-rctd.cases-unit
-"cases-unit" "Units/!Skid" "->>9" "integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.cases-unit" "Units/!Skid" "->>9" "integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.fg-rctd.partial
-"partial" "Partial" "->>>,>>9" "integer" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.partial" "Partial" "->>>,>>9" "integer" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.fg-rctd.t-qty
-"t-qty" "Total!Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.t-qty" "Total!Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   = ASI.fg-rctd.job-no
      _FldNameList[10]   = ASI.fg-rctd.job-no2
      _FldNameList[11]   = ASI.fg-rctd.po-no
      _FldNameList[12]   > ASI.fg-rctd.i-no
-"i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.fg-rctd.i-name
-"i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.fg-rctd.std-cost
-"std-cost" "Cost/UOM" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.std-cost" "Cost/UOM" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.fg-rctd.cost-uom
-"cost-uom" "UOM" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.cost-uom" "UOM" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.fg-rctd.ext-cost
-"ext-cost" "Extended Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.ext-cost" "Extended Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.fg-rctd.stack-code
-"stack-code" "FG Lot#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.stack-code" "FG Lot#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.fg-rctd.created-by
-"created-by" "User!Created" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.created-by" "User!Created" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.fg-rctd.updated-by
-"updated-by" "User!Updated" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.updated-by" "User!Updated" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > ASI.fg-rctd.rct-date
-"rct-date" "Receipt!Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.rct-date" "Receipt!Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "STRING(fg-rctd.trans-time,'HH:MM') @ trans-time" "Receipt!Time" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -810,7 +810,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/ctrl-a_browser.i}
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DO TRANSACTION:
@@ -833,7 +833,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 
 /* **********************  Internal Procedures  *********************** */
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-open-query-cases B-table-Win  adm/support/_adm-opn.p
 PROCEDURE adm-open-query-cases :
@@ -1020,11 +1019,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-in-update B-table-Win
-PROCEDURE is-in-update:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-in-update B-table-Win 
+PROCEDURE is-in-update :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1034,14 +1031,12 @@ PROCEDURE is-in-update:
         IF adm-brs-in-update OR adm-new-record THEN YES ELSE NO.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win
-PROCEDURE local-assign-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1062,11 +1057,9 @@ PROCEDURE local-assign-record:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
@@ -1090,9 +1083,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
-PROCEDURE local-exit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win 
+PROCEDURE local-exit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1109,15 +1101,13 @@ PROCEDURE local-exit:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -1182,10 +1172,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
-PROCEDURE post-finish-goods:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win 
+PROCEDURE post-finish-goods :
+/*------------------------------------------------------------------------------
      Purpose:  This is the batch posting of several records using the rules defined
      in fgRecsByUser.p to create the workfiles to be processed in fgPostBatch.
      Notes:  This is called externally by the Post button
@@ -1207,13 +1196,13 @@ PROCEDURE post-finish-goods:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
-PROCEDURE post-finish-goods-single:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods-single B-table-Win 
+PROCEDURE post-finish-goods-single :
+/*------------------------------------------------------------------------------
      Purpose:  This only posts the current active fg-rctd record
      Notes: This is only run if SSMoveFG is yes
     ------------------------------------------------------------------------------*/
@@ -1237,13 +1226,13 @@ PROCEDURE post-finish-goods-single:
     
 
 END PROCEDURE.
-    
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
-PROCEDURE pPostMain PRIVATE:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostMain B-table-Win 
+PROCEDURE pPostMain PRIVATE :
+/*------------------------------------------------------------------------------
      Purpose:  Main common post program
     ------------------------------------------------------------------------------*/
  
@@ -1270,7 +1259,7 @@ PROCEDURE pPostMain PRIVATE:
 
 
 END PROCEDURE.
-    
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1416,7 +1405,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-record B-table-Win 
 PROCEDURE validate-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

@@ -343,36 +343,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_hour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_hour V-table-Win
-ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
-  {methods/entryerr.i &error-message="Invalid Hour, range = 0 to 12"}
-   {&methods/lValidateError.iNO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_minute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_minute V-table-Win
-ON LEAVE OF end_minute IN FRAME F-Main
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
-  {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
-   {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME emplogin.machine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL emplogin.machine V-table-Win
 ON LEAVE OF emplogin.machine IN FRAME F-Main /* Machine */
@@ -414,36 +384,6 @@ ON HELP OF emplogin.start_date IN FRAME F-Main /* Start Date */
 DO:
   {methods/calendar.i}
 END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_hour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_hour V-table-Win
-ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 1 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
-  {methods/entryerr.i &error-message="Invalid Hour, range = 1 to 12"}
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_minute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_minute V-table-Win
-ON LEAVE OF start_minute IN FRAME F-Main
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
-  {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
-  {&methods/lValidateError.i NO}
-END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

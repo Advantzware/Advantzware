@@ -81,9 +81,9 @@ DEFINE QUERY external_tables FOR machtran.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table machemp.employee ~
 Employee-Name(machtran.company,machemp.employee) @ employee-name ~
-machemp.start_date STRING(machemp.start_time,'HH:MM am') @ start-time ~
-machemp.end_date Time_String(machemp.end_time,yes) @ end-time machemp.shift ~
-Time_String(machemp.total_time,no) @ total-time machemp.ratetype ~
+machemp.start_date DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time ~
+machemp.end_date DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time machemp.shift ~
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time machemp.ratetype ~
 Get_Rate(machemp.rate) @ rate machemp.posted 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machemp WHERE TRUE /* Join to machtran incomplete */ ~
@@ -124,13 +124,6 @@ FUNCTION Employee-Name RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD Get_Rate B-table-Win 
 FUNCTION Get_Rate RETURNS DECIMAL
   ( ip-rate AS DECIMAL )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD Time_String B-table-Win 
-FUNCTION Time_String RETURNS CHARACTER
-  (ip-time AS INTEGER,ip-clock-time AS LOGICAL) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -191,13 +184,13 @@ DEFINE BROWSE Browser-Table
       Employee-Name(machtran.company,machemp.employee) @ employee-name COLUMN-LABEL "Name" FORMAT "X(14)":U
             LABEL-BGCOLOR 14
       machemp.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      STRING(machemp.start_time,'HH:MM am') @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
             LABEL-BGCOLOR 14
       machemp.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      Time_String(machemp.end_time,yes) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
             LABEL-BGCOLOR 14
       machemp.shift FORMAT "XX":U LABEL-BGCOLOR 14
-      Time_String(machemp.total_time,no) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
             LABEL-BGCOLOR 14
       machemp.ratetype FORMAT "X(12)":U LABEL-BGCOLOR 14
       Get_Rate(machemp.rate) @ rate COLUMN-LABEL "Rate" FORMAT ">>>>9.99<<<":U
@@ -321,15 +314,15 @@ ASSIGN
      _FldNameList[3]   > machemp.start_date
 "machemp.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"STRING(machemp.start_time,'HH:MM am') @ start-time" "Started" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time" "Started" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > machemp.end_date
 "machemp.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"Time_String(machemp.end_time,yes) @ end-time" "Ended" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time" "Ended" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > machemp.shift
 "machemp.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"Time_String(machemp.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > machemp.ratetype
 "machemp.ratetype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
@@ -603,26 +596,6 @@ FUNCTION Get_Rate RETURNS DECIMAL
     RETURN machemp.rate.
   else
     RETURN 0.00.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION Time_String B-table-Win 
-FUNCTION Time_String RETURNS CHARACTER
-  (ip-time AS INTEGER,ip-clock-time AS LOGICAL):
-/*------------------------------------------------------------------------------
-  Purpose:  return time in string format
-    Notes:  
-------------------------------------------------------------------------------*/
-  IF ip-time = 0 AND machemp.end_date EQ ? THEN
-  RETURN ''.
-  ELSE
-  IF ip-clock-time THEN
-  RETURN STRING(ip-time,'HH:MM am').
-  ELSE
-  RETURN STRING(ip-time,'HH:MM').
 
 END FUNCTION.
 

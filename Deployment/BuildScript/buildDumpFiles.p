@@ -15,7 +15,7 @@ DEFINE STREAM s2.
 DEFINE STREAM s3.
 DEFINE STREAM s4.
 
-DEF VAR cOutDir AS CHAR INIT "{&cDir}\Template\Patch\DataFiles" NO-UNDO.
+DEF VAR cOutDir AS CHAR INIT "{&cDir}\Deployment\Patch\DataFiles" NO-UNDO.
 
 &SCOPED-DEFINE cFile audittbl
 
@@ -174,5 +174,11 @@ FOR EACH dynParamValue NO-LOCK WHERE
     dynParamValue.user-id EQ "_default" AND 
     dynParamValue.subjectID LT 5000:
     EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynPrgrmsPage.d").
+FOR EACH dynPrgrmsPage NO-LOCK :
+    EXPORT dynPrgrmsPage.
 END. /* each dynParamValue */
 OUTPUT CLOSE.

@@ -185,7 +185,7 @@ DO:
      run windows/l-est.w (cocode,locode,focus:screen-value, output char-val).
               
      if char-val <> "" then do:                 
-        FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+         FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
         IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                        lv-eb-tmpid = RECID(eb)    
                             begin_est:SCREEN-VALUE = eb.est-no.

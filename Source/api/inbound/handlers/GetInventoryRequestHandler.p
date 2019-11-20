@@ -41,6 +41,12 @@ DEFINE VARIABLE cInventoryStockID       AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cPrimaryID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType               AS CHARACTER  NO-UNDO.
 
+/* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
+   create trigger, only if session.p is running persistently, else will be populated with empty value.
+   ( refer methods/triggers/create.i ) */
+DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+RUN system/session.p PERSISTENT SET hdSession.
+SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
 
@@ -137,13 +143,21 @@ FOR EACH ttItem NO-LOCK:
         lcResponseData           = REPLACE(lcResponseData, "$LocationID$", ttItem.LocationID)
         lcResponseData           = REPLACE(lcResponseData, "$PrimaryID$", ttItem.PrimaryID)
         lcResponseData           = REPLACE(lcResponseData, "$InventoryStockID$", ttItem.InventoryStockID)
-        lcResponseData           = REPLACE(lcResponseData, "$Quantity$", STRING(ttItem.Quantity))
+        lcResponseData           = REPLACE(lcResponseData, "$Quantity$",STRING(ttItem.Quantity,"->>>>>>>>9.9<<<<<"))
         lcResponseData           = REPLACE(lcResponseData, "$ItemType$", ttItem.ItemType)
         lcResponseData           = REPLACE(lcResponseData, "$StockIDAlias$", ttItem.StockIDAlias)
-        lcResponseData           = REPLACE(lcResponseData, "$QuanityUOM$", ttItem.QuantityUOM)
+        lcResponseData           = REPLACE(lcResponseData, "$QuantityUOM$", ttItem.QuantityUOM)
         lcResponseData           = REPLACE(lcResponseData, "$QuantityPerSubUnit$", STRING(ttItem.QuantityPerSubUnit))
         lcResponseData           = REPLACE(lcResponseData, "$QuantitySubUnitsPerUnit$", STRING(ttItem.QuantitySubUnitsPerUnit))
         lcResponseData           = REPLACE(lcResponseData, "$QuantityPartial$", STRING(ttItem.QuantityPartial))
+        lcResponseData           = REPLACE(lcResponseData, "$Units$", STRING(ttItem.Units))
+        lcResponseData           = REPLACE(lcResponseData, "$JobNo$", ttItem.JobNo)
+        lcResponseData           = REPLACE(lcResponseData, "$JobNo2$", STRING(ttItem.JobNo2))
+        lcResponseData           = REPLACE(lcResponseData, "$POID$", STRING(ttItem.POID))
+        lcResponseData           = REPLACE(lcResponseData, "$UnitLength$",STRING(ttItem.UnitLength,"->>>>>>>>9.9<<<<<"))
+        lcResponseData           = REPLACE(lcResponseData, "$UnitHeight$",STRING(ttItem.UnitHeight,"->>>>>>>>9.9<<<<<"))
+        lcResponseData           = REPLACE(lcResponseData, "$UnitWidth$",STRING(ttItem.UnitWidth,"->>>>>>>>9.9<<<<<"))
+        lcResponseData           = REPLACE(lcResponseData, "$StackHeight$",STRING(ttItem.StackHeight))
         lcConcatResponseData     = lcConcatResponseData + "," + lcResponseData
         .
 END.
@@ -174,5 +188,6 @@ RUN api\CreateAPIInboundEvent.p (
     ).
   
 DELETE PROCEDURE hdJSONProcs.
-
-                                                      
+SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
+DELETE PROCEDURE hdSession.
+  

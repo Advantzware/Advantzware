@@ -48,9 +48,21 @@ DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
 DEFINE STREAM excel.
 DEFINE STREAM excel2 .
 DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSnapshotFolder AS CHARACTER NO-UNDO.
 
 ASSIGN
     fi_file = ".\custfiles\invSnapShotFG.csv".
+
+RUN sys/ref/nk1look.p (cocode, "FGCountDefaultPath", "C", NO, NO, "", "", 
+                          OUTPUT cNk1Char, OUTPUT lfound).
+IF lFound THEN
+    cSnapshotFolder = cNk1Char NO-ERROR.    
+ELSE
+    cSnapshotFolder = ".\custfiles".
+cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "/").
+cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "\").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,15 +79,29 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse ~
-btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse 
+&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiWhseList ~
+fiSnapshotFile btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiWhseList ~
+fiSnapshotFolder fiSnapshotFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win
+FUNCTION fAddSpaceToList RETURNS CHARACTER 
+  ( ipcList AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -93,25 +119,30 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzz" 
+     LABEL "To Item" 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Item" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzz" 
-     LABEL "To Warehouse" 
+DEFINE VARIABLE fiSnapshotFile AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Snapshot File" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 45 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiFromWhse AS CHARACTER FORMAT "X(256)":U 
-     LABEL "From Warehouse" 
+DEFINE VARIABLE fiSnapshotFolder AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Snapshot Folder" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 85 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzz" 
-     LABEL "To Item" 
+DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Whse LIst" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1 NO-UNDO.
+     SIZE 90 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -121,16 +152,17 @@ DEFINE RECTANGLE RECT-7
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiFromItem AT ROW 3.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fiEndItem AT ROW 3.86 COL 62 COLON-ALIGNED WIDGET-ID 28
-     fiFromWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
-     fiToWhse AT ROW 4.81 COL 62 COLON-ALIGNED WIDGET-ID 16
+     fiFromItem AT ROW 3.86 COL 13 COLON-ALIGNED WIDGET-ID 26
+     fiEndItem AT ROW 3.86 COL 53 COLON-ALIGNED WIDGET-ID 28
+     fiWhseList AT ROW 4.81 COL 13 COLON-ALIGNED WIDGET-ID 14
+     fiSnapshotFolder AT ROW 6.71 COL 16 COLON-ALIGNED WIDGET-ID 30
+     fiSnapshotFile AT ROW 7.91 COL 16 COLON-ALIGNED WIDGET-ID 32
      btn-ok AT ROW 11 COL 22
      btn-cancel AT ROW 11 COL 54
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-7 AT ROW 1.05 COL 1
+     RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
@@ -196,6 +228,11 @@ ASSIGN
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR FILL-IN fiSnapshotFolder IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiSnapshotFolder:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -249,10 +286,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+  DEFINE VARIABLE lValidEntry AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cInvalidValues AS CHARACTER NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  RUN validateSnapshotFolder (INPUT fiSnapshotFolder, OUTPUT lValidEntry).
+  IF NOT lValidEntry THEN DO:
+    MESSAGE "The snapshot folder specified is not valid, please correct NK1 value." 
+    VIEW-AS ALERT-BOX.
+    RETURN.
+  END.  
+  RUN validateWhseList (INPUT fiWhseList,  OUTPUT cInvalidValues, OUTPUT lValidEntry).
+  IF NOT lValidEntry THEN DO:
+    MESSAGE "Entry of warehouse list is not valid: " + cInvalidValues
+    VIEW-AS ALERT-BOX.
+    RETURN.
+  END.
   RUN run-report. 
   MESSAGE "Initialize Complete"
   VIEW-AS ALERT-BOX.  
@@ -262,10 +312,11 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fiEndItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndItem C-Win
-ON HELP OF fiEndItem IN FRAME FRAME-A /* Font */
-    DO:
+ON HELP OF fiEndItem IN FRAME FRAME-A /* To Item */
+DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
         RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
@@ -279,12 +330,12 @@ ON HELP OF fiEndItem IN FRAME FRAME-A /* Font */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-&UNDEFINE SELF-NAME
+
 
 &Scoped-define SELF-NAME fiFromItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromItem C-Win
-ON HELP OF fiFromItem IN FRAME FRAME-A /* Font */
-    DO:
+ON HELP OF fiFromItem IN FRAME FRAME-A /* From Item */
+DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
         RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
@@ -298,46 +349,27 @@ ON HELP OF fiFromItem IN FRAME FRAME-A /* Font */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-&UNDEFINE SELF-NAME
 
-&Scoped-define SELF-NAME fiToWhse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiToWhse C-Win
-ON HELP OF fiToWhse IN FRAME FRAME-A /* Font */
-    DO:
-        DEF VAR char-val AS cha NO-UNDO.
 
-        run windows/l-loc.w (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val).
-        if char-val <> "" then 
-        do :
-            assign 
-                {&SELF-NAME}:SCREEN-VALUE = entry(1,char-val)
+&Scoped-define SELF-NAME fiWhseList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiWhseList C-Win
+ON HELP OF fiWhseList IN FRAME FRAME-A /* Whse LIst */
+DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-locMulti.w (cocode,ENTRY(1, fiWhseList:SCREEN-VALUE), OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+            {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val, "|")
                 .
-
-        end. 
+        END. 
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-&UNDEFINE SELF-NAME
 
-&Scoped-define SELF-NAME fiFromWhse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromWhse C-Win
-ON HELP OF fiFromWhse IN FRAME FRAME-A /* Font */
-    DO:
-        DEF VAR char-val AS cha NO-UNDO.
 
-        run windows/l-loc.w (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val).
-        if char-val <> "" then 
-        do :
-            assign 
-            {&SELF-NAME}:SCREEN-VALUE = entry(1,char-val)
-                .
-
-        end. 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -375,10 +407,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-
-
   END.
-
+  
+  fiSnapshotFolder:SCREEN-VALUE IN FRAME {&frame-name}= cSnapshotFolder.
+    ASSIGN  fiSnapshotFile:SCREEN-VALUE IN FRAME {&frame-name} = "invSnapShotFG" 
+                + STRING(YEAR(TODAY), "9999")
+                + STRING(MONTH(TODAY), "99")
+                + STRING(DAY(TODAY), "99")
+                + "-"
+                + SUBSTRING(STRING(time, "HH:MM"), 1, 2)
+                + SUBSTRING(STRING(time, "HH:MM"), 4, 2)
+                + ".csv"
+            .
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -419,9 +459,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse 
+  DISPLAY fiFromItem fiEndItem fiWhseList fiSnapshotFolder fiSnapshotFile 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse btn-ok btn-cancel 
+  ENABLE RECT-7 fiFromItem fiEndItem fiWhseList fiSnapshotFile btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -432,11 +473,6 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-/* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
-/* Job Summary Report                                                         */
-/* -------------------------------------------------------------------------- */
-
-
 
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader1 AS CHARACTER NO-UNDO.
@@ -479,8 +515,9 @@ SESSION:SET-WAIT-STATE ("general").
      (input cocode,  
       input fiFromItem, 
       input fiEndItem,  
-      input fiFromWhse,   
-      input fiToWhse)  .  
+      input fAddSpaceToList(fiWhseList),
+      INPUT fiSnapshotFolder + "\" + fiSnapshotFile
+      ).  
       
     delete object h.  
     
@@ -564,4 +601,89 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateSnapshotFolder C-Win
+PROCEDURE validateSnapshotFolder:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER cFolder AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+
+FILE-INFO:FILE-NAME = cFolder.
+IF FILE-INFO:FULL-PATHNAME EQ ? OR FILE-INFO:FULL-PATHNAME EQ "" THEN 
+  OS-CREATE-DIR VALUE(cFolder).
+IF FILE-INFO:FULL-PATHNAME EQ ? OR FILE-INFO:FULL-PATHNAME EQ "" THEN
+  oplValid = NO.
+ELSE
+  oplValid = YES. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateWhseList C-Win
+PROCEDURE validateWhseList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcInvalidList AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cInvalidList AS CHARACTER NO-UNDO.
+lValid = YES.
+DO iIndex = 1 TO NUM-ENTRIES(ipcWhseList):
+    IF NOT CAN-FIND(FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ ENTRY(iIndex, ipcWhseList)) THEN 
+       ASSIGN cInvalidList = cInvalidList + "," +  ENTRY(iIndex, ipcWhseList)
+              lValid = NO
+              .
+END.
+ASSIGN oplValid = lValid
+       opcInvalidList = cInvalidList
+       .
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win
+FUNCTION fAddSpaceToList RETURNS CHARACTER 
+  ( ipcList AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:  Needed because some loc values contained spaces at the end
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cList2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cList3 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIter AS INTEGER NO-UNDO.
+    
+    DO iIter = 1 to NUM-ENTRIES(ipcList):
+      cList2 = cList2 + TRIM(ENTRY(iIter, ipcList)) + ",".
+      cList3 = cList3 + TRIM(ENTRY(iIter, ipcList)) + " " + ",".
+    END.
+    
+    cList2 = trim(cList2, ",").
+    cList3 = trim(cList3, ",").
+    cResult = cList2 + "," + cList3.
+    RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 

@@ -297,8 +297,22 @@ FOR EACH report
                        END.*/
 
                     END.
-                    ELSE DO:
+                    ELSE DO:  
                       ASSIGN cBoard = bf-item.i-name.
+                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "EXE1002" AND 
+                           AVAIL eb AND eb.est-type LE 4 THEN 
+                           ASSIGN cBoard = cBoard + "/C1S".
+                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:
+                            IF AVAIL eb THEN
+                                FIND FIRST prodl NO-LOCK
+                                WHERE prodl.company EQ cocode AND
+                                prodl.procat EQ eb.procat NO-ERROR .
+                            ELSE RELEASE prodl .
+
+                            IF AVAIL prodl AND prodl.prolin EQ "Labels" THEN 
+                              ASSIGN cBoard = cBoard + "/40#SCK".
+                            ELSE ASSIGN cBoard = cBoard + "/C1S".
+                       END.
                     END.
 
                     ASSIGN 
@@ -540,6 +554,7 @@ PROCEDURE InitializeExcel :
 DEFINE VARIABLE cTemplateFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWorksheetTotal AS INTEGER NO-UNDO.
 DEFINE VARIABLE cCustomNotesTemplate AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lCustomNotesMik AS LOGICAL NO-UNDO .
 /* Capture the current active printer. */
 IF LvOutputSelection = "email" THEN
     ASSIGN 
@@ -578,12 +593,14 @@ FOR EACH report
  END.
 
 cCustomNotesTemplate = "" .
+lCustomNotesMik = NO .
  IF cCertFormat EQ "CCC" THEN
      FOR EACH report  
      WHERE report.term-id EQ v-term-id,
      FIRST oe-bolh 
      WHERE RECID(oe-bolh) EQ report.rec-id NO-LOCK:
-     
+       IF oe-bolh.cust-no EQ "MIK1000" THEN
+         ASSIGN lCustomNotesMik = YES .
      MAIN-BLOCK:
      FOR EACH oe-boll
         WHERE oe-boll.company EQ cocode
@@ -625,6 +642,8 @@ cCustomNotesTemplate = "" .
 
  IF cCertFormat EQ "CCC" AND cCustomNotesTemplate EQ "CustNotes-ALF1001" THEN
     cTemplateFile = SEARCH("template\CCCBOLCertNote.xlt").
+ ELSE IF cCertFormat EQ "CCC" AND lCustomNotesMik THEN
+    cTemplateFile = SEARCH("template\CCCBOLCertMikNote.xlt").
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.

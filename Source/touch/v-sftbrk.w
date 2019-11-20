@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 DEF VAR correct-error AS LOG NO-UNDO.
+DEF VAR lAddingRecord AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,18 +56,17 @@ DEF VAR correct-error AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES shift_break shifts
+&Scoped-define EXTERNAL-TABLES shift_break
 &Scoped-define FIRST-EXTERNAL-TABLE shift_break
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR shift_break, shifts.
+DEFINE QUERY external_tables FOR shift_break.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS shift_break.charge_code ~
 shift_break.description 
 &Scoped-define ENABLED-TABLES shift_break
 &Scoped-define FIRST-ENABLED-TABLE shift_break
-&Scoped-Define ENABLED-OBJECTS RECT-3 
 &Scoped-Define DISPLAYED-FIELDS shift_break.charge_code ~
 shift_break.description 
 &Scoped-define DISPLAYED-TABLES shift_break
@@ -75,8 +75,8 @@ shift_break.description
 start_ampm end_hour end_minute end_second end_ampm 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define List-5 start_hour start_minute start_second start_ampm ~
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,TIME-FIELDS,List-6 */
+&Scoped-define TIME-FIELDS start_hour start_minute start_second start_ampm ~
 end_hour end_minute end_second end_ampm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -160,8 +160,8 @@ DEFINE VARIABLE start_second AS CHARACTER FORMAT "X(2)":U
      BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 60 BY 5.71.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 60 BY 5.24.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -199,7 +199,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: shift_break,shifts
+   External Tables: ASI.shift_break
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -257,6 +257,8 @@ ASSIGN
    NO-ENABLE 5                                                          */
 /* SETTINGS FOR FILL-IN end_second IN FRAME F-Main
    NO-ENABLE 5                                                          */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX start_ampm IN FRAME F-Main
    NO-ENABLE 5                                                          */
 /* SETTINGS FOR FILL-IN start_hour IN FRAME F-Main
@@ -278,7 +280,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -314,125 +316,6 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_hour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_hour V-table-Win
-ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
-DO:
-     IF LASTKEY = -1 THEN RETURN.
-  RUN valid-hour(SELF:SCREEN-VALUE).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_minute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_minute V-table-Win
-ON LEAVE OF end_minute IN FRAME F-Main
-DO:
-    IF LASTKEY = -1 THEN RETURN.
-  RUN valid-min(SELF:SCREEN-VALUE).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_second
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_second V-table-Win
-ON LEAVE OF end_second IN FRAME F-Main
-DO:
-  IF LASTKEY = -1 THEN RETURN.
-
-  RUN valid-sec(SELF:SCREEN-VALUE).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_hour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_hour V-table-Win
-ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
-DO:
-  IF LASTKEY = -1 THEN RETURN.
-  RUN valid-hour(SELF:SCREEN-VALUE).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_minute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_minute V-table-Win
-ON LEAVE OF start_minute IN FRAME F-Main
-DO:
-    IF LASTKEY = -1 THEN RETURN.
-
-  RUN valid-min(SELF:SCREEN-VALUE).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_second
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_second V-table-Win
-ON LEAVE OF start_second IN FRAME F-Main
-DO:
-  IF LASTKEY = -1 THEN RETURN.
-
-  RUN valid-sec(SELF:SCREEN-VALUE).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
-  {&methods/lValidateError.i NO}
-END.
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -443,7 +326,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/timeTriggers.i}
+{sys/inc/f3helpd.i} 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
@@ -471,14 +355,12 @@ PROCEDURE adm-row-available :
 
   /* Create a list of all the tables that we need to get.            */
   {src/adm/template/row-list.i "shift_break"}
-  {src/adm/template/row-list.i "shifts"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
   {src/adm/template/row-find.i "shift_break"}
-  {src/adm/template/row-find.i "shifts"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -520,28 +402,20 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  /*
-  {custom/SET_time.i &ampm = 
-  IF {&ampm} = 'PM' AND {&hour} NE '12' THEN
-  {&hour} = STRING(INTEGER({&hour}) + 12,'99').
-  IF {&ampm} = 'AM' AND {&hour} = '12' THEN
-  {&hour} = '00'.
-  {&field} = INTEGER({&hour}) * 3600 + INTEGER({&minute}) * 60.
-  */
-
-  IF START_ampm = "PM" AND START_hour <> "12" THEN
-           START_hour = string(int(START_hour) + 12).
-  IF START_ampm = "AM" AND START_hour = "12" THEN START_hour = "0".
-
-  shift_break.start_time = INT(START_hour) * 3600 + INT(START_minute) * 60
-                         + INT(START_second).
-
-  IF end_ampm = "PM" AND end_hour <> "12" THEN
-           end_hour = string(int(end_hour) + 12).
-  IF end_ampm = "AM" AND end_hour = "12" THEN end_hour = "0".
-
-  shift_break.end_time = INT(end_hour) * 3600 + INT(end_minute) * 60
-                       + INT(end_second).
+  {custom/set_time2.i
+        &field=shift_break.start_time
+        &hour=start_hour
+        &minute=start_minute
+        &second=start_second
+        &ampm=start_ampm
+   }
+  {custom/set_time2.i
+        &field=shift_break.end_time
+        &hour=end_hour
+        &minute=end_minute
+        &second=end_second
+        &ampm=end_ampm
+   }
 
   RUN local-display-fields.
 
@@ -563,7 +437,7 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN FRAME {&FRAME-NAME} {&list-5}.
+  ASSIGN FRAME {&FRAME-NAME} {&TIME-FIELDS}.
 
 END PROCEDURE.
 
@@ -583,7 +457,7 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DISABLE {&list-5} WITH FRAME {&FRAME-NAME}.
+  DISABLE {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -614,7 +488,8 @@ PROCEDURE local-create-record :
 
   ASSIGN shift_break.company = shifts.company
          shift_break.shift = shifts.shift
-         shift_break.seq = lv-seq + 1.
+         shift_break.seq = lv-seq + 1
+         lAddingRecord = TRUE.
 
 
 END PROCEDURE.
@@ -630,13 +505,16 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {custom/askdel.i}
+  IF NOT lAddingRecord THEN DO:
+    {custom/askdel.i}
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+    ASSIGN 
+        lAddingRecord = FALSE.
 
 END PROCEDURE.
 
@@ -652,31 +530,31 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
-   ASSIGN START_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00"
-       START_minute:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00"
-       START_second:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00"
-       START_ampm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
-       end_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00"
-       end_minute:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00"
-       end_second:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00"
-       end_ampm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL shift_break THEN
-     ASSIGN START_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-               = SUBSTRING(STRING(shift_break.START_time,"hh:mm am"),1,2)
-         START_minute:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.START_time,"hh:mm am"),4,2)
-         START_ampm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.START_time,"hh:mm am"),7,2)
-         START_second:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.START_time,"hh:mm:ss am"),7,2)
-         end_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm am"),1,2)
-         end_minute:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm am"),4,2)
-         end_second:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm:ss am"),7,2)
-         end_ampm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm am"),7,2).
-
+  IF AVAIL shift_break THEN DO:
+      {custom/get_time2.i
+            &field=shift_break.start_time
+            &hour=start_hour
+            &minute=start_minute
+            &second=start_second
+            &ampm=start_ampm
+       }
+      {custom/get_time2.i
+            &field=shift_break.end_time
+            &hour=end_hour
+            &minute=end_minute
+            &second=end_second
+            &ampm=end_ampm
+       }
+/*       DISPLAY {&TIME-FIELDS}.*/
+       ASSIGN
+           start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+           end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+           .
+  END.
 
 END PROCEDURE.
 
@@ -696,7 +574,11 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- ENABLE {&list-5} WITH FRAME {&FRAME-NAME}.
+ ENABLE {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
+ ASSIGN
+     start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+     end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+     .
 
 END PROCEDURE.
 
@@ -712,44 +594,6 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
-  RUN valid-hour(START_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  {&methods/lValidateError.i YES}
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO START_hour.
-     RETURN .
-  END.
-  RUN valid-min(START_minute:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO START_minute.
-     RETURN .
-  END.
-  RUN valid-sec(START_second:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO START_second.
-     RETURN .
-  END.
-  RUN valid-hour(end_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO end_hour.
-     RETURN .
-  END.
-  RUN valid-min(end_minute:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO end_minute.
-     RETURN .
-  END.
-  RUN valid-sec(end_second:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  IF RETURN-VALUE <> "" THEN DO:
-     MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO end_second.
-     RETURN .
-  END.
-
   RUN valid-chg-code.
   IF RETURN-VALUE <> "" THEN DO:
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
@@ -760,10 +604,11 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-   DISABLE {&list-5} WITH FRAME {&FRAME-NAME}.
+   DISABLE {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
+    ASSIGN 
+        lAddingRecord = FALSE.
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -781,7 +626,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "shift_break"}
-  {src/adm/template/snd-list.i "shifts"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -822,70 +666,6 @@ PROCEDURE valid-chg-code :
    IF NOT CAN-FIND(FIRST job-code 
              WHERE job-code.CODE = shift_break.charge_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} )
    THEN RETURN "Invalie Charge Code!.".
-   ELSE RETURN "".
-
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-hour V-table-Win 
-PROCEDURE valid-hour :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEF INPUT PARAMETER ip-hour AS CHAR.
-
-  {methods/lValidateError.i YES}
- correct-error = INTEGER(ip-hour) LT 0 OR INTEGER(ip-hour) GT 12.
- IF correct-error THEN
-     RETURN "Invalid Hour. Must be between 0 and 12... ".
- ELSE RETURN "". 
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min V-table-Win 
-PROCEDURE valid-min :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEF INPUT PARAM ip-min AS cha NO-UNDO.
-
-  {methods/lValidateError.i YES}
- correct-error = INTEGER(ip-min) LT 0 OR INTEGER(ip-min) GT 59.
- IF correct-error THEN
-     RETURN "Invalid Hour. Must be between 0 and 59... ".
- ELSE RETURN "".
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sec V-table-Win 
-PROCEDURE valid-sec :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF INPUT PARAM ip-sec AS cha NO-UNDO.
-
-  {methods/lValidateError.i YES}
-   correct-error = INTEGER(ip-sec) LT 0 OR INTEGER(ip-sec) GT 59.
-   IF correct-error THEN
-      RETURN "Invalid Second. Must be between 0 and 59... ".
    ELSE RETURN "".
   {methods/lValidateError.i NO}
 END PROCEDURE.

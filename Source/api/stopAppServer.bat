@@ -26,6 +26,5 @@ ECHO ...Stopping Advantzware_API appserver
 CD !DLCDir!\bin
 CALL asbman -name !AppServerName! -host !hostname! -port !adminPort! -stop
 
-
 :QUIT
 EXIT

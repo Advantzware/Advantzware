@@ -397,7 +397,7 @@ DO:
    IF LASTKEY = -1 THEN RETURN.
    ASSIGN {&self-name}.
 
-   IF NOT CAN-FIND(FIRST account WHERE account.company = g_company
+   IF begin_acct NE "" AND NOT CAN-FIND(FIRST account WHERE account.company = g_company
                                    AND account.actnum = begin_acct) THEN DO:
       MESSAGE "Invalid Account Number. Try Help." VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.

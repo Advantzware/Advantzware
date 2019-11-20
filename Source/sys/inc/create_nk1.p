@@ -40,11 +40,16 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
-           + "JobCardPrintScores,POChangeDueDate,VendItemCost"
+           + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
+    WHEN "RMIssueWIP" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                INPUT "Automatically create WIP tags when posting issues for board",
+                INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "LoadTagSSCC" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                 INPUT "Load Tag SSCC",
@@ -756,8 +761,18 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Styles separated by comma (Blank means applies to all styles)",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */, INPUT 0 /* dec value*/). 
-  WHEN "POChangeDueDate" THEN   
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).        
+    WHEN "RMCountDefaultPath" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Define the path to create the snapshot",
+        INPUT ".\custfiles\RmCount" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).         
+    WHEN "FGCountDefaultPath" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Define the path to create the snapshot",
+        INPUT ".\custfiles\FgCount" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).         
+    WHEN "POChangeDueDate" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Prompt to Update All PO Lines Due Data with any change to required date",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
@@ -767,6 +782,16 @@ CASE ip-nk1-value:
         INPUT "Use Vendor Item Cost tables(VendItemCost)?",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).      
+    WHEN "CERequestYield" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default to Price By Request vs. Yield",
+        INPUT "RequestNewOnly" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
+    WHEN "JobCompleteEmail" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Generate Email when Job Run Completes on Last Routing",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
 END CASE.
 ELSE
 CASE ip-nk1-value:

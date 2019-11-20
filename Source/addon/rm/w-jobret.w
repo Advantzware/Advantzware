@@ -48,6 +48,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -75,9 +77,11 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-issued AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO. 
+DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO.
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -87,18 +91,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.19
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.19
          BGCOLOR 15 .
 
 
@@ -302,6 +306,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/loadtag.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_loadtag ).
+       RUN set-position IN h_loadtag ( 1.00 , 16.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-jobret.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
@@ -320,8 +332,8 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 22.19 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 79.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 22.43 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 1.91 , 79.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/v-post.w':U ,
@@ -331,16 +343,24 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-post ( 22.43 , 84.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
+       /* Links to SmartObject h_loadtag. */
+       RUN add-link IN adm-broker-hdl ( h_b-issued , 'LoadTag':U , h_loadtag ).
+
        /* Links to SmartNavBrowser h_b-issued. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-issued ).
-        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-issued ).
+       RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-issued ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-issued ).
+       RUN add-link IN adm-broker-hdl ( h_b-issued , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_loadtag ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-issued ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_b-issued , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
+             h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.

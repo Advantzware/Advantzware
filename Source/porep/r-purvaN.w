@@ -672,8 +672,6 @@ DO:
   RUN GetSelectionList.
   run run-report. 
  STATUS DEFAULT "Processing Complete".
-  IF tb_excel AND tb_runExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
 
   case rd-dest:
        when 1 then run output-to-printer.
@@ -2339,7 +2337,9 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
-/* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
+    /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
+    IF tb_excel AND tb_runExcel THEN
+        OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 
 end procedure.
 

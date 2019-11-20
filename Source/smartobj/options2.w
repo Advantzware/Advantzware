@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_list Select_frac Select_dept ~
-Select_spec Select_appl Select_help UDF 
+&Scoped-Define ENABLED-OBJECTS Select_dept Select_list Select_spec UDF ~
+Select_frac Select_appl Select_help 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -69,7 +69,7 @@ DEFINE BUTTON Select_appl
 
 DEFINE BUTTON Select_dept 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
@@ -85,36 +85,36 @@ DEFINE BUTTON Select_help
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
-DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "UDF" 
-     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
-
 DEFINE BUTTON Select_list 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "Job Ticket".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
+
+DEFINE BUTTON UDF 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "UDF" 
+     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_list AT ROW 1 COL 49
-     Select_frac AT ROW 1 COL 41
-     Select_dept AT ROW 1 COL 1
-     Select_spec AT ROW 1 COL 9
-     Select_appl AT ROW 1 COL 17
-     Select_help AT ROW 1 COL 25
-     UDF AT ROW 1 COL 33 HELP
+     Select_dept AT ROW 1 COL 9
+     Select_list AT ROW 1 COL 1
+     Select_spec AT ROW 1 COL 17
+     UDF AT ROW 1 COL 41 HELP
           "Access UDF Viewer"
+     Select_frac AT ROW 1 COL 49
+     Select_appl AT ROW 1 COL 25
+     Select_help AT ROW 1 COL 33
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -146,8 +146,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.95
-         WIDTH              = 56.2.
+         HEIGHT             = 1.81
+         WIDTH              = 55.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -238,17 +238,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME UDF
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
-ON CHOOSE OF UDF IN FRAME F-Main /* Home */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Select_list
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_list s-object
 ON CHOOSE OF Select_list IN FRAME F-Main /* List */
@@ -265,6 +254,17 @@ END.
 ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON CHOOSE OF UDF IN FRAME F-Main /* UDF */
+DO:
+  {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,8 +351,8 @@ PROCEDURE Init-Buttons :
   DISABLE select_list WITH FRAME {&FRAME-NAME}.
   IF NOT notes-button THEN
   DISABLE select_dept WITH FRAME {&FRAME-NAME}.
-/*  IF NOT misc_fields-button THEN
-  DISABLE select_misc_fields WITH FRAME {&FRAME-NAME}.  */
+  IF NOT misc_fields-button THEN
+  DISABLE UDF WITH FRAME {&FRAME-NAME}.
   IF NOT spec-note THEN
   DISABLE select_spec WITH FRAME {&FRAME-NAME}.
 

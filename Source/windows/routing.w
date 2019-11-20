@@ -53,6 +53,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -78,6 +80,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
@@ -86,7 +89,6 @@ DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_routing AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_routing-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -97,18 +99,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -280,6 +282,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/smartmsg.w':U ,
+             INPUT  FRAME message-frame:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_smartmsg ).
+       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -288,12 +298,13 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
+             INPUT  'adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Brwse Routing|View Routing' + ',
+                     FOLDER-TAB-TYPE = 1':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
@@ -311,49 +322,43 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brwse Routing|View Routing' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
-
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 69.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/routing.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_routing ).
        RUN set-position IN h_routing ( 4.81 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_routing ( 19.52 , 130.00 ) NO-ERROR.
-
-        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/export.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 69.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       RUN set-size IN h_routing ( 19.52 , 143.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_routing , 'export-xl':U , h_export ).
+
        /* Links to SmartNavBrowser h_routing. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_routing ).
-       RUN add-link IN adm-broker-hdl ( h_routing , 'export-xl':U , h_export ).
+       RUN add-link IN adm-broker-hdl ( h_routing , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_routing ,
@@ -363,14 +368,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/routing.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Key-Name = ,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
+             INPUT  '':U ,
              OUTPUT h_routing-2 ).
        RUN set-position IN h_routing-2 ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_routing-2 ( 16.19 , 67.00 ) NO-ERROR.
+       /* Position in AB:  ( 5.05 , 5.00 ) */
        /* Size in UIB:  ( 16.19 , 67.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -396,16 +398,14 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_routing-2. */
+       /* Links to  h_routing-2. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_routing-2 ).
        RUN add-link IN adm-broker-hdl ( h_routing , 'Record':U , h_routing-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_routing-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_routing-2 ,
-             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_routing-2 , 'AFTER':U ).
+             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */

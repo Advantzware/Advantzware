@@ -826,7 +826,9 @@ PROCEDURE ReleaseOrder :
                 LEAVE REL-LINES.
            END.
         END.     
-
+        FIND FIRST bf-oe-relh NO-LOCK
+            WHERE ROWID(bf-oe-relh) EQ rOeRelh
+            NO-ERROR.
         iRelNo = iRelNo + 1.
         RUN pCreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT oplError, OUTPUT opcMessage).
      END. 
@@ -1330,7 +1332,8 @@ PROCEDURE OrderProcsPostReleases:
                        cRelPost.
         
         FIND FIRST oe-bolh NO-LOCK
-             WHERE oe-bolh.bol-no EQ opiBOLID
+             WHERE oe-bolh.company EQ ipcCompany
+               AND oe-bolh.bol-no  EQ opiBOLID
              NO-ERROR.
         
         IF NOT AVAILABLE oe-bolh THEN DO:
@@ -1427,7 +1430,8 @@ PROCEDURE pOrderProcsRelCheck PRIVATE:
     DEFINE BUFFER buf-oe-rell FOR oe-rell.
     
     FIND FIRST oe-relh NO-LOCK 
-         WHERE oe-relh.release# EQ ipiReleaseID
+         WHERE oe-relh.company EQ ipcCompany
+           AND oe-relh.release# EQ ipiReleaseID
          NO-ERROR.
                          
     IF AVAILABLE oe-relh THEN DO:
@@ -1568,7 +1572,7 @@ PROCEDURE pOrderProcsCreateBOL PRIVATE:
     DEFINE INPUT        PARAMETER ipcBolPost   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiBOLNo    AS INTEGER   NO-UNDO.  
-    
+
     DEFINE VARIABLE cFRTPay  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFOBCode AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFRTList AS CHARACTER NO-UNDO.
@@ -1582,7 +1586,8 @@ PROCEDURE pOrderProcsCreateBOL PRIVATE:
         .
               
     FIND FIRST oe-relh NO-LOCK
-         WHERE oe-relh.release# EQ ipiReleaseID
+         WHERE oe-relh.company  EQ ipcCompany
+           AND oe-relh.release# EQ ipiReleaseID
          NO-ERROR.
     
     IF AVAILABLE oe-relh THEN
@@ -1692,11 +1697,27 @@ PROCEDURE pOrderProcsCreateBOL PRIVATE:
          USE-INDEX b-no NO-ERROR.
     IF AVAILABLE oe-bolh THEN 
         x = oe-bolh.b-no + 1.
-  
+        
+    FIND FIRST shipto NO-LOCK
+     WHERE shipto.company EQ oe-relh.company
+       AND shipto.cust-no EQ oe-relh.cust-no
+       AND shipto.ship-id EQ oe-relh.ship-id
+     NO-ERROR.
+         
+    IF NOT AVAILABLE shipto THEN 
+        FIND FIRST loc NO-LOCK
+             WHERE loc.company EQ ipcCompany
+             NO-ERROR.
+             
     CREATE oe-bolh.
     ASSIGN
         oe-bolh.company  = oe-relh.company
-        oe-bolh.loc      = locode
+        oe-bolh.loc      = IF AVAILABLE shipto THEN
+                               shipto.loc
+                           ELSE IF AVAILABLE loc THEN
+                               loc.loc
+                           ELSE
+                               ""
         oe-bolh.b-no     = x
         oe-bolh.bol-no   = iopiBOLNo
         oe-bolh.release# = oe-relh.release#
@@ -1827,7 +1848,8 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
 
     DO TRANSACTION:
         FIND FIRST oe-relh NO-LOCK
-             WHERE oe-relh.release# EQ ipiReleaseID
+             WHERE oe-relh.company  EQ ipcCompany
+               AND oe-relh.release# EQ ipiReleaseID
              NO-ERROR.
              
         /* get first Order for release */
@@ -1849,7 +1871,8 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
             ).
 
         FIND FIRST oe-bolh 
-             WHERE oe-bolh.bol-no EQ ipiBOLID
+             WHERE oe-bolh.company EQ ipcCompany
+               AND oe-bolh.bol-no  EQ ipiBOLID
              NO-ERROR.
 
         FOR EACH  oe-boll EXCLUSIVE-LOCK 
@@ -1963,11 +1986,13 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
         lBOLWeight = LOGICAL(cRtnBOLWeight) NO-ERROR.
     
     FIND FIRST oe-relh NO-LOCK
-         WHERE oe-relh.release# EQ ipiReleaseID 
+         WHERE oe-relh.company EQ ipcCompany
+           AND oe-relh.release# EQ ipiReleaseID 
          NO-ERROR.
          
     FIND FIRST oe-bolh NO-LOCK
-         WHERE oe-bolh.bol-no EQ ipiBOLID
+         WHERE oe-bolh.company EQ ipcCompany
+           AND oe-bolh.bol-no  EQ ipiBOLID
          NO-ERROR.
          
     FOR EACH oe-rell
@@ -2090,7 +2115,8 @@ PROCEDURE pOrderProcsPostRelease PRIVATE:
     DEFINE INPUT PARAMETER ipiReleaseID AS INTEGER NO-UNDO.
     
     FIND FIRST oe-relh EXCLUSIVE-LOCK
-         WHERE oe-relh.release# EQ ipiReleaseID
+         WHERE oe-relh.company EQ ipcCompany
+           AND oe-relh.release# EQ ipiReleaseID
          NO-WAIT NO-ERROR. 
 
     FOR EACH  oe-rell

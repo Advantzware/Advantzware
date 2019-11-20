@@ -358,6 +358,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_edshipvia-2 ).
+       RUN set-position IN h_edshipvia-2 ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_edshipvia-2 ( 17.14 , 144.00 ) NO-ERROR.
        /* Position in AB:  ( 4.81 , 4.00 ) */
        /* Size in UIB:  ( 17.14 , 144.00 ) */
 
@@ -387,7 +389,7 @@ PROCEDURE adm-create-objects :
        /* Links to  h_edshipvia-2. */
        RUN add-link IN adm-broker-hdl ( h_edshipvia , 'Record':U , h_edshipvia-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_edshipvia-2 ).
-
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_edshipvia-2 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
              h_folder , 'AFTER':U ).

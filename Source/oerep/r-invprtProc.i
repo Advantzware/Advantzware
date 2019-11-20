@@ -22,6 +22,7 @@
 &global-define bno b-no
 &global-define miscrno r-no
 &global-define vprgmname "r-invprt."
+&global-define due due
 &ENDIF
 DEFINE BUFFER b-{&head}1   FOR {&head}.
 DEFINE BUFFER buf-{&head}  FOR {&head}.
@@ -70,6 +71,7 @@ ASSIGN
     locode = gloc.
 
 {oe/rep/invoice.i "new"}
+{oe/ttSaveLine.i "NEW SHARED"}
 
 DEFINE VARIABLE v-program      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOG       NO-UNDO.
@@ -94,7 +96,6 @@ DEFINE VARIABLE rCurrentInvoice AS ROWID     NO-UNDO.
 DEFINE VARIABLE cCopyPdfFile    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCopyPdfFile    AS LOGICAL   NO-UNDO.
 
-DEFINE BUFFER save-line    FOR reftable.
 DEFINE BUFFER b1-cust      FOR cust.
 DEFINE BUFFER b-ar-inv     FOR ar-inv.
 
@@ -225,6 +226,7 @@ DEFINE VARIABLE td-show-parm      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_qty-all        AS LOGICAL   INITIAL YES              .
 DEFINE VARIABLE tb_cust-list      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_prt-dupl       AS LOGICAL   INITIAL NO               .
+DEFINE VARIABLE tb_open-inv       AS LOGICAL   INITIAL NO               .
 
 
 PROCEDURE assignSelections:
@@ -270,6 +272,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbCustList         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptbOpenInvOnly      AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -317,6 +320,7 @@ PROCEDURE assignSelections:
         nsv_setcomp      = tb_setcomp
         tb_prt-dupl      = iptb_prt-dupl
         tb_PdfOnly       = iptbPdfOnly
+        tb_open-inv      = iptbOpenInvOnly
         .
         
         CASE rd-dest:
@@ -599,27 +603,29 @@ PROCEDURE create-save-line :
       Notes:       
     ------------------------------------------------------------------------------*/
 
-    DISABLE TRIGGERS FOR LOAD OF {&line}.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
-    FOR EACH {&line} WHERE {&line}.{&rno} EQ b-{&head}1.{&rno}:
-        CREATE save-line.
+    FOR EACH inv-line WHERE inv-line.r-no EQ b-{&head}1.{&rno}:
+        CREATE ttSaveLine.
         ASSIGN
-            save-line.reftable = "save-line" + v-term-id
-            save-line.val[1]   = {&line}.{&rno}
-            save-line.val[2]   = {&head}.{&rno}
-            save-line.val[3]   = INT(RECID({&line}))
-            {&line}.{&rno}     = {&head}.{&rno}.
+            ttSaveLine.sessionID  = "save-line" + v-term-id
+            ttSaveLine.invLineRNo = inv-line.r-no
+            ttSaveLine.invHeadRNo = inv-head.r-no
+            ttSaveLine.invRowiD   = ROWID(inv-line)
+            inv-line.r-no         = inv-head.r-no
+            .
     END.
 
-    FOR EACH inv-misc WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}:
-        CREATE save-line.
+    FOR EACH inv-misc WHERE inv-misc.r-no EQ b-{&head}1.{&rno}:
+        CREATE ttSaveLine.
         ASSIGN
-            save-line.reftable  = "save-line" + v-term-id
-            save-line.val[1]    = inv-misc.{&miscrno}
-            save-line.val[2]    = {&head}.{&rno}
-            save-line.val[3]    = INT(RECID(inv-misc))
-            inv-misc.{&miscrno} = {&head}.{&rno}.
+            ttSaveLine.sessionID  = "save-line" + v-term-id
+            ttSaveLine.invMiscRNo = inv-misc.r-no
+            ttSaveLine.invHeadRNo = inv-head.r-no
+            ttSaveLine.invRowiD   = ROWID(inv-misc)
+            inv-misc.r-no         = inv-head.r-no
+            .
     END.
 
 END PROCEDURE.
@@ -1307,6 +1313,10 @@ PROCEDURE build-list1:
                     OR ({&head}.posted = tb_posted AND cInvoiceType EQ "ar-inv")
                     OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
                    ) 
+               AND ("{&head}" NE "ar-inv" 
+                    OR (tb_open-inv AND {&head}.{&due} GT 0 AND cInvoiceType EQ "ar-inv")
+                    OR ( NOT tb_open-inv AND cInvoiceType EQ "ar-inv")
+                   ) 
                AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
                        AND {&head}.inv-date LE end_date ELSE TRUE
                    )        
@@ -1562,11 +1572,11 @@ PROCEDURE run-report :
                     EACH inv-misc NO-LOCK 
                     WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}:
                        
-                    FIND first save-line 
-                         WHERE save-line.reftable EQ "save-line" + v-term-id
-                           AND save-line.val[3]   = INT(RECID(inv-misc))
+                    FIND first ttSaveLine 
+                         WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id
+                           AND ttSaveLine.invRowID  EQ ROWID(inv-misc)
                          NO-ERROR.
-                    IF NOT AVAILABLE save-line THEN DO:
+                    IF NOT AVAILABLE ttSaveLine THEN DO:
                         dtl-ctr = dtl-ctr + 1.
                         RUN create-save-line. 
                     END.
@@ -1665,12 +1675,12 @@ IF NOT {&head}.printed AND "{&head}" EQ "inv-head" THEN
     END.
 END.
 
-FOR EACH save-line WHERE save-line.reftable EQ "save-line" + v-term-id,
-    FIRST {&head}
-    WHERE {&head}.{&rno} EQ INT(save-line.val[2])
+FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id,
+    FIRST inv-head
+    WHERE inv-head.r-no EQ ttSaveLine.invHeadRNo
     AND NOT CAN-FIND(FIRST report
     WHERE report.term-id EQ v-term-id
-    AND report.rec-id  EQ RECID({&head})):
+    AND report.rec-id  EQ RECID(inv-head)):
 
     RUN undo-save-line.
 END.
@@ -1930,7 +1940,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
 END.
 
-FOR EACH save-line WHERE save-line.reftable EQ "save-line" + v-term-id:
+FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id:
     RUN undo-save-line.
 END.
 
@@ -2506,6 +2516,11 @@ PROCEDURE SetInvForm:
         WHEN "invprint 20" THEN
             ASSIGN
                 v-program      = "oe/rep/invxprnt10.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "invprint 21" THEN
+            ASSIGN
+                v-program      = "oe/rep/invxprnt21.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "LancoYork" THEN
@@ -3091,6 +3106,11 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "invprint 21" THEN
+            ASSIGN
+                v-program      = "ar/rep/invxprnt21.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "LancoYork" THEN
             ASSIGN
                 v-program      = "ar/rep/invlanyork.p"
@@ -3524,22 +3544,22 @@ PROCEDURE undo-save-line :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DISABLE TRIGGERS FOR LOAD OF {&line}.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
 
-    RELEASE {&line}.
+    RELEASE inv-line.
     RELEASE inv-misc.
 
-    FIND FIRST {&line} WHERE RECID({&line}) EQ INT(save-line.val[3]) NO-ERROR.
+    FIND FIRST inv-line WHERE ROWID(inv-line) EQ ttSaveLine.invRowID NO-ERROR.
 
-    IF AVAILABLE {&line} THEN {&line}.{&rno} = save-line.val[1].
+    IF AVAILABLE inv-line THEN inv-line.r-no = ttSaveLine.invLineRNo.
 
     ELSE
-        FIND FIRST inv-misc WHERE RECID(inv-misc) EQ INT(save-line.val[3]) NO-ERROR.
+        FIND FIRST inv-misc WHERE ROWID(inv-misc) EQ ttSaveLine.invRowID NO-ERROR.
 
-    IF AVAILABLE inv-misc THEN inv-misc.{&miscrno} = save-line.val[1].
+    IF AVAILABLE inv-misc THEN inv-misc.r-no = ttSaveLine.invMiscRNo.
 
-    DELETE save-line.
+    DELETE ttSaveLine.
 
 END PROCEDURE.    

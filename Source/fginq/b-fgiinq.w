@@ -168,10 +168,10 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table fi_i-no fi_job-no fi_job-no2 ~
-fi_rita-code fi_date btn_go fi_tag# fi_po-no btnPreFix RECT-1 
+&Scoped-Define ENABLED-OBJECTS fi_i-no fi_job-no fi_job-no2 fi_rita-code ~
+fi_date btn_go fi_tag# fi_po-no btnPreFix Browser-Table RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_i-no fi_job-no fi_job-no2 fi_rita-code ~
-fi_date fi_name fi_q-onh fi_q-avail fi_sort-by fi_tag# fi_po-no FI_moveCol
+fi_date fi_name fi_q-onh fi_q-avail fi_sort-by fi_tag# fi_po-no FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* goFields,List-2,List-3,List-4,List-5,List-6                          */
@@ -220,12 +220,6 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
-
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
-
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
@@ -237,6 +231,11 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -304,7 +303,7 @@ DEFINE BROWSE Browser-Table
       fg-rcpth.i-no COLUMN-LABEL "Item#" FORMAT "x(15)":U WIDTH 25
             COLUMN-FONT 2 LABEL-BGCOLOR 14
       fg-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
-            WIDTH 14 LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14
       fg-rcpth.job-no FORMAT "x(6)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
       fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
       fg-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
@@ -316,8 +315,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rdtlh.qty COLUMN-LABEL "Quantity" FORMAT "->>>>,>>9.9<<":U
             LABEL-BGCOLOR 14
-      fg-rdtlh.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 28
-            LABEL-BGCOLOR 14
+      fg-rdtlh.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
       fg-rdtlh.cost COLUMN-LABEL "Cost/M" FORMAT "->>>,>>9.99<<":U
             LABEL-BGCOLOR 14
       get-pallet-info (output li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
@@ -346,8 +344,6 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 6 COL 1 HELP
-          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_i-no AT ROW 1.24 COL 12 COLON-ALIGNED
      fi_job-no AT ROW 1.24 COL 62 COLON-ALIGNED
      fi_job-no2 AT ROW 1.24 COL 75 COLON-ALIGNED
@@ -364,6 +360,8 @@ DEFINE FRAME F-Main
      fi_po-no AT ROW 2.43 COL 118 COLON-ALIGNED WIDGET-ID 2
      btnPreFix AT ROW 2.43 COL 54 WIDGET-ID 4
      FI_moveCol AT ROW 4.81 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     Browser-Table AT ROW 6 COL 1 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Click on Yellow Field to" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 4.81 COL 104
      RECT-1 AT ROW 1 COL 1
@@ -424,7 +422,6 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
-/* BROWSE-TAB Browser-Table 1 F-Main */
 /* BROWSE-TAB Browser-Table FI_moveCol F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -432,8 +429,7 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1.
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
+
 /* SETTINGS FOR BUTTON btn_show IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -447,6 +443,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR FILL-IN fi_job-no2 IN FRAME F-Main
    1                                                                    */
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_name IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_po-no IN FRAME F-Main
@@ -477,7 +475,7 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code"
      _FldNameList[1]   > ASI.fg-rcpth.i-no
 "fg-rcpth.i-no" "Item#" "x(15)" "character" ? ? 2 14 ? ? yes "FG Item Number" no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rcpth.po-no
-"fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rcpth.job-no
 "fg-rcpth.job-no" ? ? "character" ? ? 2 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rcpth.job-no2
@@ -493,7 +491,7 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code"
      _FldNameList[9]   > ASI.fg-rdtlh.qty
 "fg-rdtlh.qty" "Quantity" ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.fg-rdtlh.tag
-"fg-rdtlh.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rdtlh.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.fg-rdtlh.cost
 "fg-rdtlh.cost" "Cost/M" ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
@@ -512,7 +510,7 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -725,6 +723,19 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
+ON LEAVE OF fi_i-no IN FRAME F-Main /* FG Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO: 
+    RUN valid-cust-user(1) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
 ON LEAVE OF fi_job-no IN FRAME F-Main /* Job# */
@@ -737,18 +748,6 @@ DO:
   RUN valid-cust-user(2) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
-ON LEAVE OF fi_i-no IN FRAME F-Main /* Customer# */
-DO:
-  IF LASTKEY NE -1 THEN DO: 
-    RUN valid-cust-user(1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -845,6 +844,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 fi_date = 01/01/0001.
@@ -932,27 +932,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
-PROCEDURE move-columns :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN
-        Browser-Table:COLUMN-MOVABLE = v-col-move
-        Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
-  END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-itemfg B-table-Win 
 PROCEDURE display-itemfg :
 /*------------------------------------------------------------------------------
@@ -990,6 +969,31 @@ PROCEDURE Enable-Navigation :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+DEF VAR last-cust AS CHAR NO-UNDO.
+
+/*GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no . */
+
+/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
+
+RUN fg/fgnq-exp.w ("", "").
+
 
 END PROCEDURE.
 
@@ -1100,6 +1104,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+        Browser-Table:COLUMN-MOVABLE = v-col-move
+        Browser-Table:COLUMN-RESIZABLE = v-col-move
+        v-col-move = NOT v-col-move
+        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -1160,26 +1184,73 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
+PROCEDURE valid-cust-user :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-
-/*GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no . */
-
-/*RUN fg/phon-exp.w (first-cust ,last-cust).*/
-
-RUN fg/fgnq-exp.w ("", "").
+    DEFINE INPUT PARAMETER i AS INTEGER NO-UNDO.
+    DEF VAR v-cust-chk AS CHAR NO-UNDO .
+    DEF VAR v-est-no AS CHAR NO-UNDO .
+  {methods/lValidateError.i YES}
+custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
 
 
+IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+
+        RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'IQ1',
+                            INPUT YES,
+                            OUTPUT lActive).
+        {sys/inc/chblankcust.i ""IQ1""}
+
+
+      IF i EQ 1 AND fi_i-no:SCREEN-VALUE NE ""  THEN DO:
+          FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ fi_i-no:SCREEN-VALUE NO-ERROR.
+
+        IF AVAIL itemfg THEN DO:
+            v-cust-chk = itemfg.cust-no.
+
+            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:   
+                MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fi_i-no .
+                RETURN ERROR.
+            END.
+        END.
+      END.
+      ELSE IF i EQ 2  THEN DO:
+          IF fi_job-no NE "" AND length(fi_job-no) < 6 THEN 
+          fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+
+          FIND FIRST job-hdr no-lock
+              WHERE job-hdr.company = cocode
+              AND job-hdr.job-no =  fi_job-no
+              AND job-hdr.job-no  NE "" 
+              AND job-hdr.job-no2 = fi_job-no2 NO-ERROR.
+          
+        IF AVAIL job-hdr THEN DO:
+            v-cust-chk = job-hdr.cust-no.
+
+            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:  
+                MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fi_job-no .
+                RETURN ERROR.
+            END.
+        END.
+
+      END.
+        
+    END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,78 +1338,6 @@ ELSE IF ip-what = 2 THEN DO:
    ELSE IF lv-cnt = 1 THEN fi_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = lv-i-no.
 END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
-PROCEDURE valid-cust-user :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER i AS INTEGER NO-UNDO.
-    DEF VAR v-cust-chk AS CHAR NO-UNDO .
-    DEF VAR v-est-no AS CHAR NO-UNDO .
-  {methods/lValidateError.i YES}
-custcount = "".
-DEF VAR lActive AS LOG NO-UNDO.
-
-
-IF ou-log THEN
-    DO WITH FRAME {&FRAME-NAME}:
-
-        RUN sys/ref/CustList.p (INPUT cocode,
-                            INPUT 'IQ1',
-                            INPUT YES,
-                            OUTPUT lActive).
-        {sys/inc/chblankcust.i ""IQ1""}
-
-
-      IF i EQ 1 AND fi_i-no:SCREEN-VALUE NE ""  THEN DO:
-          FIND FIRST itemfg NO-LOCK
-            WHERE itemfg.company EQ cocode
-            AND itemfg.i-no EQ fi_i-no:SCREEN-VALUE NO-ERROR.
-
-        IF AVAIL itemfg THEN DO:
-            v-cust-chk = itemfg.cust-no.
-
-            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:   
-                MESSAGE "Customer is not on Users Customer List.  "  SKIP
-                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
-                APPLY "entry" TO fi_i-no .
-                RETURN ERROR.
-            END.
-        END.
-      END.
-      ELSE IF i EQ 2  THEN DO:
-          IF fi_job-no NE "" AND length(fi_job-no) < 6 THEN 
-          fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
-
-          FIND FIRST job-hdr no-lock
-              WHERE job-hdr.company = cocode
-              AND job-hdr.job-no =  fi_job-no
-              AND job-hdr.job-no  NE "" 
-              AND job-hdr.job-no2 = fi_job-no2 NO-ERROR.
-          
-        IF AVAIL job-hdr THEN DO:
-            v-cust-chk = job-hdr.cust-no.
-
-            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:  
-                MESSAGE "Customer is not on Users Customer List.  "  SKIP
-                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
-                APPLY "entry" TO fi_job-no .
-                RETURN ERROR.
-            END.
-        END.
-
-      END.
-        
-    END.
-
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
