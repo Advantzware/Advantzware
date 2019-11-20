@@ -75,12 +75,14 @@
        ld-under-per =  ((po-ordl.t-rec-qty - ld-poqty) / ld-poqty) * 100 .
 
      END.
-
-     IF AVAIL po-ordl THEN
+      FIND FIRST po-ord NO-Lock 
+         WHERE po-ord.company EQ cocode
+           AND po-ord.po-no EQ int(rm-rcpth.po-no) NO-ERROR . 
+         IF AVAIL po-ord THEN
          FIND FIRST vend WHERE vend.company = cocode AND
-             vend.vend-no = po-ordl.vend-no NO-LOCK NO-ERROR.
+             vend.vend-no = po-ord.vend-no NO-LOCK NO-ERROR.
      
-     IF AVAIL vend AND AVAIL po-ordl  THEN 
+     IF AVAIL vend AND AVAIL po-ord  THEN 
          ASSIGN cVender = vend.NAME .
         
         ASSIGN
