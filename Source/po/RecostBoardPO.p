@@ -44,13 +44,20 @@ ASSIGN cocode = g_company
        locode = g_loc.
 {sys/inc/f16to32.i}
 
+DEF VAR vic-log AS LOG  NO-UNDO.
+DEF VAR cReturn AS CHAR NO-UNDO.
+DEF VAR lFound  AS LOG  NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+
 /* ***************************  Main Block  *************************** */
 
 glUpdate = NO.
 RUN ProcessPOLines. /*Build internal temp-tables*/
 FIND FIRST ttPOGroups WHERE ttPOGroups.Multi EQ YES NO-LOCK NO-ERROR.
 IF AVAIL ttPOGroups THEN DO: /*more than one PO line with matching item, vendor, & size*/
-    RUN GetNewCosts.  /*Check vendor matrix for costs with aggregate qty*/
+    IF vic-log THEN RUN GetNewCostsN.
+    ELSE RUN GetNewCosts.  /*Check vendor matrix for costs with aggregate qty*/
     RUN UpdatePOLines(YES).  /*See if cost is better than current po-ordls, YES = Compare only*/
     IF glUpdate THEN DO: /*If Better costs were found*/
         IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
@@ -160,6 +167,144 @@ FOR EACH ttPOGroups
             .
     END. /*avail tt-e-item-vend*/
 END. /*each ttPOGroups*/
+
+END PROCEDURE.
+
+PROCEDURE GetNewCostsN:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE i          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCost      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQty       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimCharge AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSetup     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPBQty     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPBStp     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPBCst     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPBCns     AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE dCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostSetup AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FOR EACH ttPOGroups 
+        WHERE ttPOGroups.Multi:
+/*        FIND FIRST e-item NO-LOCK               */
+/*            WHERE e-item.company EQ cocode      */
+/*            AND e-item.i-no    EQ ttPOGroups.INo*/
+/*            NO-ERROR.                           */
+/*        IF AVAIL e-item THEN                    */        
+            FIND FIRST vendItemCost no-lock    
+                WHERE vendItemCost.company EQ itemfg.company
+                AND vendItemCost.ItemID    EQ itemfg.i-no
+                AND vendItemCost.ItemType EQ "RM"
+                NO-ERROR.
+        IF AVAIL vendItemCost then        
+        DO:
+            CREATE tt-e-item.
+            ASSIGN 
+                tt-e-item.std-uom = vendItemCost.vendorUOM /*e-item.std-uom*/ .                                                
+            
+            /*            FIND FIRST e-item-vend NO-LOCK                                                          */
+            /*                WHERE e-item-vend.company EQ e-item.company                                         */
+            /*                AND e-item-vend.i-no    EQ e-item.i-no                                              */
+            /*                AND e-item-vend.vend-no EQ ttPOGroups.VendNo                                        */
+            /*                NO-ERROR.                                                                           */
+            /*                                                                                                    */
+            /*            IF AVAIL e-item-vend THEN                                                               */
+            /*            DO:                                                                                     */
+            /*                                                                                                    */
+            /*                CREATE tt-e-item-vend.                                                              */
+            /*                tt-e-item-vend.rec_key = e-item-vend.rec_key.                                       */
+            /*                DO i = 1 TO 10:                                                                     */
+            /*                    ASSIGN                                                                          */
+            /*                        tt-e-item-vend.run-qty[i]  = e-item-vend.run-qty[i]                         */
+            /*                        tt-e-item-vend.run-cost[i] = e-item-vend.run-cost[i]                        */
+            /*                        tt-e-item-vend.setups[i]   = e-item-vend.setups[i].                         */
+            /*                END.                                                                                */
+            /*                                                                                                    */
+            /*                IF AVAIL e-item-vend THEN                                                           */
+            /*                DO:                                                                                 */
+            /*                    DO i = 1 TO 10:                                                                 */
+            /*                        ASSIGN                                                                      */
+            /*                            tt-e-item-vend.run-qty[i + 10]  = e-item-vend.runQtyXtra[i]             */
+            /*                            tt-e-item-vend.run-cost[i + 10] = e-item-vend.runCostXtra[i]            */
+            /*                            tt-e-item-vend.setups[i + 10]   = e-item-vend.setupsXtra[i].            */
+            /*                    END. /*Do i 1 to 10*/                                                           */
+            /*                END. /*avail bf-reftableQty*/                                                       */
+            /*            END. /* avail e-item-vend*/                                                             */
+            /*        END.                                                                                        */
+            /*        IF AVAIL tt-e-item-vend THEN                                                                */
+            /*        DO:                                                                                         */
+            /*            IF tt-e-item.std-uom NE ttPOGroups.TotalQtyUom THEN                                     */
+            /*                /*convert aggregate qty to matrix qty*/                                             */
+            /*                RUN sys/ref/convquom.p(INPUT ttPOGroups.TotalQtyUom,                                */
+            /*                    INPUT tt-e-item.std-uom,                                                        */
+            /*                    INPUT ttPOGroups.BasisWeight,                                                   */
+            /*                    INPUT ttPOGroups.Len,                                                           */
+            /*                    INPUT ttPOGroups.Wid,                                                           */
+            /*                    INPUT 0,                                                                        */
+            /*                    INPUT ttPOGroups.TotalQty,                                                      */
+            /*                    OUTPUT dQty).                                                                   */
+            /*                                                                                                    */
+            /*            ASSIGN                                                                                  */
+            /*                dSetup = 0                                                                          */
+            /*                dCost  = 0.                                                                         */
+            /*            RUN est/dim-charge.p (INPUT tt-e-item-vend.rec_key,                                     */
+            /*                INPUT ttPOGroups.Wid,                                                               */
+            /*                INPUT ttPOGroups.Len,                                                               */
+            /*                INPUT-OUTPUT dDimCharge).                                                           */
+            /*                                                                                                    */
+            /*            DO i = 1 TO EXTENT(tt-e-item-vend.run-qty):                                             */
+            /*                IF tt-e-item-vend.run-qty[i] LT dQty THEN NEXT.                                     */
+            /*                ASSIGN                                                                              */
+            /*                    dCost  = tt-e-item-vend.run-cost[i] + dDimCharge                                */
+            /*                    /*                 dCost   = (tt-e-item-vend.run-cost[i] + dDimCharge) * dQty */*/
+            /*                    dSetup = tt-e-item-vend.setups[i].                                              */
+            /*                LEAVE.                                                                              */
+            /*            END.                                                                                    */
+            /*                                                                                                    */
+
+            FIND itemfg NO-LOCK WHERE itemfg.company = cocode
+                AND itemfg.i-no = vendItemCost.itemID NO-ERROR.
+            /* call GetVendorCost in super procedure system/vendcostProc.p */
+            RUN GetVendorCost(vendItemCost.company, 
+                vendItemCost.ItemID, 
+                vendItemCost.itemType, 
+                "STAPLES", 
+                vendItemCost.customerID, 
+                "", 
+                0, 
+                0,
+                ttPOGroups.TotalQty, 
+                vendItemCost.vendorUOM,
+                itemfg.t-len, 
+                itemfg.t-wid, 
+                0, 
+                "IN", 
+                itemfg.weight-100 / 100, 
+                "LB/EA", 
+                NO,
+                OUTPUT dCostPerUOM, 
+                OUTPUT dCostSetup, 
+                OUTPUT cCostUOM,
+                OUTPUT dCostTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage).  
+   
+            ASSIGN 
+                ttPOGroups.NewCost    = dCostTotal /* dCost + ttPOGroups.AdderCost */
+                ttPoGroups.NewCostUOM = cCostUOM /* tt-e-item.std-uom */
+                ttPOGroups.NewSetup   = dCostSetup /* dSetup */
+                .
+        END. /*avail tt-e-item-vend*/
+    END. /*each ttPOGroups*/
 
 END PROCEDURE.
 
