@@ -677,9 +677,9 @@ ELSE lv-comp-color = "BLACK".
        v-bot-lab[i] = if v-t-tax[i] ne 0 then
                     /*  ((if avail stax then string(stax.tax-dscr[i],"x(5)")
                         else fill(" ",5))*/ 
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
-                           ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
+                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i] + " TAX"),"x(7)") 
+                           ELSE FILL(" ",7) ) +
+                       fill(" ",4) + ":" +
                        string(v-t-tax[i],"->>>>,>>9.99")) else "".
     end.
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))

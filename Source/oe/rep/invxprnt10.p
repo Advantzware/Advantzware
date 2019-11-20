@@ -792,9 +792,9 @@ find first company where company.company eq cocode NO-LOCK.
 
     do i = 1 to 5:
        v-bot-lab[i] = if v-t-tax[i] ne 0 then
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
-                           ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
+                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i] + " TAX"),"x(7)") 
+                           ELSE FILL(" ",7) ) +
+                       fill(" ",4) + ":" +
                        string(v-t-tax[i],"->>,>>>,>>9.99")) else "".
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
