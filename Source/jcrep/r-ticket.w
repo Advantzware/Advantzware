@@ -170,24 +170,24 @@ RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "L" /* Logical */, NO /* ch
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job1 begin_job2 end_job1 ~
 end_job2 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box ~
-tb_GL tb_SW tb_approve spec_codes revsn_no tb_prt-label tb_committed ~
-tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req tb_freeze-note ~
-tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no td-show-parm ~
-run_format tb_ExportXML btn-ok btn-cancel 
+tb_GL tb_SW tb_approve tb_print-metric spec_codes revsn_no tb_prt-label ~
+tb_committed tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req ~
+tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no ~
+td-show-parm run_format tb_ExportXML btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL ~
-tb_fgimage tb_SW spec_codes tb_prt-rev revsn_no tb_prt-mch rd_print-speed ~
-tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header ~
-tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note rd-dest ~
-lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm run_format ~
-tb_ExportXML 
+tb_fgimage tb_SW tb_print-metric spec_codes tb_prt-rev revsn_no tb_prt-mch ~
+rd_print-speed tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed ~
+tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req tb_freeze-note ~
+tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no lv-font-name ~
+td-show-parm run_format tb_ExportXML 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 begin_job1 begin_job2 end_job1 end_job2 tb_reprint ~
-tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_app-unprinted ~
-tb_draft tb_prt-rev tb_prt-mch tb_prt-shipto tb_prt-sellprc tb_prt-label ~
-td-show-parm 
+tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_print-metric ~
+tb_draft tb_app-unprinted tb_prt-rev tb_prt-mch tb_prt-shipto ~
+tb_prt-sellprc tb_prt-label td-show-parm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -399,12 +399,17 @@ DEFINE VARIABLE tb_GL AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_make_hold AS LOGICAL INITIAL no 
      LABEL "Make & Hold?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 35 BY .82 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_PR AS LOGICAL INITIAL no 
      LABEL "Print &Printer Card" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_print-metric AS LOGICAL INITIAL no 
+     LABEL "Print Metric Size" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY .81.
 
 DEFINE VARIABLE tb_prompt-ship AS LOGICAL INITIAL no 
      LABEL "Prompt Split Shipment or Split Order?" 
@@ -502,8 +507,9 @@ DEFINE FRAME FRAME-A
      tb_approve AT ROW 8.33 COL 47 RIGHT-ALIGNED
      tb_tray-2 AT ROW 8.33 COL 91 RIGHT-ALIGNED WIDGET-ID 6
      tb_make_hold AT ROW 9.33 COL 91 RIGHT-ALIGNED WIDGET-ID 12
-     tb_app-unprinted AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 10
+     tb_print-metric AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 22
      tb_draft AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 18
+     tb_app-unprinted AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 10
      spec_codes AT ROW 10.24 COL 18.8 COLON-ALIGNED
      tb_prt-rev AT ROW 11.29 COL 21
      revsn_no AT ROW 11.29 COL 49 COLON-ALIGNED
@@ -532,11 +538,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.14 COL 57
      "Print Machine's Speed or Run Hour ?" VIEW-AS TEXT
           SIZE 36.6 BY .62 AT ROW 13.24 COL 21
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 18.38 COL 1.8
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 3
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.38 COL 1.8
      RECT-6 AT ROW 18.33 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -698,6 +704,12 @@ ASSIGN
 
 ASSIGN 
        tb_PR:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_print-metric IN FRAME FRAME-A
+   ALIGN-R 1                                                            */
+ASSIGN 
+       tb_print-metric:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        tb_prompt-ship:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -1465,6 +1477,17 @@ END.
 ON VALUE-CHANGED OF tb_PR IN FRAME FRAME-A /* Print Printer Card */
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_print-metric
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-metric C-Win
+ON VALUE-CHANGED OF tb_print-metric IN FRAME FRAME-A /* Print Matrix Size */
+DO:
+ assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2552,16 +2575,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job1 begin_job2 end_job1 end_job2 tb_fold tb_show-rel tb_RS 
           tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_fgimage tb_SW 
-          spec_codes tb_prt-rev revsn_no tb_prt-mch rd_print-speed tb_prt-shipto 
-          tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header 
-          tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note 
-          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
-          run_format tb_ExportXML 
+          tb_print-metric spec_codes tb_prt-rev revsn_no tb_prt-mch 
+          rd_print-speed tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed 
+          tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
+          tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no 
+          lv-font-name td-show-parm run_format tb_ExportXML 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
-         tb_approve spec_codes revsn_no tb_prt-label tb_committed 
-         tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
+         tb_approve tb_print-metric spec_codes revsn_no tb_prt-label 
+         tb_committed tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
          tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no 
          td-show-parm run_format tb_ExportXML btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -3163,7 +3186,11 @@ PROCEDURE pRunFormatValueChanged :
                         td-show-parm:HIDDEN = NO 
                         tb_ExportXML:HIDDEN = NO
                         lv-font-name:HIDDEN = NO .
-        
+
+            IF tb_corr AND lv-format-c EQ "Premier" THEN
+                tb_print-metric:HIDDEN = NO .
+            ELSE
+               tb_print-metric:HIDDEN = YES .
        
     END.
 END PROCEDURE.
@@ -3206,6 +3233,7 @@ PROCEDURE run-report :
     v-dept-codes            = dept_codes
     lDraft                  = logical(tb_draft:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     lExportXML              = tb_ExportXML
+    lPrintMetric            = tb_print-metric
     . 
 
   IF s-prt-revno THEN
