@@ -941,7 +941,8 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    RUN ipWriteIniFile.
+    IF lValueChanged THEN 
+        RUN ipWriteIniFile.
     
     QUIT.
     
