@@ -885,9 +885,11 @@ PROCEDURE pImport :
                     CREATE ttDynPrgrmsPage.
                     IMPORT ttDynPrgrmsPage.
                     FIND FIRST dynPrgrmsPage EXCLUSIVE-LOCK
-                         WHERE dynPrgrmsPage.prgmName  EQ ttDynPrgrmsPage.prgmName
-                           AND dynPrgrmsPage.pageTab   EQ ttDynPrgrmsPage.pageTab
-                           AND dynPrgrmsPage.subjectID EQ ttDynPrgrmsPage.subjectID
+                         WHERE dynPrgrmsPage.prgmName   EQ ttDynPrgrmsPage.prgmName
+                           AND dynPrgrmsPage.pageTab    EQ ttDynPrgrmsPage.pageTab
+                           AND dynPrgrmsPage.subjectID  EQ ttDynPrgrmsPage.subjectID
+                           AND dynPrgrmsPage.paramSetID EQ ttDynPrgrmsPage.paramSetID
+                           AND dynPrgrmsPage.paramName  EQ ttDynPrgrmsPage.paramName
                          NO-ERROR.
                     IF NOT AVAILABLE dynPrgrmsPage THEN
                     CREATE dynPrgrmsPage.
