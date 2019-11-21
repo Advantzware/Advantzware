@@ -14,10 +14,11 @@
 
 DEFINE TEMP-TABLE ttImportQuote
     FIELD Company        AS CHARACTER 
-    FIELD Location       AS CHARACTER 
+    FIELD Location       AS CHARACTER
+    FIELD QuoteGroup     AS CHARACTER 
     FIELD CustPart       AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Part #" HELP "Required - Size:30" 
     FIELD CustNo         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer" HELP "Required - Size:30"
-    FIELD Quote          AS INTEGER   FORMAT ">>>>>>>>" COLUMN-LABEL "Quote#" HELP "Optional - Integer"
+    FIELD Quote          AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Quote#" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number."
     FIELD Qty            AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Quantity" HELP "Required - Size:30"
     FIELD Price          AS DECIMAL   FORMAT "->>>,>>>,>>9.99" COLUMN-LABEL "Price   " HELP "Required - Decimal"
     FIELD Profit         AS DECIMAL   FORMAT "->>9.99%" COLUMN-LABEL "Profit %" HELP "Required - Decimal"
@@ -42,8 +43,9 @@ DEFINE TEMP-TABLE ttImportQuote
     FIELD Color1         AS CHARACTER FORMAT "X(20)" COLUMN-LABEL "Color" HELP "Optional - Size:20"  
     
     .
-
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
+    
+DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INITIAL 3. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -120,28 +122,33 @@ PROCEDURE pValidate PRIVATE:
     
     IF oplValid THEN 
     DO:
-        FIND FIRST quotehd NO-LOCK
-            WHERE quotehd.company  EQ ipbf-ttImportQuote.Company
-            AND quotehd.q-no     EQ ipbf-ttImportQuote.Quote 
-            NO-ERROR.
-        IF AVAILABLE quotehd THEN 
-        DO:
-            IF NOT iplUpdateDuplicates THEN 
-                ASSIGN 
-                    oplValid = NO
-                    opcNote  = "Duplicate Exists:  Will be skipped"
-                    .
-            ELSE
-                ASSIGN 
-                    opcNote = "Update record - All fields to be overwritten"
-                    .        
+        IF ipbf-ttImportQuote.Quote BEGINS gcAutoIndicator THEN DO:
+            opcNote = "Add Record - Auto Increment Quote"
+            .
         END.
-        ELSE 
-            ASSIGN 
-                opcNote = "Add record"
-                .
-        
-    END.
+        ELSE DO:
+            FIND FIRST quotehd NO-LOCK
+                WHERE quotehd.company  EQ ipbf-ttImportQuote.Company
+                AND quotehd.q-no     EQ INTEGER(ipbf-ttImportQuote.Quote) 
+                NO-ERROR.
+            IF AVAILABLE quotehd THEN 
+            DO:
+                IF NOT iplUpdateDuplicates THEN 
+                    ASSIGN 
+                        oplValid = NO
+                        opcNote  = "Duplicate Exists:  Will be skipped"
+                        .
+                ELSE
+                    ASSIGN 
+                        opcNote = "Update record - All fields to be overwritten"
+                        .        
+            END.
+            ELSE 
+                ASSIGN 
+                    opcNote = "Add record"
+                    .
+        END. /*not auto-incremented quote*/
+    END. /*oplValid*/
 
    
     /*Field level validation*/
@@ -191,7 +198,7 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportQuote.QuoteDate = TODAY .
     IF ipbf-ttImportQuote.DeliveryDate EQ ? THEN
         ipbf-ttImportQuote.DeliveryDate = TODAY .
-    ipbf-ttImportQuote.EstNo = fill(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) +
+    ipbf-ttImportQuote.EstNo = FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) +
                                                    TRIM(ipbf-ttImportQuote.EstNo).
      
     
@@ -205,15 +212,40 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportQuote FOR ttImportQuote.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
-    DEFINE VARIABLE li-next-line AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE iNextLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE riItemfg AS ROWID NO-UNDO.
+    DEFINE VARIABLE cQuoteNumber AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuoteGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
     DEFINE BUFFER bQuoteItm FOR quoteitm.
+    DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
 
+    ASSIGN 
+        cQuoteGroup = ""
+        lAutoNumber = NO
+        cQuoteNumber = ipbf-ttImportQuote.Quote
+        .
+    IF cQuoteNumber BEGINS gcAutoIndicator THEN DO:
+        /*Auto numbering logic*/
+        
+        /*Get the QuoteGroup as string to the right of the indicator*/
+        IF LENGTH(cQuoteNumber) NE LENGTH(gcAutoIndicator) THEN 
+            cQuoteGroup = SUBSTRING(cQuoteNumber,LENGTH(gcAutoIndicator) + 1, LENGTH(cQuoteNumber) - LENGTH(gcAutoIndicator)).
+        IF cQuoteGroup NE "" THEN 
+            FIND FIRST bf-ttImportQuote NO-LOCK
+                 WHERE bf-ttImportQuote.QuoteGroup EQ cQuoteGroup
+                NO-ERROR.
+        IF AVAILABLE bf-ttImportQuote THEN
+            cQuoteNumber = bf-ttImportQuote.Quote.
+        ELSE 
+            lAutoNumber = YES.
+    END.
     FIND FIRST quotehd EXCLUSIVE-LOCK
         WHERE quotehd.company  EQ ipbf-ttImportQuote.Company
-          AND quotehd.q-no     EQ ipbf-ttImportQuote.Quote 
-      NO-ERROR.
-     
+        AND quotehd.q-no     EQ INTEGER(cQuoteNumber) 
+        NO-ERROR.
       
     IF NOT AVAILABLE quotehd THEN 
     DO:
@@ -223,7 +255,16 @@ PROCEDURE pProcessRecord PRIVATE:
             quotehd.company = ipbf-ttImportQuote.Company
             quotehd.cust-no = ipbf-ttImportQuote.CustNo
             .
+        IF lAutoNumber AND cQuoteGroup NE "" THEN DO:
+            FIND CURRENT ipbf-ttImportQuote EXCLUSIVE-LOCK.
+            ASSIGN 
+                ipbf-ttImportQuote.QuoteGroup = cQuoteGroup
+                ipbf-ttImportQuote.Quote = STRING(quotehd.q-no)
+                .
+            FIND CURRENT ipbf-ttImportQuote NO-LOCK.
+        END.
     END.
+    
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
 
     RUN pAssignValueC (ipbf-ttImportQuote.CustNo, YES, INPUT-OUTPUT quotehd.cust-no).
@@ -266,7 +307,7 @@ PROCEDURE pProcessRecord PRIVATE:
                                          AND bQuoteItm.loc = quotehd.loc
                                          AND bQuoteItm.q-no = quotehd.q-no
                  NO-LOCK NO-ERROR.
-  li-next-line = IF AVAILABLE bQuoteItm THEN bQuoteItm.line + 1 ELSE 1.
+  iNextLine = IF AVAILABLE bQuoteItm THEN bQuoteItm.line + 1 ELSE 1.
     
     
     FIND FIRST quoteitm OF quotehd EXCLUSIVE-LOCK 
@@ -277,7 +318,7 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN quoteitm.company = quotehd.company
          quoteitm.loc =  quotehd.loc
          quoteitm.q-no = quotehd.q-no
-         quoteitm.line = li-next-line
+         quoteitm.line = iNextLine
          quoteitm.upd-date = TODAY
          quoteitm.upd-user = USERID(LDBNAME(1)) .
     END.
@@ -293,8 +334,8 @@ PROCEDURE pProcessRecord PRIVATE:
       RUN pAssignValueC (ipbf-ttImportQuote.color1, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.i-coldscr).
 
       RUN custom/getcpart.p (quotehd.company, quotehd.cust-no,
-                             INPUT-OUTPUT quoteitm.part-no, INPUT-OUTPUT lv-rowid).
-      FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
+                             INPUT-OUTPUT quoteitm.part-no, INPUT-OUTPUT riItemfg).
+      FIND itemfg WHERE ROWID(itemfg) EQ riItemfg NO-LOCK NO-ERROR.
 
       IF NOT AVAILABLE itemfg THEN
       FIND FIRST itemfg
