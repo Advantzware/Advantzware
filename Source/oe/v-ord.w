@@ -2552,7 +2552,8 @@ PROCEDURE create-misc :
                 oe-ordm.est-no = est-prep.est-no
                 oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
-                oe-ordm.bill  = "Y".
+                oe-ordm.bill  = "Y"
+                oe-ordm.form-no = est-prep.s-num  .
 
          IF oe-ordm.tax THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
@@ -2608,7 +2609,8 @@ PROCEDURE create-misc :
                    oe-ordm.dscr = IF AVAIL prep THEN prep.dscr ELSE ""
                    oe-ordm.actnum = IF AVAIL prep AND prep.actnum <> "" THEN prep.actnum ELSE ar-ctrl.sales
                    oe-ordm.cost = (ef.mis-labf[i] + ef.mis-matf[i] +
-                                  ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000))).
+                                  ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000)))
+                   oe-ordm.form-no = ef.form-no .
 
             RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                               OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).

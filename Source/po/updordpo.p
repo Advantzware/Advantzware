@@ -98,6 +98,7 @@ IF AVAIL po-ord THEN DO:
                  AND oe-ordm.ord-no    EQ io-po-ordl.ord-no 
                  AND oe-ordm.ord-i-no  EQ io-po-ordl.job-no 
                  AND oe-ordm.ord-line  EQ io-po-ordl.job-no2 
+                 AND oe-ordm.form-no   EQ io-po-ordl.s-num
                  AND oe-ordm.charge    EQ prep.CODE:
 
                IF io-po-ordl.cons-uom EQ "EA" 
@@ -123,6 +124,7 @@ IF AVAIL po-ord THEN DO:
                WHERE oe-ordm.company   EQ io-po-ordl.company 
                  AND oe-ordm.ord-i-no  EQ io-po-ordl.job-no 
                  AND oe-ordm.ord-line  EQ io-po-ordl.job-no2 
+                 AND oe-ordm.form-no   EQ io-po-ordl.s-num
                  AND oe-ordm.charge    EQ prep.CODE:
 
                IF io-po-ordl.cons-uom EQ "EA" 
@@ -146,7 +148,8 @@ IF AVAIL po-ord THEN DO:
                  AND prep.i-no EQ io-po-ordl.i-no,
                EACH oe-ordm EXCLUSIVE-LOCK
                WHERE oe-ordm.company   EQ io-po-ordl.company 
-                 AND oe-ordm.ord-no    EQ io-po-ordl.ord-no                  
+                 AND oe-ordm.ord-no    EQ io-po-ordl.ord-no     
+                 AND oe-ordm.form-no   EQ io-po-ordl.s-num
                  AND oe-ordm.charge    EQ prep.CODE:
 
                IF io-po-ordl.cons-uom EQ "EA" 
