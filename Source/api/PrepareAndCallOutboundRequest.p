@@ -21,19 +21,8 @@ DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     
 EMPTY TEMP-TABLE ttArgs.
 
-/* Location validation to check if Outbound API calls are enabled for current location*/
-FIND FIRST loc NO-LOCK
-     WHERE loc.loc EQ ipcLocation
-     NO-ERROR.
-IF NOT AVAILABLE loc OR NOT loc.isAPiEnabled THEN DO:
-    ASSIGN
-        opcMessage = "API Calls are not enabled for location '" 
-                   + ipcLocation + ","
-        oplSuccess = FALSE
-        .
-    RETURN.
-END.
-
+/* Start validation - The below validations are performed on required fields and any
+   failure in the below validations will not be logged in APIOutboundEvent table */
 IF ipcAPIID EQ "" THEN DO:
     ASSIGN
         opcMessage = "API ID cannot be empty"
@@ -73,6 +62,7 @@ IF ipcPrimaryID EQ "" THEN DO:
         .
     RETURN.
 END.
+/* End validation */
 
 DO iCount = 1 TO NUM-ENTRIES(ipcTableList):
     CREATE ttArgs.
@@ -115,15 +105,25 @@ IF iplReTrigger THEN DO:
          NO-ERROR.         
     IF AVAILABLE APIOutbound AND
        APIOutbound.isActive THEN DO:
-        /* If all good then make the API call */
-        RUN api/CallOutBoundAPI.p (
-            APIOutbound.apiOutboundID,
-            lcRequestData,
-            cParentProgram,
-            OUTPUT lcResponseData,
+        
+        /* Validate if location is API enabled (see APIEnabled toggle box in I-F-4 screen) */
+        RUN ValidateLocation (
+            INPUT  ipcCompany,
+            INPUT  ipcLocation,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
-            ).
+            ).        
+
+        IF oplSuccess THEN
+            /* If all good then make the API call */
+            RUN api/CallOutBoundAPI.p (
+                INPUT  APIOutbound.apiOutboundID,
+                INPUT  lcRequestData,
+                INPUT  cParentProgram,
+                OUTPUT lcResponseData,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
 
         RUN api/CreateAPIOutboundEvent.p (
             INPUT  iplReTrigger,                        /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record */
@@ -155,6 +155,7 @@ IF iplReTrigger THEN DO:
     RETURN.
 END.
 
+/* If ipcClientID is sent as empty, call API request for all clients, else for the passed client ID */
 FOR EACH APIOutbound NO-LOCK
    WHERE APIOutbound.company EQ ipcCompany
      AND APIOutbound.apiID   EQ ipcAPIID
@@ -204,9 +205,19 @@ FOR EACH APIOutbound NO-LOCK
              
         RETURN.
     END.
+    
+    /* Validate if location is API enabled (see APIEnabled toggle box in I-F-4 screen).
+       Validate after preparing the request data, as this request will be available for re-triggering
+       from API Outbound Events Viewer screen */
+    RUN ValidateLocation (
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ). 
 
     /* If all good then make the API call */
-    IF APIOutbound.requestDataType NE "FTP" THEN
+    IF oplSuccess AND APIOutbound.requestDataType NE "FTP" THEN
         RUN api/CallOutBoundAPI.p (
             INPUT  APIOutbound.apiOutboundID,
             INPUT  lcRequestData,
@@ -234,3 +245,28 @@ FOR EACH APIOutbound NO-LOCK
         OUTPUT opiOutboundEventID
         ).          
 END.     
+
+PROCEDURE ValidateLocation:
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    
+    FIND FIRST loc NO-LOCK
+         WHERE loc.company EQ ipcCompany
+           AND loc.loc     EQ ipcLocation
+         NO-ERROR.
+    IF NOT AVAILABLE loc OR NOT loc.isAPiEnabled THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "API Calls are not enabled for location '" 
+                       + ipcLocation + "'"
+            .
+        RETURN.
+    END.
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
+END PROCEDURE.
