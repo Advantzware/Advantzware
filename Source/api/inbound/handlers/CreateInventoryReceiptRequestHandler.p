@@ -37,6 +37,7 @@ DEFINE VARIABLE iQuantityPerSubUnit      AS INTEGER    NO-UNDO.
 DEFINE VARIABLE iQuantitySubUnitsPerUnit AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cWarehouseID             AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cLocationID              AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cSSPostFG                AS CHARACTER  NO-UNDO.
 {api/inbound/ttRequest.i}
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
@@ -245,6 +246,14 @@ PROCEDURE pProcessInputs:
                 OUTPUT lRecFound, 
                 OUTPUT iQuantitySubUnitsPerUnit
                 ) NO-ERROR.  
+            
+            /* Fetch inventory SSPostFG */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "SSPostFG", 
+                INPUT  iReceiptsFieldOrder, 
+                OUTPUT lRecFound, 
+                OUTPUT cSSPostFG
+                ) NO-ERROR. 
                                                  
             /* Fetch Requestor */
             RUN JSON_GetFieldValueByNameAndParent (
@@ -267,8 +276,9 @@ PROCEDURE pProcessInputs:
                 INPUT  iQuantityPerSubUnit,     
                 INPUT  iQuantitySubUnitsPerUnit,
                 INPUT  cWarehouseID,            
-                INPUT  cLocationID,             
-                INPUT  ipcUsername, 
+                INPUT  cLocationID, 
+                INPUT  cSSPostFG,            
+                INPUT  ipcUsername,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 )NO-ERROR.
