@@ -846,7 +846,7 @@ PROCEDURE import-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 
- RUN util/dev/impItemFold.p .
+ RUN util/dev/impItem.p .
  RUN local-open-query IN h_item .
 
 END PROCEDURE.

@@ -18,6 +18,7 @@
 DEFINE TEMP-TABLE ttImportItem
     FIELD Company              AS CHARACTER 
     FIELD Location             AS CHARACTER 
+    FIELD ind-type             AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Industry Type" HELP "Required - Size: Corrugated or Folding" 
     FIELD i-no                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item#" HELP "Required - Size:10" 
     FIELD i-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Name" HELP "Optional - Size:30"
     FIELD i-dscr               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "DESC" HELP "Optional - - Size:30"
@@ -118,10 +119,10 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN 
             ITEM.company   = ipbf-ttImportItem.Company
             ITEM.loc       = ipbf-ttImportItem.Location
-            item.industry  = "2"
+            item.industry  = IF ipbf-ttImportItem.ind-type EQ "Corrugated" THEN "2" ELSE "1" 
             ITEM.i-no      = ipbf-ttImportItem.i-no .
     END.
-                                                                                                                                     
+        
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
     RUN pAssignValueC (ipbf-ttImportItem.i-name , YES, INPUT-OUTPUT item.i-name).                                                   
     RUN pAssignValueC (ipbf-ttImportItem.i-dscr, YES, INPUT-OUTPUT item.i-dscr).                                                   
@@ -224,6 +225,13 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Mat'l Type is Blank".
+    END. 
+     IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.ind-type EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Industry Type Type is Blank".
     END.
     
     /*Check for Duplicate Import Record and Ignore It*/ 
@@ -271,6 +279,8 @@ PROCEDURE pValidate PRIVATE:
     /*Field Level Validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:
+        IF oplValid AND ipbf-ttImportItem.ind-type NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Industry Type", ipbf-ttImportItem.ind-type, "Corrugated,Folding", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportItem.i-code NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportItem.i-code, "RM Stocked,Estimated Mat'1", OUTPUT oplValid, OUTPUT cValidNote).
