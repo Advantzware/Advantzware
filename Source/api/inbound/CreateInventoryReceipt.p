@@ -25,6 +25,7 @@ DEFINE INPUT  PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
@@ -364,17 +365,7 @@ IF AVAILABLE fg-rctd THEN DO:
     RETURN.
 END. 
 
-{sys/inc/sspostfg.i}
-  
-/* Checks sys-ctrl */
-IF NOT SSPostFG-log THEN DO:
-    ASSIGN
-        opcMessage = 'FG receipt can not be POSTED as system control ' + '"SSPostFG"' + ' is not available'
-        oplSuccess = NO
-        .
-    RETURN.
-END. 
-    
+
 /* Creates receipts  */	
 RUN pFGRecordCreation (
     INPUT ipcCompany,
@@ -398,21 +389,25 @@ IF ERROR-STATUS:ERROR THEN DO:
     RETURN.
 END.
 
-/* Posts Receipts */
-RUN PostFinishedGoodsForUser IN hdInventoryProcs(
-    INPUT        ipcCompany,
-    INPUT        cTransfer,
-    INPUT        ipcUsername,
-    INPUT-OUTPUT oplSuccess,
-    INPUT-OUTPUT opcMessage
-    )NO-ERROR.
-IF ERROR-STATUS:ERROR THEN DO:
-    ASSIGN
-        opcMessage = "FG Recipt is not posted #2 - " + ERROR-STATUS:GET-MESSAGE(1)
-        oplSuccess = NO
-        .
-    RETURN.
-END.
+/* Checks sys-ctrl */
+{sys/inc/sspostfg.i}
+
+IF (SSPostFG-log OR ipcSSPostFG EQ "yes") AND (ipcSSPostFG NE "no") THEN
+    /* Posts Receipts */
+    RUN PostFinishedGoodsForUser IN hdInventoryProcs(
+        INPUT        ipcCompany,
+        INPUT        cTransfer,
+        INPUT        ipcUsername,
+        INPUT-OUTPUT oplSuccess,
+        INPUT-OUTPUT opcMessage
+        )NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            opcMessage = "FG Recipt is not posted #2 - " + ERROR-STATUS:GET-MESSAGE(1)
+            oplSuccess = NO
+            .
+        RETURN.
+    END.
 
 PROCEDURE pFGRecordCreation PRIVATE :
 /*------------------------------------------------------------------------------
