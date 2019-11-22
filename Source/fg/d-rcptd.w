@@ -649,14 +649,14 @@ DO:
                 WHEN "job-no" /*or when "job-no2" */ THEN 
                     DO:
                         RUN windows/l-jobno.w (fg-rctd.company, FOCUS:SCREEN-VALUE,OUTPUT char-val, OUTPUT rec-val).
-                        IF char-val <> "" THEN
-                            ASSIGN /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
-                       */ 
+                        IF char-val <> "" THEN do:
+                            ASSIGN 
                                 fg-rctd.job-no:screen-value  = ENTRY(1,char-val)
                                 fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
-                        RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
+                            RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
+                        END.
                         IF rec-val <> ? THEN 
                         DO:
                             FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
