@@ -963,10 +963,10 @@ PROCEDURE local-change-page :
    li-page[1] = int(return-value).
   
   if li-page[1] = 10 then do:  /* quote */
-    def buffer bf-quote for quotehd .
+    def buffer bf-quote for quotehd . 
     find first bf-quote where bf-quote.company = g_company and
                             bf-quote.loc = g_loc and
-                            bf-quote.est-no = oe-ordl.est-no
+                            bf-quote.est-no = inv-line.est-no
                             no-lock no-error.
     if not avail bf-quote then do:
        message "SORRY, NO QUOTE EXISTS FOR THIS ESTIMATE." SKIP
