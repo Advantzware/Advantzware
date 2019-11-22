@@ -97,7 +97,8 @@ for each est-prep
    oe-ordm.ord-i-no = oe-ordl.i-no
    oe-ordm.ord-line = oe-ordl.line
    oe-ordm.estPrepLine = est-prep.LINE 
-   oe-ordm.form-no  = est-prep.s-num .
+   oe-ordm.form-no  = est-prep.s-num
+   oe-ordm.blank-no = est-prep.b-num .
   ASSIGN 
              oe-ordm.miscType = 1
              oe-ordm.estPrepEqty   = est-prep.eqty
@@ -162,7 +163,8 @@ for each ef OF xeb no-lock:
        oe-ordm.ord-i-no = oe-ordl.i-no
        oe-ordm.ord-line = oe-ordl.line
        oe-ordm.dscr     = ""
-       oe-ordm.form-no  = ef.form-no .
+       oe-ordm.form-no  = ef.form-no
+       oe-ordm.blank-no = xeb.blank-no .
 
       
       ASSIGN 
