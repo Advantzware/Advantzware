@@ -53,6 +53,7 @@ DEFINE VARIABLE hdCostProcs      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lFGPOFrt         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cReturn          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lItemType        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cVendNo          AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttBoardToWIP NO-UNDO
     FIELD rmrdtlhRowID AS ROWID
@@ -295,13 +296,16 @@ IF po-ordl.cust-no EQ "" THEN
            AND oe-ordl.ord-no  EQ po-ordl.ord-no
          NO-ERROR.
     
-cCustNo = IF po-ordl.cust-no NE "" THEN
-              po-ordl.cust-no
-          ELSE IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN
-              oe-ordl.cust-no
-          ELSE
-              "".
-                          
+ASSIGN
+    cCustNo = IF po-ordl.cust-no NE "" THEN
+                  po-ordl.cust-no
+              ELSE IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN
+                  oe-ordl.cust-no
+              ELSE
+                  ""
+    cVendNo = po-ordl.vend-no
+    .
+
 FIND FIRST cust NO-LOCK
      WHERE cust.company EQ ipcCompany
        AND cust.cust-no EQ cCustNo
@@ -326,29 +330,45 @@ IF opiTagCopies EQ 0 THEN
                         
 IF opiTagCopies EQ 0 THEN
     opiTagCopies = 1.
-                  
-FIND FIRST cust-part NO-LOCK
-     WHERE cust-part.company EQ ipcCompany
-       AND cust-part.cust-no EQ cCustNo
-       AND cust-part.i-no    EQ ipcPrimaryID
-     NO-ERROR.
-opcLoadtagFormat = IF AVAILABLE cust-part THEN
-                       cust-part.labelPallet
-                   ELSE
-                       "".
+
+/* Gets loadtagformat for FG */
+IF ipcPrimaryID EQ cItemFG THEN DO:               
+    FIND FIRST cust-part NO-LOCK
+         WHERE cust-part.company EQ ipcCompany
+           AND cust-part.cust-no EQ cCustNo
+           AND cust-part.i-no    EQ ipcPrimaryID
+         NO-ERROR.
+    opcLoadtagFormat = IF AVAILABLE cust-part THEN
+                           cust-part.labelPallet
+                       ELSE
+                           "".
            
-IF opcLoadtagFormat EQ "" THEN               
+    IF opcLoadtagFormat EQ "" THEN               
+        RUN sys\ref\nk1look.p(
+            INPUT ipcCompany, /* Company Code */
+            INPUT "BARDIR",   /* sys-ctrl name */
+            INPUT "C",        /* Output return value */
+            INPUT YES,        /* Use ship-to */
+            INPUT YES,        /* ship-to customer */
+            INPUT cCustNo,    /* ship-to customer value */
+            INPUT "",         /* shi-id value */
+            OUTPUT opcLoadtagFormat,  
+            OUTPUT lRecFound
+            ).
+END.
+/* Get loadtagformat for RM */
+ELSE
     RUN sys\ref\nk1look.p(
         INPUT ipcCompany, /* Company Code */
-        INPUT "BARDIR",   /* sys-ctrl name */
+        INPUT "RMBARDIR", /* sys-ctrl name */
         INPUT "C",        /* Output return value */
         INPUT YES,        /* Use ship-to */
-        INPUT YES,        /* ship-to vendor */
-        INPUT cCustNo,    /* ship-to vendor value */
+        INPUT NO,         /* ship-to vendor */
+        INPUT cVendNo,    /* ship-to vendor value */
         INPUT "",         /* shi-id value */
         OUTPUT opcLoadtagFormat,  
         OUTPUT lRecFound
-        ).
+        ). 
 
 DO TRANSACTION ON ERROR UNDO,LEAVE:
 
