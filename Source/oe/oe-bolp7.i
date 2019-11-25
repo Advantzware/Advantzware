@@ -105,13 +105,13 @@ IF FIRST-OF({1}.{2})                   OR
      DO li = 1 TO LENGTH(usergrps.users):
         ls = SUBSTR(usergrps.users,li,1).
        
-        IF v-line-count < 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
+        IF v-line-count < 4 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
            ASSIGN
               v-line-count = v-line-count + 1
               inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos)
               v-start-pos = li + 1.
      
-        IF v-line-count < 5 AND li = LENGTH(usergrps.users) AND
+        IF v-line-count < 4 AND li = LENGTH(usergrps.users) AND
            NOT(ls EQ CHR(10) OR ls EQ CHR(13)) THEN
            ASSIGN
               v-line-count = v-line-count + 1
