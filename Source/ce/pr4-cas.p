@@ -25,6 +25,7 @@ DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
+{sys/inc/venditemcost.i}
 {ce/msfcalc.i}
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
@@ -75,9 +76,13 @@ ELSE
       IF xeb.casNoCharge THEN c-cost = 0.
       ELSE IF xeb.cas-cost GT 0 THEN c-cost = xeb.cas-cost * c-qty.      
       ELSE DO:
-        {est/matcost.i c-qty c-cost case}
-
-        c-cost = (c-cost * c-qty) + lv-setup-case.
+        IF lNewVendorItemCost THEN DO:
+          {est/getVendCost.i c-qty c-cost case}  
+        END.
+        ELSE DO:
+          {est/matcost.i c-qty c-cost case}
+          c-cost = (c-cost * c-qty) + lv-setup-case.
+        END.
       END.
 
       ASSIGN 
@@ -136,12 +141,17 @@ ELSE
       ELSE
           li-qty = c-qty * xeb.lp-up. /*per case - DEFAULT*/
 
-      {sys/inc/roundup.i li-qty}
+      {sys/inc/roundup.i li-qty}      
 
-      {est/matcost.i li-qty p-cost layer-pad}
-
-      p-cost = (p-cost * li-qty) + lv-setup-layer-pad.
-
+       IF lNewVendorItemCost THEN 
+       DO:
+          {est/getVendCost.i li-qty p-cost layer-pad}  
+       END.
+       ELSE 
+       DO:
+           {est/matcost.i li-qty p-cost layer-pad}
+           p-cost = (p-cost * li-qty) + lv-setup-layer-pad.     
+       END.    
       ASSIGN
        dm-tot[4] = dm-tot[4] + (p-cost / (qty / 1000))
        dm-tot[5] = dm-tot[5] + p-cost.
@@ -192,11 +202,17 @@ ELSE
           li-qty = c-qty * xeb.div-up. /*per case - DEFAULT*/
 
       {sys/inc/roundup.i li-qty}
-
-      {est/matcost.i li-qty p-cost divider}
-
-      ASSIGN
-       p-cost = (p-cost * li-qty) + lv-setup-divider
+      
+      IF lNewVendorItemCost THEN 
+      DO:
+          {est/getVendCost.i li-qty p-cost divider}  
+      END.
+      ELSE 
+      DO:
+           {est/matcost.i li-qty p-cost divider}
+           ASSIGN p-cost = (p-cost * li-qty) + lv-setup-divider.
+      END. 
+      assign 
        dm-tot[4] = dm-tot[4] + (p-cost / (qty / 1000))
        dm-tot[5] = dm-tot[5] + p-cost.
 
@@ -256,9 +272,13 @@ ELSE
       IF xeb.trNoCharge THEN p-cost = 0.
       ELSE IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
       ELSE DO:
-        {est/matcost.i p-qty p-cost pallet}
-
-        p-cost = (p-cost * p-qty) + lv-setup-pallet.
+        IF lNewVendorItemCost THEN DO:            
+          {est/getVendCost.i p-qty p-cost pallet}                          
+        END.
+        ELSE DO:  
+          {est/matcost.i p-qty p-cost pallet}
+          p-cost = (p-cost * p-qty) + lv-setup-pallet.
+        END.
       END.
 
       ASSIGN
@@ -317,8 +337,14 @@ ELSE
         IF estPacking.costOverridePerUOM NE 0 THEN 
             dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
         ELSE DO:   
-            {est/matcost.i dPackQty dPackCostTotal estPacking}      
-            dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.
+            IF lNewVendorItemCost THEN 
+            DO:            
+               {est/getVendCost.i dPackQty dPackCostTotal estPacking}                          
+            END.
+            ELSE DO:
+              {est/matcost.i dPackQty dPackCostTotal estPacking}      
+              dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.
+            END.
         END.      
         ASSIGN
             dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)

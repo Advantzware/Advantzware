@@ -7,7 +7,7 @@ def shared buffer xef for ef.
 def shared buffer xeb for eb.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def buffer xflm for flm.
 def buffer xop  for est-op.
 def buffer b-i for item.
@@ -195,11 +195,17 @@ for each flm by flm.snum by flm.bnum with no-labels no-box:
    for each xflm where xflm.i-no eq flm.i-no:
        t-qty = t-qty + xflm.qty.
    end.
-
-   {est/matcost.i t-qty flm.cost flm}
-
-   ASSIGN
-    flm.cost = (flm.cost * flm.qty) + lv-setup-flm
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i t-qty flm.cost flm}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i t-qty flm.cost flm}
+      flm.cost = (flm.cost * flm.qty) + lv-setup-flm.
+   END.
+   
+   ASSIGN    
     qqq      = 0.
      
    for each bf-eb FIELDS(yrprice yld-qty bl-qty)

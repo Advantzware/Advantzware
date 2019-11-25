@@ -48,6 +48,7 @@ DEF INPUT PARAMETER ip-board AS RECID NO-UNDO .
 &scoped-define item_spec RMItem  
 
 def var li-current-page as int no-undo.
+DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -224,7 +225,7 @@ ASSIGN FRAME FRAME-C:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME FRAME-C
    UNDERLINE                                                            */
@@ -932,6 +933,8 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
   def var lv-current-page as int no-undo.
 
+  li-current-page = int(return-value).
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   /* ===
    not for corrugated item 
@@ -948,10 +951,16 @@ PROCEDURE local-change-page :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  /*{methods/winReSizePgChg.i}*/
+    /* Code placed here will execute AFTER standard behavior.    */
+    /*{methods/winReSizePgChg.i}*/
 
-  
+    if lv-current-page = 5 then 
+    do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+        RUN select-page (10).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
+        RETURN.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -970,16 +979,38 @@ PROCEDURE local-create-objects :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-/* not for corrugated item
-  if avail item and item.i-code = "E" then do:
-     run get-link-handle in adm-broker-hdl(this-procedure, "page-source", output char-hdl).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 5).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 7).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 8).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 9).
-  end.  
-*/  
+    /* Code placed here will execute AFTER standard behavior.    */
+    /* not for corrugated item
+      if avail item and item.i-code = "E" then do:
+         run get-link-handle in adm-broker-hdl(this-procedure, "page-source", output char-hdl).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 5).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 7).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 8).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 9).
+      end.  
+    */  
+
+    IF li-current-page = 10 THEN /* new vendor cost tab */
+    DO:
+        RUN init-object IN THIS-PROCEDURE (
+            INPUT  'windows/vendcostmtx.w':U ,
+            INPUT  {&WINDOW-NAME} ,
+            INPUT  'Layout = ':U ,
+            OUTPUT h_vendcostmtx ).
+        /* Position in AB:  ( 5.91 , 7.60 ) */
+        /* Size in UIB:  ( 1.86 , 10.80 ) */
+    
+        /* Initialize other pages that this page requires. */
+        RUN init-pages IN THIS-PROCEDURE ('10':U) NO-ERROR.
+    
+    /* Links to SmartWindow */
+    /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
+    /*    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_vendcostmtx ).*/
+    
+    /* Adjust the tab order of the smart objects. */
+    END. /* Page 10 */
+    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
