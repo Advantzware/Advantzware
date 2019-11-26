@@ -10,6 +10,9 @@
     Created     : Fri November 15 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 PROCEDURE OS_RunCommand:
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
@@ -18,52 +21,31 @@ PROCEDURE OS_RunCommand:
     DEFINE INPUT  PARAMETER iplNoWait     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
-    
+
     DEFINE VARIABLE cCommand            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOutputFile         AS CHARACTER NO-UNDO.       
+    DEFINE VARIABLE cOutputFilePath     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputSuppressFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cForwardSlash       AS CHARACTER NO-UNDO INITIAL "/".
-    DEFINE VARIABLE cBackwardSlash      AS CHARACTER NO-UNDO INITIAL "\".
-    DEFINE VARIABLE cFileTypeDirectory  AS CHARACTER NO-UNDO INITIAL "DRW".
-    
-    /* Command validation */        
+    DEFINE VARIABLE lValidPath          AS LOGICAL   NO-UNDO.
+
+    /* Command validation */
     IF ipcCommand EQ "" THEN DO:
         ASSIGN
             oplSuccess = FALSE
             opcMessage = "Command cannot be empty"
             .
         RETURN.
-    END.    
+    END.
 
     /* Output file validation */
-    IF ipcOutputFile NE "" THEN DO:
-        /* Replace all forward slashes with backward slash */
-        cOutputFile = REPLACE(ipcOutputFile, cForwardSlash, cBackwardSlash).
-        
-        FILE-INFO:FILE-NAME = cOutputFile.
-        
-        /* Validate if the given output file is a directory */
-        IF FILE-INFO:FILE-TYPE EQ cFileTypeDirectory THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Output file is not valid"
-                .
-            RETURN.        
-        END.
-        
-        /* Validate if the output file's path is valid */
-        IF NUM-ENTRIES(cOutputFile, cBackwardSlash) GT 1 THEN DO:
-            /* Extract output path from the given output file */
-            FILE-INFO:FILE-NAME = REPLACE(cOutputFile, ENTRY(NUM-ENTRIES(cOutputFile, cBackwardSlash), cOutputFile, cBackwardSlash), "").
-            
-            IF FILE-INFO:FULL-PATHNAME EQ ? THEN DO:
-                ASSIGN
-                    oplSuccess = FALSE
-                    opcMessage = "Output file path is not valid"
-                    .
-                RETURN.
-            END.
-        END.
+    RUN FileSys_GetFilePath IN hdFileSysProcs (
+        INPUT  ipcOutputFile,
+        OUTPUT cOutputFilePath,
+        OUTPUT lValidPath,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF NOT lValidPath THEN DO:
+        oplSuccess = FALSE.
+        RETURN.
     END.
     
     /* If output file path is valid, add output file in command to direct any output from command to file */
@@ -71,14 +53,12 @@ PROCEDURE OS_RunCommand:
              + (IF ipcOutputFile NE "" THEN " > " + ipcOutputFile ELSE "").
 
     /* Temporary file to suppress the output from OS-COMMAND */
-    ASSIGN
-        cOutputSuppressFile = SESSION:TEMP-DIR
-        cOutputSuppressFile = (IF SUBSTRING(cOutputSuppressFile, LENGTH(cOutputSuppressFile), 1) EQ "\" THEN
-                                   SUBSTRING(cOutputSuppressFile, 1, LENGTH(cOutputSuppressFile) - 1)
-                               ELSE
-                                   cOutputSuppressFile)
-                            + "\OSCommand" + STRING(MTIME).
-    
+    RUN FileSys_GetTempDirectory IN hdFileSysProcs (
+        OUTPUT cOutputSuppressFile
+        ) NO-ERROR.
+
+    cOutputSuppressFile = cOutputSuppressFile + "\OSCommand" + STRING(MTIME).
+
     /* Suppress any output from the OS-COMMAND to a temporary file - This is needed for commands like cURL
        which force the output on console, even when SILENT option is used in OS-COMMAND */
     IF iplSilent THEN
@@ -106,7 +86,7 @@ PROCEDURE OS_RunCommand:
 
         IF iplSilent THEN DO:
             OUTPUT CLOSE.
-        
+
             /* Delete the temporary file once command is run successfully */
             OS-DELETE VALUE(cOutputSuppressFile).
         END.
@@ -116,35 +96,35 @@ PROCEDURE OS_RunCommand:
 
     IF iplSilent THEN DO:
         OUTPUT CLOSE.
-    
+
         /* Delete the temporary file once command is run successfully */
         OS-DELETE VALUE(cOutputSuppressFile).
     END.
-    
+
     ASSIGN
         oplSuccess = TRUE
         opcMessage = "Success"
-        . 
+        .
 END PROCEDURE.
 
 PROCEDURE pRunOSCommand PRIVATE:
     /* Procedure to run OS-COMMAND */
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
-    
-    OS-COMMAND VALUE(ipcCommand).   
+
+    OS-COMMAND VALUE(ipcCommand).
 END PROCEDURE.
 
 PROCEDURE pRunOSCommandWithSilent PRIVATE:
     /* Procedure to run OS-COMMAND with SILENT option. This will suppress the console window from popping up*/
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
-    
-    OS-COMMAND SILENT VALUE(ipcCommand).   
+
+    OS-COMMAND SILENT VALUE(ipcCommand).
 END PROCEDURE.
 
 PROCEDURE pRunOSCommandWithNoWait PRIVATE:
-    /* In a multi-tasking environment, causes the AVM to immediately pass control back to next 
+    /* In a multi-tasking environment, causes the AVM to immediately pass control back to next
        statement after the OS-COMMAND without waiting for the operating system command to terminate. */
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
-    
-    OS-COMMAND NO-WAIT VALUE(ipcCommand).   
+
+    OS-COMMAND NO-WAIT VALUE(ipcCommand).
 END PROCEDURE.
