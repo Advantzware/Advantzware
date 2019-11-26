@@ -179,7 +179,7 @@ PROCEDURE pGetUserDocumentDirectory PRIVATE:
          WHERE bf-users.user_id EQ USERID("ASI")
          NO-LOCK NO-ERROR.
     IF AVAILABLE bf-users AND bf-users.user_program[3] NE "" THEN
-        opcPath = bf-users.user_program[2].
+        opcPath = bf-users.user_program[3].
 
     opcPath = fFormatFilePath (opcPath).
 
