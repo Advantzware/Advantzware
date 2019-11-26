@@ -54,12 +54,32 @@ MESSAGE "Procedure: FileSys_ValidateDirectory" SKIP
     "Message:" cMessage VIEW-AS ALERT-BOX.
 
 RUN FileSys_CreateDirectory IN hdFileSysProcs (
-    INPUT  "C:\Tmp\",
+    INPUT  "C:\Tmp\f1\f1",
     OUTPUT lValid,
     OUTPUT cMessage
     ).
 
 MESSAGE "Procedure: FileSys_CreateDirectory" SKIP
+    "Valid:" lValid SKIP
+    "Message:" cMessage VIEW-AS ALERT-BOX.
+
+RUN FileSys_CreateFile IN hdFileSysProcs (
+    INPUT  "C:\Tmp\f1\foo.txt",
+    OUTPUT lValid,
+    OUTPUT cMessage
+    ).
+
+MESSAGE "Procedure: FileSys_CreateFile" SKIP
+    "Valid:" lValid SKIP
+    "Message:" cMessage VIEW-AS ALERT-BOX.
+
+RUN FileSys_ValidateFile IN hdFileSysProcs (
+    INPUT  "C:\Tmp\f1\foo.txt",
+    OUTPUT lValid,
+    OUTPUT cMessage
+    ).
+
+MESSAGE "Procedure: FileSys_ValidateFile" SKIP
     "Valid:" lValid SKIP
     "Message:" cMessage VIEW-AS ALERT-BOX.
 
