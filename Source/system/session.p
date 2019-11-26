@@ -969,18 +969,20 @@ PROCEDURE spSendEmail:
             cRecipientsReplyTo = cRecipientsReplyTo + " -reply-to:" + ENTRY(idx,ipcRecipientsReplyTo).
         END. /* do idx */
 
-    cMail = cMail + " -host:"
-          + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
-          + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
-          + " -starttls" + cAttachments
-          + " ~"-subject:" + ipcSubject + "~""
-          + " ~"-body:" + ipcBody + "~""
-          + " -from:" + emailConfig.smtpUser
-          + cRecipientsSendTo
-          + cRecipientsSendCC
-          + cRecipientsSendBCC
-          + cRecipientsReplyTo
-          .
+    ASSIGN
+        cMail = cMail + " -host:"
+              + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
+              + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
+              + " -starttls" + cAttachments
+              + " ~"-subject:" + ipcSubject + "~""
+              + " ~"-body:" + ipcBody + "~""
+              + " -from:" + emailConfig.smtpUser
+              + cRecipientsSendTo
+              + cRecipientsSendCC
+              + cRecipientsSendBCC
+              + cRecipientsReplyTo
+        cMail = REPLACE(cMail,CHR(10),"~\n")
+        .
     OS-COMMAND SILENT VALUE(cMail).
 
 END PROCEDURE.
