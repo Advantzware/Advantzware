@@ -19,6 +19,8 @@ FIND FIRST job NO-LOCK
     NO-ERROR.
 
 IF AVAIL job THEN DO:
+    
+  /* Determine if job may be closed via li-t-qty */
   li-t-qty = {2}.t-qty.
 
   FIND FIRST job-hdr NO-LOCK
@@ -39,88 +41,115 @@ IF AVAIL job THEN DO:
           AND reftable.code     EQ STRING(job.job,"999999999")
           AND reftable.code2    EQ {1}.i-no
         NO-ERROR.
-    RUN fg/setsrcvd.p (BUFFER job, BUFFER reftable, BUFFER job-hdr,
-                       INPUT-OUTPUT li-t-qty).
+        
+    /* Pulled from fg/setsrcvd.p so it does not have to be called to get ll-set */
+    IF AVAIL job AND AVAIL reftable THEN
+        FIND job-hdr NO-LOCK
+            WHERE job-hdr.company EQ job.company
+              AND job-hdr.job     EQ job.job
+              AND job-hdr.job-no  EQ job.job-no
+              AND job-hdr.job-no2 EQ job.job-no2
+           NO-ERROR.
+    /* End of pulled from fg/setrcvd.p */
+    /* Used to determine choice to close job, moved to fgpostbatch.p */
+/*    RUN fg/setsrcvd.p (BUFFER job, BUFFER reftable, BUFFER job-hdr,*/
+/*                       INPUT-OUTPUT li-t-qty).                     */
     ll-set = AVAIL job-hdr.
   END.
 
   IF AVAIL job-hdr THEN DO:
     lv-rowid = ROWID(job-hdr).
 
-           
-    IF job.opened                           AND
-       (NOT ll-set OR (CAN-FIND(FIRST b-itemfg
-                                    WHERE b-itemfg.company EQ job-hdr.company
-                                      AND b-itemfg.i-no    EQ job-hdr.i-no
-                                      AND b-itemfg.isaset  EQ YES
-                                      AND b-itemfg.alloc   NE NO))) THEN DO:       
+    /* Used to determine choice to close job, moved to fgpostbatch.p */
+/*    IF job.opened                           AND                              */
+/*       (NOT ll-set OR (CAN-FIND(FIRST b-itemfg                               */
+/*                                    WHERE b-itemfg.company EQ job-hdr.company*/
+/*                                      AND b-itemfg.i-no    EQ job-hdr.i-no   */
+/*                                      AND b-itemfg.isaset  EQ YES            */
+/*                                      AND b-itemfg.alloc   NE NO))) THEN DO: */
+/*                                                                             */
+/*      RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).              */
+/*                                                                             */
+/*      /* Get underrun quantity */                                            */
+/*      {fg/closejob.i}                                                        */
+/*                                                                             */
+/*                                                                             */
+/*      IF v-close-job GT 0                                            AND     */
+/*         (job.stat EQ "W"                                OR                  */
+/*          v-close-job GT 1                               OR                  */
+/*          CAN-FIND(FIRST mat-act                                             */
+/*                   WHERE mat-act.company EQ job.company                      */
+/*                     AND mat-act.job     EQ job.job                          */
+/*                     AND mat-act.job-no  EQ job.job-no                       */
+/*                     AND mat-act.job-no2 EQ job.job-no2) OR                  */
+/*          CAN-FIND(FIRST mch-act                                             */
+/*                   WHERE mch-act.company EQ job.company                      */
+/*                     AND mch-act.job     EQ job.job                          */
+/*                     AND mch-act.job-no  EQ job.job-no                       */
+/*                     AND mch-act.job-no2 EQ job.job-no2) OR                  */
+/*          CAN-FIND(FIRST misc-act                                            */
+/*                   WHERE misc-act.company EQ job.company                     */
+/*                     AND misc-act.job     EQ job.job                         */
+/*                     AND misc-act.job-no  EQ job.job-no                      */
+/*                     AND misc-act.job-no2 EQ job.job-no2))          AND      */
+/*         v-fin-qty + li-t-qty GE v-underrun-qty                     AND      */
+/*         {2}.rita-code EQ "R"                                       THEN DO: */
+/*                                                                             */
+/*        choice = YES.                                                        */
+/*                                                                             */
+/*        RELEASE job-hdr.                                                     */
+/*        FOR EACH job-hdr NO-LOCK                                             */
+/*            WHERE job-hdr.company EQ job.company                             */
+/*              AND job-hdr.job     EQ job.job                                 */
+/*              AND job-hdr.job-no  EQ job.job-no                              */
+/*              AND job-hdr.job-no2 EQ job.job-no2                             */
+/*              AND ROWID(job-hdr)  NE lv-rowid                                */
+/*              AND NOT CAN-FIND(FIRST b-itemfg                                */
+/*                               WHERE b-itemfg.company EQ job-hdr.company     */
+/*                                 AND b-itemfg.i-no    EQ job-hdr.i-no        */
+/*                                 AND b-itemfg.pur-man EQ YES)                */
+/*              AND NOT CAN-FIND(FIRST eb                                      */
+/*                               WHERE eb.company  EQ job.company              */
+/*                                 AND eb.est-no   EQ job.est-no               */
+/*                                 AND eb.stock-no EQ job-hdr.i-no             */
+/*                                 AND eb.pur-man  EQ YES):                    */
+/*          /* get underrun quantity */                                        */
+/*          {fg/closejob.i}                                                    */
+/*                                                                             */
+/*          IF v-fin-qty LT v-underrun-qty THEN DO:                            */
+/*            choice = NO.                                                     */
+/*            LEAVE.                                                           */
+/*          END.                                                               */
+/*        END.                                                                 */
+/*                                                                             */
+/*        IF choice THEN DO:                                                   */
+/*          CREATE w-job.                                                      */
+/*          ASSIGN                                                             */
+/*           w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +           */
+/*                          TRIM(job.job-no) +                                 */
+/*                          STRING(job.job-no2,"99")                           */
+/*           w-job.rec-id = RECID(job).                                        */
+/*        END.                                                                 */
+/*                                                                             */
+/*                                                                             */
+/*      END.                                                                   */
+/*    END.                                                                     */
 
-      RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).
-
-      {fg/closejob.i}
-          
-
-      IF v-close-job GT 0                                            AND
-         (job.stat EQ "W"                                OR
-          v-close-job GT 1                               OR
-          CAN-FIND(FIRST mat-act    
-                   WHERE mat-act.company EQ job.company
-                     AND mat-act.job     EQ job.job
-                     AND mat-act.job-no  EQ job.job-no
-                     AND mat-act.job-no2 EQ job.job-no2) OR
-          CAN-FIND(FIRST mch-act
-                   WHERE mch-act.company EQ job.company
-                     AND mch-act.job     EQ job.job
-                     AND mch-act.job-no  EQ job.job-no
-                     AND mch-act.job-no2 EQ job.job-no2) OR
-          CAN-FIND(FIRST misc-act
-                   WHERE misc-act.company EQ job.company
-                     AND misc-act.job     EQ job.job
-                     AND misc-act.job-no  EQ job.job-no
-                     AND misc-act.job-no2 EQ job.job-no2))          AND
-         v-fin-qty + li-t-qty GE v-underrun-qty                     AND
-         {2}.rita-code EQ "R"                                       THEN DO:
-
-        choice = YES.
-
-        RELEASE job-hdr.
-        FOR EACH job-hdr NO-LOCK
-            WHERE job-hdr.company EQ job.company
-              AND job-hdr.job     EQ job.job
-              AND job-hdr.job-no  EQ job.job-no
-              AND job-hdr.job-no2 EQ job.job-no2
-              AND ROWID(job-hdr)  NE lv-rowid
-              AND NOT CAN-FIND(FIRST b-itemfg
-                               WHERE b-itemfg.company EQ job-hdr.company
-                                 AND b-itemfg.i-no    EQ job-hdr.i-no
-                                 AND b-itemfg.pur-man EQ YES)
-              AND NOT CAN-FIND(FIRST eb
-                               WHERE eb.company  EQ job.company
-                                 AND eb.est-no   EQ job.est-no
-                                 AND eb.stock-no EQ job-hdr.i-no
-                                 AND eb.pur-man  EQ YES):
-
-          {fg/closejob.i}
-
-          IF v-fin-qty LT v-underrun-qty THEN DO:
-            choice = NO.
-            LEAVE.
-          END.
-        END.
-
-        IF choice THEN DO:
-          CREATE w-job.
-          ASSIGN
-           w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-                          TRIM(job.job-no) +
-                          STRING(job.job-no2,"99")
-           w-job.rec-id = RECID(job).
-        END.
-
-
-      END.
+    /* existence of w-job will indicate that the job should be checked to be closed */ 
+    FIND FIRST w-job NO-LOCK
+        WHERE w-job.job-no EQ FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+                  TRIM(job.job-no) +
+                  STRING(job.job-no2,"99")
+          AND w-job.rec-id = RECID(job)
+          NO-ERROR.
+    IF NOT AVAIL w-job THEN DO:
+        CREATE w-job.
+        ASSIGN
+          w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+                      TRIM(job.job-no) +
+                      STRING(job.job-no2,"99")
+          w-job.rec-id = RECID(job).
     END.
-
     FIND FIRST job-hdr NO-LOCK WHERE ROWID(job-hdr) EQ lv-rowid.
 
     RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT job-hdr.loc).
