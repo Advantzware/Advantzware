@@ -472,6 +472,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_itemfg-2 ).
+       RUN set-position IN h_itemfg-2 ( 4.81 , 9.00 ) NO-ERROR.
+       RUN set-size IN h_itemfg-2 ( 17.14 , 144.60 ) NO-ERROR.
        /* Position in AB:  ( 4.81 , 9.00 ) */
        /* Size in UIB:  ( 17.14 , 144.60 ) */
 
