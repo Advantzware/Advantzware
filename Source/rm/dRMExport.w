@@ -873,7 +873,7 @@ DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-item FOR item.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-
+DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
@@ -890,8 +890,8 @@ FOR EACH b-item WHERE b-item.company = cocode
     v-excel-detail-lines = "".
 
     FOR EACH ttRptSelected:
-        v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER b-item,ttRptSelected.FieldList)).
+        cExcelVarValue = getValue-itemfg(BUFFER b-item,ttRptSelected.FieldList) .
+        v-excel-detail-lines = v-excel-detail-lines + quoter(cExcelVarValue) + ",".
 /*         CASE ttRptSelected.FieldList:                                                               */
 /*             WHEN "itemfg.i-no" THEN                                                                 */
 /*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
