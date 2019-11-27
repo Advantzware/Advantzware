@@ -357,6 +357,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_vencst Dialog-Frame
 ON CHOOSE OF btn_vencst IN FRAME Dialog-Frame /* Add Vendor Cost */
 DO:
+  /* need to re-developed to use new vendItemCost tables */
   
   IF ip-rm THEN
     RUN windows\d-vndcst.w(INPUT ip-i-no, v-term).

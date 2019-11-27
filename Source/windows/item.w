@@ -855,6 +855,7 @@ DEF VAR lv-current-page AS INT NO-UNDO.
         RUN select-page (10).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
         RETURN.
+        
     END.
   
   {methods/winReSizePgChg.i}
