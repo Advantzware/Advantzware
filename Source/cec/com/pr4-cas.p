@@ -7,7 +7,7 @@ def shared buffer xef for ef.
 def shared buffer xeb for eb.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def buffer xcas for cas.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
@@ -113,10 +113,15 @@ for each cas where cas.typ eq 1
      FOR EACH xcas WHERE xcas.typ EQ 1 AND xcas.ino EQ cas.ino:
        cas.t-qty = cas.t-qty + xcas.qty.
      END.
-
-     {est/matcost.i cas.t-qty cas.cost 1}
-
-     cas.cost = (cas.cost * cas.qty) + lv-setup-1.
+     IF lNewVendorItemCost THEN 
+     DO:
+       {est/getVendCost.i cas.t-qty cas.cost 1}  
+     END.
+     ELSE 
+     DO:       
+       {est/matcost.i cas.t-qty cas.cost 1}
+       cas.cost = (cas.cost * cas.qty) + lv-setup-1.
+     END.
    END.
 
    ASSIGN
@@ -289,9 +294,15 @@ for each cas where cas.typ eq 3
    IF xeb.trNoCharge THEN cas.cost = 0.
    ELSE IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 3}
-
-     cas.cost = (cas.cost * cas.qty) + lv-setup-3.
+     IF lNewVendorItemCost THEN 
+     DO:
+       {est/getVendCost.i cas.t-qty cas.cost 3}  
+     END.
+     ELSE 
+     DO:       
+       {est/matcost.i cas.t-qty cas.cost 3}
+       cas.cost = (cas.cost * cas.qty) + lv-setup-3. 
+     END.
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */
@@ -410,11 +421,16 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
    END.
 
    strap-qty = cas.qty / 1000.
-
-   {est/matcost.i strap-qty cas.cost strap}
-
-   ASSIGN
-      cas.cost = (cas.cost * strap-qty) + lv-setup-strap
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i strap-qty cas.cost strap}  
+   END.
+   ELSE 
+   DO:       
+      {est/matcost.i strap-qty cas.cost strap}
+      cas.cost = (cas.cost * strap-qty) + lv-setup-strap .
+   END.
+   ASSIGN      
       cas.cosm = cas.cost / (cas.cosm / 1000).
 
    if strap-qty ne 0 then do with frame ac4 no-box no-labels stream-io:

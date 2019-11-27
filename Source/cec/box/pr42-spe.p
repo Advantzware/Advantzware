@@ -18,6 +18,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
 {cec/print42.i shared}
+{sys/inc/venditemcost.i}
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 

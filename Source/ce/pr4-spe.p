@@ -12,7 +12,7 @@ DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 

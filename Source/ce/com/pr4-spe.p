@@ -7,7 +7,7 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 DEF SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def var qm as DEC NO-UNDO.
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER b-cost FOR reftable.

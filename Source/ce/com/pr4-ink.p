@@ -7,7 +7,7 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def buffer ink2 for ink.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
@@ -127,11 +127,15 @@ for each ink where ink.snum EQ 0 AND ink.bnum eq 0 by ink.i-code by ink.i-dscr:
   if not avail item then next.
   find first e-item of item no-lock no-error.
   if ink.i-qty lt item.min-lbs then ink.i-qty = item.min-lbs.
-
-  {est/matcost.i ink.i-qty ink.i-cost ink}
-
-  ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink.
-
+  IF lNewVendorItemCost THEN 
+  DO:
+    {est/getVendCost.i ink.i-qty ink.i-cost ink}  
+  END.
+  ELSE 
+  DO:
+    {est/matcost.i ink.i-qty ink.i-cost ink}
+    ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink.
+  END.
   for each ink2
       where ink2.i-code eq ink.i-code
         and ink2.i-dscr eq ink.i-dscr
@@ -259,11 +263,17 @@ for each glu break by glu.i-code /*BY glu.snum*/ with frame abc down no-labels n
    for each xglu where xglu.i-code = glu.i-code:
       gqty = gqty + xglu.i-qty.   /* total pounds */
    end.
-
-   {est/matcost.i gqty gcost glue}
-
-   ASSIGN
-    gcost     = (gcost * gqty) + lv-setup-glue
+   IF lNewVendorItemCost THEN 
+   DO:
+    {est/getVendCost.i gqty gcost glue}  
+   END.
+   ELSE 
+   DO:
+     {est/matcost.i gqty gcost glue}
+     gcost     = (gcost * gqty) + lv-setup-glue.
+   END.
+   
+   ASSIGN    
     dm-tot[5] = dm-tot[5] + gcost.
 
    /* rm handling chg per cwt */

@@ -849,13 +849,12 @@ PROCEDURE buildRptRecs :
     FIND bf-w-job-mat WHERE ROWID(bf-w-job-mat) EQ iprWJobMat NO-ERROR.
     FIND bf-ordl WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
 
-
     /*****************************************/
     /* Create report records                 */
-    /*****************************************/
-    FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.
+    /*****************************************/    
+    FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.         
     IF AVAILABLE tt-ei THEN 
-    DO:
+    DO:        
         FOR EACH tt-eiv
             WHERE tt-eiv.company    EQ cocode
             AND tt-eiv.i-no       EQ tt-ei.i-no
@@ -903,9 +902,9 @@ PROCEDURE buildRptRecs :
                 report.rec-id  = tt-eiv.rec-id.
 
         END. /* for each tt-eiv */
-    
+        
         RELEASE report.
-       
+                
         IF gvlChoice THEN 
         DO:
       
@@ -945,7 +944,6 @@ PROCEDURE buildRptRecs :
                     NO-LOCK NO-ERROR.
         END. /* If not gvlChoice = true */
 
-   
         IF AVAILABLE report THEN 
         DO:
         
@@ -2633,7 +2631,7 @@ PROCEDURE initJobVals :
     FIND bf-w-job-mat WHERE ROWID(bf-w-job-mat) EQ iprWJobMat NO-LOCK NO-ERROR.
     FIND job WHERE ROWID(job) EQ iprJob NO-LOCK NO-ERROR.
     FIND bf-oe-ordl WHERE ROWID(bf-oe-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
-
+    
     ASSIGN 
         gvrJobRecid = ?.
 
@@ -3244,9 +3242,9 @@ PROCEDURE processJobMat :
             OUTPUT gvrVend).
 
         /* Warning message that vendor matrix does not exist */
-        IF gvcVendNo EQ "" AND gvlChoice AND NOT ll-canceled THEN
-            RUN cancelMessage.
-
+        IF gvcVendNo EQ "" AND gvlChoice AND NOT ll-canceled THEN 
+            RUN cancelMessage.        
+         
         IF gvcVendNo EQ "" OR ll-canceled THEN 
         DO:
             IF gvlDebug THEN             
@@ -3836,26 +3834,6 @@ END PROCEDURE.
 
 &ENDIF
 
-
-&IF DEFINED(EXCLUDE-RevCreateTtEivItemfg) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RevCreateTtEivItemfg Procedure
-PROCEDURE RevCreateTtEivItemfg:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
 &IF DEFINED(EXCLUDE-RevCreateTtEivVend) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RevCreateTtEivVend Procedure
@@ -3901,22 +3879,22 @@ PROCEDURE RevCreateTtEivVend:
     IF NOT AVAILABLE item THEN RETURN.
     
     FIND FIRST vendItemCost no-lock    
-        WHERE vendItemCost.company EQ itemfg.company
-        AND vendItemCost.ItemID    EQ itemfg.i-no
-        AND vendItemCost.ItemType EQ "FG"
+        WHERE vendItemCost.company EQ item.company
+        AND vendItemCost.ItemID    EQ item.i-no
+        AND vendItemCost.ItemType EQ "RM"
         NO-ERROR.
     IF AVAIL vendItemCost THEN 
     DO:    
         CREATE tt-ei.
         ASSIGN 
-            tt-ei.company = itemfg.company
-            tt-ei.i-no    = itemfg.i-no
+            tt-ei.company = item.company
+            tt-ei.i-no    = item.i-no
             tt-ei.std-uom = vendItemCost.VendorUOM
             .        
     END.
         
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
-                    AND vendItemCost.ItemID    EQ itemfg.i-no
+                    AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" ,
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
@@ -3949,6 +3927,7 @@ PROCEDURE RevCreateTtEivVend:
                 assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                        .
         END.
+        
         oprItem = ROWID(ITEM).
 
 END PROCEDURE.

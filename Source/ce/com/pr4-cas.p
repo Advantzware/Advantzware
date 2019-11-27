@@ -7,7 +7,7 @@ def shared buffer xef for ef.
 def shared buffer xeb for eb.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def buffer xcas for cas.
 
 def var v-cas-cnt as DEC NO-UNDO.
@@ -282,10 +282,17 @@ for each cas where cas.typ eq 1
      FOR EACH xcas WHERE xcas.typ EQ 1 AND xcas.ino EQ cas.ino:
        cas.t-qty = cas.t-qty + xcas.qty.
      END.
-
-     {est/matcost.i cas.t-qty cas.cost 1}
-
-     cas.cost = (cas.cost * cas.qty) + lv-setup-1.
+     
+     IF lNewVendorItemCost THEN 
+     DO:
+       {est/getVendCost.i cas.t-qty cas.cost 1}  
+     END.
+     ELSE 
+     DO:
+       {est/matcost.i cas.t-qty cas.cost 1}
+       cas.cost = (cas.cost * cas.qty) + lv-setup-1.
+     END.    
+     
    END.
 
    ASSIGN
@@ -393,11 +400,16 @@ for each cas where cas.typ eq 5
    FOR EACH xcas WHERE xcas.typ EQ 5 AND xcas.ino EQ cas.ino:
        cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   {est/matcost.i cas.t-qty cas.cost 5}
-
-   cas.cost = (cas.cost * cas.qty) + lv-setup-5.
-
+    IF lNewVendorItemCost THEN 
+    DO:
+      {est/getVendCost.i cas.t-qty cas.cost 5}  
+    END.
+    ELSE 
+    DO: 
+      {est/matcost.i cas.t-qty cas.cost 5}
+      cas.cost = (cas.cost * cas.qty) + lv-setup-5.
+   END.
+   
    ASSIGN
     zzz      = cas.cosm
     /* cosm was set to tot # blanks this item; set to cost now */
@@ -499,11 +511,15 @@ for each cas where cas.typ eq 6
    FOR EACH xcas WHERE xcas.typ EQ 6 AND xcas.ino EQ cas.ino:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   {est/matcost.i cas.t-qty cas.cost 6}
-
-   cas.cost = (cas.cost * cas.qty) + lv-setup-6.
-
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i cas.t-qty cas.cost 6}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i cas.t-qty cas.cost 6}
+      cas.cost = (cas.cost * cas.qty) + lv-setup-6.
+   END.
    ASSIGN
     zzz      = cas.cosm
     /* cosm was set to tot # blanks this item; set to cost now */
@@ -604,11 +620,16 @@ for each cas where cas.typ eq 7
    FOR EACH xcas WHERE xcas.typ EQ 7 AND xcas.ino EQ cas.ino:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   {est/matcost.i cas.t-qty cas.cost 7}
-
-   cas.cost = (cas.cost * cas.qty) + lv-setup-7.
-
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i cas.t-qty cas.cost 7}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i cas.t-qty cas.cost 7}
+      cas.cost = (cas.cost * cas.qty) + lv-setup-7.
+   END.
+   
    ASSIGN
     zzz      = cas.cosm
     /* cosm was set to tot # blanks this item; set to cost now */
@@ -780,9 +801,15 @@ for each cas where cas.typ eq 3
    IF xeb.trNoCharge THEN cas.cost = 0.
    ELSE IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 3}
-
-     cas.cost = (cas.cost * cas.qty) + lv-setup-3.
+     IF lNewVendorItemCost THEN 
+     DO:
+       {est/getVendCost.i cas.t-qty cas.cost 3}  
+     END.
+     ELSE 
+     DO:   
+       {est/matcost.i cas.t-qty cas.cost 3}
+       cas.cost = (cas.cost * cas.qty) + lv-setup-3.
+     END.
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */

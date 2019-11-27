@@ -3,8 +3,8 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
@@ -63,48 +63,48 @@ DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE DIALOG-BOX
-&SCOPED-DEFINE DB-AWARE NO 
+&Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
-&SCOPED-DEFINE BROWSE-NAME BROWSE-2
+&Scoped-define FRAME-NAME Dialog-Frame
+&Scoped-define BROWSE-NAME BROWSE-2
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES tt-report ITEM job-mat
+&Scoped-define INTERNAL-TABLES tt-report item job-mat
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&SCOPED-DEFINE FIELDS-IN-QUERY-BROWSE-2 tt-report.key-03 tt-report.po-no tt-report.vend-name tt-report.key-04 tt-report.key-02 tt-report.report-cost tt-report.cost-uom tt-report.disc-days tt-report.ext-price tt-report.vend-item tt-report.wid-min tt-report.wid-max tt-report.len-min tt-report.len-max   
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-BROWSE-2   
-&SCOPED-DEFINE SELF-NAME BROWSE-2
-&SCOPED-DEFINE QUERY-STRING-BROWSE-2 FOR EACH tt-report NO-LOCK
-&SCOPED-DEFINE OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tt-report NO-LOCK.
-&SCOPED-DEFINE TABLES-IN-QUERY-BROWSE-2 tt-report
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-BROWSE-2 tt-report
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-report.key-03 tt-report.po-no tt-report.vend-name tt-report.key-04 tt-report.key-02 tt-report.report-cost tt-report.cost-uom tt-report.disc-days tt-report.ext-price tt-report.vend-item tt-report.wid-min tt-report.wid-max tt-report.len-min tt-report.len-max   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
+&Scoped-define SELF-NAME BROWSE-2
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tt-report NO-LOCK
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tt-report NO-LOCK.
+&Scoped-define TABLES-IN-QUERY-BROWSE-2 tt-report
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 tt-report
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&SCOPED-DEFINE FIELDS-IN-QUERY-Dialog-Frame job-mat.frm job-mat.blank-no ~
-job-mat.i-no ITEM.i-name job-mat.len job-mat.wid job-mat.n-up 
-&SCOPED-DEFINE OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame job-mat.frm job-mat.blank-no ~
+job-mat.i-no item.i-name job-mat.len job-mat.wid job-mat.n-up 
+&Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-2}
-&SCOPED-DEFINE QUERY-STRING-Dialog-Frame FOR EACH ITEM SHARE-LOCK, ~
-      EACH job-mat OF ITEM SHARE-LOCK
-&SCOPED-DEFINE OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH ITEM SHARE-LOCK, ~
-      EACH job-mat OF ITEM SHARE-LOCK.
-&SCOPED-DEFINE TABLES-IN-QUERY-Dialog-Frame ITEM job-mat
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-Dialog-Frame ITEM
-&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-Dialog-Frame job-mat
+&Scoped-define QUERY-STRING-Dialog-Frame FOR EACH item SHARE-LOCK, ~
+      EACH job-mat OF item SHARE-LOCK
+&Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH item SHARE-LOCK, ~
+      EACH job-mat OF item SHARE-LOCK.
+&Scoped-define TABLES-IN-QUERY-Dialog-Frame item job-mat
+&Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame item
+&Scoped-define SECOND-TABLE-IN-QUERY-Dialog-Frame job-mat
 
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS BROWSE-2 btn_vencst Btn_OK Btn_Cancel 
-&SCOPED-DEFINE DISPLAYED-FIELDS job-mat.frm job-mat.blank-no job-mat.i-no ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-2 Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-FIELDS job-mat.frm job-mat.blank-no job-mat.i-no ~
 item.i-name job-mat.len job-mat.wid job-mat.n-up 
-&SCOPED-DEFINE DISPLAYED-TABLES job-mat ITEM
-&SCOPED-DEFINE FIRST-DISPLAYED-TABLE job-mat
-&SCOPED-DEFINE SECOND-DISPLAYED-TABLE ITEM
-&SCOPED-DEFINE DISPLAYED-OBJECTS fi_dep 
+&Scoped-define DISPLAYED-TABLES job-mat item
+&Scoped-define FIRST-DISPLAYED-TABLE job-mat
+&Scoped-define SECOND-DISPLAYED-TABLE item
+&Scoped-Define DISPLAYED-OBJECTS fi_dep 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -175,51 +175,51 @@ DEFINE BROWSE BROWSE-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     job-mat.frm AT ROW 2.67 COLUMN 3.4 NO-LABEL
+     job-mat.frm AT ROW 2.67 COL 3.4 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     job-mat.blank-no AT ROW 2.67 COLUMN 6.4 COLON-ALIGNED NO-LABEL
+     job-mat.blank-no AT ROW 2.67 COL 6.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
-     job-mat.i-no AT ROW 2.67 COLUMN 12.4 COLON-ALIGNED NO-LABEL
+     job-mat.i-no AT ROW 2.67 COL 12.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
-     item.i-name AT ROW 2.67 COLUMN 34.4 COLON-ALIGNED NO-LABEL
+     item.i-name AT ROW 2.67 COL 34.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 41 BY 1
-     job-mat.len AT ROW 2.67 COLUMN 78.4 COLON-ALIGNED NO-LABEL
+     job-mat.len AT ROW 2.67 COL 78.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     job-mat.wid AT ROW 2.67 COLUMN 89.4 COLON-ALIGNED NO-LABEL
+     job-mat.wid AT ROW 2.67 COL 89.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     fi_dep AT ROW 2.67 COLUMN 100.4 COLON-ALIGNED NO-LABEL
-     job-mat.n-up AT ROW 2.67 COLUMN 112.4 COLON-ALIGNED NO-LABEL
+     fi_dep AT ROW 2.67 COL 100.4 COLON-ALIGNED NO-LABEL
+     job-mat.n-up AT ROW 2.67 COL 112.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
-     BROWSE-2 AT ROW 4.33 COLUMN 3
-     btn_vencst AT ROW 16.24 COLUMN 3.2
-     Btn_OK AT ROW 16.24 COLUMN 38
-     Btn_Cancel AT ROW 16.24 COLUMN 70
+     BROWSE-2 AT ROW 4.33 COL 3
+     btn_vencst AT ROW 16.24 COL 3.2
+     Btn_OK AT ROW 16.24 COL 38
+     Btn_Cancel AT ROW 16.24 COL 70
      "Name" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.95 COLUMN 42.4
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.95 COLUMN 81.4
-     "S / B" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.95 COLUMN 5.4
-     "Depth" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.95 COLUMN 103.4
-     "RM Item#" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.95 COLUMN 17.4
-     "#Up" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.95 COLUMN 114.4
+          SIZE 8 BY .62 AT ROW 1.95 COL 42.4
      "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.95 COLUMN 93.4
-     SPACE(92.39) SKIP(15.80)
+          SIZE 8 BY .62 AT ROW 1.95 COL 93.4
+     "#Up" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.95 COL 114.4
+     "RM Item#" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.95 COL 17.4
+     "Depth" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.95 COL 103.4
+     "S / B" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.95 COL 5.4
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.95 COL 81.4
+     SPACE(104.39) SKIP(15.80)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
-         TITLE "Vendor Cost"
+         TITLE "Vendor Cost (using VendItemCost table)"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
 
 
@@ -247,6 +247,11 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN job-mat.blank-no IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btn_vencst IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btn_vencst:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_dep IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job-mat.frm IN FRAME Dialog-Frame
@@ -290,9 +295,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-report NO-LOCK.
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME Dialog-Frame
+&Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Vendor Cost */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Vendor Cost (using VendItemCost table) */
 DO:
  /* APPLY "END-ERROR":U TO SELF.*/
   /* This was done so that adding a new vendor is not undone on cancel */
@@ -304,7 +309,25 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&SCOPED-DEFINE SELF-NAME Btn_Cancel
+
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
+ON ROW-DISPLAY OF BROWSE-2 IN FRAME Dialog-Frame
+DO:
+ 
+IF AVAILABLE tt-report AND tt-report.key-03 EQ v-vend-no THEN DO:
+    ASSIGN 
+        tt-report.key-03:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 14
+        .
+    END.
+ END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
@@ -318,7 +341,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_OK
+&Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
@@ -330,7 +353,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_vencst
+&Scoped-define SELF-NAME btn_vencst
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_vencst Dialog-Frame
 ON CHOOSE OF btn_vencst IN FRAME Dialog-Frame /* Add Vendor Cost */
 DO:
@@ -352,30 +375,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE BROWSE-NAME BROWSE-2
-
-
-&SCOPED-DEFINE SELF-NAME BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
-ON ROW-DISPLAY OF BROWSE-2 IN FRAME Dialog-Frame
-DO:
- 
-IF AVAILABLE tt-report AND tt-report.key-03 EQ v-vend-no THEN DO:
-    ASSIGN 
-        tt-report.key-03:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 14
-        .
-    END.
- END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
-
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
@@ -495,7 +495,7 @@ PROCEDURE build-table :
           WHERE vendItemCost.vendItemCostID = vendItemCostLevel.vendItemCostID NO-ERROR.
       IF AVAIL vendItemCost THEN
           cUom = vendItemCost.vendorUOM.
-           
+          
       dCalcCost = DECIMAL(report.key-01).
 
 /*      IF cUom EQ "" THEN DO:                                          */
@@ -545,12 +545,8 @@ PROCEDURE build-table :
 /*              "Cost Setup: " opdCostSetup SKIP   */
 /*              "Error: " oplError SKIP            */
 /*              "Message: " opcMessage SKIP        */
-/*              VIEW-AS ALERT-BOX.                 */
-                           
-                           
-                           
-                           
-                           
+/*              VIEW-AS ALERT-BOX.                 */                                                     
+                                                      
                            
           ASSIGN
             report.key-01 = STRING(dCostTotal)  /*dCalcCost*/
@@ -703,14 +699,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fi_dep 
       WITH FRAME Dialog-Frame.
-  IF AVAILABLE ITEM THEN 
-    DISPLAY ITEM.i-name 
+  IF AVAILABLE item THEN 
+    DISPLAY item.i-name 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE job-mat THEN 
     DISPLAY job-mat.frm job-mat.blank-no job-mat.i-no job-mat.len job-mat.wid 
           job-mat.n-up 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-2 btn_vencst Btn_OK Btn_Cancel 
+  ENABLE BROWSE-2 Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

@@ -63,6 +63,7 @@ DEFINE VARIABLE gcMarginMatrixLookup                  AS CHARACTER NO-UNDO.    /
 DEFINE VARIABLE glOpRatesSeparate                     AS LOGICAL   NO-UNDO INIT YES.    /*CEOpRates - log val*/
 
 DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
+DEFINE VARIABLE glVendItemCost AS LOGICAL NO-UNDO INIT YES.    /*VendItemCost - log val*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -3739,37 +3740,43 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE dQtyInCUOM AS DECIMAL.
     DEFINE VARIABLE dCostTotal AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
     ASSIGN
         lCostFound = NO
         opdCost    = 0
         opdSetup   = 0.
+
+  
+    IF glVendItemCost THEN 
+    DO:
+       RUN GetVendorCost(ipbf-estCostMaterial.company,
+                      ipbf-estCostMaterial.itemID,
+                      "RM",
+                      ipcVendNo,
+                      "",
+                      ipbf-estCostMaterial.estimateNo,
+                      ipbf-estCostMaterial.formNo,
+                      ipbf-estCostMaterial.blankNo,
+                      ipdQty,
+                      ipcQtyUOM,
+                      ipbf-estCostMaterial.dimLength,
+                      ipbf-estCostMaterial.dimWidth,
+                      ipbf-estCostMaterial.dimDepth,
+                      ipbf-estCostMaterial.dimUOM,
+                      ipbf-estCostMaterial.basisWeight,
+                      ipbf-estCostMaterial.basisWeightUOM,
+                      NO,
+                      OUTPUT opdCost,
+                      OUTPUT opdSetup,
+                      OUTPUT opcCostUOM,
+                      OUTPUT dCostTotal,
+                      OUTPUT lError,
+                      OUTPUT cMessage).
+
+       RETURN.
+    END.
     
-    /*    RUN GetVendorCost(ipbf-estCostMaterial.company,   */
-    /*                  ipbf-estCostMaterial.itemID,        */
-    /*                  "RM",                               */
-    /*                  ipcVendNo,                          */
-    /*                  "",                                 */
-    /*                  ipbf-estCostMaterial.estimateNo,    */
-    /*                  ipbf-estCostMaterial.formNo,        */
-    /*                  ipbf-estCostMaterial.blankNo,       */
-    /*                  ipdQty,                             */
-    /*                  ipcQtyUOM,                          */
-    /*                  ipbf-estCostMaterial.dimLength,     */
-    /*                  ipbf-estCostMaterial.dimWidth,      */
-    /*                  ipbf-estCostMaterial.dimDepth,      */
-    /*                  ipbf-estCostMaterial.dimUOM,        */
-    /*                  ipbf-estCostMaterial.basisWeight,   */
-    /*                  ipbf-estCostMaterial.basisWeightUOM,*/
-    /*                  NO,                                 */
-    /*                  OUTPUT opdCost,                     */
-    /*                  OUTPUT opdSetup,                    */
-    /*                  OUTPUT opcCostUOM,                  */
-    /*                  OUTPUT dCostTotal,                  */
-    /*                  OUTPUT lError,                      */
-    /*                  OUTPUT cMessage).                   */
-    /*                                                      */
     FIND FIRST e-item NO-LOCK
         WHERE e-item.company EQ ipbf-estCostMaterial.company
         AND e-item.i-no EQ ipbf-estCostMaterial.itemID
@@ -4222,6 +4229,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         
     RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glOpRatesSeparate = lFound AND cReturn EQ "MR/Run Separate".
+    
+    /* get NK1 for NewVendItemCost */
+    RUN sys/ref/nk1look.p (ipcCompany, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glVendItemCost = IF cReturn = "Yes" THEN YES ELSE No.
     
 END PROCEDURE.
 

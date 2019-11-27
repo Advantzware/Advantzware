@@ -17,7 +17,7 @@ DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 {cec/msfcalc.i}
 
 {cec/rollfac.i}
