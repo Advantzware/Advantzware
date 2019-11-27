@@ -13,7 +13,7 @@ def shared buffer xeb  for eb.
 DEF SHARED VAR qty AS INT NO-UNDO.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def var rm-wt$ as de NO-UNDO.
 def var rm-wt% as de NO-UNDO.
 def var rm-wt  as de NO-UNDO.
@@ -116,10 +116,17 @@ do  WITH STREAM-IO no-box no-labels frame med1:
 
    IF b-uom EQ "TON" THEN med-qty = med-qty * item.basis-w / 2000.
 
-   {est/matcost.i med-qty mfl$ medium}
-
-   ASSIGN
-    mfl$      = (mfl$ * med-qty) + lv-setup-medium
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i med-qty mfl$ medium}  
+   END.
+   ELSE 
+   DO: 
+      {est/matcost.i med-qty mfl$ medium}
+      mfl$ = (mfl$ * med-qty) + lv-setup-medium.
+   END.
+   
+   ASSIGN    
     b-msh     = mfl$ / med-qty
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty ) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))
@@ -226,10 +233,17 @@ do WITH STREAM-IO no-box no-labels frame flute:
 
    IF b-uom EQ "TON" THEN med-qty = med-qty * item.basis-w / 2000.
 
-   {est/matcost.i med-qty mfl$ flute}
-
-   ASSIGN
-    mfl$      = (mfl$ * med-qty) + lv-setup-flute
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i med-qty mfl$ flute}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i med-qty mfl$ flute}
+      mfl$ = (mfl$ * med-qty) + lv-setup-flute .
+   END.
+   
+   ASSIGN   
     b-msh     = mfl$ / med-qty
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))

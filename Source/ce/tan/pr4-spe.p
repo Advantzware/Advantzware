@@ -7,7 +7,7 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 DEF SHARED VAR qty AS INT NO-UNDO.
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
