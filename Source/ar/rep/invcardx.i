@@ -15,13 +15,15 @@ PUT "<FTimes New Roman>".
             SPACE(14) v-addr3   v-sold-addr3 AT 64 "</B>" SKIP.
 
         v-printline = v-printline + 15.
-        PUT "<|10><R5><C53><#3><FROM><R7><C78><RECT>" SKIP.
+        PUT "<|10><R5><C53><#3><FROM><R8><C78><RECT>" SKIP.
         PUT "<R6><C53><FROM><R6><C78><LINE>" SKIP
-            "<R5><C65><FROM><R7><C65><LINE>" SKIP .
+            "<R7><C53><FROM><R7><C78><LINE>" SKIP
+            "<R5><C65><FROM><R8><C65><LINE>" SKIP .
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
     "<=#3>          INVOICE#                    " ar-inv.inv-no
-    "<=#3><R+1>              DATE               " v-inv-date "<FCourier New>"    
+    "<=#3><R+1>              DATE               " v-inv-date
+    "<=#3><R+2>     ORIG PLANT                   PL8007 " "<FCourier New>"    
     SKIP(1)
     .
 
@@ -57,8 +59,8 @@ PUT "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP
     "<R25><C65><FROM><R27><C65><LINE>" 
     "<R25><C71><FROM><R27><C71><LINE>" SKIP.   
 
-PUT "<FArial><=5>  CUST PO#              CUST PART#                                                                           <C62> P       PRICE                  " SKIP
-    "  OUR ORDER#        ITEM#                                     DESCRIPTION/LOT#                    SHIPPED        C       (UOM)        AMOUNT" SKIP(1).
+PUT "<FArial><=5>  CUST PO#              CUST PART#                                                                           <C62> P       PRICE          AMOUNT " SKIP
+    "  OUR ORDER#        ITEM#                                     DESCRIPTION/LOT#                  QUANTITY        C       (UOM)    CURRENCY" SKIP(1).
 
 v-printline = v-printline + 3.
            
