@@ -305,6 +305,7 @@ DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cXMlFinalDest AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTotalPass AS INTEGER NO-UNDO .
+DEFINE VARIABLE cEnterBy AS CHARACTER NO-UNDO .
 RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -508,6 +509,11 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN 
             v-reprun = IF AVAILABLE oe-ordl AND oe-ordl.type-code = "R" THEN "RETURN" 
                           ELSE "NEW" .
+           FIND FIRST oe-ord NO-LOCK
+               WHERE oe-ord.company EQ cocode 
+               AND oe-ord.ord-no EQ job-hdr.ord-no NO-ERROR .
+           cEnterBy = IF AVAIL oe-ord THEN oe-ord.entered-id ELSE job.USER-ID .
+
         FIND FIRST eb NO-LOCK WHERE eb.company     EQ job-hdr.company
             AND eb.est-no      EQ job-hdr.est-no
             AND eb.form-no     EQ job-hdr.frm
@@ -555,6 +561,7 @@ FOR EACH job-hdr NO-LOCK
       RUN XMLOutput (lXMLOutput,'NUMBER_UP',v-upnew,'Col').
       RUN XMLOutput (lXMLOutput,'QC_SPC',v-spc-no,'Col').
       RUN XMLOutput (lXMLOutput,'Category',cProCat,'Col').
+      RUN XMLOutput (lXMLOutput,'UserId',cEnterBy,'Col').
       RUN XMLOutput (lXMLOutput,'/JobTicketHeader','','Row').
       
       
