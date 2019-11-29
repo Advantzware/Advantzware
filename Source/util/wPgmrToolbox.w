@@ -58,8 +58,8 @@ DEF VAR cTestAud AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDataDigger btEditor btLockMon ~
-btMonitorUsers rsDB1 btProTools rsDB2 btSwitchMode 
+&Scoped-Define ENABLED-OBJECTS btSuperProcs btDataDigger rsDB1 btEditor ~
+rsDB2 btLockMon btMonitorUsers btProTools btSwitchMode 
 &Scoped-Define DISPLAYED-OBJECTS fiMode rsDB1 rsDB2 
 
 /* Custom List Definitions                                              */
@@ -101,6 +101,11 @@ DEFINE BUTTON btProTools
      LABEL "Run ProTools" 
      SIZE 8 BY 1.91 TOOLTIP "Pro Tools".
 
+DEFINE BUTTON btSuperProcs 
+     IMAGE-UP FILE "Graphics/32x32/elements_tree.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Super Procedures" 
+     SIZE 8 BY 1.91 TOOLTIP "Super Procedures".
+
 DEFINE BUTTON btSwitchMode 
      IMAGE-UP FILE "Graphics/32x32/gearwheels.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Switch Mode" 
@@ -109,7 +114,7 @@ DEFINE BUTTON btSwitchMode
 DEFINE VARIABLE fiMode AS CHARACTER FORMAT "X(256)":U INITIAL "RUN" 
      LABEL "Current Mode" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 7 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE rsDB1 AS CHARACTER 
@@ -128,32 +133,33 @@ DEFINE VARIABLE rsDB2 AS CHARACTER
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 55 BY 2.38
+     SIZE 64 BY 2.38
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 86 BY 4.05.
+     SIZE 66 BY 5.24.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btDataDigger AT ROW 1.48 COL 3 WIDGET-ID 20
-     btEditor AT ROW 1.48 COL 21
-     btLockMon AT ROW 1.48 COL 12 WIDGET-ID 18
-     fiMode AT ROW 1.95 COL 70 COLON-ALIGNED
-     btMonitorUsers AT ROW 1.48 COL 39
-     rsDB1 AT ROW 3.86 COL 7 NO-LABEL
-     btProTools AT ROW 1.48 COL 30 WIDGET-ID 2
-     rsDB2 AT ROW 3.86 COL 31 NO-LABEL
-     btSwitchMode AT ROW 1.48 COL 48
-     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 22
+     btSuperProcs AT ROW 2.67 COL 48 WIDGET-ID 26
+     btDataDigger AT ROW 2.67 COL 3 WIDGET-ID 20
+     fiMode AT ROW 1.24 COL 56 COLON-ALIGNED
+     rsDB1 AT ROW 5.05 COL 5 NO-LABEL
+     btEditor AT ROW 2.67 COL 21
+     rsDB2 AT ROW 5.05 COL 41 NO-LABEL
+     btLockMon AT ROW 2.67 COL 12 WIDGET-ID 18
+     btMonitorUsers AT ROW 2.67 COL 39
+     btProTools AT ROW 2.67 COL 30 WIDGET-ID 2
+     btSwitchMode AT ROW 2.67 COL 57
+     RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 22
      RECT-2 AT ROW 1 COL 1 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 86.2 BY 4.1.
+         SIZE 66 BY 5.24.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -173,12 +179,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Programmer's Toolbox"
-         HEIGHT             = 4.1
-         WIDTH              = 86.2
-         MAX-HEIGHT         = 4.1
-         MAX-WIDTH          = 86.2
-         VIRTUAL-HEIGHT     = 4.1
-         VIRTUAL-WIDTH      = 86.2
+         HEIGHT             = 5.24
+         WIDTH              = 66
+         MAX-HEIGHT         = 5.24
+         MAX-WIDTH          = 66
+         VIRTUAL-HEIGHT     = 5.24
+         VIRTUAL-WIDTH      = 66
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -252,6 +258,7 @@ OR CHOOSE OF btLockMon
 OR CHOOSE OF btProTools
 OR CHOOSE OF btMonitorUsers
 OR CHOOSE OF btEditor
+OR CHOOSE OF btSuperProcs
 OR CHOOSE OF btSwitchMode
 DO:
     DEF VAR cCmdString AS CHAR NO-UNDO.
@@ -279,6 +286,8 @@ DO:
         END.
         WHEN "btEditor" THEN 
             RUN _edit.r.
+        WHEN "btSuperProcs" THEN
+            RUN util/SuperProcs.w.
         WHEN "btSwitchMode" THEN DO:
             IF cState EQ "Run" THEN DO:
                 OS-RENAME VALUE (cCfgCfg) VALUE(cDLC + "\progress.run").
@@ -507,8 +516,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiMode rsDB1 rsDB2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btDataDigger btEditor btLockMon btMonitorUsers rsDB1 btProTools rsDB2 
-         btSwitchMode 
+  ENABLE btSuperProcs btDataDigger rsDB1 btEditor rsDB2 btLockMon 
+         btMonitorUsers btProTools btSwitchMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
