@@ -52,28 +52,29 @@ CREATE WIDGET-POOL.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define BROWSE-NAME superProcsBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttSuperProc
 
-/* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttSuperProc.procName ttSuperProc.internalProc ttSuperProc.procType ttSuperProc.returnType ttSuperProc.procParams   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
-&Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttSuperProc WHERE (matchesValue EQ NO AND (ttSuperProc.procName BEGINS searchValue OR ttSuperProc.internalProc BEGINS searchValue)) OR (matchesValue EQ YES AND (ttSuperProc.procName MATCHES "*" + searchValue + "*" OR ttSuperProc.internalProc MATCHES "*" + searchValue + "*"))  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttSuperProc WHERE (matchesValue EQ NO AND (ttSuperProc.procName BEGINS searchValue OR ttSuperProc.internalProc BEGINS searchValue)) OR (matchesValue EQ YES AND (ttSuperProc.procName MATCHES "*" + searchValue + "*" OR ttSuperProc.internalProc MATCHES "*" + searchValue + "*"))  ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttSuperProc
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttSuperProc
+/* Definitions for BROWSE superProcsBrowse                              */
+&Scoped-define FIELDS-IN-QUERY-superProcsBrowse ttSuperProc.procName ttSuperProc.internalProc ttSuperProc.procType ttSuperProc.returnType ttSuperProc.procParams   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-superProcsBrowse   
+&Scoped-define SELF-NAME superProcsBrowse
+&Scoped-define QUERY-STRING-superProcsBrowse FOR EACH ttSuperProc WHERE (procedureFile EQ "<All>" OR ttSuperProc.procName EQ procedureFile) AND ((matchesValue EQ NO AND (ttSuperProc.procName BEGINS searchValue OR ttSuperProc.internalProc BEGINS searchValue)) OR (matchesValue EQ YES AND (ttSuperProc.procName MATCHES "*" + searchValue + "*" OR ttSuperProc.internalProc MATCHES "*" + searchValue + "*")))  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-superProcsBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSuperProc WHERE (procedureFile EQ "<All>" OR ttSuperProc.procName EQ procedureFile) AND ((matchesValue EQ NO AND (ttSuperProc.procName BEGINS searchValue OR ttSuperProc.internalProc BEGINS searchValue)) OR (matchesValue EQ YES AND (ttSuperProc.procName MATCHES "*" + searchValue + "*" OR ttSuperProc.internalProc MATCHES "*" + searchValue + "*")))  ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-superProcsBrowse ttSuperProc
+&Scoped-define FIRST-TABLE-IN-QUERY-superProcsBrowse ttSuperProc
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-BROWSE-2}
+    ~{&OPEN-QUERY-superProcsBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchValue matchesValue BROWSE-2 
-&Scoped-Define DISPLAYED-OBJECTS searchValue matchesValue 
+&Scoped-Define ENABLED-OBJECTS procedureFile searchValue matchesValue ~
+superProcsBrowse 
+&Scoped-Define DISPLAYED-OBJECTS procedureFile searchValue matchesValue 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,12 +112,12 @@ DEFINE BUTTON btnCopyDefs AUTO-GO
 
 DEFINE VARIABLE codePhrase AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 50 BY 14.76
+     SIZE 60 BY 16.67
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE definePhrase AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 70 BY 14.76
+     SIZE 85 BY 16.67
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE showDataType AS LOGICAL INITIAL yes 
@@ -129,10 +130,17 @@ DEFINE VARIABLE showPrefix AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81 NO-UNDO.
 
+DEFINE VARIABLE procedureFile AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
+     LABEL "Procedure File" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "<All>" 
+     DROP-DOWN-LIST
+     SIZE 43 BY 1 NO-UNDO.
+
 DEFINE VARIABLE searchValue AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 138 BY 1 NO-UNDO.
+     SIZE 78 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-TABLE
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -145,14 +153,14 @@ DEFINE VARIABLE matchesValue AS LOGICAL INITIAL yes
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY BROWSE-2 FOR 
+DEFINE QUERY superProcsBrowse FOR 
       ttSuperProc SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 C-Win _FREEFORM
-  QUERY BROWSE-2 DISPLAY
+DEFINE BROWSE superProcsBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS superProcsBrowse C-Win _FREEFORM
+  QUERY superProcsBrowse DISPLAY
       ttSuperProc.procName LABEL-BGCOLOR 14
 ttSuperProc.internalProc LABEL-BGCOLOR 14
 ttSuperProc.procType LABEL-BGCOLOR 14
@@ -160,16 +168,17 @@ ttSuperProc.returnType
 ttSuperProc.procParams
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 8.1.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 6.67.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     searchValue AT ROW 1.24 COL 2 WIDGET-ID 62
+     procedureFile AT ROW 1.24 COL 15 COLON-ALIGNED WIDGET-ID 64
+     searchValue AT ROW 1.24 COL 62 WIDGET-ID 62
      matchesValue AT ROW 1.24 COL 149 HELP
           "Select for Table Search Matches" WIDGET-ID 40
-     BROWSE-2 AT ROW 2.43 COL 1 WIDGET-ID 200
+     superProcsBrowse AT ROW 2.43 COL 1 WIDGET-ID 200
      RECT-TABLE AT ROW 1 COL 1 WIDGET-ID 46
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -178,19 +187,19 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME codeView
-     btnCopyDefs AT ROW 16.24 COL 2 WIDGET-ID 16
-     btnCopyCode AT ROW 16.24 COL 73 WIDGET-ID 6
+     btnCopyDefs AT ROW 18.14 COL 2 WIDGET-ID 16
      definePhrase AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 14
-     btnClose AT ROW 16.24 COL 115 WIDGET-ID 4
-     codePhrase AT ROW 1.24 COL 73 NO-LABEL WIDGET-ID 2
-     showPrefix AT ROW 16.71 COL 30 HELP
+     codePhrase AT ROW 1.24 COL 88 NO-LABEL WIDGET-ID 2
+     showPrefix AT ROW 18.62 COL 37 HELP
           "Show ip/op Prefix?" WIDGET-ID 12
-     showDataType AT ROW 16.71 COL 88 HELP
+     showDataType AT ROW 18.62 COL 109 HELP
           "Show Data Type?" WIDGET-ID 10
+     btnCopyCode AT ROW 18.14 COL 88 WIDGET-ID 6
+     btnClose AT ROW 18.14 COL 140 WIDGET-ID 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 38 ROW 11.24
-         SIZE 123 BY 18.33
+         AT COL 13 ROW 9.33
+         SIZE 148 BY 20.24
          FGCOLOR 1 
          TITLE "Code View" WIDGET-ID 300.
 
@@ -254,10 +263,7 @@ ASSIGN
 
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 matchesValue DEFAULT-FRAME */
-ASSIGN 
-       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
-
+/* BROWSE-TAB superProcsBrowse matchesValue DEFAULT-FRAME */
 /* SETTINGS FOR TOGGLE-BOX matchesValue IN FRAME DEFAULT-FRAME
    1 2                                                                  */
 ASSIGN 
@@ -273,6 +279,9 @@ ASSIGN
 ASSIGN 
        searchValue:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
+ASSIGN 
+       superProcsBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -282,26 +291,28 @@ THEN C-Win:HIDDEN = no.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
-/* Query rebuild information for BROWSE BROWSE-2
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttSuperProc
-WHERE (matchesValue EQ NO
-AND (ttSuperProc.procName BEGINS searchValue
-OR ttSuperProc.internalProc BEGINS searchValue))
-OR (matchesValue EQ YES
-AND (ttSuperProc.procName MATCHES "*" + searchValue + "*"
-OR ttSuperProc.internalProc MATCHES "*" + searchValue + "*"))
- ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
-     _Query            is OPENED
-*/  /* BROWSE BROWSE-2 */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME codeView
 /* Query rebuild information for FRAME codeView
      _Query            is NOT OPENED
 */  /* FRAME codeView */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE superProcsBrowse
+/* Query rebuild information for BROWSE superProcsBrowse
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttSuperProc
+WHERE (procedureFile EQ "<All>"
+OR ttSuperProc.procName EQ procedureFile)
+AND ((matchesValue EQ NO
+AND (ttSuperProc.procName BEGINS searchValue
+OR ttSuperProc.internalProc BEGINS searchValue))
+OR (matchesValue EQ YES
+AND (ttSuperProc.procName MATCHES "*" + searchValue + "*"
+OR ttSuperProc.internalProc MATCHES "*" + searchValue + "*")))
+ ~{&SORTBY-PHRASE}.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE superProcsBrowse */
 &ANALYZE-RESUME
 
  
@@ -340,46 +351,6 @@ END.
 ON WINDOW-RESIZED OF C-Win /* Super Procedures / Functions */
 DO:
     RUN pWinResize.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME BROWSE-2
-&Scoped-define SELF-NAME BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
-ON DEFAULT-ACTION OF BROWSE-2 IN FRAME DEFAULT-FRAME
-DO:
-    VIEW FRAME codeView.
-    APPLY "VALUE-CHANGED":U TO SELF.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
-ON START-SEARCH OF BROWSE-2 IN FRAME DEFAULT-FRAME
-DO:
-    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
-        IF cColumnLabel EQ cSaveLabel THEN
-        lAscending = NOT lAscending.
-        cSaveLabel = cColumnLabel.
-        RUN pReopenBrowse.
-    END.
-    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
-ON VALUE-CHANGED OF BROWSE-2 IN FRAME DEFAULT-FRAME
-DO:
-    RUN pCodeView.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,6 +406,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME procedureFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL procedureFile C-Win
+ON VALUE-CHANGED OF procedureFile IN FRAME DEFAULT-FRAME /* Procedure File */
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenBrowse.
+    APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME searchValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchValue C-Win
 ON VALUE-CHANGED OF searchValue IN FRAME DEFAULT-FRAME /* Search */
@@ -472,13 +456,55 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME superProcsBrowse
 &Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define SELF-NAME superProcsBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL superProcsBrowse C-Win
+ON DEFAULT-ACTION OF superProcsBrowse IN FRAME DEFAULT-FRAME
+DO:
+    VIEW FRAME codeView.
+    APPLY "VALUE-CHANGED":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL superProcsBrowse C-Win
+ON START-SEARCH OF superProcsBrowse IN FRAME DEFAULT-FRAME
+DO:
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
+        RUN pReopenBrowse.
+    END.
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL superProcsBrowse C-Win
+ON VALUE-CHANGED OF superProcsBrowse IN FRAME DEFAULT-FRAME
+DO:
+    RUN pCodeView.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 
 /* ***************************  Main Block  *************************** */
+
+{system/pSuperProcs.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -500,6 +526,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pSuperProcs.
   RUN pWinResize.
   RUN enable_UI.
+  ASSIGN
+    procedureFile:LIST-ITEMS = "<All>," + cSuperProcs
+    procedureFile:INNER-LINES = procedureFile:NUM-ITEMS
+    procedureFile:SCREEN-VALUE = procedureFile:ENTRY(1)
+    cColumnLabel = "procName"
+    .
   HIDE FRAME codeView.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -545,15 +577,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY searchValue matchesValue 
+  DISPLAY procedureFile searchValue matchesValue 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE searchValue matchesValue BROWSE-2 
+  ENABLE procedureFile searchValue matchesValue superProcsBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   DISPLAY definePhrase codePhrase showPrefix showDataType 
       WITH FRAME codeView IN WINDOW C-Win.
-  ENABLE btnCopyDefs btnCopyCode definePhrase btnClose codePhrase showPrefix 
-         showDataType 
+  ENABLE btnCopyDefs definePhrase codePhrase showPrefix showDataType 
+         btnCopyCode btnClose 
       WITH FRAME codeView IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-codeView}
   VIEW C-Win.
@@ -575,7 +607,8 @@ PROCEDURE pCodeView :
     DEFINE VARIABLE cProcField    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 
-    IF FRAME codeView:SENSITIVE THEN DO:
+    IF FRAME codeView:SENSITIVE AND AVAILABLE ttSuperProc THEN DO:
+        IF ttSuperProc.procType NE "Error" THEN DO:
         ASSIGN
             cDefinePhrase = ""
             cCodePhrase   = (IF ttSuperProc.procType EQ "Procedure" THEN "RUN "
@@ -619,6 +652,12 @@ PROCEDURE pCodeView :
         IF ttSuperProc.procType   EQ "Function" OR
            ttSuperProc.procParams NE "" THEN
         cCodePhrase = cCodePhrase + ")".
+        END. /* if not error */
+        ELSE
+        ASSIGN
+            cCodePhrase   = "ERROR"
+            cDefinePhrase = ttSuperProc.procParams
+            .
         ASSIGN
             cCodePhrase = cCodePhrase + "."
             codePhrase:SCREEN-VALUE   = cCodePhrase
@@ -648,20 +687,6 @@ PROCEDURE pReopenBrowse :
         RUN pByProcType.
     END CASE.
     SESSION:SET-WAIT-STATE("").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSuperProcs C-Win 
-PROCEDURE pSuperProcs :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    {AOA/includes/pCreateTtSuperProcs.i}
 
 END PROCEDURE.
 

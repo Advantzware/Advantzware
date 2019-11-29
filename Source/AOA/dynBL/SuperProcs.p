@@ -22,5 +22,7 @@
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
-    {AOA/includes/pCreateTtSuperProcs.i}
+    RUN pSuperProcs.
 END PROCEDURE.
+
+{system/pSuperProcs.i}
