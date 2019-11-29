@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE aoaJasper 8
+&SCOPED-DEFINE aoaJasper 6
 &SCOPED-DEFINE aoaJasperGap 5
 &SCOPED-DEFINE noBrowseRefresh
 
@@ -227,7 +227,17 @@ PROCEDURE pGetUserParamValue:
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
 
-    FIND dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID.
+    FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID.
+    FIND FIRST dynSubject NO-LOCK
+         WHERE dynSubject.subjectID EQ dynParamValue.subjectID
+         NO-ERROR.
+    IF AVAILABLE dynSubject AND dynSubject.businessLogic NE "" THEN DO:
+        RUN VALUE(dynSubject.businessLogic) PERSISTENT SET hBusinessLogic.
+        ASSIGN
+            hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hBusinessLogic)
+            hTable = hTable:DEFAULT-BUFFER-HANDLE
+            .
+    END.
     ASSIGN
         aoaProgramID = dynParamValue.prgmName
         aoaUserID    = dynParamValue.user-id
@@ -263,15 +273,16 @@ PROCEDURE pGetUserParamValue:
                 cTable = ENTRY(1,dynParamValue.colName[idx],".")
                 cField = ENTRY(2,dynParamValue.colName[idx],".")
                 .
-            IF CAN-FIND(FIRST dynSubject
-                        WHERE dynSubject.subjectID     EQ dynParamValue.subjectID
-                          AND dynSubject.businessLogic EQ "") THEN DO:
+            IF dynSubject.businessLogic EQ "" THEN DO:
                 cTemp = cField.
                 IF INDEX(cTemp,"[") NE 0 THEN
                 cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).
                 CREATE BUFFER hTable FOR TABLE cTable.
                 dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
             END. /* if not business logic */
+            ELSE
+            IF VALID-HANDLE(hTable) THEN
+            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
         END. /* if table.field */
         ELSE
         cField = dynParamValue.colName[idx].
@@ -303,6 +314,7 @@ PROCEDURE pGetUserParamValue:
             ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).
         END. /* if field-value */
     END. /* do idx */
+    RELEASE dynSubject.
    
 END PROCEDURE.
 	
