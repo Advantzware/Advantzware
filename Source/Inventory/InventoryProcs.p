@@ -3412,30 +3412,42 @@ PROCEDURE PostFinishedGoodsForUser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcTransType AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcUsername  AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER ioplSuccess  AS LOGICAL   NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopcMessage  AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcTransType      AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcUsername       AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER iplPromptForClose AS LOGICAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplSuccess       AS LOGICAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcMessage       AS CHARACTER NO-UNDO.
 
- /* Create  workfile records for the finished goods being posted */
+    /* Create  workfile records for the finished goods being posted */
     RUN fg/fgRecsByUser.p (
         INPUT ipcCompany,
         INPUT ipcTransType, 
         INPUT ipcUsername, 
-        INPUT TABLE w-fg-rctd BY-reference
-        ).
+        INPUT TABLE w-fg-rctd BY-REFERENCE
+        ) NO-ERROR.
     
+    IF ERROR-STATUS:ERROR THEN DO:
+       ASSIGN
+           iopcMessage = ERROR-STATUS:GET-MESSAGE(1)
+           ioplSuccess = NO
+           .
+           
+       RETURN.
+    END.
+    
+    /* Posts FG items */
     RUN fg/fgpostBatch.p ( 
-        INPUT TODAY,       /* Post date      */
-        INPUT NO,          /* tg-recalc-cost */
-        INPUT ipcTransType,         /* Transfer  */
-        INPUT NO,          /* Send fg emails */
-        INPUT YES,
-        INPUT TABLE w-fg-rctd BY-reference,
-        INPUT TABLE tt-fgemail BY-reference,
-        INPUT TABLE tt-email BY-reference,
-        INPUT TABLE tt-inv BY-reference
+        INPUT TODAY,             /* Post date      */
+        INPUT NO,                /* tg-recalc-cost */
+        INPUT ipcTransType, 	 /* Transfer  */
+        INPUT NO,                /* Send fg emails */
+        INPUT YES,               /* creates work GL */
+        INPUT iplPromptForClose, /* Executes closing orders logic based input */   
+        INPUT TABLE w-fg-rctd  BY-REFERENCE,
+        INPUT TABLE tt-fgemail BY-REFERENCE,
+        INPUT TABLE tt-email   BY-REFERENCE,
+        INPUT TABLE tt-inv     BY-REFERENCE
         )NO-ERROR.
     
     IF ERROR-STATUS:ERROR THEN DO:
@@ -3443,6 +3455,7 @@ DEFINE INPUT-OUTPUT PARAMETER iopcMessage  AS CHARACTER NO-UNDO.
            iopcMessage = ERROR-STATUS:GET-MESSAGE(1)
            ioplSuccess = NO
            .
+           
        RETURN.
     END.
    
