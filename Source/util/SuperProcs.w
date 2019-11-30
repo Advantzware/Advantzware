@@ -633,11 +633,14 @@ PROCEDURE pCodeView :
                 IF cProcField BEGINS "ip" THEN
                 cProcField = SUBSTRING(cProcField,3).
                 ELSE
+                IF cProcField BEGINS "INPUT-OUTPUT iop" THEN
+                cProcField = REPLACE(cProcField,"INPUT-OUTPUT iop","INPUT-OUTPUT ").
+                ELSE
                 IF cProcField BEGINS "OUTPUT op" THEN
                 cProcField = REPLACE(cProcField,"OUTPUT op","OUTPUT ").
             ASSIGN
                 cDefinePhrase = cDefinePhrase
-                              + "DEFINE VARIABLE " + REPLACE(cProcField,"OUTPUT ","")
+                              + "DEFINE VARIABLE " + REPLACE(REPLACE(cProcField,"OUTPUT ",""),"INPUT-","")
                               + " AS " + CAPS(cDataType) + " NO-UNDO."
                               + CHR(10)
                 cCodePhrase   = cCodePhrase

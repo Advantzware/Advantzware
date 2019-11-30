@@ -80,6 +80,7 @@ PROCEDURE pSuperProcs:
                 ENTRY(2,cSignature)      = ""
                 cSignature               = LEFT-TRIM(cSignature,",,")
                 cSignature               = REPLACE(cSignature,"input ","")
+                cSignature               = REPLACE(cSignature,"input-","INPUT-")
                 cSignature               = REPLACE(cSignature,"output","OUTPUT")
                 ttSuperProc.procParams   = cSignature
                 .
