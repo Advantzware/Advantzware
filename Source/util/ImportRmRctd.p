@@ -18,7 +18,6 @@
 DEFINE TEMP-TABLE ttImportRmRctd
     FIELD Company        AS CHARACTER 
     FIELD Location       AS CHARACTER 
-    FIELD rmCompany      AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Company" HELP "Required - Size:5" 
     FIELD loc            AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse" HELP "Optional - Size:5"
     FIELD locBin         AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Bin   " HELP "Optional - - Size:8"
     FIELD tag            AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tag   " HELP "Optional - Size:5"
@@ -71,12 +70,12 @@ PROCEDURE pProcessRecord PRIVATE:
     ASSIGN 
         iopiAdded = iopiAdded + 1.
 
-    RUN sys/ref/asiseq.p (INPUT ipbf-ttImportRmRctd.rmCompany, INPUT "rm_rcpt_seq", OUTPUT iRNo) NO-ERROR.
+    RUN sys/ref/asiseq.p (INPUT ipbf-ttImportRmRctd.Company, INPUT "rm_rcpt_seq", OUTPUT iRNo) NO-ERROR.
 
     CREATE rm-rctd.
     ASSIGN 
         rm-rctd.r-no   = iRNo
-        rm-rctd.Company   = ipbf-ttImportRmRctd.rmCompany .
+        rm-rctd.Company   = ipbf-ttImportRmRctd.Company .
 
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
     RUN pAssignValueC (ipbf-ttImportRmRctd.loc, iplIgnoreBlanks, INPUT-OUTPUT rm-rctd.loc).                                                   
@@ -150,9 +149,9 @@ PROCEDURE pValidate PRIVATE:
     RUN util/Validate.p PERSISTENT SET hdValidator.
 
     oplValid = YES.
-
-    IF  length(ipbf-ttImportRmRctd.rmCompany) LE 2  THEN
-        ASSIGN ipbf-ttImportRmRctd.rmCompany = FILL("0",3 - length(TRIM(ipbf-ttImportRmRctd.rmCompany))) + trim(ipbf-ttImportRmRctd.rmCompany).
+    
+    IF  length(ipbf-ttImportRmRctd.Company) LE 2  THEN
+        ASSIGN ipbf-ttImportRmRctd.Company = FILL("0",3 - length(TRIM(ipbf-ttImportRmRctd.Company))) + trim(ipbf-ttImportRmRctd.Company).
     
     /*Check for Key Field(s) to be not blank*/
     IF oplValid THEN 
@@ -203,19 +202,19 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportRmRctd.RmItem NE "" THEN 
-            RUN pIsValidRMITemID IN hdValidator (ipbf-ttImportRmRctd.RmItem, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMITemID IN hdValidator (ipbf-ttImportRmRctd.RmItem, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.loc NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.locBin NE "" THEN 
-            RUN pIsValidRMBinForLoc IN hdValidator (ipbf-ttImportRmRctd.locBin,ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMBinForLoc IN hdValidator (ipbf-ttImportRmRctd.locBin,ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.jobNo NE "" THEN 
-            RUN pIsValidJob IN hdValidator (ipbf-ttImportRmRctd.jobNo, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidJob IN hdValidator (ipbf-ttImportRmRctd.jobNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.poNo NE "0" AND ipbf-ttImportRmRctd.poNo NE "" THEN 
-            RUN pIsValidPoNo IN hdValidator (ipbf-ttImportRmRctd.poNo, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidPoNo IN hdValidator (ipbf-ttImportRmRctd.poNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
