@@ -68,6 +68,8 @@ DEFINE TEMP-TABLE tt-job NO-UNDO
    FIELD start-time-su AS INT
    FIELD alloc-qty AS DEC FORMAT ">>>,>>>,>>9.99"
    FIELD m-code AS CHAR
+   FIELD required-qty AS DEC FORMAT ">>>,>>>,>>9.99"
+   FIELD cust-name AS CHARACTER
    INDEX i-no i-no print-date seq m-code
    INDEX m-code m-code.
 
@@ -1486,7 +1488,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-
+DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dReqTotal AS DECIMAL   NO-UNDO. 
  DEF VAR li AS INT NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
@@ -1580,6 +1583,16 @@ assign
 
         {custom/statusMsg.i "'Processing... '"} 
 
+        FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ cocode
+                  AND job-hdr.job EQ job.job
+                  AND job-hdr.job-no EQ job.job-no NO-ERROR .
+            IF AVAIL job-hdr THEN
+                FIND FIRST cust NO-LOCK
+                    WHERE cust.company EQ cocode 
+                      AND cust.cust-no EQ job-hdr.cust-no NO-ERROR .
+            cCustName = IF AVAIL job-hdr AND AVAIL cust THEN cust.NAME ELSE "" .
+
         FOR EACH job-mat WHERE
             job-mat.company EQ cocode AND
             job-mat.job EQ job.job AND
@@ -1601,8 +1614,10 @@ assign
             ASSIGN tt-job.i-no   = job-mat.i-no
                    tt-job.job-no = job-mat.job-no 
                    tt-job.job-no2 = job-mat.job-no2
-                   tt-job.alloc-qty = job-mat.qty-all.
-
+                   tt-job.alloc-qty = job-mat.qty-all
+                   tt-job.required-qty = job-mat.qty 
+                   tt-job.cust-name = cCustName.
+                   IF tt-job.required-qty EQ ? THEN tt-job.required-qty = 0 .
             IF ITEM.cons-uom NE job-mat.qty-uom THEN
             DO:
                ASSIGN
@@ -1983,6 +1998,7 @@ assign
            END.
 
            v-alloc-total = 0.
+           dReqTotal = 0 .
 .
            FOR EACH tt-job WHERE
                tt-job.i-no EQ ITEM.i-no AND
@@ -1995,11 +2011,12 @@ assign
                IF FIRST(tt-job.i-no) THEN PUT SKIP(1).
 
                v-alloc-total = v-alloc-total + tt-job.alloc-qty.
+               dReqTotal = dReqTotal + tt-job.required-qty .
 
                IF FIRST(tt-job.i-no) THEN
                DO:
-                  PUT space(45) "Jobs            Resource   Start Date  Allocation    Alloc. Total" SKIP
-                      SPACE(45) "---------       ---------- ----------  ------------- ---------------" SKIP.
+                  PUT space(45) "Jobs            Resource   Start Date  Allocation    Alloc. Total    Required Qty  Required Qty Total Customer Name " SKIP
+                      SPACE(45) "---------       ---------- ----------  ------------- --------------- ------------- ------------------ ------------------------------" SKIP.
 
                   IF tb_excel THEN
                      PUT STREAM excel UNFORMATTED
@@ -2011,6 +2028,9 @@ assign
                          '"' "Start Date" '",'
                          '"' "Allocation" '",'
                          '"' "Alloc. Total" '",'
+                         '"' "Required Qty " '",'
+                         '"' "Required Qty Total" '",'
+                         '"' "Customer Name" '",'
                          SKIP.
                END.
 
@@ -2019,7 +2039,10 @@ assign
                    tt-job.job-no2 FORMAT "99"
                    space(7) tt-job.resource FORMAT "X(10)" SPACE(1)
                    tt-job.print-date SPACE(1) tt-job.alloc-qty FORMAT "->>,>>>,>>9.99" space(2)
-                   v-alloc-total FORMAT "->>,>>>,>>9.99" SKIP.
+                   v-alloc-total FORMAT "->>,>>>,>>9.99"  
+                   SPACE(1) tt-job.required-qty FORMAT "->,>>>,>>9.99"
+                   SPACE(1) dReqTotal FORMAT "->>,>>>,>>>,>>9.99"
+                   SPACE(1) tt-job.cust-name FORMAT "x(30)" SKIP .
 
                IF tb_excel THEN
                   PUT STREAM excel UNFORMATTED
@@ -2032,6 +2055,9 @@ assign
                              STRING(tt-job.print-date,"99/99/9999") ELSE "") '",'
                       '"' STRING(tt-job.alloc-qty,"->>>,>>>,>>9.99") '",'
                       '"' STRING(v-alloc-total,"->>>,>>>,>>9.99") '",'
+                      '"' STRING(tt-job.required-qty,"->>>,>>>,>>9.99") '",'
+                      '"' STRING(dReqTotal,"->>>,>>>,>>9.99") '",'
+                      '"' STRING(tt-job.cust-name,"x(30)") '",'
                       SKIP.
 
                IF LAST(tt-job.i-no) THEN
@@ -2048,6 +2074,8 @@ assign
                          '"' "" '",'
                          '"' "" '",'
                          '"' STRING(v-alloc-total,"->>>,>>>,>>9") '",'
+                         '"' "" '",'
+                         '"' STRING(dReqTotal,"->>>,>>>,>>9.99") '",'
                          SKIP(1).
                END.
            END.
