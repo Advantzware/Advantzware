@@ -677,7 +677,7 @@ ASSIGN v-comp-add1 = ""
    PUT /*"<FArial><R59><C1><P12><B> Comments </B> <P9> " SKIP*/
          "<R56><C1><FROM><R+4><C+35><RECT>"
          "<R56><C3><B>Please Remit To:"
-         "<R57><C3>  Frankston Packaging Company LP"
+         "<R57><C3>  Frankston Packaging Company LLC"
          "<R58><C3>  PO Box 368"
          "<R59><C3>  Frankston, TX 75763</B>".
     
