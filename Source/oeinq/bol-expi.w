@@ -53,6 +53,8 @@ assign
  cocode = g_company
  locode = g_loc.
 
+{ce/msfcalc.i}
+
 DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
@@ -1554,15 +1556,28 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END.
 
        WHEN "tot-sqft" THEN DO:
+           FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode
+                AND oe-ord.ord-no EQ ipb-oe-boll.ord-no
+                NO-ERROR.
+            IF AVAIL oe-ord AND oe-ord.est-no NE "" THEN 
+                FIND FIRST eb NO-LOCK
+                    WHERE eb.company EQ cocode 
+                      AND eb.est-no EQ oe-ord.est-no
+                      AND eb.stock-no EQ ipb-oe-boll.i-no NO-ERROR .
+
             FIND FIRST itemfg NO-LOCK
                 WHERE itemfg.company EQ cocode
                 AND itemfg.i-no EQ ipb-oe-boll.i-no
-              NO-ERROR.
-            
-            IF AVAIL itemfg AND ipb-oe-boll.posted THEN do:
+              NO-ERROR. 
+            IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb AND ipb-oe-boll.posted THEN do:
+              lc-return = STRING((IF v-corr THEN (eb.t-sqin * .007)
+                          ELSE (eb.t-sqin / 144)) * ipb-oe-boll.qty )    .
+            END.
+            ELSE IF AVAIL itemfg AND ipb-oe-boll.posted THEN do:
                 RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
                 ASSIGN 
-               lc-return = STRING(dTotalSqft * ipb-oe-boll.qty / 1000)    .
+               lc-return = STRING(dTotalSqft * ipb-oe-boll.qty )    .
             END.
             ELSE lc-return = "" .
         END.
