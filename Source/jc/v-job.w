@@ -2331,7 +2331,11 @@ PROCEDURE validate-est :
            ASSIGN
             v-bld-job = " " + job.est-no:SCREEN-VALUE
             li        = 0.  
-
+            
+           /* Use last 5 digits of estimate# */
+           IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+             
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
 
