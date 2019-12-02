@@ -93,7 +93,7 @@ RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
 /* Definitions for BROWSE BROWSE-10                                     */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-10 resourceType() @ resourceType ~
 serverResource.name serverResource.port serverResource.resourceStatus ~
-serverResource.statusRemarks serverResource.notified 
+serverResource.statusRemarks serverResource.notified serverReseource.configID
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-10 
 &Scoped-define QUERY-STRING-BROWSE-10 FOR EACH serverResource NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-BROWSE-10 OPEN QUERY BROWSE-10 FOR EACH serverResource NO-LOCK INDEXED-REPOSITION.
@@ -184,9 +184,10 @@ DEFINE BROWSE BROWSE-10
             WIDTH 20.4
       serverResource.name COLUMN-LABEL "Name" FORMAT "x(32)":U
       serverResource.port COLUMN-LABEL "Listening on port" FORMAT "x(20)":U
-      serverResource.resourceStatus COLUMN-LABEL "Status" FORMAT "x(20)":U
+      serverResource.resourceStatus COLUMN-LABEL "Status" FORMAT "x(20)":U WIDTH 12
       serverResource.statusRemarks COLUMN-LABEL "Remarks" FORMAT "x(40)":U
       serverResource.notified COLUMN-LABEL "Notified" FORMAT "yes/no":U
+      serverResource.configID COLUMN-LABEL "Email ConfigID" FORMAT "->,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 155 BY 14 ROW-HEIGHT-CHARS .67 FIT-LAST-COLUMN.
@@ -231,12 +232,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HEIGHT             = 23.48
          WIDTH              = 160
          MAX-HEIGHT         = 33.57
-         MAX-WIDTH          = 273.2
+         MAX-WIDTH          = 170.2
          VIRTUAL-HEIGHT     = 33.57
-         VIRTUAL-WIDTH      = 273.2
-         CONTROL-BOX        = no
-         MIN-BUTTON         = no
-         MAX-BUTTON         = no
+         VIRTUAL-WIDTH      = 170.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -287,11 +285,13 @@ THEN C-Win:HIDDEN = no.
      _FldNameList[3]   > ASI.serverResource.port
 "serverResource.port" "Listening on port" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.serverResource.resourceStatus
-"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.serverResource.statusRemarks
 "serverResource.statusRemarks" "Remarks" "x(40)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.serverResource.notified
 "serverResource.notified" "Notified" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.serverResource.configID
+"serverResource.configID" "Email ConfigID" "->,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-10 */
 &ANALYZE-RESUME
