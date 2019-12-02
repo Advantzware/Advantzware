@@ -2614,7 +2614,8 @@ PROCEDURE pUpdate-record :
         IF v-date-change-reason GT "" THEN
             ASSIGN oe-rel.spare-char-2:SCREEN-VALUE = v-date-change-reason
                 oe-rel.spare-char-3:SCREEN-VALUE = USERID("NOSWEAT")
-                oe-rel.spare-char-3              = USERID("NOSWEAT").
+                oe-rel.spare-char-3              = USERID("NOSWEAT")
+                oe-rel.spare-char-2 = v-date-change-reason.
         FIND CURRENT oe-rel NO-LOCK.
     END.
 
