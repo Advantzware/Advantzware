@@ -332,21 +332,21 @@ PROCEDURE JobParser:
                          ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
                              ENTRY(2,ipcJobno,"-")
                          ELSE
-                             "00"
+                             ""
             opcFormno  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
                             NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
                              ENTRY(2,ENTRY(2,ipcJobno,"-"),".")
                          ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
                              ENTRY(3,ipcJobno,"-")
                          ELSE
-                             "00"
+                             ""
             opcBlankno = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
                             NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
                              ENTRY(3,ENTRY(2,ipcJobno,"-"),".")
                          ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
                              ENTRY(4,ipcJobno,"-")
                          ELSE
-                             "00"
+                             ""
             NO-ERROR.
             
         IF ERROR-STATUS:ERROR THEN DO:

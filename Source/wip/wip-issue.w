@@ -65,6 +65,7 @@ DEFINE VARIABLE lMoveToOnhand           AS         LOGICAL   NO-UNDO.
 DEFINE VARIABLE iTotTags                AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE iTotOnHand              AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount                  AS         INTEGER   NO-UNDO.
+DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -649,6 +650,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-jobno W-Win
 ON ENTRY OF ls-jobno IN FRAME F-Main
 DO:
+    cValidateJobNo = SELF:SCREEN-VALUE.
     hFocusField = SELF.
     IF lKeyboard THEN
         RUN pKeyboard (SELF, "Qwerty").
@@ -718,6 +720,9 @@ DO:
         
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
+
+    IF cValidateJobNo EQ SELF:SCREEN-VALUE THEN
+        RETURN.
 
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -806,9 +811,9 @@ DO:
         cb-blankno:LIST-ITEMS = cBlanknoListItems.
 
     IF lParse THEN DO:
-        IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) LE 0 OR
-           INDEX(cFormnoListItems,STRING(cFormNo,"99")) LE 0 OR
-           INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) LE 0 THEN DO:
+        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
+           (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
+           (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN DO:
             MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
                 VIEW-AS ALERT-BOX ERROR.
             
@@ -826,9 +831,18 @@ DO:
             RETURN NO-APPLY.
         END.        
             ASSIGN
-                cb-jobno2:SCREEN-VALUE  = cJobNo2
-                cb-formno:SCREEN-VALUE  = cFormNo
-                cb-blankno:SCREEN-VALUE = cBlankNo
+                cb-jobno2:SCREEN-VALUE  = IF cJobNo2 EQ "" THEN 
+                                              ENTRY(1,cJobno2ListItems)
+                                          ELSE
+                                              STRING(INTEGER(cJobNo2),"99")
+                cb-formno:SCREEN-VALUE  = IF cFormNo EQ "" THEN
+                                              ENTRY(1,cFormnoListItems)
+                                          ELSE
+                                              STRING(INTEGER(cFormNo),"99")
+                cb-blankno:SCREEN-VALUE = IF cBlankNo EQ "" THEN
+                                              ENTRY(1,cBlanknoListItems)
+                                          ELSE
+                                              STRING(INTEGER(cBlankNo),"99")
                 .
     END.
                                  

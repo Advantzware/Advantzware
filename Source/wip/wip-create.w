@@ -1175,10 +1175,10 @@ DO:
     RUN updateComboBoxes.
 
     IF lParse THEN
-        IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) LE 0 OR
-           INDEX(cFormnoListItems,STRING(cFormNo,"99")) LE 0 OR
-           INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) LE 0 THEN DO:
-            MESSAGE "Invalid Job Scan , please scan a valid Job Number." 
+        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
+           (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
+           (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN DO:
+            MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
                 VIEW-AS ALERT-BOX ERROR.
             
             ASSIGN
@@ -1201,9 +1201,18 @@ DO:
         END.
         ELSE
             ASSIGN
-                cb-jobno2:SCREEN-VALUE  = cJobNo2
-                cb-formno:SCREEN-VALUE  = cFormNo
-                cb-blankno:SCREEN-VALUE = cBlankNo
+                cb-jobno2:SCREEN-VALUE  = IF cJobNo2 EQ "" THEN 
+                                              ENTRY(1,cJobno2ListItems)
+                                          ELSE
+                                              STRING(INTEGER(cJobNo2),"99")
+                cb-formno:SCREEN-VALUE  = IF cFormNo EQ "" THEN
+                                              ENTRY(1,cFormnoListItems)
+                                          ELSE
+                                              STRING(INTEGER(cFormNo),"99")
+                cb-blankno:SCREEN-VALUE = IF cBlankNo EQ "" THEN
+                                              ENTRY(1,cBlanknoListItems)
+                                          ELSE
+                                              STRING(INTEGER(cBlankNo),"99")
                 cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
                 .
     ELSE
