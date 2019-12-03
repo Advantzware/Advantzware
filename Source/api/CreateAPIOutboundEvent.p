@@ -1,6 +1,7 @@
 DEFINE INPUT  PARAMETER iplReTrigger        AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiOutboundEventID  AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcClientID         AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
@@ -47,6 +48,7 @@ ELSE DO:
     CREATE APIOutboundEvent.
     ASSIGN
         APIOutboundEvent.company          = ipcCompany
+        APIOutboundEvent.locationID       = ipcLocation
         APIOutboundEvent.apiID            = ipcAPIID
         APIOutboundEvent.clientID         = ipcClientID
         APIOutboundEvent.sourceTriggerID  = ipcTriggerID
