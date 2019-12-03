@@ -60,4 +60,9 @@ router.post('/createinventoryreceipt', (req,res) => {
 router.post('/consumeinventoryviabol', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This route fetches the inventory details for a BOL 
+router.post('/getinventoryforbol', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;
