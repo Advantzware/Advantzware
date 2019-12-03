@@ -52,6 +52,7 @@ DEF VAR v-prgmname AS CHAR INIT "b-rcptd." NO-UNDO.
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -1246,7 +1247,8 @@ PROCEDURE pPostMain PRIVATE :
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
-        INPUT YES,        /* create work-gl */
+        INPUT YES,         /* create work-gl */
+		INPUT lPromptForClose, /* Executes .w closing orders logic */
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,

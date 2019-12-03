@@ -119,13 +119,7 @@ DEF TEMP-TABLE tt-email NO-UNDO
     FIELD undovr       AS CHAR
     INDEX po-no po-no ASC item-no ASC.
 
-DEFINE TEMP-TABLE ttBoardToWIP NO-UNDO
-    FIELD rmrdtlhRowID AS ROWID
-    FIELD rmrcpthRowID AS ROWID
-    FIELD rmbinRowID   AS ROWID
-    FIELD jobmatRowID  AS ROWID
-    FIELD itemRowID    AS ROWID
-    .
+{rm/ttBoardToWIP.i}
     
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
