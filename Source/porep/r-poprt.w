@@ -120,6 +120,9 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPdfFilesAttach AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoMailList AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -554,9 +557,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Print Purchase Orders */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -599,7 +604,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-  APPLY "close" TO THIS-PROCEDURE.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.  
+    APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1669,6 +1676,82 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-po-ord FOR po-ord.
+DEFINE INPUT PARAMETER iplReprint AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
+   
+
+IF AVAILABLE ipbf-po-ord THEN DO:
+    IF iplReprint THEN 
+        cTriggerID = "ReprintPurchaseOrder".
+    ELSE 
+        cTriggerID = "PrintPurchaseOrder".
+    ASSIGN 
+        cAPIID = "SendPurchaseOrder"
+        cPrimaryID = STRING(ipbf-po-ord.po-no)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for PO: " + cPrimaryID
+        . 
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  ipbf-po-ord.company,                /* Company Code (Mandatory) */
+        INPUT  ipbf-po-ord.loc,               /* Location Code (Mandatory) */
+        INPUT  cAPIID,                  /* API ID (Mandatory) */
+        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+        INPUT  "po-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-po-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,       /* Event's description (Optional) */
+        OUTPUT lSuccess,                /* Success/Failure flag */
+        OUTPUT cMessage                 /* Status message */
+        ) NO-ERROR.
+    FIND FIRST vend NO-LOCK 
+        WHERE vend.company EQ ipbf-po-ord.company
+        AND vend.vend-no EQ ipbf-po-ord.vend-no
+        NO-ERROR.
+    IF AVAILABLE vend THEN DO:
+        ASSIGN 
+            cAPIId = "SendVendor"
+            cPrimaryID = vend.vend-no
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for Vendor: " + cPrimaryID
+            .
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-po-ord.company,                /* Company Code (Mandatory) */
+            INPUT  ipbf-po-ord.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                  /* API ID (Mandatory) */
+            INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+            INPUT  "vend",               /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(vend)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,       /* Event's description (Optional) */
+            OUTPUT lSuccess,                /* Success/Failure flag */
+            OUTPUT cMessage                 /* Status message */
+            ) NO-ERROR.      
+    END. /*avail vend*/
+
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+END. /*avail po-ord*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 /* --------------------------------------------------- po/po-print.p 10/94 rd */
@@ -1839,6 +1922,10 @@ PROCEDURE run-report :
     END.
   END.
 
+  FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
+       FIRST po-ord WHERE RECID(po-ord) EQ report.rec-id NO-LOCK:       
+       RUN pRunAPIOutboundTrigger(BUFFER po-ord, v-reprint-po).
+  END.
   FOR EACH report WHERE report.term-id EQ v-term-id: 
     DELETE report.
   END.
@@ -2144,4 +2231,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
