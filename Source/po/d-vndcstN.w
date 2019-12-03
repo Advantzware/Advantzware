@@ -247,8 +247,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN job-mat.blank-no IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btn_vencst IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 ASSIGN 
        btn_vencst:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 

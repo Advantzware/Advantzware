@@ -3384,6 +3384,7 @@ PROCEDURE create-loadtag :
     DEFINE VARIABLE dCostExtended        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostExtendedFreight AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cNextLoadtag         AS CHARACTER NO-UNDO.
   
   DEF VAR dRFIDTag AS DEC NO-UNDO.
 /*   DEF BUFFER bf-eb FOR eb. */
@@ -3405,7 +3406,8 @@ PROCEDURE create-loadtag :
         AND itemfg.i-no    EQ w-ord.i-no
       NO-ERROR.
   
-  RUN GetNextLoadtagNumber (cocode, w-ord.i-no, OUTPUT io-tag-no).
+  RUN loadtags\GetNextTag.p(cocode, w-ord.i-no, OUTPUT cNextLoadtag).
+  //RUN GetNextLoadtagNumber (cocode, w-ord.i-no, OUTPUT io-tag-no).
 
   /* rstark - zoho13731 */
   IF CAN-FIND(FIRST sys-ctrl
@@ -3424,7 +3426,8 @@ PROCEDURE create-loadtag :
   ASSIGN
    loadtag.company      = cocode
    loadtag.tag-no       = /*string(io-tag-no,"99999") + STRING(w-ord.i-no,"x(15)") */
-                          STRING(CAPS(w-ord.i-no),"x(15)") + STRING(io-tag-no,"99999") 
+                          //STRING(CAPS(w-ord.i-no),"x(15)") + STRING(io-tag-no,"99999")
+                          cNextLoadtag 
    loadtag.item-type    = NO /*FGitem*/
    loadtag.job-no       = w-ord.job-no
    loadtag.job-no2      = w-ord.job-no2

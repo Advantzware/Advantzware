@@ -1541,6 +1541,8 @@ PROCEDURE Rebuild-Stds :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cItemPurOrManuf AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE cEbPurOrManuf AS CHARACTER NO-UNDO .
   IF AVAILABLE job AND job.est-no NE "" THEN DO:   /*** STANDARD CALCULATION ***/
 
      IF job.stat = "Z" OR job.stat = "C" THEN DO:
@@ -1563,9 +1565,10 @@ PROCEDURE Rebuild-Stds :
                AND eb.est-no EQ job.est-no 
                AND eb.stock EQ job-hdr.i-no  NO-ERROR.
          IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
-             MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
-                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
-                " set the same." VIEW-AS ALERT-BOX WARNING . 
+             cItemPurOrManuf = IF itemfg.pur-man EQ TRUE THEN "purchased" ELSE "manufactured" .
+             cEbPurOrManuf = IF eb.pur-man EQ TRUE THEN "purchased" ELSE "manufactured" .
+             MESSAGE "FG Item file indicates item " itemfg.i-no " is " cItemPurOrManuf " while estimate " 
+                     "indicates it is " cEbPurOrManuf " - These should be set the same."  VIEW-AS ALERT-BOX WARNING . 
              LEAVE .
          END.
 
@@ -2328,7 +2331,11 @@ PROCEDURE validate-est :
            ASSIGN
             v-bld-job = " " + job.est-no:SCREEN-VALUE
             li        = 0.  
-
+            
+           /* Use last 5 digits of estimate# */
+           IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+             
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
 

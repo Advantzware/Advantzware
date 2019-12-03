@@ -249,7 +249,8 @@ DEF VAR r          AS   INT          NO-UNDO.
 DEF VAR v-text     AS   CHAR         NO-UNDO.
 DEF VAR vjobreckey LIKE job.rec_key NO-UNDO.
 DEF VAR vitemreckey   LIKE itemfg.rec_key NO-UNDO.
-
+DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 
 format HEADER 
@@ -357,6 +358,87 @@ FUNCTION FNformat RETURNS char (INPUT v-text AS CHAR, v-len AS INT):
 
   RETURN vreturn.
  
+END FUNCTION.
+
+FUNCTION display-i-name RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR cItemName LIKE job-mch.i-name NO-UNDO.
+  DEF VAR lv-frm LIKE job-mch.frm NO-UNDO.
+  DEF VAR lv-blk LIKE job-mch.blank-no NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  
+    IF AVAIL job-mch THEN
+      ASSIGN
+       cItemName = job-mch.i-name
+       lv-frm = job-mch.frm
+       lv-blk = job-mch.blank-no.
+    ELSE
+      ASSIGN
+       cItemName = job-mch.i-name
+       lv-frm = INT(job-mch.frm)
+       lv-blk = INT(job-mch.blank-no).
+
+    IF cItemName EQ "" THEN DO:
+        FIND FIRST bf-eb NO-LOCK
+             WHERE bf-eb.company EQ job.company
+               AND bf-eb.est-no EQ job.est-no 
+               AND bf-eb.form-no EQ lv-frm
+               AND (bf-eb.blank-no EQ lv-blk OR lv-blk EQ 0) NO-ERROR .
+        IF AVAIL bf-eb THEN
+            ASSIGN cItemName = bf-eb.part-dscr1 .
+
+        IF cItemName EQ "" THEN DO:
+            FIND job-hdr
+                WHERE job-hdr.company   EQ job.company
+                AND job-hdr.job       EQ job.job
+                AND job-hdr.job-no    EQ job.job-no
+                AND job-hdr.job-no2   EQ job.job-no2
+                AND job-hdr.frm       EQ lv-frm
+                AND (job-hdr.blank-no EQ lv-blk OR lv-blk EQ 0)
+              NO-LOCK NO-ERROR.
+
+            RELEASE itemfg.
+            IF AVAIL job-hdr THEN
+                FIND FIRST itemfg
+                WHERE itemfg.company EQ job-hdr.company
+                AND itemfg.i-no    EQ job-hdr.i-no
+                NO-LOCK NO-ERROR.
+            IF AVAIL itemfg THEN do:
+                cItemName = itemfg.i-name.
+            END.
+        END.
+    END.   
+    IF cItemName EQ "" AND avail(job-mch) THEN DO:  
+      FIND FIRST itemfg
+          WHERE itemfg.company EQ job-mch.company
+            AND itemfg.i-no    EQ job-mch.i-no
+          NO-LOCK NO-ERROR.
+      IF AVAIL itemfg THEN DO:
+          cItemName = itemfg.i-name.
+          IF cItemName EQ "" THEN DO:
+
+             FOR EACH fg-set WHERE fg-set.company EQ itemfg.company
+                                 AND fg-set.set-no = itemfg.i-no
+                               NO-LOCK.
+                              
+                 FIND FIRST itemfg WHERE itemfg.i-no = fg-set.part-no
+                                   NO-LOCK NO-ERROR.
+                 IF AVAIL itemfg AND itemfg.i-name GT "" THEN DO:
+                     cItemName = itemfg.i-name.
+                     LEAVE.
+                 END.
+             END.
+          END.
+      END.
+
+    END.
+  
+  RETURN cItemName.   /* Function return value. */
+
 END FUNCTION.
 
 
@@ -2216,6 +2298,48 @@ END FUNCTION.
                   "<AT=,8.2>" chrBarcode[3].             
 
           END. /* i <= 3 */
+
+           FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
+               AND job-mch.job = job-hdr.job 
+               AND job-mch.job-no = job-hdr.job-no 
+               AND job-mch.job-no2 = job-hdr.job-no2 
+               AND job-mch.frm = job-hdr.frm 
+               use-index line-idx NO-LOCK BREAK BY job-mch.frm :
+               IF FIRST(job-mch.frm) THEN do:
+                   PUT SKIP "<C3><P12><u><b>DMI Barcods</b></u>" .
+                   PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
+                       "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
+                       "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
+                       "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
+                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
+                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
+                    
+                   PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item Description <C72> BarCode<R-0.5></b>" .
+
+               END.
+
+               IF LINE-COUNTER GE 45 THEN PAGE.
+
+               PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
+                       "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
+                       "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
+                       "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
+                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
+                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
+                    cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE "" .
+                     cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
+                        + STRING(job-mch.job-no2) + "."
+                        + STRING(job-mch.job-mchID,"999999999")
+                        .
+                   PUT "<R+0.5><C4>" job-mch.frm
+                        "<C10>" job-mch.blank-no FORMAT ">>>" 
+                        "<C18>" job-mch.pass
+                        "<C26>" job-mch.m-code FORMAT "x(12)"
+                        "<C46>"  cItemName FORMAT "x(25)"
+                        "<C70>" "<#32><UNITS=INCHES><C71><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                          cJobMchID FORMAT "x(19)" ">"   "<R-1.5>" .
+
+           END.
 
           lv-pg-num2 = lv-pg-num2 + 1.
           /* print die# image */

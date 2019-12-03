@@ -42,6 +42,10 @@ DEFINE VARIABLE gcSuccess         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAPIConfigFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE hdOSProcs         AS HANDLE    NO-UNDO.
+
+RUN system/OSProcs.p PERSISTENT SET hdOSProcs.
+
 ASSIGN
     gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData
@@ -122,8 +126,7 @@ IF gcAuthType = "basic" THEN
               + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
               + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
               + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-              + gcEndPoint
-              + ' > ' + gcResponseFile.
+              + gcEndPoint.
 
 IF gcCommand = '' THEN DO:
     ASSIGN 
@@ -141,8 +144,27 @@ END.
 COPY-LOB glcRequestData TO FILE gcRequestFile.
 
 /* execute CURL command with required parameters to call the API */
-DOS SILENT VALUE(gcCommand).
+RUN OS_RunCommand IN hdOSProcs (
+    INPUT  gcCommand,             /* Command string to run */
+    INPUT  gcResponseFile,        /* File name to write the command output */
+    INPUT  TRUE,                  /* Run with SILENT option */
+    INPUT  FALSE,                 /* Run with NO-WAIT option */
+    OUTPUT oplSuccess,
+    OUTPUT opcMessage
+    ) NO-ERROR.
+IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "Error excuting curl command"
+        .
 
+    /* delete temporary files */
+    OS-DELETE VALUE(gcRequestFile).
+    OS-DELETE VALUE(gcResponseFile).
+        
+    RETURN.
+END.
+    
 /* Put Response Data from Temporary file into a variable */
 COPY-LOB FILE gcResponseFile TO glcResponseData.
 
@@ -160,7 +182,9 @@ RUN pReadResponse (
 OS-DELETE VALUE(gcRequestFile).
 OS-DELETE VALUE(gcResponseFile).
 
-
+IF VALID-HANDLE(hdOSProcs) THEN
+    DELETE PROCEDURE hdOSProcs.
+    
 PROCEDURE pReadResponse PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Reads outbound response data based on data type

@@ -2218,8 +2218,8 @@ DO:
   DEF VAR op-value AS LOG NO-UNDO .
   
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-qty (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    /*RUN valid-qty (FOCUS) NO-ERROR.            */
+    /*IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/ /* ticket 56847 */
 
     IF NOT fi_qty-uom:SENSITIVE THEN RUN leave-qty.
     ELSE RUN new-qty.

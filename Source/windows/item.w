@@ -112,6 +112,8 @@ DEFINE VARIABLE h_v-itmbom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -326,7 +328,13 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.48 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/f-add.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_f-add ).
+       RUN set-position IN h_f-add ( 1.00 , 24.50 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
@@ -380,7 +388,15 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/movecol.w':U ,
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (                  
+             INPUT  'viewers/movecol.w':U ,                     /*Task# 01071407*/
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol2 ).
@@ -406,6 +422,8 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
+         /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
        /* Links to SmartObject h_movecol2. */
        RUN add-link IN adm-broker-hdl ( h_item , 'move-columns':U , h_movecol2 ).
 
@@ -855,7 +873,7 @@ DEF VAR lv-current-page AS INT NO-UNDO.
         RUN select-page (10).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
         RETURN.
-        
+
     END.
   
   {methods/winReSizePgChg.i}

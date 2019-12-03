@@ -35,7 +35,7 @@
         ASSIGN
             v-est-no = bf2-job.est-no
             v-rec-key-list = bf2-job.rec_key.
-        FOR EACH bf2-job-hdr fields(i-no) WHERE
+        FOR EACH bf2-job-hdr fields(i-no company job job-no) WHERE
             bf2-job-hdr.company = bf2-job.company AND
             bf2-job-hdr.job = bf2-job.job AND
             bf2-job-hdr.job-no = bf2-job.job-no NO-LOCK :
