@@ -19,14 +19,14 @@ for each flm by flm.snum by flm.bnum with frame ab down no-labels no-box:
       fqty = fqty + b-flm.qty.
    end.
 
-    IF vic-log THEN 
+    IF lNewVendorItemCost THEN 
     DO:
        {est/getVendCost.i fqty fcost film}  
     END.
     ELSE 
     DO:
        {est/matcost.i fqty fcost film}    
-       assign  fcost     = (fcost * flm.qty) + lv-setup-film
+       assign  fcost     = (fcost * flm.qty) + lv-setup-film.
     END.
     
     assign
