@@ -49,6 +49,9 @@ def new shared var head as ch format "x(78)" extent 4.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 /* gdm - 10130802 */
 DEF STREAM excel.
@@ -349,9 +352,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Machine File */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+        DELETE PROCEDURE hdFileSysProcs.
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,7 +389,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+        DELETE PROCEDURE hdFileSysProcs.
+    apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -781,6 +788,9 @@ DEF VAR v_col-pass AS CHAR NO-UNDO.
 DEF VAR v_coater   AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+DEFINE VARIABLE lCreated AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
 head[1] =
 " =============================  R  A  T  E  S  =============================  "
 .
@@ -875,7 +885,19 @@ tdep     = end_dept
 sho-stds = tb_show-stds.
 
     {sys/inc/print1.i}
-
+    
+    /* Create output directory if not available */
+    RUN FileSys_CreateDirectory IN hdFileSysProcs (
+        INPUT  tmp-dir,
+        OUTPUT lCreated,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF NOT lCreated THEN DO:
+        MESSAGE "Unable to find report path '" + tmp-dir + "' to export report file"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
     {sys/inc/outprint.i value(lines-per-page)}
 
     if td-show-parm then run show-param.
