@@ -353,7 +353,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             assign v-bo-qty = if ( inv-line.qty - inv-line.ship-qty ) < 0
                                 then 0 else inv-line.qty - inv-line.ship-qty.
 
-          assign v-inv-qty = inv-line.qty
+          assign v-inv-qty = inv-line.inv-qty
                  v-ship-qty = inv-line.ship-qty
                  v-i-no = inv-line.i-no
                  v-i-dscr = inv-line.i-name
