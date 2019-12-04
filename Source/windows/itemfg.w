@@ -155,7 +155,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 203.2 BY 28.57
+         SIZE 160 BY 28.57
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -193,7 +193,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Finished Goods Item Inventory"
          HEIGHT             = 28.57
-         WIDTH              = 203.2
+         WIDTH              = 160
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -353,11 +353,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs|What is 1|What is 2|Vendor Cost' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 26.67 , 203.20 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.67 , 160 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
