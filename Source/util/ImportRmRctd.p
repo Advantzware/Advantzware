@@ -101,8 +101,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportRmRctd.rollWt, iplIgnoreBlanks, INPUT-OUTPUT rm-rctd.roll-wt).                                 
     RUN pAssignValueC (ipbf-ttImportRmRctd.enteredBy, iplIgnoreBlanks, INPUT-OUTPUT rm-rctd.enteredBy).
 
-   IF rm-rctd.rct-date EQ ? THEN
-       rm-rctd.rct-date EQ TODAY .
+   IF rm-rctd.rct-date EQ ? THEN 
+     ASSIGN  rm-rctd.rct-date = TODAY . 
    FIND FIRST ITEM NO-LOCK
        WHERE ITEM.company EQ rm-rctd.company
        AND ITEM.i-no EQ rm-rctd.i-no NO-ERROR.
