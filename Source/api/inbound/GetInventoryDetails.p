@@ -13,15 +13,18 @@
 {api/inbound/ttItem.i}
 {inventory/ttinventory.i "NEW SHARED"}.
 
-DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcWareHouseID       AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcLocationID        AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcInventoryStockID  AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcPrimaryID         AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcItemType          AS CHARACTER  NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL    NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER  NO-UNDO.
-DEFINE OUTPUT PARAMETER TABLE                FOR ttItem. 
+DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcWareHouseID      AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcJobNo            AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiJobNo2           AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCustNo           AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcItemType         AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER TABLE               FOR ttItem. 
 
 DEFINE VARIABLE iCount           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
@@ -38,27 +41,19 @@ DEFINE VARIABLE hdBuffer         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdQuery          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTableFG         AS CHARACTER NO-UNDO INITIAL "fg-bin".
 DEFINE VARIABLE cTableRM         AS CHARACTER NO-UNDO INITIAL "rm-bin".
+DEFINE VARIABLE lValidJobNo      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidCustNo     AS LOGICAL   NO-UNDO.
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
 ASSIGN
     oplSuccess    = YES
-    lValidLoc     = IF ipcWareHouseID NE "" THEN
-                        YES
-                    ELSE
-                        NO
-    lValidBin     = IF ipcLocationID NE "" THEN 
-                        YES
-                    ELSE
-                        NO
-    lValidTag     = IF ipcInventoryStockID NE "" THEN
-                       YES
-                    ELSE 
-                        NO
-    lValidItem    = IF ipcPrimaryID NE "" THEN
-                        YES
-                    ELSE
-                        NO
+    lValidLoc     = ipcWareHouseID NE ""
+    lValidBin     = ipcLocationID NE "" 
+    lValidTag     = ipcInventoryStockID NE "" 
+    lValidItem    = ipcPrimaryID NE "" 
+    lValidJobNo   = ipcJobNo NE "" 
+    lValidCustNo  = ipcCustNo NE "" 
     lValidCompany = YES
     ipcItemType   = IF ipcItemType EQ "" THEN
                         cItemTypeFG
@@ -197,10 +192,13 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     CREATE QUERY hdQuery.
     
     cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
-           + (IF lValidTag THEN "  AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
-           + (IF lValidItem THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
-           + (IF lValidLoc  THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin  THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + (IF lValidTag    THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
+           + (IF lValidLoc    THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
+           + (IF lValidBin    THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + (IF lValidJobNo  THEN " AND fg-bin.job-no EQ '" + ipcJobNo + "'" ELSE "")
+           + (IF lValidJobNo  THEN " AND fg-bin.job-no2 EQ ' + STRING(ipiJobNo2) + '" ELSE "")
+           + (IF lValidCustNo THEN " AND fg-bin.cust-no EQ '" + ipcCustNo + "'" ELSE "")
            + "AND fg-bin.qty NE 0 "
            + "AND fg-bin.qty NE ?".
        
