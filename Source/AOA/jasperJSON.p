@@ -85,6 +85,13 @@ REPEAT:
     IF iphQuery:QUERY-OFF-END THEN LEAVE.
     PUT UNFORMATTED "," SKIP.
 END. /* repeat */
+ELSE
+PUT UNFORMATTED
+    FILL(" ",8) "~{" SKIP
+    FILL(" ",12)
+    "~"NoDataMessage~": ~"No Data Exists for the Selected Parameter Value(s)~"" SKIP
+    FILL(" ",8) "}" SKIP
+    .
 PUT UNFORMATTED
     SKIP
     FILL(" ",4) "]" SKIP
