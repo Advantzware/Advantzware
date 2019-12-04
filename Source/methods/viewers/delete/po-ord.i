@@ -7,6 +7,10 @@ DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableList   AS CHARACTER NO-UNDO.
 
+/* OutboundProcs.p - Includes procedures for making api outbound requests */
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 IF AVAILABLE po-ord THEN DO:
     ASSIGN
         cAPIID       = "SendPurchaseOrder"

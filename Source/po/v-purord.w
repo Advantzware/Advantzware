@@ -70,10 +70,6 @@ DEFINE            VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE lPOChangeDueDate   AS LOGICAL   NO-UNDO.
 DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 
-/* OutboundProcs.p - Includes procedures for making api outbound requests */
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
-
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
