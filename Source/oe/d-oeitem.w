@@ -1037,8 +1037,12 @@ DO:
                  IF oe-ordl.i-no:SCREEN-VALUE = "" OR oe-ordl.i-no:SCREEN-VALUE = "0" 
                       THEN oe-ordl.i-no:SCREEN-VALUE = ENTRY(4,char-val).
                  RUN display-fgpart (look-recid).
-                 IF oe-ordl.price:SENSITIVE THEN 
-                   APPLY "entry" TO oe-ordl.price.
+                 IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
+                     IF oescreen-cha EQ "item-qty" THEN
+                         APPLY "entry" TO oe-ordl.qty.
+                     ELSE IF oe-ordl.price:SENSITIVE THEN 
+                         APPLY "entry" TO oe-ordl.price.
+                 END.
               END.
          END.
          WHEN "s-man" THEN DO:
@@ -1901,13 +1905,18 @@ DO:
 
       RUN display-fgpart (RECID(itemfg)) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      IF oe-ordl.price:SENSITIVE  THEN 
-        APPLY "entry" TO oe-ordl.price.
-      ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
-        APPLY "entry" TO oe-ordl.pr-uom.
-      ELSE 
-          APPLY "entry" TO oe-ordl.disc.
-                     
+     
+      IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
+          IF oescreen-cha EQ "item-qty" THEN
+              APPLY "entry" TO oe-ordl.qty.
+          ELSE IF oe-ordl.price:SENSITIVE THEN 
+              APPLY "entry" TO oe-ordl.price.
+          ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
+              APPLY "entry" TO oe-ordl.pr-uom.
+          ELSE 
+              APPLY "entry" TO oe-ordl.disc.
+      END.
+      
       RETURN NO-APPLY.
   END.
   IF SELF:screen-value EQ "" THEN
