@@ -1186,7 +1186,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
 DO:
-        IF v-copy-mode-dec-1 THEN
+        IF v-copy-mode-dec-1 OR INT(rm-rctd.po-NO:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
         DO:
             APPLY "TAB" TO rm-rctd.i-no IN BROWSE {&browse-name}.
             RETURN NO-APPLY.
@@ -1273,7 +1273,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-name Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.i-name IN BROWSE Browser-Table /* Name/Desc */
 DO:
-        IF v-copy-mode-dec-1 THEN
+        IF v-copy-mode-dec-1 OR INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
         DO:
             APPLY "TAB" TO rm-rctd.i-name IN BROWSE {&browse-name}.
             RETURN NO-APPLY.
@@ -2323,7 +2323,8 @@ PROCEDURE find-exact-po :
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND po-ordl.i-name      EQ rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.i-name    EQ rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.LINE      EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
             USE-INDEX item-ordno NO-ERROR.
         IF NOT AVAILABLE po-ordl THEN 
@@ -2335,6 +2336,7 @@ PROCEDURE find-exact-po :
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.LINE      EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
             USE-INDEX item-ordno NO-ERROR.            
         lv-rowid = IF AVAILABLE po-ordl THEN ROWID(po-ordl) ELSE ?.
@@ -4039,9 +4041,10 @@ PROCEDURE valid-qty :
             APPLY "entry" TO ip-focus.
             op-error = YES.
         END.
-
-                {rm/chkporun.i}
-                ll-qty-valid = YES.
+        IF NOT ll-qty-valid  THEN do:
+            {rm/chkporun.i}
+            ll-qty-valid = YES.
+        END.
 
     END.
   
