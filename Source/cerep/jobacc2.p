@@ -252,7 +252,7 @@ DEF VAR vitemreckey   LIKE itemfg.rec_key NO-UNDO.
 DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
-
+DEFINE VARIABLE lPageBreak AS LOGICAL NO-UNDO .
 format HEADER 
        "<OLANDSCAPE><P10>" skip
         "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
@@ -2298,14 +2298,19 @@ END FUNCTION.
                   "<AT=,8.2>" chrBarcode[3].             
 
           END. /* i <= 3 */
-
+           intLnCount = 12 .
            FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
                AND job-mch.job = job-hdr.job 
                AND job-mch.job-no = job-hdr.job-no 
                AND job-mch.job-no2 = job-hdr.job-no2 
                AND job-mch.frm = job-hdr.frm 
                use-index line-idx NO-LOCK BREAK BY job-mch.frm :
-               IF FIRST(job-mch.frm) THEN do:
+               intLnCount = intLnCount + 1 .
+               IF LINE-COUNTER + intLnCount >= PAGE-SIZE THEN
+                   ASSIGN lPageBreak = TRUE .
+               RUN PRpage (intLnCount).
+              
+               IF FIRST(job-mch.frm) OR lPageBreak THEN do:
                    PUT SKIP "<C3><P12><u><b>DMI Barcods</b></u>" .
                    PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
                        "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
@@ -2315,10 +2320,9 @@ END FUNCTION.
                        "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
                     
                    PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item Description <C72> BarCode<R-0.5></b>" .
-
+                    lPageBreak = FALSE .
                END.
-
-               IF LINE-COUNTER GE 45 THEN PAGE.
+               
 
                PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
                        "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
