@@ -625,9 +625,9 @@ PROCEDURE pCodeView :
         IF ttSuperProc.procParams NE "" THEN
         DO idx = 1 TO NUM-ENTRIES(ttSuperProc.procParams):
             ASSIGN
-                cProcField  = ENTRY(idx,ttSuperProc.procParams)
-                cDataType   = ENTRY(NUM-ENTRIES(cProcField," "),cProcField," ")
-                cProcField  = REPLACE(cProcField," " + cDataType,"")
+                cProcField = ENTRY(idx,ttSuperProc.procParams)
+                cDataType  = ENTRY(NUM-ENTRIES(cProcField," "),cProcField," ")
+                cProcField = REPLACE(cProcField," " + cDataType,"")
                 .
             IF showPrefix EQ NO THEN
                 IF cProcField BEGINS "ip" THEN
@@ -638,19 +638,21 @@ PROCEDURE pCodeView :
                 ELSE
                 IF cProcField BEGINS "OUTPUT op" THEN
                 cProcField = REPLACE(cProcField,"OUTPUT op","OUTPUT ").
-            ASSIGN
-                cDefinePhrase = cDefinePhrase
-                              + "DEFINE VARIABLE " + REPLACE(REPLACE(cProcField,"OUTPUT ",""),"INPUT-","")
-                              + " AS " + CAPS(cDataType) + " NO-UNDO."
-                              + CHR(10)
-                cCodePhrase   = cCodePhrase
-                              + cProcField
-                              + (IF idx NE NUM-ENTRIES(ttSuperProc.procParams) THEN ","
-                                 ELSE "")
-                              + (IF showDataType THEN " /* " + cDataType + " */" ELSE "")
-                              + CHR(10)
-                              + "    "
-                              .
+            IF INDEX(cProcField," TABLE") EQ 0 THEN
+            cDefinePhrase = cDefinePhrase
+                          + "DEFINE VARIABLE " + REPLACE(REPLACE(cProcField,"OUTPUT ",""),"INPUT-","")
+                          + " AS " + CAPS(cDataType) + " NO-UNDO."
+                          + CHR(10)
+                          .
+            cCodePhrase   = cCodePhrase
+                          + cProcField
+                          + (IF INDEX(cProcField," TABLE") NE 0 THEN " " + cDataType ELSE "")
+                          + (IF idx NE NUM-ENTRIES(ttSuperProc.procParams) THEN ","
+                             ELSE "")
+                          + (IF showDataType THEN " /* " + cDataType + " */" ELSE "")
+                          + CHR(10)
+                          + "    "
+                          .
         END. /* do idx */
         IF ttSuperProc.procType   EQ "Function" OR
            ttSuperProc.procParams NE "" THEN
