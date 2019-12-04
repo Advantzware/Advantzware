@@ -63,7 +63,8 @@ DEFINE QUERY external_tables FOR emailConfig.
 emailConfig.smtpPort emailConfig.smtpUser emailConfig.smtpPassword ~
 emailConfig.subject emailConfig.attachment emailConfig.body ~
 emailConfig.recipientsSendTo emailConfig.recipientsSendCC ~
-emailConfig.recipientsSendBcc emailConfig.recipientsReplyTo 
+emailConfig.recipientsSendBcc emailConfig.recipientsReplyTo ~
+emailConfig.description
 &Scoped-define ENABLED-TABLES emailConfig
 &Scoped-define FIRST-ENABLED-TABLE emailConfig
 &Scoped-Define DISPLAYED-FIELDS emailConfig.configID emailConfig.isActive ~
@@ -71,7 +72,7 @@ emailConfig.smtpServer emailConfig.smtpPort emailConfig.smtpUser ~
 emailConfig.smtpPassword emailConfig.subject emailConfig.attachment ~
 emailConfig.body emailConfig.recipientsSendTo emailConfig.recipientsSendCC ~
 emailConfig.recipientsSendBcc emailConfig.recipientsReplyTo ~
-emailConfig.createBy emailConfig.createTime 
+emailConfig.createBy emailConfig.createTime emailConfig.description
 &Scoped-define DISPLAYED-TABLES emailConfig
 &Scoped-define FIRST-DISPLAYED-TABLE emailConfig
 
@@ -121,7 +122,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
-     emailConfig.isActive AT ROW 1.24 COL 50 WIDGET-ID 62
+     emailConfig.DESCRIPTION AT ROW 1.24 COL 56 COLON-ALIGNED WIDGET-ID 64 FORMAT "x(24)"
+          VIEW-AS FILL-IN 
+          SIZE 35 BY 1
+          BGCOLOR 15 
+     emailConfig.isActive AT ROW 1.24 COL 110 WIDGET-ID 62
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
      emailConfig.smtpServer AT ROW 2.43 COL 20.6 COLON-ALIGNED WIDGET-ID 52 FORMAT "x(30)"
@@ -260,6 +265,8 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN emailConfig.smtpServer IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN emailConfig.DESCRIPTION IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN emailConfig.subject IN FRAME F-Main
    ALIGN-L                                                              */
