@@ -49,17 +49,23 @@ DEF SHARED VAR s-print-loc-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-loc-to AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
+DEFINE VARIABLE iRelPallet AS INTEGER NO-UNDO .
+DEFINE VARIABLE iRelCase AS INTEGER NO-UNDO .
+DEFINE VARIABLE TotOnHand AS INTEGER NO-UNDO .
 
 format w-oe-rell.ord-no                 to 6
        w-par                            at 8    format "x(20)"
-       v-bin                            at 29   format "x(20)"
-       w-x                              at 60   format "X/"
-       w-pal                            to 65   format "->>>"
-       w-cas                            to 70   format "->>>"
-       w-c-c                            to 80   format "->>>>>>>>"
-       w-qty[1]                         to 90   format "->>>>>>>>"
-    
-    with down frame rel-mid no-box no-label STREAM-IO width 95.
+       v-bin                            at 29   format "x(12)"
+       w-pal                            AT 45   format "->>>"
+       w-cas                            AT 51   format "->>>"
+       w-c-c                            AT 55   format "->>>>>>>>"
+       w-qty[1]                         AT 65   format "->>>>>>>>"
+       iRelPallet                       AT 76   format "->>>"
+       iRelCase                         AT 81   format "->>>"
+       v-rel-qty                        AT 86   format "->>>>>>>>"
+    with down frame rel-mid no-box no-label STREAM-IO width 110.
+
+
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -162,6 +168,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
        v-pallets = 0
        v-zone    = shipto.dest-code
        v-csr = oe-relh.user-id.
+      FIND FIRST users NO-LOCK
+          WHERE users.user_id EQ oe-relh.USER-ID NO-ERROR.
+      IF AVAIL users THEN
+          ASSIGN v-csr = users.user_name .
 
       find first carrier
           where carrier.company eq cocode
@@ -261,6 +271,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 by w-oe-rell.po-no:
 
         v-rel-qty = v-rel-qty + w-oe-rell.qty.
+        iRelCase = iRelCase +  w-oe-rell.cases  .
+        iRelPallet = iRelPallet + (IF w-oe-rell.units-pallet EQ 0 THEN 1 ELSE w-oe-rell.units-pallet)   .
         
         if last-of(w-oe-rell.po-no) then do:
           for each w-bin:
@@ -423,7 +435,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           for each w-bin break by w-qty[2] desc by w-qty[1] desc:
             assign
              w-cas = w-qty[1] / w-c-c
-             v-bin = trim(substr(w-tag,16,5)) + "/" +
+             v-bin = /*trim(substr(w-tag,16,5)) + "/" +*/
                      trim(w-loc)              + "/" +
                      trim(w-bin).
             
@@ -443,16 +455,18 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     w-oe-rell.ord-no    when first(w-qty[2])
                     w-par
                     v-bin
-                    w-x
                     w-pal
                     w-cas
                     w-c-c
                     w-qty[1]
+                    iRelPallet  when first(w-qty[2])
+                    iRelCase    when first(w-qty[2])
+                    v-rel-qty   when first(w-qty[2])
                    
                 with frame rel-mid. 
 
             v-printline = v-printline + 1.
-
+            TotOnHand = TotOnHand + w-qty[1] .
             if last(w-qty[2]) then do:
               if w-loc ne "" or w-bin ne "" then down {2} with frame rel-mid.
 
@@ -463,8 +477,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               END.
 
               display {2}
-                      "  Rel Qty"       @ w-c-c
-                      v-rel-qty         @ w-qty[1]
+                      "Tota" @  w-cas 
+                      "l O/H Qty"       @ w-c-c
+                      TotOnHand         @ w-qty[1]
 
                   with frame rel-mid. 
               /*PUT SKIP(1) .  */
@@ -475,6 +490,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             down {2} with frame rel-mid.
           end.  /* for eacn w-bin*/
           v-rel-qty = 0.
+          iRelCase  = 0 .
+          iRelPallet = 0.
+          TotOnHand = 0.
         end.  /* last-of(w-oe-rell.po-no) */
       end. /* for each w-oe-rell */
 
