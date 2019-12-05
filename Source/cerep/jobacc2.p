@@ -373,15 +373,10 @@ FUNCTION display-i-name RETURNS CHARACTER
   
     IF AVAIL job-mch THEN
       ASSIGN
-       cItemName = job-mch.i-name
+       cItemName = job-mch.i-no
        lv-frm = job-mch.frm
        lv-blk = job-mch.blank-no.
-    ELSE
-      ASSIGN
-       cItemName = job-mch.i-name
-       lv-frm = INT(job-mch.frm)
-       lv-blk = INT(job-mch.blank-no).
-
+    
     IF cItemName EQ "" THEN DO:
         FIND FIRST bf-eb NO-LOCK
              WHERE bf-eb.company EQ job.company
@@ -389,7 +384,7 @@ FUNCTION display-i-name RETURNS CHARACTER
                AND bf-eb.form-no EQ lv-frm
                AND (bf-eb.blank-no EQ lv-blk OR lv-blk EQ 0) NO-ERROR .
         IF AVAIL bf-eb THEN
-            ASSIGN cItemName = bf-eb.part-dscr1 .
+            ASSIGN cItemName = bf-eb.stock-no .
 
         IF cItemName EQ "" THEN DO:
             FIND job-hdr
@@ -403,13 +398,8 @@ FUNCTION display-i-name RETURNS CHARACTER
 
             RELEASE itemfg.
             IF AVAIL job-hdr THEN
-                FIND FIRST itemfg
-                WHERE itemfg.company EQ job-hdr.company
-                AND itemfg.i-no    EQ job-hdr.i-no
-                NO-LOCK NO-ERROR.
-            IF AVAIL itemfg THEN do:
-                cItemName = itemfg.i-name.
-            END.
+                cItemName = job-hdr.i-no .
+            
         END.
     END.   
     IF cItemName EQ "" AND avail(job-mch) THEN DO:  
@@ -418,17 +408,14 @@ FUNCTION display-i-name RETURNS CHARACTER
             AND itemfg.i-no    EQ job-mch.i-no
           NO-LOCK NO-ERROR.
       IF AVAIL itemfg THEN DO:
-          cItemName = itemfg.i-name.
+          cItemName = itemfg.i-no.
           IF cItemName EQ "" THEN DO:
 
              FOR EACH fg-set WHERE fg-set.company EQ itemfg.company
                                  AND fg-set.set-no = itemfg.i-no
                                NO-LOCK.
-                              
-                 FIND FIRST itemfg WHERE itemfg.i-no = fg-set.part-no
-                                   NO-LOCK NO-ERROR.
-                 IF AVAIL itemfg AND itemfg.i-name GT "" THEN DO:
-                     cItemName = itemfg.i-name.
+                 IF fg-set.part-no GT "" THEN DO:
+                     cItemName = fg-set.part-no .
                      LEAVE.
                  END.
              END.
@@ -2319,7 +2306,7 @@ END FUNCTION.
                        "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
                        "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
                     
-                   PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item Description <C72> BarCode<R-0.5></b>" .
+                   PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item # <C72> BarCode<R-0.5></b>" .
                     lPageBreak = FALSE .
                END.
                
