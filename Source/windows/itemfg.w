@@ -162,7 +162,7 @@ DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 61 ROW 1
-         SIZE 143 BY 1.91
+         SIZE 99 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -364,7 +364,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 29.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -372,7 +372,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 29.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -380,7 +380,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 128.00 ) NO-ERROR.
+       RUN set-position IN h_attach ( 1.00 , 85.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -388,7 +388,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 136.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 93.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
@@ -419,7 +419,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_import ).
-       RUN set-position IN h_import ( 1.00 , 48.00 ) NO-ERROR.
+       RUN set-position IN h_import ( 1.00 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -427,7 +427,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 13.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -435,7 +435,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol-2 ).
-       RUN set-position IN h_movecol-2 ( 1.00 , 124.00 ) NO-ERROR.
+       RUN set-position IN h_movecol-2 ( 1.00 , 81.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -635,7 +635,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export-2 ).
-       RUN set-position IN h_export-2 ( 1.00 , 64.00 ) NO-ERROR.
+       RUN set-position IN h_export-2 ( 1.00 , 21.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -894,7 +894,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export3 ).
-       RUN set-position IN h_export3 ( 1.00 , 56.40 ) NO-ERROR.
+       RUN set-position IN h_export3 ( 1.00 , 13.40 ) NO-ERROR.
 
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
@@ -903,7 +903,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 124.20 ) NO-ERROR.
+       RUN set-position IN h_movecol ( 1.00 , 81.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
