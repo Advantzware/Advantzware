@@ -468,10 +468,6 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         "<=8><R+2.5>  30 days from date of invoice.".
 
     PUT "<FArial><R61><C63><#9><P12><B> THANK YOU. </B> <P9> " SKIP
-        "<=9><R-6>" v-notes[1]
-        "<=9><R-5>" v-notes[2]
-        "<=9><R-4>" v-notes[3]
-        "<=9><R-3>" v-notes[4]
         .
     
     v-printline = v-printline + 6.
