@@ -27,6 +27,7 @@ DEFINE INPUT  PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opdFinalQuantity           AS DECIMAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
 
@@ -143,27 +144,62 @@ IF NOT AVAILABLE fg-bin AND NOT AVAILABLE loadtag THEN DO:
 					
         RETURN.
     END.
+    
     IF ipdQuantity EQ 0 THEN DO:
         ASSIGN 
-            opcMessage = "Quantity must be greater than 0 for Tag (" + ipcInventoryStockID + ")"                   
+            opcMessage = "Quantity can not be zero for Tag (" + ipcInventoryStockID + ")"                   
             oplSuccess = NO
             .
-					
+    					
         RETURN.
     END.
+    
+    IF ipiQuantityPerSubUnit LE 0 THEN DO:
+        ASSIGN 
+            opcMessage = "Units must be greater than zero for Tag (" + ipcInventoryStockID + ")"                   
+            oplSuccess = NO
+            .
+    					
+        RETURN.
+    END.
+    
 END.
 
 ASSIGN
-    lRegTag    = AVAILABLE loadtag OR AVAILABLE fg-bin
-    cPrimaryID = IF AVAILABLE loadtag THEN 
-                     loadtag.i-no
-                 ELSE IF AVAILABLE fg-bin THEN
-                     fg-bin.i-no
-                 ELSE
-                     ""
-    lItemType  = AVAILABLE loadtag AND loadtag.item-type      
-    .
-     
+    lRegTag                    = AVAILABLE loadtag OR AVAILABLE fg-bin
+    cPrimaryID                 = IF AVAILABLE loadtag THEN 
+                                   loadtag.i-no
+                                 ELSE IF AVAILABLE fg-bin THEN
+                                   fg-bin.i-no
+                                 ELSE
+                                   ""
+    lItemType                  = AVAILABLE loadtag AND loadtag.item-type
+    ipdQuantity                = IF ipdQuantity NE 0 THEN
+                                     ipdQuantity
+                                 ELSE IF AVAILABLE loadtag THEN
+                                     loadtag.qty
+                                 ELSE IF AVAILABLE fg-bin THEN
+                                     fg-bin.qty
+                                 ELSE
+                                     0
+    ipiQuantityPerSubUnit      = IF ipiQuantityPerSubUnit NE 0 THEN
+                                     ipiQuantityPerSubUnit
+                                 ELSE IF AVAILABLE loadtag THEN
+                                     loadtag.qty-case
+                                 ELSE IF AVAILABLE fg-bin THEN
+                                     fg-bin.case-count
+                                 ELSE
+                                     0
+    ipiQuantitySubUnitsPerUnit = IF ipiQuantitySubUnitsPerUnit NE 0 THEN
+                                    ipiQuantitySubUnitsPerUnit 
+                                 ELSE IF AVAILABLE loadtag THEN
+                                    loadtag.case-bundle
+                                 ELSE IF AVAILABLE fg-bin THEN
+                                    fg-bin.cases-unit
+                                 ELSE
+                                    0
+    . 
+    
 /* Validate PO Number */
 IF ipiPONo NE 0 THEN DO:
     FIND FIRST po-ord NO-LOCK
@@ -340,6 +376,7 @@ IF ipcWarehouseID NE "" AND ipcLocationID NE "" THEN DO:
             opcMessage = "Invalid LocationID entered for Tag  (" + ipcInventoryStockID + ")"
             oplSuccess = NO 
             .
+            
         RETURN.
     END.
 END.
@@ -353,8 +390,12 @@ IF ipcWarehouseID EQ "" OR ipcLocationID EQ "" THEN DO:
              NO-ERROR.
         IF AVAILABLE itemfg THEN    
             ASSIGN
-                ipcWarehouseID = itemfg.def-loc
-                ipcLocationID  = itemfg.def-loc-bin
+                ipcWarehouseID             = itemfg.def-loc
+                ipcLocationID              = itemfg.def-loc-bin
+                ipiQuantitySubUnitsPerUnit = IF ipiQuantitySubUnitsPerUnit EQ 0 THEN
+                                                itemfg.case-count
+                                             ELSE
+                                                ipiQuantitySubUnitsPerUnit 
                 .
     END.
     ELSE DO:
@@ -372,22 +413,56 @@ END.
 
 /* FG process */
 IF NOT lItemType THEN DO: 
-    /* Checks fg-rctd record for the input tag and quantity */     
-    FIND FIRST fg-rctd NO-LOCK  
-         WHERE fg-rctd.company EQ ipcCompany
-           AND fg-rctd.tag     EQ ipcInventoryStockID
-           AND fg-rctd.r-no    NE 0
-         NO-ERROR.
-    
-    /* Checks whether tag has been used or not */
-    IF AVAILABLE fg-rctd THEN DO:
-        ASSIGN
-            opcMessage = "Tag (" + ipcInventoryStockID + ") is already used to create receipt"
-            oplSuccess = NO
-            .
-			
-        RETURN.
-    END. 
+    /* Postive quantity */
+    IF ipdQuantity GT 0 THEN DO:
+        /* Checks fg-rctd record for the input tag and quantity */     
+        FIND FIRST fg-rctd NO-LOCK  
+             WHERE fg-rctd.company EQ ipcCompany
+               AND fg-rctd.tag     EQ ipcInventoryStockID
+               AND fg-rctd.qty     GT 0
+             NO-ERROR.
+        IF AVAILABLE fg-rctd THEN DO:
+            ASSIGN
+                opcMessage = "Tag# (" + ipcInventoryStockID + ") has already been used, please enter a negative quantity."
+                oplSuccess = NO
+                .
+       
+            RETURN.
+        END.
+    END.
+     /* Negative quantity */
+    ELSE DO:
+        /* Checks fg-rctd record for the input tag and quantity */     
+        FIND FIRST fg-rctd NO-LOCK  
+             WHERE fg-rctd.company EQ ipcCompany
+               AND fg-rctd.tag     EQ ipcInventoryStockID
+             NO-ERROR.
+        IF NOT AVAILABLE fg-rctd THEN DO:
+            ASSIGN
+                opcMessage = "Receipt does not exists for the Tag# (" + ipcInventoryStockID + ")"
+                oplSuccess = NO
+                .
+       
+            RETURN.
+        END.
+        ELSE DO:
+            FOR EACH  fg-rctd NO-LOCK  
+                WHERE fg-rctd.company EQ ipcCompany
+                  AND fg-rctd.tag     EQ ipcInventoryStockID:
+                opdFinalQuantity = opdFinalQuantity + fg-rctd.qty. /* calculates sum of all receipts on the tag */ 
+            END.
+            opdFinalQuantity = opdFinalQuantity + ipdQuantity. /* calculates final qunatity */
+            /* Checks whether final quantity is negative */
+            IF opdFinalQuantity LT 0 THEN DO:
+                ASSIGN
+                    opcMessage = "Tag# (" + ipcInventoryStockID + ") has already been used, and negative quantity is more than on-hand quantity"
+                    oplSuccess = NO.
+                    .
+        
+                RETURN.
+            END.
+        END.
+    END.
     
     /* Creates receipts  */ 
     RUN pFGRecordCreation (
@@ -415,7 +490,12 @@ IF NOT lItemType THEN DO:
     
     /* Checks sys-ctrl */
     {sys/inc/sspostfg.i}
-    
+
+    opdFinalQuantity = IF ipdQuantity LT 0 THEN
+                           opdFinalQuantity
+                       ELSE
+                           ipdQuantity
+                       .
     IF (SSPostFG-log OR ipcSSPostFG EQ "yes") AND (ipcSSPostFG NE "no") THEN DO:	
         /* Posts Receipts */
         RUN PostFinishedGoodsForUser IN hdInventoryProcs(
@@ -439,6 +519,15 @@ IF NOT lItemType THEN DO:
 END.
 /* RM process */
 ELSE DO:
+    IF ipdQuantity LT 0 THEN DO:
+        ASSIGN
+            opcMessage = "Enter positive quantity for Tag (" + ipcInventoryStockID + ")"
+            oplSuccess = NO
+            .
+				
+        RETURN.
+    END.
+    
     /* Verifies whether auto issue of receipts is enabled for sys-ctrl configuration "AUTOISSU" */
     RUN sys/ref/nk1look.p (
         INPUT ipcCompany, /* Company Code */ 
@@ -527,7 +616,9 @@ ELSE DO:
             END. 
         END.
     END.
-
+    
+    opdFinalQuantity = ipdQuantity.
+    
     /* Posts RM goods  */
     RUN InventoryReceipt_PostRMItems IN hdInventoryReceipt (
         INPUT-OUTPUT TABLE ttRctd BY-REFERENCE, /* Just need to pass handle */
@@ -603,14 +694,16 @@ PROCEDURE pFGRecordCreation PRIVATE :
         bf-fg-rctd.po-line    = ipiPOLine
         bf-fg-rctd.qty-case   = ipiQuantityPerSubUnit
         bf-fg-rctd.cases-unit = ipiQuantitySubUnitsPerUnit
-        bf-fg-rctd.cases      = IF ipiQuantityPerSubUnit NE 0 THEN
-                                    TRUNC((ipdQuantity / ipiQuantityPerSubUnit),1)
-                                ELSE
+        bf-fg-rctd.cases      = IF ipiQuantityPerSubUnit EQ 0 THEN
                                     0
-        bf-fg-rctd.partial    = IF ipiQuantityPerSubUnit NE 0 THEN
+                                ELSE
+                                    TRUNC((ipdQuantity / ipiQuantityPerSubUnit),0)
+        bf-fg-rctd.partial    = IF ipiQuantityPerSubUnit EQ 0 THEN
+                                    0
+                                ELSE IF ipdQuantity GT 0 THEN
                                     ipdQuantity MODULO ipiQuantityPerSubUnit
-                                ELSE
-                                    0
+                                ELSE 
+                                    -1 * ((-1 * ipdQuantity) MODULO ipiQuantityPerSubUnit)
         bf-fg-rctd.pur-uom   = ipcQuantityUOM
         bf-fg-rctd.std-cost  = dStdCost
         bf-fg-rctd.cost-uom  = cCostUOM
@@ -665,14 +758,6 @@ PROCEDURE pFGRecordCreation PRIVATE :
         END.
   
         ASSIGN
-            bf-fg-rctd.qty-case   = IF ipiQuantityPerSubUnit NE 0 THEN
-                                        ipiQuantityPerSubUnit
-                                    ELSE
-                                        fg-bin.case-count
-            bf-fg-rctd.cases-unit = IF ipiQuantitySubUnitsPerUnit NE 0 THEN
-                                        ipiQuantitySubUnitsPerUnit
-                                    ELSE
-                                        fg-bin.cases-unit
             bf-fg-rctd.job-no     = IF ipcJobID NE "" THEN
                                        ipcJobID
                                     ELSE
@@ -681,20 +766,6 @@ PROCEDURE pFGRecordCreation PRIVATE :
                                         INT(ipcJobID2)
                                     ELSE
                                         fg-bin.job-no2
-            bf-fg-rctd.cases      = IF bf-fg-rctd.cases EQ 0 THEN
-                                        (-1 * TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0))
-                                    ELSE
-                                        bf-fg-rctd.cases
-            bf-fg-rctd.partial    = IF bf-fg-rctd.partial EQ 0 THEN
-                                        -1 * fg-bin.qty
-                                    ELSE
-                                         bf-fg-rctd.partial
-  
-            bf-fg-rctd.qty       = IF bf-fg-rctd.qty EQ 0 THEN
-                                       fg-bin.qty
-                                   ELSE
-                                       bf-fg-rctd.qty
-  
             .
 
         RELEASE bf-fg-rctd.
@@ -703,35 +774,14 @@ PROCEDURE pFGRecordCreation PRIVATE :
   
     ASSIGN
         bf-fg-rctd.stack-code = loadtag.misc-char[2]
-        bf-fg-rctd.qty-case   = IF ipiQuantityPerSubUnit NE 0 THEN
-                                    ipiQuantityPerSubUnit
+        bf-fg-rctd.job-no     = IF ipcJobID NE "" THEN
+                                    ipcJobID
                                 ELSE
-                                    loadtag.qty-case
-        bf-fg-rctd.cases-unit = IF ipiQuantitySubUnitsPerUnit NE 0 THEN
-                                    ipiQuantitySubUnitsPerUnit
+                                    loadtag.job-no
+        bf-fg-rctd.job-no2    = IF ipcJobID2 NE "" THEN
+                                    INT(ipcJobID2)
                                 ELSE
-                                    loadtag.case-bundle
-  
-        bf-fg-rctd.job-no    = IF ipcJobID NE "" THEN
-                                   ipcJobID
-                               ELSE
-                                   loadtag.job-no
-        bf-fg-rctd.job-no2   = IF ipcJobID2 NE "" THEN
-                                   INT(ipcJobID2)
-                               ELSE
-                                   loadtag.job-no2
-        bf-fg-rctd.cases     = IF bf-fg-rctd.cases EQ 0 THEN
-                                   loadtag.case-bundle
-                               ELSE
-                                   bf-fg-rctd.cases
-        bf-fg-rctd.partial   = IF bf-fg-rctd.partial EQ 0 THEN
-                                   loadtag.partial
-                               ELSE
-                                   bf-fg-rctd.partial
-        bf-fg-rctd.qty       = IF bf-fg-rctd.qty EQ 0 THEN
-                                   loadtag.qty
-                               ELSE
-                                   bf-fg-rctd.qty
+                                    loadtag.job-no2
         .
     
     RELEASE bf-fg-rctd.
@@ -808,7 +858,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
          NO-ERROR.
     
     /* If input PO number is null then retrive PO number and line from loadtag */ 
-    IF AVAILABLE loadtag AND ((ipiPONo EQ 0 AND ipiPOLine EQ 0) OR ipdQuantity eq 0) THEN
+    IF AVAILABLE loadtag AND (ipiPONo EQ 0 AND ipiPOLine EQ 0) THEN
         ASSIGN
             ipiPONo     = IF ipiPONo EQ 0 THEN 
                               loadtag.po-no
@@ -818,10 +868,6 @@ PROCEDURE pRMRecordCreation PRIVATE :
                               loadtag.line
                           ELSE
                               ipiPOLine
-            ipdQuantity = IF ipdQuantity EQ 0 THEN
-                              loadtag.qty
-                          ELSE
-                              ipdQuantity 
             .
 
     RUN pGetQtyFrm (
