@@ -155,14 +155,14 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 203.2 BY 28.57
+         SIZE 160 BY 28.57
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 61 ROW 1
-         SIZE 143 BY 1.91
+         SIZE 99 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -193,7 +193,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Finished Goods Item Inventory"
          HEIGHT             = 28.57
-         WIDTH              = 203.2
+         WIDTH              = 160
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -353,18 +353,18 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs|What is 1|What is 2|Vendor Cost' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Inventory|Totals/CP#|Bin/Jobs|Set parts|Colors|Vend Cost|History|Image|POs' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 26.67 , 203.20 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.67 , 160 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 29.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -372,7 +372,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 72.00 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 29.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -380,7 +380,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 128.00 ) NO-ERROR.
+       RUN set-position IN h_attach ( 1.00 , 85.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -388,7 +388,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 136.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 93.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
@@ -419,7 +419,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_import ).
-       RUN set-position IN h_import ( 1.00 , 48.00 ) NO-ERROR.
+       RUN set-position IN h_import ( 1.00 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -427,7 +427,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 13.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -435,7 +435,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol-2 ).
-       RUN set-position IN h_movecol-2 ( 1.00 , 124.00 ) NO-ERROR.
+       RUN set-position IN h_movecol-2 ( 1.00 , 81.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -474,6 +474,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_itemfg-2 ).
        RUN set-position IN h_itemfg-2 ( 4.81 , 9.00 ) NO-ERROR.
        RUN set-size IN h_itemfg-2 ( 17.14 , 144.00 ) NO-ERROR.
+
        /* Position in AB:  ( 4.81 , 9.00 ) */
        /* Size in UIB:  ( 17.14 , 144.60 ) */
 
@@ -542,8 +543,10 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_itemfg2 ).
+
        RUN set-position IN h_itemfg2 ( 6.00 , 9.00 ) NO-ERROR.
        RUN set-size IN h_itemfg2 ( 9.95 , 144.00 ) NO-ERROR.
+
        /* Position in AB:  ( 6.00 , 9.00 ) */
        /* Size in UIB:  ( 9.95 , 144.00 ) */
 
@@ -632,7 +635,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export-2 ).
-       RUN set-position IN h_export-2 ( 1.00 , 64.00 ) NO-ERROR.
+       RUN set-position IN h_export-2 ( 1.00 , 21.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -891,7 +894,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export3 ).
-       RUN set-position IN h_export3 ( 1.00 , 56.40 ) NO-ERROR.
+       RUN set-position IN h_export3 ( 1.00 , 13.40 ) NO-ERROR.
+
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -899,7 +903,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 124.20 ) NO-ERROR.
+       RUN set-position IN h_movecol ( 1.00 , 81.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (

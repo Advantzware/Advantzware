@@ -98,7 +98,7 @@ job-mat.i-no item.i-name job-mat.len job-mat.wid job-mat.n-up
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-2 btn_vencst Btn_OK Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS BROWSE-2 Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-FIELDS job-mat.frm job-mat.blank-no job-mat.i-no ~
 item.i-name job-mat.len job-mat.wid job-mat.n-up 
 &Scoped-define DISPLAYED-TABLES job-mat item
@@ -203,19 +203,19 @@ DEFINE FRAME Dialog-Frame
      Btn_Cancel AT ROW 16.24 COL 70
      "Name" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 42.4
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.95 COL 81.4
-     "S / B" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.95 COL 5.4
-     "Depth" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.95 COL 103.4
-     "RM Item#" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.95 COL 17.4
-     "#Up" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.95 COL 114.4
      "Width" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 93.4
-     SPACE(92.39) SKIP(15.80)
+     "#Up" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.95 COL 114.4
+     "RM Item#" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.95 COL 17.4
+     "Depth" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.95 COL 103.4
+     "S / B" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.95 COL 5.4
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.95 COL 81.4
+     SPACE(104.39) SKIP(15.80)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -355,6 +355,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_vencst Dialog-Frame
 ON CHOOSE OF btn_vencst IN FRAME Dialog-Frame /* Add Vendor Cost */
 DO:
+  /* need to re-developed to use new vendItemCost tables */
   
   IF ip-rm THEN
     RUN windows\d-vndcst.w(INPUT ip-i-no, v-term).
@@ -493,7 +494,7 @@ PROCEDURE build-table :
           WHERE vendItemCost.vendItemCostID = vendItemCostLevel.vendItemCostID NO-ERROR.
       IF AVAIL vendItemCost THEN
           cUom = vendItemCost.vendorUOM.
-           
+          
       dCalcCost = DECIMAL(report.key-01).
 
 /*      IF cUom EQ "" THEN DO:                                          */
@@ -543,12 +544,8 @@ PROCEDURE build-table :
 /*              "Cost Setup: " opdCostSetup SKIP   */
 /*              "Error: " oplError SKIP            */
 /*              "Message: " opcMessage SKIP        */
-/*              VIEW-AS ALERT-BOX.                 */
-                           
-                           
-                           
-                           
-                           
+/*              VIEW-AS ALERT-BOX.                 */                                                     
+                                                      
                            
           ASSIGN
             report.key-01 = STRING(dCostTotal)  /*dCalcCost*/
@@ -708,7 +705,7 @@ PROCEDURE enable_UI :
     DISPLAY job-mat.frm job-mat.blank-no job-mat.i-no job-mat.len job-mat.wid 
           job-mat.n-up 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-2 btn_vencst Btn_OK Btn_Cancel 
+  ENABLE BROWSE-2 Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

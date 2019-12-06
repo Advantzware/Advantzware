@@ -112,12 +112,9 @@ DEFINE VARIABLE h_v-itmbom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
-<<<<<<< HEAD
 DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
-=======
 
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -129,22 +126,16 @@ DEFINE FRAME F-Main
 
 DEFINE FRAME FRAME-D
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-<<<<<<< HEAD
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1.24
-         SIZE 50 BY 1.91
-=======
          THREE-D 
          AT COL 132 ROW 3.14
          SIZE 19 BY 1.19
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 1
-         SIZE 89 BY 1.91
+         SIZE 88 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -337,10 +328,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.48 , 1.00 ) NO-ERROR.
-       /* Size in UIB:   ( 1.14 , 32.00 )*/
-
        RUN init-object IN THIS-PROCEDURE (
-<<<<<<< HEAD
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -349,8 +337,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-=======
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Bom|Inventory|Vend Cost|POs|Jobs|Bins|History|New VendC' + ',
@@ -372,7 +358,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 32.40 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 25.40 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -402,7 +388,6 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-<<<<<<< HEAD
              INPUT  'viewers/import.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -412,13 +397,10 @@ PROCEDURE adm-create-objects :
 
        RUN init-object IN THIS-PROCEDURE (                  
              INPUT  'viewers/movecol.w':U ,                     /*Task# 01071407*/
-=======
-             INPUT  'viewers/movecol.w':U ,
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol2 ).
-       RUN set-position IN h_movecol2 ( 1.00 , 8.90 ) NO-ERROR.
+       RUN set-position IN h_movecol2 ( 1.00 , 1.80 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -426,7 +408,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 16.80 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 9.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -440,14 +422,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-<<<<<<< HEAD
          /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
-
-       /* Links to SmartViewer h_movecol2. */
-=======
        /* Links to SmartObject h_movecol2. */
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
        RUN add-link IN adm-broker-hdl ( h_item , 'move-columns':U , h_movecol2 ).
 
        /* Links to SmartObject h_export. */
@@ -864,22 +841,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
-PROCEDURE import-file :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
- RUN util/dev/impItem.p .
- RUN local-open-query IN h_item .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
@@ -912,6 +873,7 @@ DEF VAR lv-current-page AS INT NO-UNDO.
         RUN select-page (10).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
         RETURN.
+
     END.
   
   {methods/winReSizePgChg.i}

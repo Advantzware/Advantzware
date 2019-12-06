@@ -904,7 +904,8 @@ PROCEDURE local-display-fields :
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
     END.
                     
- 
+                    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1050,6 +1051,11 @@ PROCEDURE local-open-query :
 
     END.
     
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost').     
+    IF RETURN-VALUE <> "" AND RETURN-VALUE <> ? THEN DO:        
+       RUN openqueryOne (return-value).            
+    END.     
+     
     ll-show-all = NO .
   
     APPLY "value-changed" TO BROWSE {&browse-name}.
@@ -1127,6 +1133,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE openQueryOne B-table-Win
+PROCEDURE openQueryOne:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcValue AS CHAR NO-UNDO.
+     
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostVendor').
+    fi_vend-no = IF RETURN-VALUE <> ? THEN RETURN-VALUE ELSE "".
+    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType').
+    fi_hotkey = IF RETURN-VALUE = "yes" THEN "RM" 
+                ELSE IF RETURN-VALUE = "No" THEN "FG"
+                ELSE "ALL".
+    
+    ASSIGN fi_i-no = ipcValue.
+    DISPLAY fi_i-no fi_vend-no fi_hotkey WITH FRAME {&frame-name}.
+           
+    RUN query-go.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-first B-table-Win 
 PROCEDURE query-first :
