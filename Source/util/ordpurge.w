@@ -420,7 +420,8 @@ PROCEDURE run-process :
                 oe-relh.ord-no EQ oe-ord.ord-no 
                 USE-INDEX order 
                 NO-ERROR.
-            IF NOT CAN-FIND(FIRST b-rell WHERE 
+            IF AVAIL oe-relh 
+            AND NOT CAN-FIND(FIRST b-rell WHERE 
                             b-rell.r-no EQ oe-relh.r-no) THEN
                 DELETE oe-relh.
 
@@ -459,7 +460,8 @@ PROCEDURE run-process :
                 DELETE inv-head.
             END. /* inv-head */
 
-            IF NOT CAN-FIND(FIRST b-boll WHERE 
+            IF AVAIL oe-bolh
+            AND NOT CAN-FIND(FIRST b-boll WHERE 
                             b-boll.b-no EQ oe-bolh.b-no) THEN 
                 DELETE oe-bolh.
 
