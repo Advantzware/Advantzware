@@ -70,9 +70,9 @@ ASSIGN
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage   
+&Scoped-define FIELDS-IN-QUERY-Browser-Table stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.strapUOM stackPattern.stackImage   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount ~
-   stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage   
+   stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.strapUOM stackPattern.stackImage   
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table stackPattern
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table stackPattern
 &Scoped-define SELF-NAME Browser-Table
@@ -137,9 +137,10 @@ DEFINE BROWSE Browser-Table
       stackPattern.strapCount label "Straps"    form ">9"
       stackPattern.strapCode label "Strap Code" form "x(10)"
       stackPattern.strapFormula label "Formula" form "x(20)"
+      stackPattern.strapUOM LABEL "UOM" FORM "x(5)"
       stackPattern.stackImage LABEL "Pattern Image" FORM "x(50)"
       enable stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount
-             stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage
+             stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.strapUOM stackPattern.stackImage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 196 BY 18.1
