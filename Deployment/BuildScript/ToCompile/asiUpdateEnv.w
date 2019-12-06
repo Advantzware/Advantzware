@@ -77,6 +77,18 @@ DEF STREAM s2.
 DEF STREAM apiFiles.
 DEF STREAM sOutput.
 
+DEF NEW SHARED TEMP-TABLE ttUpdateHist
+    FIELD fromVersion AS CHAR 
+    FIELD toVersion AS CHAR 
+    FIELD applyDate AS DATE 
+    FIELD startTimeInt AS INT
+    FIELD startTime AS CHAR 
+    FIELD endTimeInt AS INT 
+    FIELD endTime AS CHAR 
+    FIELD user_id AS CHAR 
+    FIELD success AS LOG INITIAL NO 
+    FIELD updLog AS CHAR.     
+
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
 DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
@@ -5683,7 +5695,12 @@ PROCEDURE ipStatus :
             cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = "  " + ipcStatus.
-        
+        FIND FIRST ttUpdateHist NO-LOCK NO-ERROR.
+        IF AVAIL ttUpdateHist THEN ASSIGN 
+                ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
+                ttUpdateHist.endTimeInt = INT(TIME)
+                ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
+                ttUpdateHist.success = lSuccess.        
         OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
         PUT STREAM logStream
             STRING(TODAY,"99/99/99") AT 1

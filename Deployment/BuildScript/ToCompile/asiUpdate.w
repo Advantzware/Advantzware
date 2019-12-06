@@ -47,6 +47,19 @@ DEFINE TEMP-TABLE ttDatabases
     FIELD cAudPort AS CHARACTER
     FIELD cAudVer AS CHARACTER.
 
+DEF TEMP-TABLE ttUpdateLog
+    FIELD cLine AS CHAR. 
+DEF NEW SHARED TEMP-TABLE ttUpdateHist
+    FIELD fromVersion AS CHAR 
+    FIELD toVersion AS CHAR 
+    FIELD applyDate AS DATE 
+    FIELD startTimeInt AS INT
+    FIELD startTime AS CHAR 
+    FIELD endTimeInt AS INT 
+    FIELD endTime AS CHAR 
+    FIELD user_id AS CHAR 
+    FIELD success AS LOG INITIAL NO 
+    FIELD updLog AS CHAR.     
 
 DEFINE VARIABLE c7ZErrFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE c7ZOutputFile AS CHARACTER NO-UNDO.
@@ -408,6 +421,10 @@ OR CHOOSE OF bUpdate
                 END.
             WHEN "bUpdate" THEN 
                 DO:
+                    ASSIGN 
+                        ttUpdateHist.toVersion = fiToVersion:{&SV}
+                        ttUpdateHist.user_id = fiUserID:{&SV}.
+                        
                     RUN ipStatus("User chose Start Update button").
             
                     RUN ipValidateChoices (OUTPUT lOKtoProceed).
@@ -425,7 +442,6 @@ OR CHOOSE OF bUpdate
                     RUN ipProcess.
                     
                     RUN ipStatus("Upgrade Complete.").
-                    RUN ipStatus(" ").
             
                     IF lSuccess THEN DO:
                         ASSIGN 
@@ -544,16 +560,20 @@ ON LEAVE OF slEnvList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
-        IF SELF:{&SV} = "" THEN 
-        DO:
-            RUN ipStatus("  Blank UserID - ENTRY to Exit button").
-            APPLY 'entry' TO bCancel.
-            RETURN NO-APPLY.
-        END.
+    DEF VAR lUserOK AS LOG. 
+    
+    IF SELF:{&SV} = "" THEN 
+    DO:
+        RUN ipStatus("  Blank UserID - ENTRY to Exit button").
+        APPLY 'entry' TO bCancel.
+        RETURN NO-APPLY.
+    END.
 
-        IF SELF:{&SV} NE "asi"
-        AND SELF:{&SV} NE "admin" THEN 
-        DO:
+    IF SELF:{&SV} NE "asi"
+    AND SELF:{&SV} NE "admin" THEN 
+    DO:
+        RUN ipValidUser (OUTPUT lUserOK).
+        IF NOT lUserOK THEN DO: 
             MESSAGE 
                 "This is not a valid user id for this function." SKIP 
                 "Please re-enter or Exit."
@@ -561,13 +581,14 @@ DO:
             APPLY 'entry' TO SELF.
             RETURN NO-APPLY.
         END.
-    
-        RUN ipStatus("  Entered UserID " + SELF:{&SV}).
-    
-        APPLY 'entry' TO fiPassword.
-        RETURN NO-APPLY.
-    
     END.
+
+    RUN ipStatus("  Entered UserID " + SELF:{&SV}).
+
+    APPLY 'entry' TO fiPassword.
+    RETURN NO-APPLY.
+    
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -626,7 +647,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEFINE VARIABLE lGoodNos AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lGoodList AS CHARACTER NO-UNDO.
     DEFINE VARIABLE rc AS INTEGER NO-UNDO.
-
+    
     /* This window will ALWAYS be on top of other windows */
     RUN BringWindowToTop (c-Win:hwnd, OUTPUT rc).
     
@@ -673,6 +694,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    STRING(DAY(TODAY),"99") + "-" + slEnvList:SCREEN-VALUE
         .    
     
+    EMPTY TEMP-TABLE ttUpdateHist.
+    EMPTY TEMP-TABLE ttUpdateLog. 
+    CREATE ttUpdateHist.
+    ASSIGN 
+        ttUpdateHist.fromVersion = fiFromVersion:{&SV}
+        ttUpdateHist.applyDate = TODAY 
+        ttUpdateHist.startTimeInt = INT(TIME)
+        ttUpdateHist.startTime = STRING(TIME,"HH:MM:SS AM")
+        ttUpdateHist.success = FALSE.
+
     RUN ipStatus("Initialize").
     
     IF fIntVer(fiToVersion:{&SV}) LE 16087000 THEN DO:
@@ -1128,7 +1159,7 @@ PROCEDURE ipStatus :
 
     IF ipcStatus = "Initialize" THEN 
     DO:
-        OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+        OUTPUT STREAM logStream TO VALUE(cLogFile).
 
         PUT STREAM logStream UNFORMATTED "---------------------------------------------------------------" + CHR(10).
         PUT STREAM logStream UNFORMATTED "Customer Site: " + cSiteName + CHR(10).
@@ -1145,6 +1176,21 @@ PROCEDURE ipStatus :
             "Initializing log" FORMAT "x(160)" AT 25
             SKIP.
         OUTPUT STREAM logStream CLOSE.
+        INPUT STREAM logStream FROM VALUE(cLogFile).
+        REPEAT:
+            CREATE ttUpdateLog.
+            IMPORT STREAM logStream ttUpdateLog.cLine.
+        END.
+        INPUT STREAM logStream CLOSE.
+        FOR EACH ttUpdateLog:
+            ASSIGN 
+                ttUpdateHist.updLog = ttUpdateHist.updLog + ttUpdateLog.cLine + CHR(10).
+        END.   
+        EMPTY TEMP-TABLE ttUpdateLog.
+        ASSIGN 
+            ttUpdateHist.applyDate = TODAY 
+            ttUpdateHist.startTimeInt = INT(TIME)
+            ttUpdateHist.startTime = STRING(TIME,"HH:MM:SS AM").
         RETURN.
     END.
     ELSE 
@@ -1158,6 +1204,11 @@ PROCEDURE ipStatus :
             ASSIGN
                 iMsgCtr = iMsgCtr + 1
                 cMsgStr[iMsgCtr] = ipcStatus.
+            ASSIGN 
+                ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
+                ttUpdateHist.endTimeInt = INT(TIME)
+                ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")
+                ttUpdateHist.success = lSuccess.        
             OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
             PUT STREAM logStream
                 STRING(TODAY,"99/99/99") AT 1
@@ -1167,7 +1218,9 @@ PROCEDURE ipStatus :
             OUTPUT STREAM logStream CLOSE.
         END.
     END.
-        
+    
+    RUN asiUpdateHist.p (INPUT TABLE ttUpdateHist BY-REFERENCE).
+               
     PROCESS EVENTS.
 
 END PROCEDURE.
