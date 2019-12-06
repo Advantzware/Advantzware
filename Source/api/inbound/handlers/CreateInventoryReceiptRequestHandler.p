@@ -38,6 +38,8 @@ DEFINE VARIABLE iQuantitySubUnitsPerUnit AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cWarehouseID             AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cLocationID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cSSPostFG                AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE dNewQuantity             AS DECIMAL    NO-UNDO.
+DEFINE VARIABLE lcNewQuantity            AS LONGCHAR   NO-UNDO.
 {api/inbound/ttRequest.i}
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
@@ -73,7 +75,8 @@ END.
 
 RUN pProcessInputs (
     OUTPUT oplSuccess,
-    OUTPUT opcMessage
+    OUTPUT opcMessage,
+    OUTPUT lcNewQuantity
     ) NO-ERROR.
 
 RUN JSON_EscapeExceptionalCharacters (
@@ -84,8 +87,8 @@ IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.      
 ELSE
     ASSIGN
-        oplcResponseData = '~{"response_code":200,"response_message":"Creation of Inventory Receipt is success"}'
         opcMessage = "Success"
+        oplcResponseData = '~{"response_code": 200,"response_message":"' + opcMessage + '","response_data":[~{"ReceiptQuantity":[' + lcNewQuantity + ']~}]~}'.
         .
 
 /* Log the request to APIInboundEvent */
@@ -106,15 +109,16 @@ THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
 DELETE PROCEDURE hdJSONProcs.
 
 PROCEDURE pProcessInputs:
-    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL    NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER  NO-UNDO.
-
-    DEFINE VARIABLE lRecFound            AS LOGICAL    NO-UNDO.
-    DEFINE VARIABLE iReceiptCounter     AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iIndex               AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iReceiptsFieldOrder AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iTopLevelParent      AS INTEGER    NO-UNDO  INITIAL 0.
-
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcNewQuantity AS LONGCHAR  NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound           AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE iReceiptCounter     AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE iIndex              AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE iReceiptsFieldOrder AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE iTopLevelParent     AS INTEGER  NO-UNDO INITIAL 0.
+ 
     /* Fetch Requestor */          
     RUN JSON_GetFieldValueByName (
         INPUT  "Requester",
@@ -279,9 +283,21 @@ PROCEDURE pProcessInputs:
                 INPUT  cLocationID, 
                 INPUT  cSSPostFG,            
                 INPUT  ipcUsername,
+                OUTPUT dNewQuantity,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 )NO-ERROR.
+           
+           oplcResponseData = iplcResponseDataStructure.
+           
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "Tag",cInventoryStockID) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "NewQuantity", STRING(dNewQuantity)) NO-ERROR.
+           
+           oplcNewQuantity = IF oplcNewQuantity EQ "" THEN
+                                 oplcResponseData 
+                             ELSE
+                                 oplcNewQuantity + "," + oplcResponseData 
+                             .
             IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
                 UNDO, LEAVE.
         END.
