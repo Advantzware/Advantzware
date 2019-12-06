@@ -463,7 +463,10 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     {&OPEN-QUERY-AuditBrowse}
     DO TRANSACTION:
         FIND FIRST config EXCLUSIVE-LOCK.
-        config.taskerLastExecuted = NOW.
+        ASSIGN
+            config.taskerLastExecuted = NOW
+            config.taskerEmailSent    = NO
+            .
         FIND FIRST config NO-LOCK.
     END. /* do trans */
 

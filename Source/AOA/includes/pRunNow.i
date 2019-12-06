@@ -11,8 +11,20 @@ PROCEDURE pRunNow:
     DEFINE INPUT PARAMETER iplRecipients AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSubmit     AS LOGICAL   NO-UNDO.
     
     IF AVAILABLE {1}dynParamValue THEN DO:
+        &IF DEFINED(silentSubmitted) EQ 0 &THEN
+        FIND FIRST config NO-LOCK.
+        IF config.taskerEmailSent THEN DO:
+            MESSAGE 
+                "Task Monitor Currently Not Running" SKIP(1)
+                "OK to Submit Task?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lSubmit.
+            IF lSubmit EQ NO THEN RETURN.
+        END. /* if tasker email sent */
+        &ENDIF
         IF iplRecipients THEN
         RUN pGetRecipients (OUTPUT cRecipients).
         DO TRANSACTION:
