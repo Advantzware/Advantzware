@@ -2278,6 +2278,7 @@ FORM tt-rctd.rct-date                   LABEL "DATE"
      tt-rctd.i-no                       LABEL "ITEM"
      tt-rctd.i-name FORMAT "x(14)"      LABEL "DESCRIPTION"
      tt-rctd.po-no                      LABEL "P.O.#"
+     tt-rctd.po-line                    LABEL "Line"
      po-ord.vend-no                     LABEL "VENDOR"
      tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
      tt-rctd.job-no2                    LABEL ""
@@ -2289,12 +2290,13 @@ FORM tt-rctd.rct-date                   LABEL "DATE"
      tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
      v-ext-cost                         LABEL "TOTAL COST"
 
-    WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 132.
+    WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 138.
 
 FORM tt-rctd.rct-date                   LABEL "DATE"
      tt-rctd.i-no                       LABEL "ITEM"
      tt-rctd.i-name FORMAT "x(14)"      LABEL "DESCRIPTION"
      tt-rctd.po-no                      LABEL "P.O.#"
+     tt-rctd.po-line                    LABEL "Line"
      po-ord.vend-no                     LABEL "VENDOR"
      tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
      tt-rctd.job-no2                    LABEL ""
@@ -2307,7 +2309,7 @@ FORM tt-rctd.rct-date                   LABEL "DATE"
      tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
      v-ext-cost                         LABEL "TOTAL COST"
 
-    WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 162.
+    WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 168.
 
 FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
      v-dscr        LABEL "DESCRIPTION"
@@ -2504,9 +2506,9 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
   DO:
       OUTPUT STREAM excel TO VALUE(fi_file).
       IF t-show-vend THEN
-          ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,VENDOR,JOB #,JOB #2,T,TAG #,VENDOR TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
+          ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,Po Line,VENDOR,JOB #,JOB #2,T,TAG #,VENDOR TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
       ELSE
-           ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,VENDOR,JOB #,JOB #2,T,TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
+           ASSIGN excelheader = "DATE,ITEM,DESCRIPTION,PO #,PO Line,VENDOR,JOB #,JOB #2,T,TAG #,QUANTITY,BIN,UOM,COST,TOTAL COST".
       PUT STREAM excel UNFORMATTED excelheader SKIP.
   END.
     ASSIGN
@@ -2689,6 +2691,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
                     tt-rctd.i-no       WHEN FIRST-OF(tt-rctd.i-no)
                     tt-rctd.i-name     WHEN FIRST-OF(tt-rctd.i-no)
                     tt-rctd.po-no
+                    tt-rctd.po-line
                     po-ord.vend-no     WHEN AVAIL po-ord                     
                     tt-rctd.job-no
                     tt-rctd.job-no     WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no
@@ -2710,6 +2713,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
                     tt-rctd.i-no       WHEN FIRST-OF(tt-rctd.i-no)
                     tt-rctd.i-name     WHEN FIRST-OF(tt-rctd.i-no)
                     tt-rctd.po-no
+                    tt-rctd.po-line
                     po-ord.vend-no     WHEN AVAIL po-ord                     
                     tt-rctd.job-no
                     tt-rctd.job-no     WHEN tt-rctd.job-no EQ "" @ tt-rctd.job-no
@@ -2733,6 +2737,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-no ELSE "" )     ","
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-name ELSE "")   ","
               tt-rctd.po-no                                             ","
+              tt-rctd.po-line                                           ","
               (IF AVAIL po-ord THEN po-ord.vend-no ELSE "")             ","
               (IF tt-rctd.job-no <> "" THEN tt-rctd.job-no ELSE "" )    ","
               (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "99"  ","
@@ -2751,6 +2756,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-no ELSE "" )     ","
               (IF FIRST-OF(tt-rctd.i-no) THEN tt-rctd.i-name ELSE "")   ","
               tt-rctd.po-no                                             ","
+              tt-rctd.po-line                                           ","
               (IF AVAIL po-ord THEN po-ord.vend-no ELSE "")             ","
               (IF tt-rctd.job-no <> "" THEN tt-rctd.job-no ELSE "" )    ","
               (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "99"  ","
