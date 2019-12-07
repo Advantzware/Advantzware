@@ -1,5 +1,4 @@
-/* brwsrtrg.i 
-11/01/01   YSK  changed to have better performance*/
+/* brwsrtrg.i */ 
 
 {methods/template/brwsord.i 1}
 {methods/template/brwsord.i 2}
@@ -16,18 +15,8 @@
 {methods/template/brwsord.i 13}
 
 &Scoped-define SELF-NAME auto_find
-/*ON LEAVE OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Auto Find */*/
-/*DO:                                                            */
-/*  ASSIGN                                                       */
-/*    {&SELF-NAME}                                               */
-/*    find-auto = yes.                                           */
-/*  APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.                     */
-/*  find-auto = no.                                              */
-/*END.                                                           */
-
 ON RETURN OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Auto Find */
 DO:
-/*  APPLY "LEAVE" TO {&SELF-NAME}.*/
   ASSIGN
     {&SELF-NAME}
     find-auto = YES.
@@ -41,34 +30,34 @@ DO:
   &IF "{&IAMWHAT}" = "SEARCH" &THEN
   APPLY "CHOOSE" TO Btn_Clear_Search.
   &ENDIF
-  /*APPLY "CHOOSE" TO Btn_Clear_Find.       ** not run any-printable of browse  but reset auto_find value only
-                                               run open-query 3 times  */
   ASSIGN                   
     auto_find = ""
     auto_find:SCREEN-VALUE = "".
-/*  {methods/wait.i}    */            /* ysk set hour-glass */
   RUN Change-Order ({&SELF-NAME}:SCREEN-VALUE).
   APPLY "ENTRY" TO {&BROWSE-NAME}.
 END.
 
 ON ANY-PRINTABLE OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
 DO:
-  IF NUM-RESULTS("{&BROWSE-NAME}") = 0 OR NUM-RESULTS("{&BROWSE-NAME}") = ? THEN
-  RETURN NO-APPLY.
+  IF NUM-RESULTS("{&BROWSE-NAME}") EQ 0 OR
+     NUM-RESULTS("{&BROWSE-NAME}") EQ ? THEN DO:
+      RUN Change-Order ({&SELF-NAME}:SCREEN-VALUE).
+      IF NUM-RESULTS("{&BROWSE-NAME}") EQ 0 OR
+         NUM-RESULTS("{&BROWSE-NAME}") EQ ? THEN
+      RETURN NO-APPLY.
+  END.
   {methods/wait.i}
   current-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
   IF LASTKEY NE 8 AND NOT find-auto THEN
   auto_find = auto_find + KEYLABEL(LASTKEY).
   RUN Find-Record (browse-order:SCREEN-VALUE).
-  IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN
-  DO:
+  IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) EQ ? THEN DO:
     MESSAGE "Record not found beginning with '" + auto_find + "' !!!"
         VIEW-AS ALERT-BOX.
     auto_find = SUBSTR(auto_find,1,LENGTH(auto_find) - 1).
     RUN Find-Record (browse-order:SCREEN-VALUE).
   END.
-  IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN
-  DO:
+  IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN DO:
     auto_find = "".
     RUN Find-Record (browse-order:SCREEN-VALUE).
   END.
@@ -114,7 +103,7 @@ END.
 ON RIGHT-MOUSE-CLICK OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
 DO:
   IF {methods/chkdevid.i} THEN
-  RUN Get_Procedure IN Persistent-Handle ("ruler.",OUTPUT run-proc,yes).
+  RUN Get_Procedure IN Persistent-Handle ("ruler.",OUTPUT run-proc,YES).
 END.
 
 &Scoped-define SELF-NAME Btn_Clear_Find
