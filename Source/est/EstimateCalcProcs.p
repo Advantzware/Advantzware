@@ -3541,10 +3541,12 @@ PROCEDURE pProcessPacking PRIVATE:
     DEFINE           BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE           BUFFER bf-estCostBlank    FOR estCostBlank.
     
-    DEFINE VARIABLE iCaseCount   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCases       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iPalletCount AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iPallets     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iCaseCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCases       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iPalletCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPallets     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
     
     
     ASSIGN 
@@ -3579,7 +3581,8 @@ PROCEDURE pProcessPacking PRIVATE:
         IF ttPack.iCountPerSubUnit NE 0 THEN
             ASSIGN
                 iCaseCount = ttPack.iCountPerSubUnit  
-                iCases     = fRoundUp(bf-estCostBlank.quantityRequired / ttPack.iCountPerSubUnit) * ttPack.dQtyMultiplier.
+                dCasesProRata = bf-estCostBlank.quantityRequired / ttPack.iCountPerSubUnit
+                iCases     = fRoundUp(dCasesProRata * ttPack.dQtyMultiplier).
         ELSE 
             ASSIGN /*Calc cases based on weight - REFACTOR since assumes weight is in LB/M */
                 iCases     = fRoundUp(bf-estCostBlank.quantityRequired * (bf-estCostBlank.weightPerBlank) / ttPack.dWeightCapacity) * ttPack.dQtyMultiplier
@@ -3615,7 +3618,8 @@ PROCEDURE pProcessPacking PRIVATE:
         
         ASSIGN  
             iPalletCount                               = IF ttPack.iCountPerUnit EQ 0 THEN ttPack.iCountSubUnitsPerUnit * iCaseCount ELSE ttPack.iCountPerUnit
-            iPallets                                   = fRoundUp(bf-estCostBlank.quantityRequired / iPalletCount) * ttPack.dQtyMultiplier 
+            dPalletsProRata                            = bf-estCostBlank.quantityRequired / iPalletCount
+            iPallets                                   = fRoundUp(dPalletsProRata * ttPack.dQtyMultiplier) 
             bf-estCostMaterial.addToWeightTare         = YES
             bf-estCostMaterial.quantityRequiredNoWaste = iPallets
             bf-estCostMaterial.quantityUOM             = ttPack.cQtyUOM
@@ -3645,9 +3649,9 @@ PROCEDURE pProcessPacking PRIVATE:
         
         CASE ttPack.cQtyMultiplier:
             WHEN "P" THEN 
-                bf-estCostMaterial.quantityRequiredNoWaste = bf-estCostBlank.quantityOfUnits * ttPack.dQtyMultiplier.
+                bf-estCostMaterial.quantityRequiredNoWaste = fRoundUp(dPalletsProRata * ttPack.dQtyMultiplier).
             WHEN "C" THEN 
-                bf-estCostMaterial.quantityRequiredNoWaste = bf-estCostBlank.quantityOfSubUnits * ttPack.dQtyMultiplier.
+                bf-estCostMaterial.quantityRequiredNoWaste = fRoundUp(dCasesProRata * ttPack.dQtyMultiplier).
             OTHERWISE 
             bf-estCostMaterial.quantityRequiredNoWaste = ttPack.dQtyMultiplier.
         END CASE.
