@@ -4175,6 +4175,7 @@ PROCEDURE create-w-ord :
             USE-INDEX ship-id NO-LOCK NO-ERROR.
       IF AVAIL shipto THEN
          ASSIGN
+            w-ord.ship-code  = shipto.ship-id
             w-ord.ship-name  = shipto.ship-name
             w-ord.ship-add1  = shipto.ship-add[1]
             w-ord.ship-add2  = shipto.ship-add[2]
@@ -4299,6 +4300,7 @@ PROCEDURE create-w-ord :
               USE-INDEX ship-id NO-LOCK NO-ERROR.
           IF AVAIL shipto THEN
           ASSIGN
+            w-ord.ship-code  = shipto.ship-id
             w-ord.ship-name  = shipto.ship-name
             w-ord.ship-add1  = shipto.ship-add[1]
             w-ord.ship-add2  = shipto.ship-add[2]
@@ -4433,7 +4435,8 @@ PROCEDURE create-w-ord :
                                   AND shipto.ship-id EQ v-ship-id
                                 USE-INDEX ship-id NO-ERROR.
          IF AVAILABLE shipto THEN
-            ASSIGN w-ord.ship-name = shipto.ship-name
+            ASSIGN  w-ord.ship-code  = shipto.ship-id
+                    w-ord.ship-name = shipto.ship-name
                     w-ord.ship-add1 = shipto.ship-add[1]
                     w-ord.ship-add2 = shipto.ship-add[2]
                     w-ord.ship-city = shipto.ship-city
