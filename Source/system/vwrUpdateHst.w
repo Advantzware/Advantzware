@@ -105,7 +105,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataViewer
-   Data Source: "n:\repository\source\sdo\sdoupdatehist.w"
+   Data Source: "sdo\sdoupdatehist.w"
    Allow: Basic,DB-Fields,Smart
    Container Links: Data-Target,Update-Source,TableIO-Target,GroupAssign-Source,GroupAssign-Target
    Frames: 1
