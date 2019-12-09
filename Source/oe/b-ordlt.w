@@ -1142,8 +1142,19 @@ PROCEDURE delete-item :
   FOR EACH oe-ordm WHERE oe-ordm.company = oe-ordl.company
                      AND oe-ordm.ord-no = oe-ordl.ord-no 
                      AND oe-ordm.est-no = oe-ordl.est-no:
+
+      FIND FIRST est-prep EXCLUSIVE-LOCK
+          WHERE est-prep.company EQ oe-ordl.company
+            AND est-prep.est-no EQ oe-ordl.est-no 
+            AND est-prep.CODE EQ oe-ordm.charge
+            AND est-prep.orderID EQ STRING(oe-ordm.ord-no)
+            AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
+
       IF oe-ordm.bill = "Y" THEN tmp-ordm-amt = tmp-ordm-amt + oe-ordm.amt.               
       DELETE oe-ordm.
+      IF AVAIL est-prep THEN 
+          ASSIGN est-prep.orderID = "" .
+      FIND CURRENT est-prep NO-LOCK NO-ERROR . 
   END.
       
   IF oe-ordl.job-no <> "" THEN DO:
