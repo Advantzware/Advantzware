@@ -2124,8 +2124,6 @@ PROCEDURE reprintTag :
   CASE cBarCodeProgram:
       WHEN "" THEN DO:
           RUN AutoPrint.
-          OUTPUT TO VALUE(v-out).
-          OUTPUT CLOSE.
       END.
       WHEN "xprint" THEN
       RUN xprint-tag.
