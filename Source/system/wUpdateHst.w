@@ -219,7 +219,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN constructObject (
-             INPUT  'n:/repository/source/sdo/sdoupdatehist.wDB-AWARE':U ,
+             INPUT  'sdo/sdoupdatehist.wDB-AWARE':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'AppServiceASInfoASUsePrompt?CacheDuration0CheckCurrentChangedyesDestroyStatelessyesDisconnectAppServernoServerOperatingModeNONEShareDatanoUpdateFromSourcenoForeignFieldsObjectNamesdoupdatehistOpenOnInityesPromptColumns(NONE)PromptOnDeleteyesRowsToBatch200RebuildOnReposnoToggleDataTargetsyes':U ,
              OUTPUT h_sdoupdatehist ).
@@ -227,7 +227,7 @@ PROCEDURE adm-create-objects :
        /* Size in AB:  ( 1.67 , 11.00 ) */
 
        RUN constructObject (
-             INPUT  'n:/repository/source/system/vwrupdatehst.w':U ,
+             INPUT  'system/vwrupdatehst.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vwrupdatehst ).
@@ -235,7 +235,7 @@ PROCEDURE adm-create-objects :
        /* Size in AB:  ( 16.67 , 70.00 ) */
 
        RUN constructObject (
-             INPUT  'n:/repository/source/system/brwupdatehst.w':U ,
+             INPUT  'system/brwupdatehst.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brwupdatehst ).
