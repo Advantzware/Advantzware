@@ -162,6 +162,7 @@ DEF NEW SHARED TEMP-TABLE tt-filelist NO-UNDO
 DEF TEMP-TABLE tt-ci-form NO-UNDO
     FIELD form-name AS CHAR
     FIELD total-pallets LIKE oe-bolh.tot-pallets
+    FIELD form-bol LIKE oe-bolh.bol-no
     INDEX tt-ci-form form-name ASC.
 
 def NEW SHARED TEMP-TABLE w-comm-bol NO-UNDO
@@ -2791,14 +2792,21 @@ PROCEDURE CommercialInvoice :
          CREATE tt-ci-form.
          ASSIGN tt-ci-form.form-name = sys-ctrl-shipto.char-fld.
       END.
-
+      tt-ci-form.form-bol      = b1-oe-bolh.bol-no .
       tt-ci-form.total-pallets = tt-ci-form.total-pallets
                                + b1-oe-bolh.tot-pallets.
   END.
 
-  FOR EACH tt-ci-form:
-      RUN oerep\d-fibreci.w (INPUT tt-ci-form.form-name,
+  FOR EACH tt-ci-form: 
+      IF tt-ci-form.form-name EQ "FIBREMEXICO" THEN do:
+          RUN oerep\d-fibreci.w (INPUT tt-ci-form.form-name,
                              INPUT tt-ci-form.total-pallets).
+      END.
+      ELSE DO:
+          RUN oerep\CommInvPrint.p(INPUT tt-ci-form.form-name,
+                                tt-ci-form.form-bol,
+                                tt-ci-form.total-pallets) .
+      END.
   END.
 
   SESSION:SET-WAIT-STATE ("").
