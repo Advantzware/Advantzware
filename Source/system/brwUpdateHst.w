@@ -51,7 +51,7 @@ CREATE WIDGET-POOL.
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Target,Data-Target,Update-Source
 
 /* Include file with RowObject temp-table definition */
-&Scoped-define DATA-FIELD-DEFS "n:/repository/source/sdo/sdoupdatehist.i"
+&Scoped-define DATA-FIELD-DEFS "sdo/sdoupdatehist.i"
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -127,7 +127,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataBrowser
-   Data Source: "n:\repository\source\sdo\sdoupdatehist.w"
+   Data Source: "sdo\sdoupdatehist.w"
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: Neither

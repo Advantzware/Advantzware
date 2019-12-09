@@ -9,7 +9,7 @@
 
 /* Temp-Table and Buffer definitions                                    */
 DEFINE TEMP-TABLE RowObject NO-UNDO
-       {"n:/repository/source/sdo/sdoupdatehist.i"}.
+       {"sdo/sdoupdatehist.i"}.
 
 
 
@@ -62,7 +62,7 @@ CREATE WIDGET-POOL.
 &Scoped-define ADM-SUPPORTED-LINKS Data-Target,Update-Source,TableIO-Target,GroupAssign-Source,GroupAssign-Target
 
 /* Include file with RowObject temp-table definition */
-&Scoped-define DATA-FIELD-DEFS "n:/repository/source/sdo/sdoupdatehist.i"
+&Scoped-define DATA-FIELD-DEFS "sdo/sdoupdatehist.i"
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -105,7 +105,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataViewer
-   Data Source: "n:\repository\source\sdo\sdoupdatehist.w"
+   Data Source: "sdo\sdoupdatehist.w"
    Allow: Basic,DB-Fields,Smart
    Container Links: Data-Target,Update-Source,TableIO-Target,GroupAssign-Source,GroupAssign-Target
    Frames: 1
@@ -114,7 +114,7 @@ DEFINE FRAME F-Main
    Temp-Tables and Buffers:
       TABLE: RowObject D "?" NO-UNDO  
       ADDITIONAL-FIELDS:
-          {n:/repository/source/sdo/sdoupdatehist.i}
+          {sdo/sdoupdatehist.i}
       END-FIELDS.
    END-TABLES.
  */
