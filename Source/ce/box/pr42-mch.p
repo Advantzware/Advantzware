@@ -109,6 +109,9 @@ FOR EACH est-op
     /*Run Qty Divisor 24462 (also undoes 19774)*/
     IF est-op.n_out_div GT 0 THEN 
         oprun = oprun / est-op.n_out_div.
+    
+    IF oprun LT mach.minRunHours THEN 
+        oprun = mach.minRunHours.
         
     IF v-printed-lit AND est-op.n-out GT 1 THEN
         v-gu-out = v-gu-out * est-op.n-out.
