@@ -278,7 +278,7 @@ DEFINE VARIABLE iEbTotalblQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE iEbTotalUpQty AS INTEGER NO-UNDO .
 DEFINE SHARED VARIABLE s-prt-fgimage     AS LOG       NO-UNDO.
 DEFINE BUFFER bf-ttSoule FOR ttSoule .
-
+DEFINE VARIABLE lv-pg-num AS INT NO-UNDO.
 IF reprint EQ NO THEN
     cNewOrderValue = CAPS("NEW ORDER") .
 ELSE "" .
@@ -545,7 +545,10 @@ FOR EACH job-hdr NO-LOCK
                 cSetPartNo   = "" .
         END.
 
-        IF NOT FIRST(job-hdr.job-no) THEN PAGE.
+        IF NOT FIRST(job-hdr.job-no) THEN do:
+             PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+             PAGE.
+        END.
         ELSE PUT SKIP
                 "<FCalibri><B><C2>MCLEAN PACKAGING INC. </B><P10>"
                 "<C30><B><P11>Factory Order: <P11>" (IF cRdOptionMclean EQ "M" THEN "Moorestown" ELSE "Nazareth") FORMAT "x(12)"  "<C65>Report Date: " TODAY "</B><P10>" SKIP
@@ -1156,9 +1159,12 @@ FOR EACH job-hdr NO-LOCK
 
                                 k = 1 .
                                 PUT 
-                                    "<P10><C30><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
+                                    "<C1.5><FROM><R+1><C12><RECT><R-1>"
+                                    "<P10><B><C2>Form " TRIM(STRING(eb.form-no,"99")) "</B>"
+                                    "<C30><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
                                     "<C54><b># Out:</b>" ef.n-out  "<C66><b>Total Yield Qty: </b>" STRING(iEbTotalYldQty) SKIP
-                                    "<C2><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-no ELSE "") FORMAT "x(20)"
+                                    "<C2><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-no ELSE "") FORMAT "x(10)"
+                                    "<C16><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE= " + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING( eb.form-no)) + "><R-2>" FORMAT "x(250)"
                                     "<C30><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C66><b>Total Req. Qty: </b>" STRING(iEbTotalblQty)  SKIP
                                     "<C30><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C54><b>Total # Up: </b>" STRING(iEbTotalUpQty)  
                                      "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP(1) .
@@ -1290,9 +1296,8 @@ FOR EACH job-hdr NO-LOCK
                                     FIND NEXT tt-size USE-INDEX tt-size WHERE tt-size.frm = int(tt-reftable.val[12]) NO-LOCK NO-ERROR.
                                 END. /* each wrk-op*/
                                 
-                              PUT v-fill SKIP 
-                                "<B><C2><R-1> Form " TRIM(STRING(eb.form-no,"99")) "</B>" SKIP
-                                   v-fill SKIP .
+                              PUT v-fill SKIP  .
+                               
                               PUT 
                                   "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
                                   "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)"     
@@ -1306,7 +1311,10 @@ FOR EACH job-hdr NO-LOCK
                                   "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(12)"
                                   "<C70><B><P10>Over Qty: </B>" TRIM(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) SKIP 
                                   
-                                  "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up) 
+                                  "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
+                                  "<P10><C20><b>Box Size: </B>" (string(eb.len) + " X " + STRING(eb.wid) + " X " + STRING(eb.dep)) FORMAT "x(40)" SKIP
+                                  
+                                  "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                   "<P10><C20><b>Packing: </B>" eb.cas-no FORMAT "x(15)"  
                                   "<C45><b>Pallet: </b>" eb.tr-no FORMAT "x(15)" SKIP
 
@@ -1325,6 +1333,7 @@ FOR EACH job-hdr NO-LOCK
                                      AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
                                     AND  bf-ttSoule.runForm EQ YES NO-LOCK :
                                      IF LINE-COUNTER > 70 THEN DO: 
+                                        PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                          PAGE.
                                          RUN pPrintHeader .
                                      END.
@@ -1343,7 +1352,10 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)"
                                          "<C70><B><P10>Over Qty: </B>" TRIM(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) SKIP
                                          
-                                         "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up) 
+                                         "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
+                                         "<P10><C20><b>Box Size: </B>" (string(eb.len) + " X " + STRING(eb.wid) + " X " + STRING(eb.dep)) FORMAT "x(40)" SKIP
+                                        
+                                         "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                          "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
                                          "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
 
@@ -1354,9 +1366,10 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" ) SKIP v-fill SKIP .
                                     
                                 END.
-            
+                                PUT "<R-1>" .
                             IF LINE-COUNTER > 70 THEN 
                             DO: 
+                                PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                 PAGE.
                                 RUN pPrintHeader .
                             END.
@@ -1444,6 +1457,7 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
             
             IF LINE-COUNTER > 70 THEN 
             DO:
+                PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                 PAGE.
                 RUN pPrintHeader .
             END.
@@ -1454,6 +1468,7 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
                
                 IF LINE-COUNTER > 70 THEN 
                 DO:
+                    PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                     PAGE.
                     RUN pPrintHeader .
                     PUT "<B><C5>FORM  <C9>DEPARTMENT     INSTRUCTION NOTES</B>" SKIP.
@@ -1503,6 +1518,7 @@ DO:
                 lv-cad-image =  (IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "") + "\" +
                     cImageBoxDesign  .
                 lv-cad-image-list = lv-cad-image-list + b-ef.cad-image + ",". 
+                PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                 PAGE.
                 RUN pPrintHeader .
             
@@ -1538,6 +1554,7 @@ DO:
             clsFGitemImg = IF AVAILABLE itemfg THEN itemfg.box-image ELSE "" .
             IF clsFGitemImg NE "" THEN 
             DO:
+                PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                 PAGE.
                 RUN pPrintHeader .
                 PUT UNFORMATTED 
@@ -1570,6 +1587,7 @@ DO:
 
         IF FIRST(bf-jobhdr.i-no) THEN 
         DO:
+            PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
             PAGE.
             FIND FIRST cust NO-LOCK
                 WHERE cust.company EQ job-hdr.company
@@ -1660,7 +1678,10 @@ DO:
             "<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "") SKIP 
             "<C1.5><FROM><C84><LINE><||3>" SKIP.
                        
-        IF LINE-COUNTER > 68 THEN PAGE.
+        IF LINE-COUNTER > 68 THEN do:
+            PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
+            PAGE.
+        END.
 
        IF LAST(bf-jobhdr.i-no) AND AVAILABLE est AND est.est-type EQ 2 THEN DO:
         FIND FIRST bff-eb NO-LOCK
@@ -1693,10 +1714,14 @@ DO:
             "<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "") SKIP 
             "<C1.5><FROM><C84><LINE><||3>" SKIP.
 
-            IF LINE-COUNTER > 68 THEN PAGE.
+            IF LINE-COUNTER > 68 THEN do:
+                PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
+                PAGE.
+            END.
         END. /* FOR EACH b-eb*/
        END. /* last bf-jobhdr.i-no*/
-
+        IF LAST(bf-jobhdr.i-no) THEN
+            PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
     END.
          
 END. /*each bf-jobhdr*/
