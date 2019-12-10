@@ -1400,6 +1400,12 @@ DO:
             IF op-error THEN
                 RETURN NO-APPLY.
 
+            IF NOT ll-qty-valid THEN 
+            DO:
+                {rm/chkporun.i}
+                ll-qty-valid = YES.
+            END.
+
             RUN get-matrix (NO).
 
             IF NOT ll-qty-valid THEN DO:
@@ -3031,6 +3037,12 @@ PROCEDURE local-update-record :
     
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT ll-qty-valid THEN DO:
+            {rm/chkporun.i}
+                ll-qty-valid = YES.
+        END.
+    END.
     RUN valid-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -4041,11 +4053,6 @@ PROCEDURE valid-qty :
             APPLY "entry" TO ip-focus.
             op-error = YES.
         END.
-        IF NOT ll-qty-valid  THEN do:
-            {rm/chkporun.i}
-            ll-qty-valid = YES.
-        END.
-
     END.
   
 END PROCEDURE.
