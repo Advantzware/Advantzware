@@ -460,6 +460,15 @@ DO:
     RUN showNumItems.
   END.
 
+  /* Don't set focus to list when we are typing a number in
+   * fiDelimiter. Otherwise typing is weird.
+   */
+/*   IF LOOKUP(SELF:NAME, "fcDelimiter,fiDelimiter") = 0 THEN */
+/*   DO:                                                      */
+/*     APPLY 'ENTRY' TO sList.                                */
+/*     RETURN NO-APPLY.                                       */
+/*   END.                                                     */
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,6 +551,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FRAME {&frame-name}:font = getFont('Default').
   RUN enable_UI.
   RUN initializeObject.
+/*   APPLY "value-changed" TO rsDelimiter. */
+
+/*   IF sList:list-items <> "" THEN sList:screen-value = ENTRY(1,sList:list-items,sList:delimiter). */
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -705,7 +717,10 @@ PROCEDURE showNumItems :
  * based on the chosen delimiter
 */
   DO WITH FRAME {&FRAME-NAME}:
-    fiNumItems:SCREEN-VALUE = STRING(sList:NUM-ITEMS).
+/*     IF sList:LIST-ITEMS = '' THEN    */
+/*       fiNumItems:SCREEN-VALUE = '0'. */
+/*     ELSE                             */
+      fiNumItems:SCREEN-VALUE = STRING(sList:NUM-ITEMS).
   END.
 
 END PROCEDURE. /* showNumItems */
@@ -763,3 +778,4 @@ END PROCEDURE. /* sortList */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

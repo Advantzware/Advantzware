@@ -404,7 +404,6 @@ PROCEDURE generateCode :
 /* generate the code
 */  
   DEFINE VARIABLE cText     AS LONGCHAR  NO-UNDO.
-  DEFINE VARIABLE cMask     AS LONGCHAR  NO-UNDO.
   DEFINE VARIABLE cIndent   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iMaxName  AS INTEGER   NO-UNDO.
   DEFINE VARIABLE cTable    AS CHARACTER NO-UNDO.
@@ -450,8 +449,7 @@ PROCEDURE generateCode :
         AND bField.cFieldName <> 'ROWID'
         AND (NOT tgSelectedOnly:CHECKED OR bField.lShow):        
 
-      cMask = '&1~n&2&3.&4 = '.
-      cText = SUBSTITUTE(cMask
+      cText = SUBSTITUTE('&1~n&2&3.&4 = '
                         , cText 
                         , cIndent
                         , cTable
@@ -459,8 +457,7 @@ PROCEDURE generateCode :
                         ).
     END. 
 
-    cMask = '&1~n&2.~n'.
-    cText = SUBSTITUTE(cMask, cText, cIndent).
+    cText = SUBSTITUTE('&1~n&2.~n', cText, cIndent).
 
     edDefinition:SCREEN-VALUE = cText.
   END.
