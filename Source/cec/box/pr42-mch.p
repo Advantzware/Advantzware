@@ -187,6 +187,9 @@ FOR EACH xef
         IF est-op.n_out_div GT 0 THEN 
             oprun = oprun / est-op.n_out_div.
         
+        IF oprun LT mach.minRunHours THEN 
+            oprun = mach.minRunHours.
+        
         IF w-form.min-msf AND mach.dept[1] EQ "RC" THEN
             ASSIGN
                 opmr$     = 0
