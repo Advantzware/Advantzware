@@ -3147,6 +3147,83 @@ PROCEDURE ValidatePO:
 
 END PROCEDURE.
 
+PROCEDURE ValidateCust:
+    /*------------------------------------------------------------------------------
+     Purpose: Validate Customer number
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    oplValid = CAN-FIND(FIRST cust NO-LOCK 
+                        WHERE cust.company EQ ipcCompany  
+                          AND cust.cust-no EQ ipcCustID).
+    
+    IF oplValid THEN
+        opcMessage = "Success".
+    ELSE
+        opcMessage = "Invalid Customer".
+END PROCEDURE.
+
+PROCEDURE ValidatePOLine:
+    /*------------------------------------------------------------------------------
+     Purpose: Validation for PO Line
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine      AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidPOLine AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+
+    oplValidPOLine = CAN-FIND(FIRST po-ordl NO-LOCK 
+                              WHERE po-ordl.company EQ ipcCompany  
+                                AND po-ordl.po-no   EQ ipiPOID
+                                AND po-ordl.line    EQ ipiPOLine). 
+
+    IF NOT oplValidPOLine THEN
+        opcMessage = "Invalid PO Line".
+    ELSE
+        opcMessage = "Success".                                
+END PROCEDURE.
+
+PROCEDURE ValidateLoadTag:
+    /*------------------------------------------------------------------------------
+     Purpose: Validation for tag-no in loadtag table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidTag AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lItemType AS LOGICAL NO-UNDO.
+
+    IF ipcItemType NE gcItemTypeFG AND 
+       ipcItemType NE gcItemTypeRM THEN DO:
+        ASSIGN
+            oplValidTag = FALSE
+            opcMessage  = "Invalid Item Type"
+            .
+        RETURN.
+    END.
+
+    lItemType = ipcItemType EQ gcItemTypeRM.
+
+    oplValidTag = CAN-FIND(FIRST loadtag NO-LOCK 
+                           WHERE loadtag.company   EQ ipcCompany  
+                             AND loadtag.item-type EQ lItemType
+                             AND loadtag.tag-no    EQ ipcTag).
+
+    IF NOT oplValidTag THEN
+        opcMessage = "Invalid Tag".
+    ELSE
+        opcMessage = "Success".
+END PROCEDURE.
+
 PROCEDURE GetItemListForPO:
     /*------------------------------------------------------------------------------
      Purpose: Returns blank no list for a given jobID
