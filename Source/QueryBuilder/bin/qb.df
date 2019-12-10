@@ -1,0 +1,262 @@
+ADD SEQUENCE "queryNr"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+
+ADD TABLE "qbField"
+  AREA "Data"
+  LABEL "Query Field"
+  DUMP-NAME "qbfield"
+
+ADD FIELD "queryNr" OF "qbField" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Query Nr"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Query Nr"
+  HELP "unique nr of the query"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "tableName" OF "qbField" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table name"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Table name"
+  HELP "name of the table to include in the query"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "fieldName" OF "qbField" AS character 
+  DESCRIPTION "name of the field"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Field name"
+  POSITION 4
+  MAX-WIDTH 40
+  COLUMN-LABEL "Field name"
+  HELP "name of the field"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "orderNr" OF "qbField" AS integer 
+  DESCRIPTION "Order of the field in the results of the query"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "order of the field in the results of the query"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "fieldFormat" OF "qbField" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Format"
+  POSITION 6
+  MAX-WIDTH 24
+  COLUMN-LABEL "Format"
+  HELP "format of the field"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "fieldLabel" OF "qbField" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Field label"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "Field label"
+  HELP "label of the field"
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "datatype" OF "qbField" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Datatype"
+  POSITION 8
+  MAX-WIDTH 24
+  COLUMN-LABEL "Datatype"
+  HELP "the datatype of the field in the original database"
+  ORDER 70
+  MANDATORY
+
+ADD INDEX "idxPrim" ON "qbField" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "queryNr" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+  INDEX-FIELD "fieldName" ASCENDING 
+
+ADD TABLE "qbQuery"
+  AREA "Data"
+  LABEL "Query"
+  DESCRIPTION "Table to hold definitions for a user defined query"
+  DUMP-NAME "qbQuery"
+
+ADD FIELD "queryNr" OF "qbQuery" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "queryNr"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "queryNr"
+  HELP "unique nr of the query"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "queryName" OF "qbQuery" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Query Name"
+  POSITION 3
+  MAX-WIDTH 80
+  COLUMN-LABEL "Query Name"
+  HELP "short name of the query"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "queryDesc" OF "qbQuery" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  COLUMN-LABEL "Description"
+  HELP "longer description of the query"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "predefined" OF "qbQuery" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Predefined"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Pre"
+  HELP "is this a predefined query"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "conditions" OF "qbQuery" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Conditions"
+  POSITION 6
+  MAX-WIDTH 400
+  COLUMN-LABEL "Conditions"
+  HELP "query conditions"
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "queryUser" OF "qbQuery" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "User Id"
+  POSITION 7
+  MAX-WIDTH 24
+  COLUMN-LABEL "User Id"
+  HELP "userid of the owner of the query"
+  ORDER 30
+  MANDATORY
+
+ADD INDEX "idxPrim" ON "qbQuery" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "queryNr" ASCENDING 
+
+ADD TABLE "qbTable"
+  AREA "Data"
+  LABEL "Query Table"
+  DESCRIPTION "Tables associated with the query, together with condition"
+  DUMP-NAME "qbtable"
+
+ADD FIELD "queryNr" OF "qbTable" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Query Nr"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Query Nr"
+  HELP "unique nr of the query"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "tableName" OF "qbTable" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table name"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Table name"
+  HELP "name of the table to include in the query"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "orderNr" OF "qbTable" AS integer 
+  DESCRIPTION "Order of the table in the query"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "order of the table in the query"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "autoJoin" OF "qbTable" AS logical 
+  DESCRIPTION "automatically join this table to its parent"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Auto Join"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Auto!Join"
+  HELP "automatically join this table to its parent"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "parentTable" OF "qbTable" AS character 
+  DESCRIPTION "Name of the parent table, must also be associated with the query. Should be blank for first table, filled for all others"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Parent table"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Parent table"
+  HELP "name of the parent table"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "conditions" OF "qbTable" AS character 
+  DESCRIPTION "Extra conditions for the join via where-clause"
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Conditions"
+  POSITION 7
+  MAX-WIDTH 400
+  COLUMN-LABEL "Conditions"
+  HELP "extra conditions for the table"
+  ORDER 60
+  MANDATORY
+
+ADD INDEX "idxPrim" ON "qbTable" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "queryNr" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+
+.
+PSC
+cpstream=1252
+.
+0000005632
