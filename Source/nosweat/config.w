@@ -64,9 +64,8 @@ DEFINE VARIABLE selected-name AS CHARACTER NO-UNDO.
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.logs_dir ~
-config.spool_dir config.start_page_no config.smtpServer config.smtpPort ~
-config.smtpUser config.smtpPassword config.taskName config.taskType ~
-config.taskDate config.taskTime config.emailBody config.cueCard 
+config.spool_dir config.taskName config.taskType config.taskDate ~
+config.taskTime config.cueCard config.start_page_no 
 &Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH config SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH config SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME config
@@ -76,9 +75,8 @@ config.taskDate config.taskTime config.emailBody config.cueCard
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnUpdate btnClose 
 &Scoped-Define DISPLAYED-FIELDS config.logs_dir config.spool_dir ~
-config.start_page_no config.smtpServer config.smtpPort config.smtpUser ~
-config.smtpPassword config.taskName config.taskType config.taskDate ~
-config.taskTime config.emailBody config.cueCard 
+config.taskName config.taskType config.taskDate config.taskTime ~
+config.cueCard config.start_page_no 
 &Scoped-define DISPLAYED-TABLES config
 &Scoped-define FIRST-DISPLAYED-TABLE config
 
@@ -86,9 +84,8 @@ config.taskTime config.emailBody config.cueCard
 /* Custom List Definitions                                              */
 /* configFields,List-2,List-3,List-4,List-5,F1                          */
 &Scoped-define configFields config.logs_dir config.spool_dir ~
-config.start_page_no config.smtpServer config.smtpPort config.smtpUser ~
-config.smtpPassword config.taskName config.taskType config.taskDate ~
-config.taskTime config.emailBody config.cueCard 
+config.taskName config.taskType config.taskDate config.taskTime ~
+config.cueCard config.start_page_no 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -132,56 +129,36 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 82 BY 1
           BGCOLOR 15 
-     config.start_page_no AT ROW 3.62 COL 22 COLON-ALIGNED
+     config.taskName AT ROW 3.62 COL 24 WIDGET-ID 22
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY 1
+     config.taskType AT ROW 3.62 COL 40 WIDGET-ID 28
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     config.taskDate AT ROW 3.62 COL 56 WIDGET-ID 24
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     config.taskTime AT ROW 3.62 COL 72 WIDGET-ID 26
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     btnUpdate AT ROW 3.86 COL 88 HELP
+          "Update/Save System Configurations"
+     btnClose AT ROW 3.86 COL 97 HELP
+          "Cancel Update or Close Window"
+     config.cueCard AT ROW 4.81 COL 24 WIDGET-ID 30
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY 1
+     config.start_page_no AT ROW 4.81 COL 79 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 
-     config.smtpServer AT ROW 4.81 COL 22 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 62 BY 1
-          BGCOLOR 15 
-     config.smtpPort AT ROW 4.81 COL 96 COLON-ALIGNED WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 7.6 BY 1
-          BGCOLOR 15 
-     config.smtpUser AT ROW 6 COL 22 COLON-ALIGNED WIDGET-ID 12
-          VIEW-AS FILL-IN 
-          SIZE 62 BY 1
-          BGCOLOR 15 
-     config.smtpPassword AT ROW 7.19 COL 22 COLON-ALIGNED WIDGET-ID 6 PASSWORD-FIELD 
-          VIEW-AS FILL-IN 
-          SIZE 62 BY 1
-          BGCOLOR 15 
-     config.taskName AT ROW 8.38 COL 24 WIDGET-ID 22
-          VIEW-AS TOGGLE-BOX
-          SIZE 15 BY 1
-     config.taskType AT ROW 8.38 COL 40 WIDGET-ID 28
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY 1
-     config.taskDate AT ROW 8.38 COL 56 WIDGET-ID 24
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY 1
-     config.taskTime AT ROW 8.38 COL 72 WIDGET-ID 26
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY 1
-     config.emailBody AT ROW 9.57 COL 22 COLON-ALIGNED WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 62 BY 1
-          BGCOLOR 15 
-     btnUpdate AT ROW 9.57 COL 88 HELP
-          "Update/Save System Configurations"
-     btnClose AT ROW 9.57 COL 97 HELP
-          "Cancel Update or Close Window"
-     config.cueCard AT ROW 10.76 COL 24 WIDGET-ID 30
-          VIEW-AS TOGGLE-BOX
-          SIZE 24 BY 1
      "Email Subject:" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 8.38 COL 10 WIDGET-ID 32
-     RECT-1 AT ROW 9.33 COL 87
+          SIZE 14 BY 1 AT ROW 3.62 COL 10 WIDGET-ID 32
+     RECT-1 AT ROW 3.62 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 106 BY 10.81
+         SIZE 106 BY 5
          FGCOLOR 1 .
 
 
@@ -202,11 +179,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "System Configurations"
-         HEIGHT             = 10.81
+         HEIGHT             = 5
          WIDTH              = 106
-         MAX-HEIGHT         = 10.81
+         MAX-HEIGHT         = 5
          MAX-WIDTH          = 106
-         VIRTUAL-HEIGHT     = 10.81
+         VIRTUAL-HEIGHT     = 5
          VIRTUAL-WIDTH      = 106
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -246,20 +223,10 @@ ASSIGN
 
 /* SETTINGS FOR TOGGLE-BOX config.cueCard IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN config.emailBody IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.logs_dir IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN config.smtpPassword IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN config.smtpPort IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN config.smtpServer IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN config.smtpUser IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.spool_dir IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.start_page_no IN FRAME DEFAULT-FRAME
@@ -470,10 +437,8 @@ PROCEDURE enable_UI :
   {&OPEN-QUERY-DEFAULT-FRAME}
   GET FIRST DEFAULT-FRAME.
   IF AVAILABLE config THEN 
-    DISPLAY config.logs_dir config.spool_dir config.start_page_no 
-          config.smtpServer config.smtpPort config.smtpUser config.smtpPassword 
-          config.taskName config.taskType config.taskDate config.taskTime 
-          config.emailBody config.cueCard 
+    DISPLAY config.logs_dir config.spool_dir config.taskName config.taskType 
+          config.taskDate config.taskTime config.cueCard config.start_page_no 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnUpdate btnClose 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
