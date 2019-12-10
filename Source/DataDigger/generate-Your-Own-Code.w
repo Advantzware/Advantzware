@@ -257,6 +257,8 @@ PROCEDURE initObject :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  DEFINE VARIABLE iSetting AS INTEGER NO-UNDO.
+  
   DO WITH FRAME frMain:
     
     /* Prepare window and frame */

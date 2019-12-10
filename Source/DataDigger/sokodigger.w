@@ -31,9 +31,6 @@ DEFINE TEMP-TABLE ttBlock NO-UNDO
   FIELD cType   AS CHARACTER
   FIELD hBlock  AS HANDLE
   FIELD lSolid  AS LOGICAL
-  INDEX iPrim IS PRIMARY iPosY iPosX cType
-  INDEX iType cType
-  INDEX iSolid iPosX iPosY lSolid
   .
 
 DEFINE TEMP-TABLE ttMove NO-UNDO
@@ -41,21 +38,17 @@ DEFINE TEMP-TABLE ttMove NO-UNDO
   FIELD cDirection AS CHARACTER /* direction */
   FIELD iDeltaX    AS INTEGER
   FIELD iDeltaY    AS INTEGER
-  FIELD rBlock     AS ROWID
-  INDEX iPrim IS PRIMARY iMoveNr
+  FIELD rBlock     AS RECID
   .
 
 DEFINE TEMP-TABLE ttLevel NO-UNDO
   FIELD iLevelNr AS INTEGER
   FIELD cData    AS CHARACTER
-  INDEX iPrim IS PRIMARY iLevelNr
   .
 
 DEFINE TEMP-TABLE ttImage NO-UNDO
   FIELD cType   AS CHARACTER
   FIELD hImage  AS HANDLE
-  INDEX iPrim IS PRIMARY hImage
-  INDEX iType cType
   .
 
 DEFINE VARIABLE giBlockWidth     AS INTEGER   NO-UNDO.
@@ -135,7 +128,7 @@ DEFINE FRAME frMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 98.8 BY 21.24 WIDGET-ID 100.
+         SIZE 98.8 BY 20.95 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -155,7 +148,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wSokoDigger ASSIGN
          HIDDEN             = YES
          TITLE              = "SokoDigger"
-         HEIGHT             = 21.24
+         HEIGHT             = 20.95
          WIDTH              = 98.8
          MAX-HEIGHT         = 100
          MAX-WIDTH          = 200
@@ -432,13 +425,12 @@ PROCEDURE calcBlockSize :
   DEFINE BUFFER bLevel FOR ttLevel.
 
   /* Get min/max coordinates of the levels */
-  FOR EACH bLevel {&TABLE-SCAN}:
+  FOR EACH bLevel:
     DO iPosY = 1 TO NUM-ENTRIES(bLevel.cData,'|'):
       cLine = ENTRY(iPosY,bLevel.cData,'|').
   
-      #CheckX:
       DO iPosX = 1 TO LENGTH(cLine):
-        IF SUBSTRING(cLine,iPosX,1) = ' ' THEN NEXT #CheckX.
+        IF SUBSTRING(cLine,iPosX,1) = ' ' THEN NEXT.
     
         ASSIGN
           iMinX = MINIMUM(iMinX, iPosX)
@@ -514,13 +506,18 @@ PROCEDURE drawButtons :
   */
   DEFINE BUFFER bBlock FOR ttBlock.
 
-  FOR EACH bBlock {&TABLE-SCAN}:
-    RUN drawElement(ROWID(bBlock)).
+/*   FOR EACH bBlock:                        */
+/*     ASSIGN bBlock.hBlock:VISIBLE = FALSE. */
+/*   END. /* for each bBlock */              */
+
+  FOR EACH bBlock:
+    RUN drawElement(RECID(bBlock), NO).
   END. /* for each bBlock */
 
-  FOR EACH bBlock {&TABLE-SCAN}:
+  FOR EACH bBlock:
     ASSIGN bBlock.hBlock:VISIBLE = TRUE.
   END. /* for each bBlock */
+
 
 END PROCEDURE. /* drawButtons */
 
@@ -531,17 +528,18 @@ END PROCEDURE. /* drawButtons */
 PROCEDURE drawElement :
 /* Draw a single element.
   */
-  DEFINE INPUT PARAMETER prBlock AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER prBlock     AS RECID   NO-UNDO.
+  DEFINE INPUT PARAMETER plShowBlock AS LOGICAL NO-UNDO.
 
   DEFINE BUFFER bBlock FOR ttBlock.
 
-  FIND bBlock WHERE ROWID(bBlock) = prBlock NO-ERROR.
-  IF AVAILABLE bBlock THEN 
-    ASSIGN
-      bBlock.hBlock:X             = ( bBlock.iPosX - 1) * giBlockWidth + 1 
-      bBlock.hBlock:Y             = ( bBlock.iPosY - 1) * giBlockHeight + 1
-      bBlock.hBlock:WIDTH-PIXELS  = giBlockWidth
-      bBlock.hBlock:HEIGHT-PIXELS = giBlockHeight.
+  FIND bBlock WHERE RECID(bBlock) = prBlock.
+
+  ASSIGN
+    bBlock.hBlock:X             = ( bBlock.iPosX - 1) * giBlockWidth + 1 
+    bBlock.hBlock:Y             = ( bBlock.iPosY - 1) * giBlockHeight + 1
+    bBlock.hBlock:WIDTH-PIXELS  = giBlockWidth
+    bBlock.hBlock:HEIGHT-PIXELS = giBlockHeight.
 
 END PROCEDURE. /* drawElement */
 
@@ -694,15 +692,14 @@ END PROCEDURE. /* lockWindow */
 PROCEDURE moveBlock :
 /* Move a block and check if it is placed on a target field.
   */
-  DEFINE INPUT PARAMETER prBox  AS ROWID   NO-UNDO.
+  DEFINE INPUT PARAMETER prBox  AS RECID   NO-UNDO.
   DEFINE INPUT PARAMETER piDifX AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER piDifY AS INTEGER NO-UNDO.
 
   DEFINE BUFFER bBox    FOR ttBlock.
   DEFINE BUFFER bTarget FOR ttBlock.
 
-  FIND bBox WHERE ROWID(bBox) = prBox NO-ERROR.
-  IF NOT AVAILABLE bBox THEN RETURN.
+  FIND bBox WHERE RECID(bBox) = prBox.
 
   /* Was there a target place underneath the box? */
   FIND bTarget
@@ -742,7 +739,7 @@ PROCEDURE moveBlock :
   END. 
 
   /* draw box */
-  RUN drawElement(prBox).
+  RUN drawElement(prBox, YES).
 
 END PROCEDURE. /* moveBlock */
 
@@ -761,9 +758,7 @@ PROCEDURE movePlayer :
   DO WITH FRAME {&FRAME-NAME}:
 
     /* Move the player to the new position */
-    FIND bPlayer WHERE bPlayer.cType = 'player' NO-ERROR.
-    IF NOT AVAILABLE bPlayer THEN RETURN.
-    
+    FIND bPlayer WHERE bPlayer.cType = 'player'.
     ASSIGN 
       bPlayer.iPosX = bPlayer.iPosX + piMoveX
       bPlayer.iPosY = bPlayer.iPosY + piMoveY
@@ -824,9 +819,7 @@ PROCEDURE processKeystroke :
   END CASE.
 
   /* Calculate new position of the player */
-  FIND bBlock WHERE bBlock.cType = 'player' NO-ERROR.
-  IF NOT AVAILABLE bBlock THEN RETURN.
-  
+  FIND bBlock WHERE bBlock.cType = 'player'.
   ASSIGN
     iNewX = bBlock.iPosX + bMove.iDeltaX
     iNewY = bBlock.iPosY + bMove.iDeltaY.
@@ -854,11 +847,11 @@ PROCEDURE processKeystroke :
                    AND bBlock.iPosY  = iNewY + bMove.iDeltaY
                    AND bBlock.lSolid = TRUE) THEN
     DO:
-      RUN moveBlock(ROWID(bBlock), bMove.iDeltaX, bMove.iDeltaY).
+      RUN moveBlock(RECID(bBlock), bMove.iDeltaX, bMove.iDeltaY).
       ASSIGN lValidMove = TRUE.
 
       /* Register the move of the block */
-      ASSIGN bMove.rBlock = ROWID(bBlock).
+      ASSIGN bMove.rBlock = RECID(bBlock).
     END. /* block */
     ELSE
       ASSIGN lValidMove = FALSE.
@@ -895,6 +888,7 @@ PROCEDURE readLevelFile :
   DEFINE INPUT PARAMETER pcLevelFile AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE cLine   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iLineNr AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iLevNum AS INTEGER   NO-UNDO.
 
   DEFINE BUFFER bLevel FOR ttLevel.
@@ -912,24 +906,21 @@ PROCEDURE readLevelFile :
     ASSIGN bLevel.iLevelNr = iLevNum.
 
     /* Read until level starts */
-    #HeaderBlock:
     REPEAT ON ENDKEY UNDO, LEAVE #ReadCollection:
       IMPORT UNFORMATTED cLine.
-      IF cLine MATCHES '*#*' THEN LEAVE #HeaderBlock. 
+      IF cLine MATCHES '*#*' THEN LEAVE. 
     END.
   
     /* Read level data */
-    #LevelBlock:
     REPEAT ON ENDKEY UNDO, LEAVE #ReadCollection:
       bLevel.cData = bLevel.cData + cLine + '|'.
       IMPORT UNFORMATTED cLine.
-      IF NOT cLine MATCHES '*#*' THEN LEAVE #LevelBlock. 
+      IF NOT cLine MATCHES '*#*' THEN LEAVE. 
     END.
 
     /* Read level info */
-    #InfoBlock:
     REPEAT ON ENDKEY UNDO, LEAVE #ReadCollection:
-      IF cLine = '' THEN LEAVE #InfoBlock. 
+      IF cLine = '' THEN LEAVE. 
       IMPORT UNFORMATTED cLine.
     END.
   END. 
@@ -1053,6 +1044,7 @@ PROCEDURE showLevel :
   */
   DEFINE INPUT PARAMETER piLevel  AS INTEGER NO-UNDO.
 
+  DEFINE VARIABLE cFile    AS CHARACTER          NO-UNDO.
   DEFINE VARIABLE iPosY    AS INTEGER            NO-UNDO.
   DEFINE VARIABLE iPosX    AS INTEGER            NO-UNDO.
   DEFINE VARIABLE cLine    AS CHARACTER          NO-UNDO.
@@ -1095,7 +1087,7 @@ PROCEDURE showLevel :
   END.
 
   /* Clear the temp-table, save images */
-  FOR EACH bBlock {&TABLE-SCAN}:
+  FOR EACH bBlock:
     RUN saveImage(bBlock.cType, bBlock.hBlock).
     DELETE bBlock.
   END.
@@ -1107,10 +1099,9 @@ PROCEDURE showLevel :
   DO iPosY = 1 TO NUM-ENTRIES(bLevel.cData,'|'):
     cLine = ENTRY(iPosY,bLevel.cData,'|').
 
-    #HorLoop:
     DO iPosX = 1 TO LENGTH(cLine):
       cElement = SUBSTRING(cLine,iPosX,1).
-      IF cElement = ' ' THEN NEXT #HorLoop.
+      IF cElement = ' ' THEN NEXT.
 
       /* element found */
       CASE cElement:
@@ -1144,7 +1135,7 @@ PROCEDURE showLevel :
   END. /* iPosX */
 
   /* Get min/max coordinates of the level */
-  FOR EACH bBlock {&TABLE-SCAN}:
+  FOR EACH bBlock:
     ASSIGN
       iMinX = MINIMUM(iMinX, bBlock.iPosX)
       iMaxX = MAXIMUM(iMaxX, bBlock.iPosX)
@@ -1153,7 +1144,7 @@ PROCEDURE showLevel :
   END.
 
   /* Center the level */
-  FOR EACH bBlock {&TABLE-SCAN}:
+  FOR EACH bBlock:
     ASSIGN
       bBlock.iPosX = bBlock.iPosX + ROUND((giMaxWidth  - (iMaxX - iMinX + 1)) / 2,0)
       bBlock.iPosY = bBlock.iPosY + ROUND((giMaxHeight - (iMaxY - iMinY + 1)) / 2,0).
