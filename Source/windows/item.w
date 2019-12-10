@@ -112,7 +112,6 @@ DEFINE VARIABLE h_v-itmbom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
