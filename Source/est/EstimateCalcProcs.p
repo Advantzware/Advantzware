@@ -935,6 +935,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.costPerHourVORun             = bf-mach.run-varoh
             opbf-estCostOperation.quantityInkLbsWastedPerSetup = bf-mach.ink-waste
             opbf-estCostOperation.quantityInkLbsWastedPerColor = bf-mach.col-wastelb
+            opbf-estCostOperation.hoursRunMinimum              = bf-mach.minRunHours
             .
 
         IF glOpRatesSeparate THEN 
@@ -3142,6 +3143,9 @@ PROCEDURE pCalcEstOperation PRIVATE:
     ELSE 
         ipbf-estCostOperation.hoursRun = 0.
     
+    IF ipbf-estCostOperation.hoursRun LT ipbf-estCostOperation.hoursRunMinimum THEN 
+        ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRunMinimum.
+    
     ASSIGN    
         ipbf-estCostOperation.costPerHourTotalRun   = ipbf-estCostOperation.costPerManHourDLRun * ipbf-estCostOperation.crewSizeRun + 
                                                      ipbf-estCostOperation.costPerHourFORun + ipbf-estCostOperation.costPerHourVORun
@@ -3649,9 +3653,9 @@ PROCEDURE pProcessPacking PRIVATE:
         
         CASE ttPack.cQtyMultiplier:
             WHEN "P" THEN 
-                bf-estCostMaterial.quantityRequiredNoWaste = fRoundUp(dPalletsProRata * ttPack.dQtyMultiplier).
+                bf-estCostMaterial.quantityRequiredNoWaste = dPalletsProRata * ttPack.dQtyMultiplier.
             WHEN "C" THEN 
-                bf-estCostMaterial.quantityRequiredNoWaste = fRoundUp(dCasesProRata * ttPack.dQtyMultiplier).
+                bf-estCostMaterial.quantityRequiredNoWaste = dCasesProRata * ttPack.dQtyMultiplier.
             OTHERWISE 
             bf-estCostMaterial.quantityRequiredNoWaste = ttPack.dQtyMultiplier.
         END CASE.
@@ -3660,7 +3664,9 @@ PROCEDURE pProcessPacking PRIVATE:
             bf-estCostMaterial.quantityUOM        = ttPack.cQtyUOM
             bf-estCostMaterial.costOverridePerUOM = ttPack.dCostPerUOMOverride
             bf-estCostMaterial.noCharge           = ttPack.lNoCharge
-            .                    
+            .    
+        IF bf-estCostMaterial.quantityUOM EQ "EA" THEN 
+            bf-estCostMaterial.quantityRequiredNoWaste = fRoundUp(bf-estCostMaterial.quantityRequiredNoWaste).            
         RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
     END.
     
