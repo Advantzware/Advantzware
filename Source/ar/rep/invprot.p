@@ -185,16 +185,7 @@ FOR each report
     IF AVAIL currency THEN
         lv-currency = currency.c-desc.
 
-    IF ar-inv.sold-name <> "" 
-      THEN
-        ASSIGN  
-         v-shipto-name = ar-inv.sold-name
-         v-shipto-addr[1] = ar-inv.sold-addr[1]
-         v-shipto-addr[2] = ar-inv.sold-addr[2]
-         v-shipto-city = ar-inv.sold-city
-         v-shipto-state = ar-inv.sold-state
-         v-shipto-zip = ar-inv.sold-zip.
-      ELSE DO:
+    
        FIND FIRST shipto WHERE shipto.company = ar-inv.company
                            AND shipto.cust-no = ar-inv.cust-no
                            AND shipto.ship-id = ar-inv.ship-id NO-LOCK NO-ERROR.
@@ -212,7 +203,6 @@ FOR each report
             ELSE
                 lv-taxable = "Y".
          END.
-     END.
 
      FIND FIRST oe-ord 
          WHERE oe-ord.company EQ cocode
