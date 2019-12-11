@@ -65,4 +65,9 @@ router.post('/consumeinventoryviabol', (req,res) => {
 router.post('/getinventoryforbol', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This will create and post inventory count transaction 
+router.post('/createinventorycount', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;
