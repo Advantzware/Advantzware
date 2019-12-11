@@ -266,7 +266,7 @@ DO:
         WHEN "btDataDigger" THEN
             RUN datadigger/datadigger.p.
         WHEN "btLockMon" THEN
-            RUN util/wlockmon.w.
+            RUN util/wLockTransMonitor.w.
         WHEN "btProTools" THEN
             RUN protools/_protool.r.
         WHEN "btMonitorUsers" THEN DO:
