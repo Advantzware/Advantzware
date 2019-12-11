@@ -85,7 +85,7 @@ DEFINE QUERY external_tables FOR attach.
 attach.est-no attach.i-no 
 &Scoped-define ENABLED-TABLES attach
 &Scoped-define FIRST-ENABLED-TABLE attach
-&Scoped-Define ENABLED-OBJECTS RECT-8 
+&Scoped-Define ENABLED-OBJECTS RECT-8 tb_inc-ticket
 &Scoped-Define DISPLAYED-FIELDS attach.attach-file attach.run-application ~
 attach.run-program attach.est-no attach.i-no attach.creat-date 
 &Scoped-define DISPLAYED-TABLES attach
@@ -94,7 +94,7 @@ attach.run-program attach.est-no attach.i-no attach.creat-date
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-ASSIGN-FIELDS attach.run-program attach.creat-date 
+&Scoped-define ADM-ASSIGN-FIELDS attach.run-program attach.creat-date tb_inc-ticket
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,6 +130,10 @@ DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 141 BY 7.14.
 
+DEFINE VARIABLE tb_inc-ticket AS LOGICAL 
+     LABEL "Include On Job Ticket"
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -156,6 +160,7 @@ DEFINE FRAME F-Main
      attach.creat-date AT ROW 5.52 COL 122 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     tb_inc-ticket AT ROW 6.92 COL 57 COLON-ALIGNED
      RECT-8 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -451,6 +456,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inc-ticket V-table-Win
+ON VALUE-CHANGED OF tb_inc-ticket IN FRAME F-Main /* toggle box */
+DO:
+  DO WITH FRAME {&FRAME-NAME}:
+   ASSIGN tb_inc-ticket .
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -681,7 +697,8 @@ PROCEDURE local-add-record :
            ATTACH.est-no:SCREEN-VALUE = v-est-no
            ATTACH.i-no:SCREEN-VALUE = entry(1,v-i-no)
            ATTACH.run-application:SCREEN-VALUE = "Windows Default"
-           ATTACH.run-program:SENSITIVE = YES. .
+           ATTACH.run-program:SENSITIVE = YES. 
+     tb_inc-ticket:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No".
   END.
 
 END PROCEDURE.
@@ -705,6 +722,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+    attach.spare-int-1 = IF tb_inc-ticket:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes" THEN 1 ELSE 0.
   IF adm-adding-record THEN DO:
     IF ll-saletool THEN DO:
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"saletool-source", OUTPUT char-hdl).
@@ -746,6 +764,10 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ATTACH.run-program:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+  adm-new-record = NO .
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE tb_inc-ticket .
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -789,6 +811,7 @@ PROCEDURE local-enable-fields :
       ASSIGN
        attach.est-no:SENSITIVE = NO
        attach.i-no:SENSITIVE   = NO.
+      tb_inc-ticket:SENSITIVE = YES .
   END.
 
 END PROCEDURE.
@@ -825,6 +848,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+ 
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE tb_inc-ticket .
+    IF AVAIL ATTACH AND NOT adm-new-record THEN DO:
+        tb_inc-ticket:SCREEN-VALUE = string(IF AVAIL ATTACH AND ATTACH.spare-int-1 EQ 1 THEN TRUE ELSE FALSE ).
+        tb_inc-ticket = (IF AVAIL ATTACH AND ATTACH.spare-int-1 EQ 1 THEN TRUE ELSE FALSE ).
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -845,6 +894,8 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ATTACH.run-program:SENSITIVE = NO.
+  tb_inc-ticket:SENSITIVE = NO .
+  adm-new-record = NO .
 
 END PROCEDURE.
 
