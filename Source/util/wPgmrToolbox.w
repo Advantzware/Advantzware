@@ -141,10 +141,6 @@ DEFINE RECTANGLE RECT-1
      SIZE 75 BY 2.38
      BGCOLOR 15 .
 
-DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 1 BY 5.24.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -161,7 +157,6 @@ DEFINE FRAME DEFAULT-FRAME
      btProTools AT ROW 2.67 COL 39 WIDGET-ID 2
      btSwitchMode AT ROW 2.67 COL 66
      RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 22
-     RECT-2 AT ROW 1 COL 1 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -216,8 +211,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiMode IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
