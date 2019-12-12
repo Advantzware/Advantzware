@@ -210,9 +210,12 @@ PROCEDURE pReadResponse PRIVATE:
                 cSourceType = "longchar"
                 cReadMode   = "empty"
                 oplSuccess  = NO
-                opcMessage  = "bad JSON"
+                opcMessage  = "Could not get any response"
                 .
             
+            IF iplcReponseData EQ "" THEN
+                RETURN.
+
             lRetValue = hdttJSON:READ-JSON(cSourceType, iplcReponseData, cReadMode) NO-ERROR.
             IF NOT lRetValue THEN
                 RETURN.
