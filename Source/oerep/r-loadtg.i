@@ -91,4 +91,5 @@ DEF {1} SHARED TEMP-TABLE w-ord
   FIELD po-line AS INTEGER 
   FIELD zone as CHARACTER
   FIELD broker AS LOGICAL
+  FIELD ipReturn AS LOGICAL 
   .

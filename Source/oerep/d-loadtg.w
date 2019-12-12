@@ -42,12 +42,14 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iLoadTagLimit AS INTEGER NO-UNDO .
 DEFINE VARIABLE dLoadTagLimit AS DECIMAL NO-UNDO .
 DEFINE VARIABLE lcheckflgMsg AS LOGICAL INITIAL YES NO-UNDO .
-/*
-DEF VAR v-ord-copied AS LOG NO-UNDO.
-DEF VAR v-copied-ord-no AS INT NO-UNDO.
-DEF VAR v-is-update AS LOG INIT YES NO-UNDO.
-*/
-
+DEFINE VARIABLE glFGUnderOver       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcFGUnderOver       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE giFGUnderOver       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-overrun2-checked AS LOG       NO-UNDO.
+DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO .
 /* gdm - 07170905*/
 {sys\inc\BOLWeight.i}
 
@@ -64,6 +66,25 @@ IF lRecFound THEN
     dLoadTagLimit = DECIMAL(cRtnChar) NO-ERROR.
 
 IF NOT BOLWt-log THEN RUN calc-weight-all.
+
+RUN methods/prgsecur.p
+	    (INPUT "FGUnOvAllow",
+	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+    RUN sys/ref/nk1look.p (g_company, "FGUnderOver", "L", NO, NO, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+    glFGUnderOver = lRecFound AND cRtnChar EQ "YES".
+
+    RUN sys/ref/nk1look.p (g_company, "FGUnderOver", "C", NO, NO, "", "", OUTPUT gcFGUnderOver, OUTPUT lRecFound).
+
+    RUN sys/ref/nk1look.p (g_company, "FGUnderOver", "I", NO, NO, "", "", OUTPUT giFGUnderOver, OUTPUT lRecFound).
+
+    RUN sys/ref/nk1look.p (g_company, "FGRECPT", "C", NO, NO, "", "", OUTPUT gcFGRecpt, OUTPUT lRecFound).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -387,11 +408,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Create Tags */
 DO: 
+   DEFINE VARIABLE lOpReturnError AS LOGICAL NO-UNDO .
    RUN pCheckPoLine NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
    RUN pCheckTag NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+   RUN pCheckPOFGUnderOver(OUTPUT lOpReturnError) NO-ERROR.
+   IF lOpReturnError THEN RETURN NO-APPLY.
 
   APPLY 'GO' TO FRAME {&FRAME-NAME}.
 END.
@@ -404,6 +429,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_save Dialog-Frame
 ON CHOOSE OF btn_save IN FRAME Dialog-Frame /* Save */
 DO:
+   DEFINE VARIABLE lOpReturnError AS LOGICAL NO-UNDO .
   IF NOT AVAIL w-ord THEN RETURN NO-APPLY.
    IF btn_save:LABEL IN FRAME {&FRAME-NAME} = "&Save" AND
       int(w-ord.bundle:SCREEN-VALUE IN BROWSE {&browse-name}) = 0 and
@@ -413,6 +439,10 @@ DO:
        APPLY "entry" TO w-ord.bundle.
        RETURN NO-APPLY.
    END.
+
+   RUN pCheckPOFGUnderOver(OUTPUT lOpReturnError) NO-ERROR.
+   IF lOpReturnError THEN RETURN NO-APPLY.
+
    RUN pGrandTotal.
    RUN update-word.
 END.
@@ -1079,6 +1109,76 @@ PROCEDURE pCheckPoLine :
         END.
         IF AVAIL po-ordl THEN
             w-ord.po-line = INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-name}).
+    END.
+END PROCEDURE.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPOFGUnderOver Dialog-Frame 
+PROCEDURE pCheckPOFGUnderOver :
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+
+    DEFINE VARIABLE dOutQty AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dRecQty AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE ll-ea   AS LOG     NO-UNDO.
+
+   /* w-ord.ipReturn - input toggle box return */
+    IF  w-ord.po-no NE 0 AND NOT w-ord.ipReturn AND gcFGRecpt EQ "LoadTag" THEN DO:
+        FIND FIRST po-ordl NO-LOCK 
+            WHERE po-ordl.company EQ g_company
+              AND po-ordl.po-no EQ w-ord.po-no 
+              AND po-ordl.LINE EQ INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-NAME})
+            NO-ERROR .
+        IF AVAIL po-ordl THEN DO:
+            dOutQty = 0.
+            FOR EACH fg-rctd WHERE fg-rctd.company EQ g_company AND
+                (fg-rctd.rita-code EQ "R" OR fg-rctd.rita-code EQ "E")
+                AND trim(fg-rctd.job-no) = trim(w-ord.job-no )
+                AND fg-rctd.job-no2 = INT(w-ord.job-no2)
+                AND fg-rctd.i-no = po-ordl.i-no
+                AND int(fg-rctd.po-no) = po-ordl.po-no
+                AND fg-rctd.po-line = po-ordl.LINE
+                NO-LOCK :
+                dOutQty = dOutQty + fg-rctd.t-qty.     
+            END.
+
+            dOutQty = dOutQty + w-ord.total-unit * w-ord.total-tags .
+           
+            dRecQty = po-ordl.t-rec-qty + dOutQty.
+                RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
+                IF NOT ll-ea THEN
+                    RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
+                        dRecQty, OUTPUT dRecQty).
+
+            IF lAllowUserOverRun THEN ASSIGN giFGUnderOver = 0 .
+            IF glFGUnderOver 
+                AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
+                AND dRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
+                IF giFGUnderOver EQ 1 THEN DO:        
+                    MESSAGE 
+                        "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+                        "Overrun allowed for this PO line Item, and excess overruns are not allowed."
+                        VIEW-AS ALERT-BOX WARNING .
+                    oplReturnError = YES.
+                END.
+                ELSE DO:
+                    MESSAGE 
+                        "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+                        "Overrun allowed for this PO line Item..."
+                        VIEW-AS ALERT-BOX WARNING .
+                    lv-overrun2-checked = YES.
+                END.
+            END.
+            ELSE IF glFGUnderOver 
+                AND (gcFGUnderOver EQ "UnderRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
+                AND dRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun2-checked THEN DO:
+                MESSAGE 
+                    "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+                    "Underrun allowed for this PO line Item..."
+                    VIEW-AS ALERT-BOX WARNING .
+                lv-overrun2-checked = YES.
+            END.
+
+            
+        END.
     END.
 END PROCEDURE.
 
