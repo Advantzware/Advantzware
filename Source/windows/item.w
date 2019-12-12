@@ -445,6 +445,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_item-2 ).
+       RUN set-position IN h_p-navico ( 4.81 , 4.00 ) NO-ERROR.
        /* Position in AB:  ( 4.81 , 4.00 ) */
        /* Size in UIB:  ( 16.67 , 139.00 ) */
 
