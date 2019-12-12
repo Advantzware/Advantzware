@@ -635,12 +635,12 @@ PROCEDURE ScreenInit :
     giLightGray = getLightGray().
 
     /* Load images */
-    btnSelect  :LOAD-IMAGE('Image\right.gif').
-    btnDeselect:LOAD-IMAGE('Image\left.gif').
-    btnTop     :LOAD-IMAGE('Image\top.gif').
-    btnUp      :LOAD-IMAGE('Image\up.gif').
-    btnDown    :LOAD-IMAGE('Image\down.gif').
-    btnBottom  :LOAD-IMAGE('Image\bottom.gif').
+    btnSelect  :LOAD-IMAGE('QueryBuilder\Image\right.gif').
+    btnDeselect:LOAD-IMAGE('QueryBuilder\Image\left.gif').
+    btnTop     :LOAD-IMAGE('QueryBuilder\Image\top.gif').
+    btnUp      :LOAD-IMAGE('QueryBuilder\Image\up.gif').
+    btnDown    :LOAD-IMAGE('QueryBuilder\Image\down.gif').
+    btnBottom  :LOAD-IMAGE('QueryBuilder\Image\bottom.gif').
 
   END.
   

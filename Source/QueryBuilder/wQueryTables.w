@@ -562,16 +562,15 @@ PROCEDURE ScreenInit :
   
     /* Get the schema of all connected databases.
     ** We only need to do this on startup
-    */                                     
+    */     
     RUN getSchema(OUTPUT DATASET dsSchema BY-REFERENCE).
-    
     giLightGray = getLightGray().
     
     /* Load images */
-    btnSelect  :LOAD-IMAGE('image\right.gif').
-    btnDeselect:LOAD-IMAGE('image\left.gif').
-    btnUp      :LOAD-IMAGE('image\up.gif').
-    btnDown    :LOAD-IMAGE('image\down.gif').
+    btnSelect  :LOAD-IMAGE('QueryBuilder\image\right.gif').
+    btnDeselect:LOAD-IMAGE('QueryBuilder\image\left.gif').
+    btnUp      :LOAD-IMAGE('QueryBuilder\image\up.gif').
+    btnDown    :LOAD-IMAGE('QueryBuilder\image\down.gif').
 
   END.
   

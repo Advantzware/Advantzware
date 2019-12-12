@@ -9,7 +9,6 @@
 
   Input parameter ttTable should be passed BY-REFERENCE
   ----------------------------------------------------------------------*/
-
 {dsSchema.i}
 DEFINE INPUT  PARAMETER pcUserType AS CHARACTER   NO-UNDO.
 DEFINE OUTPUT PARAMETER DATASET FOR dsSchema. /* by-reference */

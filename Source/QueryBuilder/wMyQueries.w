@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          qb               PROGRESS
+          asi               PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -284,17 +284,17 @@ DO:
  
   IF getUserType() = 'NORMAL' THEN
   DO:
-    RUN wAddQuery.w(OUTPUT iQueryNr).
+    RUN QueryBuilder/wAddQuery.w(OUTPUT iQueryNr).
     IF iQueryNr = 0 THEN RETURN. 
     
-    /* Copy the query to this user */
-    RUN copyQuery(iQueryNr, getUserId()).
+      /* Copy the query to this user */
+      RUN copyQuery(iQueryNr, getUserId()).
   END.
   
   ELSE /* admins */
   DO:
     RUN createQuery(getUserId(), OUTPUT iQueryNr). /* create empty query */
-    RUN wModifyQuery.w(INPUT iQueryNr).
+    RUN QueryBuilder/wModifyQuery.w(INPUT iQueryNr).
   END.
   
   {&OPEN-QUERY-brQueries}
@@ -353,7 +353,7 @@ ON CHOOSE OF btnRun IN FRAME DEFAULT-FRAME /* Run */
 DO:
 
   {&WINDOW-NAME}:SENSITIVE = FALSE.  
-  RUN wDataQuery.w(INPUT qbQuery.queryNr).
+  RUN QueryBuilder/wDataQuery.w(INPUT qbQuery.queryNr).
   {&WINDOW-NAME}:SENSITIVE = TRUE.
   
 END.

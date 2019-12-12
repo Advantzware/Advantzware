@@ -502,9 +502,9 @@ PROCEDURE initObject :
     
     IF getUserType() = "normal" THEN
     DO:
-      RUN startScreen(4, btnConditions:HANDLE , 'wQueryConditions.w').
-      RUN startScreen(5, btnFields:HANDLE     , 'wQueryFields.w').
-      RUN startScreen(6, btnPreview:HANDLE    , 'wQueryResults.w').
+      RUN startScreen(4, btnConditions:HANDLE , 'QueryBuilder/wQueryConditions.w').
+      RUN startScreen(5, btnFields:HANDLE     , 'QueryBuilder/wQueryFields.w').
+      RUN startScreen(6, btnPreview:HANDLE    , 'QueryBuilder/wQueryResults.w').
 
       /* Hide non-admin buttons and move other buttons to the left */
       HIDE btnProperties btnTables btnRelations.
@@ -518,12 +518,12 @@ PROCEDURE initObject :
     
     ELSE 
     DO:
-      RUN startScreen(1, btnProperties:HANDLE , 'wQueryProperties.w').
-      RUN startScreen(2, btnTables:HANDLE     , 'wQueryTables.w').
-      RUN startScreen(3, btnRelations:HANDLE  , 'wQueryRelations.w').
-      RUN startScreen(4, btnConditions:HANDLE , 'wQueryConditions.w').
-      RUN startScreen(5, btnFields:HANDLE     , 'wQueryFields.w').
-      RUN startScreen(6, btnPreview:HANDLE    , 'wQueryResults.w').
+      RUN startScreen(1, btnProperties:HANDLE , 'QueryBuilder/wQueryProperties.w').
+      RUN startScreen(2, btnTables:HANDLE     , 'QueryBuilder/wQueryTables.w').
+      RUN startScreen(3, btnRelations:HANDLE  , 'QueryBuilder/wQueryRelations.w').
+      RUN startScreen(4, btnConditions:HANDLE , 'QueryBuilder/wQueryConditions.w').
+      RUN startScreen(5, btnFields:HANDLE     , 'QueryBuilder/wQueryFields.w').
+      RUN startScreen(6, btnPreview:HANDLE    , 'QueryBuilder/wQueryResults.w').
       
       RUN showScreen(1).
     END.  
@@ -650,9 +650,9 @@ FUNCTION lockWindow RETURNS LOGICAL
   giLockCounter = giLockCounter + (IF plLockWindow THEN 1 ELSE -1).
 
   IF giLockCounter > 0 THEN
-    RUN lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, TRUE).
+    RUN QueryBuilder/lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, TRUE).
   ELSE
-    RUN lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, FALSE).
+    RUN QueryBuilder/lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, FALSE).
 
   RETURN TRUE.
 

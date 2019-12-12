@@ -1243,7 +1243,7 @@ DEFINE VARIABLE hWindow AS HANDLE  NO-UNDO.
   /* Use a minimum size to avoid drawing errors */
   IF hWindow:WIDTH-PIXELS < 200 OR hWindow:HEIGHT-PIXELS < 100 THEN RETURN. 
 
-  RUN lockWindow.p(INPUT hWindow, YES).
+  RUN QueryBuilder/lockWindow.p(INPUT hWindow, YES).
 
   /* Adapt the frame */
   hFrame:SCROLLABLE            = YES.
@@ -1263,7 +1263,7 @@ DEFINE VARIABLE hWindow AS HANDLE  NO-UNDO.
   hFrame:VIRTUAL-HEIGHT-PIXELS = hFrame:HEIGHT-PIXELS.
   hFrame:SCROLLABLE            = NO.
 
-  RUN lockWindow.p(INPUT hWindow, NO).
+  RUN QueryBuilder/lockWindow.p(INPUT hWindow, NO).
 
 END PROCEDURE. /* resizeWindow */
 
@@ -1294,7 +1294,7 @@ PROCEDURE ScreenInit :
   DEFINE INPUT-OUTPUT PARAMETER DATASET FOR dsQuery BIND.
   
   DO WITH FRAME {&frame-name}:
-    btnClearDataFilter:LOAD-IMAGE('image\clear.gif').
+    btnClearDataFilter:LOAD-IMAGE('QueryBuilder\image\clear.gif'). 
   END.
   
 END PROCEDURE. /* ScreenInit */
@@ -1607,9 +1607,9 @@ FUNCTION lockWindow RETURNS LOGICAL
   giWindowLockCounter = giWindowLockCounter + (IF plLockWindow THEN 1 ELSE -1).
 
   IF giWindowLockCounter > 0 THEN 
-    RUN lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, TRUE).
+    RUN QueryBuilder/lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, TRUE).
   ELSE 
-    RUN lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, FALSE).
+    RUN QueryBuilder/lockWindow.p(INPUT {&WINDOW-NAME}:HANDLE, FALSE).
 
   RETURN TRUE.
 
@@ -1637,3 +1637,4 @@ END FUNCTION. /* setFilterFieldColor */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
