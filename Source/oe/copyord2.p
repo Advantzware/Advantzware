@@ -70,6 +70,7 @@ RUN spSetSessionParam ("Company", g_company).
 
 {sys/inc/oeship.i}
 {sys/inc/shiptorep.i}
+{sys/inc/venditemcost.i}
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT v-rtn-char, OUTPUT v-rec-found).
@@ -728,30 +729,31 @@ PROCEDURE copyFG :
             b-itemfg-loc.company = b-itemfg.company
             b-itemfg-loc.i-no    = b-itemfg.i-no.
         END.
-
-        FOR EACH e-itemfg
-            WHERE e-itemfg.company EQ itemfg.company
-              AND e-itemfg.i-no    EQ itemfg.i-no
-            NO-LOCK:
-           CREATE b-e-itemfg.
-           BUFFER-COPY e-itemfg EXCEPT rec_key TO b-e-itemfg
-           ASSIGN
-            b-e-itemfg.company = b-itemfg.company
-            b-e-itemfg.i-no    = b-itemfg.i-no.
+        IF lNewVendorItemCost THEN RUN CopyVendItemCost(itemfg.i-no, b-itemfg.i-no).
+        ELSE DO:
+            FOR EACH e-itemfg
+                WHERE e-itemfg.company EQ itemfg.company
+                  AND e-itemfg.i-no    EQ itemfg.i-no
+                NO-LOCK:
+               CREATE b-e-itemfg.
+               BUFFER-COPY e-itemfg EXCEPT rec_key TO b-e-itemfg
+               ASSIGN
+                b-e-itemfg.company = b-itemfg.company
+                b-e-itemfg.i-no    = b-itemfg.i-no.
+            END.
+         
+            FOR EACH e-itemfg-vend
+                WHERE e-itemfg-vend.company EQ itemfg.company
+                  AND e-itemfg-vend.i-no    EQ itemfg.i-no
+                NO-LOCK:
+               CREATE b-e-itemfg-vend.
+               BUFFER-COPY e-itemfg-vend EXCEPT rec_key est-no TO b-e-itemfg-vend
+               ASSIGN
+                b-e-itemfg-vend.company = b-itemfg.company
+                b-e-itemfg-vend.i-no    = b-itemfg.i-no
+                b-e-itemfg-vend.est-no  = ipEstno.
+            END.
         END.
-     
-        FOR EACH e-itemfg-vend
-            WHERE e-itemfg-vend.company EQ itemfg.company
-              AND e-itemfg-vend.i-no    EQ itemfg.i-no
-            NO-LOCK:
-           CREATE b-e-itemfg-vend.
-           BUFFER-COPY e-itemfg-vend EXCEPT rec_key est-no TO b-e-itemfg-vend
-           ASSIGN
-            b-e-itemfg-vend.company = b-itemfg.company
-            b-e-itemfg-vend.i-no    = b-itemfg.i-no
-            b-e-itemfg-vend.est-no  = ipEstno.
-        END.
-    
         FOR EACH itemfgdtl
             WHERE itemfgdtl.company EQ itemfg.company
               AND itemfgdtl.i-no    EQ itemfg.i-no
@@ -1273,6 +1275,58 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-CopyVendItemCost) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyVendItemCost Procedure
+PROCEDURE CopyVendItemCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ipFromItem AS CHAR NO-UNDO. 
+    DEF INPUT PARAM ipToItem AS CHAR NO-UNDO.
+    
+    DEF BUFFER b-vendItemCost FOR vendItemCost.
+    DEF BUFFER b-vendItemCostLevel FOR vendItemCostLevel.
+    
+    /* delete rec if exists before create */
+    for each vendItemCost where vendItemCost.company = cocode 
+        AND vendItemCost.itemID = ipToItem
+        AND vendItemCost.ItemType = "FG":
+                                
+        FOR EACH vendItemCostLevel WHERE vendItemCostLevel.venditemCostID = vendItemCost.vendItemCostID:
+            DELETE vendItemCostLevel.
+        END.                        
+        delete vendItemCost.                         
+    end.                             
+    
+    for each venditemcost where venditemcost.company = cocode 
+        AND venditemcost.itemID = ipFromItem
+        AND vendItemCost.ItemType = "FG"    :
+        create b-vendItemCost.
+        buffer-copy vendItemCost except vendItemCostID itemID venditemcost.rec_key to b-vendItemCost.
+        assign 
+            b-venditemcost.itemID = ipToItem
+            .
+        
+        FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID:
+            create b-vendItemCostLevel.
+            buffer-copy vendItemCostLevel except vendItemCostLevel.vendItemCostID venditemcostlevel.rec_key to b-vendItemCostLevel.
+            assign 
+                b-vendItemCostLevel.vendItemCostID = b-vendItemCost.vendItemCostID
+                .
+        END.                  
+    end.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-create-ord-job) = 0 &THEN
 

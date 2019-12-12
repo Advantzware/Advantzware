@@ -372,14 +372,8 @@ DO TRANSACTION:
     {sys/inc/oeautofg.i}
     {sys/inc/pouom.i}
     {sys/inc/aptax.i}
-/*    {sys/inc/vendItemCost.i}*/
 END.
-
-DEF VAR vic-log AS LOG NO-UNDO.
-DEF VAR cReturn AS CHAR NO-UNDO.
-DEF VAR lFound AS LOG NO-UNDO.
-RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+{sys/inc/vendItemCost.i}
 
 /* Check if authorized to create PO's */
 IF oeautofg-log THEN
@@ -910,13 +904,9 @@ PROCEDURE buildRptRecs :
       
             IF gvlDebug THEN
                 PUT STREAM sDebug UNFORMATTED "buildRptRec - choose vendor " + bf-w-job-mat.i-no SKIP.
-            IF vic-log THEN 
-                RUN po/d-vndcstN.w (v-term, bf-w-job-mat.w-recid,
-                bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no,
-                INPUT v-qty-comp, INPUT v-job-mat-uom).   
-            ELSE RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid,
-                bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no,
-                INPUT v-qty-comp, INPUT v-job-mat-uom).
+            IF lNewVendorItemCost THEN 
+                RUN po/d-vndcstN.w (v-term, bf-w-job-mat.w-recid, bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no, INPUT v-qty-comp, INPUT v-job-mat-uom).   
+            ELSE RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid, bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no, INPUT v-qty-comp, INPUT v-job-mat-uom).
       
             IF fil_id EQ ? THEN ll-canceled = YES.
             ELSE FIND report WHERE RECID(report) EQ fil_id NO-LOCK NO-ERROR.
@@ -927,7 +917,7 @@ PROCEDURE buildRptRecs :
                 /* create tt-eiv for a specific itemfg (from e-itemfg-vend records) */
                 FIND itemfg WHERE ROWID(itemfg) EQ iprItemfg NO-LOCK NO-ERROR.
           
-                IF vic-log THEN RUN RevCreateTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
+                IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
                 ELSE RUN createTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
 
             END.
@@ -3201,13 +3191,13 @@ PROCEDURE processJobMat :
         DO:
   
             /* Create tt-ei and tt-eiv for e-itemvend of an item */
-            IF vic-log THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
+            IF lNewVendorItemCost THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
             ELSE RUN createTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
         END.
         ELSE 
         DO:
             /* Create tt-eiv for a w-job-mat and itemfg */
-            IF vic-log THEN RUN RevCreateTtEiv (INPUT  cocode, INPUT  ROWID(w-job-mat)).
+            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT  cocode, INPUT  ROWID(w-job-mat)).
             ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).
         END.
   
@@ -3431,7 +3421,7 @@ PROCEDURE processJobMat :
         END. /* run poOrdlAddVals */   
 
         /* Get len, wid, depth from item. Set po-ordl.cust-no */
-        IF vic-log THEN RUN calcLenWidN (INPUT gvrPoOrd,
+        IF lNewVendorItemCost THEN RUN calcLenWidN (INPUT gvrPoOrd,
                 INPUT gvrPoOrdl,
                 INPUT gvrItem).
         ELSE RUN calcLenWid (INPUT gvrPoOrd,
@@ -3814,7 +3804,7 @@ PROCEDURE RevCreateTtEiv:
                 
                 IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
                   v-index GT 0 AND v-index LE 20 THEN 
-                    ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
+                    ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
                         tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                         tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */

@@ -53,9 +53,6 @@ RUN methods/prgsecur.p
              OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-             
-/*{custom/globdefs.i}*/
-/*{sys/inc/venditemcost.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -243,7 +240,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -316,6 +313,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
+
+
 SESSION:SET-WAIT-STATE('').
 
 /* Include custom  Main Block code for SmartWindows. */
@@ -1317,7 +1321,7 @@ PROCEDURE local-change-page :
     run get-attribute ("current-page").
     assign li-cur-page  = int(return-value).
 
-  if li-cur-page = 8 then do:
+  if li-cur-page = 8 AND lNewVendorItemCost then do:
      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + itemfg.i-no).          
      RUN select-page (14).
      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  

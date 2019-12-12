@@ -273,6 +273,8 @@ END.
 {sys/ref/oecount.i}
 {sys/inc/f16to32.i}
 {sys/inc/funcToWorkDay.i}
+{sys/inc/vendItemCost.i}
+DEF BUFFER b-vendItemCost FOR vendItemCost.
 
 DO TRANSACTION:
 
@@ -2057,8 +2059,9 @@ DO:
 
                  oe-ordl.cost:screen-value = STRING(ld-cost).                          
               END.
-
-              FIND FIRST e-itemfg-vend WHERE
+              IF lNewVendorItemCost THEN .
+              ELSE 
+                FIND FIRST e-itemfg-vend WHERE
                    e-itemfg-vend.company EQ po-ordl.company AND
                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
@@ -4966,7 +4969,8 @@ DO WITH FRAME {&frame-name}:
 
         IF AVAIL po-ord THEN
         DO:
-           FIND FIRST e-itemfg-vend WHERE
+           IF NOT lNewVendorItemCost THEN 
+             FIND FIRST e-itemfg-vend WHERE
                    e-itemfg-vend.company EQ po-ordl.company AND
                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
@@ -6066,7 +6070,8 @@ PROCEDURE itemfg-cost :
       
           IF AVAIL po-ord THEN
           DO:
-             FIND FIRST e-itemfg-vend WHERE
+             IF NOT lNewVendorItemCost then 
+               FIND FIRST e-itemfg-vend WHERE
                    e-itemfg-vend.company EQ po-ordl.company AND
                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
@@ -7729,7 +7734,59 @@ IF AVAIL itemfg THEN DO:
   /*farm out/purchased items*/
   IF oe-ordl.est-no NE "" AND itemfg.pur-man THEN
   DO:
-     IF NOT CAN-FIND(FIRST e-itemfg WHERE
+      IF lNewVendorItemCost THEN 
+      DO:
+          IF NOT can-find(FIRST vendItemCost WHERE vendItemCost.company = itemfg.company AND vendItemCost.ItemID = itemfg.i-no)
+          THEN DO:
+              CREATE vendItemCost.
+              ASSIGN 
+                  vendItemCost.company = itemfg.company
+                  vendItemCost.itemID = itemfg.i-no
+                  .
+          END.
+
+          FOR EACH b-eb2 FIELDS(company est-no form-no blank-no stock-no)
+              WHERE b-eb2.company EQ itemfg.company
+              AND b-eb2.est-no  EQ oe-ordl.est-no
+              AND b-eb2.part-no EQ oe-ordl.part-no
+              NO-LOCK,
+              EACH vendItemCost WHERE vendItemcost.company = b-eb2.company 
+              AND vendItemCost.estimateNo = b-eb2.est-no
+              AND vendItemCost.formNo = b-eb2.form-no 
+              AND vendItemCost.blankNo = b-eb2.blank-no
+              NO-LOCK:
+
+              v-cost-updated = NO.
+              
+              FIND FIRST b-venditemcost WHERE b-venditemcost.company = b-eb2.company 
+                  AND b-venditemcost.itemID = itemfg.i-no
+                  AND b-venditemcost.estimateNo = ""
+                  AND b-venditemcost.vendorID = vendItemCost.vendorID
+                  AND b-vendItemCost.customerID = vendItemCost.customerID 
+                  NO-ERROR. 
+                                          
+              IF NOT AVAIL b-vendItemCost THEN
+              DO:
+                  CREATE b-vendItemCost.
+                  BUFFER-COPY vendItemCost EXCEPT itemID rec_key estimateNo formNo blankNo
+                      TO b-vendItemCost
+                      ASSIGN 
+                      b-vendItemCost.estimateNo = ""
+                      /*                            b-vend.eqty = 0*/
+                      b-vendItemCost.formNo = 0
+                      b-vendItemCost.blankNo = 0
+                      b-vendItemCost.itemID = itemfg.i-no
+                      v-cost-updated = YES.                 
+              END.
+              ELSE IF b-eb2.stock-no NE "" THEN  do: /*update costs*/
+                  BUFFER-COPY vendItemCost EXCEPT itemID rec_key estimateNo formNo blankNo
+                          TO b-vendItemCost.
+                  ASSIGN v-cost-updated = YES.
+              END.
+          END.    
+     END.
+     ELSE DO:  
+       IF NOT CAN-FIND(FIRST e-itemfg WHERE
         e-itemfg.company = itemfg.company AND
         e-itemfg.i-no = itemfg.i-no) THEN
         DO:
@@ -7739,7 +7796,7 @@ IF AVAIL itemfg THEN DO:
            RELEASE e-itemfg.
         END.
 
-     FOR EACH b-eb2 FIELDS(company est-no form-no blank-no stock-no)
+       FOR EACH b-eb2 FIELDS(company est-no form-no blank-no stock-no)
         WHERE b-eb2.company EQ itemfg.company
           AND b-eb2.est-no  EQ oe-ordl.est-no
           AND b-eb2.part-no EQ oe-ordl.part-no
@@ -7796,7 +7853,8 @@ IF AVAIL itemfg THEN DO:
 
 
               RELEASE b-e-itemfg-vend.
-     END.
+       END.
+     END.    
   END.
 END. /* If avail itemfg */
 

@@ -112,7 +112,6 @@ DEFINE VARIABLE h_v-itmbom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
@@ -297,6 +296,12 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -864,7 +869,7 @@ DEF VAR lv-current-page AS INT NO-UNDO.
             RUN ipShowBtn IN h_vp-rmov (FALSE).
     END.
 
-  if lv-current-page = 5 then 
+  if lv-current-page = 5 AND lNewVendorItemCost then 
     do:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ' + item.mat-type ).

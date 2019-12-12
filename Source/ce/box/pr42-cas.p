@@ -22,7 +22,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
 {cec/print42.i shared}
-
+{sys/inc/venditemcost.i}
 def buffer xcas for cas.
 
 def var v-pallets as log init yes no-undo.
@@ -319,11 +319,20 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
 
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
-   b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                    ELSE item.cons-uom.
-
+   IF lNewVendorItemCost THEN 
+   DO:
+        FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemid = ITEM.i-no
+            AND venditemcost.itemtype = "RM" NO-ERROR.
+        b-uom = IF AVAIL venditemcost AND venditemcost.vendorUom NE "" THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+   END.
+   ELSE 
+   DO:     
+       FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+       b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom ELSE item.cons-uom.
+   END.
+    
+   
    IF b-uom EQ "M" THEN
      ASSIGN
       cas.qty   = cas.qty / 1000
@@ -334,10 +343,17 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
    IF xeb.casNoCharge THEN cas.cost = 0.
    ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 2}
+       IF lNewVendorItemCost THEN 
+       DO:
+           {est/getVendCost.i cas.t-qty cas.cost 2}  
+       END.
+       ELSE 
+       DO:
+           {est/matcost.i cas.t-qty cas.cost 2}
+           cas.cost = (cas.cost * cas.qty) + lv-setup-2. 
+       END.
 
-     ASSIGN
-      cas.cost = (cas.cost * cas.qty) + lv-setup-2
+     ASSIGN     
       v-setup  = lv-setup-2.
    END.
 

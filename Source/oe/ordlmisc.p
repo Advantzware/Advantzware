@@ -25,7 +25,7 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
-
+{sys/inc/venditemcost.i}
 
 
 /* ************************  Function Prototypes ********************** */
@@ -205,6 +205,45 @@ RETURN.
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE CreateVendItemCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQty AS decimal NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCost AS decimal NO-UNDO.
+/*    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.    */
+/*    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.*/
+
+    FIND FIRST vendItemCost WHERE vendItemCost.company = ipcCompany
+                              AND vendItemCost.itemID = ipcItemID
+                              AND vendItemCost.itemType = ipcItemType
+                              NO-ERROR.
+    IF NOT AVAIL vendItemCost THEN DO:
+       CREATE vendItemCost.
+       ASSIGN vendItemCost.Company = ipcCompany
+              vendItemCost.ItemID = ipcItemID
+              vendItemCost.itemType = ipcItemType
+              . 
+    END.
+    vendItemCost.VendorUOM = ipcVendorUOM .
+    FIND FIRST vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID NO-ERROR.
+    IF NOT AVAIL vendItemCostLevel THEN DO:
+       CREATE vendItemCostLevel.
+       ASSIGN vendItemCostLevel.vendItemCostId = vendItemCost.vendItemCostID
+              . 
+    END.    
+    ASSIGN vendItemCostLevel.quantityBase = ipdQty
+           vendItemCostLevel.costPerUOM = ipdCost
+           .
+                                                    
+
+END PROCEDURE.
+
 PROCEDURE update-prep.
   ASSIGN
    v-misc-tot = v-misc-tot + oe-ordm.amt
@@ -279,37 +318,40 @@ PROCEDURE update-prep.
        item.pur-uom   = prep.uom
        item.industry  = IF xeb.est-type LE 4 THEN "1" ELSE "2".
 
-      FIND FIRST e-item
-          WHERE e-item.company EQ item.company
-            AND e-item.i-no    EQ item.i-no
-          NO-ERROR.
-      IF NOT AVAIL e-item THEN DO:
-        CREATE e-item.
-        ASSIGN
-         e-item.company = item.company
-         e-item.i-no    = item.i-no.
+      IF lNewVendorItemCost THEN RUN CreateVendItemCost (ITEM.company, ITEM.i-no,"RM", ITEM.pur-uom,1, prep.cost ).
+      ELSE DO:
+          FIND FIRST e-item
+              WHERE e-item.company EQ item.company
+                AND e-item.i-no    EQ item.i-no
+              NO-ERROR.
+          IF NOT AVAIL e-item THEN DO:
+            CREATE e-item.
+            ASSIGN
+             e-item.company = item.company
+             e-item.i-no    = item.i-no.
+          END.
+          e-item.std-uom = item.pur-uom.
+    
+          FIND FIRST e-item-vend
+              WHERE e-item-vend.company   EQ item.company
+                AND e-item-vend.item-type EQ YES
+                AND e-item-vend.i-no      EQ item.i-no
+                AND e-item-vend.vend-no   EQ ""
+              NO-ERROR.
+          IF NOT AVAIL e-item-vend THEN DO:
+            CREATE e-item-vend.
+            ASSIGN
+             e-item-vend.company   = item.company
+             e-item-vend.item-type = YES
+             e-item-vend.i-no      = item.i-no
+             e-item-vend.vend-no   = "".
+          END.
+          ASSIGN
+           e-item-vend.std-uom     = item.pur-uom
+           e-item-vend.run-qty[1]  = 1
+           e-item-vend.run-cost[1] = prep.cost.
       END.
-      e-item.std-uom = item.pur-uom.
-
-      FIND FIRST e-item-vend
-          WHERE e-item-vend.company   EQ item.company
-            AND e-item-vend.item-type EQ YES
-            AND e-item-vend.i-no      EQ item.i-no
-            AND e-item-vend.vend-no   EQ ""
-          NO-ERROR.
-      IF NOT AVAIL e-item-vend THEN DO:
-        CREATE e-item-vend.
-        ASSIGN
-         e-item-vend.company   = item.company
-         e-item-vend.item-type = YES
-         e-item-vend.i-no      = item.i-no
-         e-item-vend.vend-no   = "".
-      END.
-      ASSIGN
-       e-item-vend.std-uom     = item.pur-uom
-       e-item-vend.run-qty[1]  = 1
-       e-item-vend.run-cost[1] = prep.cost.
-
+      
       CASE prep.mat-type:
         WHEN 'B' THEN item.mat-type = 'O'.
         WHEN 'D' THEN item.mat-type = '8'.
