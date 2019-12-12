@@ -92,6 +92,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_item AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_item-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_item-3 AS HANDLE NO-UNDO.
@@ -112,7 +113,6 @@ DEFINE VARIABLE h_v-itmbom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -123,11 +123,11 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME FRAME-D
+DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         THREE-D 
-         AT COL 132 ROW 3.14
-         SIZE 19 BY 1.19
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1.24
+         SIZE 60 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -137,11 +137,11 @@ DEFINE FRAME OPTIONS-FRAME
          SIZE 88 BY 1.91
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
+DEFINE FRAME FRAME-D
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1.24
-         SIZE 60 BY 1.91
+         THREE-D 
+         AT COL 132 ROW 3.14
+         SIZE 19 BY 1.19
          BGCOLOR 15 .
 
 
@@ -152,7 +152,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.item
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -216,7 +216,7 @@ ASSIGN FRAME FRAME-D:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-    /* END-ASSIGN-TABS */.
+/* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME FRAME-D
    UNDERLINE                                                            */
@@ -327,13 +327,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.48 , 1.00 ) NO-ERROR.
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 24.50 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
@@ -394,8 +388,8 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_import ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
-       RUN init-object IN THIS-PROCEDURE (                  
-             INPUT  'viewers/movecol.w':U ,                     /*Task# 01071407*/
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol2 ).
@@ -421,8 +415,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-         /* Links to SmartViewer h_import. */
+       /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
+
        /* Links to SmartObject h_movecol2. */
        RUN add-link IN adm-broker-hdl ( h_item , 'move-columns':U , h_movecol2 ).
 
@@ -434,6 +429,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_item , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol2 ,
+             h_import , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
              h_movecol2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_item ,
@@ -443,10 +440,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/item.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_item-2 ).
-       /* Position in AB:  ( 4.81 , 4.00 ) */
-       /* Size in UIB:  ( 16.67 , 139.00 ) */
+       RUN set-position IN h_item-2 ( 4.81 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 18.86 , 139.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -471,14 +468,16 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to  h_item-2. */
+       /* Links to SmartViewer h_item-2. */
        RUN add-link IN adm-broker-hdl ( h_item , 'Record':U , h_item-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-rmview , 'TableIO':U , h_item-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_item-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_item-2 ,
              FRAME FRAME-D:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_item-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-rmview ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
@@ -736,9 +735,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'rminq/b-rmiinq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_b-rmiinq ).
-       RUN set-position IN h_b-rmiinq ( 4.57 , 3.00 ) NO-ERROR.
+       /* Position in AB:  ( 4.57 , 3.00 ) */
        /* Size in UIB:  ( 19.76 , 148.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -747,12 +746,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_movecolH. */
        RUN add-link IN adm-broker-hdl ( h_b-rmiinq , 'move-columns':U , h_movecolH ).
 
-       /* Links to SmartNavBrowser h_b-rmiinq. */
+       /* Links to  h_b-rmiinq. */
        RUN add-link IN adm-broker-hdl ( h_item , 'history':U , h_b-rmiinq ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-rmiinq ,
-             FRAME FRAME-D:HANDLE , 'AFTER':U ).
     END. /* Page 9 */
 
   END CASE.
@@ -884,7 +881,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
 PROCEDURE local-create-objects :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
