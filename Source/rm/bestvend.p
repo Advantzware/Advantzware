@@ -28,6 +28,8 @@ DEF VAR lv-msf LIKE ip-qty NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lj AS INT NO-UNDO.
 
+{sys/inc/venditemcost.i}
+
 DEF TEMP-TABLE tt-b-e-itemv NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20
@@ -62,7 +64,10 @@ DO li = 1 TO 6:
   lv-adder[li] = ef.adder[li].
 END.
 
-IF NOT CAN-FIND(FIRST tt-ei) THEN RUN rm/bestvnd1.p (ROWID(eb)).
+IF NOT CAN-FIND(FIRST tt-ei) THEN DO: 
+  IF lNewVendorItemCost THEN RUN rm/bestvnd1N.p (rowid(eb)).
+  ELSE RUN rm/bestvnd1.p (ROWID(eb)).
+END.
 
 FOR EACH tt-ei NO-LOCK,
     EACH tt-eiv WHERE

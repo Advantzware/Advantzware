@@ -29,8 +29,8 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
-def var ll-auto-calc-selected as log no-undo.
-def var k_frac as dec init 6.25 no-undo.
+DEF VAR ll-auto-calc-selected AS LOG NO-UNDO.
+DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 &Scoped-define NEW NEW GLOBAL
 &ENDIF
@@ -38,19 +38,19 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &scoped-define est-layout layout       /* for method enable */
 &scoped-define PROC-ENABLE PROC-ENABLE  
-def var lv-is-roll as log no-undo.
-def var ls-lam-dscr as cha no-undo.
-def var lv-is-foam as log no-undo.
-def var lv-industry as cha no-undo.
-def var ld-roll-wid as dec no-undo.
-def new shared buffer xest for est.
-def new shared buffer xef for ef.
-def new shared buffer xeb for eb.
-def var uom-list as cha no-undo.
-def var ll-is-sheet-calc as log no-undo.
-def var ll-is-canceled as log no-undo.
-def var ll-num-lw-changed as log no-undo.  /* if num-len, eb.num-wid changed */
-def var ll-num-out-changed as log no-undo.  /* if n-out, eb.n-out-l changed */
+DEF VAR lv-is-roll AS LOG NO-UNDO.
+DEF VAR ls-lam-dscr AS cha NO-UNDO.
+DEF VAR lv-is-foam AS LOG NO-UNDO.
+DEF VAR lv-industry AS cha NO-UNDO.
+DEF VAR ld-roll-wid AS DEC NO-UNDO.
+DEF NEW SHARED BUFFER xest FOR est.
+DEF NEW SHARED BUFFER xef FOR ef.
+DEF NEW SHARED BUFFER xeb FOR eb.
+DEF VAR uom-list AS cha NO-UNDO.
+DEF VAR ll-is-sheet-calc AS LOG NO-UNDO.
+DEF VAR ll-is-canceled AS LOG NO-UNDO.
+DEF VAR ll-num-lw-changed AS LOG NO-UNDO.  /* if num-len, eb.num-wid changed */
+DEF VAR ll-num-out-changed AS LOG NO-UNDO.  /* if n-out, eb.n-out-l changed */
 DEF VAR ll-one-eb-on-ef AS LOG NO-UNDO.  
 DEF VAR ll-one-ef-on-est AS LOG NO-UNDO.  
 
@@ -141,6 +141,35 @@ ef.n-out ef.n-cuts ef.nsh-wid ef.nsh-len ef.trim-w ef.trim-l ef.die-in
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAvailVendItemCost V-table-Win
+FUNCTION fAvailVendItemCost RETURNS LOGICAL  
+  (ipCompany AS CHARACTER, ipItemID AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostRollWidth V-table-Win
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL  
+  (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER, ipdRollWidth AS DECIMAL ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostUOM V-table-Win
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -668,49 +697,49 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fold V-table-Win
 ON HELP OF FRAME fold
 DO:
-   def var lv-handle as widget-handle no-undo.
-   def var lv-ind like style.industry no-undo.
-   def var ls-cur-val as cha no-undo.
-   def var char-val as cha no-undo.
-   def var lv-rowid as rowid no-undo.
+   DEF VAR lv-handle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR lv-ind LIKE style.industry NO-UNDO.
+   DEF VAR ls-cur-val AS cha NO-UNDO.
+   DEF VAR char-val AS cha NO-UNDO.
+   DEF VAR lv-rowid AS ROWID NO-UNDO.
    DEF VAR lw-focus AS WIDGET NO-UNDO.
 
 
    lw-focus = FOCUS.
 
-   case lw-focus:name :
-     when "Board" then do:
-           find style where style.company = eb.company and
+   CASE lw-focus:NAME :
+     WHEN "Board" THEN DO:
+           FIND style WHERE style.company = eb.company AND
                             style.style = eb.style
-                            no-lock no-error.   
-           if avail style then lv-ind = style.industry.
-           else lv-ind = "".  
-           if avail style and style.type = "f" then  /* foam */
-                 run windows/l-boardf.w (eb.company,lv-ind,lw-focus:screen-value,output char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
+                            NO-LOCK NO-ERROR.   
+           IF AVAIL style THEN lv-ind = style.industry.
+           ELSE lv-ind = "".  
+           IF AVAIL style AND style.type = "f" THEN  /* foam */
+                 RUN windows/l-boardf.w (eb.company,lv-ind,lw-focus:SCREEN-VALUE,OUTPUT char-val).
+           ELSE RUN windows/l-board1.w (eb.company,lv-ind,lw-focus:SCREEN-VALUE, OUTPUT lv-rowid).
            FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
            IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
              ef.board:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no.
              RUN new-board.                       
            END.  
-     end.
-     when "leaf" then do:
-           find style where style.company = eb.company and
+     END.
+     WHEN "leaf" THEN DO:
+           FIND style WHERE style.company = eb.company AND
                             style.style = eb.style
-                            no-lock no-error.   
-           if avail style then lv-ind = style.industry.
-           else lv-ind = "".  
-           run windows/l-item.w (eb.company,lv-ind,"F,W",lw-focus:screen-value, output char-val).
+                            NO-LOCK NO-ERROR.   
+           IF AVAIL style THEN lv-ind = style.industry.
+           ELSE lv-ind = "".  
+           RUN windows/l-item.w (eb.company,lv-ind,"F,W",lw-focus:SCREEN-VALUE, OUTPUT char-val).
            IF char-val NE "" AND entry(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.                         
-           end.  /* char-val */ 
-     end.  /* leaf */
+           END.  /* char-val */ 
+     END.  /* leaf */
      WHEN "leaf-snum" THEN DO:
        /*  RUN windows/l-form.w (gcompany,ef.est-no,ef.eqty, OUTPUT char-val). */
          RUN windows/l-blank.w (gcompany,ef.est-no,ef.eqty, OUTPUT char-val). 
          IF char-val <> "" THEN DO:
-            lw-focus:SCREEN-VALUE = entry(1,char-val).
+            lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
             CASE lw-focus:INDEX:
                 WHEN 1 THEN ef.leaf-bnum[1]:SCREEN-VALUE = ENTRY(2,char-val).
                 WHEN 2 THEN ef.leaf-bnum[2]:SCREEN-VALUE = ENTRY(2,char-val).
@@ -722,7 +751,7 @@ DO:
      WHEN "leaf-bnum" THEN DO:                             /*ef.form-no*/
          RUN windows/l-blank.w (gcompany,ef.est-no,ef.eqty, OUTPUT char-val).
          IF char-val <> "" THEN DO:
-            lw-focus:SCREEN-VALUE = entry(2,char-val).
+            lw-focus:SCREEN-VALUE = ENTRY(2,char-val).
             CASE lw-focus:INDEX:
                 WHEN 1 THEN ef.leaf-snum[1]:SCREEN-VALUE = ENTRY(1,char-val).
                 WHEN 2 THEN ef.leaf-snum[2]:SCREEN-VALUE = ENTRY(1,char-val).
@@ -732,49 +761,49 @@ DO:
 
          END.
      END.
-     when "m-code" then do:
-          run windows/l-mach.w (gcompany,ef.loc, lw-focus:screen-value, output char-val).
+     WHEN "m-code" THEN DO:
+          RUN windows/l-mach.w (gcompany,ef.loc, lw-focus:SCREEN-VALUE, OUTPUT char-val).
 
           IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO: 
              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
              RUN new-m-code.
           END.        
-     end.
-     when "cost-uom" then do:
-          find first item where item.company = gcompany and
+     END.
+     WHEN "cost-uom" THEN DO:
+          FIND FIRST item WHERE item.company = gcompany AND
                                 item.i-no = ef.board:screen-value
-                                no-lock no-error.
-          if avail item then find first e-item of item no-lock no-error.
-          run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
-          run windows/l-stduom.w (gcompany,uom-list, lw-focus:screen-value, output char-val).
-          if char-val <> "" then 
-             assign lw-focus:screen-value = entry(1,char-val)
+                                NO-LOCK NO-ERROR.
+/*          if avail item then find first e-item of item no-lock no-error.*/
+          RUN sys/ref/uom-rm.p  (item.mat-type, OUTPUT uom-list).
+          RUN windows/l-stduom.w (gcompany,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+          IF char-val <> "" THEN 
+             ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
                     .
-     end.
-     when "fr-uom" then do:
+     END.
+     WHEN "fr-uom" THEN DO:
           uom-list = "CWT,MSF,MSH,TON".
-          run windows/l-stduom.w (gcompany,uom-list, lw-focus:screen-value, output char-val).
-          if char-val <> "" then 
-             assign lw-focus:screen-value = entry(1,char-val)
+          RUN windows/l-stduom.w (gcompany,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+          IF char-val <> "" THEN 
+             ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
                     .
-     end.
+     END.
      WHEN "gsh-len" THEN DO:
          IF ef.m-code:SCREEN-VALUE NE "" AND ef.roll:SCREEN-VALUE EQ "Y" THEN DO:
            RUN windows/l-machar.w (gcompany,ef.m-code:SCREEN-VALUE,"Cylinder Diameter (Front-To-Back)",lw-focus:SCREEN-VALUE, OUTPUT char-val).
            IF char-val NE "" THEN
-             lw-focus:screen-value = ENTRY(1,char-val).
+             lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
          END.
      END.
-     otherwise do:
-           lv-handle = lw-focus:handle.
-           run applhelp.p.
+     OTHERWISE DO:
+           lv-handle = lw-focus:HANDLE.
+           RUN applhelp.p.
 
-           if g_lookup-var <> "" then lw-focus:screen-value = g_lookup-var.
-     end.  /* otherwise */
-  end case.
+           IF g_lookup-var <> "" THEN lw-focus:SCREEN-VALUE = g_lookup-var.
+     END.  /* otherwise */
+  END CASE.
 
-  apply "entry" to lw-focus.
-  return no-apply.
+  APPLY "entry" TO lw-focus.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,75 +814,75 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON LEAVE OF ef.board IN FRAME fold /* Board */
 DO:
-   if lastkey <> -1 and self:screen-value <> "" 
+   IF LASTKEY <> -1 AND SELF:screen-value <> "" 
 
-   then do:
+   THEN DO:
 {&methods/lValidateError.i YES}
-       find first item where item.company = gcompany and
-                             ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                              (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
-                              item.industry = lv-industry and
-                              item.i-no = self:screen-value
-                              no-lock no-error.
-       if not avail item then do:
-          message "Invalid Board. Try Help." view-as alert-box error.
-          return no-apply.
-       end.
-       if item.i-code = "R" and ll-auto-calc-selected then do:
-          if item.r-wid = 0 then do:                     
-             if item.s-wid < eb.t-wid then do:
-                message "Sheet Width less than Blank Width. " view-as alert-box error.
-                return no-apply.
-             end.
-             if item.s-len < eb.t-len then do:
-                message "Sheet Length less than Blank Length. " view-as alert-box error.
-                return no-apply.
-             end.
+       FIND FIRST item WHERE item.company = gcompany AND
+                             ((INDEX("BPR",item.mat-type) > 0 AND NOT lv-is-foam) OR
+                              (INDEX("1234",item.mat-type) > 0 AND lv-is-foam) ) AND
+                              item.industry = lv-industry AND
+                              item.i-no = SELF:screen-value
+                              NO-LOCK NO-ERROR.
+       IF NOT AVAIL item THEN DO:
+          MESSAGE "Invalid Board. Try Help." VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+       END.
+       IF item.i-code = "R" AND ll-auto-calc-selected THEN DO:
+          IF item.r-wid = 0 THEN DO:                     
+             IF item.s-wid < eb.t-wid THEN DO:
+                MESSAGE "Sheet Width less than Blank Width. " VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+             END.
+             IF item.s-len < eb.t-len THEN DO:
+                MESSAGE "Sheet Length less than Blank Length. " VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+             END.
              /*IF ITEM.s-wid > Dec(EF.lsh-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME}) OR
                 ITEM.s-len > Dec(EF.lsh-len:SCREEN-VALUE IN FRAME {&FRAME-NAME})
              THEN DO:
                  MESSAGE "Sheet would not fit on the machine." VIEW-AS ALERT-BOX.
                  RETURN NO-APPLY.
              END.*/
-          end.  /* r-wid = 0 */
-          else if item.r-wid < eb.t-wid then do:
-                message "Roll Width less than Blank Width. " view-as alert-box error.
-                return no-apply.
-          end.
-       end.
+          END.  /* r-wid = 0 */
+          ELSE IF item.r-wid < eb.t-wid THEN DO:
+                MESSAGE "Roll Width less than Blank Width. " VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+          END.
+       END.
 
        IF  ll-auto-calc-selected AND ll-one-eb-on-ef THEN DO:
-           find xef where recid(xef) = recid(ef).
-           find xeb where recid(xeb) = recid(eb).
-           assign xef.m-code = ef.m-code:screen-value
-              xef.lsh-lock = no
+           FIND xef WHERE RECID(xef) = recid(ef).
+           FIND xeb WHERE RECID(xeb) = recid(eb).
+           ASSIGN xef.m-code = ef.m-code:screen-value
+              xef.lsh-lock = NO
               xef.board = ef.board:SCREEN-VALUE
-              xef.xgrain = ef.xgrain:screen-value in frame {&frame-name}.
-              xef.roll   = ef.roll:screen-value in frame {&frame-name} EQ "Y".
+              xef.xgrain = ef.xgrain:screen-value IN FRAME {&frame-name}.
+              xef.roll   = ef.roll:screen-value IN FRAME {&frame-name} EQ "Y".
               .
 
-           run ce/calc-dim.p.
-           find xef where recid(xef) = recid(ef).
-           find xeb where recid(xeb) = recid(eb).
-           assign ef.lsh-len:screen-value = string( xef.lsh-len )
-              ef.lsh-wid:screen-value = string(xef.lsh-wid )
-              ef.gsh-len:screen-value = string(xef.gsh-len )
-              ef.gsh-wid:screen-value = string( xef.gsh-wid )
-              ef.nsh-len:screen-value = string( xef.nsh-len )
-              ef.nsh-wid:screen-value = string( xef.nsh-wid )
-              ef.trim-l:screen-value = string( xef.trim-l )
-              ef.trim-w:screen-value = string( xef.trim-w )
-              ef.n-out:screen-value = string(xef.n-out)
-              ef.n-cuts:screen-value = string(xef.n-cuts)
+           RUN ce/calc-dim.p.
+           FIND xef WHERE RECID(xef) = recid(ef).
+           FIND xeb WHERE RECID(xeb) = recid(eb).
+           ASSIGN ef.lsh-len:screen-value = STRING( xef.lsh-len )
+              ef.lsh-wid:screen-value = STRING(xef.lsh-wid )
+              ef.gsh-len:screen-value = STRING(xef.gsh-len )
+              ef.gsh-wid:screen-value = STRING( xef.gsh-wid )
+              ef.nsh-len:screen-value = STRING( xef.nsh-len )
+              ef.nsh-wid:screen-value = STRING( xef.nsh-wid )
+              ef.trim-l:screen-value = STRING( xef.trim-l )
+              ef.trim-w:screen-value = STRING( xef.trim-w )
+              ef.n-out:screen-value = STRING(xef.n-out)
+              ef.n-cuts:screen-value = STRING(xef.n-cuts)
               ef.roll:SCREEN-VALUE = IF xef.roll THEN "Y" ELSE "N"
               ef.roll-wid:SCREEN-VALUE = IF xef.roll THEN STRING(xef.roll-wid) ELSE ""
               lv-is-roll = xef.roll
-              eb.num-wid:screen-value = string(xeb.num-wid)
-              eb.num-len:screen-value = string(xeb.num-len)
-              eb.num-up:screen-value = string(xeb.num-up).
+              eb.num-wid:screen-value = STRING(xeb.num-wid)
+              eb.num-len:screen-value = STRING(xeb.num-len)
+              eb.num-up:screen-value = STRING(xeb.num-up).
        END. /* ll-auto-calc-selected */
 {&methods/lValidateError.i NO}
-   end.  /* lastkey <> -1 */
+   END.  /* lastkey <> -1 */
 END.
 
 
@@ -875,21 +904,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.cost-uom V-table-Win
 ON LEAVE OF ef.cost-uom IN FRAME fold /* cost-uom */
 DO:
-    if lastkey <> -1 and ef.cost-uom:screen-value <> "" then do:
+    IF LASTKEY <> -1 AND ef.cost-uom:screen-value <> "" THEN DO:
 {&methods/lValidateError.i YES}
-       find first item where item.company = gcompany and
+       FIND FIRST item WHERE item.company = gcompany AND
                                 item.i-no = ef.board
-                                no-lock no-error.
-       if avail item then find first e-item of item no-lock no-error.
-       run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
-       if not can-find(first uom where lookup(uom.uom,uom-list) > 0 and
+                                NO-LOCK NO-ERROR.
+/*       if avail item then find first e-item of item no-lock no-error.*/
+       RUN sys/ref/uom-rm.p  (item.mat-type, OUTPUT uom-list).
+       IF NOT CAN-FIND(FIRST uom WHERE LOOKUP(uom.uom,uom-list) > 0 AND
                             uom.uom = ef.cost-uom:screen-value)
-       then do:
-            message "Invalid Cost UOM. Try Help."   view-as alert-box.
-            return no-apply.
-       end. 
+       THEN DO:
+            MESSAGE "Invalid Cost UOM. Try Help."   VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+       END. 
 {&methods/lValidateError.i NO}                
-    end.  
+    END.  
 END.
 
 
@@ -901,7 +930,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.fr-uom V-table-Win
 ON LEAVE OF ef.fr-uom IN FRAME fold /* fr-uom */
 DO:
-    if lastkey <> -1 and ef.cost-uom:screen-value <> "" then do:
+    IF LASTKEY <> -1 AND ef.cost-uom:screen-value <> "" THEN DO:
 {&methods/lValidateError.i YES}
        /*find first item where item.company = gcompany and
                                 item.i-no = ef.board:screen-value
@@ -910,14 +939,14 @@ DO:
        run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
        */
        uom-list = "CWT,MSF,MSH,TON".
-       if not can-find(first uom where lookup(uom.uom,uom-list) > 0 and
+       IF NOT CAN-FIND(FIRST uom WHERE LOOKUP(uom.uom,uom-list) > 0 AND
                             uom.uom = ef.fr-uom:screen-value)
-       then do:
-            message "Invalid Freight UOM. Try Help." view-as alert-box.
-            return no-apply.
-       end.  
+       THEN DO:
+            MESSAGE "Invalid Freight UOM. Try Help." VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+       END.  
 {&methods/lValidateError.i NO}               
-    end.  
+    END.  
 
 END.
 
@@ -1021,7 +1050,7 @@ ON LEAVE OF ef.leaf-l[1] IN FRAME fold /* Length[1] */
 DO:
      IF LASTKEY = -1 THEN RETURN.
  {&methods/lValidateError.i YES}
-  IF ef.leaf[1]:SCREEN-VALUE <> "" and
+  IF ef.leaf[1]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1042,7 +1071,7 @@ ON LEAVE OF ef.leaf-l[2] IN FRAME fold /* Length[2] */
 DO:
       IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
-  IF ef.leaf[2]:SCREEN-VALUE <> "" and
+  IF ef.leaf[2]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1063,7 +1092,7 @@ ON LEAVE OF ef.leaf-l[3] IN FRAME fold /* Length[3] */
 DO:
        IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
-  IF ef.leaf[3]:SCREEN-VALUE <> "" and
+  IF ef.leaf[3]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1085,7 +1114,7 @@ DO:
        IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
 
-  IF ef.leaf[4]:SCREEN-VALUE <> "" and
+  IF ef.leaf[4]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1167,7 +1196,7 @@ ON LEAVE OF ef.leaf-w[1] IN FRAME fold /* Width[1] */
 DO:
     IF LASTKEY = -1 THEN RETURN.
    {&methods/lValidateError.i YES}
-   IF ef.leaf[1]:SCREEN-VALUE <> "" and
+   IF ef.leaf[1]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1186,7 +1215,7 @@ ON LEAVE OF ef.leaf-w[2] IN FRAME fold /* Width[2] */
 DO:
     IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
-    IF ef.leaf[2]:SCREEN-VALUE <> "" and
+    IF ef.leaf[2]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1206,7 +1235,7 @@ ON LEAVE OF ef.leaf-w[3] IN FRAME fold /* Width[3] */
 DO:
   IF LASTKEY = -1 THEN RETURN.
  {&methods/lValidateError.i YES}
-  IF ef.leaf[3]:SCREEN-VALUE <> "" and
+  IF ef.leaf[3]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1227,7 +1256,7 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 {&methods/lValidateError.i YES}
 
-  IF ef.leaf[4]:SCREEN-VALUE <> "" and
+  IF ef.leaf[4]:SCREEN-VALUE <> "" AND
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1355,33 +1384,33 @@ END.
 ON LEAVE OF ef.m-code IN FRAME fold /* Machine */
 DO:
 
-    if lastkey = -1 then return.
+    IF LASTKEY = -1 THEN RETURN.
 
-    if ll-is-sheet-calc then do:
-          def var source-str as cha no-undo.   
+    IF ll-is-sheet-calc THEN DO:
+          DEF VAR source-str AS cha NO-UNDO.   
           RUN get-link-handle IN adm-broker-hdl 
               (THIS-PROCEDURE, 'Tableio-source':U, OUTPUT source-str).
-          run apply-sheet-calc in widget-handle(source-str).                 
+          RUN apply-sheet-calc IN WIDGET-HANDLE(source-str).                 
           RETURN.
-    end.
-    if ef.m-code:screen-value = "" then do:
-       assign ef.m-dscr:screen-value = ""
+    END.
+    IF ef.m-code:screen-value = "" THEN DO:
+       ASSIGN ef.m-dscr:screen-value = ""
               ef.lsh-wid:screen-value = "0"
               ef.lsh-len:screen-value = "0".
-    end.
+    END.
 
-    if lastkey <> -1 and ef.m-code:screen-value <> "" and
-       not can-find (first mach where mach.company = gcompany and
-                                      mach.loc = eb.loc and
+    IF LASTKEY <> -1 AND ef.m-code:screen-value <> "" AND
+       NOT CAN-FIND (FIRST mach WHERE mach.company = gcompany AND
+                                      mach.loc = eb.loc AND
                                       mach.m-code = ef.m-code:screen-value)
-    then do:
+    THEN DO:
     {&methods/lValidateError.i YES}
-         message "Invalid Machine Code. Try Help." view-as alert-box error.
-         return no-apply.
+         MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+         RETURN NO-APPLY.
     {&methods/lValidateError.i NO}
-    end.
+    END.
 
-    if ll-auto-calc-selected then RUN auto-calc2.  /* from ce/uest2.p */
+    IF ll-auto-calc-selected THEN RUN auto-calc2.  /* from ce/uest2.p */
 END.
 
 
@@ -1406,12 +1435,12 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
    {&methods/lValidateError.i YES}
 
-    if avail item and item.i-code = "R" then do:
-       if dec(self:screen-value) > ef.n-out then do:
-          message "Cannot be greater than what was calculated." view-as alert-box error.
-          return no-apply.
-       end.
-    end.
+    IF AVAIL item AND item.i-code = "R" THEN DO:
+       IF dec(SELF:screen-value) > ef.n-out THEN DO:
+          MESSAGE "Cannot be greater than what was calculated." VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+       END.
+    END.
 {&methods/lValidateError.i NO}
 END.
 
@@ -1436,14 +1465,14 @@ ON LEAVE OF ef.nsh-len IN FRAME fold /* Length */
 DO:
 
 
-   if lastkey <> -1 and 
-       ll-auto-calc-selected AND dec(self:screen-value) < dec(ef.trim-l:screen-value) 
-   then do:
+   IF LASTKEY <> -1 AND 
+       ll-auto-calc-selected AND dec(SELF:screen-value) < dec(ef.trim-l:screen-value) 
+   THEN DO:
    {&methods/lValidateError.i YES}
-      message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
-      return no-apply. 
+      MESSAGE "Net Sheet Size can not be less than Die Size." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY. 
    {&methods/lValidateError.i NO}    
-   end.
+   END.
 
 
 END.
@@ -1458,14 +1487,14 @@ END.
 ON LEAVE OF ef.nsh-wid IN FRAME fold /* Mach Feed */
 DO:
 
-   if lastkey <> -1 and 
-       ll-auto-calc-selected AND dec(self:screen-value) < dec(ef.trim-w:screen-value) 
-   then do:
+   IF LASTKEY <> -1 AND 
+       ll-auto-calc-selected AND dec(SELF:screen-value) < dec(ef.trim-w:screen-value) 
+   THEN DO:
    {&methods/lValidateError.i YES}
-      message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
-      return no-apply. 
+      MESSAGE "Net Sheet Size can not be less than Die Size." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY. 
    {&methods/lValidateError.i NO}    
-   end.
+   END.
 
 
 END.
@@ -1506,7 +1535,7 @@ DO:
         AND mach.loc     EQ eb.loc
         AND mach.m-code  EQ ef.m-code:SCREEN-VALUE
       USE-INDEX m-code NO-LOCK NO-ERROR.
-  IF AVAIL mach and mach.p-type EQ "R" THEN {&self-name}:SCREEN-VALUE = "Y".
+  IF AVAIL mach AND mach.p-type EQ "R" THEN {&self-name}:SCREEN-VALUE = "Y".
 
   RUN roll-display.
 END.
@@ -1520,14 +1549,14 @@ END.
 ON LEAVE OF ef.trim-l IN FRAME fold /* Trim Length */
 DO:
 
-   if lastkey <> -1 and 
-       ll-auto-calc-selected AND dec(self:screen-value) < dec(eb.t-len:screen-value) 
-   then do:
+   IF LASTKEY <> -1 AND 
+       ll-auto-calc-selected AND dec(SELF:screen-value) < dec(eb.t-len:screen-value) 
+   THEN DO:
    {&methods/lValidateError.i YES}
-      message "Die Size can not be less than Blank Size." view-as alert-box error.
-      return no-apply.  
+      MESSAGE "Die Size can not be less than Blank Size." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY.  
    {&methods/lValidateError.i NO}   
-   end.
+   END.
 
 
 END.
@@ -1543,14 +1572,14 @@ ON LEAVE OF ef.trim-w IN FRAME fold /* Die Size */
 DO:
 
 
-   if lastkey <> -1 and
-       ll-auto-calc-selected AND dec(self:screen-value) < dec(eb.t-wid:screen-value) 
-   then do:
+   IF LASTKEY <> -1 AND
+       ll-auto-calc-selected AND dec(SELF:screen-value) < dec(eb.t-wid:screen-value) 
+   THEN DO:
    {&methods/lValidateError.i YES}
-      message "Die Size can not be less than Blank Size." view-as alert-box error.
-      return no-apply. 
+      MESSAGE "Die Size can not be less than Blank Size." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY. 
     {&methods/lValidateError.i NO}
-   end.
+   END.
 
 
 END.
@@ -1562,10 +1591,10 @@ END.
 
 &Scoped-define SELF-NAME ef.xgrain
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.xgrain V-table-Win
-ON return OF ef.xgrain IN FRAME fold /* Xgrain */
+ON RETURN OF ef.xgrain IN FRAME fold /* Xgrain */
 DO:
-   apply "tab" to self.
-   return no-apply.
+   APPLY "tab" TO SELF.
+   RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1576,27 +1605,27 @@ END.
 ON VALUE-CHANGED OF ef.xgrain IN FRAME fold /* Xgrain */
 DO:
   IF ll-one-eb-on-ef THEN DO:
-     find xef where recid(xef) = recid(ef).
-     find xeb where recid(xeb) = recid(eb).
-     assign
-      xef.xgrain = ef.xgrain:screen-value in frame {&frame-name}.
-      xef.roll   = ef.roll:screen-value in frame {&frame-name} EQ "Y".
-     run ce/calc-dim.p.
-     find xef where recid(xef) = recid(ef).
-     find xeb where recid(xeb) = recid(eb).
-     assign ef.lsh-len:screen-value = string(xef.lsh-len )
-              ef.lsh-wid:screen-value = string(xef.lsh-wid )
-              ef.gsh-len:screen-value = string(xef.gsh-len )
-              ef.gsh-wid:screen-value = string(xef.gsh-wid )
-              ef.nsh-len:screen-value = string(xef.nsh-len )
-              ef.nsh-wid:screen-value = string(xef.nsh-wid )
-              ef.trim-l:screen-value = string(xef.trim-l )
-              ef.trim-w:screen-value = string(xef.trim-w )
-              ef.n-out:screen-value = string(xef.n-out)
-              ef.n-cuts:screen-value = string(xef.n-cuts)
-              eb.num-wid:screen-value = string(xeb.num-wid)
-              eb.num-len:screen-value = string(xeb.num-len)
-              eb.num-up:screen-value = string(xeb.num-up).
+     FIND xef WHERE RECID(xef) = recid(ef).
+     FIND xeb WHERE RECID(xeb) = recid(eb).
+     ASSIGN
+      xef.xgrain = ef.xgrain:screen-value IN FRAME {&frame-name}.
+      xef.roll   = ef.roll:screen-value IN FRAME {&frame-name} EQ "Y".
+     RUN ce/calc-dim.p.
+     FIND xef WHERE RECID(xef) = recid(ef).
+     FIND xeb WHERE RECID(xeb) = recid(eb).
+     ASSIGN ef.lsh-len:screen-value = STRING(xef.lsh-len )
+              ef.lsh-wid:screen-value = STRING(xef.lsh-wid )
+              ef.gsh-len:screen-value = STRING(xef.gsh-len )
+              ef.gsh-wid:screen-value = STRING(xef.gsh-wid )
+              ef.nsh-len:screen-value = STRING(xef.nsh-len )
+              ef.nsh-wid:screen-value = STRING(xef.nsh-wid )
+              ef.trim-l:screen-value = STRING(xef.trim-l )
+              ef.trim-w:screen-value = STRING(xef.trim-w )
+              ef.n-out:screen-value = STRING(xef.n-out)
+              ef.n-cuts:screen-value = STRING(xef.n-cuts)
+              eb.num-wid:screen-value = STRING(xeb.num-wid)
+              eb.num-len:screen-value = STRING(xeb.num-len)
+              eb.num-up:screen-value = STRING(xeb.num-up).
   END.
 END.
 
@@ -1630,10 +1659,10 @@ END.
 
 {custom/getcmpny.i}
 {custom/getloc.i}
-assign cocode = gcompany
+ASSIGN cocode = gcompany
        locode = gloc.
-
-session:data-entry-return = yes.
+{sys/inc/vendItemCost.i}
+SESSION:DATA-ENTRY-RETURN = YES.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1692,47 +1721,47 @@ PROCEDURE auto-calc :
 
    {custom/checkuse.i}
 
-   ll-auto-calc-selected = yes.
+   ll-auto-calc-selected = YES.
 
-   find first item where item.company = gcompany and
+   FIND FIRST item WHERE item.company = gcompany AND
                          item.i-no = ef.board
-                         no-lock no-error.
+                         NO-LOCK NO-ERROR.
 
-   if not lv-is-foam or item.i-code = "E" then do:
-      find first mach where mach.company = gcompany and
-                            mach.loc = eb.loc and
+   IF NOT lv-is-foam OR item.i-code = "E" THEN DO:
+      FIND FIRST mach WHERE mach.company = gcompany AND
+                            mach.loc = eb.loc AND
                             mach.m-code = ef.m-code
-                            use-index m-code no-lock no-error.
-        if avail mach and mach.dept[1] eq "RC" then
-           assign ef.nsh-wid:screen-value in frame {&frame-name} = string(ef.nsh-wid - (2 * mach.min-triml))
-                  ef.nsh-len:screen-value = string(ef.nsh-len - (2 * mach.min-trimw)).   
-        assign ef.n-out:screen-value   = string(trunc(ef.lsh-len / ef.nsh-wid,0))
+                            USE-INDEX m-code NO-LOCK NO-ERROR.
+        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+           ASSIGN ef.nsh-wid:screen-value IN FRAME {&frame-name} = STRING(ef.nsh-wid - (2 * mach.min-triml))
+                  ef.nsh-len:screen-value = STRING(ef.nsh-len - (2 * mach.min-trimw)).   
+        ASSIGN ef.n-out:screen-value   = STRING(trunc(ef.lsh-len / ef.nsh-wid,0))
                .
-   end.
+   END.
 
-   assign ef.roll:SCREEN-VALUE     = STRING(ITEM.r-wid GT 0,"Y/N")
+   ASSIGN ef.roll:SCREEN-VALUE     = STRING(ITEM.r-wid GT 0,"Y/N")
           ef.roll-wid:SCREEN-VALUE = STRING(ITEM.r-wid)
-          ef.n-out:SCREEN-VALUE    = string("0")
-          ef.gsh-len:SCREEN-VALUE  = string("0")
-          ef.gsh-wid:SCREEN-VALUE  = string("0")
-          ef.nsh-len:SCREEN-VALUE  = string("0")
-          ef.nsh-wid:SCREEN-VALUE  = string("0")
-          ef.trim-w:SCREEN-VALUE   = string("0")
-          ef.trim-l:SCREEN-VALUE   = string("0")
-          eb.num-len:SCREEN-VALUE  = string("0")
-          eb.num-wid:SCREEN-VALUE  = string("0")
+          ef.n-out:SCREEN-VALUE    = STRING("0")
+          ef.gsh-len:SCREEN-VALUE  = STRING("0")
+          ef.gsh-wid:SCREEN-VALUE  = STRING("0")
+          ef.nsh-len:SCREEN-VALUE  = STRING("0")
+          ef.nsh-wid:SCREEN-VALUE  = STRING("0")
+          ef.trim-w:SCREEN-VALUE   = STRING("0")
+          ef.trim-l:SCREEN-VALUE   = STRING("0")
+          eb.num-len:SCREEN-VALUE  = STRING("0")
+          eb.num-wid:SCREEN-VALUE  = STRING("0")
           .
 
    RUN auto-calc2.
 
-   run dispatch ('enable-fields').
-   disable ef.gsh-wid ef.gsh-len 
+   RUN dispatch ('enable-fields').
+   DISABLE ef.gsh-wid ef.gsh-len 
            ef.nsh-wid ef.nsh-len 
            ef.trim-w ef.trim-l 
-           with frame {&frame-name}.
-   enable ef.m-code  ef.lsh-wid ef.lsh-len ef.xgrain  with frame {&frame-name}.
+           WITH FRAME {&frame-name}.
+   ENABLE ef.m-code  ef.lsh-wid ef.lsh-len ef.xgrain  WITH FRAME {&frame-name}.
 
-   apply "entry" to ef.m-code in frame {&frame-name} .
+   APPLY "entry" TO ef.m-code IN FRAME {&frame-name} .
 
 END PROCEDURE.
 
@@ -1748,33 +1777,33 @@ PROCEDURE auto-calc2 :
 ------------------------------------------------------------------------------*/
 
     IF ll-one-eb-on-ef THEN DO WITH FRAME {&FRAME-NAME}:
-       find xef where recid(xef) = recid(ef).
-       find xeb where recid(xeb) = recid(eb).
-       assign xef.m-code = ef.m-code:screen-value
-              xef.lsh-lock = no
+       FIND xef WHERE RECID(xef) = recid(ef).
+       FIND xeb WHERE RECID(xeb) = recid(eb).
+       ASSIGN xef.m-code = ef.m-code:screen-value
+              xef.lsh-lock = NO
               xef.lsh-len = dec(ef.lsh-len:screen-value)
               xef.lsh-wid = dec(ef.lsh-wid:screen-value)
               xef.n-out = 0
               xef.n-out-l = 0
               .
 
-       run ce/calc-dim.p.
-       find xef where recid(xef) = recid(ef).
-       find xeb where recid(xeb) = recid(eb).
-       assign ef.lsh-len:screen-value = string( xef.lsh-len )
-              ef.lsh-wid:screen-value = string(xef.lsh-wid )
-              ef.gsh-len:screen-value = string(xef.gsh-len )
-              ef.gsh-wid:screen-value = string(xef.gsh-wid )
-              ef.nsh-len:screen-value = string(xef.nsh-len)
-              ef.nsh-wid:screen-value = string(xef.nsh-wid )
-              ef.trim-l:screen-value = string(xef.trim-l )
-              ef.trim-w:screen-value = string(xef.trim-w )
-              ef.n-out:screen-value = string(xef.n-out)
-              ef.n-cuts:screen-value = string(xef.n-cuts)              
-              ef.die-in:screen-value = string(xef.die-in)
-              eb.num-wid:screen-value = string(xeb.num-wid)
-              eb.num-len:screen-value = string(xeb.num-len)
-              eb.num-up:screen-value = string(xeb.num-up).
+       RUN ce/calc-dim.p.
+       FIND xef WHERE RECID(xef) = recid(ef).
+       FIND xeb WHERE RECID(xeb) = recid(eb).
+       ASSIGN ef.lsh-len:screen-value = STRING( xef.lsh-len )
+              ef.lsh-wid:screen-value = STRING(xef.lsh-wid )
+              ef.gsh-len:screen-value = STRING(xef.gsh-len )
+              ef.gsh-wid:screen-value = STRING(xef.gsh-wid )
+              ef.nsh-len:screen-value = STRING(xef.nsh-len)
+              ef.nsh-wid:screen-value = STRING(xef.nsh-wid )
+              ef.trim-l:screen-value = STRING(xef.trim-l )
+              ef.trim-w:screen-value = STRING(xef.trim-w )
+              ef.n-out:screen-value = STRING(xef.n-out)
+              ef.n-cuts:screen-value = STRING(xef.n-cuts)              
+              ef.die-in:screen-value = STRING(xef.die-in)
+              eb.num-wid:screen-value = STRING(xeb.num-wid)
+              eb.num-len:screen-value = STRING(xeb.num-len)
+              eb.num-up:screen-value = STRING(xeb.num-up).
        RUN roll-display.
     END.
 
@@ -2106,7 +2135,7 @@ PROCEDURE enable-layout-fields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  if not avail ef then return.
+  IF NOT AVAIL ef THEN RETURN.
 
 /*  
   find first item where item.company = gcompany and
@@ -2116,11 +2145,11 @@ PROCEDURE enable-layout-fields :
      disable ef.gsh-wid ef.gsh-len with frame {&frame-name}.
 */
 
-  find first style where style.company = gcompany and
+  FIND FIRST style WHERE style.company = gcompany AND
                           style.style = eb.style
-                          no-lock no-error.
+                          NO-LOCK NO-ERROR.
 
-  if not ll-auto-calc-selected then disable ef.lsh-wid ef.lsh-len with frame {&frame-name}.
+  IF NOT ll-auto-calc-selected THEN DISABLE ef.lsh-wid ef.lsh-len WITH FRAME {&frame-name}.
 
   IF ll-one-eb-on-ef THEN ENABLE eb.num-len eb.num-wid WITH FRAME {&FRAME-NAME}.
 
@@ -2137,7 +2166,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-foam as log no-undo.
+  DEF VAR lv-foam AS LOG NO-UNDO.
   DEF VAR lv-num-up LIKE eb.num-up NO-UNDO.
   DEF VAR ll-gsh-len AS LOG NO-UNDO.
   DEF VAR ll-auto-calc AS LOG NO-UNDO.
@@ -2162,20 +2191,20 @@ PROCEDURE local-assign-record :
                       AND bf-est.est-no = ef.est-no NO-LOCK NO-ERROR.
   IF bf-est.est-type EQ 4 THEN eb.num-up = lv-num-up.
 
-   find style where style.company = gcompany and
+   FIND style WHERE style.company = gcompany AND
                     style.style = eb.style
-                    no-lock no-error.   
-   lv-foam = if avail style and style.type = "F" then yes else no.
-   find first item where item.company = gcompany and
+                    NO-LOCK NO-ERROR.   
+   lv-foam = IF AVAIL style AND style.type = "F" THEN YES ELSE NO.
+   FIND FIRST item WHERE item.company = gcompany AND
                          item.i-no = ef.board
-                         no-lock no-error.
-   if avail item then find first e-item of item no-lock no-error.
+                         NO-LOCK NO-ERROR.
+/*   if avail item then find first e-item of item no-lock no-error.*/
 
-   if ef.m-code:screen-value in frame {&frame-name} <> "" then 
-      find first mach where mach.company = gcompany and
-                            mach.loc = ef.loc and
-                            mach.m-code = ef.m-code:screen-value in frame {&frame-name}
-                            no-lock no-error.
+   IF ef.m-code:screen-value IN FRAME {&frame-name} <> "" THEN 
+      FIND FIRST mach WHERE mach.company = gcompany AND
+                            mach.loc = ef.loc AND
+                            mach.m-code = ef.m-code:screen-value IN FRAME {&frame-name}
+                            NO-LOCK NO-ERROR.
 
    /*  need to run ce/u2k.p 
       if not lv-foam or item.i-code = "E" then run ce/u2k.p . 
@@ -2184,20 +2213,20 @@ PROCEDURE local-assign-record :
 
 ll-auto-calc = ll-auto-calc-selected.
 
-if ll-auto-calc-selected then do:
+IF ll-auto-calc-selected THEN DO:
 
-   if ll-num-out-changed then do:
-      ll-auto-calc-selected = no.     
-      ll-num-out-changed = no.
+   IF ll-num-out-changed THEN DO:
+      ll-auto-calc-selected = NO.     
+      ll-num-out-changed = NO.
 
      ef.n-cuts = (ef.n-out - 1) /*+ (ef.n-out-l - 1)*/.
-     if ef.n-cuts lt 0 then ef.n-cuts = 0.
+     IF ef.n-cuts LT 0 THEN ef.n-cuts = 0.
 
-     ef.gsh-wid = if not avail item or item.i-code eq "E" then
-            ( (input ef.n-out   * IF ef.xgrain EQ "S" THEN ef.nsh-len ELSE ef.nsh-wid) +
-                        if avail mach and mach.dept[1] eq "RC" then
-                          (2 * mach.min-trimw) else 0)
-                        else ef.gsh-wid.
+     ef.gsh-wid = IF NOT AVAIL item OR item.i-code EQ "E" THEN
+            ( (INPUT ef.n-out   * IF ef.xgrain EQ "S" THEN ef.nsh-len ELSE ef.nsh-wid) +
+                        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                          (2 * mach.min-trimw) ELSE 0)
+                        ELSE ef.gsh-wid.
 
      IF AVAIL mach AND mach.p-type EQ "R" THEN DO:
        ll-gsh-len = NO.
@@ -2217,39 +2246,39 @@ if ll-auto-calc-selected then do:
      END.
 
      ELSE
-       ef.gsh-len = if not avail item or item.i-code eq "E" then
+       ef.gsh-len = IF NOT AVAIL item OR item.i-code EQ "E" THEN
                        ((/*ef.n-out-l **/ IF ef.xgrain EQ "S" THEN ef.nsh-wid ELSE ef.nsh-len) +
-                        if avail mach and mach.dept[1] eq "RC" then
-                          (2 * mach.min-triml) else 0)
-                     else ef.gsh-len.
+                        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                          (2 * mach.min-triml) ELSE 0)
+                     ELSE ef.gsh-len.
 
-     assign ef.gsh-len:screen-value = string(ef.gsh-len   )
-            ef.gsh-wid:screen-value = string(ef.gsh-wid  ).
+     ASSIGN ef.gsh-len:screen-value = STRING(ef.gsh-len   )
+            ef.gsh-wid:screen-value = STRING(ef.gsh-wid  ).
      DISPLAY ef.n-cuts WITH FRAME {&FRAME-NAME}.
-   end.
-   else do:
-     ll-auto-calc-selected = no.
+   END.
+   ELSE DO:
+     ll-auto-calc-selected = NO.
 
 
-       if ef.m-code <> "" then 
-          find first mach where mach.company = gcompany and
-                            mach.loc = ef.loc and
+       IF ef.m-code <> "" THEN 
+          FIND FIRST mach WHERE mach.company = gcompany AND
+                            mach.loc = ef.loc AND
                             mach.m-code = ef.m-code
-                            no-lock no-error.
+                            NO-LOCK NO-ERROR.
 
-       find first item where item.company = gcompany and
+       FIND FIRST item WHERE item.company = gcompany AND
                              item.i-no = ef.board
-                             no-lock no-error.
+                             NO-LOCK NO-ERROR.
 
      ef.n-cuts = (ef.n-out   - 1) /*+ (ef.n-out-l - 1)*/.
-     if ef.n-cuts lt 0 then ef.n-cuts = 0.
+     IF ef.n-cuts LT 0 THEN ef.n-cuts = 0.
      DISPLAY ef.n-cuts WITH FRAME {&FRAME-NAME}.
 
-     ef.gsh-wid = if not avail item or item.i-code eq "E" then
-            ( (input ef.n-out   * IF ef.xgrain EQ "S" THEN ef.nsh-len ELSE ef.nsh-wid) +
-                        if avail mach and mach.dept[1] eq "RC" then
-                          (2 * mach.min-trimw) else 0)
-                        else ef.gsh-wid.
+     ef.gsh-wid = IF NOT AVAIL item OR item.i-code EQ "E" THEN
+            ( (INPUT ef.n-out   * IF ef.xgrain EQ "S" THEN ef.nsh-len ELSE ef.nsh-wid) +
+                        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                          (2 * mach.min-trimw) ELSE 0)
+                        ELSE ef.gsh-wid.
 
      IF AVAIL mach AND mach.p-type EQ "R" THEN DO:
        ll-gsh-len = NO.
@@ -2269,14 +2298,14 @@ if ll-auto-calc-selected then do:
      END.
 
      ELSE
-       ef.gsh-len = if not avail item or item.i-code eq "E" then
+       ef.gsh-len = IF NOT AVAIL item OR item.i-code EQ "E" THEN
                        ((/*ef.n-out-l **/ IF ef.xgrain EQ "S" THEN ef.nsh-wid ELSE ef.nsh-len) +
-                        if avail mach and mach.dept[1] eq "RC" then
-                          (2 * mach.min-triml) else 0)
-                     else ef.gsh-len.
+                        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                          (2 * mach.min-triml) ELSE 0)
+                     ELSE ef.gsh-len.
 
-     assign ef.gsh-len:screen-value = string(ef.gsh-len   )
-            ef.gsh-wid:screen-value = string(ef.gsh-wid  )
+     ASSIGN ef.gsh-len:screen-value = STRING(ef.gsh-len   )
+            ef.gsh-wid:screen-value = STRING(ef.gsh-wid  )
             .
 
 /*============= not need
@@ -2316,9 +2345,9 @@ if ll-auto-calc-selected then do:
 
      END.
 ===============*/
-   end.  /* not ll-num-out-changed */
-   disable ef.m-code ef.lsh-wid ef.lsh-len ef.xgrain with frame {&frame-name}.
-end.
+   END.  /* not ll-num-out-changed */
+   DISABLE ef.m-code ef.lsh-wid ef.lsh-len ef.xgrain WITH FRAME {&frame-name}.
+END.
 /*  else do:
        find xef where recid(xef) = recid(ef).
        xef.lsh-lock = yes.
@@ -2394,13 +2423,13 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  ll-is-canceled = yes.
+  ll-is-canceled = YES.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disable ef.m-code with frame {&frame-name}.
-  ll-is-canceled = no.
+  DISABLE ef.m-code WITH FRAME {&frame-name}.
+  ll-is-canceled = NO.
   DISABLE eb.num-len eb.num-wid WITH FRAME {&FRAME-NAME}.
 
   RUN release-shared-buffers.
@@ -2416,12 +2445,12 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var li-n-cuts as int no-undo.
+  DEF VAR li-n-cuts AS INT NO-UNDO.
   DEF VAR lv-tot-len AS INT NO-UNDO.
   DEF VAR lv-tot-wid AS INT NO-UNDO.
   DEF VAR lv-tot-up AS INT NO-UNDO.
 
-  IF valid-handle(br-flm) THEN DELETE WIDGET  br-flm .
+  IF VALID-HANDLE(br-flm) THEN DELETE WIDGET  br-flm .
 
   /* To avoid the display for every form unnecessarily */
   /*IF NOT gvl-first THEN   /* task 06221509 */
@@ -2429,15 +2458,15 @@ PROCEDURE local-display-fields :
 
   DEF BUFFER bf-eb FOR eb.
 
-  if not avail ef OR NOT AVAIL eb then return.
-  assign lv-is-foam = no
+  IF NOT AVAIL ef OR NOT AVAIL eb THEN RETURN.
+  ASSIGN lv-is-foam = NO
          lv-industry = "".
 
-  find first style where style.company = gcompany and
+  FIND FIRST style WHERE style.company = gcompany AND
                           style.style = eb.style
-                          no-lock no-error.
-  if avail style and style.type = "F" then lv-is-foam = yes.
-  if avail style then lv-industry = style.industry.
+                          NO-LOCK NO-ERROR.
+  IF AVAIL style AND style.type = "F" THEN lv-is-foam = YES.
+  IF AVAIL style THEN lv-industry = style.industry.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN eb.num-len:HIDDEN IN FRAME {&FRAME-NAME} = NO
@@ -2460,32 +2489,32 @@ PROCEDURE local-display-fields :
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
   RUN one-ef-on-est (ROWID(est), OUTPUT ll-one-ef-on-est).
   /* from uest2.p =======*/
-  find first ce-ctrl where ce-ctrl.company =gcompany and
+  FIND FIRST ce-ctrl WHERE ce-ctrl.company =gcompany AND
                            ce-ctrl.loc = eb.loc
-                           no-lock no-error.
-  find first item where item.company = gcompany and
+                           NO-LOCK NO-ERROR.
+  FIND FIRST item WHERE item.company = gcompany AND
                         item.i-no = ef.board
-                        no-lock no-error.
-  if avail item then find first e-item of item no-lock no-error.
+                        NO-LOCK NO-ERROR.
+  IF AVAIL item THEN FIND FIRST e-item OF item NO-LOCK NO-ERROR.
   ef.brd-dscr:SCREEN-VALUE = IF AVAIL item THEN item.i-name ELSE "".
-  find first mach where mach.company = gcompany and
-                        mach.loc = eb.loc and
+  FIND FIRST mach WHERE mach.company = gcompany AND
+                        mach.loc = eb.loc AND
                         mach.m-code = ef.m-code
-                        use-index m-code no-lock no-error.
-  if (avail mach and mach.p-type = "R") or
-     (avail item and ( (item.i-code = "R" and item.r-wid ne 0) or
-                       (avail e-item and e-item.roll-w[1] ne 0) )) or
-     (not avail mach and ce-ctrl.avg-cscost ne 0) /*and not(xef.lsh-lock)*/ 
-  then assign lv-is-roll = true. /* xef.lam-dscr = "R". */
-  else assign lv-is-roll = no.
+                        USE-INDEX m-code NO-LOCK NO-ERROR.
+  IF (AVAIL mach AND mach.p-type = "R") OR
+     (AVAIL item AND ( (item.i-code = "R" AND item.r-wid NE 0) OR
+                       (AVAIL e-item AND e-item.roll-w[1] NE 0) OR ( fGetVendItemCostRollWidth(ITEM.company, ITEM.i-no, 0) NE 0)    )) OR                        
+     (NOT AVAIL mach AND ce-ctrl.avg-cscost NE 0) /*and not(xef.lsh-lock)*/      
+  THEN ASSIGN lv-is-roll = TRUE. /* xef.lam-dscr = "R". */
+  ELSE ASSIGN lv-is-roll = NO.
   ls-lam-dscr = "S".
 
-  if ef.n-out = 0 then ef.n-out:screen-value IN FRAME {&FRAME-NAME} = string("1").
+  IF ef.n-out = 0 THEN ef.n-out:screen-value IN FRAME {&FRAME-NAME} = string("1").
 
   IF ef.n-cuts EQ 0 THEN DO:
      li-n-cuts = (int(ef.n-out:screen-value) - 1).
-     if li-n-cuts < 0 then li-n-cuts = 0.
-     ef.n-cuts:screen-value = string(li-n-cuts,">>9").    
+     IF li-n-cuts < 0 THEN li-n-cuts = 0.
+     ef.n-cuts:screen-value = STRING(li-n-cuts,">>9").    
   END.
 
   FOR EACH bf-eb
@@ -2503,7 +2532,7 @@ PROCEDURE local-display-fields :
   /* === for combo ****/
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
 
-  run get-attribute IN WIDGET-HANDLE(char-hdl) ("current-page").
+  RUN get-attribute IN WIDGET-HANDLE(char-hdl) ("current-page").
 
   IF int(RETURN-VALUE) = 4 THEN DO:
     FIND FIRST bf-est WHERE bf-est.company = ef.company
@@ -2542,11 +2571,11 @@ PROCEDURE local-display-fields :
                 lh-len = br-flm:ADD-LIKE-COLUMN("est-flm.len")
                 lh-wid = br-flm:ADD-LIKE-COLUMN("est-flm.wid").
 
-         br-flm:refresh() NO-ERROR.
+         br-flm:REFRESH() NO-ERROR.
 
         IF NUM-RESULTS("q-flm":U) = ? OR  /* query not opened */
            NUM-RESULTS("q-flm") = 0 /* query's empty */
-           /*OR BROWSE br-flm:NUM-SELECTED-ROWS < 1*/  THEN DO: END.                
+                /*OR BROWSE br-flm:NUM-SELECTED-ROWS < 1*/  THEN DO: END.                
         ELSE
          ASSIGN lh-dscr:FORMAT = "x(30)"
                 lh-dscr:WIDTH = 40
@@ -2595,48 +2624,48 @@ PROCEDURE local-update-record :
 {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /* ==== Folding  item validation ======== */
-  do with frame {&frame-name} :  /* validation */
-    if ef.m-code:screen-value <> "" and
-       not can-find (first mach where mach.company = gcompany and
-                                      mach.loc = eb.loc and
+  DO WITH FRAME {&frame-name} :  /* validation */
+    IF ef.m-code:screen-value <> "" AND
+       NOT CAN-FIND (FIRST mach WHERE mach.company = gcompany AND
+                                      mach.loc = eb.loc AND
                                       mach.m-code = ef.m-code:screen-value)
-    then do:
-         message "Invalid Machine Code. Try Help." view-as alert-box error.
-         apply "Entry" to ef.m-code.
-         return no-apply.
-    end.
-    else if ef.m-code:screen-value = "" then ef.m-dscr:screen-value = "". 
+    THEN DO:
+         MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+         APPLY "Entry" TO ef.m-code.
+         RETURN NO-APPLY.
+    END.
+    ELSE IF ef.m-code:screen-value = "" THEN ef.m-dscr:screen-value = "". 
 
     RUN new-m-code.
 
     /*========*/
    IF ef.board:MODIFIED
-   then do:
-       find first item where item.company = gcompany and
-                             ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                              (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
-                              item.industry = lv-industry and
+   THEN DO:
+       FIND FIRST item WHERE item.company = gcompany AND
+                             ((INDEX("BPR",item.mat-type) > 0 AND NOT lv-is-foam) OR
+                              (INDEX("1234",item.mat-type) > 0 AND lv-is-foam) ) AND
+                              item.industry = lv-industry AND
                               item.i-no = ef.board:SCREEN-VALUE
-                              no-lock no-error.
-       if not avail item then do:
-          message "Invalid Board. Try Help." view-as alert-box error.
+                              NO-LOCK NO-ERROR.
+       IF NOT AVAIL item THEN DO:
+          MESSAGE "Invalid Board. Try Help." VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO ef.board.
-          return no-apply.
-       end.
-       if item.i-code = "R" and ll-auto-calc-selected then do:
-          if item.r-wid = 0 then do:           
+          RETURN NO-APPLY.
+       END.
+       IF item.i-code = "R" AND ll-auto-calc-selected THEN DO:
+          IF item.r-wid = 0 THEN DO:           
              IF (item.s-wid LT eb.t-wid AND xef.xgrain NE "B") OR
                 (item.s-wid LT eb.t-len AND xef.xgrain EQ "B") THEN DO:
-                message "Sheet Width less than Blank..." view-as alert-box error.
+                MESSAGE "Sheet Width less than Blank..." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO ef.board.
-                return no-apply.
-             end.
+                RETURN NO-APPLY.
+             END.
              IF (item.s-len LT eb.t-len AND xef.xgrain NE "B") OR
                 (item.s-len LT eb.t-wid AND xef.xgrain EQ "B") THEN DO:
-                message "Sheet Length less than Blank..." view-as alert-box error.
+                MESSAGE "Sheet Length less than Blank..." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO ef.board.
-                return no-apply.
-             end.
+                RETURN NO-APPLY.
+             END.
              IF (xef.xgrain NE "S" AND
                  (ITEM.s-wid GT DEC(ef.lsh-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME}) OR
                   ITEM.s-len GT DEC(ef.lsh-len:SCREEN-VALUE IN FRAME {&FRAME-NAME})))   OR
@@ -2647,15 +2676,15 @@ PROCEDURE local-update-record :
                  APPLY "entry" TO ef.board.
                  RETURN NO-APPLY.
              END.
-          end.  /* r-wid = 0 */
-          else
+          END.  /* r-wid = 0 */
+          ELSE
           IF (item.r-wid LT eb.t-wid AND xef.xgrain NE "B") OR
              (item.r-wid LT eb.t-len AND xef.xgrain EQ "B") THEN DO:
-             message "Roll Width less than Blank Width. " view-as alert-box error.
+             MESSAGE "Roll Width less than Blank Width. " VIEW-AS ALERT-BOX ERROR.
              APPLY "entry" TO ef.board.
-             return no-apply.
-          end.
-       end.
+             RETURN NO-APPLY.
+          END.
+       END.
     END.
 
     RUN valid-gsh-wid NO-ERROR.
@@ -2665,17 +2694,17 @@ PROCEDURE local-update-record :
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     /*=========*/
-    if EF.BOARD:screen-value <> "" and
-       not can-find (first item where item.company = gcompany and
-                                      ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                                      (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
-                                      item.industry = lv-industry and
+    IF EF.BOARD:screen-value <> "" AND
+       NOT CAN-FIND (FIRST item WHERE item.company = gcompany AND
+                                      ((INDEX("BPR",item.mat-type) > 0 AND NOT lv-is-foam) OR
+                                      (INDEX("1234",item.mat-type) > 0 AND lv-is-foam) ) AND
+                                      item.industry = lv-industry AND
                                       item.i-no = ef.board:screen-value)
-    then do:
-         message "Invalid Board. Try Help." view-as alert-box error.
-         apply "entry" to ef.board.
-         return no-apply.
-    end.
+    THEN DO:
+         MESSAGE "Invalid Board. Try Help." VIEW-AS ALERT-BOX ERROR.
+         APPLY "entry" TO ef.board.
+         RETURN NO-APPLY.
+    END.
 
     /*RUN new-board.*/
 
@@ -2691,50 +2720,50 @@ PROCEDURE local-update-record :
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
 
-    IF ef.leaf[1]:SCREEN-VALUE <> "" and
+    IF ef.leaf[1]:SCREEN-VALUE <> "" AND
        INT(ef.leaf-w[1]:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO ef.leaf-w[1].
        RETURN NO-APPLY.
     END.
-    IF ef.leaf[2]:SCREEN-VALUE <> "" and
+    IF ef.leaf[2]:SCREEN-VALUE <> "" AND
        INT(ef.leaf-w[2]:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO ef.leaf-w[2].
        RETURN NO-APPLY.
     END.
-    IF ef.leaf[3]:SCREEN-VALUE <> "" and
+    IF ef.leaf[3]:SCREEN-VALUE <> "" AND
           INT(ef.leaf-w[3]:SCREEN-VALUE) = 0 THEN DO:
           MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO ef.leaf-w[3].
           RETURN NO-APPLY.
     END.
-    IF ef.leaf[4]:SCREEN-VALUE <> "" and
+    IF ef.leaf[4]:SCREEN-VALUE <> "" AND
            INT(ef.leaf-w[4]:SCREEN-VALUE) = 0 THEN DO:
            MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO ef.leaf-w[4].
            RETURN NO-APPLY.
     END.
 
-    IF ef.leaf[1]:SCREEN-VALUE <> "" and
+    IF ef.leaf[1]:SCREEN-VALUE <> "" AND
       INT(ef.leaf-l[1]:SCREEN-VALUE) = 0 THEN DO:
         MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO ef.leaf-l[1].
         RETURN NO-APPLY.
     END.
-    IF ef.leaf[2]:SCREEN-VALUE <> "" and
+    IF ef.leaf[2]:SCREEN-VALUE <> "" AND
        INT(ef.leaf-l[2]:SCREEN-VALUE) = 0 THEN DO:
          MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO ef.leaf-l[2].
          RETURN NO-APPLY.
     END.
-    IF ef.leaf[3]:SCREEN-VALUE <> "" and
+    IF ef.leaf[3]:SCREEN-VALUE <> "" AND
       INT(ef.leaf-l[3]:SCREEN-VALUE) = 0 THEN DO:
       MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ef.leaf-l[3].
       RETURN NO-APPLY.
     END.
-    IF ef.leaf[4]:SCREEN-VALUE <> "" and
+    IF ef.leaf[4]:SCREEN-VALUE <> "" AND
        INT(ef.leaf-l[4]:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO ef.leaf-l[4].
@@ -2742,30 +2771,30 @@ PROCEDURE local-update-record :
     END.
   END. /* leaf/file validateion for not combo */
 
-    if ef.cost-uom:screen-value <> "" then do:
-       find first item where item.company = gcompany and
+    IF ef.cost-uom:screen-value <> "" THEN DO:
+       FIND FIRST item WHERE item.company = gcompany AND
                                 item.i-no = ef.board:screen-value
-                                no-lock no-error.
-       if avail item then find first e-item of item no-lock no-error.
-       run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
-       if not can-find(first uom where lookup(uom.uom,uom-list) > 0 and
+                                NO-LOCK NO-ERROR.
+/*       if avail item then find first e-item of item no-lock no-error.*/
+       RUN sys/ref/uom-rm.p  (item.mat-type, OUTPUT uom-list).
+       IF NOT CAN-FIND(FIRST uom WHERE LOOKUP(uom.uom,uom-list) > 0 AND
                             uom.uom = ef.cost-uom:screen-value)
-       then do:
-            message "Invalid Cost UOM. Try Help." view-as alert-box.
-            apply "entry" to ef.cost-uom.
-            return no-apply.
-       end.                 
-    end.  
-    if ef.FR-uom:screen-value <> "" then do:
+       THEN DO:
+            MESSAGE "Invalid Cost UOM. Try Help." VIEW-AS ALERT-BOX.
+            APPLY "entry" TO ef.cost-uom.
+            RETURN NO-APPLY.
+       END.                 
+    END.  
+    IF ef.FR-uom:screen-value <> "" THEN DO:
        uom-list = "CWT,MSF,MSH,TON".
-       if not can-find(first uom where lookup(uom.uom,uom-list) > 0 and
+       IF NOT CAN-FIND(FIRST uom WHERE LOOKUP(uom.uom,uom-list) > 0 AND
                             uom.uom = ef.fr-uom:screen-value)
-       then do:
-            message "Invalid Freight UOM. Try Help." view-as alert-box.
-            apply "entry" to ef.fr-uom.
-            return no-apply.
-       end.                 
-    end.  
+       THEN DO:
+            MESSAGE "Invalid Freight UOM. Try Help." VIEW-AS ALERT-BOX.
+            APPLY "entry" TO ef.fr-uom.
+            RETURN NO-APPLY.
+       END.                 
+    END.  
 
 
     /*
@@ -2809,13 +2838,13 @@ PROCEDURE local-update-record :
       end.
     end.  /* not auto-calc */
     */
-  end.  /* frame {&frame-name} */
+  END.  /* frame {&frame-name} */
 
-  if ll-is-sheet-calc then do:
-     ll-is-sheet-calc = no.
-     run sheet-calc2.
-     disable ef.m-code with frame {&frame-name}.
-  end.
+  IF ll-is-sheet-calc THEN DO:
+     ll-is-sheet-calc = NO.
+     RUN sheet-calc2.
+     DISABLE ef.m-code WITH FRAME {&frame-name}.
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -2907,35 +2936,35 @@ PROCEDURE n-out-changed :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    if ll-auto-calc-selected and self:modified then do:
-       ll-num-out-changed  = yes.
+    IF ll-auto-calc-selected AND SELF:modified THEN DO:
+       ll-num-out-changed  = YES.
 
-       def var ld-gsh-wid as dec no-undo.
-       def var ld-gsh-len as dec no-undo.
-       def var ld-gsh-dep as dec no-undo.
-       ef.n-cuts:screen-value = string(input ef.n-out - 1).
-       if int(ef.n-cuts:screen-value) lt 0 then ef.n-cuts:screen-value = "0".
+       DEF VAR ld-gsh-wid AS DEC NO-UNDO.
+       DEF VAR ld-gsh-len AS DEC NO-UNDO.
+       DEF VAR ld-gsh-dep AS DEC NO-UNDO.
+       ef.n-cuts:screen-value = STRING(INPUT ef.n-out - 1).
+       IF int(ef.n-cuts:screen-value) LT 0 THEN ef.n-cuts:screen-value = "0".
 
-       if ef.m-code:screen-value in frame {&frame-name} <> "" then 
-          find first mach where mach.company = gcompany and
-                            mach.loc = ef.loc and
+       IF ef.m-code:screen-value IN FRAME {&frame-name} <> "" THEN 
+          FIND FIRST mach WHERE mach.company = gcompany AND
+                            mach.loc = ef.loc AND
                             mach.m-code = ef.m-code:screen-value 
-                            no-lock no-error.
+                            NO-LOCK NO-ERROR.
 
-       find first item where item.company = gcompany and
+       FIND FIRST item WHERE item.company = gcompany AND
                              item.i-no = ef.board:screen-value
-                             no-lock no-error.
+                             NO-LOCK NO-ERROR.
 
-       assign ld-gsh-wid = if not avail item or item.i-code eq "E" THEN ((INT(ef.n-out:SCREEN-VALUE) * DEC(ef.nsh-wid:SCREEN-VALUE)) +
-                        if avail mach and mach.dept[1] eq "RC" then
-                          (2 * mach.min-triml) else 0)
-                        else DEC(ef.gsh-wid:SCREEN-VALUE)
-              ld-gsh-len = if not avail item or item.i-code eq "E" THEN (DEC(ef.nsh-len:SCREEN-VALUE) +
-                        if avail mach and mach.dept[1] eq "RC" then
-                          (2 * mach.min-trimw) else 0)
-                     else DEC(ef.gsh-len:SCREEN-VALUE).
-       assign ef.gsh-len:screen-value = string(ld-gsh-len   )
-              ef.gsh-wid:screen-value = string(ld-gsh-wid  )
+       ASSIGN ld-gsh-wid = IF NOT AVAIL item OR item.i-code EQ "E" THEN ((INT(ef.n-out:SCREEN-VALUE) * DEC(ef.nsh-wid:SCREEN-VALUE)) +
+                        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                          (2 * mach.min-triml) ELSE 0)
+                        ELSE DEC(ef.gsh-wid:SCREEN-VALUE)
+              ld-gsh-len = IF NOT AVAIL item OR item.i-code EQ "E" THEN (DEC(ef.nsh-len:SCREEN-VALUE) +
+                        IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                          (2 * mach.min-trimw) ELSE 0)
+                     ELSE DEC(ef.gsh-len:SCREEN-VALUE).
+       ASSIGN ef.gsh-len:screen-value = STRING(ld-gsh-len   )
+              ef.gsh-wid:screen-value = STRING(ld-gsh-wid  )
               .
     END.
   END.
@@ -2993,9 +3022,13 @@ PROCEDURE new-board :
              ef.gsh-len:SCREEN-VALUE = ef.gsh-wid:SCREEN-VALUE
              ef.gsh-wid:SCREEN-VALUE = lv.*/
         END.
-
-      FIND FIRST e-item OF item NO-LOCK NO-ERROR.
-      IF AVAIL e-item THEN ef.cost-uom:SCREEN-VALUE = e-item.std-uom.
+      IF lNewVendorItemCost THEN DO:
+         ef.cost-uom:SCREEN-VALUE = fGetVendItemCostUOM(ITEM.company, ITEM.i-no). 
+      END.
+      ELSE DO: 
+        FIND FIRST e-item OF item NO-LOCK NO-ERROR.
+        IF AVAIL e-item THEN ef.cost-uom:SCREEN-VALUE = e-item.std-uom. 
+      END.  
     END.
   END.
 
@@ -3178,16 +3211,16 @@ PROCEDURE rawavail-layout :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-message "raw:"  program-name(1) skip
-          program-name(2) skip
-          program-name(3) skip          
-          program-name(4) skip          
-          program-name(5) skip          
-          program-name(6) skip          
-          program-name(7) skip          
-          program-name(8) skip          
-          program-name(9) skip          
-  view-as alert-box.          
+MESSAGE "raw:"  PROGRAM-NAME(1) SKIP
+          PROGRAM-NAME(2) SKIP
+          PROGRAM-NAME(3) SKIP          
+          PROGRAM-NAME(4) SKIP          
+          PROGRAM-NAME(5) SKIP          
+          PROGRAM-NAME(6) SKIP          
+          PROGRAM-NAME(7) SKIP          
+          PROGRAM-NAME(8) SKIP          
+          PROGRAM-NAME(9) SKIP          
+  VIEW-AS ALERT-BOX.          
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3200,19 +3233,19 @@ PROCEDURE recalc-dim :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    if ll-auto-calc-selected then  do:  /* from ce/uest2.p */
-       find first ce-ctrl where ce-ctrl.company =gcompany and
+    IF ll-auto-calc-selected THEN  DO:  /* from ce/uest2.p */
+       FIND FIRST ce-ctrl WHERE ce-ctrl.company =gcompany AND
                            ce-ctrl.loc = eb.loc
-                           no-lock no-error.
-       find first item where item.company = gcompany and
-                             item.i-no = ef.board:screen-value in frame {&frame-name}
-                             no-lock no-error.
-       if avail item then find first e-item of item no-lock no-error.                      
-       assign lv-is-roll = no.
-       find first mach where mach.company = gcompany and
-                                      mach.loc = eb.loc and
+                           NO-LOCK NO-ERROR.
+       FIND FIRST item WHERE item.company = gcompany AND
+                             item.i-no = ef.board:screen-value IN FRAME {&frame-name}
+                             NO-LOCK NO-ERROR.
+       IF AVAIL item THEN FIND FIRST e-item OF item NO-LOCK NO-ERROR.                      
+       ASSIGN lv-is-roll = NO.
+       FIND FIRST mach WHERE mach.company = gcompany AND
+                                      mach.loc = eb.loc AND
                                       mach.m-code = ef.m-code:screen-value
-                                      use-index m-code no-lock no-error.
+                                      USE-INDEX m-code NO-LOCK NO-ERROR.
        /* if (avail mach and mach.p-type = "R") or
           (avail item and ( (item.i-code = "R" and item.r-wid ne 0) or
           (avail e-item and e-item.roll-w[1] ne 0) )) or
@@ -3221,104 +3254,104 @@ PROCEDURE recalc-dim :
           then assign xef.roll = true. /* xef.lam-dscr = "R". */
           else       not for auto calc */
 
-       if avail mach then do:   
-          assign ef.lsh-len:screen-value = string(mach.max-wid)
-                 ef.lsh-wid:screen-value = string(mach.max-len)
+       IF AVAIL mach THEN DO:   
+          ASSIGN ef.lsh-len:screen-value = STRING(mach.max-wid)
+                 ef.lsh-wid:screen-value = STRING(mach.max-len)
                  ls-lam-dscr = "S"
                  lv-is-roll = mach.p-type = "R".
 
-          find first item where item.company = gcompany 
-                         and item.mat-type = "A"
-                         and item.i-no eq ef.board
-                   use-index i-no no-lock no-error.
-          if not avail item or item.i-code eq "E" then
-              assign ef.gsh-wid:screen-value = string( trunc(mach.max-len / eb.t-wid,0) * eb.t-wid +
+          FIND FIRST item WHERE item.company = gcompany 
+                         AND item.mat-type = "A"
+                         AND item.i-no EQ ef.board
+                   USE-INDEX i-no NO-LOCK NO-ERROR.
+          IF NOT AVAIL item OR item.i-code EQ "E" THEN
+              ASSIGN ef.gsh-wid:screen-value = STRING( trunc(mach.max-len / eb.t-wid,0) * eb.t-wid +
                                  (2 * mach.min-triml))
-                     ef.gsh-len:screen-value = string(trunc(mach.max-wid / eb.t-len,0) * eb.t-len +
+                     ef.gsh-len:screen-value = STRING(trunc(mach.max-wid / eb.t-len,0) * eb.t-len +
                                  (2 * mach.min-trimw) )
                      .
-          else if avail item then
-               assign ef.gsh-wid:screen-value = string(item.s-wid)
-                      ef.gsh-len:screen-value = string(item.s-len)
+          ELSE IF AVAIL item THEN
+               ASSIGN ef.gsh-wid:screen-value = STRING(item.s-wid)
+                      ef.gsh-len:screen-value = STRING(item.s-len)
                       .        
 
-       end.
-       else do:
-            assign lv-is-roll = ce-ctrl.avg-cscost <> 0
+       END.
+       ELSE DO:
+            ASSIGN lv-is-roll = ce-ctrl.avg-cscost <> 0
                    ls-lam-dscr = "S"
-                   ef.lsh-wid:screen-value = string(ce-ctrl.ls-length)
-                   ef.lsh-len:screen-value = string(ce-ctrl.ls-width)
-                   ef.gsh-len:screen-value = string(eb.t-len)
-                   ef.gsh-wid:screen-value = string(eb.t-wid)
+                   ef.lsh-wid:screen-value = STRING(ce-ctrl.ls-length)
+                   ef.lsh-len:screen-value = STRING(ce-ctrl.ls-width)
+                   ef.gsh-len:screen-value = STRING(eb.t-len)
+                   ef.gsh-wid:screen-value = STRING(eb.t-wid)
                    .
-       end.  
+       END.  
 
               /* from uest2a.p */
-       if ef.n-out:screen-value = "0" then ef.n-out:screen-value = "1".
-       ef.n-cuts:screen-value = string(decimal(ef.n-out:screen-value) - 1).
+       IF ef.n-out:screen-value = "0" THEN ef.n-out:screen-value = "1".
+       ef.n-cuts:screen-value = STRING(DECIMAL(ef.n-out:screen-value) - 1).
 
-       if decimal(ef.n-cuts:screen-value) lt 0 then ef.n-cuts:screen-value = "0".
+       IF DECIMAL(ef.n-cuts:screen-value) LT 0 THEN ef.n-cuts:screen-value = "0".
 
     /* maybe not here */
        /*find xest where recid(xest) = recid(est). */
-       find xef where recid(xef) = recid(ef).
-       find xeb where recid(xeb) = recid(eb).
-       if not lv-is-foam or item.i-code eq "E" then do:
+       FIND xef WHERE RECID(xef) = recid(ef).
+       FIND xeb WHERE RECID(xeb) = recid(eb).
+       IF NOT lv-is-foam OR item.i-code EQ "E" THEN DO:
           xef.lam-dscr = ls-lam-dscr.
           xef.roll = lv-is-roll.
           xef.m-code = ef.m-code:screen-value.
-          assign xef.lsh-wid = trunc(decimal(ef.lsh-wid:screen-value),0) +
-                               ((decimal(ef.lsh-wid:screen-value) -
-                                 trunc(decimal(ef.lsh-wid:screen-value),0)
+          ASSIGN xef.lsh-wid = trunc(DECIMAL(ef.lsh-wid:screen-value),0) +
+                               ((DECIMAL(ef.lsh-wid:screen-value) -
+                                 trunc(DECIMAL(ef.lsh-wid:screen-value),0)
                                  ) * k_frac)
-                 xef.lsh-len = trunc(decimal(ef.lsh-len:screen-value),0) +
-                               ((decimal(ef.lsh-len:screen-value) -
-                                 trunc(decimal(ef.lsh-len:screen-value),0)
+                 xef.lsh-len = trunc(DECIMAL(ef.lsh-len:screen-value),0) +
+                               ((DECIMAL(ef.lsh-len:screen-value) -
+                                 trunc(DECIMAL(ef.lsh-len:screen-value),0)
                                  ) * k_frac)
                  .
-          run ce/u2k.p .  /* Calculation */
-       end.
-       find xef where recid(xef) = recid(ef).
-       find xeb where recid(xeb) = recid(eb).
+          RUN ce/u2k.p .  /* Calculation */
+       END.
+       FIND xef WHERE RECID(xef) = recid(ef).
+       FIND xeb WHERE RECID(xeb) = recid(eb).
 
-       if not lv-is-foam or item.i-code eq "E" then do:
-         if avail mach and mach.dept[1] eq "RC" then
-            assign  xef.nsh-wid = xef.nsh-wid - (2 * mach.min-triml)
+       IF NOT lv-is-foam OR item.i-code EQ "E" THEN DO:
+         IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+            ASSIGN  xef.nsh-wid = xef.nsh-wid - (2 * mach.min-triml)
                     xef.nsh-len = xef.nsh-len - (2 * mach.min-trimw).
 
 
-         assign xef.n-out   = trunc(xef.lsh-wid / xef.nsh-wid,0)
+         ASSIGN xef.n-out   = trunc(xef.lsh-wid / xef.nsh-wid,0)
                 /*xef.n-out-l = trunc(xef.lsh-len / xef.nsh-len,0)*/
                 .           
-         assign xef.gsh-wid = if not avail item or item.i-code eq "E" then
+         ASSIGN xef.gsh-wid = IF NOT AVAIL item OR item.i-code EQ "E" THEN
                                  ((xef.n-out   * xef.nsh-wid) +
-                              if avail mach and mach.dept[1] eq "RC" then
-                                 (2 * mach.min-triml) else 0)
-                              else xef.gsh-wid
-                xef.gsh-len = if not avail item or item.i-code eq "E" then
+                              IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                                 (2 * mach.min-triml) ELSE 0)
+                              ELSE xef.gsh-wid
+                xef.gsh-len = IF NOT AVAIL item OR item.i-code EQ "E" THEN
                                  ( (/*xef.n-out-l **/ xef.nsh-len) +
-                                   if avail mach and mach.dept[1] eq "RC" then
-                                   (2 * mach.min-trimw) else 0 )
-                              else xef.gsh-len
+                                   IF AVAIL mach AND mach.dept[1] EQ "RC" THEN
+                                   (2 * mach.min-trimw) ELSE 0 )
+                              ELSE xef.gsh-len
                 .      
-       end.  
+       END.  
 
-       assign ef.lsh-len:screen-value = string( xef.lsh-len )
-              ef.lsh-wid:screen-value = string(xef.lsh-wid )
-              ef.gsh-len:screen-value = string(xef.gsh-len )
-              ef.gsh-wid:screen-value = string(xef.gsh-wid )
-              ef.nsh-len:screen-value = string(xef.nsh-len )
-              ef.nsh-wid:screen-value = string(xef.nsh-wid )
-              ef.trim-l:screen-value = string(xef.trim-l )
-              ef.trim-w:screen-value = string(xef.trim-w )
-              ef.n-out:screen-value = string(xef.n-out)
-              ef.n-cuts:screen-value = string(xef.n-cuts)
-              eb.num-wid:screen-value = string(xeb.num-wid)
-              eb.num-len:screen-value = string(xeb.num-len)
-              eb.num-up:screen-value = string(xeb.num-up)
+       ASSIGN ef.lsh-len:screen-value = STRING( xef.lsh-len )
+              ef.lsh-wid:screen-value = STRING(xef.lsh-wid )
+              ef.gsh-len:screen-value = STRING(xef.gsh-len )
+              ef.gsh-wid:screen-value = STRING(xef.gsh-wid )
+              ef.nsh-len:screen-value = STRING(xef.nsh-len )
+              ef.nsh-wid:screen-value = STRING(xef.nsh-wid )
+              ef.trim-l:screen-value = STRING(xef.trim-l )
+              ef.trim-w:screen-value = STRING(xef.trim-w )
+              ef.n-out:screen-value = STRING(xef.n-out)
+              ef.n-cuts:screen-value = STRING(xef.n-cuts)
+              eb.num-wid:screen-value = STRING(xeb.num-wid)
+              eb.num-len:screen-value = STRING(xeb.num-len)
+              eb.num-up:screen-value = STRING(xeb.num-up)
               .
 
-    end. /* ll-auto-calc-selected */
+    END. /* ll-auto-calc-selected */
 
 END PROCEDURE.
 
@@ -3413,7 +3446,7 @@ PROCEDURE run-goto :
 
   FIND FIRST bf-est WHERE bf-est.company = ef.company
                       AND bf-est.est-no = ef.est-no NO-LOCK NO-ERROR.
-  IF bf-est.est-type = 4 THEN do:
+  IF bf-est.est-type = 4 THEN DO:
       ASSIGN lv-tot-up = 0
              lv-tot-len = 0
              lv-tot-wid = 0.
@@ -3449,11 +3482,11 @@ PROCEDURE run-job-stds :
         AND job-hdr.est-no  EQ est.est-no
       NO-LOCK,
       FIRST job
-      where job.company EQ job-hdr.company
-        and job.job     EQ job-hdr.job
-        and job.job-no  EQ job-hdr.job-no
-        and job.job-no2 EQ job-hdr.job-no2
-        and job.est-no  EQ job-hdr.est-no
+      WHERE job.company EQ job-hdr.company
+        AND job.job     EQ job-hdr.job
+        AND job.job-no  EQ job-hdr.job-no
+        AND job.job-no2 EQ job-hdr.job-no2
+        AND job.est-no  EQ job-hdr.est-no
         AND job.opened  EQ YES
       NO-LOCK
       BREAK BY job.job:
@@ -3513,10 +3546,10 @@ PROCEDURE sheet-calc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ll-is-sheet-calc = yes.
-  enable ef.m-code with frame {&frame-name}.
-  apply "entry" to ef.m-code in frame {&frame-name}.
-  return no-apply.
+  ll-is-sheet-calc = YES.
+  ENABLE ef.m-code WITH FRAME {&frame-name}.
+  APPLY "entry" TO ef.m-code IN FRAME {&frame-name}.
+  RETURN NO-APPLY.
 
 END PROCEDURE.
 
@@ -3533,38 +3566,38 @@ PROCEDURE sheet-calc2 :
   /* from ce/bestfitc.p */
     DEFINE BUFFER bf-item FOR ITEM .
 
-     find xest where xest.company = ef.company and
+     FIND xest WHERE xest.company = ef.company AND
                      xest.est-no = ef.est-no
-                     no-lock no-error.
-     find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
-     find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
+                     NO-LOCK NO-ERROR.
+     FIND xef WHERE RECID(xef) = recid(ef) NO-LOCK NO-ERROR.
+     FIND xeb WHERE RECID(xeb) = recid(eb) NO-LOCK NO-ERROR.
 
-     run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","",ef.board).
+     RUN cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","",ef.board).
 
      FIND FIRST tt-ef NO-ERROR.
      FIND FIRST tt-eb NO-ERROR.
 
      IF AVAIL tt-ef AND AVAIL tt-eb THEN
-       assign ef.board:screen-value = tt-ef.board
+       ASSIGN ef.board:screen-value = tt-ef.board
               ef.brd-dscr:screen-value = tt-ef.brd-dscr
               ef.m-code:screen-value = tt-ef.m-code
-              ef.weight:screen-value = string(tt-ef.weight)
+              ef.weight:screen-value = STRING(tt-ef.weight)
               ef.i-code:screen-value = tt-ef.i-code
-              ef.lsh-len:screen-value = string( tt-ef.lsh-len )
-              ef.lsh-wid:screen-value = string( tt-ef.lsh-wid )
-              ef.roll-wid:screen-value = string(tt-ef.roll-wid)
-              ef.roll:screen-value = string(tt-ef.roll,"Y/N")
-              ef.gsh-len:screen-value = string(tt-ef.gsh-len )
-              ef.gsh-wid:screen-value = string( tt-ef.gsh-wid )
-              ef.nsh-len:screen-value = string( tt-ef.nsh-len )
-              ef.nsh-wid:screen-value = string( tt-ef.nsh-wid )
-              ef.trim-l:screen-value = string( tt-ef.trim-l )
-              ef.trim-w:screen-value = string(tt-ef.trim-w )
-              ef.n-out:screen-value = string(tt-ef.n-out)
-              ef.n-cuts:screen-value = string(tt-ef.n-cuts)
-              eb.num-wid:screen-value = string(tt-eb.num-wid)
-              eb.num-len:screen-value = string(tt-eb.num-len)
-              eb.num-up:screen-value = string(tt-eb.num-up)
+              ef.lsh-len:screen-value = STRING( tt-ef.lsh-len )
+              ef.lsh-wid:screen-value = STRING( tt-ef.lsh-wid )
+              ef.roll-wid:screen-value = STRING(tt-ef.roll-wid)
+              ef.roll:screen-value = STRING(tt-ef.roll,"Y/N")
+              ef.gsh-len:screen-value = STRING(tt-ef.gsh-len )
+              ef.gsh-wid:screen-value = STRING( tt-ef.gsh-wid )
+              ef.nsh-len:screen-value = STRING( tt-ef.nsh-len )
+              ef.nsh-wid:screen-value = STRING( tt-ef.nsh-wid )
+              ef.trim-l:screen-value = STRING( tt-ef.trim-l )
+              ef.trim-w:screen-value = STRING(tt-ef.trim-w )
+              ef.n-out:screen-value = STRING(tt-ef.n-out)
+              ef.n-cuts:screen-value = STRING(tt-ef.n-cuts)
+              eb.num-wid:screen-value = STRING(tt-eb.num-wid)
+              eb.num-len:screen-value = STRING(tt-eb.num-len)
+              eb.num-up:screen-value = STRING(tt-eb.num-up)
               .
 
      RUN roll-display.
@@ -3702,15 +3735,19 @@ PROCEDURE valid-gsh-wid :
 
       IF ef.roll:SCREEN-VALUE EQ "Y" AND ll-auto-calc-selected THEN DO:
         IF item.i-code EQ "E" THEN DO:
-          FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-          IF AVAIL e-item AND ld-tons LT celayout-dec THEN
-          DO li = 1 TO 26:
-            IF e-item.roll-w[li] GE DEC(ef.gsh-wid:SCREEN-VALUE) THEN DO:
-              ef.gsh-wid:SCREEN-VALUE = STRING(e-item.roll-w[li]).
-              LEAVE.
-            END.
+          IF lNewVendorItemCost THEN DO:
+             ef.gsh-wid:SCREEN-VALUE = string(fGetVendItemCostRollWidth(ITEM.company, ITEM.i-no, DEC(ef.gsh-wid:SCREEN-VALUE)) ). 
           END.
-
+          ELSE DO:  
+              FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+              IF AVAIL e-item AND ld-tons LT celayout-dec THEN
+              DO li = 1 TO 26:
+                IF e-item.roll-w[li] GE DEC(ef.gsh-wid:SCREEN-VALUE) THEN DO:
+                  ef.gsh-wid:SCREEN-VALUE = STRING(e-item.roll-w[li]).
+                  LEAVE.
+                END.
+              END.
+          END.
           APPLY "value-changed" TO ef.roll.
         END.
       END.
@@ -3853,4 +3890,83 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAvailVendItemCost V-table-Win
+FUNCTION fAvailVendItemCost RETURNS LOGICAL  
+  (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/       
+	DEFINE VARIABLE lResult AS LOGICAL  NO-UNDO.
+
+    FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
+                                      AND vendItemCost.itemID = ipcItemID
+                                      NO-ERROR.
+    lResult = IF AVAIL vendItemCost THEN YES ELSE NO.                                  
+	RETURN lResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostRollWidth V-table-Win
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL  
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER, ipdRollWidth AS DECIMAL ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+    DEF VAR iCount AS INT NO-UNDO.
+    
+    FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
+                                     AND vendItemCost.itemID = ipcItemID
+/*                                     AND vendItemCost.validWidth[1] > 0*/
+                                     NO-ERROR .
+    IF AVAIL vendItemCost THEN DO:
+       IF ipdRollWidth = 0 THEN dResult = vendItemCost.validWidth[1].
+       ELSE DO i = 1 TO 30:            
+           IF vendItemCost.validWidth[iCount] >= ipdRollWidth THEN DO:
+              dResult = vendItemCost.validWidth[iCount].
+              LEAVE. 
+           END. 
+       END.     
+     
+    END.
+                                                                  
+	RETURN dResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostUOM V-table-Win
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER   ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cResult AS CHARACTER  NO-UNDO.
+	
+    FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
+                                      AND vendItemCost.itemID = ipcItemID
+                                      NO-ERROR.
+    cResult = IF AVAIL vendItemCost THEN vendItemCost.vendorUOM ELSE "".  
+    
+    RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 

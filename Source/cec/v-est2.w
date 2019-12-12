@@ -176,6 +176,36 @@ RUN set-attribute-list (
 
 /* ************************  Function Prototypes ********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAvailVendItemCost V-table-Win
+FUNCTION fAvailVendItemCost RETURNS LOGICAL 
+  (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER   ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostRollWidth V-table-Win
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL 
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipdRollWidth AS DECIMAL  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostUOM V-table-Win
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+  ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTotalUp V-table-Win 
 FUNCTION getTotalUp RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
@@ -930,7 +960,7 @@ DO:
           find first item where item.company = gcompany and
                                 item.i-no = ef.board:screen-value
                                 no-lock no-error.
-          if avail item then find first e-item of item no-lock no-error.
+/*          if avail item then find first e-item of item no-lock no-error.*/
           run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
           run windows/l-stduom.w (gcompany,uom-list, lw-focus:screen-value, output char-val).
           if char-val <> "" then 
@@ -1232,7 +1262,7 @@ DO:
        find first item where item.company = gcompany and
                                 item.i-no = ef.board
                                 no-lock no-error.
-       if avail item then find first e-item of item no-lock no-error.
+/*       if avail item then find first e-item of item no-lock no-error.*/
        run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
        if not can-find(first uom where lookup(uom.uom,uom-list) > 0 and
                             uom.uom = ef.cost-uom:screen-value)
@@ -2584,7 +2614,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-
+{sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 ef.spare-int-1:SENSITIVE = NO.
 
@@ -3448,7 +3478,7 @@ PROCEDURE local-display-fields :
            ef.leaf-l[2]:FORMAT = ">>9.999999"
            ef.leaf-l[3]:FORMAT = ">>9.999999"
            ef.leaf-l[4]:FORMAT = ">>9.999999"
-          /* eb.t-sqin:FORMAT = ">>>>>9.99999"*/ .
+                /* eb.t-sqin:FORMAT = ">>>>>9.99999"*/ .
 
         IF eb.t-sqin GT 999999  THEN
             ASSIGN
@@ -3527,7 +3557,7 @@ PROCEDURE local-display-fields :
                         use-index m-code no-lock no-error.
   if (avail mach and mach.p-type = "R") or
      (avail item and ( (item.i-code = "R" and item.r-wid ne 0) or
-                       (avail e-item and e-item.roll-w[1] ne 0) )) or
+                       (avail e-item and e-item.roll-w[1] ne 0) OR ( fGetVendItemCostRollWidth(ITEM.company, ITEM.i-no, 0) NE 0) )) or
      (not avail mach and ce-ctrl.avg-cscost ne 0) /*and not(xef.lsh-lock)*/ 
   then assign lv-is-roll = true. /* xef.lam-dscr = "R". */
   else assign lv-is-roll = no.
@@ -3649,7 +3679,7 @@ PROCEDURE local-display-fields :
 
       IF NUM-RESULTS("q-flm":U) = ? OR  /* query not opened */
          NUM-RESULTS("q-flm") = 0 /* query's empty */
-         /*OR BROWSE br-flm:NUM-SELECTED-ROWS < 1*/  THEN DO: END.                
+                /*OR BROWSE br-flm:NUM-SELECTED-ROWS < 1*/  THEN DO: END.                
       ELSE
        ASSIGN lh-dscr:FORMAT = "x(30)"
               lh-dscr:WIDTH = 40
@@ -3831,7 +3861,7 @@ IF NOT ll-auto-calc-selected THEN
        find first item where item.company = gcompany and
                                 item.i-no = ef.board:screen-value
                                 no-lock no-error.
-       if avail item then find first e-item of item no-lock no-error.
+/*       if avail item then find first e-item of item no-lock no-error.*/
        run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
        if not can-find(first uom where lookup(uom.uom,uom-list) > 0 and
                             uom.uom = ef.cost-uom:screen-value)
@@ -4113,9 +4143,17 @@ PROCEDURE new-board :
              ef.gsh-len:SCREEN-VALUE = ef.gsh-wid:SCREEN-VALUE
              ef.gsh-wid:SCREEN-VALUE = lv.
         END.
-
-      FIND FIRST e-item OF item NO-LOCK NO-ERROR.
-      IF AVAIL e-item THEN ef.cost-uom:SCREEN-VALUE = e-item.std-uom.
+        
+        IF lNewVendorItemCost THEN 
+        DO:
+            ef.cost-uom:SCREEN-VALUE = fGetVendItemCostUOM(ITEM.company, ITEM.i-no). 
+        END.
+        ELSE 
+        DO: 
+            FIND FIRST e-item OF item NO-LOCK NO-ERROR.
+            IF AVAIL e-item THEN ef.cost-uom:SCREEN-VALUE = e-item.std-uom. 
+        END.
+      
     END.
   END.
 
@@ -4902,7 +4940,7 @@ PROCEDURE valid-gsh-dep :
 
     IF lv-msg EQ "" THEN
       IF DEC(ef.gsh-dep:SCREEN-VALUE) LT DEC(ef.nsh-dep:SCREEN-VALUE) 
-        /*AND ll-auto-calc-selected*/ THEN
+            /*AND ll-auto-calc-selected*/ THEN
         lv-msg = "Gross Sheet Size should not be less than Net Sheet Size...".
 
     IF lv-msg NE "" THEN DO:
@@ -4938,7 +4976,7 @@ PROCEDURE valid-gsh-len :
                                             DEC(ef.nsh-wid:SCREEN-VALUE)
                                           ELSE
                                             DEC(ef.nsh-len:SCREEN-VALUE))
-        /*AND ll-auto-calc-selected*/ THEN
+                /*AND ll-auto-calc-selected*/ THEN
         lv-msg = "Gross Sheet Size should not be less than Net Sheet Size...".
     IF lv-msg NE "" THEN DO:
       MESSAGE lv-msg VIEW-AS ALERT-BOX ERROR.
@@ -4981,6 +5019,7 @@ PROCEDURE valid-gsh-wid :
   DEF VAR v-r-wid LIKE ITEM.r-wid NO-UNDO.
   DEF VAR v-s-wid LIKE ITEM.s-wid NO-UNDO.
   DEF VAR v-roll-w LIKE ITEM.r-wid NO-UNDO.
+  DEF VAR v-roll-w2 LIKE ITEM.r-wid NO-UNDO.
   DEF VAR v-tt-wid LIKE ITEM.s-wid NO-UNDO.
   DEF VAR v-tt-len LIKE ITEM.s-len NO-UNDO.
   DEF VAR v-tt-dep LIKE ITEM.s-dep NO-UNDO.
@@ -4998,7 +5037,7 @@ PROCEDURE valid-gsh-wid :
                                             DEC(ef.nsh-len:SCREEN-VALUE)
                                           ELSE
                                             DEC(ef.nsh-wid:SCREEN-VALUE)) 
-                                          /*AND ll-auto-calc-selected*/ THEN
+                /*AND ll-auto-calc-selected*/ THEN
 
         lv-msg = "Gross Sheet Size should not be less than Net Sheet Size...".
 
@@ -5065,16 +5104,32 @@ PROCEDURE valid-gsh-wid :
       END.
 
       IF ef.roll:SCREEN-VALUE EQ "Y" AND ll-auto-calc-selected THEN DO:
-        IF item.i-code EQ "E" THEN DO:
-          FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-          IF AVAIL e-item THEN
-          DO li = 1 TO 26:
-             v-roll-w = {sys/inc/k16.i e-item.roll-w[li]}.
-             IF v-roll-w GE DEC(ef.gsh-wid:SCREEN-VALUE) THEN DO:
-                ef.gsh-wid:SCREEN-VALUE = STRING(v-roll-w).
-                LEAVE.
-             END.
-          END.
+        IF item.i-code EQ "E" THEN 
+        DO:
+            IF lNewVendorItemCost THEN 
+            DO:
+                v-roll-w2 = fGetVendItemCostRollWidth(ITEM.company, ITEM.i-no, DEC(ef.gsh-wid:SCREEN-VALUE) ).
+                v-roll-w = {sys/inc/k16.i v-roll-w2}.
+                ef.gsh-wid:SCREEN-VALUE = string(v-roll-w). 
+            END.
+            ELSE 
+            DO:  
+                FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+                IF AVAIL e-item THEN
+                DO li = 1 TO 26:
+                    v-roll-w = {sys/inc/k16.i e-item.roll-w[li]}.
+                    IF v-roll-w GE DEC(ef.gsh-wid:SCREEN-VALUE) THEN 
+                    DO:
+                        ef.gsh-wid:SCREEN-VALUE = STRING(v-roll-w).
+                        LEAVE.
+                    END.
+                END.
+            END.
+            
+            
+            
+            
+          
 
           APPLY "value-changed" TO ef.roll.
         END.
@@ -5317,6 +5372,91 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAvailVendItemCost V-table-Win
+FUNCTION fAvailVendItemCost RETURNS LOGICAL 
+    ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE lResult AS LOGICAL  NO-UNDO.
+
+    FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
+                                      AND vendItemCost.itemID = ipcItemID
+                                      NO-ERROR.
+    lResult = IF AVAIL vendItemCost THEN YES ELSE NO.                                  
+    RETURN lResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostRollWidth V-table-Win
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL 
+  ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipdRollWidth AS DECIMAL  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+    DEF VAR iCount AS INT NO-UNDO.
+    
+    FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
+        AND vendItemCost.itemID = ipcItemID
+        /*                                     AND vendItemCost.validWidth[1] > 0*/
+        NO-ERROR .
+    IF AVAIL vendItemCost THEN 
+    DO:
+        IF ipdRollWidth = 0 THEN dResult = vendItemCost.validWidth[1].
+        ELSE 
+        DO i = 1 TO 30:            
+            IF vendItemCost.validWidth[iCount] >= ipdRollWidth THEN 
+            DO:
+                dResult = vendItemCost.validWidth[iCount].
+                LEAVE. 
+            END. 
+        END.     
+     
+    END.
+                                                                  
+    RETURN dResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostUOM V-table-Win
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+  ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult AS CHARACTER  NO-UNDO.
+    
+    FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
+        AND vendItemCost.itemID = ipcItemID
+        NO-ERROR.
+    cResult = IF AVAIL vendItemCost THEN vendItemCost.vendorUOM ELSE "".  
+    
+    RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTotalUp V-table-Win 
 FUNCTION getTotalUp RETURNS INTEGER

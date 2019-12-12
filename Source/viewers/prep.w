@@ -64,6 +64,7 @@ DO TRANSACTION:
 END.
 
 {sys/inc/f16to32.i}
+{sys/inc/vendItemCost.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1177,6 +1178,58 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateVendItemCost V-table-Win
+PROCEDURE CreateVendItemCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQty AS decimal NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCost AS decimal NO-UNDO.
+    /*    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.    */
+    /*    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.*/
+
+    FIND FIRST vendItemCost WHERE vendItemCost.company = ipcCompany
+        AND vendItemCost.itemID = ipcItemID
+        AND vendItemCost.itemType = ipcItemType
+        NO-ERROR.
+    IF NOT AVAIL vendItemCost THEN 
+    DO:
+        CREATE vendItemCost.
+        ASSIGN 
+            vendItemCost.Company = ipcCompany
+            vendItemCost.ItemID = ipcItemID
+            vendItemCost.itemType = ipcItemType
+            . 
+    END.
+    vendItemCost.VendorUOM = ipcVendorUOM .
+    FIND FIRST vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID NO-ERROR.
+    IF NOT AVAIL vendItemCostLevel THEN 
+    DO:
+        CREATE vendItemCostLevel.
+        ASSIGN 
+            vendItemCostLevel.vendItemCostId = vendItemCost.vendItemCostID
+            . 
+    END.    
+    ASSIGN 
+        vendItemCostLevel.quantityBase = ipdQty
+        vendItemCostLevel.costPerUOM = ipdCost
+        .
+                                                    
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1346,7 +1399,7 @@ PROCEDURE local-assign-record :
 
   /* gdm - 01270904 - IF FLAG IS YES _ CREATE RM ITEM RECORD */  
   IF v_rmcrtflg THEN RUN RM-item-create.      
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1867,38 +1920,43 @@ IF NOT AVAIL item THEN DO:
                 ELSE item.mat-type = 'M'.              
     END.    
 
-    FIND FIRST e-item EXCLUSIVE-LOCK
-        WHERE e-item.company EQ cocode 
-          AND e-item.i-no EQ item.i-no NO-ERROR.
-    IF NOT AVAIL e-item THEN DO:
-
-        CREATE e-item.
-        ASSIGN
-            e-item.company = cocode 
-            e-item.i-no    = item.i-no
-            e-item.std-uom = "EA".
+    IF lNewVendorItemCost THEN RUN CreateVendItemCost (ITEM.company, ITEM.i-no,"RM", ITEM.pur-uom,9999999.9, prep.cost ).     
+    ELSE DO:
+        FIND FIRST e-item EXCLUSIVE-LOCK
+            WHERE e-item.company EQ cocode 
+              AND e-item.i-no EQ item.i-no NO-ERROR.
+        IF NOT AVAIL e-item THEN DO:
+    
+            CREATE e-item.
+            ASSIGN
+                e-item.company = cocode 
+                e-item.i-no    = item.i-no
+                e-item.std-uom = "EA".
+        END.
+    
+        FIND FIRST e-item-vend EXCLUSIVE-LOCK 
+            WHERE e-item-vend.company EQ cocode 
+              AND e-item-vend.i-no EQ item.i-no NO-ERROR.
+        IF NOT AVAIL e-item-vend THEN DO:
+            CREATE e-item-vend.
+            ASSIGN
+                e-item-vend.company     = cocode 
+                e-item-vend.i-no        = item.i-no
+                e-item-vend.item-type   = YES
+                e-item-vend.run-cost[1] = prep.cost
+                e-item-vend.run-qty[1]  = 9999999.9.
+        END.
+        RELEASE e-item.
+        RELEASE e-item-vend.
     END.
-
-    FIND FIRST e-item-vend EXCLUSIVE-LOCK 
-        WHERE e-item-vend.company EQ cocode 
-          AND e-item-vend.i-no EQ item.i-no NO-ERROR.
-    IF NOT AVAIL e-item-vend THEN DO:
-        CREATE e-item-vend.
-        ASSIGN
-            e-item-vend.company     = cocode 
-            e-item-vend.i-no        = item.i-no
-            e-item-vend.item-type   = YES
-            e-item-vend.run-cost[1] = prep.cost
-            e-item-vend.run-qty[1]  = 9999999.9.
-    END.
-    RELEASE e-item.
-    RELEASE e-item-vend.
-
 END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
