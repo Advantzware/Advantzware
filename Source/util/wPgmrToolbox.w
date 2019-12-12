@@ -464,6 +464,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT lResult THEN ASSIGN btDataDigger:VISIBLE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "QueryBuilder", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btQueryBuilder:VISIBLE = FALSE.
+    ELSE ASSIGN iNumOK = iNumOK + 1.
+
     RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "SwitchMode", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN 
         btSwitchMode:VISIBLE = FALSE

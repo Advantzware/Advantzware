@@ -100,6 +100,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "CanUpgrade") OR /*Main menu upgrade notification*/
                 (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "LockMon") OR /*Lock Monitor Button*/
+                (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "QueryBuilder") OR /*Lock Monitor Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "MonitorUsers") OR /*Monitor Users Button*/
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access2") OR /*NK5 User Control - Max Sessions Per User*/
