@@ -443,7 +443,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_item-2 ). 
        RUN set-position IN h_item-2 ( 4.81 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.86 , 139.00 ) */
+       RUN set-size IN h_item-2 ( 18.86 , 139.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
