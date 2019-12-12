@@ -441,7 +441,7 @@ PROCEDURE adm-create-objects :
              INPUT  'viewers/item.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_item-2 ).
+             OUTPUT h_item-2 ). 
        RUN set-position IN h_item-2 ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 18.86 , 139.00 ) */
 
