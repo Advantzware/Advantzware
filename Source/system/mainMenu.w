@@ -907,30 +907,32 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
                     WHERE emailConfig.configID EQ iConfigID
                       AND emailConfig.isActive EQ YES
                       AND emailConfig.notified EQ NO) THEN DO:
-            RUN sys/ref/nk1look.p (
-                g_company,"TaskerNotRunning","L",NO,NO,"","",
-                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                ).
-            IF lTaskerNotRunning AND cTaskerNotRunning EQ "Yes" THEN
-            RUN spSendEmail (
-                iConfigID,       /* emailConfig.ConfigID */
-                "",              /* Override for Email RecipientsinTo */
-                "",              /* Override for Email RecipientsinReplyTo */
-                "",              /* Override for Email RecipientsinCC */
-                "",              /* Override for Email RecipientsinBCC */
-                "",              /* Override for Email Subject */
-                "",              /* Override for Email Body */
-                "",              /* Email Attachment */
-                OUTPUT lSuccess, /* Email success or not */
-                OUTPUT cMessage  /* Reason for failure in case email is not sent */
-                ).
             DO TRANSACTION:
                 FIND FIRST emailConfig EXCLUSIVE-LOCK
                      WHERE emailConfig.configID EQ iConfigID
-                     NO-ERROR.
-                IF AVAILABLE emailConfig THEN
+                     NO-ERROR NO-WAIT.
+                IF AVAILABLE emailConfig AND NOT LOCKED emailConfig THEN
                 emailConfig.notified = YES.
             END. /* do trans */
+            IF NOT LOCKED emailConfig THEN DO:
+                RUN sys/ref/nk1look.p (
+                    g_company,"TaskerNotRunning","L",NO,NO,"","",
+                    OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+                    ).
+                IF lTaskerNotRunning AND cTaskerNotRunning EQ "Yes" THEN
+                RUN spSendEmail (
+                    iConfigID,       /* emailConfig.ConfigID */
+                    "",              /* Override for Email RecipientsinTo */
+                    "",              /* Override for Email RecipientsinReplyTo */
+                    "",              /* Override for Email RecipientsinCC */
+                    "",              /* Override for Email RecipientsinBCC */
+                    "",              /* Override for Email Subject */
+                    "",              /* Override for Email Body */
+                    "",              /* Email Attachment */
+                    OUTPUT lSuccess, /* Email success or not */
+                    OUTPUT cMessage  /* Reason for failure in case email is not sent */
+                    ).
+            END. /* if not locked */
         END. /* if sent eq no */
     END. /* tasker not running */
     RELEASE emailConfig.
