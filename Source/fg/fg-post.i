@@ -713,27 +713,6 @@
                              IF AVAIL po-ordl THEN po-ordl.s-wid ELSE 0,
                              0, ld-cvt-cost, OUTPUT ld-cvt-cost).
     {fg/upd-bin.i "fg-bin" "{2}.cost-uom" "ld-cvt-cost" {2}}
-    FIND FIRST eb NO-LOCK
-        WHERE eb.company EQ cocode
-        AND eb.est-no EQ job.est-no
-        AND eb.blank-no EQ 0 NO-ERROR.
-      IF AVAIL eb AND eb.set-is-assembled EQ NO THEN DO:
-          ASSIGN itemfg.std-tot-cost = fg-bin.std-tot-cost
-              itemfg.std-mat-cost = fg-bin.std-mat-cost
-              itemfg.std-lab-cost = fg-bin.std-lab-cost
-              itemfg.std-fix-cost = fg-bin.std-fix-cost
-              itemfg.std-var-cost = fg-bin.std-var-cost.
-          ASSIGN 
-             itemfg.total-std-cost = itemfg.std-tot-cost                         
-             itemfg.last-cost    = itemfg.std-tot-cost.
-             itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
-         FIND FIRST fg-ctrl NO-LOCK  
-             WHERE fg-ctrl.company EQ itemfg.company
-             NO-ERROR.
-         IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
-             itemfg.total-std-cost = itemfg.avg-cost.    
-      END.
-
   end.
   else 
   if {1}.rita-code eq "A" or {1}.rita-code eq "E" then
