@@ -24,9 +24,12 @@ DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
@@ -37,10 +40,24 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 
+/* alphabetical list of super-procedures comma delimited */
+ASSIGN 
+    cSuperProcedure = "system/CommonProcs.p,"
+                    + "system/CreditProcs.p,"
+                    + "system/PurgeProcs.p,"
+                    + "system/TagProcs.p,"
+                    + "system/VendorCostProcs.p,"
+    cSuperProcedure = TRIM(cSuperProcedure,",")
+    .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionParam AS CHARACTER
     FIELD sessionValue AS CHARACTER
         INDEX sessionParam IS PRIMARY UNIQUE sessionParam
+        .
+DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
+    FIELD superProcedure AS CHARACTER 
+    FIELD isRunning      AS LOGICAL
+        INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
 {system/ttPermissions.i}
 {system/ttSysCtrlUsage.i}
@@ -242,9 +259,30 @@ FIND FIRST users NO-LOCK
      NO-ERROR.
 IF AVAILABLE users THEN 
 ASSIGN 
-    lUserAMPM   = users.AMPM
-    lSuperAdmin = users.securityLevel GE 1000
+    lUserAMPM       = users.AMPM
+    lSuperAdmin     = users.securityLevel GE 1000
     .
+/* build temp-table of super-procedures */
+DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
+    CREATE ttSuperProcedure.
+    ttSuperProcedure.superProcedure = ENTRY(idx,cSuperProcedure).
+END. /* do idx */
+/* find if super-procedure is running */
+DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
+    hSuperProcedure = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES)).
+    FIND FIRST ttSuperProcedure
+         WHERE ttSuperProcedure.superProcedure EQ hSuperProcedure:NAME
+         NO-ERROR.
+    IF AVAILABLE ttSuperProcedure THEN
+    ttSuperProcedure.isRunning = YES.
+END. /* do idx */
+/* run any super-procedures not running */
+FOR EACH ttSuperProcedure
+    WHERE ttSuperProcedure.isRunning EQ NO
+    :
+    RUN VALUE(ttSuperProcedure.superProcedure) PERSISTENT SET hSuperProcedure.
+    SESSION:ADD-SUPER-PROCEDURE (hSuperProcedure).
+END. /* each ttSuperProcedure */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
