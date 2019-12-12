@@ -2,8 +2,21 @@
 
 DEFINE VARIABLE cSuperProcs AS CHARACTER NO-UNDO.
 
+/* ********************************************************* */
+/* shared tables and or variables reside here                */
+
+/* fg/FgBinBuild.p */
+{fg/ttFGBins.i "NEW SHARED"}
+/* Inventory/InventoryProcs.p */
+{Inventory/ttInventory.i "NEW SHARED"}
+/* oerep/LoadtagProcs.p */
+{oerep/r-loadtg.i NEW}
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER.
 /* util/ImportProcs.p */
 {util/ttImport.i NEW SHARED}
+
+/* ********************************************************* */
 
 PROCEDURE pSuperProcs:
     DEFINE VARIABLE cInternalProcs AS CHARACTER NO-UNDO.
@@ -12,6 +25,7 @@ PROCEDURE pSuperProcs:
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     
+    /* alphabetical list of persistent procedures */
     cSuperProcs = "api/InboundProcs.p,"
                 + "api/JSONProcs.p,"
                 + "AOA/spDynCalcField.p,"
@@ -82,6 +96,7 @@ PROCEDURE pSuperProcs:
                 cSignature               = REPLACE(cSignature,"input ","")
                 cSignature               = REPLACE(cSignature,"input-","INPUT-")
                 cSignature               = REPLACE(cSignature,"output","OUTPUT")
+                cSignature               = REPLACE(cSignature," table "," TABLE ")
                 ttSuperProc.procParams   = cSignature
                 .
         END. /* do jdx */

@@ -3363,8 +3363,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     END.
 
     FIND FIRST est-prep EXCLUSIVE-LOCK
-        WHERE est-prep.company EQ oe-ordl.company
-        AND est-prep.est-no EQ oe-ordl.est-no 
+        WHERE est-prep.company EQ oe-ord.company
+        AND est-prep.est-no EQ oe-ord.est-no 
         AND est-prep.CODE EQ oe-ordm.charge 
         AND est-prep.orderID EQ string(oe-ordm.ord-no)
         AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .

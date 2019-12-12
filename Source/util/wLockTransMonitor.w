@@ -782,7 +782,9 @@ PROCEDURE ipGetLockData :
                             ASSIGN 
                                 hTestName = hbRecKey:BUFFER-FIELD(jCtr)
                                 cTestName = hTestName:NAME.
-                            IF cTestName EQ _field._field-name THEN DO:
+                            IF cTestName EQ _field._field-name 
+                            /* Why there might be an extented field in an index, I don't know, but there it is */
+                            AND _field._extent LT 2 THEN DO:
                                 ASSIGN 
                                     hIdxFld[iIdxCt] = hbRecKey:BUFFER-FIELD(jCtr) 
                                     cFieldString = cFieldString + hIdxFld[iIdxCt]:LABEL + "|" 

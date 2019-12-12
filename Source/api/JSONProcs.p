@@ -222,6 +222,29 @@ PROCEDURE JSON_EscapeExceptionalCharacters:
         .
 END PROCEDURE. 
 
+PROCEDURE JSON_GetResponseData:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to generate a standard response data
+     Notes: Response data includes response_code (e.g. 200, 400), 
+            response_message ( e.g. "Success", "<Failure message>" and
+            response_data
+    ------------------------------------------------------------------------------*/  
+    DEFINE INPUT  PARAMETER ipiResponseCode    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcResponseMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcResponseData   AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcResponseData   AS LONGCHAR  NO-UNDO.
+    
+    IF ipcResponseMessage EQ ? THEN
+        ipcResponseMessage = "".
+    
+    IF iplcResponseData EQ ? THEN
+        iplcResponseData = "".
+
+    oplcResponseData = '~{"response_code":' + STRING(ipiResponseCode)
+                     + ',"response_message":"' + ipcResponseMessage + '"' 
+                     + ',"response_data":[' + iplcResponseData + ']}'.
+END PROCEDURE.
+
 FUNCTION fBeautifyJSON RETURNS LONGCHAR
     (iplcJSON AS LONGCHAR):
     DEFINE VARIABLE cIndentation      AS CHARACTER   NO-UNDO.

@@ -470,13 +470,16 @@ END PROCEDURE. /* fillTT */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE generateClass C-Win 
 PROCEDURE generateClass :
-  DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
-  DEFINE VARIABLE cMask         AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
+  DEFINE VARIABLE cPrefix       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cName         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMask         AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cHeader       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cIndent       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iMaxName      AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxType      AS INTEGER   NO-UNDO.
-
+  DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
+  
   DEFINE BUFFER bField FOR ttField.
   
   DO WITH FRAME frMain:
@@ -506,8 +509,7 @@ PROCEDURE generateClass :
     IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
     cText = SUBSTITUTE(cMask, cHeader).
 
-    cMask = '&1~n&2 data.&3.&4'.
-    cText = SUBSTITUTE(cMask
+    cText = SUBSTITUTE('&1~n&2 data.&3.&4'
                       , cText
                       , (IF tgLowerCase:CHECKED THEN 'class' ELSE 'CLASS')
                       , pcDatabase
@@ -743,6 +745,7 @@ FUNCTION getNameString RETURNS CHARACTER
 
   DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cMask        AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cPrefix      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i            AS INTEGER   NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:
@@ -812,3 +815,4 @@ END FUNCTION. /* getTypeString */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

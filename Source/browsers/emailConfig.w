@@ -72,8 +72,8 @@ ASSIGN
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emailConfig.configID ~
-emailConfig.isActive emailConfig.smtpServer emailConfig.smtpPort ~
-emailConfig.smtpUser emailConfig.createBy emailConfig.createTime 
+emailConfig.isActive emailConfig.smtpServer emailConfig.smtpUser  ~
+emailConfig.createBy emailConfig.createTime emailConfig.description
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH emailConfig WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -127,9 +127,9 @@ DEFINE RECTANGLE RECT-1
 DEFINE QUERY Browser-Table FOR 
       emailConfig
     FIELDS(emailConfig.configID
+      emailConfig.description
       emailConfig.isActive
       emailConfig.smtpServer
-      emailConfig.smtpPort
       emailConfig.smtpUser
       emailConfig.createBy
       emailConfig.createTime) SCROLLING.
@@ -140,12 +140,12 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       emailConfig.configID COLUMN-LABEL "Config ID" FORMAT ">>9":U
+      emailConfig.DESCRIPTION COLUMN-LABEL "Description" FORMAT "x(24)":U WIDTH 30
       emailConfig.isActive COLUMN-LABEL "Active" FORMAT "yes/no":U
             VIEW-AS TOGGLE-BOX
       emailConfig.smtpServer FORMAT "x(30)":U
-      emailConfig.smtpPort COLUMN-LABEL "Port" FORMAT ">>>>9":U
       emailConfig.smtpUser FORMAT "x(32)":U
-      emailConfig.createBy FORMAT "x(24)":U
+      emailConfig.createBy FORMAT "x(24)":U WIDTH 16
       emailConfig.createTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -248,12 +248,12 @@ ASSIGN
      _TblOptList       = "USED"
      _FldNameList[1]   > ASI.emailConfig.configID
 "configID" "Config ID" ">>9" "int64" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.emailConfig.isActive
+     _FldNameList[2]   > ASI.emailConfig.DESCRIPTION
+"DESCRIPTION" "Description" "x(24)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.emailConfig.isActive
 "isActive" "Active" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[3]   > ASI.emailConfig.smtpServer
+     _FldNameList[4]   > ASI.emailConfig.smtpServer
 "smtpServer" ? "x(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.emailConfig.smtpPort
-"smtpPort" "Port" ">>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = ASI.emailConfig.smtpUser
      _FldNameList[6]   = ASI.emailConfig.createBy
      _FldNameList[7]   = ASI.emailConfig.createTime

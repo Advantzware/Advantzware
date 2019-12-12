@@ -35,6 +35,8 @@ DEF VAR ld-rm AS DEC NO-UNDO.
 DEF VAR ld-hp AS DEC NO-UNDO.
 DEF VAR ll-unitize AS LOG NO-UNDO.
 DEFINE VARIABLE iCaseMult AS INTEGER     NO-UNDO.
+DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
 
 save-qty = qty.
 
@@ -755,6 +757,7 @@ PROCEDURE do-cas-no:
       c-qty = qty / ws_cas-cnt. /* number of cases required, by weight */
     end.
     else c-qty = b-wt-tot / item.avg-w.
+    dCasesProRata = c-qty.
     {sys/inc/roundup.i c-qty} /* CTS end */
      /*02031503-set case qty based on multipliers for cost and material calculations*/
       IF xeb.spare-int-3 GT 0 THEN 
@@ -791,12 +794,11 @@ PROCEDURE do-cas-no:
        cas.dscr = item.est-dscr.
     end.
     IF xeb.spare-char-3 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.lp-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.lp-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.lp-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.lp-up. /*per case - DEFAULT*/
     {sys/inc/roundup.i li-qty} /* CTS end */
     ASSIGN
     cas.qty = cas.qty + li-qty
@@ -823,12 +825,11 @@ PROCEDURE do-cas-no:
        cas.dscr = item.est-dscr.
     end.
      IF xeb.spare-char-4 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.div-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.div-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.div-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.div-up. /*per case - DEFAULT*/
     {sys/inc/roundup.i li-qty} /* CTS end */
     ASSIGN
     cas.qty = cas.qty + li-qty

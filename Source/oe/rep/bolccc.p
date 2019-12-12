@@ -117,6 +117,7 @@ DEF VARIABLE li-mm AS INTEGER NO-UNDO.
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
 Define Variable hNotesProc as Handle NO-UNDO.
+DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
@@ -282,7 +283,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     END.
   END.
 
-
+  iTotalQty = 0.
   FOR EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no:
 
 
@@ -297,7 +298,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 /*     ELSE                                            */
 /*        v-lot-no = "".                               */
     v-lot-no = oe-boll.lot-no.
-
+    iTotalQty = iTotalQty + oe-boll.qty .
     CREATE report.
     ASSIGN
      report.term-id  = v-term-id
@@ -386,8 +387,9 @@ IF v-printline >= 29 THEN DO:
 END.
 PUT "<R35.5><C47><#7>Initial"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
-      "<R37.5><C47><#8><FROM><R+3><C+30><RECT> " 
-      "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".
+      "<R37.5><C47><#8><FROM><R+3.5><C+30><RECT> " 
+      "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">>,>>>,>>9"
+      "<=8><R+2> Total Qty          :" iTotalQty  FORM ">>,>>>,>>9".
 v-printline = v-printline + 4.
 
 /*PUT "<R39><C30>" SKIP.*/

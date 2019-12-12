@@ -872,7 +872,13 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSaveErrStat AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStatusDefault    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSaveErrStat      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
     
     lSaveErrStat = ERROR-STATUS:ERROR.
     RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
@@ -889,9 +895,48 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
         RELEASE taskResult.
     END. /* if avail */
     FIND FIRST config NO-LOCK.
-    STATUS DEFAULT
-        "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted)
-        IN WINDOW {&WINDOW-NAME}.
+    cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
+    IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
+        cStatusDefault = "Task Monitor Currently Not Running".
+        RUN sys/ref/nk1look.p (
+            g_company,"TaskerNotRunning","I",NO,NO,"","",
+            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+            ).
+        iConfigID = INTEGER(cTaskerNotRunning).
+        IF CAN-FIND(FIRST emailConfig
+                    WHERE emailConfig.configID EQ iConfigID
+                      AND emailConfig.isActive EQ YES
+                      AND emailConfig.notified EQ NO) THEN DO:
+            DO TRANSACTION:
+                FIND FIRST emailConfig EXCLUSIVE-LOCK
+                     WHERE emailConfig.configID EQ iConfigID
+                     NO-ERROR NO-WAIT.
+                IF AVAILABLE emailConfig AND NOT LOCKED emailConfig THEN
+                emailConfig.notified = YES.
+            END. /* do trans */
+            IF NOT LOCKED emailConfig THEN DO:
+                RUN sys/ref/nk1look.p (
+                    g_company,"TaskerNotRunning","L",NO,NO,"","",
+                    OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+                    ).
+                IF lTaskerNotRunning AND cTaskerNotRunning EQ "Yes" THEN
+                RUN spSendEmail (
+                    iConfigID,       /* emailConfig.ConfigID */
+                    "",              /* Override for Email RecipientsinTo */
+                    "",              /* Override for Email RecipientsinReplyTo */
+                    "",              /* Override for Email RecipientsinCC */
+                    "",              /* Override for Email RecipientsinBCC */
+                    "",              /* Override for Email Subject */
+                    "",              /* Override for Email Body */
+                    "",              /* Email Attachment */
+                    OUTPUT lSuccess, /* Email success or not */
+                    OUTPUT cMessage  /* Reason for failure in case email is not sent */
+                    ).
+            END. /* if not locked */
+        END. /* if sent eq no */
+    END. /* tasker not running */
+    RELEASE emailConfig.
+    STATUS DEFAULT cStatusDefault IN WINDOW {&WINDOW-NAME}.
     IF PROFILER:ENABLED THEN 
     RUN pProcessProfiler.
     /* Set error status to saved value since it gets reset in this procedure */
@@ -1267,6 +1312,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    SESSION:DATA-ENTRY-RETURN = YES.
     DYNAMIC-FUNCTION("sfSetMainMenuHandle", THIS-PROCEDURE).
     RUN spSetSessionParam ("Company", g_company).
     RUN pGetUserSettings.

@@ -56,6 +56,7 @@ DEFINE VARIABLE currentRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
 
 DEF BUFFER b-fg-rctd FOR fg-rctd.  /* for tag validation */
 DEF BUFFER b-fg-rdtlh FOR fg-rdtlh. /* for tag validation */
@@ -2612,7 +2613,8 @@ PROCEDURE post-finish-goods :
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
-        INPUT YES,
+        INPUT YES,		   
+		INPUT lPromptForClose, /* Executes .w closing orders logic */
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,

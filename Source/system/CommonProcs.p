@@ -219,6 +219,7 @@ PROCEDURE spCommon_ValidateValueByDataType:
 
     DEFINE VARIABLE dDecimalValidator AS DECIMAL NO-UNDO.
     DEFINE VARIABLE daDateValidator   AS DATE    NO-UNDO.
+    DEFINE VARIABLE lLogicalValidator AS LOGICAL NO-UNDO.
 
     CASE ipcDataType:
         WHEN "DECIMAL" OR
@@ -235,6 +236,13 @@ PROCEDURE spCommon_ValidateValueByDataType:
                 oplValid = FALSE.
                 RETURN.
             END.
+        END.
+        WHEN "LOGICAL" THEN DO:
+            lLogicalValidator = LOGICAL(ipcValue) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                oplValid = FALSE.
+                RETURN.
+            END.        
         END.
     END CASE.
     oplValid = TRUE.

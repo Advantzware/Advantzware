@@ -136,7 +136,7 @@ DEFINE VARIABLE resultset AS CHARACTER
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE-PIXELS 500 BY 125.
+     SIZE 100 BY 5.95.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -296,7 +296,7 @@ END.
 ON CHOOSE OF btnRunQuery IN FRAME DEFAULT-FRAME /* Run */
 DO:
   SESSION:SET-WAIT-STATE("GENERAL":U).
-  RUN test-query IN THIS-PROCEDURE (INPUT TRUE, OUTPUT lErrorDetected).
+  RUN test-query IN THIS-PROCEDURE (INPUT TRUE, INPUT TRUE ,OUTPUT lErrorDetected).
   SESSION:SET-WAIT-STATE("":U).
 END.
 
@@ -309,7 +309,7 @@ END.
 ON CHOOSE OF btnTestQuery IN FRAME DEFAULT-FRAME /* Test */
 DO:
   SESSION:SET-WAIT-STATE("GENERAL":U).
-  RUN test-query IN THIS-PROCEDURE (INPUT FALSE, OUTPUT lErrorDetected).
+  RUN test-query IN THIS-PROCEDURE (INPUT FALSE, INPUT TRUE ,OUTPUT lErrorDetected).
   SESSION:SET-WAIT-STATE("":U).
 END.
 
@@ -382,7 +382,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     TRIGGERS:
       ON "value-changed":U ANYWHERE DO:
         ASSIGN ed-qry:SCREEN-VALUE IN FRAME {&FRAME-NAME} = REPLACE(ttTestQuery.cQueryTxt,",",",~n").
-        RUN test-query IN THIS-PROCEDURE (INPUT FALSE, OUTPUT lErrorDetected).
+        RUN test-query IN THIS-PROCEDURE (INPUT FALSE,INPUT FALSE, OUTPUT lErrorDetected).
       END.
 
       ON "row-display":U ANYWHERE DO:
@@ -394,9 +394,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RECT-1:visible = TRUE.
     h-SeqName   = h-Browser:ADD-CALC-COLUMN("INTEGER",">,>>9","","Seq").
-    h-SeqName:WIDTH-CHARS = 5.
     h-ProgName  = h-Browser:ADD-CALC-COLUMN("CHARACTER","x(30)","","Table").
-    h-ProgName:WIDTH-CHARS = 30.
     h-QueryName = h-Browser:ADD-CALC-COLUMN("CHARACTER","x(105)","","Query").
 
   ASSIGN
@@ -564,6 +562,16 @@ PROCEDURE processQuery :
   DEFINE VARIABLE lcOldString AS CHARACTER NO-UNDO.
   DEFINE BUFFER bf-ttTestQuery FOR ttTestQuery.
 
+  /* <BEU> */
+  /* FORWARD-ONLY attribute:                                                             */
+  /* Lets you avoid building result-lists for static and dynamic queries. Set to TRUE to */
+  /* avoid building result-lists for queries. Set to FALSE to build result-lists for     */
+  /* queries. The default is FALSE. When TRUE, you cannot use the GET PREV, GET LAST,    */
+  /* REPOSITION, or BROWSE methods or statements with these queries. If you do, the AVM  */
+  /* generates an error.                                                                 */
+/*  ipcQueryString = REPLACE(ipcQueryString,"INDEXED-REPOSITION","").*/
+  /* </BEU> */
+
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
@@ -572,6 +580,7 @@ PROCEDURE processQuery :
       ed-qry:SCREEN-VALUE = REPLACE(SUBSTRING(ipcQueryString,INDEX(ipcQueryString,"FOR EACH":U)),",",",~n").
 
     RUN test-query IN THIS-PROCEDURE (INPUT FALSE,
+                                      INPUT FALSE,
                                       OUTPUT lErrorDetected).
     ASSIGN lShowError = TRUE.
 
@@ -800,6 +809,7 @@ PROCEDURE test-query PRIVATE :
 /* test the query
   */
   DEFINE INPUT  PARAMETER iplPerfromQuery AS LOGICAL NO-UNDO.
+  DEFINE INPUT  PARAMETER iplShowQuery    AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER oplErrorOccured AS LOGICAL INITIAL TRUE NO-UNDO.
 
   DEFINE BUFFER bf-ttVstTableInfo FOR ttVstTableInfo.
@@ -1032,6 +1042,14 @@ PROCEDURE test-query PRIVATE :
     {&CleanUp}
     SESSION:SET-WAIT-STATE("").
     ASSIGN oplErrorOccured = FALSE.
+
+    /* <BEU> */
+/*     IF iplShowQuery THEN                                                                  */
+/*       RUN VALUE(REPLACE(THIS-PROCEDURE:FILE-NAME,"query-tester","query-data")) PERSISTENT */
+/*         ( INPUT ed-qry                                                                    */
+/*         , INPUT resultset:SCREEN-VALUE                                                    */
+/*         ).                                                                                */
+    /* </BEU> */
 
   END.
 

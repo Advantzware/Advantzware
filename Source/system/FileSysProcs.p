@@ -18,7 +18,7 @@ DEFINE VARIABLE cFileTypeDirectory AS CHARACTER NO-UNDO INITIAL "D".
 DEFINE VARIABLE cBackwardSlash     AS CHARACTER NO-UNDO INITIAL "\".
 DEFINE VARIABLE cForwardSlash      AS CHARACTER NO-UNDO INITIAL "/".
 
-FUNCTION fFormatFilePath RETURNS CHARACTER PRIVATE
+FUNCTION fFormatFilePath RETURNS CHARACTER
     ( ipcFilePath AS CHARACTER ) FORWARD.
 
 PROCEDURE FileSys_GetTempDirectory:
@@ -417,7 +417,7 @@ PROCEDURE pCreateDirectory PRIVATE:
             .
 END PROCEDURE.
 
-FUNCTION fFormatFilePath RETURNS CHARACTER PRIVATE
+FUNCTION fFormatFilePath RETURNS CHARACTER
   ( ipcFilePath AS CHARACTER ) :
     /*------------------------------------------------------------------------------
      Purpose: Function to format the file path name.

@@ -45,7 +45,7 @@ DEFINE VARIABLE gvcMultiSelect AS CHARACTER NO-UNDO INIT "OEDATECHANGE,SSBOLEMAI
 DEFINE VARIABLE cValidateList AS CHARACTER   NO-UNDO.
   cValidateList = 'QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,'
                   + 'INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE'
-                  + 'SSBOLEMAIL,OEDATECHANGE,RELPOST'.
+                  + 'SSBOLEMAIL,OEDATECHANGE,RELPOST,CINVOICE'.
 &SCOPED-DEFINE Enhance NO
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,15 +321,7 @@ DO:
             sys-ctrl-shipto.char-fld:SCREEN-VALUE = STRING(char-val1).
          RETURN NO-APPLY.
       END.
-
-      IF opName EQ "CINVOICE" THEN
-      DO:
-         RUN windows/l-sysfchr.w (gcompany,opName,FOCUS:SCREEN-VALUE,OUTPUT char-val1).
-         IF char-val1 NE '' THEN
-            sys-ctrl-shipto.char-fld:SCREEN-VALUE = ENTRY(1,char-val1).
-
-         RETURN NO-APPLY.
-      END.
+      
       ELSE IF opName EQ 'BOLPrint' THEN DO: 
          RUN windows/l-fgbin2.w (gcompany,"",FOCUS:SCREEN-VALUE,OUTPUT char-val1).
          IF char-val1 NE '' THEN
@@ -866,20 +858,7 @@ PROCEDURE valid-char-fld :
       IF NOT lValid THEN
         RETURN ERROR.
     END.  /* End if non-blank value */   /* Task 11011321 */
-    ELSE DO:         
-        CASE opName:
-           WHEN "CINVOICE" THEN
-           DO:
-              IF sys-ctrl-shipto.char-fld:SCREEN-VALUE NE "FIBREMEXICO" THEN
-              DO:
-                 MESSAGE "Invalid Business Form Name."
-                     VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-                 APPLY "ENTRY":U TO sys-ctrl-shipto.char-fld IN FRAME {&FRAME-NAME}.
-                 RETURN ERROR.
-              END.
-           END. /* end when cinvoice */
-        END CASE.
-     END. /* else do */
+   
   END. /* do with frame */
 
 

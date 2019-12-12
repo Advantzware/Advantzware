@@ -129,6 +129,7 @@ IF iplReTrigger THEN DO:
             INPUT  iplReTrigger,                        /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record */
             INPUT  APIOutboundEvent.apiOutboundEventID, /* apiOutboundEventID - Updates APIOutboundEvent record for the given ID. Pass ? for creating new event */
             INPUT  APIOutboundEvent.company,
+            INPUT  ipcLocation,
             INPUT  APIOutboundEvent.apiID,
             INPUT  APIOutboundEvent.clientID,
             INPUT  APIOutboundEvent.sourceTriggerID,
@@ -189,6 +190,7 @@ FOR EACH APIOutbound NO-LOCK
             INPUT  iplReTrigger,                   /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record for the given apiOutboundEventID */
             INPUT  ?,                              /* apiOutboundEventID - Updates APIOutboundEvent record for the given ID. Pass ? for creating new event */
             INPUT  APIOutbound.company,
+            INPUT  ipcLocation,
             INPUT  APIOutbound.apiID,
             INPUT  APIOutbound.clientID,
             INPUT  APIOutboundTrigger.triggerID,
@@ -232,6 +234,7 @@ FOR EACH APIOutbound NO-LOCK
         INPUT  ?,                           /* apiOutboundEventID - Updates APIOutboundEvent record for the given ID. Pass ? for creating new event */
         INPUT  APIOutbound.company,
         INPUT  APIOutbound.apiID,
+        INPUT  ipcLocation,
         INPUT  APIOutbound.clientID,
         INPUT  APIOutboundTrigger.triggerID,
         INPUT  ipcPrimaryID,

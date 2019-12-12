@@ -20,6 +20,8 @@ DEFINE VARIABLE dPackCostTotal AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dPackCostSetup AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cPackCostUOM AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dCostPerM AS DECIMAL NO-UNDO FORMAT ">>>>9.99".
+DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
 
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
@@ -63,7 +65,7 @@ ELSE
                (if v-corr then ((xeb.t-sqin - v-t-win) * .000007)
                           else ((xeb.t-sqin - v-t-win) / 144000))) /
               (if xeb.cas-wt ne 0 then xeb.cas-wt else item.avg-w).
-
+      dCasesProRata = c-qty.
       {sys/inc/roundup.i c-qty}
       
       /*02031503-set case qty based on multipliers for cost and material calculations*/
@@ -134,12 +136,11 @@ ELSE
       if available item then find first e-item of item no-lock no-error.
       
       IF xeb.spare-char-3 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.lp-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.lp-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.lp-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.lp-up. /*per case - DEFAULT*/
 
       {sys/inc/roundup.i li-qty}      
 
@@ -194,12 +195,11 @@ ELSE
       if available item then find first e-item of item no-lock no-error.
       
       IF xeb.spare-char-4 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.div-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.div-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.div-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.div-up. /*per case - DEFAULT*/
 
       {sys/inc/roundup.i li-qty}
       
@@ -267,6 +267,7 @@ ELSE
       else p-qty = ((((xeb.t-sqin - v-t-win) * qty / 144000) * b-wt) + c-qty )
                     / item.avg-w.
                     /* ce-ctrl.avg-palwt was previosly used. */
+      dPalletsProRata = p-qty.
       {sys/inc/roundup.i p-qty}
 
       IF xeb.trNoCharge THEN p-cost = 0.
@@ -325,9 +326,9 @@ ELSE
         dPackQty = 0.
         CASE estPacking.quantityPer:
             WHEN "P" THEN 
-                dPackQty = estPacking.quantity * p-qty.
+                dPackQty = estPacking.quantity * dPalletsProRata.
             WHEN "C" THEN 
-                dPackQty = estPacking.quantity * c-qty.
+                dPackQty = estPacking.quantity * dCasesProRata.
             OTHERWISE 
                 dPackQty = estPacking.quantity.
         END CASE. 

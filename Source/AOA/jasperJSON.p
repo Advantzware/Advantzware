@@ -25,74 +25,79 @@ IF NOT AVAILABLE dynParamValue THEN RETURN.
 
 iphQuery:QUERY-OPEN.
 iphQuery:GET-FIRST().
-IF NOT iphQuery:QUERY-OFF-END THEN DO:
-    OS-CREATE-DIR "users".
-    OS-CREATE-DIR "users\_default".
-    OS-CREATE-DIR VALUE("users\" + ipcUserID).
-    OS-CREATE-DIR VALUE("users\" + ipcUserID + "\Jasper").
-    opcJasperFile = "users\" + ipcUserID + "\"
-                  + REPLACE(ipcSubjectName," ","")
-                  + ".json"
-                  .
-    OUTPUT TO VALUE(opcJasperFile).
+OS-CREATE-DIR "users".
+OS-CREATE-DIR "users\_default".
+OS-CREATE-DIR VALUE("users\" + ipcUserID).
+OS-CREATE-DIR VALUE("users\" + ipcUserID + "\Jasper").
+opcJasperFile = "users\" + ipcUserID + "\"
+              + REPLACE(ipcSubjectName," ","")
+              + ".json"
+              .
+OUTPUT TO VALUE(opcJasperFile).
+PUT UNFORMATTED
+    "~{" SKIP
+    FILL(" ",2)
+    "~"" REPLACE(ipcSubjectName," ","_") "~": ~{" SKIP
+    FILL(" ",4)
+    "~"" REPLACE(ipcSubjectName," ","") "~": [" SKIP
+    .
+IF NOT iphQuery:QUERY-OFF-END THEN
+REPEAT:
     PUT UNFORMATTED
-        "~{" SKIP
-        FILL(" ",2)
-        "~"" REPLACE(ipcSubjectName," ","_") "~": ~{" SKIP
-        FILL(" ",4)
-        "~"" REPLACE(ipcSubjectName," ","") "~": [" SKIP
+        FILL(" ",6) "~{" SKIP
         .
-    REPEAT:
-        PUT UNFORMATTED
-            FILL(" ",6) "~{" SKIP
+    DO idx = 1 TO EXTENT(dynParamValue.colName):
+        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
+        IF dynParamValue.isCalcField[idx] THEN DO:
+            cFieldName = dynParamValue.colName[idx].
+            RUN spDynCalcField IN hDynCalcField (
+                iphQuery:HANDLE,
+                dynParamValue.calcProc[idx],
+                dynParamValue.calcParam[idx],
+                dynParamValue.dataType[idx],
+                dynParamValue.colFormat[idx],
+                OUTPUT cBufferValue
+                ).
+        END. /* if calc field */
+        ELSE
+        ASSIGN
+            hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))
+            cFullName    = ENTRY(2,dynParamValue.colName[idx],".")
+            cFieldName   = IF INDEX(cFullName,"[") EQ 0 THEN cFullName
+                           ELSE SUBSTRING(cFullName,1,INDEX(cFullName,"[") - 1)
+            cBufferValue = fFormatValue(hQueryBuf, cFullName)
+            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
+            cFullName    = REPLACE(cFullName,"[","")
+            cFullName    = REPLACE(cFullName,"]","")
             .
-        DO idx = 1 TO EXTENT(dynParamValue.colName):
-            IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-            IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
-            IF dynParamValue.isCalcField[idx] THEN DO:
-                cFieldName = dynParamValue.colName[idx].
-                RUN spDynCalcField IN hDynCalcField (
-                    iphQuery:HANDLE,
-                    dynParamValue.calcProc[idx],
-                    dynParamValue.calcParam[idx],
-                    dynParamValue.dataType[idx],
-                    dynParamValue.colFormat[idx],
-                    OUTPUT cBufferValue
-                    ).
-            END. /* if calc field */
-            ELSE
-            ASSIGN
-                hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))
-                cFullName    = ENTRY(2,dynParamValue.colName[idx],".")
-                cFieldName   = IF INDEX(cFullName,"[") EQ 0 THEN cFullName
-                               ELSE SUBSTRING(cFullName,1,INDEX(cFullName,"[") - 1)
-                cBufferValue = fFormatValue(hQueryBuf, cFullName)
-                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
-                cFullName    = REPLACE(cFullName,"[","")
-                cFullName    = REPLACE(cFullName,"]","")
-                .
-            IF idx GT 1 THEN
-            PUT UNFORMATTED "," SKIP.
-            PUT UNFORMATTED
-                FILL(" ",8)
-                "~"" cFullName "~": ~""
-                IF cBufferValue NE "" THEN cBufferValue ELSE " "
-                "~""
-                .
-        END. /* do idx */
-        PUT UNFORMATTED SKIP FILL(" ",6) "}".
-        iphQuery:GET-NEXT().
-        IF iphQuery:QUERY-OFF-END THEN LEAVE.
+        IF idx GT 1 THEN
         PUT UNFORMATTED "," SKIP.
-    END. /* repeat */
-    iphQuery:QUERY-CLOSE().
-    PUT UNFORMATTED
-        SKIP
-        FILL(" ",4) "]" SKIP
-        FILL(" ",2) "}" SKIP
-        "}" SKIP
-        .
-    OUTPUT CLOSE.
-    oplOK = TRUE.
-END. /* if get-first is valid */
+        PUT UNFORMATTED
+            FILL(" ",8)
+            "~"" cFullName "~": ~""
+            IF cBufferValue NE "" THEN cBufferValue ELSE " "
+            "~""
+            .
+    END. /* do idx */
+    PUT UNFORMATTED SKIP FILL(" ",6) "}".
+    iphQuery:GET-NEXT().
+    IF iphQuery:QUERY-OFF-END THEN LEAVE.
+    PUT UNFORMATTED "," SKIP.
+END. /* repeat */
+ELSE
+PUT UNFORMATTED
+    FILL(" ",8) "~{" SKIP
+    FILL(" ",12)
+    "~"NoDataMessage~": ~"No Data Exists for the Selected Parameter Value(s)~"" SKIP
+    FILL(" ",8) "}" SKIP
+    .
+PUT UNFORMATTED
+    SKIP
+    FILL(" ",4) "]" SKIP
+    FILL(" ",2) "}" SKIP
+    "}" SKIP
+    .
+OUTPUT CLOSE.
+oplOK = TRUE.
 iphQuery:QUERY-CLOSE().

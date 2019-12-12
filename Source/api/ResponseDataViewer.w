@@ -59,9 +59,10 @@ Btn_OK edEndpoint edRequestData edResponseData edErrorMessage edNotes
 &Scoped-Define DISPLAYED-OBJECTS fiAPIIDLabel fiAPIID fiClientIDlb ~
 fiClientID fiTriggerIDLabel fiTriggerID fiReqDataType fiSSLEnabled ~
 fiRequestVerb fiReqDataTypelb fiSSLEnabledlb fiRequestVerblb ~
-fiPrimaryIDLabel fiPrimaryID fiEventDescLabel edEventDesc fiEndPointLabel ~
-edEndpoint fiRequestDataLabel edRequestData fiResponseDataLabel ~
-edResponseData fiErrorMessageLabel edErrorMessage fiNotesLabel edNotes 
+fiPrimaryIDLabel fiPrimaryID fiLocationLabel fiLocation fiEventDescLabel ~
+edEventDesc fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData ~
+fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage ~
+fiNotesLabel edNotes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -150,6 +151,14 @@ DEFINE VARIABLE fiErrorMessageLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Resp
 DEFINE VARIABLE fiEventDescLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Event Description:" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 41.6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiLocationLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Location:" 
+     VIEW-AS FILL-IN 
+     SIZE 12.2 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiNotesLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Notes:" 
      VIEW-AS FILL-IN 
@@ -243,6 +252,8 @@ DEFINE FRAME Dialog-Frame
      fiRequestVerblb AT ROW 3.33 COL 91.4 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      fiPrimaryIDLabel AT ROW 5.52 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiPrimaryID AT ROW 5.52 COL 24 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiLocationLabel AT ROW 5.52 COL 78.6 COLON-ALIGNED NO-LABEL WIDGET-ID 122
+     fiLocation AT ROW 5.52 COL 91.2 COLON-ALIGNED NO-LABEL WIDGET-ID 120
      fiEventDescLabel AT ROW 6.71 COL 1.6 COLON-ALIGNED NO-LABEL WIDGET-ID 114
      edEventDesc AT ROW 6.71 COL 26 NO-LABEL WIDGET-ID 116
      Btn_OK AT ROW 6.91 COL 139
@@ -331,6 +342,10 @@ ASSIGN
        fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiEventDescLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLocation IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLocationLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiNotesLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -481,9 +496,10 @@ PROCEDURE enable_UI :
   DISPLAY fiAPIIDLabel fiAPIID fiClientIDlb fiClientID fiTriggerIDLabel 
           fiTriggerID fiReqDataType fiSSLEnabled fiRequestVerb fiReqDataTypelb 
           fiSSLEnabledlb fiRequestVerblb fiPrimaryIDLabel fiPrimaryID 
-          fiEventDescLabel edEventDesc fiEndPointLabel edEndpoint 
-          fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
-          fiErrorMessageLabel edErrorMessage fiNotesLabel edNotes 
+          fiLocationLabel fiLocation fiEventDescLabel edEventDesc 
+          fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
+          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
+          fiNotesLabel edNotes 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 RECT-2 RECT-6 Btn_Cancel edEventDesc Btn_OK edEndpoint 
          edRequestData edResponseData edErrorMessage edNotes 
@@ -522,6 +538,7 @@ PROCEDURE pInit :
             fiClientID:SCREEN-VALUE     = APIOutboundEvent.clientID
             fiTriggerID:SCREEN-VALUE    = APIOutboundEvent.sourceTriggerID
             fiPrimaryID:SCREEN-VALUE    = APIOutboundEvent.primaryID
+            fiLocation:SCREEN-VALUE     = APIOutboundEvent.locationID
             edEventDesc:SCREEN-VALUE    = APIOutboundEvent.eventDescription
             edErrorMessage:SCREEN-VALUE = IF APIOutboundEvent.success THEN
                                               "SUCCESS:" + "~n" + APIOutboundEvent.errorMessage

@@ -28,6 +28,7 @@ DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. /* "SETUP" from initial setup (
 /* Local Variable Definitions ---                                       */
 DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -2864,6 +2865,7 @@ PROCEDURE fg-post :
       INPUT ip-run-what,
       INPUT gv-fgemail,
       INPUT NO,   /* don't create work-gl since already created by fgPostReport*/
+	  INPUT lPromptForClose,  /* Executes .w closing orders logic */
       INPUT TABLE w-fg-rctd BY-reference,
       INPUT TABLE tt-fgemail BY-reference,
       INPUT TABLE tt-email BY-reference,
