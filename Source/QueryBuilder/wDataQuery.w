@@ -431,7 +431,7 @@ PROCEDURE initObject :
     {&window-name}:TITLE = bQuery.queryName.
     
     /* Run the results progam */
-    RUN wQueryResults.w PERSISTENT SET ghQueryProc(INPUT THIS-PROCEDURE, OUTPUT hFrame).
+    RUN QueryBuilder/wQueryResults.w PERSISTENT SET ghQueryProc(INPUT THIS-PROCEDURE, OUTPUT hFrame).
       
     /* Bind our dataset to the screen */  
     RUN ScreenInit IN ghQueryProc(INPUT-OUTPUT DATASET dsQuery BIND).

@@ -140,7 +140,7 @@ PROCEDURE getSchema:
       IF DBTYPE(i) <> "PROGRESS" THEN NEXT #Database.
   
       CREATE ALIAS 'dictdb' FOR DATABASE VALUE(LDBNAME(i)).
-      RUN getSchema.p(INPUT gcUserType, OUTPUT DATASET dsSchema BY-REFERENCE).    
+      RUN querybuilder/getSchema.p(INPUT gcUserType, OUTPUT DATASET dsSchema BY-REFERENCE).  
       DATASET dsSchema:WRITE-XML("file", "c:\temp\schema.xml", YES, ?, ?, NO, NO).      
     END.    
   END.    

@@ -40,7 +40,7 @@ FUNCTION isQueryChanged RETURNS LOGICAL
   PUBLISH 'QueryLib' (OUTPUT ghQueryLib).
   IF NOT VALID-HANDLE(ghQueryLib) THEN
   DO:
-    RUN QueryLib.p PERSISTENT SET ghQueryLib.
+    RUN QueryBuilder/QueryLib.p PERSISTENT SET ghQueryLib.
     SESSION:ADD-SUPER-PROCEDURE(ghQueryLib).
   END.
 &ENDIF
