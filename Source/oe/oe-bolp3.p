@@ -1297,10 +1297,18 @@ PROCEDURE ipStartLog:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    lUseLogs = TRUE. /* Use debug logging unless it's turned off */
-    IF SEARCH("custfiles\logs\" + "block-oe-bolp3-logging.txt") NE ? THEN 
-        lUseLogs = FALSE.
-    cDebugLog = "custfiles\logs\" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
+    RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnValue, OUTPUT lRecFound).
+    lUseLogs = LOGICAL(cReturnValue ) NO-ERROR.
+    RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cLogFolder, OUTPUT lRecFound).    
+    cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").    
+    cDebugLog = clogFolder + "/oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
     IF lUseLogs THEN 
         OUTPUT STREAM sDebug TO VALUE(cDebugLog).
     IF ERROR-STATUS:ERROR THEN 
