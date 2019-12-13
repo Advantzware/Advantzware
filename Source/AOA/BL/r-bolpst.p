@@ -80,16 +80,27 @@ DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
-lUseLogs = NO. /* Use debug logging */
-if search("logs/" + "r-bolpst" + ".txt") ne ? then 
-  lUseLogs = true.
-cDebugLog = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
+                   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                   OUTPUT cReturnValue, OUTPUT lRecFound).
+lUseLogs = LOGICAL(cReturnValue ) NO-ERROR.
+RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "C" /* Logical */, NO /* check by cust */, 
+                   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                   OUTPUT cLogFolder, OUTPUT lRecFound).    
+cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").
+cLogFolder = TRIM(cLogFolder, "\").    
+cDebugLog = clogFolder + "/" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
 IF lUseLogs THEN 
-  OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+    OUTPUT STREAM sDebug TO VALUE(cDebugLog).
 
-cLogFile = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".errs".
-IF lUseLogs THEN 
-  OUTPUT TO VALUE(cLogFile).
+cLogFile = cLogFolder + "/" + "r-bolpst.errs".
+IF lUseLogs THEN DO:
+  OUTPUT TO VALUE(cLogFile) APPEND.
+  PUT STRING(TODAY,"99999999") + " " + STRING(TIME).
+END.
 {oe/closchk.i NEW}
 
 DEFINE TEMP-TABLE tt-email NO-UNDO
