@@ -398,194 +398,197 @@ PROCEDURE run-process :
             AND oe-ord.ord-date LT v-post-date
             AND oe-ord.ord-no   GE v-first-ord
             AND oe-ord.ord-no   LE v-last-ord
-            USE-INDEX ordate
             TRANSACTION:
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...".
+            
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing oe-rel records".
             FOR EACH oe-rel EXCLUSIVE WHERE 
                 oe-rel.company EQ cocode AND 
-                oe-rel.ord-no  EQ oe-ord.ord-no
-                USE-INDEX ord-item:
+                oe-rel.ord-no  EQ oe-ord.ord-no:
                 DELETE oe-rel.
             END. /* oe-rel */
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing oe-rell records".
             FOR EACH oe-rell EXCLUSIVE WHERE 
                 oe-rell.company EQ oe-ord.company AND 
-                oe-rell.ord-no  EQ oe-ord.ord-no
-                USE-INDEX ord-no:
+                oe-rell.ord-no  EQ oe-ord.ord-no:
                 DELETE oe-rell.
             END. /* oe-rell */
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing oe-relh records".
             FIND FIRST oe-relh EXCLUSIVE WHERE 
                 oe-relh.company EQ oe-ord.company AND 
                 oe-relh.ord-no EQ oe-ord.ord-no 
-                USE-INDEX order 
                 NO-ERROR.
             IF AVAIL oe-relh 
             AND NOT CAN-FIND(FIRST b-rell WHERE 
-                            b-rell.r-no EQ oe-relh.r-no) THEN
+                            b-rell.r-no EQ oe-relh.r-no AND 
+                            ROWID(b-rell) NE ROWID(oe-relh)) THEN
                 DELETE oe-relh.
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing oe-boll records".
             FOR EACH oe-boll EXCLUSIVE WHERE 
                 oe-boll.company EQ oe-ord.company AND 
-                oe-boll.ord-no  EQ oe-ord.ord-no
-                USE-INDEX ord-no:
+                oe-boll.ord-no  EQ oe-ord.ord-no:
                 DELETE oe-boll.
             END. /* oe-boll */
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing oe-bolh records".
             FIND FIRST oe-bolh EXCLUSIVE WHERE 
                 oe-bolh.company EQ oe-ord.company AND 
-                oe-bolh.b-no EQ oe-ord.ord-no 
-                USE-INDEX order-no
+                oe-bolh.b-no EQ oe-ord.ord-no
                 NO-ERROR.
 
             IF AVAIL oe-bolh THEN FOR EACH inv-head EXCLUSIVE WHERE 
                 inv-head.company EQ cocode AND  
-                inv-head.bol-no EQ oe-bolh.bol-no
-                USE-INDEX bolno:
+                inv-head.bol-no EQ oe-bolh.bol-no:
 
+                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing inv-line records".
                 FOR EACH inv-line EXCLUSIVE WHERE 
                     inv-line.r-no    EQ inv-head.r-no AND 
-                    inv-line.company EQ inv-head.company 
-                    USE-INDEX r-no:
+                    inv-line.company EQ inv-head.company:
                     DELETE inv-line.
                 END. /* inv-line */
 
+                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing inv-misc records".
                 FOR EACH inv-misc EXCLUSIVE WHERE 
                     inv-misc.r-no    EQ inv-head.r-no AND 
-                    inv-misc.company EQ inv-head.company
-                    USE-INDEX r-no:
+                    inv-misc.company EQ inv-head.company:
                     DELETE inv-misc.
                 END. /* inv-misc */
 
+                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing inv-head records".
                 DELETE inv-head.
             END. /* inv-head */
 
             IF AVAIL oe-bolh
             AND NOT CAN-FIND(FIRST b-boll WHERE 
-                            b-boll.b-no EQ oe-bolh.b-no) THEN 
+                            b-boll.b-no EQ oe-bolh.b-no AND 
+                            ROWID(b-boll) NE ROWID(oe-bolh)) THEN 
                 DELETE oe-bolh.
 
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing oe-ordl records".
             FOR EACH oe-ordl NO-LOCK WHERE 
                 oe-ordl.company EQ cocode AND 
-                oe-ordl.ord-no  EQ oe-ord.ord-no
-                USE-INDEX ord-no:
+                oe-ordl.ord-no  EQ oe-ord.ord-no:
 
+                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job records".
                 FOR EACH job EXCLUSIVE WHERE 
                     job.company EQ cocode AND 
                     job.job-no  EQ oe-ordl.job-no AND 
-                    job.job-no2 EQ oe-ordl.job-no2
-                    USE-INDEX job-no:
+                    job.job-no2 EQ oe-ordl.job-no2:
 
                     RUN jc/jc-dall.p (RECID(job)).
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job-hdr records".
                     FOR EACH job-hdr EXCLUSIVE WHERE 
                         job-hdr.company EQ cocode AND 
                         job-hdr.job     EQ job.job AND 
                         job-hdr.job-no  EQ job.job-no AND 
-                        job-hdr.job-no2 EQ job.job-no2
-                        USE-INDEX job-no:
+                        job-hdr.job-no2 EQ job.job-no2:
 
                         {util/dljobkey.i}
 
                         DELETE job-hdr.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job-mat records".
                     FOR EACH job-mat EXCLUSIVE WHERE 
                         job-mat.company EQ job.company AND 
                         job-mat.job     EQ job.job AND 
                         job-mat.job-no  EQ job.job-no AND 
-                        job-mat.job-no2 EQ job.job-no2
-                        USE-INDEX job:
+                        job-mat.job-no2 EQ job.job-no2:
                         DELETE job-mat.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job-mch records".
                     FOR EACH job-mch EXCLUSIVE WHERE 
                         job-mch.company EQ job.company AND 
                         job-mch.job     EQ job.job AND 
                         job-mch.job-no  EQ job.job-no AND 
-                        job-mch.job-no2 EQ job.job-no2
-                        USE-INDEX job:
+                        job-mch.job-no2 EQ job.job-no2:
                         DELETE job-mch.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job-prep records".
                     FOR EACH job-prep EXCLUSIVE WHERE 
                         job-prep.company EQ job.company AND 
                         job-prep.job     EQ job.job AND 
                         job-prep.job-no  EQ job.job-no AND 
-                        job-prep.job-no2 EQ job.job-no2
-                        USE-INDEX prep-idx:
+                        job-prep.job-no2 EQ job.job-no2:
                         DELETE job-prep.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job-farm records".
                     FOR EACH job-farm EXCLUSIVE WHERE 
                         job-farm.company EQ job.company AND 
                         job-farm.job-no  EQ job.job-no AND 
-                        job-farm.job-no2 EQ job.job-no2
-                        USE-INDEX job-no:
+                        job-farm.job-no2 EQ job.job-no2:
                         DELETE job-farm.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing job-farm-rctd records".
                     FOR EACH job-farm-rctd EXCLUSIVE WHERE 
                         job-farm-rctd.company EQ job.company AND 
                         job-farm-rctd.job-no  EQ job.job-no AND 
-                        job-farm-rctd.job-no2 EQ job.job-no2
-                        USE-INDEX job-farm-rctd:
+                        job-farm-rctd.job-no2 EQ job.job-no2:
                         DELETE job-farm-rctd.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing pc-prdd records".
                     FOR EACH pc-prdd EXCLUSIVE WHERE 
                         pc-prdd.company EQ cocode AND 
                         pc-prdd.job     EQ job.job AND 
                         pc-prdd.job-no  EQ job.job-no AND 
-                        pc-prdd.job-no2 EQ job.job-no2
-                        USE-INDEX job-no:
+                        pc-prdd.job-no2 EQ job.job-no2:
                         DELETE pc-prdd.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing fg-act records".
                     FOR EACH fg-act EXCLUSIVE WHERE 
                         fg-act.company EQ cocode AND 
                         fg-act.job     EQ job.job AND 
                         fg-act.job-no  EQ job.job-no AND 
-                        fg-act.job-no2 EQ job.job-no2
-                        USE-INDEX job-no:
+                        fg-act.job-no2 EQ job.job-no2:
                         DELETE fg-act.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing mat-act records".
                     FOR EACH mat-act EXCLUSIVE WHERE 
                         mat-act.company EQ cocode AND 
                         mat-act.job     EQ job.job AND 
                         mat-act.job-no  EQ job.job-no AND 
-                        mat-act.job-no2 EQ job.job-no2
-                        USE-INDEX job:
+                        mat-act.job-no2 EQ job.job-no2:
                         DELETE mat-act.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing mch-act records".
                     FOR EACH mch-act EXCLUSIVE WHERE 
                         mch-act.company EQ cocode AND 
                         mch-act.job     EQ job.job AND 
                         mch-act.job-no  EQ job.job-no AND 
-                        mch-act.job-no2 EQ job.job-no2
-                        USE-INDEX job-no:
+                        mch-act.job-no2 EQ job.job-no2:
                         DELETE mch-act.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing misc-act records".
                     FOR EACH misc-act EXCLUSIVE WHERE 
                         misc-act.company EQ cocode AND 
                         misc-act.job     EQ job.job AND 
                         misc-act.job-no  EQ job.job-no AND 
-                        misc-act.job-no2 EQ job.job-no2
-                        USE-INDEX misc-idx:
+                        misc-act.job-no2 EQ job.job-no2:
                         DELETE misc-act.
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing fg-bin records".
                     FOR EACH fg-bin EXCLUSIVE WHERE 
                         fg-bin.company    EQ cocode AND 
                         fg-bin.job-no     EQ job.job-no AND 
                         fg-bin.job-no2    EQ job.job-no2 AND 
                         fg-bin.i-no       NE "" AND 
-                        fg-bin.qty        EQ 0
-                        USE-INDEX job:
+                        fg-bin.qty        EQ 0:
                         /* Moved here so indexing ok on for each */
                         IF TRIM(fg-bin.i-no) EQ "" THEN NEXT.
                         DELETE fg-bin.
@@ -596,13 +599,16 @@ PROCEDURE run-process :
                         RUN jc/kiwiexp2.p (RECID(job)).
                     END.
 
+                    STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...deleting job".
                     DELETE job.
                 END.
 
+                STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...deleting oe-ordl".
                 FIND CURRENT oe-ordl EXCLUSIVE.
                 DELETE oe-ordl.
             END.
 
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...deleting oe-ord".
             FIND CURRENT oe-ord EXCLUSIVE.
             DELETE oe-ord.
         END. /* oe-ord */
