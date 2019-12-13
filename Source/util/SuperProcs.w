@@ -39,6 +39,13 @@ CREATE WIDGET-POOL.
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
 
+DEFINE TEMP-TABLE ttRunning NO-UNDO
+    FIELD procHandle AS CHARACTER 
+    FIELD procName   AS CHARACTER 
+    FIELD calledFrom AS CHARACTER 
+        INDEX ttRunning IS PRIMARY procHandle procName
+        .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -721,17 +728,30 @@ PROCEDURE pRunning :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cSuperProcedure AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hCalledFrom     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hSuperProcedure AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
     
+    EMPTY TEMP-TABLE ttRunning.
     DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
-        hSuperProcedure = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES)).
+        CREATE ttRunning.
+        ASSIGN
+            hSuperProcedure      = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES))
+            hCalledFrom          = hSuperProcedure:INSTANTIATING-PROCEDURE
+            ttRunning.procHandle = ENTRY(idx,SESSION:SUPER-PROCEDURES)
+            ttRunning.procName   = hSuperProcedure:NAME
+            ttRunning.calledFrom = IF VALID-HANDLE(hCalledFrom) THEN hCalledFrom:NAME
+                                   ELSE "?"
+            .
+    END. /* do idx */
+    FOR EACH ttRunning:
         cSuperProcedure = cSuperProcedure
-                        + "[" + ENTRY(idx,SESSION:SUPER-PROCEDURES) + "] "
-                        + hSuperProcedure:NAME
+                        + "[" + ttRunning.procHandle + "] "
+                        + ttRunning.procName + " ["
+                        + ttRunning.calledFrom + "]"
                         + CHR(10)
                         .
-    END. /* do idx */
+    END. /* each ttrunning */
     cSuperProcedure = TRIM(cSuperProcedure,CHR(10)).
     MESSAGE
         cSuperProcedure
