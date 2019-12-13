@@ -5374,8 +5374,6 @@ PROCEDURE valid-b-num :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-msg AS CHARACTER INIT "" NO-UNDO.
-    DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
   
     RELEASE xpo-ordl.
@@ -5386,7 +5384,7 @@ PROCEDURE valid-b-num :
             po-ordl.job-no:SCREEN-VALUE =
                 FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
                 TRIM(po-ordl.job-no:SCREEN-VALUE).
-            RUN pGetMessageProcs IN hMessageProcs (INPUT "5", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+              RUN pGetMessageFlag IN hMessageProcs (INPUT "5", OUTPUT lSuppressMessage ).
             IF NOT ll-pojob-warned THEN
                 FIND FIRST xpo-ordl NO-LOCK
                     WHERE xpo-ordl.company EQ g_company
@@ -5409,8 +5407,8 @@ PROCEDURE valid-b-num :
                 /*MESSAGE "Purchase order " +                              */
                 /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
                 /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
-                    MESSAGE  cCurrentMessage
-                    VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans .
+                  
+                RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "5", OUTPUT ll-ans ).
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
