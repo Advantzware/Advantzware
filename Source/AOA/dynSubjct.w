@@ -4327,9 +4327,9 @@ PROCEDURE pErrorCheck :
                     dynsubjectwhere.whereelement
                     "error" WHEN idx NE dynsubjectwhere.sortorder
                         WITH STREAM-IO WIDTH 200.
-                idx = dynsubjectwhere.sortorder.
                 IF lErrors EQ NO THEN
                 lErrors = idx NE dynsubjectwhere.sortorder.
+                idx = dynsubjectwhere.sortorder.
             END.
         END.
     END.
