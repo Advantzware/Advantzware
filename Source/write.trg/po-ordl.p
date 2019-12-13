@@ -22,14 +22,13 @@ DEF VAR v-dep LIKE {&TABLENAME}.s-len NO-UNDO.
 DEF VAR ll-error AS LOG NO-UNDO.
 DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
-DEF VAR cReturn AS CHAR NO-UNDO.
+/*DEF VAR cReturn AS CHAR NO-UNDO.*/
 DEF VAR poPaperClip-int AS INT NO-UNDO.
+{sys/inc/venditemcost.i}
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 RUN po/updordpo.p (BUFFER {&TABLENAME}).
-
-
 
 IF {&TABLENAME}.job-no EQ "" THEN {&TABLENAME}.s-num = 0.
 
@@ -39,8 +38,10 @@ IF {&TABLENAME}.pr-uom EQ "" AND {&TABLENAME}.i-no NE "" THEN DO:
          WHERE item.company EQ {&TABLENAME}.company
            AND item.i-no    EQ {&TABLENAME}.i-no NO-ERROR.
     IF AVAIL item THEN
-    FIND FIRST e-item OF item NO-LOCK NO-ERROR.
+    IF lNewVendorItemCost THEN FIND FIRST vendItemCost OF ITEM NO-LOCK NO-ERROR. 
+    ELSE FIND FIRST e-item OF item NO-LOCK NO-ERROR.     
     IF AVAIL e-item THEN {&TABLENAME}.pr-uom = e-item.std-uom.
+    IF AVAIL vendItemCost THEN {&TABLENAME}.pr-uom = vendItemCost.VendorUOM.
     IF {&TABLENAME}.pr-uom EQ "" THEN {&TABLENAME}.pr-uom = item.pur-uom.
     IF {&TABLENAME}.pr-uom EQ "" THEN {&TABLENAME}.pr-uom = item.cons-uom.
   END.

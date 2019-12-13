@@ -147,7 +147,7 @@ DEFINE            VARIABLE lv-recid           AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
-
+DEFINE            VARIABLE lCheckValidHold    AS LOGICAL   NO-UNDO.
 /* gdm - 06040918 */
 DEFINE BUFFER bf-itemfg        FOR itemfg.  
 DEFINE BUFFER bf-e-itemfg      FOR e-itemfg.  
@@ -1022,6 +1022,9 @@ DO:
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 
+  RUN check-cust-hold(OUTPUT op-error) NO-ERROR.
+  IF op-error THEN RETURN NO-APPLY.
+
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1353,6 +1356,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.i-no Dialog-Frame
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
     DO:
+       DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 
         AND SELF:SCREEN-VALUE NE "" THEN 
         DO:
@@ -1361,11 +1365,14 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
             RUN validate-i-no NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+            RUN check-cust-hold(OUTPUT lReturnError) NO-ERROR.
+            IF lReturnError THEN RETURN NO-APPLY.
+
             /* gdm - 06040918 */
             FIND FIRST bf-itemfg NO-LOCK 
                 WHERE bf-itemfg.company EQ cocode
                 AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
-
+              
             FIND FIRST bf-e-itemfg OF bf-itemfg NO-LOCK NO-ERROR.
 
             FIND FIRST bf-e-itemfg-vend OF bf-e-itemfg NO-LOCK NO-ERROR.
@@ -1395,7 +1402,8 @@ ON VALUE-CHANGED OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
         ASSIGN
             ll-item-validated = NO
             ll-poord-warned   = NO
-            ll-pojob-warned   = NO.
+            ll-pojob-warned   = NO
+            lCheckValidHold   = NO.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1422,7 +1430,8 @@ ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
         ASSIGN
             ll-item-validated = NO
             ll-poord-warned   = NO
-            ll-pojob-warned   = NO.
+            ll-pojob-warned   = NO
+            lCheckValidHold   = NO.
         APPLY 'entry' TO po-ordl.i-no.
 /*        RUN validate-i-no NO-ERROR.                */
 /*        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
@@ -5365,8 +5374,6 @@ PROCEDURE valid-b-num :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-msg AS CHARACTER INIT "" NO-UNDO.
-    DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
   
     RELEASE xpo-ordl.
@@ -5377,7 +5384,7 @@ PROCEDURE valid-b-num :
             po-ordl.job-no:SCREEN-VALUE =
                 FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
                 TRIM(po-ordl.job-no:SCREEN-VALUE).
-            RUN pGetMessageProcs IN hMessageProcs (INPUT "5", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+              RUN pGetMessageFlag IN hMessageProcs (INPUT "5", OUTPUT lSuppressMessage ).
             IF NOT ll-pojob-warned THEN
                 FIND FIRST xpo-ordl NO-LOCK
                     WHERE xpo-ordl.company EQ g_company
@@ -5400,8 +5407,8 @@ PROCEDURE valid-b-num :
                 /*MESSAGE "Purchase order " +                              */
                 /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
                 /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
-                    MESSAGE  cCurrentMessage
-                    VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans .
+                  
+                RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "5", OUTPUT ll-ans ).
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
@@ -6895,3 +6902,44 @@ PROCEDURE GetFirstMach :
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cust-hold Dialog-Frame 
+PROCEDURE check-cust-hold :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ cocode
+            AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
+        
+        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add"  THEN DO:
+            RUN pGetMessageProcs IN hMessageProcs (INPUT "12", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+            IF NOT lSuppressMessage THEN do:
+                FIND FIRST cust NO-LOCK 
+                    WHERE cust.company EQ cocode 
+                    AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
+                IF AVAIL cust AND cust.cr-hold THEN do:
+                    MESSAGE  cCurrentMessage
+                        VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans AS LOGICAL .
+                    IF NOT ll-ans THEN do:
+                        po-ordl.i-no:SCREEN-VALUE = "" .
+                        APPLY "entry" TO po-ordl.i-no .
+                        oplReturnError = YES .
+                    END.
+                    ELSE lCheckValidHold = YES .
+                END.
+            END.
+        END.
+    END.
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    

@@ -3160,35 +3160,35 @@ PROCEDURE new-job-no :
               Parameters:  <none>
               Notes:       
             ------------------------------------------------------------------------------*/
-
+DEFINE BUFFER bf-job-hdr FOR job-hdr .
     DO WITH FRAME {&FRAME-NAME}:
         lv-closed-checked = NO.
         lv-new-job-ran = YES.
 
         IF fg-rctd.job-no:SCREEN-VALUE  NE "" THEN
-            FOR EACH job-hdr NO-LOCK
-                WHERE job-hdr.company EQ cocode
-                AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
-                AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
-                BREAK BY job-hdr.frm      DESCENDING
-                BY job-hdr.blank-no DESCENDING:
+            FOR EACH bf-job-hdr NO-LOCK
+                WHERE bf-job-hdr.company EQ cocode
+                AND bf-job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
+                AND bf-job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
+                BREAK BY bf-job-hdr.frm      DESCENDING
+                BY bf-job-hdr.blank-no DESCENDING:
 
-                IF LAST(job-hdr.frm)                                                  OR
-                    job-hdr.i-no EQ fg-rctd.i-no:SCREEN-VALUE  THEN 
+                IF LAST(bf-job-hdr.frm)                                                  OR
+                    bf-job-hdr.i-no EQ fg-rctd.i-no:SCREEN-VALUE  THEN 
                 DO:
                     ASSIGN
                         lv-job-no                     = fg-rctd.job-no:SCREEN-VALUE
                         lv-job-no2                    = fg-rctd.job-no2:SCREEN-VALUE
-                        fg-rctd.i-no:SCREEN-VALUE     = job-hdr.i-no
-                        fg-rctd.std-cost:SCREEN-VALUE = STRING(job-hdr.std-mat-cost +
-                                                job-hdr.std-lab-cost +
-                                                job-hdr.std-fix-cost +
-                                                job-hdr.std-var-cost).
-                      RUN  pGetUnassembledItem(cocode , job-hdr.i-no) .
+                        fg-rctd.i-no:SCREEN-VALUE     = bf-job-hdr.i-no
+                        fg-rctd.std-cost:SCREEN-VALUE = STRING(bf-job-hdr.std-mat-cost +
+                                                bf-job-hdr.std-lab-cost +
+                                                bf-job-hdr.std-fix-cost +
+                                                bf-job-hdr.std-var-cost).
+                      RUN  pGetUnassembledItem(cocode , bf-job-hdr.i-no) .
 
                     RUN get-def-values.
                     IF NOT lUpdateRecords THEN
-                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,job-hdr.job-no,job-hdr.job-no2) .
+                        RUN pGetUnitCountFromJob(bf-job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,bf-job-hdr.job-no,bf-job-hdr.job-no2) .
                       
                     LEAVE.
                 END.

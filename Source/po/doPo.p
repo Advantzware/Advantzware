@@ -372,14 +372,8 @@ DO TRANSACTION:
     {sys/inc/oeautofg.i}
     {sys/inc/pouom.i}
     {sys/inc/aptax.i}
-/*    {sys/inc/vendItemCost.i}*/
 END.
-
-DEF VAR vic-log AS LOG NO-UNDO.
-DEF VAR cReturn AS CHAR NO-UNDO.
-DEF VAR lFound AS LOG NO-UNDO.
-RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+{sys/inc/vendItemCost.i}
 
 /* Check if authorized to create PO's */
 IF oeautofg-log THEN
@@ -400,6 +394,8 @@ IF v-from-po-entry THEN
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
+DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
+RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -910,13 +906,9 @@ PROCEDURE buildRptRecs :
       
             IF gvlDebug THEN
                 PUT STREAM sDebug UNFORMATTED "buildRptRec - choose vendor " + bf-w-job-mat.i-no SKIP.
-            IF vic-log THEN 
-                RUN po/d-vndcstN.w (v-term, bf-w-job-mat.w-recid,
-                bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no,
-                INPUT v-qty-comp, INPUT v-job-mat-uom).   
-            ELSE RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid,
-                bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no,
-                INPUT v-qty-comp, INPUT v-job-mat-uom).
+            IF lNewVendorItemCost THEN 
+                RUN po/d-vndcstN.w (v-term, bf-w-job-mat.w-recid, bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no, INPUT v-qty-comp, INPUT v-job-mat-uom).   
+            ELSE RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid, bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no, INPUT v-qty-comp, INPUT v-job-mat-uom).
       
             IF fil_id EQ ? THEN ll-canceled = YES.
             ELSE FIND report WHERE RECID(report) EQ fil_id NO-LOCK NO-ERROR.
@@ -927,7 +919,7 @@ PROCEDURE buildRptRecs :
                 /* create tt-eiv for a specific itemfg (from e-itemfg-vend records) */
                 FIND itemfg WHERE ROWID(itemfg) EQ iprItemfg NO-LOCK NO-ERROR.
           
-                IF vic-log THEN RUN RevCreateTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
+                IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
                 ELSE RUN createTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
 
             END.
@@ -3201,13 +3193,13 @@ PROCEDURE processJobMat :
         DO:
   
             /* Create tt-ei and tt-eiv for e-itemvend of an item */
-            IF vic-log THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
+            IF lNewVendorItemCost THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
             ELSE RUN createTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
         END.
         ELSE 
         DO:
             /* Create tt-eiv for a w-job-mat and itemfg */
-            IF vic-log THEN RUN RevCreateTtEiv (INPUT  cocode, INPUT  ROWID(w-job-mat)).
+            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT  cocode, INPUT  ROWID(w-job-mat)).
             ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).
         END.
   
@@ -3431,7 +3423,7 @@ PROCEDURE processJobMat :
         END. /* run poOrdlAddVals */   
 
         /* Get len, wid, depth from item. Set po-ordl.cust-no */
-        IF vic-log THEN RUN calcLenWidN (INPUT gvrPoOrd,
+        IF lNewVendorItemCost THEN RUN calcLenWidN (INPUT gvrPoOrd,
                 INPUT gvrPoOrdl,
                 INPUT gvrItem).
         ELSE RUN calcLenWid (INPUT gvrPoOrd,
@@ -3545,6 +3537,9 @@ PROCEDURE promptCreatePoLine :
         RUN fg/GetItemfgPoStatus.p (INPUT cocode,
                                     INPUT w-job-mat.rm-i-no,"",NO,
                                     OUTPUT lCheckFgItemPoStatus).
+    IF NOT w-job-mat.this-is-a-rm THEN
+        RUN pCheckFGItemCustHold(cocode,w-job-mat.rm-i-no,INPUT-OUTPUT lCheckFgItemPoStatus) .
+
     gvlChoice = NO.
     IF gvcVendNo EQ "" 
         AND ((v-autopo-sec AND w-job-mat.this-is-a-rm) OR (v-autofg-sec AND NOT w-job-mat.this-is-a-rm AND lCheckFgItemPoStatus )) 
@@ -3814,7 +3809,7 @@ PROCEDURE RevCreateTtEiv:
                 
                 IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
                   v-index GT 0 AND v-index LE 20 THEN 
-                    ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
+                    ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
                         tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                         tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
@@ -4967,6 +4962,53 @@ PROCEDURE zeroLenWarning :
         /* return ??*/          
         END. /* v-len eq 0 ... */
     END. /* avail b-item ... */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pCheckFGItemCustHold) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckFGItemCustHold Procedure 
+PROCEDURE pCheckFGItemCustHold :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER       NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItem     AS CHARACTER       NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER oplFgItemCustHold AS LOGICAL     NO-UNDO.
+
+    DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bff-itemfg FOR itemfg.  
+    
+
+    FIND FIRST bff-itemfg NO-LOCK
+            WHERE bff-itemfg.company EQ ipcCompany
+            AND bff-itemfg.i-no    EQ ipcFGItem NO-ERROR.
+        
+        IF AVAIL bff-itemfg AND bff-itemfg.cust-no NE ""  THEN DO:
+            RUN pGetMessageProcs IN hMessageProcs (INPUT "12", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+            IF NOT lSuppressMessage THEN do:
+                FIND FIRST cust NO-LOCK 
+                    WHERE cust.company EQ cocode 
+                    AND cust.cust-no EQ bff-itemfg.cust-no NO-ERROR .
+                IF AVAIL cust AND cust.cr-hold THEN do:
+                    MESSAGE  cCurrentMessage
+                        VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans AS LOGICAL .
+                    IF NOT ll-ans THEN do:
+                       oplFgItemCustHold = NO .
+                    END.
+                END.
+            END.
+        END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2348,7 +2348,7 @@ IF eb.form-no NE 0 THEN DO:
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
+  RUN pGetMessageFlag(INPUT "4" ,OUTPUT lSuppressMessage) .
 
   IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
 END.

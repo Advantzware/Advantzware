@@ -2296,7 +2296,7 @@ DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-RUN pGetMessageProcs IN hMessageProcs (INPUT "6", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
+RUN pGetMessageFlag IN hMessageProcs (INPUT "6" , OUTPUT lSuppressMessage) .
 
 form
     pc-prdd.m-code column-label "MACH"
@@ -2514,7 +2514,7 @@ for each pc-prdd
 
       if v-tot-fg gt v-tot-rm THEN do:
           IF NOT lSuppressMessage THEN DO:
-              MESSAGE cCurrentMessage VIEW-AS ALERT-BOX INFO title cCurrentTitle .
+              RUN pDisplayMessageGetOutput IN hMessageProcs (INPUT "6" ).
               ll-ok-to-post = NO .
               RETURN NO-APPLY .
           END.

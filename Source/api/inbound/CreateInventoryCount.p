@@ -219,29 +219,23 @@
 
         IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
             RETURN.
+        
+        IF ipcJobID NE "" THEN DO:
+            RUN pValidateJob (
+                INPUT  ipcCompany,
+                INPUT  ipcJobID,
+                INPUT  ipiJobID2,
+                INPUT  ipcItemID,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
 
-        IF ipcJobID EQ "" THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Job Number cannot be empty"
-                .
-            RETURN.
+            IF ERROR-STATUS:ERROR THEN
+                opcMessage = ERROR-STATUS:GET-MESSAGE(1).
+
+            IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
+                RETURN.
         END.
-
-        RUN pValidateJob (
-            INPUT  ipcCompany,
-            INPUT  ipcJobID,
-            INPUT  ipiJobID2,
-            INPUT  ipcItemID,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ) NO-ERROR.
-
-        IF ERROR-STATUS:ERROR THEN
-            opcMessage = ERROR-STATUS:GET-MESSAGE(1).
-
-        IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
-            RETURN.
 
         IF ipiPOID NE 0 THEN DO:
             RUN pValidatePOAndPOLine (

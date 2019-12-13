@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 {custom/gcompany.i}
 {custom/gloc.i}
+{sys/inc/var.i new shared}
 
 &Scoped-define first-time yes
 
@@ -49,6 +50,9 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEF VAR ect-label AS CHAR NO-UNDO.
 DEF VAR ect-help AS CHAR NO-UNDO.
 DEF VAR ect-format AS CHAR NO-UNDO.
+
+DEF BUFFER b-vendItemCost FOR vendItemCost.
+DEF BUFFER b-vendItemCostLevel FOR vendItemCostLevel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1139,11 +1143,15 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
+ASSIGN cocode = gCompany
+       locode = gLoc.
+{sys/inc/vendItemCost.i}
+       
 session:data-entry-return = yes.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
-  &ENDIF         
+  &ENDIF          
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -1213,6 +1221,51 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyVendItemCost V-table-Win
+PROCEDURE CopyVendItemCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ipFromItem AS CHAR NO-UNDO.
+    DEF INPUT PARAM ipToItem AS CHAR NO-UNDO.
+    
+    /* delete rec if exists before create */
+    for each vendItemCost where vendItemCost.company = cocode 
+                            AND vendItemCost.itemID = ipToItem
+                            AND vendItemCost.ItemType = "RM":
+                                
+        FOR EACH vendItemCostLevel WHERE vendItemCostLevel.venditemCostID = vendItemCost.vendItemCostID:
+            DELETE vendItemCostLevel.
+        END.                        
+        delete vendItemCost.                         
+    end.                             
+    
+    for each venditemcost where venditemcost.company = cocode 
+                            AND venditemcost.itemID = ipFromItem
+                            AND vendItemCost.ItemType = "RM"    :
+        create b-vendItemCost.
+        buffer-copy vendItemCost except vendItemCostID itemID venditemcost.rec_key to b-vendItemCost.
+        assign b-venditemcost.itemID = ipToItem
+               .
+        
+        FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID:
+          create b-vendItemCostLevel.
+          buffer-copy vendItemCostLevel except vendItemCostLevel.vendItemCostID venditemcostlevel.rec_key to b-vendItemCostLevel.
+          assign b-vendItemCostLevel.vendItemCostID = b-vendItemCost.vendItemCostID
+                 .
+        END.                  
+    end.    
+                                
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-item V-table-Win 
 PROCEDURE disable-item :
@@ -1491,28 +1544,30 @@ PROCEDURE local-assign-record :
             item.cons-uom = if bf-item.cons-uom EQ "" then "EA"
                                                       else bf-item.cons-uom.
          END.
-         for each e-item where e-item.company = cocode and
-                                e-item.i-no = item.i-no:
-               delete e-item.  /* delete rec if exists before create */                
-         end.                             
-         for each e-item where e-item.company = cocode and
-                               e-item.i-no = bf-item.i-no:
-             create bf-e-item.
-             buffer-copy e-item except e-item.i-no e-item.rec_key to bf-e-item.
-             assign bf-e-item.i-no = item.i-no.                  
-         end.                             
-         for each e-item-vend where e-item-vend.company = cocode and
-                                    e-item-vend.i-no = item.i-no:
-             delete e-item-vend.  /* delete rec if exists before create */                
-         end.                             
-         for each e-item-vend where e-item-vend.company = cocode and
-                                    e-item-vend.i-no = bf-item.i-no:
-             create bf-e-vend.
-             buffer-copy e-item-vend except e-item-vend.i-no e-item-vend.rec_key to bf-e-vend.
-             assign bf-e-vend.i-no      = item.i-no
-                    bf-e-vend.item-type = yes.
-         end.
-
+         IF lNewVendorItemCost THEN RUN CopyVendItemCost(bf-item.i-no, ITEM.i-no).
+         ELSE DO:
+             for each e-item where e-item.company = cocode and
+                                    e-item.i-no = item.i-no:
+                   delete e-item.  /* delete rec if exists before create */                
+             end.                             
+             for each e-item where e-item.company = cocode and
+                                   e-item.i-no = bf-item.i-no:
+                 create bf-e-item.
+                 buffer-copy e-item except e-item.i-no e-item.rec_key to bf-e-item.
+                 assign bf-e-item.i-no = item.i-no.                  
+             end.                             
+             for each e-item-vend where e-item-vend.company = cocode and
+                                        e-item-vend.i-no = item.i-no:
+                 delete e-item-vend.  /* delete rec if exists before create */                
+             end.                             
+             for each e-item-vend where e-item-vend.company = cocode and
+                                        e-item-vend.i-no = bf-item.i-no:
+                 create bf-e-vend.
+                 buffer-copy e-item-vend except e-item-vend.i-no e-item-vend.rec_key to bf-e-vend.
+                 assign bf-e-vend.i-no      = item.i-no
+                        bf-e-vend.item-type = yes.
+             end.
+         END.
          for each item-bom where item-bom.company = cocode and
                                 item-bom.parent-i = item.i-no:
                delete item-bom.  /* delete rec if exists before create */                
