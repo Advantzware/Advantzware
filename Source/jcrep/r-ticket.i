@@ -16,3 +16,4 @@ DEF {1} VAR approve         AS   LOG NO-UNDO.
 DEF {1} VAR production      AS   LOG NO-UNDO.
 DEF {1} VAR lDraft          AS   LOG NO-UNDO.
 DEF {1} VAR lPrintMetric    AS   LOGICAL NO-UNDO.
+DEF {1} VAR lPrintDMIPage   AS   LOGICAL NO-UNDO.
