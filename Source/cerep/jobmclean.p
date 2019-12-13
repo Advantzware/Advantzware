@@ -1159,6 +1159,7 @@ FOR EACH job-hdr NO-LOCK
 
                                 k = 1 .
                                 PUT 
+                                    "<BGCOLOR=255,255,0><C1.5><FROM><R+1><C12><FILLRECT><R-1><BGCOLOR=WHITE>"
                                     "<C1.5><FROM><R+1><C12><RECT><R-1>"
                                     "<P10><B><C2>Form " TRIM(STRING(eb.form-no,"99")) "</B>"
                                     "<C30><b>Sheet: </b>" ef.gsh-wid  SPACE(3) ef.gsh-len 
@@ -1226,26 +1227,6 @@ FOR EACH job-hdr NO-LOCK
                                             dRunCrew = est-op.op-crew[2]
                                             dRunWaste = est-op.op-spoil .
                                     END.
-
-                                  /*  FOR EACH mch-act                                                  */ 
-                                  /*      WHERE mch-act.company EQ mach.company                         */ 
-                                  /*      AND mch-act.m-code  EQ mach.m-code                            */ 
-                                  /*      AND mch-act.job-no  EQ bf-jobhdr.job-no                       */ 
-                                  /*      AND mch-act.job-no2  EQ bf-jobhdr.job-no2                     */ 
-                                  /*      USE-INDEX operation,                                          */ 
-                                  /*      FIRST job-code WHERE job-code.code EQ mch-act.code NO-LOCK    */ 
-                                  /*      TRANSACTION:                                                  */ 
-                                  /*                                                                    */ 
-                                  /*      IF job-code.cat EQ "MR" THEN                                  */ 
-                                  /*          ASSIGN                                                    */ 
-                                  /*              dMRWaste = dMRWaste + mch-act.waste                   */ 
-                                  /*              dMRCrew  = dMRCrew + mch-act.crew .                   */ 
-                                  /*      ELSE                                                          */ 
-                                  /*          ASSIGN                                                    */ 
-                                  /*              dRunCrew  = dRunCrew + mch-act.crew                   */ 
-                                  /*              dRunWaste = dRunWaste + mch-act.waste .               */ 
-                                  /*  END.                                                              */ 
-                                  
                                   
                                     IF s-prt-mstandard THEN 
                                     DO:
@@ -1253,26 +1234,36 @@ FOR EACH job-hdr NO-LOCK
                                         dBeginQty = dBeginQty + (dBeginQty * wrk-op.waste-per[wrk-op.s-num] / 100) .
                                         iYieldQty = (wrk-op.speed[wrk-op.s-num] * wrk-op.run-hr[wrk-op.s-num]) .
                                         
-                                        IF mach.p-type EQ "R" OR mach.p-type EQ "S" THEN do:
-                                            FIND FIRST bf-wrk-op NO-LOCK
-                                                WHERE bf-wrk-op.s-num = tt-reftable.val[12]
-                                                  AND bf-wrk-op.iRecSeq EQ (wrk-op.iRecSeq + 1) NO-ERROR.
-                                            IF AVAIL bf-wrk-op AND (bf-wrk-op.cMachType EQ "R" OR  bf-wrk-op.cMachType EQ "S" ) THEN
-                                            iDisYieldQty = bf-wrk-op.num-sh[bf-wrk-op.s-num] .
-                                            ELSE IF AVAIL bf-wrk-op AND bf-wrk-op.cMachType EQ "B"  THEN DO:
-                                                FOR EACH bf-wrk-op NO-LOCK
-                                                   WHERE bf-wrk-op.s-num = tt-reftable.val[12]
-                                                     AND bf-wrk-op.cMachType EQ "B" 
-                                                     AND bf-wrk-op.iRecSeq GT wrk-op.iRecSeq BREAK BY bf-wrk-op.d-seq BY bf-wrk-op.b-num:
-                                                      iDisYieldQty = iDisYieldQty + bf-wrk-op.num-sh[bf-wrk-op.s-num] .
-                                                END.
-                                            END.
-                                        END.
-                                        ELSE IF mach.p-type EQ "B" THEN DO:
-                                          iYieldQty =   wrk-op.num-sh[wrk-op.s-num]  * wrk-op.waste-per[wrk-op.s-num] / 100 .
-                                          iDisYieldQty = wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num] - iYieldQty .
-                                        END.
+                                        /*IF mach.p-type EQ "R" OR mach.p-type EQ "S" THEN do:                                              */
+                                        /*    FIND FIRST bf-wrk-op NO-LOCK                                                                  */
+                                        /*        WHERE bf-wrk-op.s-num = tt-reftable.val[12]                                               */
+                                        /*          AND bf-wrk-op.iRecSeq EQ (wrk-op.iRecSeq + 1) NO-ERROR.                                 */
+                                        /*    IF AVAIL bf-wrk-op AND (bf-wrk-op.cMachType EQ "R" OR  bf-wrk-op.cMachType EQ "S" ) THEN      */
+                                        /*    iDisYieldQty = bf-wrk-op.num-sh[bf-wrk-op.s-num] .                                            */
+                                        /*    ELSE IF AVAIL bf-wrk-op AND bf-wrk-op.cMachType EQ "B"  THEN DO:                              */
+                                        /*        FOR EACH bf-wrk-op NO-LOCK                                                                */
+                                        /*           WHERE bf-wrk-op.s-num = tt-reftable.val[12]                                            */
+                                        /*             AND bf-wrk-op.cMachType EQ "B"                                                       */
+                                        /*             AND bf-wrk-op.iRecSeq GT wrk-op.iRecSeq BREAK BY bf-wrk-op.d-seq BY bf-wrk-op.b-num: */
+                                        /*              iDisYieldQty = iDisYieldQty + bf-wrk-op.num-sh[bf-wrk-op.s-num] .                   */
+                                        /*        END.                                                                                      */
+                                        /*    END.                                                                                          */
+                                        /*END.                                                                                              */
+                                        /*ELSE IF mach.p-type EQ "B" THEN DO:                                                               */
+                                        /*  iYieldQty =   wrk-op.num-sh[wrk-op.s-num]  * wrk-op.waste-per[wrk-op.s-num] / 100 .             */
+                                        /*  iDisYieldQty = wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num] - iYieldQty .        */
+                                        /*END.                                                                                              */
                                         dRunWaste = (wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num]) * wrk-op.waste-per[wrk-op.s-num] / 100 .
+                                        IF LAST-OF (wrk-op.b-num) AND wrk-op.b-num NE 0  THEN do:
+                                            FIND FIRST bff-eb NO-LOCK
+                                                WHERE bff-eb.est-no EQ eb.est-no
+                                                AND bff-eb.form-no EQ wrk-op.s-num
+                                                AND (bff-eb.blank-no EQ wrk-op.b-num OR wrk-op.b-num EQ 0) NO-ERROR .
+                                            IF AVAIL bff-eb THEN
+                                                iDisYieldQty = INTEGER(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
+                                             ELSE iDisYieldQty = INTEGER(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
+                                        END.
+                                        ELSE iDisYieldQty = INTEGER(wrk-op.num-sh[wrk-op.s-num] - dRunWaste - wrk-op.mr-waste[wrk-op.s-num]) .
                                         {sys/inc/roundup.i dRunWaste}
                                         PUT "<C2>" wrk-op.m-dscr   SPACE(1)
                                             "<C20>" dRunCrew FORMAT ">>>9.99"   
@@ -1290,6 +1281,7 @@ FOR EACH job-hdr NO-LOCK
                     
                                     IF LINE-COUNTER > 70 THEN 
                                     DO:
+                                        PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                         PAGE.
                                         RUN pPrintHeader .
                                     END.
@@ -1312,18 +1304,28 @@ FOR EACH job-hdr NO-LOCK
                                   "<C70><B><P10>Over Qty: </B>" TRIM(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) SKIP 
                                   
                                   "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
-                                  "<P10><C20><b>Box Size: </B>" (string(eb.len) + " X " + STRING(eb.wid) + " X " + STRING(eb.dep)) FORMAT "x(40)" SKIP
-                                  
+                                  "<P10><C20><b> Size: </B>" (string(eb.len,"99.9999") + " X " + STRING(eb.wid,"99.9999") + " X " + STRING(eb.dep,"99.9999")) FORMAT "x(40)" SKIP .
+                        
+                                  IF LINE-COUNTER > 70 THEN 
+                                    DO:
+                                      PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                                        PAGE.
+                                        RUN pPrintHeader .
+                                    END.
+                               PUT   
                                   "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                   "<P10><C20><b>Packing: </B>" eb.cas-no FORMAT "x(15)"  
                                   "<C45><b>Pallet: </b>" eb.tr-no FORMAT "x(15)" SKIP
 
-                                  "<P10><C20><b>Size: </B>" STRING(eb.cas-len,"99.9999") SPACE(2) STRING(eb.cas-wid,"99.9999") SPACE(2) STRING(eb.cas-dep,"99.9999")  
+                                  "<P10><C20><b>Case Size: </B>" STRING(eb.cas-len,"99.9999") SPACE(2) STRING(eb.cas-wid,"99.9999") SPACE(2) STRING(eb.cas-dep,"99.9999")  
                                   "<C45><b>Ctn/Bdl.Per: </b>" STRING(eb.cas-pal) SKIP
 
                                   "<P10><C20><b>Count: </B>" STRING(eb.cas-cnt)  
-                                  "<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" ) SKIP v-fill SKIP .
-                                 
+                                  "<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" ) SKIP  .
+
+                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no).
+
+                                PUT v-fill SKIP .
 
                              FOR EACH bff-eb NO-LOCK
                                     WHERE bff-eb.est-no EQ eb.est-no
@@ -1353,18 +1355,25 @@ FOR EACH job-hdr NO-LOCK
                                          "<C70><B><P10>Over Qty: </B>" TRIM(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) SKIP
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
-                                         "<P10><C20><b>Box Size: </B>" (string(eb.len) + " X " + STRING(eb.wid) + " X " + STRING(eb.dep)) FORMAT "x(40)" SKIP
-                                        
+                                         "<P10><C20><b>Size: </B>" (string(bff-eb.len,"99.9999") + " X " + STRING(bff-eb.wid,"99.9999") + " X " + STRING(bff-eb.dep,"99.9999")) FORMAT "x(40)" SKIP .
+
+                                        IF LINE-COUNTER > 70 THEN DO:
+                                            PUT "<C75><R65>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                                            PAGE.
+                                            RUN pPrintHeader .
+                                        END.
+                                       PUT  
                                          "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                          "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
                                          "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
 
-                                         "<P10><C20><b>Size: </B>" STRING(bff-eb.cas-len,"99.9999") SPACE(2) STRING(bff-eb.cas-wid,"99.9999") SPACE(2) STRING(bff-eb.cas-dep,"99.9999")  
+                                         "<P10><C20><b>Case Size: </B>" STRING(bff-eb.cas-len,"99.9999") SPACE(2) STRING(bff-eb.cas-wid,"99.9999") SPACE(2) STRING(bff-eb.cas-dep,"99.9999")  
                                          "<C45><b>Ctn/Bdl.Per: </b>" STRING(bff-eb.cas-pal) SKIP
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  
-                                         "<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" ) SKIP v-fill SKIP .
-                                    
+                                         "<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" ) SKIP  .
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                        PUT v-fill SKIP .
                                 END.
                                 PUT "<R-1>" .
                             IF LINE-COUNTER > 70 THEN 
@@ -1789,6 +1798,86 @@ PROCEDURE pPrintHeader :
         "  " cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
         v-fill SKIP
         "<R4><C40><P20>" cNewOrderValue FORMAT "x(12)" "</B><P10><R6.5>" SKIP .
+
+END PROCEDURE.
+
+
+PROCEDURE pPrintMRItem :
+    /*------------------------------------------------------------------------------
+      Purpose:     Print header
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcEstimateas AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiForm AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO .
+
+    
+    FOR EACH xjob-mat NO-LOCK
+        WHERE xjob-mat.company EQ job-hdr.company
+        AND xjob-mat.job     EQ job-hdr.job
+        AND xjob-mat.job-no  EQ job-hdr.job-no
+        AND xjob-mat.job-no2 EQ job-hdr.job-no2
+        AND xjob-mat.frm     EQ ipiForm
+        AND (xjob-mat.blank-no EQ ipiBlank OR xjob-mat.blank-no EQ 0) ,
+        FIRST item NO-LOCK
+        WHERE item.company EQ xjob-mat.company
+        AND item.i-no    EQ xjob-mat.rm-i-no  
+        AND CAN-DO("5,6,W",item.mat-type)
+        BREAK BY item.i-no :
+        
+        IF LAST-OF(item.i-no) THEN do:
+            PUT 
+                "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)  
+                "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+            
+        END.
+    END.
+
+    FOR EACH estPacking NO-LOCK
+        WHERE estPacking.company  EQ cocode
+        AND estPacking.estimateNo EQ ipcEstimateas
+        AND estPacking.FormNo     EQ ipiForm
+        AND estPacking.BlankNo    EQ ipiBlank,
+        EACH xjob-mat NO-LOCK
+        WHERE xjob-mat.company EQ job-hdr.company
+        AND xjob-mat.job     EQ job-hdr.job
+        AND xjob-mat.job-no  EQ job-hdr.job-no
+        AND xjob-mat.job-no2 EQ job-hdr.job-no2
+        AND xjob-mat.frm     EQ ipiForm 
+        AND xjob-mat.rm-i-no EQ estPacking.rmItemID BREAK BY estPacking.rmItemID :
+        
+        FIND FIRST ITEM NO-LOCK
+            WHERE item.company  EQ cocode
+            AND item.i-no     EQ estPacking.rmItemID
+            NO-ERROR.
+        IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:
+            PUT 
+                "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)  
+                "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+            
+        END.
+    END.
+                                 
+    IF ipiBlank EQ 1  THEN do:
+        DO i = 1 TO 5: /*no room for all 6*/
+            IF ef.mis-cost[i] NE "" THEN DO:
+                FIND FIRST ITEM NO-LOCK
+                    WHERE item.company  EQ cocode
+                    AND item.i-no     EQ ef.mis-cost[i]
+                    NO-ERROR.
+                PUT   "<P10><C20><b>Code: </B>" STRING(ef.mis-cost[i])  
+                    "<C45><b>Desc: </b>" ( IF AVAIL ITEM THEN ITEM.i-name ELSE "") FORMAT "x(20)" SKIP.            
+            END.
+        END.
+        DO i = 1 TO 8:
+            IF ef.spec-no[i] <> "" THEN do:
+                PUT   "<P10><C20><b>Code: </B>" STRING(ef.spec-no[i])  
+                       "<C45><b>Desc: </b>" ef.spec-dscr FORMAT "x(20)" SKIP.
+            END.
+        END.
+    END.
+                
 
 END PROCEDURE.
 
