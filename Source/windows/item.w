@@ -743,6 +743,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_b-rmiinq ).
+       RUN set-position IN h_b-rmiinq ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_b-rmiinq ( 19.76 , 148.00 ) NO-ERROR.
        /* Position in AB:  ( 4.57 , 3.00 ) */
        /* Size in UIB:  ( 19.76 , 148.00 ) */
 
