@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/getcmpny.i}
 DEFINE VARIABLE hTaxProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lOrderChanged AS LOGICAL NO-UNDO.
 
 RUN system/TaxProcs.p PERSISTENT SET hTaxProcs.
 
@@ -465,7 +466,8 @@ PROCEDURE pSetTaxable :
 
     DISABLE TRIGGERS FOR LOAD OF cust.
     DISABLE TRIGGERS FOR LOAD OF inv-head.
-    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    // inv-line trigger recalcs in the inv-head totals
+    // DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF itemfg.
     DISABLE TRIGGERS FOR LOAD OF oe-ord.
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
@@ -551,12 +553,16 @@ PROCEDURE pSetTaxable :
                             WHERE oe-ord.company EQ shipto.company
                               AND oe-ord.cust-no EQ shipto.cust-no
                               AND oe-ord.ship-id EQ shipto.ship-id
+                              AND oe-ord.stat NE "C"
                             :
-                            IF cTaxGroup NE "" THEN
-                            ASSIGN
-                                cOrder:SCREEN-VALUE = STRING(oe-ord.ord-no)
-                                oe-ord.tax-gr = cTaxGroup
-                                .
+                            lOrderChanged = NO.
+                            IF cTaxGroup NE "" AND oe-ord.tax-gr NE cTaxGroup THEN DO:
+                                lOrderChanged = YES.
+                                ASSIGN
+                                    cOrder:SCREEN-VALUE = STRING(oe-ord.ord-no)
+                                    oe-ord.tax-gr = cTaxGroup
+                                    .
+                            END.
                             FOR EACH oe-ordl EXCLUSIVE-LOCK
                                 WHERE oe-ordl.company EQ oe-ord.company
                                   AND oe-ordl.ord-no  EQ oe-ord.ord-no
@@ -570,7 +576,11 @@ PROCEDURE pSetTaxable :
                                         oe-ordl.i-no,
                                         OUTPUT lTaxable
                                         ).
-                                    oe-ordl.tax = lTaxable.
+                                    IF oe-ordl.tax NE lTaxable THEN 
+                                        ASSIGN
+                                            lOrderChanged = YES 
+                                            oe-ordl.tax = lTaxable
+                                            .
                                 END. /* if order taxable */
                             END. /* each oe-ordl */
                             FOR EACH oe-ordm EXCLUSIVE-LOCK
@@ -588,9 +598,15 @@ PROCEDURE pSetTaxable :
                                         oe-ordm.charge,
                                         OUTPUT lTaxable
                                         ).
-                                    oe-ordm.tax = lTaxable.   
+                                    IF oe-ordm.tax NE lTaxable THEN 
+                                        ASSIGN
+                                            oe-ordm.tax = lTaxable
+                                            lOrderChanged = YES.
+                                            .   
                                 END. /* if order taxable */             
                             END. /* each oe-ordm */
+                            IF lOrderChanged THEN 
+                                RUN oe/calcordt.p (ROWID(oe-ord)).
                         END. /* each oe-ord */
                         fSetDone (cOrder:HANDLE).
                     END. /* if lordertaxable */
