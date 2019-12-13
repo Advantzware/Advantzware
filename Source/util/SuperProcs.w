@@ -727,6 +727,7 @@ PROCEDURE pRunning :
     DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
         hSuperProcedure = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES)).
         cSuperProcedure = cSuperProcedure
+                        + "[" + ENTRY(idx,SESSION:SUPER-PROCEDURES) + "] "
                         + hSuperProcedure:NAME
                         + CHR(10)
                         .

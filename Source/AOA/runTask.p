@@ -19,7 +19,7 @@ ASSIGN
     PROPATH = ENTRY(1,SESSION:PARAMETER,"+")
     rRowID  = TO-ROWID(ENTRY(2,SESSION:PARAMETER,"+"))
     .
-RUN system\session.p PERSISTENT SET hSession.
+RUN system/session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 FIND FIRST emailConfig NO-LOCK
@@ -41,14 +41,14 @@ IF AVAILABLE dynParamValue THEN DO:
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
         IF dynParamValue.module NE "" THEN DO:
-            cAppSrv = "AOA\appServer\aoa" + dynParamValue.module.
+            cAppSrv = "AOA/appServer/aoa" + dynParamValue.module.
             IF SEARCH(cAppSrv + ".r") NE ? OR
                SEARCH(cAppSrv + ".p") NE ? THEN DO:
-                RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+                RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
                 RUN VALUE(cAppSrv + ".p") PERSISTENT SET hAppSrv.
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
-                RUN AOA\spJasper.p PERSISTENT SET hJasper.
+                RUN AOA/spJasper.p PERSISTENT SET hJasper.
                 SESSION:ADD-SUPER-PROCEDURE (hJasper).
                 RUN spJasperQuery (
                     Task.taskFormat,
@@ -170,6 +170,14 @@ ELSE DO:
         NO
         ).
 END. /* else dynParamValue */
+
+DELETE PROCEDURE hSession.
+IF VALID-HANDLE(hAppSrvBin) THEN
+DELETE PROCEDURE hAppSrvBin.
+IF VALID-HANDLE(hAppSrv) THEN
+DELETE PROCEDURE hAppSrv.
+IF VALID-HANDLE(hJasper) THEN
+DELETE PROCEDURE hJasper.
 
 QUIT.
 
