@@ -1825,8 +1825,7 @@ PROCEDURE pPrintMRItem :
         AND item.i-no    EQ xjob-mat.rm-i-no  
         AND CAN-DO("5,6,W",item.mat-type)
         BREAK BY item.i-no :
-        MESSAGE "rmitem " item.i-no VIEW-AS ALERT-BOX ERROR .
-
+        
         IF LAST-OF(item.i-no) THEN do:
             PUT 
                 "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)  
