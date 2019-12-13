@@ -1053,7 +1053,7 @@ do v-local-loop = 1 to v-local-copies:
                   "<=12><R+2><C8>" v-job-prt  "<C35>"  v-est-no  
                   "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
                   "<=12><R+4><C1><FROM><C106><LINE><||3>"
-                  "<=12><R+5><C5><#21><R+45><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+                  "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
            
            PAGE.
         END.
@@ -1533,7 +1533,7 @@ do v-local-loop = 1 to v-local-copies:
                   "<=12><R+2><C8>" v-job-prt  "<C35>"  v-est-no  
                   "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
                   "<=12><R+4><C1><FROM><C106><LINE><||3>"
-                  "<=12><R+5><C5><#21><R+45><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+                  "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
               PAGE.
         END.
           
