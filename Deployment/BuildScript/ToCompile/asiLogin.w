@@ -1278,23 +1278,33 @@ PROCEDURE ipPreRun :
         END. 
     END.
     
+    /* Find running super procedures (later versions of session.p will start some of these, so don't need to be restarted */
+    DEF VAR cRunningSupers AS CHAR NO-UNDO.
+    DEF VAR hTestHandle AS HANDLE NO-UNDO.
+    DO iCtr = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
+        hTestHandle = HANDLE(ENTRY(iCtr,SESSION:SUPER-PROCEDURES)).
+        cRunningSupers = cRunningSupers + hTestHandle:NAME + ",".
+    END.
+    ASSIGN 
+        cRunningSupers = TRIM(cRunningSupers,",").
+        
     IF iEnvLevel GE 16080000 THEN DO:
-        IF NOT VALID-HANDLE(hTags) THEN DO: 
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
             RUN system/TagProcs.p PERSISTENT SET hTags.
             SESSION:ADD-SUPER-PROCEDURE (hTags).
         END.
     END.
     
     IF iEnvLevel GE 16130000 THEN DO:
-        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
             RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
             SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
         END.
-        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
             RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
             SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
         END.
-        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
+        IF NOT CAN-DO(cRunningSupers,"system/TagProcs.p") THEN DO: 
             RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
             SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
         END.
