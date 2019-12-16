@@ -154,7 +154,8 @@ shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin shipto.carrier ~
 shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
 shipto.exportCustID shipto.dock-loc shipto.dock-hour shipto.del-chg ~
 shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
-shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill 
+shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill ~
+shipto.spare-char-3 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
 &Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
@@ -167,10 +168,11 @@ shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
 shipto.spare-char-5 shipto.exportCustID shipto.dock-loc shipto.dock-hour ~
 shipto.del-chg shipto.del-time shipto.spare-int-1 shipto.spare-int-2 ~
 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
-shipto.bill 
+shipto.bill shipto.spare-char-3 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber 
+&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber ~
+ship_note 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -221,7 +223,7 @@ FUNCTION getSalesmanName RETURNS CHARACTER
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE ship_note AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 103 BY 5
+     SIZE 103 BY 4.05
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE faxAreaCode AS CHARACTER FORMAT "(xxx)":U 
@@ -235,11 +237,11 @@ DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
 
 DEFINE VARIABLE fi_sname AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 108 BY 10.24.
+     SIZE 108 BY 10.48.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -259,54 +261,54 @@ DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      tg_inactive AT ROW 10.05 COL 42 WIDGET-ID 8
-     fi_sname AT ROW 13 COL 77.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fi_sname AT ROW 13 COL 80 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      shipto.ship-id AT ROW 10 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           FONT 4
-     shipto.ship-name AT ROW 10.95 COL 14.6 COLON-ALIGNED FORMAT "x(50)"
+     shipto.ship-name AT ROW 11.24 COL 15 COLON-ALIGNED FORMAT "x(50)"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 43.4 BY 1
           FONT 4
-     shipto.ship-addr[1] AT ROW 12 COL 14.6 COLON-ALIGNED
+     shipto.ship-addr[1] AT ROW 12.19 COL 15 COLON-ALIGNED
           LABEL "Address" FORMAT "x(50)"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 43.4 BY 1
           FONT 4
-     shipto.ship-addr[2] AT ROW 13 COL 14.6 COLON-ALIGNED NO-LABEL FORMAT "x(50)"
+     shipto.ship-addr[2] AT ROW 13.14 COL 15 COLON-ALIGNED NO-LABEL FORMAT "x(50)"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 43.4 BY 1
           FONT 4
-     shipto.ship-city AT ROW 13.95 COL 14.6 COLON-ALIGNED
+     shipto.ship-city AT ROW 15.05 COL 15 COLON-ALIGNED FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
+          SIZE 21 BY 1
           FONT 4
-     shipto.ship-state AT ROW 13.95 COL 34.6 COLON-ALIGNED NO-LABEL
+     shipto.ship-state AT ROW 15.05 COL 36 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5.4 BY 1
           FONT 4
-     shipto.ship-zip AT ROW 13.95 COL 39.6 COLON-ALIGNED NO-LABEL
+     shipto.ship-zip AT ROW 15.05 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 4
-     shipto.contact AT ROW 10 COL 68.6 COLON-ALIGNED
+     shipto.contact AT ROW 10.05 COL 71 COLON-ALIGNED
           LABEL "Contact"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     shipto.area-code AT ROW 11.05 COL 68.6 COLON-ALIGNED
+     shipto.area-code AT ROW 11.1 COL 71 COLON-ALIGNED
           LABEL "Phone" FORMAT "(xxx)"
           VIEW-AS FILL-IN 
           SIZE 7.4 BY 1
-     shipto.phone AT ROW 11.05 COL 76.4 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
+     shipto.phone AT ROW 11.1 COL 78.8 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     faxAreaCode AT ROW 12.05 COL 68.6 COLON-ALIGNED AUTO-RETURN 
-     faxNumber AT ROW 12.05 COL 76.4 COLON-ALIGNED NO-LABEL
-     shipto.spare-char-1 AT ROW 13 COL 68.6 COLON-ALIGNED
+     faxAreaCode AT ROW 12.1 COL 71 COLON-ALIGNED AUTO-RETURN 
+     faxNumber AT ROW 12.1 COL 78.8 COLON-ALIGNED NO-LABEL
+     shipto.spare-char-1 AT ROW 13.05 COL 71 COLON-ALIGNED
           LABEL "SalesGrp" FORMAT "xxx"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     shipto.tax-code AT ROW 13.95 COL 68.6 COLON-ALIGNED
+     shipto.tax-code AT ROW 14 COL 71 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -315,19 +317,19 @@ DEFINE FRAME F-Main
           LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 21.8 BY .81
-     shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[1] AT ROW 16 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 100.6 BY 1
-     shipto.notes[2] AT ROW 16.52 COL 5 COLON-ALIGNED NO-LABEL
+          SIZE 94 BY 1
+     shipto.notes[2] AT ROW 16.86 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 100.6 BY 1
-     shipto.notes[3] AT ROW 17.48 COL 5 COLON-ALIGNED NO-LABEL
+          SIZE 94 BY 1
+     shipto.notes[3] AT ROW 17.81 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 100.6 BY 1
-     shipto.notes[4] AT ROW 18.38 COL 5 COLON-ALIGNED NO-LABEL
+          SIZE 94 BY 1
+     shipto.notes[4] AT ROW 18.71 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 100.6 BY 1
-     ship_note AT ROW 14.91 COL 5 NO-LABEL
+          SIZE 94 BY 1
+     ship_note AT ROW 16 COL 5 NO-LABEL
      shipto.loc AT ROW 1.62 COL 125 COLON-ALIGNED
           LABEL "Warehouse"
           VIEW-AS FILL-IN 
@@ -426,19 +428,30 @@ DEFINE FRAME F-Main
           LABEL "Billable"
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
+     shipto.spare-char-3 AT ROW 14.1 COL 15 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
+          VIEW-AS FILL-IN 
+          SIZE 43.4 BY 1
+          FONT 4
      "N" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.62 COL 3.2
+          SIZE 3 BY .62 AT ROW 16.24 COL 2
      "O" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 16.33 COL 3.2
+          SIZE 3 BY .62 AT ROW 16.95 COL 2
      "T" VIEW-AS TEXT
-          SIZE 3 BY .48 AT ROW 17.05 COL 3.2
+          SIZE 3 BY .48 AT ROW 17.67 COL 2
      "E" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 17.76 COL 3.2
+          SIZE 3 BY .62 AT ROW 18.38 COL 2
      "S" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 18.52 COL 3.2
+          SIZE 3 BY .62 AT ROW 19.14 COL 2
      "Shp Meth.:" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 17.95 COL 112.4
-     RECT-1 AT ROW 9.81 COL 2
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     RECT-1 AT ROW 9.81 COL 1
      RECT-2 AT ROW 1.24 COL 110 WIDGET-ID 4
      RECT-3 AT ROW 12.57 COL 111 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -537,6 +550,18 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN shipto.notes[1] IN FRAME F-Main
    EXP-LABEL                                                            */
+ASSIGN 
+       shipto.notes[1]:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       shipto.notes[2]:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       shipto.notes[3]:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       shipto.notes[4]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN shipto.pallet IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN shipto.phone IN FRAME F-Main
@@ -545,6 +570,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN shipto.ship-addr[2] IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN shipto.ship-city IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN shipto.ship-id IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN shipto.ship-name IN FRAME F-Main
@@ -552,6 +579,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN shipto.ship-state IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN shipto.spare-char-1 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN shipto.spare-char-3 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN shipto.spare-char-4 IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -939,7 +968,7 @@ END.
 
 &Scoped-define SELF-NAME tg_inactive
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_inactive V-table-Win
-ON VALUE-CHANGED OF tg_inactive IN FRAME F-Main /* Default */
+ON VALUE-CHANGED OF tg_inactive IN FRAME F-Main /* Inactive */
 DO:
    IF shipto.ship-id:SCREEN-VALUE EQ cust.cust-no THEN DO:
        MESSAGE "The default ship to cannot be made inactive" VIEW-AS ALERT-BOX INFORMATION .
@@ -1148,37 +1177,6 @@ PROCEDURE import-data :
 
 
     END.
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
-
-    IF VALID-HANDLE(hBrowse) THEN
-        RUN dispatch IN hBrowse  ('open-query':U).
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeDupe V-table-Win 
-PROCEDURE pDeDupe :
-/*------------------------------------------------------------------------------
-      Purpose:     Run excel import program.
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hBrowse AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
-
-    IF AVAILABLE shipto THEN 
-    DO:
-        RUN custom/setUserPrint.p (INPUT shipto.company,
-                           INPUT 'updship#.',
-                           INPUT 'begin_cust',
-                           INPUT STRING(shipto.cust-no) ).
-
-        RUN util/updship#.w .
-    END.
-
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
 
     IF VALID-HANDLE(hBrowse) THEN
@@ -1570,6 +1568,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeDupe V-table-Win 
+PROCEDURE pDeDupe :
+/*------------------------------------------------------------------------------
+      Purpose:     Run excel import program.
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hBrowse AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+
+    IF AVAILABLE shipto THEN 
+    DO:
+        RUN custom/setUserPrint.p (INPUT shipto.company,
+                           INPUT 'updship#.',
+                           INPUT 'begin_cust',
+                           INPUT STRING(shipto.cust-no) ).
+
+        RUN util/updship#.w .
+    END.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
+
+    IF VALID-HANDLE(hBrowse) THEN
+        RUN dispatch IN hBrowse  ('open-query':U).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-copy V-table-Win 
 PROCEDURE proc-copy :
 /*------------------------------------------------------------------------------
@@ -1599,9 +1628,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetShipToExpanded V-table-Win
-PROCEDURE pSetShipToExpanded:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetShipToExpanded V-table-Win 
+PROCEDURE pSetShipToExpanded :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1617,11 +1645,9 @@ RUN sys/ref/nk1look.p (ipcCompany, "ShipNotesExpanded", "L" /* Logical */, NO /*
   glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.
 
 END PROCEDURE.
-    
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
