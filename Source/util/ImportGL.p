@@ -46,11 +46,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportGL FOR ttImportGL.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -107,9 +105,8 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     IF oplValid AND iplFieldValidation THEN 
-        RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
+        RUN pIsValidFromList ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

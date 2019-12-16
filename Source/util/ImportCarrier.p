@@ -46,11 +46,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportCarrier FOR ttImportCarrier.
-
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -96,15 +93,14 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCarrier.Loc NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportCarrier.Loc, YES, ipbf-ttImportCarrier.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportCarrier.Loc, YES, ipbf-ttImportCarrier.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
        IF oplValid AND ipbf-ttImportCarrier.chg-method NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Charge Method",ipbf-ttImportCarrier.chg-method, "MSF,Pallet,Weight",  OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList ("Charge Method",ipbf-ttImportCarrier.chg-method, "MSF,Pallet,Weight",  OUTPUT oplValid, OUTPUT cValidNote).
        
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
    
-    
 END PROCEDURE.
   
 PROCEDURE pProcessRecord PRIVATE:

@@ -59,7 +59,6 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportRelease FOR ttImportRelease.
 
@@ -70,7 +69,6 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE lValidate   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValid      AS LOGICAL   NO-UNDO.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     ASSIGN 
         oplValid = YES
@@ -313,7 +311,6 @@ PROCEDURE pValidate PRIVATE:
             END.
         END.
     END.
-    
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
