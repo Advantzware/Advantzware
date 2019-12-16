@@ -216,19 +216,19 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportRmRctd.RmItem NE "" THEN 
-            RUN pIsValidRMITemID (ipbf-ttImportRmRctd.RmItem, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMITemID (ipbf-ttImportRmRctd.RmItem, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.loc NE "" THEN 
-            RUN pIsValidWarehouse (ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.locBin NE "" THEN 
-            RUN pIsValidRMBinForLoc (ipbf-ttImportRmRctd.locBin,ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMBinForLoc (ipbf-ttImportRmRctd.locBin,ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.jobNo NE "" THEN 
-            RUN pIsValidJob (ipbf-ttImportRmRctd.jobNo, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidJob (ipbf-ttImportRmRctd.jobNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.poNo NE "0" AND ipbf-ttImportRmRctd.poNo NE "" THEN 
-            RUN pIsValidPoNo (ipbf-ttImportRmRctd.poNo, NO, ipbf-ttImportRmRctd.rmCompany, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidPoNo (ipbf-ttImportRmRctd.poNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
