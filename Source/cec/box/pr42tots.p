@@ -214,7 +214,7 @@ FOR EACH car
                 /*##BL: Compare total rate vs. rate min rate * all shipments*/
                 IF dFreightTemp LT carr-mtx.min-rate * rels[vmcl] THEN 
                     dFreightTemp = carr-mtx.min-rate  * rels[vmcl].
-                IF isUnitized THEN dFreightTemp = dFreightTemp / xest.form-qty.
+               
             
             END.
             IF vmclean2 THEN
