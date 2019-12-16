@@ -625,8 +625,7 @@ PROCEDURE pSetTaxable :
                                 .
                             IF lInvoiceTaxable THEN
                             FOR EACH inv-line EXCLUSIVE-LOCK
-                                WHERE inv-line.company EQ inv-head.company
-                                  AND inv-line.ord-no  EQ inv-head.inv-no
+                                WHERE inv-line.r-no EQ inv-head.r-no
                                 :
                                 cInvoice:SCREEN-VALUE = STRING(inv-line.ord-no) + " - " + STRING(inv-line.line).
                                 RUN GetTaxableAR IN hTaxProcs (
