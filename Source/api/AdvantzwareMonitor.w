@@ -54,6 +54,7 @@ DEFINE VARIABLE cServerHostName           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEmailConfigDesc          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceName             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceType             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOSProcs                 AS HANDLE    NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos      AS INTEGER
@@ -65,7 +66,8 @@ DEF TEMP-TABLE ttIniFile
 /* Fetches API required element from Advantzware.ini */
 RUN pFetchAPIElements.
 
-RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
+RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
+RUN system/OSProcs.p              PERSISTENT SET hdOSProcs.
 
 /* Procedure to initialize the configuration variables required for monitoring */
 RUN AdvantzwareMonitor_Initialize IN hdAdvantzwareMonitorProcs (
@@ -377,9 +379,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Advantzware Service Resource Monitor */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+
+    IF VALID-HANDLE(hdOSProcs) THEN
+        DELETE PROCEDURE hdOSProcs.
+
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE" TO THIS-PROCEDURE.    
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -428,9 +436,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btexit C-Win
 ON CHOOSE OF btexit IN FRAME DEFAULT-FRAME
 DO:
-   IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
-       DELETE PROCEDURE hdAdvantzwareMonitorProcs.
-   
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+    
+    IF VALID-HANDLE(hdOSProcs) THEN
+        DELETE PROCEDURE hdOSProcs.
+
     APPLY "CLOSE" TO THIS-PROCEDURE.
     
     RETURN NO-APPLY.
@@ -458,6 +469,10 @@ DO:
 
     DEFINE VARIABLE cStartService AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCommand      AS CHARACTER NO-UNDO.
+        
     DEF VAR iCurrBrowseRow AS INT NO-UNDO.
   
     SESSION:SET-WAIT-STATE("GENERAL").
@@ -465,14 +480,25 @@ DO:
     IF AVAILABLE serverResource THEN DO:
 
         IF SEARCH(serverResource.startService) NE ? THEN DO:
-            OS-COMMAND SILENT VALUE(SEARCH(serverResource.startService)). /* Re-starts AdminServer,AppServer and NameServer */            
+            cCommand = SEARCH(serverResource.startService).
+            /* Re-starts AdminServer,AppServer, Node and NameServer */
+            RUN OS_RunCommand IN hdOSProcs (
+                INPUT  cCommand,             /* Command string to run */
+                INPUT  "",                   /* File name to write the command output */
+                INPUT  TRUE,                 /* Run with SILENT option */
+                INPUT  FALSE,                /* Run with NO-WAIT option */
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+                RETURN.         
         END. 
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "Node" OR serverResource.resourceType EQ "AdminServer" THEN
-                           "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " is not found"
-                       ELSE
-                           "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
-                       .
+                                "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " is not found"
+                            ELSE
+                                "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
+                            .
             MESSAGE cErrorMessage VIEW-AS ALERT-BOX ERROR
             TITLE "Error".
         END.
@@ -498,15 +524,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btStop C-Win
 ON CHOOSE OF btStop IN FRAME DEFAULT-FRAME /* Stop */
 DO:
-    DEFINE VARIABLE cStopService  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    DEFINE VARIABLE cStopService   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCommand       AS CHARACTER NO-UNDO.
 
     SESSION:SET-WAIT-STATE("GENERAL").
   
     IF AVAILABLE serverResource THEN DO:
-        IF SEARCH(serverResource.stopService) NE ? THEN 
-            OS-COMMAND NO-CONSOLE VALUE(SEARCH(serverResource.stopService)). /* Stops AdminServer,AppServer and NameServer */
+        IF SEARCH(serverResource.stopService) NE ? THEN DO:
+            cCommand = SEARCH(serverResource.stopService).
+            /* Stops AdminServer, AppServer, NodeServer and NameServer */
+            RUN OS_RunCommand IN hdOSProcs (
+                INPUT  cCommand,             /* Command string to run */
+                INPUT  "",                   /* File name to write the command output */
+                INPUT  TRUE,                 /* Run with SILENT option */
+                INPUT  FALSE,                /* Run with NO-WAIT option */
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+                RETURN. 
+        END.
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "Node" THEN
                            "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " is not found"

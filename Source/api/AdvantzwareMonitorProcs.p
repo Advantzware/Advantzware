@@ -27,12 +27,16 @@ DEFINE VARIABLE cResourceTypeAppServer   AS CHARACTER NO-UNDO INITIAL "AppServer
 DEFINE VARIABLE cResourceTypeNameServer  AS CHARACTER NO-UNDO INITIAL "NameServer".
 DEFINE VARIABLE cResourceTypeAdminServer AS CHARACTER NO-UNDO INITIAL "AdminServer".
 DEFINE VARIABLE cResourceTypeASI         AS CHARACTER NO-UNDO INITIAL "ASI".
-   
+
+DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.   
 DEFINE VARIABLE cLine         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPathDataFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdSession     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdOSProcs     AS HANDLE    NO-UNDO.
 
+RUN system/OSProcs.p     PERSISTENT SET hdOSProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN system/Session.p     PERSISTENT SET hdSession.
 
@@ -116,9 +120,21 @@ PROCEDURE pGetNodeStatus PRIVATE:
 
     opcStatus = cResourceStatusStopped. 
 
-    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS >" + cPathDataFile. 
-    OS-COMMAND SILENT VALUE(cCommand).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS". 
+
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+
+    IF SEARCH(cPathDataFile) = ? THEN
+        RETURN.
 
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
@@ -184,11 +200,27 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
     DEFINE VARIABLE cFullFilePath    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCounter         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ibrokerLine      AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE cCommand         AS CHARACTER NO-UNDO.
     
     opcBrokerStatus = cResourceStatusStopped.
+    
+    cCommand = cDLC + "\bin\asbman.bat -NAME " + ipcBrokerName + " -PORT " 
+             + STRING(cAdminServerPort) + " -QUERY".
+    
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+        
+    IF SEARCH(cPathDataFile) = ? THEN 
+        RETURN.
 
-    OS-COMMAND SILENT VALUE(cDLC + "\bin\asbman.bat") -NAME VALUE(ipcBrokerName) -PORT VALUE(cAdminServerPort) -QUERY > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
        IMPORT UNFORMATTED cLine.
@@ -215,10 +247,26 @@ PROCEDURE pGetNameServerStatus PRIVATE:
     DEFINE INPUT  PARAMETER cNameServerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerStatus  AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO.
+    
     opcNameServerStatus = cResourceStatusStopped.
 
-    OS-COMMAND SILENT VALUE(cDLC + "\bin\nsman.bat") -NAME VALUE(cNameServerName) -PORT VALUE(cAdminServerPort) -QUERY > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+    cCommand = cDLC + "\bin\nsman.bat -NAME " + cNameServerName + " -PORT " 
+             + STRING(cAdminServerPort) + " -QUERY".
+    
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+
+    IF SEARCH(cPathDataFile) = ? THEN
+        RETURN.
 
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
@@ -244,10 +292,26 @@ PROCEDURE pGetAdminServerStatus PRIVATE:
     DEFINE INPUT  PARAMETER ipcPort               AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcAdminServerStatus  AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO.
+
     opcAdminServerStatus  = cResourceStatusStopped.
 
-    OS-COMMAND SILENT VALUE(cDLC + "\bin\proadsv.bat") -QUERY -port VALUE(ipcPort) > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+    cCommand = cDLC + "\bin\proadsv.bat -QUERY -port "
+             + STRING(ipcPort).
+
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+    
+    IF SEARCH(cPathDataFile) = ? THEN
+        RETURN.
     
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
