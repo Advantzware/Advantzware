@@ -2104,7 +2104,7 @@ PROCEDURE reprintTag :
               ERROR-STATUS:ERROR = NO.
               RUN setOutputFile.
               IF ERROR-STATUS:ERROR THEN RETURN.
-              OUTPUT TO VALUE(v-out) APPEND.
+              OUTPUT TO VALUE(v-out) .
               RUN outputTagHeader.
               DO numberTags = 1 TO w-po.total-tags:
                 RUN outputTagLine (w-po.rcpt-qty).
