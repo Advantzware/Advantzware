@@ -225,6 +225,8 @@ IF lRecFound THEN
 /* transaction */
 {sys/inc/f16to32.i}
 
+{sys/inc/oecredit.i}
+
 /* transaction */
  {sys/inc/ceprepprice.i} 
 {sys/inc/funcToWorkDay.i}
@@ -3646,11 +3648,11 @@ PROCEDURE display-cust-detail :
                     view-as alert-box warning.
             oe-ord.stat:screen-value = "H".
        end.*/
-
+     
       IF AVAIL cust AND cust.active NE "X" AND fi_type:screen-value NE "T" THEN DO:
           RUN oe/creditck.p (ROWID(cust), NO).
           FIND CURRENT cust NO-LOCK NO-ERROR.
-          IF AVAIL cust AND cust.cr-hold THEN oe-ord.stat:SCREEN-VALUE = "H".  
+          IF AVAIL cust AND cust.cr-hold AND oecredit-log THEN oe-ord.stat:SCREEN-VALUE = "H".  
       END.
           
     END.   
@@ -5597,6 +5599,8 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* ===  don't go item page yet. -> move page to 2 */
+  IF adm-new-record THEN
+      RUN pAssignHoldReason .
 
   IF ll-is-new-rec THEN DO:
     IF oe-ord.est-no EQ "" AND AVAIL(oe-ord) THEN DO:
@@ -7275,6 +7279,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignHoldReason V-table-Win 
+PROCEDURE pAssignHoldReason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cHoldReason AS CHARACTER NO-UNDO .
+ DEFINE VARIABLE ld-ord-bal  LIKE cust.ord-bal NO-UNDO.
+  DO WITH FRAME {&FRAME-NAME}:
+      IF AVAIL oe-ord AND oecredit-log AND oe-ord.stat EQ "H" THEN DO:
+          FIND FIRST cust NO-LOCK
+              WHERE cust.company EQ cocode 
+               AND cust.cust-no EQ oe-ord.cust-no NO-ERROR .
+          IF AVAIL cust THEN do:
+              ld-ord-bal      = cust.ord-bal .
+
+              IF oecredit-cha EQ "" THEN
+                  RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+
+              IF ld-ord-bal + cust.acc-bal GT cust.cr-lim THEN cHoldReason = "credit".
+              ELSE
+                  IF ld-ord-bal GT cust.ord-lim THEN cHoldReason = "order".
+             
+             IF cHoldReason EQ "credit" THEN
+                 ASSIGN oe-ord.spare-char-2 = "Credit Limit Exceeded" .
+             ELSE IF cHoldReason EQ "Order" THEN
+                 ASSIGN oe-ord.spare-char-2 = "Order Limit Exceeded".
+          END. /* avail cust */
+      END.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
