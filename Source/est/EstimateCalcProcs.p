@@ -423,7 +423,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         ASSIGN 
             opbf-estCostBlank.estCostItemID    = bf-estCostItem.estCostItemID
             bf-estCostItem.sizeDesc            = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
-            opbf-estCostBlank.quantityPerSet   = MAX(bf-estCostItem.quantityPerSet, 1)
+            opbf-estCostBlank.quantityPerSet   = IF bf-estCostItem.quantityPerSet EQ 0 THEN 1 ELSE bf-estCostItem.quantityPerSet
             opbf-estCostBlank.quantityRequired = opbf-estCostBlank.quantityRequired * opbf-estCostBlank.quantityPerSet
             opbf-estCostBlank.quantityYielded  = opbf-estCostBlank.quantityYielded * opbf-estCostBlank.quantityPerSet
             .
@@ -431,7 +431,6 @@ PROCEDURE pAddEstBlank PRIVATE:
             bf-estCostItem.sizeDesc = bf-estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
         
         RELEASE bf-estCostItem.
-        
     END.
     ASSIGN 
         ipbf-estCostForm.numOutBlanksOnNet = ipbf-estCostForm.numOutBlanksOnNet + opbf-estCostBlank.numOut
@@ -549,11 +548,11 @@ PROCEDURE pAddEstItem PRIVATE:
         .
     
     IF ipbf-eb.est-type LT 5 THEN
-        opbf-estCostItem.quantityPerSet     = MAX(ipbf-eb.cust-%, 1). 
+        opbf-estCostItem.quantityPerSet     = ipbf-eb.cust-%. 
     ELSE         
         opbf-estCostItem.quantityPerSet     = ipbf-eb.quantityPerSet.
     IF opbf-estCostItem.quantityPerSet LT 0 THEN 
-        opbf-estCostItem.quantityPerSet     = 1 / opbf-estCostItem.quantityPerSet.
+        opbf-estCostItem.quantityPerSet     = ABSOLUTE(1 / opbf-estCostItem.quantityPerSet). 
     IF opbf-estCostItem.quantityPerSet EQ 0 THEN 
         opbf-estCostItem.quantityPerSet     = 1 .
      
