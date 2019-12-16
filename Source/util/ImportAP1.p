@@ -364,7 +364,6 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid            AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote             AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cPOLineDetails  AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE lInvLineAvail   AS LOGICAL   NO-UNDO EXTENT 4.      
     DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
@@ -372,7 +371,6 @@ PROCEDURE pValidate PRIVATE:
     
     DEFINE BUFFER bf-ttImportAP1 FOR ttImportAP1.
      
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -506,8 +504,6 @@ PROCEDURE pValidate PRIVATE:
         ASSIGN
             opcNote = "Add record"
             .           
-    IF VALID-HANDLE(hdValidator) THEN 
-    DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 /* Creates New Invoice */

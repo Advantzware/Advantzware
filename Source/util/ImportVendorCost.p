@@ -97,11 +97,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportVendCost FOR ttImportVendCost.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     IF oplValid THEN 
@@ -130,21 +128,19 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO: 
         IF oplValid AND ipbf-ttImportVendCost.FGItemID NE "" THEN
-            RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportVendCost.FGItemID, NO, ipbf-ttImportVendCost.Company, OUTPUT oplValid, OUTPUT cValidNote). 
+            RUN pIsValidFGItemID (ipbf-ttImportVendCost.FGItemID, NO, ipbf-ttImportVendCost.Company, OUTPUT oplValid, OUTPUT cValidNote). 
         
         IF oplValid AND ipbf-ttImportVendCost.VendorID NE "" THEN 
-            RUN pIsValidVendor IN hdValidator (ipbf-ttImportVendCost.VendorID, NO, ipbf-ttImportVendCost.Company, OUTPUT oplValid, OUTPUT cValidNote). 
+            RUN pIsValidVendor (ipbf-ttImportVendCost.VendorID, NO, ipbf-ttImportVendCost.Company, OUTPUT oplValid, OUTPUT cValidNote). 
         
         IF oplValid AND ipbf-ttImportVendCost.CustomerID NE "" THEN 
-            RUN pIsValidCustomerID IN hdValidator (ipbf-ttImportVendCost.CustomerID, NO, ipbf-ttImportVendCost.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustomerID (ipbf-ttImportVendCost.CustomerID, NO, ipbf-ttImportVendCost.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportVendCost.PurchaseUOM NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Cost UOM", ipbf-ttImportVendCost.PurchaseUOM, "C,CS,L,MSF,M,EA,LB,DRM,ROL,PKG,SET,DOZ,BDL", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList ("Cost UOM", ipbf-ttImportVendCost.PurchaseUOM, "C,CS,L,MSF,M,EA,LB,DRM,ROL,PKG,SET,DOZ,BDL", OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

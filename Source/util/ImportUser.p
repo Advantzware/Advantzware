@@ -91,7 +91,6 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportUsers FOR ttImportUsers.
     DEFINE VARIABLE iInd AS INTEGER NO-UNDO.
@@ -99,7 +98,7 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE cMode AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDb AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEnvironment AS CHARACTER NO-UNDO.
-    RUN util/Validate.p PERSISTENT SET hdValidator.
+
     
     oplValid = YES.
     
@@ -179,8 +178,6 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Invalid database".
     END.         
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

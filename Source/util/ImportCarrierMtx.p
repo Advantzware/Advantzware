@@ -64,11 +64,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportCarrierMtx FOR ttImportCarrierMtx.
-
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -98,14 +95,11 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCarrierMtx.carrier NE "" THEN 
-            RUN pIsValidCarrier IN hdValidator (ipbf-ttImportCarrierMtx.carrier, YES, ipbf-ttImportCarrierMtx.company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCarrier (ipbf-ttImportCarrierMtx.carrier, YES, ipbf-ttImportCarrierMtx.company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
-    
+        
 END PROCEDURE.
   
 PROCEDURE pProcessRecord PRIVATE:

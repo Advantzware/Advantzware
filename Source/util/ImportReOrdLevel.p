@@ -46,11 +46,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportReOrdLevel FOR ttImportReOrdLevel.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -116,15 +114,13 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportReOrdLevel.cFGItem NE "" THEN 
-            RUN pIsValidFGITemID IN hdValidator (ipbf-ttImportReOrdLevel.cFGItem,YES,ipbf-ttImportReOrdLevel.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGITemID (ipbf-ttImportReOrdLevel.cFGItem,YES,ipbf-ttImportReOrdLevel.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         
         IF oplValid AND ipbf-ttImportReOrdLevel.Loc NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportReOrdLevel.cLoc, YES, ipbf-ttImportReOrdLevel.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportReOrdLevel.cLoc, YES, ipbf-ttImportReOrdLevel.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

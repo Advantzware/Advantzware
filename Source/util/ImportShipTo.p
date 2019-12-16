@@ -91,11 +91,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportShipTo FOR ttImportShipTo.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     IF oplValid THEN 
@@ -181,33 +179,31 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportShipTo.Carrier NE "" THEN 
-            RUN pIsValidCarrier IN hdValidator (ipbf-ttImportShipTo.Carrier, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCarrier (ipbf-ttImportShipTo.Carrier, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
        
         IF oplValid AND ipbf-ttImportShipTo.Carrier NE "" AND ipbf-ttImportShipTo.Zone NE "" THEN 
-            RUN pIsValidDeliveryZone IN hdValidator (ipbf-ttImportShipTo.Carrier, ipbf-ttImportShipTo.Zone, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidDeliveryZone (ipbf-ttImportShipTo.Carrier, ipbf-ttImportShipTo.Zone, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
        
         IF oplValid AND ipbf-ttImportShipTo.Warehouse NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportShipTo.Warehouse, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportShipTo.Warehouse, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportShipTo.Bin NE "" THEN 
-            RUN pIsValidFGBin IN hdValidator (ipbf-ttImportShipTo.Bin, "", NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGBin (ipbf-ttImportShipTo.Bin, "", NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
                                 
         IF oplValid AND ipbf-ttImportShipTo.SalesRep NE "" THEN 
-            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportShipTo.SalesRep, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidSalesRep (ipbf-ttImportShipTo.SalesRep, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportShipTo.TaxCode NE "" THEN 
-            RUN pIsValidTaxGroup IN hdValidator (ipbf-ttImportShipTo.TaxCode, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidTaxGroup (ipbf-ttImportShipTo.TaxCode, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
             
         IF oplValid AND ipbf-ttImportShipTo.Pallet NE "" THEN 
-            RUN pIsValidItemForType IN hdValidator (ipbf-ttImportShipTo.Pallet, "D", NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidItemForType (ipbf-ttImportShipTo.Pallet, "D", NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     IF ipbf-ttImportShipTo.cInactive EQ "Yes" THEN
          ipbf-ttImportShipTo.cInactive = "I".
     ELSE ipbf-ttImportShipTo.cInactive = "".
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

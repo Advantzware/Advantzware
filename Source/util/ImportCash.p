@@ -52,11 +52,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportCash FOR ttImportCash.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     IF oplValid THEN 
@@ -201,8 +199,7 @@ PROCEDURE pValidate PRIVATE:
                 
         END.
     END.
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
+
 END PROCEDURE.
 
 PROCEDURE pCreateNewCashHeader:

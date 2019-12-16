@@ -179,11 +179,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE NO-UNDO.
     DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportPrep FOR ttImportPrep.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
 
     oplValid = YES.
     
@@ -243,30 +241,28 @@ PROCEDURE pValidate PRIVATE:
     DO:
         
         IF oplValid AND ipbf-ttImportPrep.actnum NE "" THEN 
-            RUN pIsValidGLAccount IN hdValidator (ipbf-ttImportPrep.actnum, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidGLAccount (ipbf-ttImportPrep.actnum, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportPrep.i-no NE "" THEN 
-            RUN pIsValidRMITemID IN hdValidator (ipbf-ttImportPrep.i-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMITemID (ipbf-ttImportPrep.i-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportPrep.fgcat NE "" THEN 
-            RUN pIsValidFGCategory IN hdValidator (ipbf-ttImportPrep.fgcat, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGCategory (ipbf-ttImportPrep.fgcat, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportPrep.vend-no NE "" THEN 
-            RUN pIsValidVendor IN hdValidator (ipbf-ttImportPrep.vend-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidVendor (ipbf-ttImportPrep.vend-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportPrep.mat-type NE "" THEN 
-            RUN pIsValidMatType IN hdValidator (ipbf-ttImportPrep.mat-type, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidMatType (ipbf-ttImportPrep.mat-type, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportPrep.cost-type NE "" THEN 
-            RUN pIsValidCostType IN hdValidator (ipbf-ttImportPrep.cost-type, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCostType (ipbf-ttImportPrep.cost-type, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
       
         IF oplValid AND ipbf-ttImportPrep.cust-no NE "" THEN 
-            RUN pIsValidCustomerID IN hdValidator (ipbf-ttImportPrep.cust-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustomerID (ipbf-ttImportPrep.cust-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    IF VALID-HANDLE(hdValidator) THEN 
-        DELETE OBJECT hdValidator.
 END PROCEDURE.
 

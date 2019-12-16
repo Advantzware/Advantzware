@@ -870,6 +870,9 @@ PROCEDURE pRunProcess :
     DEFINE VARIABLE lProcess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iUpdated AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAdded   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+    SESSION:ADD-SUPER-PROCEDURE (hdValidator).
     
     SESSION:SET-WAIT-STATE("general").   
     IF NOT CAN-FIND(FIRST ttImportData WHERE ttImportData.lValid) THEN 
@@ -896,6 +899,10 @@ PROCEDURE pRunProcess :
             RUN pShowPreview.
         END.
     END.
+    
+    SESSION:REMOVE-SUPER-PROCEDURE (hdValidator).
+    DELETE OBJECT hdValidator.
+    
     SESSION:SET-WAIT-STATE(""). 
     
 END PROCEDURE.
