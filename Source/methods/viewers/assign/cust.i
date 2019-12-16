@@ -28,7 +28,7 @@ DO:
     soldto.cust-no = cust.cust-no
     soldto.sold-addr[1] = cust.addr[1]
     soldto.sold-addr[2] = cust.addr[2]
-    soldto.spare-char-3 = cust.a[re-char-3
+    soldto.spare-char-3 = cust.spare-char-3
     soldto.sold-city = cust.city
     soldto.sold-id = cust.cust-no
     soldto.sold-name = cust.name
