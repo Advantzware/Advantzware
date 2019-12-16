@@ -89,6 +89,12 @@ DEF VAR v-len-frac AS CHAR NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lPrintMsf AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dTax      as   DECIMAL extent 5 NO-UNDO.
+DEFINE VARIABLE cBotLab   as   CHARACTER format "x(63)" extent 5 NO-UNDO.
+def workfile w-tax
+    field w-dsc as   char
+    field w-tax as   dec.
+DEF VAR v-lines AS INT NO-UNDO.
 {custom/formtext.i NEW}
 
 FUNCTION FNformat RETURNS char (INPUT v-text AS CHAR, v-len AS INT):
