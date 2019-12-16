@@ -10,24 +10,27 @@ FUNCTION getCustNo RETURNS CHARACTER (ipIdentity AS CHARACTER, ipcShipToID AS CH
          AND sys-ctrl-shipto.cust-vend EQ YES
          AND sys-ctrl-shipto.char-fld EQ ipIdentity
          AND sys-ctrl-shipto.log-fld EQ YES NO-ERROR.
-  cReturnCust = IF AVAILABLE sys-ctrl-shipto THEN sys-ctrl-shipto.cust-vend-no ELSE ''.
-  /* Option to find cust# by cust-no + ship-id */
-  IF sys-ctrl-shipto.int-fld EQ 1 
-      AND cReturnCust GT "" 
-      AND ipcShipToID GT "" THEN DO:
-      FOR EACH edMast NO-LOCK 
-        WHERE edMast.cust EQ cReturnCust
-        ,
-        EACH edShipTo NO-LOCK 
-            WHERE edShipTo.partner EQ edMast.partner
-              AND edShipTo.siteID EQ ipIdentity
-            ,
-            FIRST shipto NO-LOCK
-                WHERE shipto.company EQ cocode
-                  AND shipto.cust-no EQ edShipto.cust
-                  AND shipto.ship-id EQ ipcShipToID
+  IF AVAILABLE sys-ctrl-shipto THEN DO:
+      cReturnCust = sys-ctrl-shipto.cust-vend-no.
+      
+      /* Option to find cust# by cust-no + ship-id */
+      IF sys-ctrl-shipto.int-fld EQ 1 
+          AND cReturnCust GT "" 
+          AND ipcShipToID GT "" THEN DO:
+          FOR EACH  edMast NO-LOCK 
+              WHERE edMast.cust EQ cReturnCust
+              ,
+              EACH  edShipTo NO-LOCK 
+              WHERE edShipTo.partner EQ edMast.partner
+                AND edShipTo.siteID EQ ipIdentity
+              ,
+              FIRST shipto NO-LOCK
+              WHERE shipto.company EQ cocode
+                AND shipto.cust-no EQ edShipto.cust
+                AND shipto.ship-id EQ ipcShipToID
               :
-        cReturnCust = edShipTo.cust.
+            cReturnCust = edShipTo.cust.
+         END.
       END.
   END.
   RETURN cReturnCust.
