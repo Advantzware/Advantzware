@@ -36,7 +36,7 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD dFullCost    AS DECIMAL   LABEL "Full Cost"      FORMAT "->>>>>>>9.99"
     FIELD cEnterBy     AS CHARACTER LABEL "Entered By"     FORMAT "x(10)"
     FIELD cStatus      AS CHARACTER LABEL "Status"         FORMAT "x(20)"
-    FIELD xxCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"   
+    FIELD zzCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"   
     FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
         INDEX ttOrdersBooked IS PRIMARY rowType xxSort
         .

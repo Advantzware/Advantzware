@@ -795,7 +795,7 @@ find first company where company.company eq cocode NO-LOCK.
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
                        fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
+                       string(v-t-tax[i],"->>,>>>,>>9.99")) else "".
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
     FOR EACH bf-cust NO-LOCK
@@ -815,7 +815,7 @@ find first company where company.company eq cocode NO-LOCK.
     IF v-bot-lab[4] <> "" THEN
     PUT "<R56><C59><#8><FROM><R+8><C+23><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
@@ -825,7 +825,7 @@ find first company where company.company eq cocode NO-LOCK.
 ELSE
     PUT "<R56><C59><#8><FROM><R+6><C+23><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]

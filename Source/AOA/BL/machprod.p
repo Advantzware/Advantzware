@@ -38,34 +38,34 @@ FOR EACH ttProductionAnalysis
     END. /* first-of */
 
     ASSIGN
-        ttMachineProductivity.xxSetups       = ttMachineProductivity.xxSetups    + 1
+        ttMachineProductivity.zzSetups       = ttMachineProductivity.zzSetups    + 1
         ttMachineProductivity.sqFtPiece      = ttMachineProductivity.sqFtPiece   + ttProductionAnalysis.sqFtPiece
         ttMachineProductivity.avgCrew        = ttMachineProductivity.avgCrew     + ttProductionAnalysis.crew
-        ttMachineProductivity.xxPieces       = ttMachineProductivity.xxPieces    + ttProductionAnalysis.pieces
-        ttMachineProductivity.xxTotalMSF     = ttMachineProductivity.xxTotalMSF  + ttProductionAnalysis.totalMSF
-        ttMachineProductivity.xxDTActHr      = ttMachineProductivity.xxDTActHr   + ttProductionAnalysis.dtActHr
-        ttMachineProductivity.xxMRActHr      = ttMachineProductivity.xxMRActHr   + ttProductionAnalysis.mrActHr
-        ttMachineProductivity.xxRunActHr     = ttMachineProductivity.xxRunActHr  + ttProductionAnalysis.runActHr
-        ttMachineProductivity.xxTotActHrs    = ttMachineProductivity.xxTotActHrs + ttProductionAnalysis.totActHrs
-        ttMachineProductivity.xxTotLabHrs    = ttMachineProductivity.xxTotLabHrs + ttProductionAnalysis.totLabHrs
-        ttMachineProductivity.xxTotMRHrs     = ttMachineProductivity.xxTotMRHrs  + ttProductionAnalysis.xxTotMRHrs
-        ttMachineProductivity.xxTotRunHrs    = ttMachineProductivity.xxTotRunHrs + ttProductionAnalysis.xxTotRunHrs
+        ttMachineProductivity.zzPieces       = ttMachineProductivity.zzPieces    + ttProductionAnalysis.pieces
+        ttMachineProductivity.zzTotalMSF     = ttMachineProductivity.zzTotalMSF  + ttProductionAnalysis.totalMSF
+        ttMachineProductivity.zzDTActHr      = ttMachineProductivity.zzDTActHr   + ttProductionAnalysis.dtActHr
+        ttMachineProductivity.zzMRActHr      = ttMachineProductivity.zzMRActHr   + ttProductionAnalysis.mrActHr
+        ttMachineProductivity.zzRunActHr     = ttMachineProductivity.zzRunActHr  + ttProductionAnalysis.runActHr
+        ttMachineProductivity.zzTotActHrs    = ttMachineProductivity.zzTotActHrs + ttProductionAnalysis.totActHrs
+        ttMachineProductivity.zzTotLabHrs    = ttMachineProductivity.zzTotLabHrs + ttProductionAnalysis.totLabHrs
+        ttMachineProductivity.zzTotMRHrs     = ttMachineProductivity.zzTotMRHrs  + ttProductionAnalysis.zzTotMRHrs
+        ttMachineProductivity.zzTotRunHrs    = ttMachineProductivity.zzTotRunHrs + ttProductionAnalysis.zzTotRunHrs
         .
 END. /* each ttMachineProductivity */
 
 FOR EACH ttMachineProductivity
     :
     ASSIGN
-        ttMachineProductivity.msfPerHr       = ttMachineProductivity.xxTotalMSF  / ttMachineProductivity.xxTotActHrs
-        ttMachineProductivity.sqFtPerSetup   = ttMachineProductivity.xxTotalMSF  / ttMachineProductivity.xxSetups
-        ttMachineProductivity.sqFtPiece      = ttMachineProductivity.sqFtPiece   / ttMachineProductivity.xxPieces    * 1000
-        ttMachineProductivity.manHrPerSqFt   = ttMachineProductivity.xxTotLabHrs / ttMachineProductivity.xxTotalMSF
-        ttMachineProductivity.piecesPerHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxTotActHrs
-        ttMachineProductivity.piecesRunHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxRunActHr
-        ttMachineProductivity.piecesPerSetup = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxSetups
-        ttMachineProductivity.minPerSetup    = ttMachineProductivity.xxMRActHr   / ttMachineProductivity.xxSetups    * 60
-        ttMachineProductivity.avgCrew        = ttMachineProductivity.avgCrew     / ttMachineProductivity.xxSetups
-        ttMachineProductivity.downTimePct    = ttMachineProductivity.xxDTActHr   / ttMachineProductivity.xxTotActHrs * 100
+        ttMachineProductivity.msfPerHr       = ttMachineProductivity.zzTotalMSF  / ttMachineProductivity.zzTotActHrs
+        ttMachineProductivity.sqFtPerSetup   = ttMachineProductivity.zzTotalMSF  / ttMachineProductivity.zzSetups
+        ttMachineProductivity.sqFtPiece      = ttMachineProductivity.sqFtPiece   / ttMachineProductivity.zzPieces    * 1000
+        ttMachineProductivity.manHrPerSqFt   = ttMachineProductivity.zzTotLabHrs / ttMachineProductivity.zzTotalMSF
+        ttMachineProductivity.piecesPerHr    = ttMachineProductivity.zzPieces    / ttMachineProductivity.zzTotActHrs
+        ttMachineProductivity.piecesRunHr    = ttMachineProductivity.zzPieces    / ttMachineProductivity.zzRunActHr
+        ttMachineProductivity.piecesPerSetup = ttMachineProductivity.zzPieces    / ttMachineProductivity.zzSetups
+        ttMachineProductivity.minPerSetup    = ttMachineProductivity.zzMRActHr   / ttMachineProductivity.zzSetups    * 60
+        ttMachineProductivity.avgCrew        = ttMachineProductivity.avgCrew     / ttMachineProductivity.zzSetups
+        ttMachineProductivity.downTimePct    = ttMachineProductivity.zzDTActHr   / ttMachineProductivity.zzTotActHrs * 100
         .
     IF ttMachineProductivity.msfPerHr       EQ ? THEN ttMachineProductivity.msfPerHr       = 0.
     IF ttMachineProductivity.sqFtPerSetup   EQ ? THEN ttMachineProductivity.sqFtPerSetup   = 0.

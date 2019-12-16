@@ -354,11 +354,6 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 13.81.
 
-DEFINE VARIABLE tbPostedAR AS LOGICAL INITIAL no 
-     LABEL "Posted AR Invoices" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 30.8 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL no 
      LABEL "Attach Signed BOL" 
      VIEW-AS TOGGLE-BOX
@@ -490,7 +485,6 @@ DEFINE FRAME FRAME-A
      lv-scr-num-copies AT ROW 6.62 COL 69.8 COLON-ALIGNED
      tb_posted AT ROW 7.48 COL 28.2
      tb_collate AT ROW 7.48 COL 59.4
-     tbPostedAR AT ROW 8.38 COL 28.2 WIDGET-ID 24
      tb_setcomp AT ROW 8.43 COL 59.2 WIDGET-ID 2
      tb_prt-inst AT ROW 9.1 COL 49 RIGHT-ALIGNED
      tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
@@ -680,11 +674,6 @@ ASSIGN
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        rs_no_PN:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR TOGGLE-BOX tbPostedAR IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       tbPostedAR:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tb_BatchMail IN FRAME FRAME-A
    ALIGN-R                                                              */
@@ -900,7 +889,7 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-                /* gdm - 12080817 */ tb_setcomp tbPostedAR
+                /* gdm - 12080817 */ tb_setcomp 
                 .
             ASSIGN tb_prt-dupl = LOGICAL(tb_prt-dupl:SCREEN-VALUE).
             IF begin_bol:SENSITIVE THEN 
@@ -942,11 +931,7 @@ DO:
         IF is-xprint-form AND rd-dest = 4 THEN lv-multi-faxout = YES.
 
         lv-fax-type = IF lv-multi-faxout THEN "MULTI" ELSE "CUSTOMER".
-
-        /* To indicate whether to use this or tb_posted */
-        IF tbPostedAR:HIDDEN = YES THEN 
-          tbPostedAR = ?.
-
+        
         IF lv-multi-faxout AND rd_sort <> "Customer" THEN 
         DO:
             MESSAGE "Invoice must be sorted by Customer for Fax ." VIEW-AS ALERT-BOX ERROR.
@@ -1072,7 +1057,7 @@ DO:
             tb_setcomp         ,
             tb_sman-copy       ,
             td-show-parm       ,
-            tbPostedAR         ,
+              ?                ,
             tb_splitPDF        ,
             tb_qty-all         ,
             tb_cust-list       ,
@@ -1218,7 +1203,7 @@ DO:
         tb_setcomp         ,
         tb_sman-copy       ,
         td-show-parm       ,
-        tbPostedAR         ,
+                 ?         ,
         YES /* tb_splitPDF */       ,
         tb_qty-all         ,
         tb_cust-list       ,
@@ -1587,8 +1572,7 @@ DO:
 
     ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
            fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"
-           tbPostedAr:HIDDEN = YES
-           tbPostedAR:SENSITIVE = NO
+           
            .
     RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
   END.
@@ -1598,20 +1582,7 @@ DO:
    RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
           fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:".
-   /* Posted AR not needed from A-U-3 */
-   IF ipcInvoiceType EQ "ar-inv"  THEN
-     ASSIGN
-            tbPostedAr:HIDDEN = YES
-            tbPostedAR:SENSITIVE = NO
-            .
-   ELSE DO:
-        /* using inv-head and tb_posted is yes */
-        ASSIGN
-            tbPostedAr:HIDDEN = NO 
-            tbPostedAR:SENSITIVE = YES
-            .
-   END.
-
+  
   END.
 
     
@@ -1813,8 +1784,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ELSE
       ASSIGN tb_posted:HIDDEN = NO
              tb_posted:SENSITIVE = YES
-             tbPostedAr:HIDDEN = YES
-             tbPostedAR:SENSITIVE = NO
              .
      
    /* IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.

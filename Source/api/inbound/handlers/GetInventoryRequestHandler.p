@@ -26,20 +26,18 @@ DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER opcAPIInboundEvent        AS CHARACTER  NO-UNDO.
-
-DEFINE VARIABLE hdttRequestData         AS HANDLE     NO-UNDO. 
-DEFINE VARIABLE hdJSONProcs             AS HANDLE     NO-UNDO.
-DEFINE VARIABLE hdttBuffer              AS HANDLE     NO-UNDO.
-DEFINE VARIABLE hdttQuery               AS HANDLE     NO-UNDO.
-DEFINE VARIABLE iCount                  AS INTEGER    NO-UNDO.
-DEFINE VARIABLE lcResponseData          AS LONGCHAR   NO-UNDO.
-DEFINE VARIABLE lcConcatResponseData    AS LONGCHAR   NO-UNDO.
-DEFINE VARIABLE cCompany                AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cWareHouseID            AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cLocationID             AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cInventoryStockID       AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cPrimaryID              AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cItemType               AS CHARACTER  NO-UNDO.
+ 
+DEFINE VARIABLE hdJSONProcs             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lcConcatResponseData    AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE cCompany                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWareHouseID            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocationID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInventoryStockID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cItemType               AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobNo                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2                 AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCustNo                 AS CHARACTER NO-UNDO.
 
 /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
    create trigger, only if session.p is running persistently, else will be populated with empty value.
@@ -48,7 +46,8 @@ DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
 RUN system/session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
-RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
+RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs). 
 
 /* Get request data fields in a temp-table */
 RUN ReadRequestData IN hdJSONProcs (
@@ -78,116 +77,180 @@ IF NOT oplSuccess THEN DO:
    RETURN.
 END.
 
-/* This will fetch fields from request data */
-FOR EACH ttRequest:
-    CASE ttRequest.FieldName:
-        WHEN "Company" THEN
-           cCompany = ttRequest.FieldValue.
-        WHEN "WareHouseID" THEN
-           cWareHouseID = ttRequest.FieldValue.
-        WHEN "LocationID" THEN
-           cLocationID = ttRequest.FieldValue.
-        WHEN "InventoryStockID" THEN
-           cInventoryStockID = ttRequest.FieldValue.
-        WHEN "PrimaryID" THEN
-           cPrimaryID = ttRequest.FieldValue.
-        WHEN "ItemType" THEN
-           cItemType = ttRequest.FieldValue.
-        WHEN "Requestedby" THEN
-           ipcRequestedBy = ttRequest.FieldValue.
-    END CASE.
-END.
-
-/* This is to fetch response data*/
-RUN api\inbound\GetInventoryDetails.p (
-    INPUT  cCompany, 
-    INPUT  cWareHouseID,
-    INPUT  cLocationID, 
-    INPUT  cInventoryStockID,
-    INPUT  cPrimaryID,
-    INPUT  cItemType,
+RUN pProcessInputs (
     OUTPUT oplSuccess,
     OUTPUT opcMessage,
-    OUTPUT TABLE ttItem
-    ).
-         
-IF NOT oplSuccess THEN
-DO:
-   oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
-   /* Log the request to APIInboundEvent */
-   RUN api\CreateAPIInboundEvent.p (
-       INPUT  ipcRoute,
-       INPUT  iplcRequestData,
-       INPUT  oplcResponseData,
-       INPUT  oplSuccess,
-       INPUT  opcMessage,
-       INPUT  NOW,
-       INPUT  ipcRequestedBy,
-       INPUT  ipcRecordSource,
-       INPUT  ipcNotes,
-       INPUT  "", /* PayloadID */
-       OUTPUT opcAPIInboundEvent
-       ).
-   
-   RETURN.  
-END.
+    OUTPUT lcConcatResponseData
+    ) NO-ERROR.
 
-/* Prepares response using response data from API Inbound configuration*/
-FOR EACH ttItem NO-LOCK:
+RUN JSON_EscapeExceptionalCharacters (
+    INPUT-OUTPUT opcMessage
+    ) NO-ERROR.
+    
+IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
+    oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.      
+ELSE
     ASSIGN
-        lcResponseData           = iplcResponseDataStructure
-        ttItem.InventoryStockID  = REPLACE(ttItem.InventoryStockID,'"','\"')
-        ttItem.PrimaryID         = REPLACE(ttItem.PrimaryID,'"','\"')
-        ttItem.StockIDAlias      = REPLACE(ttItem.StockIDAlias,'"','\"')
-        lcResponseData           = REPLACE(lcResponseData, "$WarehouseID$", ttItem.WarehouseID)
-        lcResponseData           = REPLACE(lcResponseData, "$LocationID$", ttItem.LocationID)
-        lcResponseData           = REPLACE(lcResponseData, "$PrimaryID$", ttItem.PrimaryID)
-        lcResponseData           = REPLACE(lcResponseData, "$InventoryStockID$", ttItem.InventoryStockID)
-        lcResponseData           = REPLACE(lcResponseData, "$Quantity$",STRING(ttItem.Quantity,"->>>>>>>>9.9<<<<<"))
-        lcResponseData           = REPLACE(lcResponseData, "$ItemType$", ttItem.ItemType)
-        lcResponseData           = REPLACE(lcResponseData, "$StockIDAlias$", ttItem.StockIDAlias)
-        lcResponseData           = REPLACE(lcResponseData, "$QuanityUOM$", ttItem.QuantityUOM)
-        lcResponseData           = REPLACE(lcResponseData, "$QuantityPerSubUnit$", STRING(ttItem.QuantityPerSubUnit))
-        lcResponseData           = REPLACE(lcResponseData, "$QuantitySubUnitsPerUnit$", STRING(ttItem.QuantitySubUnitsPerUnit))
-        lcResponseData           = REPLACE(lcResponseData, "$QuantityPartial$", STRING(ttItem.QuantityPartial))
-        lcResponseData           = REPLACE(lcResponseData, "$Units$", STRING(ttItem.Units))
-        lcResponseData           = REPLACE(lcResponseData, "$JobNo$", ttItem.JobNo)
-        lcResponseData           = REPLACE(lcResponseData, "$JobNo2$", STRING(ttItem.JobNo2))
-        lcResponseData           = REPLACE(lcResponseData, "$POID$", STRING(ttItem.POID))
-        lcResponseData           = REPLACE(lcResponseData, "$UnitLength$",STRING(ttItem.UnitLength,"->>>>>>>>9.9<<<<<"))
-        lcResponseData           = REPLACE(lcResponseData, "$UnitHeight$",STRING(ttItem.UnitHeight,"->>>>>>>>9.9<<<<<"))
-        lcResponseData           = REPLACE(lcResponseData, "$UnitWidth$",STRING(ttItem.UnitWidth,"->>>>>>>>9.9<<<<<"))
-        lcResponseData           = REPLACE(lcResponseData, "$StackHeight$",STRING(ttItem.StackHeight))
-        lcConcatResponseData     = lcConcatResponseData + "," + lcResponseData
+        oplcResponseData = '~{"response_code":200,"response_message":"' + opcMessage + '","response_data":[' + lcConcatResponseData + ']}'
+        opcMessage = "Success"
         .
-END.
-
-ASSIGN
-    lcConcatResponseData  = IF lcConcatResponseData NE "" THEN
-                                lcConcatResponseData  
-                            ELSE
-                                '~"No data"'
-    opcMessage            = "Success"
-    lcConcatResponseData  = TRIM(lcConcatResponseData,",") 
-    oplcResponseData      = '~{"response_code":200,"response_message":"' + opcMessage + '","response_data":[' + lcConcatResponseData + ']}'
-    .
-
+        
 /* Log the request to APIInboundEvent */
 RUN api\CreateAPIInboundEvent.p (
-    INPUT  ipcRoute,
-    INPUT  iplcRequestData,
-    INPUT  oplcResponseData,
-    INPUT  oplSuccess,
-    INPUT  opcMessage,
-    INPUT  NOW,
-    INPUT  ipcRequestedBy,
-    INPUT  ipcRecordSource,
-    INPUT  ipcNotes,
+    INPUT ipcRoute,
+    INPUT iplcRequestData,
+    INPUT oplcResponseData,
+    INPUT oplSuccess,
+    INPUT opcMessage,
+    INPUT NOW,
+    INPUT ipcRequestedBy,
+    INPUT ipcRecordSource,
+    INPUT ipcNotes,
     INPUT  "", /* PayloadID */
     OUTPUT opcAPIInboundEvent
     ).
-  
+    
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
 DELETE PROCEDURE hdJSONProcs.
+
+PROCEDURE pProcessInputs:
+    DEFINE OUTPUT PARAMETER oplSuccess             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage             AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcConcatResponseData AS LONGCHAR  NO-UNDO.
+     
+    DEFINE VARIABLE lRecFound      AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO.
+    
+    /* Fetch Requestor */          
+    RUN JSON_GetFieldValueByName (
+        INPUT  "Requester",
+        OUTPUT lRecFound,
+        OUTPUT ipcRequestedBy
+        ) NO-ERROR.  
+        
+    /* Get the Company */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "Company", 
+        OUTPUT lRecFound, 
+        OUTPUT cCompany
+        ) NO-ERROR.
+
+    /* Get the WarehouseID */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "WarehouseID", 
+        OUTPUT lRecFound, 
+        OUTPUT cWarehouseID
+        ) NO-ERROR.
+        
+    /* Get the LocationID */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "LocationID ", 
+        OUTPUT lRecFound, 
+        OUTPUT cLocationID
+        ) NO-ERROR.
+        
+    /* Get the InventoryStockID */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "InventoryStockID", 
+        OUTPUT lRecFound, 
+        OUTPUT cInventoryStockID
+        ) NO-ERROR.
+
+    /* Get the PrimaryID */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "PrimaryID", 
+        OUTPUT lRecFound, 
+        OUTPUT cPrimaryID
+        ) NO-ERROR.
+        
+    /* Get the ItemType */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "ItemType", 
+        OUTPUT lRecFound, 
+        OUTPUT cItemType
+        ) NO-ERROR.
+        
+    /* Get the Notes */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "RequesterNotes", 
+        OUTPUT lRecFound, 
+        OUTPUT ipcNotes
+        ) NO-ERROR.
+
+    /* This is to fetch response data*/
+    RUN api\inbound\GetInventoryDetails.p (
+        INPUT  cCompany, 
+        INPUT  cWareHouseID,
+        INPUT  cLocationID, 
+        INPUT  cInventoryStockID,
+        INPUT  cPrimaryID,
+        INPUT  cJobNo,
+        INPUT  iJobNo2,
+        INPUT  cCustNo,
+        INPUT  cItemType,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage,
+        OUTPUT TABLE ttItem
+        ).
+ 
+    IF NOT oplSuccess THEN
+    DO:
+        oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
+        /* Log the request to APIInboundEvent */
+        RUN api\CreateAPIInboundEvent.p (
+            INPUT  ipcRoute,
+            INPUT  iplcRequestData,
+            INPUT  oplcResponseData,
+            INPUT  oplSuccess,
+            INPUT  opcMessage,
+            INPUT  NOW,
+            INPUT  ipcRequestedBy,
+            INPUT  ipcRecordSource,
+            INPUT  ipcNotes,
+            INPUT  "", /* PayloadID */
+            OUTPUT opcAPIInboundEvent
+            ).
+   
+        RETURN.  
+    END.
+    
+    /* Prepares response using response data from API Inbound configuration*/
+    FOR EACH ttItem NO-LOCK:
+            lcResponseData = iplcResponseDataStructure.
+            
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"WarehouseID",ttItem.WarehouseID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"LocationID", ttItem.LocationID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"PrimaryID", ttItem.PrimaryID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"InventoryStockID", ttItem.InventoryStockID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"Quantity",STRING(ttItem.Quantity,"->>>>>>>>9.9<<<<<")) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"ItemType", ttItem.ItemType) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StockIDAlias", ttItem.StockIDAlias) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityUOM", ttItem.QuantityUOM) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityPerSubUnit", STRING(ttItem.QuantityPerSubUnit)) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantitySubUnitsPerUnit", STRING(ttItem.QuantitySubUnitsPerUnit)) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityPartial", STRING(ttItem.QuantityPartial)) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"Units", STRING(ttItem.Units)) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"JobNo", ttItem.JobNo) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"JobNo2", STRING(ttItem.JobNo2)) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"POID", STRING(ttItem.POID)) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitLength",STRING(ttItem.UnitLength,"->>>>>>>>9.9<<<<<")) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitHeight",STRING(ttItem.UnitHeight,"->>>>>>>>9.9<<<<<")) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitWidth",STRING(ttItem.UnitWidth,"->>>>>>>>9.9<<<<<")) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StackHeight",STRING(ttItem.StackHeight)) NO-ERROR.
+
+            oplcConcatResponseData = oplcConcatResponseData + "," + lcResponseData.
+    END.
+    
+    ASSIGN
+        oplcConcatResponseData =  IF oplcConcatResponseData NE "" THEN
+                                      oplcConcatResponseData  
+                                  ELSE
+                                      '~"No data"'
+        opcMessage             = "Success"
+        oplcConcatResponseData = TRIM(oplcConcatResponseData,",") 
+        .
+END PROCEDURE. 
+
 SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
 DELETE PROCEDURE hdSession.
   

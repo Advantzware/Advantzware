@@ -468,7 +468,7 @@ DO:
        WHEN "est-no" THEN DO:
               RUN windows/l-est.w (gcompany,gloc,quotehd.est-no:screen-value in frame {&frame-name}, OUTPUT char-val).
               IF char-val <> "" THEN DO:
-                 FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+                  FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                  IF AVAIL eb THEN DO:
                    quotehd.est-no:screen-value = eb.est-no.
                  END.

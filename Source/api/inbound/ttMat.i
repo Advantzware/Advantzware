@@ -1,0 +1,5 @@
+DEFINE TEMP-TABLE ttMat NO-UNDO 
+    FIELD frm AS INTEGER
+    FIELD qty AS DECIMAL
+    INDEX frm frm
+    . 

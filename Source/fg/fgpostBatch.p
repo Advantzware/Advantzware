@@ -14,15 +14,17 @@
 {fg/invrecpt.i NEW}
 {fg/fgPostBatch.i}
 
-DEFINE INPUT  PARAMETER v-post-date AS DATE NO-UNDO.
-DEFINE INPUT  PARAMETER iplRecalcCost AS LOGICAL NO-UNDO.
-DEFINE INPUT  PARAMETER ip-run-what AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER gv-fgemail      AS LOGICAL   NO-UNDO INIT ?. 
-DEFINE INPUT  PARAMETER iplCreateWorkGL AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER v-post-date       AS DATE      NO-UNDO.
+DEFINE INPUT PARAMETER iplRecalcCost     AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER ip-run-what       AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER gv-fgemail        AS LOGICAL   NO-UNDO INIT ?. 
+DEFINE INPUT PARAMETER iplCreateWorkGL   AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER iplPromptForClose AS LOGICAL   NO-UNDO.
 DEFINE INPUT PARAMETER TABLE FOR w-fg-rctd.
 DEFINE INPUT PARAMETER TABLE FOR tt-fgemail. 
 DEFINE INPUT PARAMETER TABLE FOR tt-email. 
 DEFINE INPUT PARAMETER TABLE FOR tt-inv.  
+
 /* Need to return w-job for prompting */
 DEFINE VARIABLE ll        AS LOG     NO-UNDO.
 DEFINE VARIABLE dBillAmt  AS DECIMAL NO-UNDO. /* set, not used */
@@ -905,7 +907,10 @@ PROCEDURE fg-post:
     FIND FIRST w-job NO-ERROR.
     IF AVAILABLE w-job THEN 
     DO:
-        RUN jc/d-jclose.w.
+        IF iplPromptForClose THEN 
+            RUN jc/d-jclose.w.
+        ELSE 
+            RUN pCloseJobs.
     END.
 
     IF v-adjustgl THEN 
@@ -1497,6 +1502,41 @@ PROCEDURE replace-rel-qty:
 
 END PROCEDURE.
 
+PROCEDURE pCloseJobs:
+/* --------------------------------------------------                         */
+/* Job Costing - Close Job logic for API                                      */
+/* -------------------------------------------------------------------------- */
+    DEFINE VARIABLE v-fin-qty  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE close_date AS DATE    NO-UNDO.
+	
+    FOR EACH w-job 
+		BREAK BY w-job.job-no:
+        IF LAST-OF(w-job.job-no) THEN DO:        
+            FIND FIRST job NO-LOCK 
+                 WHERE RECID(job) EQ w-job.rec-id 
+                 NO-ERROR.
+                 
+            IF AVAILABLE job AND job.opened THEN
+                
+                FOR EACH job-hdr NO-LOCK
+                    WHERE job-hdr.company EQ job.company
+                      AND job-hdr.job     EQ job.job
+                      AND job-hdr.job-no  EQ job.job-no
+                      AND job-hdr.job-no2 EQ job.job-no2
+                    BREAK BY job-hdr.job
+                          BY job-hdr.frm
+                          BY job-hdr.blank-no:
+                
+                    FIND CURRENT job EXCLUSIVE-LOCK.
+                                
+                    {jc/job-clos.i}
+                    
+                END.
+        END.
+        DELETE w-job.
+    END.
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

@@ -148,7 +148,11 @@ PROCEDURE pProcessRecord PRIVATE:
             itemfg.type-code = "O"
             .
     END.
-    
+    IF ipbf-ttImportFG.UnitCount EQ 0 AND NOT iplIgnoreBlanks THEN
+        ASSIGN ipbf-ttImportFG.UnitCount = 1 . 
+    IF ipbf-ttImportFG.UnitsPerPallet EQ 0 AND NOT iplIgnoreBlanks THEN
+        ASSIGN ipbf-ttImportFG.UnitsPerPallet = 1 .
+        
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportFG.CustomerID, YES, INPUT-OUTPUT itemfg.cust-no).
     RUN pAssignValueC (ipbf-ttImportFG.PartID, YES, INPUT-OUTPUT itemfg.part-no).
@@ -365,10 +369,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).            
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    IF ipbf-ttImportFG.UnitCount EQ 0 THEN
-        ASSIGN ipbf-ttImportFG.UnitCount = 1 . 
-    IF ipbf-ttImportFG.UnitsPerPallet EQ 0 THEN
-        ASSIGN ipbf-ttImportFG.UnitsPerPallet = 1 .
+    
 
 END PROCEDURE.
 

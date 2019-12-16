@@ -80,15 +80,16 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE QUERY external_tables FOR soldto, cust.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS soldto.sold-name soldto.sold-addr[1] ~
-soldto.sold-addr[2] soldto.sold-city soldto.sold-state soldto.sold-zip 
+soldto.sold-addr[2] soldto.spare-char-3 soldto.sold-city soldto.sold-state ~
+soldto.sold-zip 
 &Scoped-define ENABLED-TABLES soldto
 &Scoped-define FIRST-ENABLED-TABLE soldto
-&Scoped-define DISPLAYED-TABLES soldto
-&Scoped-define FIRST-DISPLAYED-TABLE soldto
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS soldto.sold-id soldto.sold-name ~
-soldto.sold-addr[1] soldto.sold-addr[2] soldto.sold-city soldto.sold-state ~
-soldto.sold-zip 
+soldto.sold-addr[1] soldto.sold-addr[2] soldto.spare-char-3 ~
+soldto.sold-city soldto.sold-state soldto.sold-zip 
+&Scoped-define DISPLAYED-TABLES soldto
+&Scoped-define FIRST-DISPLAYED-TABLE soldto
 &Scoped-Define DISPLAYED-OBJECTS F1 
 
 /* Custom List Definitions                                              */
@@ -133,8 +134,8 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 71 BY 6.19.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 71 BY 6.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -148,24 +149,28 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
-     soldto.sold-addr[1] AT ROW 3.62 COL 14 COLON-ALIGNED
-          LABEL "Address"
+     soldto.sold-addr[1] AT ROW 3.38 COL 14 COLON-ALIGNED
+          LABEL "Address" FORMAT "x(45)"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 48 BY 1
           BGCOLOR 15 FONT 4
-     soldto.sold-addr[2] AT ROW 4.81 COL 14 COLON-ALIGNED NO-LABEL
+     soldto.sold-addr[2] AT ROW 4.33 COL 14 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 48 BY 1
           BGCOLOR 15 FONT 4
-     soldto.sold-city AT ROW 6 COL 14 COLON-ALIGNED
+     soldto.spare-char-3 AT ROW 5.29 COL 14 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
+          SIZE 48 BY 1
           BGCOLOR 15 FONT 4
-     soldto.sold-state AT ROW 6 COL 42 COLON-ALIGNED
+     soldto.sold-city AT ROW 6.48 COL 14 COLON-ALIGNED FORMAT "x(25)"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 FONT 4
+     soldto.sold-state AT ROW 6.48 COL 45 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
-     soldto.sold-zip AT ROW 6 COL 55 COLON-ALIGNED
+     soldto.sold-zip AT ROW 6.48 COL 55 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
@@ -204,7 +209,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 6.19
+         HEIGHT             = 6.81
          WIDTH              = 71.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -239,11 +244,17 @@ ASSIGN
        F1:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN soldto.sold-addr[1] IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN soldto.sold-addr[2] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN soldto.sold-city IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN soldto.sold-id IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN soldto.sold-state IN FRAME F-Main
    4                                                                    */
+/* SETTINGS FOR FILL-IN soldto.spare-char-3 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -257,7 +268,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -388,7 +399,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -431,7 +441,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -503,35 +512,15 @@ PROCEDURE sold-zip :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF soldto.sold-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ soldto.sold-zip:SCREEN-VALUE
+    FIND FIRST zipcode
+        WHERE zipcode.zipcode EQ soldto.sold-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
-      soldto.sold-state:SCREEN-VALUE = nosweat.zipcode.state.
+    IF AVAIL zipcode THEN do:
+      soldto.sold-state:SCREEN-VALUE = zipcode.state.
       IF soldto.sold-city:SCREEN-VALUE EQ "" THEN
-        soldto.sold-city:SCREEN-VALUE = nosweat.zipcode.city.
+        soldto.sold-city:SCREEN-VALUE = zipcode.city.
     END.
   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
-PROCEDURE state-changed :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
-
-  CASE p-state:
-      /* Object instance CASEs can go here to replace standard behavior
-         or add new cases. */
-      {src/adm/template/vstates.i}
-  END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -557,7 +546,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE soldto-update-log V-table-Win 
 PROCEDURE soldto-update-log :
 /*------------------------------------------------------------------------------
@@ -580,5 +568,25 @@ DEFINE BUFFER buff-soldto FOR soldto .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
+PROCEDURE state-changed :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+
+  CASE p-state:
+      /* Object instance CASEs can go here to replace standard behavior
+         or add new cases. */
+      {src/adm/template/vstates.i}
+  END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 

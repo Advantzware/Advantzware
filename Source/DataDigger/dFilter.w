@@ -464,6 +464,7 @@ PROCEDURE saveComboValue :
   DEFINE VARIABLE cDelim      AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cNewList    AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE iEntry      AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE iMaxEntries AS INTEGER     NO-UNDO.
 
   /* Set in normal vars for easier handling */
   cList = phCombo:LIST-ITEMS.
@@ -486,6 +487,9 @@ PROCEDURE saveComboValue :
     /* add to list */
     cNewList = SUBSTITUTE('&1&2&3', cNewList, cDelim, ENTRY(iEntry,cList,cDelim)).
     cNewList = TRIM(cNewList,cDelim).
+
+    /* if list is at max length, step out */
+    IF NUM-ENTRIES(cNewList,cDelim) = iMaxEntries THEN LEAVE #AddEntry.
   END. /* #AddEntry */
 
   /* and finally, save it */
@@ -495,3 +499,4 @@ END PROCEDURE. /* saveComboValue */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

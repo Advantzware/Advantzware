@@ -1923,7 +1923,7 @@ SESSION:SET-WAIT-STATE ("general").
     v-cost = IF ce-ctrl.r-cost THEN ITEM.avg-cost ELSE tt-rm-bin.cost.
 
     IF v-cost EQ ? THEN v-cost = 0.
-    
+    cVendTag = "" .
     IF tagask AND tt-rm-bin.tag NE "" THEN
       tt-rm-bin.tag = "*" + tt-rm-bin.tag + "*".
     IF tt-rm-bin.tag NE "" THEN DO:

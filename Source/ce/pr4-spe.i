@@ -14,20 +14,33 @@ do i = 1 to 8 with frame ac4  down no-labels no-box:
     RUN custom/extradec.p (.0001, (xef.spec-qty[i] * {1}),
                            OUTPUT s-qty[i]).
 
-    FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
-    b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                     ELSE item.cons-uom.
-
+    IF lNewVendorItemCost THEN 
+    DO:
+          FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+              AND venditemcost.itemid = ITEM.i-no
+              AND venditemcost.itemtype = "RM" NO-ERROR.
+          b-uom = IF AVAIL venditemcost AND venditemcost.vendorUom NE "" THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+    END.
+    ELSE 
+    DO:     
+          FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+          b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom ELSE item.cons-uom.
+    END.        
+    
     IF b-uom NE "EA" THEN
       RUN sys/ref/convquom.p("EA", b-uom,
                              item.basis-w, xeb.t-len, xeb.t-wid, xeb.t-dep,
                              s-qty[i], OUTPUT s-qty[i]).
-
-    {est/matcost.i s-qty[i] s-cost[i] spe}
-
-    s-cost[i] = (s-cost[i] * s-qty[i]) + lv-setup-spe.
-
+    IF lNewVendorItemCost THEN 
+    DO:
+         {est/getVendCost.i s-qty[i] s-cost[i] spe}  
+    END.
+    ELSE 
+    DO:
+         {est/matcost.i s-qty[i] s-cost[i] spe}
+         s-cost[i] = (s-cost[i] * s-qty[i]) + lv-setup-spe. 
+    END.
+    
     find first brd
          where brd.form-no eq xef.form-no
            and brd.i-no    eq xef.spec-no[i]

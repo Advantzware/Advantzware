@@ -7,7 +7,7 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 DEF SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def var qm as DEC NO-UNDO.
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER b-cost FOR reftable.
@@ -38,6 +38,7 @@ for each xef where xef.company = xest.company
       display string(xef.form-no,"9") + "-00" format "x(4)"
               xef.spec-dscr[i] s-qty[i]  to 50 space(1)
               e-item.std-uom  when avail item
+              venditemcost.vendorUom WHEN AVAIL vendItemCost @ e-item.std-uom
               item.cons-uom when not avail e-item @ e-item.std-uom
               s-cost[i] / qm to 69
               s-cost[i] format ">>>>,>>9.99" to 80 SKIP WITH STREAM-IO.

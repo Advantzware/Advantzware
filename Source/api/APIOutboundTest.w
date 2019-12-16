@@ -611,6 +611,7 @@ DO:
         INPUT  FALSE,        /* Re-trigger flag */
         INPUT  ?,            /* API Outbound Event ID: Pass ? to create new Event*/
         INPUT  cCompany,
+        INPUT  cLocation,
         INPUT  cAPIID,
         INPUT  cClientID,
         INPUT  cTriggerID,
@@ -1182,7 +1183,7 @@ PROCEDURE pValidateOutboundAPI :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    RUN GetAPIOutboundID IN hdOutboundProcs (
+    RUN Outbound_GetAPIID IN hdOutboundProcs (
         INPUT  cCompany,
         INPUT  fiAPIID:SCREEN-VALUE,
         INPUT  fiClientID:SCREEN-VALUE,
@@ -1194,7 +1195,7 @@ PROCEDURE pValidateOutboundAPI :
     IF NOT oplValid THEN
         RETURN.
     
-    RUN GetAPIOutboundTriggerID IN hdOutboundProcs (
+    RUN Outbound_GetAPITriggerID IN hdOutboundProcs (
         INPUT  cCompany,
         INPUT  fiAPIID:SCREEN-VALUE,
         INPUT  fiClientID:SCREEN-VALUE,

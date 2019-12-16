@@ -42,14 +42,14 @@ IF AVAILABLE user-print THEN DO:
          NO-ERROR.
     IF AVAILABLE prgrms THEN DO:
         IF prgrms.module NE "" THEN DO:
-            cAppSrv = "AOA\appServer\aoa" + prgrms.module.
+            cAppSrv = "AOA/appServer/aoa" + prgrms.module.
             IF SEARCH(cAppSrv + ".r") NE ? OR
                SEARCH(cAppSrv + ".p") NE ? THEN DO:
-                RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+                RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
                 RUN VALUE(cAppSrv + ".p") PERSISTENT SET hAppSrv.
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
-                RUN AOA\spJasper.p PERSISTENT SET hJasper.
+                RUN AOA/spJasper.p PERSISTENT SET hJasper.
                 SESSION:ADD-SUPER-PROCEDURE (hJasper).
                 RUN spJasper (
                     Task.taskFormat,
@@ -151,6 +151,14 @@ ELSE DO:
         NO
         ).
 END. /* else user-print */
+
+DELETE PROCEDURE hSession.
+IF VALID-HANDLE(hAppSrvBin) THEN
+DELETE PROCEDURE hAppSrvBin.
+IF VALID-HANDLE(hAppSrv) THEN
+DELETE PROCEDURE hAppSrv.
+IF VALID-HANDLE(hJasper) THEN
+DELETE PROCEDURE hJasper.
 
 QUIT.
 

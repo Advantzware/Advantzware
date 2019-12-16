@@ -105,6 +105,7 @@ PROCEDURE pCreateTempTableColumn :
             IF hTable:BUFFER-FIELD(idx):NAME EQ "rowType"     THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters"  THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME BEGINS "zz"      THEN NEXT.
             RUN pCreatettColumn (
                 hTable:BUFFER-FIELD(idx):TABLE,
                 hTable:BUFFER-FIELD(idx):NAME,

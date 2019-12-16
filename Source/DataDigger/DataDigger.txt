@@ -6,23 +6,6 @@
 
 =====================================================================================
 
-DataDigger version 25
-
-- Solved: Error when deleting record while in edit mode (Johan Geerts)
-- Solved: User defined color '?' was reset to default value after restart
-- Solved: Fixed SonarCube issues marked as 'bug' (Gilles Querret)
-- Solved: Timer frozen when computer wakes up from hibernate (Richard Kelters)
-- Solved: Character field with format '99999' could not be updated (Damir Pen)
-- Solved: UI errors in query tester (Alan Copeland)
-- Solved: Compile error on 64bit when prowin32 is not available (Sergejus Kornejevas)
-- Solved: Frames mixed up when dumping large tables (Dirk Vreken)
-- Solved: Double click on fields excluded from browser gives error (Dirk Vreken)
-
-- Change: File description now shows both label and description (Johan Geerts)
-- Change: File label shown in title and description as tooltip on file browse (Dirk Vreken)
-
-=====================================================================================
-
 DataDigger version 24 - 3 oct 2018 (Pure Gold)
 
 - Solved: Auto-connect list gives error on duplicate tables (Peter Frederick)

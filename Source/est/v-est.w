@@ -74,12 +74,12 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME Fold
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES est eb est-qty ef
+&Scoped-define EXTERNAL-TABLES est eb est-qty ef cust
 &Scoped-define FIRST-EXTERNAL-TABLE est
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR est, eb, est-qty, ef.
+DEFINE QUERY external_tables FOR est, eb, est-qty, ef, cust.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS eb.cust-no eb.ship-id eb.ship-name ~
 eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
@@ -87,10 +87,11 @@ eb.sman eb.comm eb.part-no eb.plate-no eb.stock-no eb.die-no eb.part-dscr1 ~
 eb.cad-no eb.part-dscr2 eb.upc-no eb.procat eb.spc-no ef.board ef.brd-dscr ~
 eb.i-col eb.i-pass eb.i-coat eb.i-coat-p eb.style eb.len eb.wid eb.dep ~
 eb.dust eb.lock eb.fpanel eb.k-len eb.k-wid eb.adhesive eb.tuck eb.gluelap ~
-eb.lin-in eb.t-len eb.t-wid eb.t-sqin 
-&Scoped-define ENABLED-TABLES eb ef
+eb.lin-in eb.t-len eb.t-wid eb.t-sqin cust.spare-char-3 
+&Scoped-define ENABLED-TABLES eb ef cust
 &Scoped-define FIRST-ENABLED-TABLE eb
 &Scoped-define SECOND-ENABLED-TABLE ef
+&Scoped-define THIRD-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS RECT-19 RECT-18 
 &Scoped-Define DISPLAYED-FIELDS est.est-no est.est-date est.mod-date ~
 est.ord-no est.ord-date eb.cust-no eb.ship-id eb.ship-name eb.ship-addr[1] ~
@@ -99,12 +100,13 @@ eb.comm eb.part-no eb.plate-no eb.stock-no eb.die-no eb.part-dscr1 ~
 eb.cad-no eb.part-dscr2 eb.upc-no eb.procat eb.spc-no ef.board ef.brd-dscr ~
 eb.i-col eb.i-pass eb.i-coat eb.i-coat-p eb.style eb.len eb.wid eb.dep ~
 eb.dust eb.lock eb.fpanel eb.k-len eb.k-wid eb.adhesive eb.tuck eb.gluelap ~
-eb.lin-in eb.t-len eb.t-wid eb.t-sqin 
-&Scoped-define DISPLAYED-TABLES est eb est-qty ef
+eb.lin-in eb.t-len eb.t-wid eb.t-sqin cust.spare-char-3 
+&Scoped-define DISPLAYED-TABLES est eb est-qty ef cust
 &Scoped-define FIRST-DISPLAYED-TABLE est
 &Scoped-define SECOND-DISPLAYED-TABLE eb
 &Scoped-define THIRD-DISPLAYED-TABLE est-qty
 &Scoped-define FOURTH-DISPLAYED-TABLE ef
+&Scoped-define FIFTH-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS sman_sname procat_desc style_dscr 
 
 /* Custom List Definitions                                              */
@@ -196,20 +198,20 @@ DEFINE FRAME Fold
           VIEW-AS FILL-IN 
           SIZE 39.4 BY 1
      eb.ship-addr[1] AT ROW 4.1 COL 19 COLON-ALIGNED
-          LABEL "Address"
+          LABEL "Address" FORMAT "x(45)"
           VIEW-AS FILL-IN 
           SIZE 39.4 BY 1
-     eb.ship-addr[2] AT ROW 5.05 COL 19 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.05 COL 19 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
           VIEW-AS FILL-IN 
           SIZE 39.4 BY 1
-     eb.ship-city AT ROW 6 COL 19 COLON-ALIGNED
+     eb.ship-city AT ROW 6.95 COL 19 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     eb.ship-state AT ROW 6 COL 39 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.95 COL 39 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6 COL 46 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.95 COL 46 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      est-qty.eqty AT ROW 2.19 COL 76 COLON-ALIGNED
@@ -253,11 +255,11 @@ DEFINE FRAME Fold
           LABEL "UPC#"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     eb.procat AT ROW 7.43 COL 19 COLON-ALIGNED
+     eb.procat AT ROW 8.14 COL 19 COLON-ALIGNED
           LABEL "FG Category"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     procat_desc AT ROW 7.43 COL 27 COLON-ALIGNED NO-LABEL
+     procat_desc AT ROW 8.14 COL 27 COLON-ALIGNED NO-LABEL
      eb.spc-no AT ROW 8.14 COL 124 COLON-ALIGNED
           LABEL "QC #"
           VIEW-AS FILL-IN 
@@ -341,6 +343,9 @@ DEFINE FRAME Fold
      eb.t-sqin AT ROW 16.24 COL 91 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
+     cust.spare-char-3 AT ROW 6 COL 19 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
+          VIEW-AS FILL-IN 
+          SIZE 39.4 BY 1
      RECT-19 AT ROW 1 COL 1
      RECT-18 AT ROW 9.57 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -354,7 +359,7 @@ DEFINE FRAME Fold
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.est,ASI.eb,ASI.est-qty,ASI.ef
+   External Tables: ASI.est,ASI.eb,ASI.est-qty,ASI.ef,asi.cust
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -444,7 +449,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN procat_desc IN FRAME Fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.ship-addr[1] IN FRAME Fold
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.ship-addr[2] IN FRAME Fold
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN eb.ship-city IN FRAME Fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.ship-id IN FRAME Fold
@@ -455,6 +462,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME Fold
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cust.spare-char-3 IN FRAME Fold
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.spc-no IN FRAME Fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.stock-no IN FRAME Fold
@@ -586,6 +595,7 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-list.i "eb"}
   {src/adm/template/row-list.i "est-qty"}
   {src/adm/template/row-list.i "ef"}
+  {src/adm/template/row-list.i "cust"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
@@ -595,6 +605,7 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-find.i "eb"}
   {src/adm/template/row-find.i "est-qty"}
   {src/adm/template/row-find.i "ef"}
+  {src/adm/template/row-find.i "cust"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -908,6 +919,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-list.i "eb"}
   {src/adm/template/snd-list.i "est-qty"}
   {src/adm/template/snd-list.i "ef"}
+  {src/adm/template/snd-list.i "cust"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

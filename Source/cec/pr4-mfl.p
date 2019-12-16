@@ -20,7 +20,7 @@ DEFINE SHARED BUFFER xef  FOR ef.
 DEFINE SHARED BUFFER xeb  FOR eb.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 DEFINE BUFFER b-qty   FOR reftable.
 DEFINE BUFFER b-cost  FOR reftable.
 DEFINE BUFFER b-setup FOR reftable.
@@ -139,13 +139,19 @@ REPEAT:
                     v-qty = med-qty.
                 ELSE
                     v-qty = med-qty * item.basis-w.
-
-        {est/matcost.i v-qty mfl$ medium}
-
+                    
+        IF lNewVendorItemCost THEN 
+        DO:
+           {est/getVendCost.i v-qty mfl$ medium}  
+        END.
+        ELSE 
+        DO:
+           {est/matcost.i v-qty mfl$ medium}
+           mfl$           = (b-msh * v-qty) + lv-setup-medium.
+        END.
         CREATE w-brd.
         ASSIGN 
-            b-msh          = mfl$
-            mfl$           = (b-msh * v-qty) + lv-setup-medium
+            b-msh          = mfl$            
             w-brd.form-no  = xef.form-no
             w-brd.blank-no = 1
             w-brd.i-no     = item-bom.i-no
@@ -249,12 +255,19 @@ REPEAT:
                     v-qty = med-qty.
                 ELSE
                     v-qty = med-qty * item.basis-w.
-
-        {est/matcost.i v-qty mfl$ flute}
-
+                    
+        IF lNewVendorItemCost THEN 
+        DO:
+           {est/getVendCost.i v-qty mfl$ flute}  
+        END.
+        ELSE 
+        DO: 
+           {est/matcost.i v-qty mfl$ flute}
+           mfl$  = (b-msh * v-qty) + lv-setup-flute.
+        END.
         ASSIGN
-            b-msh = mfl$
-            mfl$  = (b-msh * v-qty) + lv-setup-flute.
+            b-msh = mfl$.
+            
 
         CREATE w-brd.
         ASSIGN 

@@ -941,7 +941,8 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    RUN ipWriteIniFile.
+    IF lValueChanged THEN 
+        RUN ipWriteIniFile.
     
     QUIT.
     
@@ -1477,43 +1478,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipWriteIniFile C-Win 
-PROCEDURE ipWriteIniFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    OUTPUT TO VALUE(cIniLoc).
-    FOR EACH ttIniFile BY ttIniFile.iPos:
-        IF ttIniFile.cVarName BEGINS "#" THEN
-            PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
-        ELSE IF ttIniFile.cVarName NE "" THEN 
-            DO:
-                IF ttIniFile.cVarName EQ "modeList" THEN ASSIGN 
-                        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"Addon,","").
-                IF ttIniFile.cVarName EQ "pgmList" THEN ASSIGN 
-                        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain.w,","")
-                        ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain2.w,","")
-                        .
-                /* #53853 New 'mode': AutoLogout */
-                IF ttIniFile.cVarName EQ "modeList"
-                    AND LOOKUP("AutoLogout",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                        ttIniFile.cVarValue = ttIniFile.cVarValue + ",AutoLogout". 
-                IF ttIniFile.cVarName EQ "pgmList"
-                    AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                        ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
-                PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
-            END.
-            ELSE NEXT.
-    END.
-    OUTPUT CLOSE.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 

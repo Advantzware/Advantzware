@@ -99,7 +99,7 @@ DEF SHARED TEMP-TABLE tt-selected NO-UNDO
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 po-ordl.LINE po-ordl.i-no po-ordl.s-num po-ordl.i-name po-ordl.job-no po-ordl.job-no2 po-ordl.s-wid tt-report.s-len   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 po-ordl.LINE po-ordl.i-no po-ordl.s-num po-ordl.i-name po-ordl.ord-qty po-ordl.job-no po-ordl.job-no2 po-ordl.s-wid tt-report.s-len   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-report, ~
@@ -183,6 +183,7 @@ DEFINE BROWSE BROWSE-1
       po-ordl.i-no      FORMAT "x(15)":U    WIDTH 23
       po-ordl.s-num     FORMAT ">>>":U
       po-ordl.i-name    FORMAT "x(30)":U
+      po-ordl.ord-qty   FORMAT "->>>>>>>9.99":U
       po-ordl.job-no    FORMAT "x(6)":U
       po-ordl.job-no2   FORMAT "99":U
       po-ordl.s-wid     FORMAT ">>9.99<<":U

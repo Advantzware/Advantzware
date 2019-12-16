@@ -35,6 +35,11 @@
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
              lines-per-page = 72.
+      WHEN "PREMDSG" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolpremdsc.p"
+             is-xprint-form = YES
+             lines-per-page = 72.
        WHEN "BOLFMT-Mex" THEN
           ASSIGN
              v-program      = "oe/rep/bolfmtMex.p"

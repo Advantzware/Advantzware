@@ -7,7 +7,7 @@ def shared buffer xef for ef.
 def shared buffer xeb for eb.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def buffer xflm for flm.
 
 DEF SHARED VAR qty AS INT NO-UNDO.  
@@ -64,11 +64,22 @@ do i = 1 to 4:
         where item.company eq cocode
           and item.i-no    eq xef.leaf[i]
         no-lock no-error.
-    if avail item then find first e-item of item no-lock no-error.
-    else next.
-
-    fuom = if avail e-item then e-item.std-uom else item.cons-uom.
+        
+    IF NOT AVAIL ITEM THEN NEXT.
     
+      IF lNewVendorItemCost THEN 
+      DO:
+          FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+              AND venditemcost.itemid = ITEM.i-no
+              AND venditemcost.itemtype = "RM" NO-ERROR.
+          fuom = IF AVAIL venditemcost THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+      END.
+      ELSE 
+      DO:     
+          FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+          fuom = if avail e-item then e-item.std-uom else item.cons-uom.
+      END.    
+        
     f-qty = 0.
     for each xeb
         where xeb.company = xest.company

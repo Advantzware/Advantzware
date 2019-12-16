@@ -28,6 +28,7 @@ update-po{1}: DO.
         WHERE po-ordl.company   EQ item.company
           AND po-ordl.i-no      EQ rm-rctd.i-no
           AND po-ordl.po-no     EQ int(rm-rctd.po-no)
+          AND po-ordl.LINE      EQ rm-rctd.po-line 
           AND po-ordl.deleted   EQ NO
           AND po-ordl.item-type EQ YES
           AND po-ordl.job-no    EQ rm-rctd.job-no

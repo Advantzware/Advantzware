@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include
 /*------------------------------------------------------------------------
 
   Name : DataDigger.i
@@ -18,10 +18,8 @@
 
 &GLOBAL-DEFINE QUERYSEP CHR(1, SESSION:CPINTERNAL, "UTF-8")
 &GLOBAL-DEFINE timerStart PUBLISH "DD:Timer" ("start", ENTRY(1,PROGRAM-NAME(1)," ")).
-&GLOBAL-DEFINE timerStop  FINALLY: ~
-                            PUBLISH "DD:Timer" ("stop", ENTRY(1,PROGRAM-NAME(1)," ")). ~
-                          END FINALLY.
-&GLOBAL-DEFINE timerStop2 PUBLISH "DD:Timer" ("stop", ENTRY(1,PROGRAM-NAME(1)," ")).
+&GLOBAL-DEFINE timerStop  FINALLY: PUBLISH "DD:Timer" ("stop" , ENTRY(1,PROGRAM-NAME(1)," ")). END FINALLY.
+&GLOBAL-DEFINE timerStop2          PUBLISH "DD:Timer" ("stop" , ENTRY(1,PROGRAM-NAME(1)," ")).
 
 /* Constant values for update channels */
 &GLOBAL-DEFINE CHECK-MANUAL 0
@@ -58,7 +56,6 @@ DEFINE TEMP-TABLE ttTable NO-UNDO RCODE-INFORMATION
   FIELD cCacheId      AS CHARACTER LABEL "CacheId"
   FIELD lShowInList   AS LOGICAL   LABEL "" /* for getTablesWithField */
   FIELD cTableDesc    AS CHARACTER LABEL "Desc"
-  FIELD cTableLabel   AS CHARACTER LABEL "Label"
   FIELD cFields       AS CHARACTER LABEL "Fields"
   FIELD lHidden       AS LOGICAL   LABEL ""
   FIELD lFrozen       AS LOGICAL   LABEL ""
@@ -271,11 +268,12 @@ DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
   INDEX iPrim IS PRIMARY cGroup
   .
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -291,7 +289,7 @@ DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: Include
-   Allow: 
+   Allow:
    Frames: 0
    Add Fields to: Neither
    Other Settings: INCLUDE-ONLY
@@ -301,7 +299,7 @@ DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW Include ASSIGN
          HEIGHT             = 6
          WIDTH              = 35.8.
@@ -309,10 +307,10 @@ DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
                                                                         */
 &ANALYZE-RESUME
 
- 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include
 
 
 /* ***************************  Main Block  *************************** */
@@ -397,16 +395,6 @@ FUNCTION getRegistry RETURNS CHARACTER
 FUNCTION getStackSize RETURNS INTEGER
   () IN SUPER.
 
-FUNCTION getTableDesc RETURNS CHARACTER
-  ( INPUT  pcDatabase AS CHARACTER
-  , INPUT  pcTable    AS CHARACTER
-  ) IN SUPER.
-
-FUNCTION getTableLabel RETURNS CHARACTER
-  ( INPUT  pcDatabase AS CHARACTER
-  , INPUT  pcTable    AS CHARACTER
-  ) IN SUPER.
-  
 FUNCTION getTableList RETURNS CHARACTER
   ( INPUT  pcDatabaseFilter   AS CHARACTER
   , INPUT  pcTableFilter      AS CHARACTER
@@ -445,10 +433,6 @@ FUNCTION removeConnection RETURNS LOGICAL
 FUNCTION resolveOsVars RETURNS CHARACTER
   ( pcString AS CHARACTER ) IN SUPER.
 
-FUNCTION setColor RETURNS INTEGER
-  ( INPUT pcName  AS CHARACTER
-  , INPUT piColor AS INTEGER ) IN SUPER.
-  
 FUNCTION setLinkInfo RETURNS LOGICAL
   ( INPUT pcFieldName AS CHARACTER
   , INPUT pcValue     AS CHARACTER
@@ -476,7 +460,7 @@ SUBSCRIBE TO gcThisProcedure ANYWHERE RUN-PROCEDURE "getProcHandle".
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getProcHandle Include 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getProcHandle Include
 PROCEDURE getProcHandle :
 /*
  * Name : getProcHandle

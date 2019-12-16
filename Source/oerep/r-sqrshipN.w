@@ -1474,7 +1474,7 @@ PROCEDURE run-report :
                 WHEN "v-trailer" THEN 
                     cVarValue = STRING(v-trailer,"x(21)").
                 WHEN "v-totl-sq" THEN 
-                    cVarValue = STRING(dTtlSqFt,"->>,>>,>>>.9<<<<").
+                    cVarValue = STRING(dTtlSqFt,"->,>>>,>>>.9<<<<").
                 WHEN "v-bol-no" THEN 
                     cVarValue = STRING(v-bol-no,">>>>>9").
 

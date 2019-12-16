@@ -1139,10 +1139,11 @@ PROCEDURE local-delete-record :
   END.
 
   FIND bf-inv WHERE RECID(bf-inv) = RECID(ar-inv).
-  ASSIGN bf-inv.net = bf-inv.net - ar-invl.amt
-         bf-inv.gross = bf-inv.gross - ar-invl.amt
-         .
-  
+
+  ASSIGN bf-inv.gross = bf-inv.gross - ar-invl.amt - (IF bf-inv.f-bill THEN ar-invl.t-freight ELSE 0)
+           bf-inv.net   = bf-inv.net - ar-invl.amt - (IF bf-inv.f-bill THEN ar-invl.t-freight ELSE 0)
+           bf-inv.freight = bf-inv.freight - ar-invl.t-freight
+           .
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 

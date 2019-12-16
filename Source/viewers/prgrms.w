@@ -37,7 +37,10 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ENHANCE no
 
+DEFINE VARIABLE hSubjectID    AS HANDLE    NO-UNDO EXTENT 20.
 DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iPageNo       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iSubjectID    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE saveParents   AS CHARACTER NO-UNDO.
 
@@ -110,7 +113,7 @@ prgrms.systemType prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] ~
 prgrms.itemParent 
 &Scoped-define DISPLAYED-TABLES prgrms
 &Scoped-define FIRST-DISPLAYED-TABLE prgrms
-&Scoped-Define DISPLAYED-OBJECTS parentPrgTitle F1 F-2 
+&Scoped-Define DISPLAYED-OBJECTS F1 F-2 parentPrgTitle 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,MENU-FIELDS,F1 */
@@ -151,6 +154,86 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnParam-0  NO-FOCUS
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-1  NO-FOCUS
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-10 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-11 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-12 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-13 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-14 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-15 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-16 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-17 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-18 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-19 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-2 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-3 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-4 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-5 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-6 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-7 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-8 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
+DEFINE BUTTON btnParam-9 
+     LABEL "Param" 
+     SIZE 8 BY 1.
+
 DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
@@ -176,19 +259,21 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 138 BY 3.76.
+     SIZE 128 BY 3.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnParam-0 AT ROW 3.38 COL 150 WIDGET-ID 214
+     btnParam-1 AT ROW 4.38 COL 150 WIDGET-ID 216
      prgrms.prgmname AT ROW 1.24 COL 10 COLON-ALIGNED FORMAT "X(32)"
           VIEW-AS FILL-IN 
           SIZE 39 BY 1
           BGCOLOR 15 FONT 4
      prgrms.prgtitle AT ROW 1.24 COL 55 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
-          SIZE 69 BY 1
+          SIZE 60 BY 1
           BGCOLOR 15 FONT 4
      prgrms.dir_group AT ROW 2.43 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -210,162 +295,153 @@ DEFINE FRAME F-Main
      prgrms.track_usage AT ROW 2.43 COL 99
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
-     prgrms.popup AT ROW 2.43 COL 116
+     prgrms.popup AT ROW 2.43 COL 115
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
      prgrms.can_run AT ROW 3.62 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 126 BY 3.1
+          SIZE 118 BY 3.1
           BGCOLOR 15 
      prgrms.can_create AT ROW 6.71 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 126 BY 3.1
+          SIZE 118 BY 3.1
           BGCOLOR 15 
      prgrms.can_update AT ROW 9.81 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 126 BY 3.1
+          SIZE 118 BY 3.1
           BGCOLOR 15 
      prgrms.can_delete AT ROW 12.91 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 126 BY 3.1
+          SIZE 118 BY 3.1
           BGCOLOR 15 
      prgrms.mfgroup AT ROW 16 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 126 BY 3.1
+          SIZE 118 BY 3.1
           BGCOLOR 15 
-     prgrms.subjectID AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 32
+     prgrms.subjectID AT ROW 1.24 COL 133 COLON-ALIGNED WIDGET-ID 32
           LABEL "Menu Subject ID"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[1] AT ROW 3.38 COL 142 COLON-ALIGNED WIDGET-ID 186
+     prgrms.pageSubjectID[1] AT ROW 3.38 COL 133 COLON-ALIGNED WIDGET-ID 186
           LABEL "0"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[2] AT ROW 4.38 COL 142 COLON-ALIGNED WIDGET-ID 190
+     prgrms.pageSubjectID[2] AT ROW 4.38 COL 133 COLON-ALIGNED WIDGET-ID 190
           LABEL "1"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[3] AT ROW 5.38 COL 142 COLON-ALIGNED WIDGET-ID 192
+     prgrms.pageSubjectID[3] AT ROW 5.38 COL 133 COLON-ALIGNED WIDGET-ID 192
           LABEL "2"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[4] AT ROW 6.38 COL 142 COLON-ALIGNED WIDGET-ID 194
+     btnParam-2 AT ROW 5.38 COL 150 WIDGET-ID 218
+     prgrms.pageSubjectID[4] AT ROW 6.38 COL 133 COLON-ALIGNED WIDGET-ID 194
           LABEL "3"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[5] AT ROW 7.38 COL 142 COLON-ALIGNED WIDGET-ID 196
+     btnParam-3 AT ROW 6.38 COL 150 WIDGET-ID 220
+     prgrms.pageSubjectID[5] AT ROW 7.38 COL 133 COLON-ALIGNED WIDGET-ID 196
           LABEL "4"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[6] AT ROW 8.38 COL 142 COLON-ALIGNED WIDGET-ID 198
+     btnParam-4 AT ROW 7.38 COL 150 WIDGET-ID 222
+     prgrms.pageSubjectID[6] AT ROW 8.38 COL 133 COLON-ALIGNED WIDGET-ID 198
           LABEL "5"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[7] AT ROW 9.38 COL 142 COLON-ALIGNED WIDGET-ID 200
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     btnParam-5 AT ROW 8.38 COL 150 WIDGET-ID 224
+     prgrms.pageSubjectID[7] AT ROW 9.38 COL 133 COLON-ALIGNED WIDGET-ID 200
           LABEL "6"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FGCOLOR 1 .
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     prgrms.pageSubjectID[8] AT ROW 10.38 COL 142 COLON-ALIGNED WIDGET-ID 202
+     btnParam-6 AT ROW 9.38 COL 150 WIDGET-ID 226
+     prgrms.pageSubjectID[8] AT ROW 10.38 COL 133 COLON-ALIGNED WIDGET-ID 202
           LABEL "7"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[9] AT ROW 11.38 COL 142 COLON-ALIGNED WIDGET-ID 204
+     btnParam-7 AT ROW 10.38 COL 150 WIDGET-ID 228
+     prgrms.pageSubjectID[9] AT ROW 11.38 COL 133 COLON-ALIGNED WIDGET-ID 204
           LABEL "8"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[10] AT ROW 12.38 COL 142 COLON-ALIGNED WIDGET-ID 166
+     btnParam-8 AT ROW 11.38 COL 150 WIDGET-ID 230
+     prgrms.pageSubjectID[10] AT ROW 12.38 COL 133 COLON-ALIGNED WIDGET-ID 166
           LABEL "9"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[11] AT ROW 13.38 COL 142 COLON-ALIGNED WIDGET-ID 168
+     btnParam-9 AT ROW 12.38 COL 150 WIDGET-ID 232
+     prgrms.pageSubjectID[11] AT ROW 13.38 COL 133 COLON-ALIGNED WIDGET-ID 168
           LABEL "10"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[12] AT ROW 14.38 COL 142 COLON-ALIGNED WIDGET-ID 170
+     btnParam-10 AT ROW 13.38 COL 150 WIDGET-ID 234
+     prgrms.pageSubjectID[12] AT ROW 14.38 COL 133 COLON-ALIGNED WIDGET-ID 170
           LABEL "11"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[13] AT ROW 15.38 COL 142 COLON-ALIGNED WIDGET-ID 172
+     btnParam-11 AT ROW 14.38 COL 150 WIDGET-ID 236
+     prgrms.pageSubjectID[13] AT ROW 15.38 COL 133 COLON-ALIGNED WIDGET-ID 172
           LABEL "12"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[14] AT ROW 16.38 COL 142 COLON-ALIGNED WIDGET-ID 174
+     btnParam-12 AT ROW 15.38 COL 150 WIDGET-ID 238
+     prgrms.pageSubjectID[14] AT ROW 16.38 COL 133 COLON-ALIGNED WIDGET-ID 174
           LABEL "13"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[15] AT ROW 17.38 COL 142 COLON-ALIGNED WIDGET-ID 176
+     btnParam-13 AT ROW 16.38 COL 150 WIDGET-ID 240
+     prgrms.pageSubjectID[15] AT ROW 17.38 COL 133 COLON-ALIGNED WIDGET-ID 176
           LABEL "14"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[16] AT ROW 18.38 COL 142 COLON-ALIGNED WIDGET-ID 178
+     btnParam-14 AT ROW 17.38 COL 150 WIDGET-ID 242
+     prgrms.pageSubjectID[16] AT ROW 18.38 COL 133 COLON-ALIGNED WIDGET-ID 178
           LABEL "15"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[17] AT ROW 19.33 COL 142 COLON-ALIGNED WIDGET-ID 206
+     F1 AT ROW 2.43 COL 38 NO-LABEL
+     F-2 AT ROW 22.19 COL 32 NO-LABEL WIDGET-ID 12
+     btnParam-15 AT ROW 18.38 COL 150 WIDGET-ID 244
+     prgrms.pageSubjectID[17] AT ROW 19.38 COL 133 COLON-ALIGNED WIDGET-ID 206
           LABEL "16"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[18] AT ROW 20.33 COL 142 COLON-ALIGNED WIDGET-ID 208
+     btnParam-16 AT ROW 19.38 COL 150 WIDGET-ID 246
+     prgrms.pageSubjectID[18] AT ROW 20.38 COL 133 COLON-ALIGNED WIDGET-ID 208
           LABEL "17"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     prgrms.pageSubjectID[19] AT ROW 21.33 COL 142 COLON-ALIGNED WIDGET-ID 210
+     btnParam-17 AT ROW 20.38 COL 150 WIDGET-ID 248
+     prgrms.pageSubjectID[19] AT ROW 21.38 COL 133 COLON-ALIGNED WIDGET-ID 210
           LABEL "18"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-          BGCOLOR 15 
-     prgrms.pageSubjectID[20] AT ROW 22.33 COL 142 COLON-ALIGNED WIDGET-ID 212
-          LABEL "19"
-          VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
-          BGCOLOR 15 
-     prgrms.menu_item AT ROW 19.81 COL 15
-          VIEW-AS TOGGLE-BOX
-          SIZE 14 BY 1
-     prgrms.securityLevelDefault AT ROW 19.81 COL 64 COLON-ALIGNED WIDGET-ID 22
-          VIEW-AS FILL-IN 
-          SIZE 7.6 BY 1
-          BGCOLOR 15 
-     prgrms.mnemonic AT ROW 19.81 COL 95 COLON-ALIGNED WIDGET-ID 6
-          LABEL "HotKey (Mnemonic)"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-          BGCOLOR 15 
-     prgrms.systemType AT ROW 19.81 COL 121 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEMS "","Both","Corrware","Foldware" 
-          DROP-DOWN-LIST
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     prgrms.menuOrder AT ROW 21 COL 13 COLON-ALIGNED WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 6.8 BY 1
           BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -374,22 +450,50 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     prgrms.menuLevel AT ROW 21 COL 33 COLON-ALIGNED WIDGET-ID 20
+     btnParam-18 AT ROW 21.38 COL 150 WIDGET-ID 250
+     prgrms.pageSubjectID[20] AT ROW 22.38 COL 133 COLON-ALIGNED WIDGET-ID 212
+          LABEL "19"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
+          BGCOLOR 15 
+     btnParam-19 AT ROW 22.38 COL 150 WIDGET-ID 252
+     prgrms.menu_item AT ROW 19.81 COL 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 14 BY 1
+     prgrms.securityLevelDefault AT ROW 19.81 COL 65 COLON-ALIGNED WIDGET-ID 22
+          VIEW-AS FILL-IN 
+          SIZE 7.6 BY 1
+          BGCOLOR 15 
+     prgrms.mnemonic AT ROW 19.81 COL 98 COLON-ALIGNED WIDGET-ID 6
+          LABEL "HotKey (Mnemonic)"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+          BGCOLOR 15 
+     prgrms.systemType AT ROW 19.81 COL 115 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Type"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEMS "","Both","Corrware","Foldware" 
+          DROP-DOWN-LIST
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     prgrms.menuOrder AT ROW 21 COL 14 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 6.8 BY 1
+          BGCOLOR 15 
+     prgrms.menuLevel AT ROW 21 COL 34 COLON-ALIGNED WIDGET-ID 20
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 
-     prgrms.menuImage[1] AT ROW 21 COL 64 COLON-ALIGNED WIDGET-ID 8
+     prgrms.menuImage[1] AT ROW 21 COL 65 COLON-ALIGNED WIDGET-ID 8
           LABEL "Menu Image"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 
-     prgrms.itemParent AT ROW 22.19 COL 13 COLON-ALIGNED WIDGET-ID 10
+     prgrms.itemParent AT ROW 22.19 COL 14 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     parentPrgTitle AT ROW 22.19 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     F1 AT ROW 2.43 COL 38 NO-LABEL
-     F-2 AT ROW 22.19 COL 31 NO-LABEL WIDGET-ID 12
+     parentPrgTitle AT ROW 22.19 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      "Delete:" VIEW-AS TEXT
           SIZE 7.6 BY .62 AT ROW 12.91 COL 4
      "Add:" VIEW-AS TEXT
@@ -402,10 +506,10 @@ DEFINE FRAME F-Main
           SIZE 6 BY .62 AT ROW 3.62 COL 6
      " Menu Fields" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 19.33 COL 4 WIDGET-ID 28
-     "Page / Subject ID" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 2.43 COL 140 WIDGET-ID 164
+     "Page |   Subject ID   | Initialize" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 2.43 COL 129 WIDGET-ID 164
      RECT-1 AT ROW 1 COL 1
-     cMenuImage AT ROW 21 COL 99 WIDGET-ID 18
+     cMenuImage AT ROW 21 COL 100 WIDGET-ID 18
      RECT-2 AT ROW 19.57 COL 2 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -469,6 +573,46 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnParam-0 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-10 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-11 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-12 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-13 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-14 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-15 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-16 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-17 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-18 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-19 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-7 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-8 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnParam-9 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR IMAGE cMenuImage IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN F-2 IN FRAME F-Main
@@ -548,7 +692,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN prgrms.subjectID IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR COMBO-BOX prgrms.systemType IN FRAME F-Main
-   5                                                                    */
+   5 EXP-LABEL                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -567,6 +711,226 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnParam-0
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-0 V-table-Win
+ON CHOOSE OF btnParam-0 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-1 V-table-Win
+ON CHOOSE OF btnParam-1 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-10 V-table-Win
+ON CHOOSE OF btnParam-10 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-11
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-11 V-table-Win
+ON CHOOSE OF btnParam-11 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-12
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-12 V-table-Win
+ON CHOOSE OF btnParam-12 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-13
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-13 V-table-Win
+ON CHOOSE OF btnParam-13 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-14
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-14 V-table-Win
+ON CHOOSE OF btnParam-14 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-15
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-15 V-table-Win
+ON CHOOSE OF btnParam-15 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-16
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-16 V-table-Win
+ON CHOOSE OF btnParam-16 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-17
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-17 V-table-Win
+ON CHOOSE OF btnParam-17 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-18
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-18 V-table-Win
+ON CHOOSE OF btnParam-18 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-19
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-19 V-table-Win
+ON CHOOSE OF btnParam-19 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-2 V-table-Win
+ON CHOOSE OF btnParam-2 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-3 V-table-Win
+ON CHOOSE OF btnParam-3 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-4 V-table-Win
+ON CHOOSE OF btnParam-4 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-5 V-table-Win
+ON CHOOSE OF btnParam-5 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-6 V-table-Win
+ON CHOOSE OF btnParam-6 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-7 V-table-Win
+ON CHOOSE OF btnParam-7 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-8 V-table-Win
+ON CHOOSE OF btnParam-8 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnParam-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnParam-9 V-table-Win
+ON CHOOSE OF btnParam-9 IN FRAME F-Main /* Param */
+DO:
+    {AOA/includes/dynPageParam.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME prgrms.can_create
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.can_create V-table-Win
@@ -1130,6 +1494,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+      IF VALID-HANDLE(prgrms.pageSubjectID[1]:HANDLE) THEN
+      ASSIGN
+          hSubjectID[1]  = prgrms.pageSubjectID[1]:HANDLE
+          hSubjectID[2]  = prgrms.pageSubjectID[2]:HANDLE
+          hSubjectID[3]  = prgrms.pageSubjectID[3]:HANDLE
+          hSubjectID[4]  = prgrms.pageSubjectID[4]:HANDLE
+          hSubjectID[5]  = prgrms.pageSubjectID[5]:HANDLE
+          hSubjectID[6]  = prgrms.pageSubjectID[6]:HANDLE
+          hSubjectID[7]  = prgrms.pageSubjectID[7]:HANDLE
+          hSubjectID[8]  = prgrms.pageSubjectID[8]:HANDLE
+          hSubjectID[9]  = prgrms.pageSubjectID[9]:HANDLE
+          hSubjectID[10] = prgrms.pageSubjectID[10]:HANDLE
+          hSubjectID[11] = prgrms.pageSubjectID[11]:HANDLE
+          hSubjectID[12] = prgrms.pageSubjectID[12]:HANDLE
+          hSubjectID[13] = prgrms.pageSubjectID[13]:HANDLE
+          hSubjectID[14] = prgrms.pageSubjectID[14]:HANDLE
+          hSubjectID[15] = prgrms.pageSubjectID[15]:HANDLE
+          hSubjectID[16] = prgrms.pageSubjectID[16]:HANDLE
+          hSubjectID[17] = prgrms.pageSubjectID[17]:HANDLE
+          hSubjectID[18] = prgrms.pageSubjectID[18]:HANDLE
+          hSubjectID[19] = prgrms.pageSubjectID[19]:HANDLE
+          hSubjectID[20] = prgrms.pageSubjectID[20]:HANDLE
+          .
+  END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1201,18 +1609,20 @@ PROCEDURE pRebuildMenuTree :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
     
-    MESSAGE
-        "If changes to any Menu related values were done,"
-        "you can rebuild the Menu Tree now, otherwise the"
-        "changes will be applied after logging out and back in." SKIP(1)
-        "Rebuild Menu Tree?"
-    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Rebuild?"
-    UPDATE lRebuild AS LOGICAL.
-    IF lRebuild THEN DO:
-        pHandle = DYNAMIC-FUNCTION("sfGetMainMenuHandle").
-        IF VALID-HANDLE(pHandle) THEN
-        RUN pRebuildMenuTree IN pHandle.
-    END. /* if rebuild */
+    IF lSuperAdmin THEN DO:
+        MESSAGE
+            "If changes to any Menu related values were done,"
+            "you can rebuild the Menu Tree now, otherwise the"
+            "changes will be applied after logging out and back in." SKIP(1)
+            "Rebuild Menu Tree?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Rebuild?"
+        UPDATE lRebuild AS LOGICAL.
+        IF lRebuild THEN DO:
+            pHandle = DYNAMIC-FUNCTION("sfGetMainMenuHandle").
+            IF VALID-HANDLE(pHandle) THEN
+            RUN pRebuildMenuTree IN pHandle.
+        END. /* if rebuild */
+    END. /* if super admin */
 
 END PROCEDURE.
 

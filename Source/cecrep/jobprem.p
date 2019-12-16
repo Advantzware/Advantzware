@@ -804,10 +804,11 @@ do v-local-loop = 1 to v-local-copies:
         RUN XMLOutput (lXMLOutput,'/JobTicketShipTo','','Row').
         /* rstark 05181205 */
 
-        if print-box and avail xest then do:            
-            run cec/desprnt3.p (recid(xef),
+        if print-box and avail xest then do:    
+            PUT "<C60><P12>" ( IF lPrintMetric THEN "*Metric Sizes*" ELSE "*Imperial Size*" ) FORMAT "x(20)" .
+            run cec/desprntPrem.p (recid(xef),
                                input-output v-lines,
-                               recid(xest)).
+                               recid(xest),lPrintMetric).
         end.
         ELSE PAGE.
         

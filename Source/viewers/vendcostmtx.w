@@ -423,7 +423,7 @@ DO:
          RUN windows/l-est.w (g_company,g_loc,vendItemCost.estimateNo:SCREEN-VALUE, OUTPUT char-val).
          IF char-val NE "" THEN DO:
              FIND FIRST eb NO-LOCK
-                  WHERE STRING(RECID(eb)) EQ char-val
+                  WHERE RECID(eb) EQ INT(char-val)
                   NO-ERROR.
              IF AVAILABLE eb THEN
              vendItemCost.estimateNo:screen-value = eb.est-no.

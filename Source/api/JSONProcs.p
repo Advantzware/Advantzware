@@ -14,6 +14,9 @@
 
 {api/inbound/ttRequest.i}
 
+FUNCTION fBeautifyJSON RETURNS LONGCHAR
+    (iplcJSON AS LONGCHAR) FORWARD.
+
 FUNCTION fFormatJSONFieldValue RETURNS CHARACTER PRIVATE
     (ipcFieldValue AS CHARACTER) FORWARD.
     
@@ -49,7 +52,7 @@ PROCEDURE ReadRequestData:
         IF ERROR-STATUS:ERROR THEN DO:
             ASSIGN
                 oplSuccess = NO
-                opcMessage = "Bad JSON Request"
+                opcMessage = "Bad JSON Request " + ERROR-STATUS:GET-MESSAGE(1) 
                 .
             LEAVE TEMP-TABLE-BLOCK.
         END.        
@@ -63,8 +66,8 @@ PROCEDURE ReadRequestData:
                 .
  
             FIND FIRST ttRequest
-                 WHERE ttRequest.fieldName   EQ REPLACE(ENTRY(iIndex2, cFieldName, "."),'"','')
-                   AND ttRequest.fieldValue  EQ REPLACE(cFieldString,'"','')
+                 WHERE ttRequest.fieldName   EQ fFormatJSONFieldValue(REPLACE(ENTRY(iIndex2, cFieldName, "."),'"',''))
+                   AND ttRequest.fieldValue  EQ fFormatJSONFieldValue(REPLACE(cFieldString,'"',''))
                    AND ttRequest.fieldParent EQ iParentID
                  NO-ERROR.
             IF AVAILABLE ttRequest THEN DO:
@@ -80,8 +83,9 @@ PROCEDURE ReadRequestData:
                 ttRequest.fieldParent = iParentID
                 ttRequest.fieldName   = ENTRY(iIndex2, cFieldName, ".")
                 ttRequest.fieldValue  = cFieldString
-                ttRequest.fieldName   = REPLACE(ttRequest.fieldName,'"','')
-                ttRequest.fieldValue  = REPLACE(ttRequest.fieldValue,'"','')
+                ttRequest.fieldName   = TRIM(ttRequest.fieldName,'"')
+                ttRequest.fieldValue  = TRIM(ttRequest.fieldValue,'"')
+                ttRequest.fieldName   = fFormatJSONFieldValue(ttRequest.fieldName)
                 ttRequest.fieldValue  = fFormatJSONFieldValue(ttRequest.fieldValue)
                 NO-ERROR.
                                 
@@ -181,12 +185,134 @@ PROCEDURE JSON_GetRecordCountByNameAndParent:
     RELEASE bf-ttRequest.    
 END PROCEDURE.
 
+PROCEDURE JSON_UpdateFieldValue:
+    DEFINE INPUT-OUTPUT PARAMETER ioplcJSONData AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcField      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcValue      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFieldValuePrefix AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldValueSuffix AS CHARACTER NO-UNDO.        
+    
+    ASSIGN
+        cFieldValuePrefix = "$"
+        cFieldValueSuffix = "$"
+        .
+        
+    RUN JSON_EscapeExceptionalCharacters (
+        INPUT-OUTPUT ipcValue
+        ).  
+    
+    ioplcJSONData = REPLACE(ioplcJSONData, cFieldValuePrefix + ipcField + cFieldValueSuffix, ipcValue).
+    
+END PROCEDURE. 
+
+PROCEDURE JSON_EscapeExceptionalCharacters:
+    DEFINE INPUT-OUTPUT PARAMETER ipcFieldValue AS CHARACTER NO-UNDO.
+    
+    IF ipcFieldValue EQ ? THEN
+        ipcFieldValue = "".
+    
+    /* This will add an escape character (\) before any JSON exceptional 
+       characters (double quote and backward slash) so JSON parsing won't 
+       throw error */
+    ASSIGN
+        ipcFieldValue = REPLACE(ipcFieldValue, '\','\\')
+        ipcFieldValue = REPLACE(ipcFieldValue, '/','\/')
+        ipcFieldValue = REPLACE(ipcFieldValue, '"','\"')
+        .
+END PROCEDURE. 
+
+PROCEDURE JSON_GetResponseData:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to generate a standard response data
+     Notes: Response data includes response_code (e.g. 200, 400), 
+            response_message ( e.g. "Success", "<Failure message>" and
+            response_data
+    ------------------------------------------------------------------------------*/  
+    DEFINE INPUT  PARAMETER ipiResponseCode    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcResponseMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcResponseData   AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcResponseData   AS LONGCHAR  NO-UNDO.
+    
+    IF ipcResponseMessage EQ ? THEN
+        ipcResponseMessage = "".
+    
+    IF iplcResponseData EQ ? THEN
+        iplcResponseData = "".
+
+    oplcResponseData = '~{"response_code":' + STRING(ipiResponseCode)
+                     + ',"response_message":"' + ipcResponseMessage + '"' 
+                     + ',"response_data":[' + iplcResponseData + ']}'.
+END PROCEDURE.
+
+FUNCTION fBeautifyJSON RETURNS LONGCHAR
+    (iplcJSON AS LONGCHAR):
+    DEFINE VARIABLE cIndentation      AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cFormattedJSON    AS LONGCHAR    NO-UNDO.
+    DEFINE VARIABLE cTemp             AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE iIndentationLevel AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE iCtr              AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE iCtr2             AS INTEGER     NO-UNDO.
+
+    ASSIGN
+        cIndentation      = "  "
+        iIndentationLevel = 0
+        cFormattedJSON    = ""
+        cTemp             = ""
+        .
+
+    DO iCtr = 1 TO LENGTH(iplcJSON):
+        cTemp = SUBSTRING (iplcJSON, iCtr, 1).
+        CASE cTemp:
+            WHEN '\\' THEN DO:
+                cFormattedJSON = cFormattedJSON + cTemp.
+            END.
+            WHEN '~{' OR WHEN  '[' THEN DO:
+                ASSIGN
+                    cFormattedJSON    = cFormattedJSON + cTemp
+                    cFormattedJSON    = cFormattedJSON + "~n"
+                    iIndentationLevel = iIndentationLevel + 1
+                    .
+                do iCtr2 = 1 TO iIndentationLevel:
+                    cFormattedJSON = cFormattedJSON + cIndentation.
+                END.
+            END.
+            WHEN '~}' OR WHEN ']' THEN DO:
+                ASSIGN
+                    cFormattedJSON    = cFormattedJSON + "~n"
+                    IindentationLevel = iIndentationLevel - 1
+                    .
+                DO iCtr2 = 1 TO iIndentationLevel:
+                    cFormattedJSON = cFormattedJSON + cIndentation.
+                END.
+    
+                cFormattedJSON = cFormattedJSON + cTemp.
+            END.
+            WHEN ',' THEN DO:
+                ASSIGN
+                    cFormattedJSON = cFormattedJSON + cTemp
+                    cFormattedJSON = cFormattedJSON + "~n"
+                    .
+                DO iCtr2 = 1 TO iIndentationLevel:
+                    cFormattedJSON = cFormattedJSON + cIndentation.
+                END.
+                
+            END.
+            OTHERWISE
+                cFormattedJSON = cFormattedJSON + cTemp.     
+        END.
+    END.
+    RETURN cFormattedJSON.
+END FUNCTION.    
+    
 FUNCTION fFormatJSONFieldValue RETURNS CHARACTER PRIVATE
     (ipcFieldValue AS CHARACTER):
     DEFINE VARIABLE cFieldValue AS CHARACTER NO-UNDO.
     
     ASSIGN
-        cFieldValue = REPLACE(ipcFieldValue,'<comma>',',')
+        cFieldValue = REPLACE(ipcFieldValue,'#comma#',',')
+        cFieldValue = REPLACE(cFieldValue,'#colon#',':')
+        cFieldValue = REPLACE(cFieldValue,'#period#','.')
         .
     
     RETURN cFieldValue.

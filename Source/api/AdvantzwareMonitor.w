@@ -50,6 +50,7 @@ DEFINE VARIABLE cAppServerPort   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAppServerName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNameServerName  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNameServerPort  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cServerHostName  AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos      AS INTEGER
@@ -92,7 +93,7 @@ RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
 /* Definitions for BROWSE BROWSE-10                                     */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-10 resourceType() @ resourceType ~
 serverResource.name serverResource.port serverResource.resourceStatus ~
-serverResource.statusRemarks serverResource.notified 
+serverResource.statusRemarks serverResource.notified serverReseource.configID
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-10 
 &Scoped-define QUERY-STRING-BROWSE-10 FOR EACH serverResource NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-BROWSE-10 OPEN QUERY BROWSE-10 FOR EACH serverResource NO-LOCK INDEXED-REPOSITION.
@@ -183,9 +184,10 @@ DEFINE BROWSE BROWSE-10
             WIDTH 20.4
       serverResource.name COLUMN-LABEL "Name" FORMAT "x(32)":U
       serverResource.port COLUMN-LABEL "Listening on port" FORMAT "x(20)":U
-      serverResource.resourceStatus COLUMN-LABEL "Status" FORMAT "x(20)":U
+      serverResource.resourceStatus COLUMN-LABEL "Status" FORMAT "x(20)":U WIDTH 12
       serverResource.statusRemarks COLUMN-LABEL "Remarks" FORMAT "x(40)":U
       serverResource.notified COLUMN-LABEL "Notified" FORMAT "yes/no":U
+      serverResource.configID COLUMN-LABEL "Email ConfigID" FORMAT "->,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 155 BY 14 ROW-HEIGHT-CHARS .67 FIT-LAST-COLUMN.
@@ -230,12 +232,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HEIGHT             = 23.48
          WIDTH              = 160
          MAX-HEIGHT         = 33.57
-         MAX-WIDTH          = 273.2
+         MAX-WIDTH          = 170.2
          VIRTUAL-HEIGHT     = 33.57
-         VIRTUAL-WIDTH      = 273.2
-         CONTROL-BOX        = no
-         MIN-BUTTON         = no
-         MAX-BUTTON         = no
+         VIRTUAL-WIDTH      = 170.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -286,11 +285,13 @@ THEN C-Win:HIDDEN = no.
      _FldNameList[3]   > ASI.serverResource.port
 "serverResource.port" "Listening on port" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.serverResource.resourceStatus
-"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.serverResource.statusRemarks
 "serverResource.statusRemarks" "Remarks" "x(40)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.serverResource.notified
 "serverResource.notified" "Notified" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.serverResource.configID
+"serverResource.configID" "Email ConfigID" "->,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-10 */
 &ANALYZE-RESUME
@@ -643,7 +644,7 @@ PROCEDURE pFetchAPIElements :
     DEF VARIABLE iLine       AS INTEGER   NO-UNDO.
     
     /* Create the temp-table and load var names */
-    cIniVarList = "# Setup Variables,DLCDir,
+    cIniVarList = "# Setup Variables,DLCDir,hostname,
                    # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,".
     
     EMPTY TEMP-TABLE ttIniFile.
@@ -691,6 +692,8 @@ PROCEDURE pFetchAPIElements :
             cNameServerName = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "NameServerPort" THEN
             cNameServerPort = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "hostname" THEN
+            cServerHostName = ttIniFile.cVarValue.
     END.
 END PROCEDURE.
 
@@ -704,11 +707,19 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lIsServer      AS LOGICAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN pValidateClientServer (
+        OUTPUT lIsServer
+        ).
+
+    IF NOT lIsServer THEN
+        RETURN.
+        
     RUN pStoreHandles.
     
     PROCESS EVENTS.
@@ -777,6 +788,42 @@ PROCEDURE pupdateColor :
             hdCurCol         = WIDGET-HANDLE(ENTRY(iCounter,cColumnHandles))
             hdCurCol:BGCOLOR = ipiColor.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateClientServer C-Win 
+PROCEDURE pValidateClientServer :
+/*------------------------------------------------------------------------------
+  Purpose: Validates if the API Monitor is run from a work station
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplIsServer AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cClientHostName AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    cClientHostName = OS-GETENV("COMPUTERNAME").
+
+    IF cClientHostName NE cServerHostName THEN DO:
+        MESSAGE "Advantzware Monitor should not be run from workstation"
+            VIEW-AS ALERT-BOX ERROR.
+        
+        ASSIGN
+            btStart:SENSITIVE        = FALSE
+            btStop:SENSITIVE         = FALSE
+            btRefresh:SENSITIVE      = FALSE
+            {&BROWSE-NAME}:SENSITIVE = FALSE
+            CtrlFrame:SENSITIVE      = FALSE
+            .
+        RETURN.
+    END.  
+    
+    oplIsServer = TRUE.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

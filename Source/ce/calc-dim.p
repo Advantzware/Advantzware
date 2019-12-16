@@ -1,7 +1,7 @@
 /* cec/calc-dim.p  from cec/u2k.p  */
 
 {sys/inc/var.i shared}
-
+{sys/inc/venditemcost.i}
 def shared buffer xest for est.
 def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
@@ -53,7 +53,7 @@ DEF VAR ld-tons AS DEC INIT -1 NO-UNDO.
             xef.lsh-len = mach.max-wid
             xef.lsh-wid = mach.max-len
             xef.lam-dscr = "S"
-         /*   xef.roll = mach.p-type = "R" */.   
+        /*   xef.roll = mach.p-type = "R" */.   
      find first item where item.company = cocode 
                       and item.mat-type = "A"  
                       and item.i-no eq xef.board
@@ -98,7 +98,11 @@ DEF VAR ld-tons AS DEC INIT -1 NO-UNDO.
                     and item.i-no    eq xef.board
          no-lock no-error.
   if avail item then do:
-    find e-item of item no-lock no-error.
+    IF lNewVendorItemCost THEN 
+      FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemID = ITEM.i-no
+            AND venditemcost.itemtype = "RM" NO-ERROR. 
+    ELSE find e-item of item no-lock no-error.
  
     assign xef.i-code = item.i-code
            xef.weight = item.basis-w.
@@ -144,13 +148,24 @@ DEF VAR ld-tons AS DEC INIT -1 NO-UNDO.
           if xef.roll then do:
              IF ld-tons LT celayout-dec THEN
              do i = 1 to 26:
-                if (xef.xgrain EQ "S" and
+                IF AVAIL e-item THEN DO: 
+                  if (xef.xgrain EQ "S" and
                     e-item.roll-w[i] lt xef.lsh-len) OR
                    (xef.xgrain NE "S" and
                     e-item.roll-w[i] lt xef.lsh-wid)
-                then next.
-                if e-item.roll-w[i] gt 0 then xef.gsh-wid = e-item.roll-w[i].              
-                leave.
+                  then next.
+                  if e-item.roll-w[i] gt 0 then xef.gsh-wid = e-item.roll-w[i].              
+                  leave.
+                END.
+                IF AVAIL vendItemCost THEN DO:
+                  if (xef.xgrain EQ "S" and
+                      vendItemCost.validWidth[i] lt xef.lsh-len) OR
+                      (xef.xgrain NE "S" and
+                      vendItemCost.validWidth[i] lt xef.lsh-wid)
+                  then next.
+                  if vendItemCost.validWidth[i] gt 0 then xef.gsh-wid = vendItemCost.validWidth[i].              
+                  leave.  
+                END.  
              end.
 
              if xef.xgrain eq "S" then 
@@ -287,7 +302,7 @@ end.
       if xef.i-code eq "E" then do:
          if xef.roll eq true then do:
             xef.gsh-wid = 0.
-            IF ld-tons LT celayout-dec AND e-item.roll-w[1] NE 0 THEN
+            IF ld-tons LT celayout-dec AND avail e-item AND e-item.roll-w[1] NE 0 THEN
             do i = 1 to 26:
                if xef.xgrain ne "S" and
                   e-item.roll-w[i] lt (xef.trim-w + tr-w) or
@@ -295,6 +310,16 @@ end.
                   e-item.roll-w[i] lt (xef.trim-l + tr-l)
                then next.
                if e-item.roll-w[i] gt 0 then assign xef.gsh-wid = e-item.roll-w[i].
+               leave.
+            end.
+            ELSE IF ld-tons LT celayout-dec AND avail vendItemCost AND vendItemCost.validWidth[1] NE 0 THEN
+            do i = 1 to 26:
+               if xef.xgrain ne "S" and
+                  vendItemCost.validWidth[i] lt (xef.trim-w + tr-w) or
+                  xef.xgrain eq "S" and
+                  vendItemCost.validWidth[i] lt (xef.trim-l + tr-l)
+                    then next.
+               if vendItemCost.validWidth[i] gt 0 then assign xef.gsh-wid = vendItemCost.validWidth[i].
                leave.
             end.
             

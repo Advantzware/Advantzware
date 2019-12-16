@@ -225,6 +225,8 @@ IF lRecFound THEN
 /* transaction */
 {sys/inc/f16to32.i}
 
+{sys/inc/oecredit.i}
+
 /* transaction */
  {sys/inc/ceprepprice.i} 
 {sys/inc/funcToWorkDay.i}
@@ -980,7 +982,7 @@ DO:
          WHEN "est-no" THEN DO:
               RUN windows/l-est.w (g_company,g_loc,oe-ord.est-no:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN DO:
-                 FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+                  FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                  IF AVAIL eb THEN DO:
                    oe-ord.est-no:screen-value = eb.est-no.
                    APPLY "value-changed" TO oe-ord.est-no.
@@ -2552,7 +2554,9 @@ PROCEDURE create-misc :
                 oe-ordm.est-no = est-prep.est-no
                 oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
-                oe-ordm.bill  = "Y".
+                oe-ordm.bill  = "Y"
+                oe-ordm.form-no = est-prep.s-num 
+                oe-ordm.blank-no = est-prep.b-num .
 
          IF oe-ordm.tax THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
@@ -2608,7 +2612,9 @@ PROCEDURE create-misc :
                    oe-ordm.dscr = IF AVAIL prep THEN prep.dscr ELSE ""
                    oe-ordm.actnum = IF AVAIL prep AND prep.actnum <> "" THEN prep.actnum ELSE ar-ctrl.sales
                    oe-ordm.cost = (ef.mis-labf[i] + ef.mis-matf[i] +
-                                  ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000))).
+                                  ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000)))
+                   oe-ordm.form-no = ef.form-no
+                   oe-ordm.blank-no = bf-eb.blank-no .
 
             RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                               OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -3359,8 +3365,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     END.
 
     FIND FIRST est-prep EXCLUSIVE-LOCK
-        WHERE est-prep.company EQ oe-ordl.company
-        AND est-prep.est-no EQ oe-ordl.est-no 
+        WHERE est-prep.company EQ oe-ord.company
+        AND est-prep.est-no EQ oe-ord.est-no 
         AND est-prep.CODE EQ oe-ordm.charge 
         AND est-prep.orderID EQ string(oe-ordm.ord-no)
         AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
@@ -3642,11 +3648,11 @@ PROCEDURE display-cust-detail :
                     view-as alert-box warning.
             oe-ord.stat:screen-value = "H".
        end.*/
-
+     
       IF AVAIL cust AND cust.active NE "X" AND fi_type:screen-value NE "T" THEN DO:
           RUN oe/creditck.p (ROWID(cust), NO).
           FIND CURRENT cust NO-LOCK NO-ERROR.
-          IF AVAIL cust AND cust.cr-hold THEN oe-ord.stat:SCREEN-VALUE = "H".  
+          IF AVAIL cust AND cust.cr-hold AND oecredit-log THEN oe-ord.stat:SCREEN-VALUE = "H".  
       END.
           
     END.   
@@ -5593,6 +5599,8 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* ===  don't go item page yet. -> move page to 2 */
+  IF adm-new-record THEN
+      RUN pAssignHoldReason .
 
   IF ll-is-new-rec THEN DO:
     IF oe-ord.est-no EQ "" AND AVAIL(oe-ord) THEN DO:
@@ -7271,6 +7279,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignHoldReason V-table-Win 
+PROCEDURE pAssignHoldReason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cHoldReason AS CHARACTER NO-UNDO .
+ DEFINE VARIABLE ld-ord-bal  LIKE cust.ord-bal NO-UNDO.
+  DO WITH FRAME {&FRAME-NAME}:
+      IF AVAIL oe-ord AND oecredit-log AND oe-ord.stat EQ "H" THEN DO:
+          FIND FIRST cust NO-LOCK
+              WHERE cust.company EQ cocode 
+               AND cust.cust-no EQ oe-ord.cust-no NO-ERROR .
+          IF AVAIL cust THEN do:
+              ld-ord-bal      = cust.ord-bal .
+
+              IF oecredit-cha EQ "" THEN
+                  RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+
+              IF ld-ord-bal + cust.acc-bal GT cust.cr-lim THEN cHoldReason = "credit".
+              ELSE
+                  IF ld-ord-bal GT cust.ord-lim THEN cHoldReason = "order".
+             
+             IF cHoldReason EQ "credit" THEN
+                 ASSIGN oe-ord.spare-char-2 = "Credit Limit Exceeded" .
+             ELSE IF cHoldReason EQ "Order" THEN
+                 ASSIGN oe-ord.spare-char-2 = "Order Limit Exceeded".
+          END. /* avail cust */
+      END.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

@@ -356,7 +356,7 @@ DO:
       when "ls-est-no" then do:
               run windows/l-est.w (g_company,g_loc,lw-focus:screen-value, output char-val).
               if char-val <> "" then do:                 
-                 FIND FIRST eb WHERE string(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+                  FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                  IF AVAIL eb THEN ASSIGN lw-focus:SCREEN-VALUE = eb.est-no
                                          lv-eb-tmpid = RECID(eb)
                                   ls-cust-no:screen-value in frame {&frame-name} =  eb.cust-no

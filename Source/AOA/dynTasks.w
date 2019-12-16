@@ -53,7 +53,7 @@ DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
 
-RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 
 iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
@@ -219,6 +219,7 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   RUN pSaveSettings (USERID("ASI")).
+  RUN pDeleteProcedure.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -441,6 +442,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure W-Win
+PROCEDURE pDeleteProcedure:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   IF VALID-HANDLE(hAppSrvBin) THEN
+   DELETE PROCEDURE hAppSrvBin.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCompany W-Win 
 PROCEDURE pGetCompany :

@@ -605,7 +605,7 @@ PROCEDURE do-copy :
         CREATE est-misc.
         BUFFER-COPY reftable EXCEPT rec_key TO est-misc
         ASSIGN
-         est-misc.code = TRIM(ef.est-no) + STRING(ef.form-no,"/99").
+         est-misc.code = TRIM(io-ef.est-no) + STRING(io-ef.form-no,"/99"). 
       END.
     END.
 

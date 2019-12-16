@@ -1,1 +1,0 @@
-{"Requester":"Premier","Company":"001","InventoryStockID":"dctest1","Quantity":100,"QuantityUOM":"EA","PONo":105210,"POLine":1,"JobID":"","JobID2":"","QuantityPerSubUnit":100,"QuantitySubUnitsPerUnit":1,"WarehouseID":"MAIN","LocationID":"FLOOR","RequesterNotes":"Test Requester Notes for createInventoryReceipt"}

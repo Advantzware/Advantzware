@@ -2380,7 +2380,8 @@ PROCEDURE run-report :
         AND inv-head.cust-no  LE cEndCustNo
         AND inv-head.inv-date LE dtEndInvoiceDate
         AND ( CAN-FIND(FIRST inv-line WHERE inv-line.r-no = inv-head.r-no )
-            OR CAN-FIND(FIRST inv-misc WHERE inv-misc.r-no = inv-head.r-no ))
+            OR CAN-FIND(FIRST inv-misc WHERE inv-misc.r-no = inv-head.r-no )
+            OR inv-head.multi-invoice)
         AND inv-head.stat     NE "H"
         USE-INDEX prnt,
         FIRST cust NO-LOCK

@@ -42,7 +42,7 @@ def    shared var pass_it as recid.
 {cec/est-2.f &fil=xest &fil2=xef &fil3=xeb}
 
 */
-
+{sys/inc/venditemcost.i}
 {sys/inc/f16to32.i}
 
 assign lwid = xef.lsh-wid
@@ -75,7 +75,12 @@ do on error undo with frame est-2:
        where item.company eq cocode
          and item.i-no    eq xef.board
        no-lock no-error.
-   if avail item then find e-item of item no-lock no-error.
+   if avail item then DO:
+      IF lNewVendorItemCost THEN FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+              AND venditemcost.itemID = ITEM.i-no
+              AND venditemcost.itemtype = "RM" NO-ERROR. 
+      ELSE find e-item of item no-lock no-error.
+   END.   
    else do:
       bell.
       message
@@ -128,7 +133,18 @@ do on error undo with frame est-2:
       else
       if item.i-code eq "E" then do:
          if xef.roll then do:
+            IF lNewVendorItemCost THEN
             do i = 1 to 26:
+                if (xef.lam-dscr ne "R" and xef.xgrain ne "S" and
+                    vendItemCost.validWidth[i] lt xef.lsh-len) or
+                    ((xef.lam-dscr eq "R" or
+                    (xef.lam-dscr ne "R" and xef.xgrain eq "S" )) and
+                    vendItemCost.validWidth[i] lt xef.lsh-wid)
+                    then next.
+                if vendItemCost.validWidth[i] gt 0 then xef.gsh-wid = vendItemCost.validWidth[i].
+                leave.
+            end.
+            else do i = 1 to 26:
                if (xef.lam-dscr ne "R" and xef.xgrain ne "S" and
                     e-item.roll-w[i] lt xef.lsh-len) or
                  ((xef.lam-dscr eq "R" or

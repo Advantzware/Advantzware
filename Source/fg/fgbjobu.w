@@ -185,7 +185,7 @@ DEFINE VARIABLE ld-po AS CHARACTER FORMAT "X(9)":U
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE ld-sell-uom AS CHARACTER FORMAT "x(3)" 
-     LABEL "Selling UOM" 
+     LABEL "UOM" 
      VIEW-AS FILL-IN 
      SIZE 5.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
@@ -700,7 +700,7 @@ END.
 
 &Scoped-define SELF-NAME ld-sell-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-sell-uom D-Dialog
-ON LEAVE OF ld-sell-uom IN FRAME D-Dialog /* Selling UOM */
+ON LEAVE OF ld-sell-uom IN FRAME D-Dialog /* UOM */
 DO:
     IF SELF:SCREEN-VALUE NE "" AND
        SELF:SCREEN-VALUE NE w-job.sell-uom THEN DO:
@@ -862,7 +862,7 @@ IF AVAILABLE w-job THEN DO:
         ld-sell-uom = w-job.sell-uom
         ld-tot-wt   = w-job.tot-wt
         ld-cust-no:SENSITIVE  = lAccess1
-        ld-sell-uom:SENSITIVE = lAccess1
+        ld-sell-uom:SENSITIVE = NO 
         ld-tot-wt:SENSITIVE   = lAccess1 AND lAccess2
         .
     RUN build-type-list .

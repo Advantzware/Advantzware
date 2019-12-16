@@ -353,7 +353,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             assign v-bo-qty = if ( inv-line.qty - inv-line.ship-qty ) < 0
                                 then 0 else inv-line.qty - inv-line.ship-qty.
 
-          assign v-inv-qty = inv-line.qty
+          assign v-inv-qty = inv-line.inv-qty
                  v-ship-qty = inv-line.ship-qty
                  v-i-no = inv-line.i-no
                  v-i-dscr = inv-line.i-name
@@ -392,7 +392,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
               v-po-no 
               inv-line.part-no  SPACE(1)
               v-i-dscr FORM "x(30)" 
-              v-ship-qty  format "->>>>>>9" SPACE(2)
+              v-inv-qty  format "->>>>>>9" SPACE(2)
               v-price  format ">>>,>>9.9999"                
               inv-line.t-price  format "->>>,>>9.99"                
               SKIP
@@ -400,7 +400,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
               inv-line.i-no SPACE(1)
               inv-line.part-dscr1  SPACE(11)
               v-pc  FORM "x" SPACE(7)
-              v-price-head SKIP.
+              v-price-head SPACE(3)
+             (IF AVAIL cust THEN cust.curr-code ELSE "")  SKIP.
 
           v-printline = v-printline + 2.
           do i = 1 to 5:
@@ -497,14 +498,15 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
 
     PUT "<R57><C1><#7><FROM><C+80><LINE>"
+        "<=7><C40><FROM><R+2.4><LINE>"
         "<=7><C50><FROM><R+2.4><LINE>"
         "<=7><C60><FROM><R+2.4><LINE>"
         "<=7><C70><FROM><R+2.4><LINE>"
         "<=7><C81><FROM><R+2.4><LINE>"
-        "<=7><C51>" v-inv-freight FORM ">>,>>9.99" "<=7><C61>" inv-head.t-inv-tax FORM ">>>,>>9.99" "<=7><C70>" inv-head.t-inv-rev  FORM "->>>>,>>9.99"
-        "<=7><R+1.2><C50><FROM><C81><LINE>"
-        "<=7><R+1.2><C54><P6>FREIGHT<C63.5>SALES TAX<C72>INVOICE AMOUNT"
-        "<=7><R+2.4><C50><FROM><C81><LINE>"
+        "<=7><C44>" (IF AVAIL cust THEN cust.curr-code ELSE "") "<C51>" v-inv-freight FORM ">>,>>9.99" "<=7><C61>" inv-head.t-inv-tax FORM ">>>,>>9.99" "<=7><C70>" inv-head.t-inv-rev  FORM "->>>>,>>9.99"
+        "<=7><R+1.2><C40><FROM><C81><LINE>"
+        "<=7><R+1.2><P6><C44>CURRENCY<C54>FREIGHT<C63.5>SALES TAX<C72>INVOICE AMOUNT"
+        "<=7><R+2.4><C40><FROM><C81><LINE>"
         "<P9><R58><C1><#8><FROM><R+4><C+29><RECT> " 
         "<=8><R+.5>  Finance Charge of 1.5% per month"
         "<=8><R+1.5>  (18% APR) may be charged after"

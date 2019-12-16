@@ -1,0 +1,132 @@
+ADD TABLE "updateHist"
+  AREA "Data"
+  LABEL "Update History"
+  DUMP-NAME "updatehist"
+
+ADD FIELD "fromVersion" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "From Version"
+  POSITION 2
+  MAX-WIDTH 24
+  COLUMN-LABEL "From Version"
+  ORDER 10
+
+ADD FIELD "toVersion" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "To Version"
+  POSITION 3
+  MAX-WIDTH 24
+  COLUMN-LABEL "To Version"
+  ORDER 20
+
+ADD FIELD "applyDate" OF "updateHist" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Apply Date"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Apply Date"
+  ORDER 30
+
+ADD FIELD "startTimeInt" OF "updateHist" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL ""
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL ""
+  ORDER 40
+
+ADD FIELD "startTime" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Start Time"
+  POSITION 6
+  MAX-WIDTH 24
+  COLUMN-LABEL "Start Time"
+  ORDER 50
+
+ADD FIELD "endTimeInt" OF "updateHist" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL ""
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL ""
+  ORDER 60
+
+ADD FIELD "endTime" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "End Time"
+  POSITION 8
+  MAX-WIDTH 24
+  COLUMN-LABEL "End Time"
+  ORDER 70
+
+ADD FIELD "user_id" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 9
+  MAX-WIDTH 24
+  COLUMN-LABEL "User ID"
+  ORDER 80
+
+ADD FIELD "success" OF "updateHist" AS logical 
+  FORMAT "Yes/No"
+  INITIAL "no"
+  LABEL "Success"
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "Success"
+  ORDER 90
+
+ADD FIELD "updLog" OF "updateHist" AS character 
+  FORMAT "x(600)"
+  INITIAL ""
+  LABEL "Update Log"
+  POSITION 11
+  MAX-WIDTH 1200
+  COLUMN-LABEL "Update Log"
+  ORDER 100
+
+ADD INDEX "iPrimary" ON "updateHist" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "toVersion" ASCENDING 
+  INDEX-FIELD "applyDate" DESCENDING 
+  INDEX-FIELD "startTimeInt" DESCENDING 
+
+ADD INDEX "iApplyDate" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "applyDate" DESCENDING 
+
+ADD INDEX "iFromVer" ON "updateHist" 
+  AREA "Data"
+  INDEX-FIELD "fromVersion" ASCENDING 
+
+ADD INDEX "iFromVersion" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "fromVersion" ASCENDING 
+
+ADD INDEX "iStartTimeInt" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "startTimeInt" DESCENDING 
+
+ADD INDEX "iToVersion" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "toVersion" ASCENDING 
+
+ADD INDEX "iUserID" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "user_id" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002626

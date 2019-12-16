@@ -77,11 +77,24 @@ DEF STREAM s2.
 DEF STREAM apiFiles.
 DEF STREAM sOutput.
 
+DEF NEW SHARED TEMP-TABLE ttUpdateHist
+    FIELD fromVersion AS CHAR 
+    FIELD toVersion AS CHAR 
+    FIELD applyDate AS DATE 
+    FIELD startTimeInt AS INT
+    FIELD startTime AS CHAR 
+    FIELD endTimeInt AS INT 
+    FIELD endTime AS CHAR 
+    FIELD user_id AS CHAR 
+    FIELD success AS LOG INITIAL NO 
+    FIELD updLog AS CHAR.     
+
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
 DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
+DEF TEMP-TABLE ttDynPrgrmsPage LIKE dynPrgrmsPage.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
 DEF TEMP-TABLE ttNotes LIKE notes.
 DEF TEMP-TABLE ttModule LIKE module.
@@ -95,6 +108,11 @@ DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
+DEF TEMP-TABLE ttAPIOutbound 
+    FIELD apiOutboundID AS INT64 
+    FIELD username AS CHAR 
+    FIELD password AS CHAR 
+    FIELD endpoint AS CHAR.        
  
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
@@ -2127,12 +2145,38 @@ PROCEDURE ipConvertVendorCosts:
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hCommonProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
     ASSIGN
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
     
+        IF NOT VALID-HANDLE(hSession) THEN DO:
+            RUN system/session.p PERSISTENT SET hSession.
+            SESSION:ADD-SUPER-PROCEDURE (hSession).
+        END. 
+        IF NOT VALID-HANDLE(hTags) THEN DO: 
+            RUN system/TagProcs.p PERSISTENT SET hTags.
+            SESSION:ADD-SUPER-PROCEDURE (hTags).
+        END.
+        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
+            RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
+        END.
+        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
+            RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
+        END.
+        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
+            RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
+            SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
+        END.
+
     RUN util/dev/VendorCostConvProcs PERSISTENT SET hVendCostProcs.
     FOR EACH company NO-LOCK:
         RUN ConvertLegacyToNew IN hVendCostProcs (company.company,
@@ -2465,6 +2509,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161300.
     IF fIntVer(cThisEntry) LT 16140000 THEN 
         RUN ipDataFix161400.
+    IF fIntVer(cThisEntry) LT 16140100 THEN  
+        RUN ipDataFix161401.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2839,8 +2885,6 @@ PROCEDURE ipDataFix161200:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161200...").
 
-    RUN ipLoadAPIData.
-    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2883,6 +2927,22 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161401 C-Win
+PROCEDURE ipDataFix161401:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161401...").
+    
+    RUN ipConvertVendorCosts.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -2894,6 +2954,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
+    RUN ipLoadAPIData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
@@ -3674,46 +3735,38 @@ PROCEDURE ipLoadAPIData:
     END.
     INPUT CLOSE.
 
-&SCOPED-DEFINE tablename APIInboundEvent
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
-    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
-    REPEAT:
-        CREATE {&tablename}.
-        IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
-            DELETE {&tablename}.
-    END.
-    INPUT CLOSE.
-
 &SCOPED-DEFINE tablename APIOutbound
     FOR EACH {&tablename}:
+        CREATE tt{&tablename}.
+        ASSIGN 
+            tt{&tablename}.apiOutboundID = {&tablename}.apiOutboundID
+            tt{&tablename}.endPoint = {&tablename}.endPoint
+            tt{&tablename}.userName = tt{&tablename}.userName
+            tt{&tablename}.password = {&tablename}.password.
         DELETE {&tablename}.
     END.
+    
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
         IF ERROR-STATUS:ERROR THEN 
             DELETE {&tablename}.
+        FIND tt{&tablename} WHERE 
+            tt{&tablename}.apiOutboundID EQ {&tablename}.apiOutboundID
+            NO-ERROR.
+        IF AVAIL tt{&tablename} THEN ASSIGN 
+            {&tablename}.endPoint = tt{&tablename}.endPoint
+            {&tablename}.userName = tt{&tablename}.userName
+            {&tablename}.password = tt{&tablename}.password.
+        ELSE ASSIGN
+            {&tablename}.endPoint = ""
+            {&tablename}.userName = ""
+            {&tablename}.password = "".
     END.
     INPUT CLOSE.
-
+        
 &SCOPED-DEFINE tablename APIOutboundDetail
-    FOR EACH {&tablename}:
-        DELETE {&tablename}.
-    END.
-    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
-    REPEAT:
-        CREATE {&tablename}.
-        IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
-            DELETE {&tablename}.
-    END.
-    INPUT CLOSE.
-
-&SCOPED-DEFINE tablename APIOutboundEvent
     FOR EACH {&tablename}:
         DELETE {&tablename}.
     END.
@@ -3900,6 +3953,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDynPrgrmsPage C-Win
+PROCEDURE ipLoadDynPrgrmsPage:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading dynPrgrmsPage Records").
+
+    &SCOPED-DEFINE tablename dynPrgrmsPage
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename} EXCLUSIVE:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
@@ -4952,6 +5036,29 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 4
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
+    IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipArchiveFiles.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 10
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
+    END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 10
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+    
+    IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        RUN ipExpandFiles.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 20
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
+    END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 20
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
+
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -4991,32 +5098,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 2
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipArchiveFiles.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 10
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 10
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-    
-    IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipExpandFiles.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 20
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 20
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-
-    IF fIntVer(fiFromVer:SCREEN-VALUE) LT 161400 THEN DO:
-        RUN ipConvertVendorCosts.
-    END.
-            
     IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipRefTableConv.
         IF lSuccess EQ TRUE THEN ASSIGN 
@@ -5031,10 +5112,9 @@ PROCEDURE ipProcessAll :
     IF tbUpdateIni:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateTTIniFile.
         RUN ipWriteIniFile.
-        IF lSuccess EQ TRUE THEN ASSIGN 
+        ASSIGN 
             iopiStatus = iopiStatus + 5
             rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
     END.
     ELSE ASSIGN 
         iopiStatus = iopiStatus + 5
@@ -5615,7 +5695,12 @@ PROCEDURE ipStatus :
             cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = "  " + ipcStatus.
-        
+        FIND FIRST ttUpdateHist NO-LOCK NO-ERROR.
+        IF AVAIL ttUpdateHist THEN ASSIGN 
+                ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
+                ttUpdateHist.endTimeInt = INT(TIME)
+                ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
+                ttUpdateHist.success = lSuccess.        
         OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
         PUT STREAM logStream
             STRING(TODAY,"99/99/99") AT 1
@@ -5763,6 +5848,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
         RUN ipLoadZmessage IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
+        RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.
@@ -5920,6 +6007,9 @@ PROCEDURE ipUpdateTTIniFile :
 
     FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
     ASSIGN ENTRY(iListEntry,ttIniFile.cVarValue) = fiToVer:{&SV}.
+    
+    ASSIGN
+        lSuccess = TRUE.
     
 END PROCEDURE.
 
@@ -6104,45 +6194,6 @@ PROCEDURE ipVerifyNK1Changes :
         END.    
         OUTPUT STREAM logStream CLOSE.
     END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipWriteIniFile C-Win 
-PROCEDURE ipWriteIniFile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    OUTPUT TO VALUE(cIniLoc).
-    FOR EACH ttIniFile BY ttIniFile.iPos:
-        IF ttIniFile.cVarName BEGINS "#" THEN
-            PUT UNFORMATTED ttIniFile.cVarName + CHR(10).
-        ELSE IF ttIniFile.cVarName NE "" THEN DO:
-            IF ttIniFile.cVarName EQ "modeList" THEN ASSIGN 
-                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"Addon,","").
-            IF ttIniFile.cVarName EQ "pgmList" THEN ASSIGN 
-                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain.w,","")
-                ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain2.w,","")
-                .
-            /* #53853 New 'mode': AutoLogout */
-            IF ttIniFile.cVarName EQ "modeList"
-            AND LOOKUP("AutoLogout",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                ttIniFile.cVarValue = ttIniFile.cVarValue + ",AutoLogout". 
-            IF ttIniFile.cVarName EQ "pgmList"
-            AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
-            PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
-        END.
-        ELSE NEXT.
-    END.
-    OUTPUT CLOSE.
-    
-    ASSIGN 
-        lSuccess = TRUE.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -93,10 +93,12 @@
     DEFINE VARIABLE cPalletWidth       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPalletLength      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPalletHeight      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnitPallet        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID2            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDFormNo       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineStatus      AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
@@ -280,12 +282,14 @@
                 cCostDiscount         = STRING(po-ordl.disc)
                 cCustomerID           = STRING(po-ordl.cust-no)
                 cOrderNo              = STRING(po-ordl.ord-no)
+                cPoLineStatus         = STRING(po-ordl.stat)
                 cOperationID          = ""
                 cQtyPerPack           = ""
                 cStackHeight          = "0"
                 cPalletWidth          = "0.00"
                 cPalletHeight         = "0.00"
                 cPalletLength         = "0.00"
+                cUnitPallet           = "0"
                 cPurchaseUnit         = STRING(po-ordl.pr-qty-uom)
                 cJobID                = STRING(po-ordl.job-no)
                 cJobID2               = STRING(po-ordl.job-no2)
@@ -304,6 +308,7 @@
                     cPalletWidth  = STRING(itemfg.unitWidth, ">>>>9.99")
                     cPalletHeight = STRING(itemfg.unitHeight, ">>>>9.99")
                     cPalletLength = STRING(itemfg.unitLength, ">>>>9.99")
+                    cUnitPallet   = STRING(itemfg.case-pall)
                     .
 
             /* Fetch first operation id (job-mch.m-code) for the order line */
@@ -318,6 +323,7 @@
                 ).
                                                          
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityUOM", cQuantityUOM).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemType", cItemType).
@@ -342,6 +348,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "palletWidth", cPalletWidth).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "palletLength", cPalletLength).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "palletHeight", cPalletHeight).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "unitPallet", cUnitPallet).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "operationID", cOperationID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobID", cJobID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobID2", cJobID2).

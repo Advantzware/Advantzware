@@ -6,7 +6,6 @@ DEFINE INPUT PARAMETER ipiType  AS INTEGER NO-UNDO.  /* 1 is inks,
                                               3 is packing
                                               4 is freight
                                               ? is all */
-DEFINE INPUT PARAMETER iplDisplayPopup AS LOGICAL NO-UNDO .
 
 DEFINE BUFFER b-eb  FOR eb.
 DEFINE BUFFER b-eb1 FOR eb.
@@ -70,7 +69,6 @@ DO:
             NO-ERROR.
         
     IF AVAILABLE b-eb THEN DO:                
-        IF iplDisplayPopup THEN
             RUN est\dUpdEst.w (cCriteria, INPUT-OUTPUT lUpdInks, INPUT-OUTPUT lUpdPack, INPUT-OUTPUT lUpdFreight). 
         IF lUpdInks OR lUpdPack OR lUpdFreight THEN 
             FOR EACH b-eb 

@@ -50,8 +50,19 @@
     DEFINE VARIABLE iTopLevelParent    AS INTEGER   NO-UNDO INITIAL 0.
     DEFINE VARIABLE cValidFreightTerms AS CHARACTER NO-UNDO INITIAL "P,B,C,T".
 
-    {api/inbound/ttRequest.i}
+    {methods/defines/globdefs.i}
+    {methods/defines/hndldefs.i}
     
+    DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdTags    AS HANDLE NO-UNDO.
+        
+    {sys/inc/var.i NEW SHARED}
+    {sys/inc/varasgn.i}  
+        
+    {api/inbound/ttRequest.i}
+    {oe/bolcheck.i NEW}
+    {oe/closchk.i NEW}
+
     /* Temp-table to store the fg-bin buffer for the inputs */
     DEFINE TEMP-TABLE ttBin LIKE fg-bin
         FIELD fgbinRowId  AS ROWID
@@ -83,9 +94,11 @@
 
     RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs).
-    
+
     RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).    
+
+    DEFINE NEW SHARED BUFFER xoe-ord FOR oe-ord.
 
     /* Get request data fields in a temp-table */
     RUN ReadRequestData (
@@ -122,7 +135,12 @@
             .
         RETURN.
     END.
-
+    
+    ASSIGN
+        g_company = cCompany
+        cocode    = g_company
+        .
+        
     /* Fetch location from request data */
     RUN JSON_GetFieldValueByName (
         INPUT  "LocationID",
@@ -151,7 +169,7 @@
     
     /* Validate BOL ID */
     IF lRecFound THEN DO:
-        RUN Common_ValidateValueByDataType (
+        RUN spCommon_ValidateValueByDataType (
             INPUT  cBOLID,
             INPUT  "INTEGER",
             OUTPUT lValidValue
@@ -209,7 +227,7 @@
         OUTPUT cCarrierID
         ) NO-ERROR.
     /* Carrier ID validation */
-    IF lRecFound AND
+    IF lRecFound AND cCarrierID NE "" AND
        NOT CAN-FIND(FIRST carrier NO-LOCK
                     WHERE carrier.company EQ cCompany
                       AND carrier.loc     EQ cLocationID
@@ -227,7 +245,7 @@
         OUTPUT lRecFound,
         OUTPUT cTrailerID
         ) NO-ERROR.
-
+    
     /* Fetch freight terms from request data */
     RUN JSON_GetFieldValueByName (
         INPUT  "FreightTerms",
@@ -504,7 +522,7 @@
             RETURN.
     END.
     
-    DO TRANSACTION ON ERROR UNDO, RETURN ERROR:
+    DO TRANSACTION ON ERROR UNDO, LEAVE:
         FOR EACH ttBin
             WHERE ttBin.processed EQ FALSE:
     
@@ -523,42 +541,95 @@
                     OUTPUT opcMessage
                     ) NO-ERROR.
                 IF NOT oplSuccess THEN
-                    RETURN ERROR.
+                    UNDO, LEAVE.
             END.
         END.
-    END.
 
-    FOR EACH ttInputs
-        BREAK BY ttInputs.BOLID:
+        FOR EACH ttInputs
+            BREAK BY ttInputs.BOLID:
+    
+            IF FIRST-OF(ttInputs.BOLID) THEN DO:
+                /* Re-Calculate Freight cost after processing the ttBin records */
+                RUN ReCalculateFreightCost (
+                    INPUT  ttInputs.company,
+                    INPUT  ttInputs.BOLID,
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ) NO-ERROR.
+                IF NOT oplSuccess THEN
+                    opcMessage = "Unable to recalculate Freight cost for " + STRING(ttInputs.BOLID).
+                
+                /* Update the oe-bolh freight cost with the input freight cost and
+                   update the oe-boll records freight cost */ 
+                RUN UpdateBOLFreightCost (
+                    INPUT  ttInputs.company,
+                    INPUT  ttInputs.BOLID,
+                    INPUT  ttInputs.freightCost,
+                    INPUT  ttInputs.oldFreightCost,
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ) NO-ERROR.
+                IF NOT oplSuccess THEN
+                    opcMessage = "Unable to update Freight cost for " + STRING(ttInputs.BOLID). 
+                
+                /* Update bol-date, carrier, trailer and freight terms before posting */
+                FIND FIRST oe-bolh EXCLUSIVE-LOCK
+                     WHERE oe-bolh.company EQ ttInputs.company
+                       and oe-bolh.bol-no  EQ ttInputs.BOLID NO-ERROR.
+                IF AVAILABLE oe-bolh THEN
+                    ASSIGN
+                        oe-bolh.bol-date = IF ttInputs.BOLDate NE ? THEN 
+                                               ttInputs.BOLDate
+                                           ELSE
+                                               oe-bolh.bol-date
+                        oe-bolh.carrier  = IF ttInputs.carrierID NE "" THEN
+                                               ttInputs.carrierID
+                                           ELSE
+                                               oe-bolh.carrier
+                        oe-bolh.trailer  = IF ttInputs.trailerID NE "" THEN
+                                               ttInputs.trailerID
+                                           ELSE
+                                               oe-bolh.trailer
+                        oe-bolh.frt-pay  = IF ttInputs.freightTerms NE "" THEN
+                                               ttInputs.freightTerms
+                                           ELSE
+                                               oe-bolh.frt-pay
+                        NO-ERROR.
 
-        IF FIRST-OF(ttInputs.BOLID) THEN DO:
-            /* Re-Calculate Freight cost after processing the ttBin records */
-            RUN ReCalculateFreightCost (
-                INPUT  ttInputs.company,
-                INPUT  ttInputs.BOLID,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ) NO-ERROR.
-            IF NOT oplSuccess THEN
-                opcMessage = opcMessage + ","
-                           + "Unable to recalculate Freight cost for " + STRING(ttInputs.BOLID).
-            
-            /* Update the oe-bolh freight cost with the input freight cost and
-               update the oe-boll records freight cost */ 
-            RUN UpdateBOLFreightCost (
-                INPUT  ttInputs.company,
-                INPUT  ttInputs.BOLID,
-                INPUT  ttInputs.freightCost,
-                INPUT  ttInputs.oldFreightCost,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ) NO-ERROR.
+                RELEASE oe-bolh.
+                
+                RUN PostBOL (
+                    INPUT  ttInputs.company,
+                    INPUT  ttInputs.BOLID,
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ) NO-ERROR.
+                IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
+                    UNDO, LEAVE.
+                
+                /* Update the oe-bolh.user-id and oe-boll.printed */
+                FIND FIRST oe-bolh NO-LOCK
+                     WHERE oe-bolh.company EQ ttInputs.company
+                       and oe-bolh.bol-no  EQ ttInputs.BOLID NO-ERROR.
+                IF AVAILABLE oe-bolh THEN DO:                    
+                    FOR EACH oe-boll EXCLUSIVE-LOCK
+                        WHERE oe-boll.company EQ oe-bolh.company
+                          AND oe-boll.b-no    EQ oe-bolh.b-no:
+                        oe-boll.printed = TRUE.
+                    END.                
+                END.
+
+                RELEASE oe-boll.                
+            END.
         END.
     END.
 
     EMPTY TEMP-TABLE ttInputs.
     EMPTY TEMP-TABLE ttBin.
-
+    
+    IF NOT oplSuccess THEN
+        RETURN.
+        
     ASSIGN
         opcMessage = "Inventory Consumed successfully"
         oplSuccess = TRUE
@@ -967,16 +1038,16 @@
         DEFINE VARIABLE riOeboll      AS ROWID   NO-UNDO.
         DEFINE VARIABLE dSumQty       AS DECIMAL NO-UNDO.
 
-        DEFINE BUFFER bf-oerel    FOR oe-rel.
-        DEFINE BUFFER bf-oe-boll  FOR oe-boll.
-        DEFINE BUFFER bf-oe-boll1 FOR oe-boll.
-        DEFINE BUFFER bf-oe-boll2 FOR oe-boll.
-        DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
-        DEFINE BUFFER bf-ttBin    FOR ttBin.
-        DEFINE BUFFER bf-fg-bin   FOR fg-bin.
-        DEFINE BUFFER bf-itemfg   FOR itemfg.
-        DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
-        DEFINE BUFFER bf-ttInputs FOR ttInputs.
+        DEFINE BUFFER bf-oerel          FOR oe-rel.
+        DEFINE BUFFER bf-oe-boll        FOR oe-boll.
+        DEFINE BUFFER bf-create-oe-boll FOR oe-boll.
+        DEFINE BUFFER bf-calc-qty-boll  FOR oe-boll.
+        DEFINE BUFFER bf-oe-bolh        FOR oe-bolh.
+        DEFINE BUFFER bf-ttBin          FOR ttBin.
+        DEFINE BUFFER bf-fg-bin         FOR fg-bin.
+        DEFINE BUFFER bf-itemfg         FOR itemfg.
+        DEFINE BUFFER bf-oe-ordl        FOR oe-ordl.
+        DEFINE BUFFER bf-ttInputs       FOR ttInputs.
 
         /* Get the total quantity of all the ttInputs records for the BOLID and item */
         FOR EACH bf-ttInputs
@@ -1065,64 +1136,64 @@
                /* Update the existing oe-boll records if it's first of the item number
                   in ttBin records, else create new oe-boll record */
                 IF FIRST-OF(bf-ttBin.i-no) THEN
-                    FIND FIRST bf-oe-boll1 EXCLUSIVE-LOCK
-                         WHERE ROWID(bf-oe-boll1) EQ ROWID(bf-oe-boll) NO-ERROR.
+                    FIND FIRST bf-create-oe-boll EXCLUSIVE-LOCK
+                         WHERE ROWID(bf-create-oe-boll) EQ ROWID(bf-oe-boll) NO-ERROR.
 
-                IF NOT AVAILABLE bf-oe-boll1 THEN DO:
-                    CREATE bf-oe-boll1.
+                IF NOT AVAILABLE bf-create-oe-boll THEN DO:
+                    CREATE bf-create-oe-boll.
                     ASSIGN
-                        bf-oe-boll1.company = bf-oe-bolh.company
-                        bf-oe-boll1.loc     = bf-oe-bolh.loc
-                        bf-oe-boll1.bol-no  = bf-oe-bolh.bol-no
-                        bf-oe-boll1.ord-no  = bf-oe-bolh.ord-no
-                        bf-oe-boll1.po-no   = bf-oe-bolh.po-no
-                        bf-oe-boll1.r-no    = bf-oe-bolh.r-no
-                        bf-oe-boll1.b-no    = bf-oe-bolh.b-no
+                        bf-create-oe-boll.company = bf-oe-bolh.company
+                        bf-create-oe-boll.loc     = bf-oe-bolh.loc
+                        bf-create-oe-boll.bol-no  = bf-oe-bolh.bol-no
+                        bf-create-oe-boll.ord-no  = bf-oe-bolh.ord-no
+                        bf-create-oe-boll.po-no   = bf-oe-bolh.po-no
+                        bf-create-oe-boll.r-no    = bf-oe-bolh.r-no
+                        bf-create-oe-boll.b-no    = bf-oe-bolh.b-no
                         .
 
-                    BUFFER-COPY bf-oe-boll EXCEPT rec_key TO bf-oe-boll1.
+                    BUFFER-COPY bf-oe-boll EXCEPT rec_key TO bf-create-oe-boll.
                 END.
 
                 ASSIGN
-                    bf-oe-boll1.lot-no   = bf-oe-boll.lot-no
-                    bf-oe-boll1.job-no   = bf-fg-bin.job-no
-                    bf-oe-boll1.job-no2  = bf-fg-bin.job-no2
-                    bf-oe-boll1.loc      = bf-fg-bin.loc
-                    bf-oe-boll1.loc-bin  = bf-fg-bin.loc-bin
-                    bf-oe-boll1.tag      = bf-fg-bin.tag
-                    bf-oe-boll1.cust-no  = bf-fg-bin.cust-no
-                    bf-oe-boll1.deleted  = NO
-                    bf-oe-boll1.posted   = NO
-                    bf-oe-boll1.printed  = NO
-                    bf-oe-boll1.qty-case = IF bf-fg-bin.case-count GT 0 THEN
+                    bf-create-oe-boll.lot-no   = bf-oe-boll.lot-no
+                    bf-create-oe-boll.job-no   = bf-fg-bin.job-no
+                    bf-create-oe-boll.job-no2  = bf-fg-bin.job-no2
+                    bf-create-oe-boll.loc      = bf-fg-bin.loc
+                    bf-create-oe-boll.loc-bin  = bf-fg-bin.loc-bin
+                    bf-create-oe-boll.tag      = bf-fg-bin.tag
+                    bf-create-oe-boll.cust-no  = bf-fg-bin.cust-no
+                    bf-create-oe-boll.deleted  = NO
+                    bf-create-oe-boll.posted   = NO
+                    bf-create-oe-boll.printed  = NO
+                    bf-create-oe-boll.qty-case = IF bf-fg-bin.case-count GT 0 THEN
                                                bf-fg-bin.case-count
                                            ELSE
                                                bf-itemfg.case-count
-                    bf-oe-boll1.qty      = MIN(bf-ttInputs.quantityTotal, bf-fg-bin.qty)
-                    bf-oe-boll1.partial  = IF bf-oe-boll1.qty MOD bf-oe-boll1.qty-case GT 0 THEN
+                    bf-create-oe-boll.qty      = MIN(bf-ttInputs.quantityTotal, bf-fg-bin.qty)
+                    bf-create-oe-boll.partial  = IF bf-create-oe-boll.qty MOD bf-create-oe-boll.qty-case GT 0 THEN
                                                bf-fg-bin.partial-count
                                            ELSE
                                                0
-                    bf-oe-boll1.cases    = TRUNC((bf-oe-boll1.qty - bf-oe-boll1.partial) / bf-oe-boll1.qty-case, 0)
-                    dTotalItemQty        = dTotalItemQty - bf-oe-boll1.qty
+                    bf-create-oe-boll.cases    = TRUNC((bf-create-oe-boll.qty - bf-create-oe-boll.partial) / bf-create-oe-boll.qty-case, 0)
+                    dTotalItemQty        = dTotalItemQty - bf-create-oe-boll.qty
                     .
 
-                IF bf-oe-boll1.cases GT TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-oe-boll1.qty-case,0) THEN
-                    bf-oe-boll1.cases = TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-oe-boll1.qty-case,0).
+                IF bf-create-oe-boll.cases GT TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-create-oe-boll.qty-case,0) THEN
+                    bf-create-oe-boll.cases = TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-create-oe-boll.qty-case,0).
 
-                bf-oe-boll1.partial = bf-oe-boll1.qty - (bf-oe-boll1.cases * bf-oe-boll1.qty-case).
+                bf-create-oe-boll.partial = bf-create-oe-boll.qty - (bf-create-oe-boll.cases * bf-create-oe-boll.qty-case).
 
-                IF bf-oe-boll1.partial GE bf-oe-boll1.qty-case AND bf-fg-bin.partial-count EQ 0 THEN
-                    bf-oe-boll1.cases = TRUNC(bf-oe-boll1.qty / bf-oe-boll1.qty-case,0).
+                IF bf-create-oe-boll.partial GE bf-create-oe-boll.qty-case AND bf-fg-bin.partial-count EQ 0 THEN
+                    bf-create-oe-boll.cases = TRUNC(bf-create-oe-boll.qty / bf-create-oe-boll.qty-case,0).
 
                 ASSIGN
-                    bf-oe-boll1.partial = bf-oe-boll1.qty - (bf-oe-boll1.cases * bf-oe-boll1.qty-case)
-                    bf-oe-boll1.weight  = bf-oe-boll1.qty / 100 * bf-itemfg.weight-100
+                    bf-create-oe-boll.partial = bf-create-oe-boll.qty - (bf-create-oe-boll.cases * bf-create-oe-boll.qty-case)
+                    bf-create-oe-boll.weight  = bf-create-oe-boll.qty / 100 * bf-itemfg.weight-100
                     .
                 
-                /* Important: Release the bf-oe-boll1 here. If not released this will 
-                   update the same bf-oe-boll1 record for all the ttBin records */
-                RELEASE bf-oe-boll1.
+                /* Important: Release the bf-create-oe-boll here. If not released this will 
+                   update the same bf-create-oe-boll record for all the ttBin records */
+                RELEASE bf-create-oe-boll.
             END.
         END.
 
@@ -1143,11 +1214,11 @@
              WHERE ROWID(bf-oe-bolh) EQ riOebolh
              NO-ERROR.
         IF AVAIL bf-oe-bolh THEN DO:
-            FOR EACH bf-oe-boll1 NO-LOCK
-                WHERE bf-oe-boll1.b-no EQ bf-oe-bolh.b-no
-                BREAK BY bf-oe-boll1.ord-no
-                      BY bf-oe-boll1.i-no:
-                IF FIRST-OF(bf-oe-boll1.i-no) THEN DO:
+            FOR EACH bf-create-oe-boll NO-LOCK
+                WHERE bf-create-oe-boll.b-no EQ bf-oe-bolh.b-no
+                BREAK BY bf-create-oe-boll.ord-no
+                      BY bf-create-oe-boll.i-no:
+                IF FIRST-OF(bf-create-oe-boll.i-no) THEN DO:
                     FIND FIRST bf-oe-ordl NO-LOCK
                          WHERE bf-oe-ordl.company EQ bf-oe-boll.company
                            AND bf-oe-ordl.ord-no  EQ bf-oe-boll.ord-no
@@ -1156,17 +1227,17 @@
 
                     IF AVAILABLE bf-oe-ordl THEN DO:
                         dSumQty = 0.
-                        FOR EACH bf-oe-boll2 FIELDS(qty) NO-LOCK
-                            WHERE bf-oe-boll2.company   EQ bf-oe-ordl.company
-                              AND bf-oe-boll2.ord-no    EQ bf-oe-ordl.ord-no
-                              AND bf-oe-boll2.i-no      EQ bf-oe-ordl.i-no
-                              AND bf-oe-boll2.line      EQ bf-oe-ordl.line
-                              AND (bf-oe-boll2.rel-no   LT bf-oe-boll.rel-no OR
-                                  (bf-oe-boll2.rel-no   EQ bf-oe-boll.rel-no AND
-                                   bf-oe-boll2.b-ord-no LE bf-oe-boll.b-ord-no))
-                              AND ROWID(bf-oe-boll2)    NE ROWID(bf-oe-boll)
+                        FOR EACH bf-calc-qty-boll FIELDS(qty) NO-LOCK
+                            WHERE bf-calc-qty-boll.company   EQ bf-oe-ordl.company
+                              AND bf-calc-qty-boll.ord-no    EQ bf-oe-ordl.ord-no
+                              AND bf-calc-qty-boll.i-no      EQ bf-oe-ordl.i-no
+                              AND bf-calc-qty-boll.line      EQ bf-oe-ordl.line
+                              AND (bf-calc-qty-boll.rel-no   LT bf-oe-boll.rel-no OR
+                                  (bf-calc-qty-boll.rel-no   EQ bf-oe-boll.rel-no AND
+                                   bf-calc-qty-boll.b-ord-no LE bf-oe-boll.b-ord-no))
+                              AND ROWID(bf-calc-qty-boll)    NE ROWID(bf-oe-boll)
                             USE-INDEX ord-no:
-                            dSumQty = dSumQty + bf-oe-boll2.qty.
+                            dSumQty = dSumQty + bf-calc-qty-boll.qty.
                         END.
 
                         bf-oe-boll.p-c = bf-oe-boll.qty + dSumQty GE
@@ -1187,7 +1258,8 @@
 
         RELEASE bf-oerel.
         RELEASE bf-oe-boll.
-        RELEASE bf-oe-boll2.
+        RELEASE bf-create-oe-boll.
+        RELEASE bf-calc-qty-boll.
         RELEASE bf-oe-bolh.
         RELEASE bf-ttBin.
         RELEASE bf-fg-bin.
@@ -1245,8 +1317,8 @@
         bf-oe-bolh.freight = dTotFreight.
 
         ASSIGN
-            oplSuccess         = TRUE
-            opcMessage         = "Success"
+            oplSuccess = TRUE
+            opcMessage = "Success"
             .
 
         RELEASE bf-oe-bolh.
@@ -1290,13 +1362,272 @@
             ) NO-ERROR.
 
         ASSIGN
-            oplSuccess         = TRUE
-            opcMessage         = "Success"
+            oplSuccess = TRUE
+            opcMessage = "Success"
             .
 
         RELEASE bf-oe-bolh.
         RELEASE bf-oe-boll.
     END PROCEDURE.    
+    
+    PROCEDURE PostBOL:
+        DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipiBOLID    AS INTEGER   NO-UNDO.
+        DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+        DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+        
+        DEFINE VARIABLE hdOerelReCalc AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE dOut          AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE cTerm         AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lReportKey10  AS LOGICAL   NO-UNDO.
+        
+        DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+        DEFINE BUFFER bf-oe-boll FOR oe-boll.
+        DEFINE BUFFER bf-cust    FOR cust.
+        DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+        DEFINE BUFFER bf-oe-rel  FOR oe-rel.
+        
+        FIND FIRST bf-oe-bolh EXCLUSIVE-LOCK
+             WHERE bf-oe-bolh.company EQ ipcCompany
+               AND bf-oe-bolh.bol-no  EQ ipiBOLID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-bolh THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Invalid BOL Number"
+                .
+            RETURN.
+        END.
+
+        IF bf-oe-bolh.posted THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "BOL Number " + STRING(bf-oe-bolh.bol-no) + " already posted"
+                .
+            RETURN.
+        END.
+
+        cTerm = STRING(YEAR(TODAY),"9999")
+              + STRING(MONTH(TODAY),"99")
+              + STRING(DAY(TODAY),"99")
+              + STRING(TIME,"99999")
+              + STRING(PROGRAM-NAME(1),"X(40)")
+              + STRING(USERID("nosweat"),"X(40)").
+
+        FIND FIRST sys-ctrl-shipto NO-LOCK
+             WHERE sys-ctrl-shipto.company      EQ bf-oe-bolh.company 
+               AND sys-ctrl-shipto.name         EQ "BOLFMT" 
+               AND sys-ctrl-shipto.cust-vend    EQ YES 
+               AND sys-ctrl-shipto.cust-vend-no EQ bf-oe-bolh.cust-no 
+               AND sys-ctrl-shipto.ship-id      EQ bf-oe-bolh.ship-id
+             NO-ERROR.
+        IF NOT AVAIL sys-ctrl-shipto THEN
+            FIND FIRST sys-ctrl-shipto NO-LOCK
+                 WHERE sys-ctrl-shipto.company      EQ bf-oe-bolh.company 
+                   AND sys-ctrl-shipto.name         EQ "BOLFMT" 
+                   AND sys-ctrl-shipto.cust-vend    EQ YES 
+                   AND sys-ctrl-shipto.cust-vend-no EQ bf-oe-bolh.cust-no 
+                   AND sys-ctrl-shipto.ship-id      EQ ''
+                 NO-ERROR.
+
+        ASSIGN
+            lReportKey10        = bf-oe-bolh.printed
+            bf-oe-bolh.printed  = YES
+            bf-oe-bolh.prt-date = TODAY
+            bf-oe-bolh.prt-time = TIME
+            .
+
+        IF NOT CAN-FIND(FIRST report 
+                        WHERE report.term-id EQ cTerm 
+                          AND report.rec-id  EQ RECID(bf-oe-bolh)) THEN DO:
+            CREATE report.
+            ASSIGN 
+                report.term-id  = cTerm
+                report.key-01   = bf-oe-bolh.cust-no
+                report.key-02   = bf-oe-bolh.ship-id
+                report.rec-id   = RECID(bf-oe-bolh)
+                report.key-09   = STRING(bf-oe-bolh.printed,"REVISED/ORIGINAL")
+                report.key-10   = STRING(lReportKey10)
+                report.key-03   = IF AVAIL sys-ctrl-shipto AND  NOT sys-ctrl-shipto.log-fld THEN 
+                                      "C" /*commercial invoice only*/
+                                  ELSE IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN 
+                                      "B" /*commercial invoice and bol both*/
+                                  ELSE 
+                                      "N" /*BOL only*/ 
+                report.key-04   = IF AVAIL sys-ctrl-shipto THEN 
+                                      sys-ctrl-shipto.char-fld 
+                                  ELSE 
+                                      "".
+        END.
+                    
+        RUN oe/bolcheck.p (
+            INPUT ROWID(bf-oe-bolh)
+            ) NO-ERROR. 
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Error while checking BOL"
+                .
+            RETURN.
+        END.
+                       
+        IF CAN-FIND(FIRST w-except NO-LOCK
+                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no) THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "BOL " + STRING(bf-oe-bolh.bol-no) + " has insufficient inventory and cannot be posted"
+                .
+            RETURN.
+        END.
+
+        IF bf-oe-bolh.stat EQ "H" THEN DO:  
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "BOL " + STRING(bf-oe-bolh.bol-no) + " is on HOLD status, cannot post"
+                .
+            RETURN.
+        END.
+
+        FOR EACH bf-oe-boll NO-LOCK
+            WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+              AND bf-oe-boll.bol-no  EQ bf-oe-bolh.bol-no: 
+            FIND FIRST bf-cust NO-LOCK
+                 WHERE bf-cust.company EQ bf-oe-bolh.company
+                   AND bf-cust.cust-no EQ bf-oe-bolh.cust-no 
+                 NO-ERROR. 
+            IF AVAILABLE bf-cust AND 
+               bf-cust.ACTIVE EQ "X" AND 
+               bf-oe-bolh.ship-id EQ bf-oe-boll.loc THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = "BOL " + STRING(bf-oe-bolh.bol-no) + ". Cannot transfer to the same location"
+                    .
+                RETURN.
+            END.
+        END.
+
+        RUN sbo/oerel-recalc-act.p PERSISTENT SET hdOerelReCalc NO-ERROR.
+  
+        FOR EACH bf-oe-boll NO-LOCK 
+            WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no,
+            EACH bf-oe-ordl NO-LOCK
+            WHERE bf-oe-ordl.company EQ bf-oe-boll.company
+               AND bf-oe-ordl.ord-no EQ bf-oe-boll.ord-no
+                AND bf-oe-ordl.line  EQ bf-oe-boll.line:
+            FOR EACH bf-oe-rel 
+                WHERE bf-oe-rel.company EQ bf-oe-ordl.company
+                  AND bf-oe-rel.ord-no  EQ bf-oe-ordl.ord-no
+                  AND bf-oe-rel.i-no    EQ bf-oe-ordl.i-no
+                  AND bf-oe-rel.line    EQ bf-oe-ordl.line
+                  AND bf-oe-rel.stat    EQ "P"
+                  AND bf-oe-rel.link-no GT 0 
+                  AND bf-oe-rel.rel-no  GT 0:
+                IF VALID-HANDLE(hdOerelReCalc) THEN 
+                    RUN recalc-act-qty IN hdOerelReCalc (
+                        INPUT  ROWID(bf-oe-rel), 
+                        OUTPUT dOut
+                        ) NO-ERROR.
+            END.
+        END.
+
+        FOR EACH bf-oe-boll NO-LOCK 
+            WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no:
+    
+            RUN oe/bol-pre-post.p (
+                INPUT ROWID(bf-oe-boll), 
+                INPUT cTerm,    /* Report ID */ 
+                INPUT NO        /* Show msg */
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = "Error while pre posting BOL"
+                    .
+                RETURN.
+            END.
+        END.
+            
+        RUN oe/oe-bolp3.p (
+            INPUT cTerm
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Error while posting BOL"
+                .
+            RETURN.
+        END.
+
+        /* Close transfer order here */
+        RUN oe/closchk.p (
+            INPUT 0
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Error while BOL Close check"
+                .
+            RETURN.                   
+        END.
+
+        RELEASE bf-oe-bolh.
+
+        FIND FIRST bf-oe-bolh EXCLUSIVE-LOCK
+             WHERE bf-oe-bolh.company EQ ipcCompany
+               AND bf-oe-bolh.bol-no  EQ ipiBOLID
+             NO-ERROR.
+        IF AVAILABLE bf-oe-bolh THEN DO:                
+            FOR EACH bf-oe-boll NO-LOCK 
+                WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no:
+                
+                FIND FIRST bf-oe-ordl NO-LOCK
+                     WHERE bf-oe-ordl.company EQ bf-oe-boll.company
+                       AND bf-oe-ordl.ord-no  EQ bf-oe-boll.ord-no
+                       AND bf-oe-ordl.line    EQ bf-oe-boll.line 
+                     NO-ERROR.
+                IF AVAILABLE bf-oe-ordl THEN DO:               
+                    RUN oe/cleanrel.p (
+                        INPUT ROWID(bf-oe-ordl)
+                        ) NO-ERROR.                       
+                    IF ERROR-STATUS:ERROR THEN DO:
+                        ASSIGN
+                            oplSuccess = FALSE
+                            opcMessage = "Error while cleaning release"
+                            .
+                        RETURN.         
+                    END.
+                END.
+            END.
+        END.
+
+        FOR EACH w-ord:
+            RUN oe/close.p (
+                INPUT w-ord.rec-id, 
+                INPUT YES
+                )NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = "Error while closing BOL - "
+                    .
+                RETURN.                    
+            END.  
+        END.
+
+        ASSIGN
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .
+            
+        IF VALID-HANDLE(hdOerelReCalc) THEN
+            DELETE OBJECT hdOerelReCalc.
+        
+        RELEASE bf-oe-bolh.
+        RELEASE bf-oe-boll.
+        RELEASE bf-cust. 
+        RELEASE bf-oe-ordl.
+        RELEASE bf-oe-rel.
+    END PROCEDURE.
     
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
     DELETE PROCEDURE hdJSONProcs.

@@ -49,9 +49,9 @@ DEFINE TEMP-TABLE ttSection
 {system\NotesProcs.i}
 
 DEFINE STREAM sEstOutput.
-DEFINE VARIABLE hdOutputProcs AS HANDLE.
-DEFINE VARIABLE hdNotesProcs  AS HANDLE.
-DEFINE VARIABLE hdEstimateCalcProcs  AS HANDLE.
+DEFINE VARIABLE hdOutputProcs       AS HANDLE.
+DEFINE VARIABLE hdNotesProcs        AS HANDLE.
+DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 RUN sys/NotesProcs.p PERSISTENT SET hdNotesProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN est/EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
@@ -71,10 +71,10 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     ipiCharacters AS INTEGER) FORWARD.
 
 FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
-	(ipcEstType AS CHARACTER) FORWARD.
+    (ipcEstType AS CHARACTER) FORWARD.
 
 FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
-	(ipcEstType AS CHARACTER) FORWARD.
+    (ipcEstType AS CHARACTER) FORWARD.
 
 FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
@@ -107,35 +107,43 @@ PROCEDURE pBuildSections PRIVATE:
     
     DEFINE VARIABLE iSectionCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cSectionBy    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dRefQty       AS DECIMAL   NO-UNDO.
     
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
     
-    CASE ipcFormatStyle:
-        WHEN "Classic" THEN 
-            ASSIGN 
-                glClassic = YES
-                gcFont    = "Courier New"
-                .
-        OTHERWISE 
-        ASSIGN 
-            glClassic = NO
-            gcFont    = ipcFormatStyle
-            .
-    END.
-    CASE ipcSectionStyle:
-        WHEN "McLean" THEN 
-            cSectionBy = "By Form With Summary First Mult Qty".
-        WHEN "Standard" THEN 
-            cSectionBy = "By Form With Summary First".
-        OTHERWISE 
-        cSectionBy = ipcSectionStyle.
-    END.
     EMPTY TEMP-TABLE ttSection.
     FIND FIRST bf-estCostHeader NO-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
         NO-ERROR.
     IF AVAILABLE bf-estCostHeader THEN 
     DO:
+        CASE ipcFormatStyle:
+            WHEN "Classic" THEN 
+                ASSIGN 
+                    glClassic = YES
+                    gcFont    = "Courier New"
+                    .
+            OTHERWISE 
+            ASSIGN 
+                glClassic = NO
+                gcFont    = ipcFormatStyle
+                .
+        END.
+        CASE ipcSectionStyle:
+            WHEN "McLean" THEN 
+                DO:
+                    cSectionBy = "By Form With Summary First Mult Qty".
+                    IF bf-estCostHeader.estType EQ "Combo/Tandem" THEN DO:
+                        FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
+                        RUN est\dRefQty.w (INPUT-OUTPUT bf-estCostHeader.quantityReference).
+                        FIND CURRENT bf-estCostHeader NO-LOCK.
+                    END.
+                END.
+            WHEN "Standard" THEN 
+                cSectionBy = "By Form With Summary First".
+            OTHERWISE 
+            cSectionBy = ipcSectionStyle.
+        END.
         IF fTypeAllowsMult(bf-estCostHeader.estType) AND INDEX(cSectionBy, "Mult Qty") GT 0 THEN
             glShowAllQuantities = YES.
         FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
@@ -629,15 +637,15 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
-    DEFINE VARIABLE iColumn    AS INTEGER EXTENT 10 INITIAL [5,18,23,29,39,47,55,64,73,82].    
+    DEFINE VARIABLE iColumn        AS INTEGER EXTENT 10 INITIAL [5,18,23,29,39,47,55,64,73,82].    
     DEFINE VARIABLE dTotalFreight  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalHandling AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalStorage  AS DECIMAL NO-UNDO.
        
     ASSIGN 
-        dTotalFreight = 0
+        dTotalFreight  = 0
         dTotalHandling = 0
-        dTotalStorage = 0
+        dTotalStorage  = 0
         . 
     FOR EACH estRelease NO-LOCK 
         WHERE estRelease.company EQ ipbf-estCostHeader.company
@@ -646,7 +654,8 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
         AND estRelease.formNo EQ ipbf-estCostForm.formNo
         BREAK BY estRelease.blankNo
         :
-        IF FIRST-OF(estRelease.blankNo) THEN DO: 
+        IF FIRST-OF(estRelease.blankNo) THEN 
+        DO: 
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Release Quantity", NO, YES, NO).
@@ -674,8 +683,8 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[10], estRelease.handlingCostTotal, 6, 2, NO, YES, NO, NO, YES).
         
         ASSIGN 
-            dTotalFreight = dTotalFreight + estRelease.freightCost
-            dTotalStorage = dTotalStorage + estRelease.storageCostTotal
+            dTotalFreight  = dTotalFreight + estRelease.freightCost
+            dTotalStorage  = dTotalStorage + estRelease.storageCostTotal
             dTotalHandling = dTotalHandling + estRelease.handlingCostTotal
             .    
     END.
@@ -1062,7 +1071,7 @@ PROCEDURE pPrintSummary PRIVATE:
         IF LOOKUP(STRING(estCostGroupLevel.estCostGroupLevelID), cLevelsToPrint) GT 0 THEN
             ASSIGN 
                 cHeaders = cHeaders + "," + estCostGroupLevel.estCostGroupLevelDesc
-                cLevels = cLevels + "," + estCostGroupLevel.estCostGroupLevelDesc.
+                cLevels  = cLevels + "," + estCostGroupLevel.estCostGroupLevelDesc.
     END.
     
     RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -1133,12 +1142,16 @@ PROCEDURE pPrintSummary PRIVATE:
         
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "Per M", YES, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3], "Total", YES, YES, YES).
+    IF estCostHeader.quantityReference NE 0 THEN 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "Per M Ref", YES, YES, YES).
     
     DO iLevel = 1 TO 3:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], ENTRY(iLevel,cLevels), NO, NO, NO).   
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], dCostPerM[INTEGER(ENTRY(iLevel,cLevelsToPrint))], 6, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], dCostTotal[INTEGER(ENTRY(iLevel,cLevelsToPrint))] , 6, 2, NO, YES, NO, NO, YES).
+        IF estCostHeader.quantityReference NE 0 THEN
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], dCostTotal[INTEGER(ENTRY(iLevel,cLevelsToPrint))] / (estCostHeader.quantityReference / 1000) , 6, 2, NO, YES, NO, NO, YES).
     END.
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -1278,35 +1291,35 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
 FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
-	(ipcEstType AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose: Returns if Given Type supports Multiple
- Notes:
-------------------------------------------------------------------------------*/	
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if Given Type supports Multiple
+     Notes:
+    ------------------------------------------------------------------------------*/	
     RETURN DYNAMIC-FUNCTION("IsSetType",ipcEstType) 
-            OR 
-           DYNAMIC-FUNCTION("IsSingleType",ipcEstType)
-            OR
-           DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+        OR 
+        DYNAMIC-FUNCTION("IsSingleType",ipcEstType)
+        OR
+        DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
 		
 END FUNCTION.
 
 FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
-	(ipcEstType AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose: Returns if given type should print Layout
- Notes:
-------------------------------------------------------------------------------*/	
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print Layout
+     Notes:
+    ------------------------------------------------------------------------------*/	
     RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
 		
 END FUNCTION.
 
 FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose: Returns if given type should print board details
- Notes:
-------------------------------------------------------------------------------*/    
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print board details
+     Notes:
+    ------------------------------------------------------------------------------*/    
     RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
         
 END FUNCTION.

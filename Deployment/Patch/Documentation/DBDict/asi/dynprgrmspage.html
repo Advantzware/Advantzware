@@ -54,6 +54,35 @@
                             <td>       </td></tr>
     </table>
   </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/dynPrgrmsPage.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg/dynPrgrmsPage.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg/dynPrgrmsPage.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
 <div class="clearboth"></div>
 <hr style="margin-top:20px;">
 <h2>Fields</h2>
@@ -80,6 +109,17 @@
     <th>Description</th>
   </tr>
   <tr class="oddrow">
+    <td>70</td>
+    <td>fieldName</td>
+    <td><a href="00-cross-f.html#fieldName"><small>X</small></a></td>
+    <td>Field Name</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>20</td>
     <td>pageTab</td>
     <td><a href="00-cross-p.html#pageTab"><small>X</small></a></td>
@@ -90,14 +130,25 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="oddrow">
+    <td>80</td>
+    <td>paramInitValue</td>
+    <td><a href="00-cross-p.html#paramInitValue"><small>X</small></a></td>
+    <td>Parameter Init Value</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
   <tr class="evenrow">
     <td>50</td>
-    <td><a href="dynparam.html">paramID</a></td>
-    <td><a href="00-cross-p.html#paramID"><small>X</small></a></td>
-    <td>Parameter ID</td>
-    <td>integer</td>
-    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
-    <td>0</td>
+    <td>paramName</td>
+    <td><a href="00-cross-p.html#paramName"><small>X</small></a></td>
+    <td>Parameter Name</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -118,13 +169,13 @@
     <td><a href="00-cross-p.html#prgmName"><small>X</small></a></td>
     <td>Program</td>
     <td>character</td>
-    <td>X(10)</td>
+    <td>X(20)</td>
     <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
     <td></td>
   </tr>
   <tr class="oddrow">
-    <td>60</td>
+    <td>90</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
     <td>Rec Key</td>
@@ -142,6 +193,17 @@
     <td>integer</td>
     <td>&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
     <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>60</td>
+    <td>tableName</td>
+    <td><a href="00-cross-t.html#tableName"><small>X</small></a></td>
+    <td>Table Name</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -174,7 +236,7 @@
     <td><a href="00-cross-p.html#prgmName"><small>X</small></a></td>
     <td>Program</td>
     <td>character</td>
-    <td>X(10)</td>
+    <td>X(20)</td>
     <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
     <td></td>
@@ -214,17 +276,50 @@
   </tr>
   <tr class="oddrow">
     <td>50</td>
-    <td><a href="dynparam.html">paramID</a></td>
-    <td><a href="00-cross-p.html#paramID"><small>X</small></a></td>
-    <td>Parameter ID</td>
-    <td>integer</td>
-    <td>&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
-    <td>0</td>
+    <td>paramName</td>
+    <td><a href="00-cross-p.html#paramName"><small>X</small></a></td>
+    <td>Parameter Name</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
   <tr class="evenrow">
     <td>60</td>
+    <td>tableName</td>
+    <td><a href="00-cross-t.html#tableName"><small>X</small></a></td>
+    <td>Table Name</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>70</td>
+    <td>fieldName</td>
+    <td><a href="00-cross-f.html#fieldName"><small>X</small></a></td>
+    <td>Field Name</td>
+    <td>character</td>
+    <td>x(40)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>80</td>
+    <td>paramInitValue</td>
+    <td><a href="00-cross-p.html#paramInitValue"><small>X</small></a></td>
+    <td>Parameter Init Value</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>90</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
     <td>Rec Key</td>
@@ -260,24 +355,18 @@
     <td>integer</td>
   </tr>
   <tr class="evenrow">
-    <td>ParamID</td>
-    <td>        </td>
-    <td>paramID (+)</td>
-    <td>integer</td>
-  </tr>
-  <tr class="oddrow">
     <td>ParamSetID</td>
     <td>        </td>
     <td>paramSetID (+)</td>
     <td>integer</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>rec_key</td>
     <td>        </td>
     <td>rec_key (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>SubjectID</td>
     <td>        </td>
     <td>subjectID (+)</td>
@@ -300,13 +389,13 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="dynparam.html">dynParam</a>&nbsp;&nbsp; <a href="dynparamset.html">dynParamSet</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; </td>
+      <td><a href="dynparamset.html">dynParamSet</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 2-11-2019 20:59</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 15-11-2019 12:47</small></i></td></tr>
 </table>
 </body>
 </html>

@@ -346,12 +346,12 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
-      oe-rell.qty COLUMN-LABEL "Release Qty" FORMAT "->>,>>>,>>9":U
+      oe-rell.qty COLUMN-LABEL "Scheduled Qty" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
-      get-act-rel-qty() @ iActualQty COLUMN-LABEL "Act. Rel.Qty" FORMAT "->>,>>>,>>>":U
-            WIDTH 12.4
-      get-act-bol-qty() @ iBolQty COLUMN-LABEL "Actual Shipped qty" FORMAT "->>,>>>,>>>":U
-            WIDTH 12.4
+      get-act-rel-qty() @ iActualQty COLUMN-LABEL "Actual Rel.Qty" FORMAT "->>,>>>,>>>":U
+            WIDTH 22.4
+      get-act-bol-qty() @ iBolQty COLUMN-LABEL "Actual Shipped Qty" FORMAT "->>,>>>,>>>":U
+            WIDTH 22.4
       itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>>":U
       get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(8)":U
             WIDTH 10
@@ -528,11 +528,11 @@ use-index r-no"
      _FldNameList[11]   > ASI.oe-relh.printed
 "oe-relh.printed" ? ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rell.qty
-"oe-rell.qty" "Release Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.qty" "Scheduled Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
-"get-act-rel-qty() @ iActualQty" "Act. Rel.Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-act-rel-qty() @ iActualQty" "Actual Rel.Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "22.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
-"get-act-bol-qty() @ iBolQty" "Actual Shipped qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-act-bol-qty() @ iBolQty" "Actual Shipped Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "22.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
@@ -1771,7 +1771,7 @@ FUNCTION get-act-bol-qty RETURNS INTEGER
               AND oe-rel.ord-no  EQ oe-rell.ord-no
               AND oe-rel.i-no    EQ oe-rell.i-no 
               AND oe-rel.line    EQ oe-rell.LINE 
-              AND LOOKUP(oe-rel.stat, "P") GT 0 :
+              AND LOOKUP(oe-rel.stat, "P,C,Z") GT 0 :
 
             RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT liReturn).
             iReturn = iReturn + liReturn.

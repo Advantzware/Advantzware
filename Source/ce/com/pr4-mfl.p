@@ -11,7 +11,7 @@ def shared buffer xeb  for eb.
 DEF SHARED VAR qty AS INT NO-UNDO.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def var lm-spo   as de NO-UNDO.
 def var lm-waste as de NO-UNDO.
 def var lm-qty as de NO-UNDO.
@@ -138,17 +138,31 @@ DO WITH STREAM-IO no-box no-labels frame med1:
       med-qty = (( med-wid * med-len) * mqty) / 144000 /*now msf*/
       fg-wt = fg-wt + ((fg-qty / (1 - (dShrink / 100))) * item.basis-w).
 
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
-   b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                    ELSE item.cons-uom.
+   IF lNewVendorItemCost THEN 
+   DO:
+        FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemid = ITEM.i-no
+            AND venditemcost.itemtype = "RM" NO-ERROR.
+        b-uom = IF AVAIL venditemcost AND venditemcost.vendorUom NE "" THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+   END.
+   ELSE 
+   DO:     
+        FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+        b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom ELSE item.cons-uom.
+   END.   
 
    IF b-uom EQ "TON" THEN med-qty = med-qty * item.basis-w / 2000.
-
-   {est/matcost.i med-qty mfl$ medium}
-
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i med-qty mfl$ medium}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i med-qty mfl$ medium}
+      mfl$      = (mfl$ * med-qty) + lv-setup-medium . 
+   END.
    ASSIGN
-    mfl$      = (mfl$ * med-qty) + lv-setup-medium
+    
     b-msh     = mfl$ / med-qty
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))
@@ -254,17 +268,31 @@ DO WITH STREAM-IO no-box no-labels frame flute:
       med-qty = ((xef.nsh-len * ITEM.r-wid) * mqty) / 144000 /*now msf*/
       fg-wt = fg-wt + (fg-qty * item.basis-w).
    
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
-   b-uom = IF item.i-code EQ "E" OR AVAIL e-item THEN e-item.std-uom
-                                                 ELSE item.cons-uom.
-
+    IF lNewVendorItemCost THEN 
+    DO:
+        FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemid = ITEM.i-no
+            AND venditemcost.itemtype = "RM" NO-ERROR.
+        b-uom = IF AVAIL venditemcost THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+    END.
+    ELSE 
+    DO:     
+        FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+        b-uom = IF item.i-code EQ "E" OR AVAIL e-item THEN e-item.std-uom ELSE item.cons-uom.
+    END.   
+      
    IF b-uom EQ "TON" THEN med-qty = med-qty * item.basis-w / 2000.
-
-   {est/matcost.i med-qty mfl$ flute}
-
-   ASSIGN
-    mfl$      = (mfl$ * med-qty) + lv-setup-flute
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i med-qty mfl$ flute}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i med-qty mfl$ flute}
+       mfl$      = (mfl$ * med-qty) + lv-setup-flute.
+   END.
+   
+   ASSIGN    
     b-msh     = mfl$ / med-qty
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))

@@ -158,6 +158,10 @@ DEFINE TEMP-TABLE tt-tag NO-UNDO
     INDEX tt-rowid tt-rowid
     INDEX tag-no   tag-no.
 
+{sys/inc/rmissue.i}
+lv-rmissue = v-rmissue.
+jobreopn-log = rmissue-int EQ 1.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

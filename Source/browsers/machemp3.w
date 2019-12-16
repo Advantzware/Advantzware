@@ -75,7 +75,7 @@ DEFINE QUERY external_tables FOR employee.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table machemp.employee Employee-Name(machtran.company,machemp.employee) @ employee-name machtran.machine machemp.start_date DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time machemp.end_date machemp.shift DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time machemp.ratetype machemp.posted DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time   
+&Scoped-define FIELDS-IN-QUERY-Browser-Table machemp.employee Employee-Name(machtran.company,machemp.employee) @ employee-name machtran.machine machemp.start_date DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time machemp.end_date machemp.shift DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time machemp.ratetype machemp.posted DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table   
 &Scoped-define SELF-NAME Browser-Table
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machemp WHERE machemp.employee = employee.employee       AND machemp.posted = YES USE-INDEX postemp NO-LOCK, ~
@@ -169,13 +169,13 @@ DEFINE BROWSE Browser-Table
       Employee-Name(machtran.company,machemp.employee) @ employee-name COLUMN-LABEL "Name" FORMAT "X(14)":U
       machtran.machine FORMAT "x(6)":U LABEL-BGCOLOR 14
       machemp.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.start_time, YES, NO) @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.start_time, YES, NO) @ start-time COLUMN-LABEL "Started" FORMAT "X(8)":U
       machemp.end_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       machemp.shift FORMAT "XX":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.end_time, YES, NO) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.end_time, YES, NO) @ end-time COLUMN-LABEL "Ended" FORMAT "X(8)":U
       machemp.ratetype FORMAT "X(12)":U LABEL-BGCOLOR 14
       machemp.posted FORMAT "yes/no":U LABEL-BGCOLOR 14
-      DYNAMIC-FUNCTION('sfTimeDisplay', machemp.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', machemp.total_time, NO, NO) @ total-time COLUMN-LABEL "Total" FORMAT "X(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 142 BY 18.1

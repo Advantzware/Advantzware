@@ -27,10 +27,25 @@
     /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
        create trigger, only if session.p is running persistently, else will be populated with empty value.
        ( refer methods/triggers/create.i ) */
-    DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
-    RUN system/session.p PERSISTENT SET hdSession.
-    SESSION:ADD-SUPER-PROCEDURE (hdSession).
     
+    /* This will eventually move to setsession approach */
+    &SCOPED-DEFINE NEW NEW
+    {methods/defines/globdefs.i}
+    {methods/defines/hndldefs.i}
+    
+    DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdTags    AS HANDLE NO-UNDO.
+        
+    RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
+    RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+    
+    RUN system/session.p  PERSISTENT SET hdSession.
+    SESSION:ADD-SUPER-PROCEDURE (hdSession).
+    RUN system/TagProcs.p PERSISTENT SET hdTags.
+    SESSION:ADD-SUPER-PROCEDURE (hdTags).
+    {sys/inc/var.i "new shared"}
+    {sys/inc/varasgn.i}    
+ 
     /* Consume Inventory Via BOL */
     RUN api\inbound\ConsumeInventoryViaBOL (
         INPUT  ipcRoute,
@@ -86,3 +101,6 @@
     
     SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
     DELETE PROCEDURE hdSession.
+    SESSION:REMOVE-SUPER-PROCEDURE (hdTags).
+    DELETE PROCEDURE hdTags.
+    

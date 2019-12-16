@@ -1,0 +1,4 @@
+DEFINE TEMP-TABLE ttAPIOutboundEvent NO-UNDO
+    FIELD APIOutboundEventID AS INT64
+    INDEX APIOutboundEventID IS PRIMARY UNIQUE APIOutboundEventID
+    .

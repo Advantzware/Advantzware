@@ -429,6 +429,8 @@ IF VALID-HANDLE(hImage) THEN
 
 IF ip-view-type EQ "YES-NO-CANCEL" THEN
 ENABLE btn-import btn-no btn-cancel WITH FRAME xyz.
+ELSE IF ip-view-type EQ "ok" THEN
+ ENABLE btn-import WITH FRAME xyz.
 ELSE
 ENABLE btn-import btn-cancel WITH FRAME xyz.
 IF lhFirstWid NE ? AND VALID-HANDLE(lhFirstWid) THEN

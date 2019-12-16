@@ -131,7 +131,7 @@ PROCEDURE pBusinessLogic:
             ttMachineTransactions.shift          = machtran.shift
             ttMachineTransactions.msf            = dMSF                    
             ttMachineTransactions.totalTime      = machtran.total_time / 3600
-            ttMachineTransactions.xxTotalTime    = machtran.total_time
+            ttMachineTransactions.zzTotalTime    = machtran.total_time
             ttMachineTransactions.runQty         = machtran.run_qty
             ttMachineTransactions.wasteQty       = machtran.waste_qty
             ttMachineTransactions.runComplete    = machtran.completed
@@ -141,6 +141,7 @@ PROCEDURE pBusinessLogic:
             .
         GET NEXT qMachTran.
     END. /* do while */
+    DELETE PROCEDURE hDynCalcField.
 END PROCEDURE.
 
 {aoa/BL/pGetCustInfo.i}

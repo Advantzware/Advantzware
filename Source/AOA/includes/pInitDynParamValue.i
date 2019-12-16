@@ -15,11 +15,11 @@ PROCEDURE pInitDynParamValue:
     IF NOT AVAILABLE dynParamValue THEN RETURN.
     DO TRANSACTION:
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
-        DO idx = 1 TO NUM-ENTRIES(ipcParamList):
+        DO idx = 1 TO NUM-ENTRIES(ipcParamList,"|"):
             DO jdx = 1 TO EXTENT(dynParamValue.paramName):
                 IF dynParamValue.paramName[jdx] EQ "" THEN LEAVE.
-                IF dynParamValue.paramName[jdx] EQ ENTRY(idx,ipcParamList) THEN
-                dynParamValue.paramValue[jdx] = ENTRY(idx,ipcParamValue).
+                IF dynParamValue.paramName[jdx] EQ ENTRY(idx,ipcParamList,"|") THEN
+                dynParamValue.paramValue[jdx] = ENTRY(idx,ipcParamValue,"|").
             END. /* do jdx */
         END. /* do idx */
         RELEASE dynParamValue.

@@ -167,6 +167,7 @@ DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
 DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -174,14 +175,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
 
- RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-    glEstimateCalcNew = lRecFound AND cRtnChar EQ "New".
- RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "I" /* Character */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-    glEstimateCalcNewPrompt = glEstimateCalcNew AND lRecFound AND cRtnChar EQ "1".
  RUN sys/ref/nk1look.p (INPUT cocode, "CEFormat", "C" /* Character */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT gcEstimateFormat, OUTPUT lRecFound).
@@ -1095,6 +1088,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+
+ iLinePerPage = IF cerunc EQ "Protagon" AND ceprint-char EQ "Consolidate" THEN 65 ELSE 66 .
 
 DEFINE VARIABLE lv-col-hand AS HANDLE.
 FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
@@ -2247,12 +2242,8 @@ PROCEDURE import-price :
 
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
   IF lMultiRecords THEN do:
-      RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-      
-      IF NOT lSuppressMessage THEN
-          MESSAGE cCurrentMessage
-          VIEW-AS ALERT-BOX QUESTION 
-          BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
+
+     RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "7", OUTPUT lcheckflg ).
   END.
 
  FOR EACH bff-probe NO-LOCK
@@ -2630,7 +2621,57 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+PROCEDURE pGetCEVersionCalcSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    glEstimateCalcNew = lFound AND cReturn EQ "New".
+ 
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    IF lRecFound THEN 
+        iCEVersion = INTEGER(cReturn).
+        
+    IF glEstimateCalcNew THEN 
+        CASE iCEVersion:
+            WHEN 1 THEN 
+                ASSIGN 
+                    glEstimateCalcNewPrompt = glEstimateCalcNew.
+            WHEN 2 THEN 
+                DO:
+                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNew = NO.            
+                    ASSIGN 
+                        glEstimateCalcNewPrompt = glEstimateCalcNew.
+                END.
+            WHEN 3 THEN 
+                DO:
+                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNewPrompt = YES.
+                    ELSE 
+                        glEstimateCalcNewPrompt = NO.            
+                END.
+            WHEN 4 THEN 
+                DO:
+                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
+                        ASSIGN 
+                            glEstimateCalcNew       = NO
+                            glEstimateCalcNewPrompt = NO.
+                END.
+        END CASE.
+
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
@@ -3061,7 +3102,7 @@ PROCEDURE print-box-est :
 ASSIGN v-line-count = LINE-COUNTER . 
   IF v-prt-note THEN DO:
      
-    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 66  .
+    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE VALUE(iLinePerPage)  .
     RUN print-notes(v-line-count) .
     OUTPUT CLOSE.
   END.
@@ -3155,7 +3196,7 @@ PROCEDURE print-notes :
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
       
   DO i = 1 TO lv-k:
-      IF v-line-count GT 66 THEN DO:
+      IF v-line-count GT iLinePerPage THEN DO:
           PAGE.
           v-line-count = 0 .
       END.
@@ -3427,7 +3468,7 @@ PROCEDURE printProbe :
     IF AVAILABLE sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
     ELSE v-print-fmt = "".
      i = 0 . 
-     IF is-xprint-form THEN lv-lines = 66.
+     IF is-xprint-form THEN lv-lines = iLinePerPage.
      OUTPUT TO VALUE(ls-outfile) PAGE-SIZE VALUE(lv-lines). /* create .x file with page size */
 
      INPUT FROM VALUE(lv-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt)) NO-ECHO.
@@ -3706,6 +3747,7 @@ PROCEDURE run-whatif :
   lv-eb-recid = RECID(eb).
   lv-ef-recid = RECID(ef).
   
+  RUN pGetCEVersionCalcSettings(BUFFER est).
   IF glEstimateCalcNew THEN 
     DO:
         IF glEstimateCalcNewPrompt THEN 

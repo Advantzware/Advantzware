@@ -41,6 +41,10 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 
  DEFINE VARIABLE lCheckBinMessage AS LOGICAL NO-UNDO .
+
+ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+  RUN util/Validate.p PERSISTENT SET hdValidator.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -476,48 +480,13 @@ END.
 &Scoped-define SELF-NAME location.defaultBin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.defaultBin V-table-Win
 ON LEAVE OF location.defaultBin IN FRAME F-Main /* Default Bin */
-DO:
-    DEF VAR lFound AS LOG NO-UNDO.
-    
+DO: 
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
     IF LASTKEY = -1 THEN  RETURN.
 
-    FIND FIRST fg-bin NO-LOCK WHERE 
-        fg-bin.company EQ g_company AND 
-        fg-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        fg-bin.loc-bin EQ SELF:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL fg-bin THEN ASSIGN 
-        lFound = TRUE.
-        
-    FIND FIRST rm-bin NO-LOCK WHERE 
-        rm-bin.company EQ g_company AND 
-        rm-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        rm-bin.loc-bin EQ SELF:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL rm-bin THEN ASSIGN 
-        lFound = TRUE.
-
-    FIND FIRST wip-bin NO-LOCK WHERE 
-        wip-bin.company EQ g_company AND 
-        wip-bin.loc EQ loc.loc:SCREEN-VALUE AND 
-        wip-bin.loc-bin EQ SELF:SCREEN-VALUE 
-        NO-ERROR.
-    IF AVAIL wip-bin THEN ASSIGN 
-        lFound = TRUE.
-        
-    IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
-        MESSAGE 
-            "Unable to locate this bin in the fg-bin, rm-bin, or wip-bin tables." SKIP
-            "Do you want to add the new bin."
-            VIEW-AS ALERT-BOX QUESTION 
-            BUTTONS YES-NO UPDATE lcheckflg as logical .
-        IF NOT lcheckflg THEN do:
-            APPLY 'entry' TO SELF.
-            RETURN NO-APPLY.
-        END.
-        ELSE lCheckBinMessage = YES .
-    END. 
-               
+    RUN valid-default-bin( OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+                   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,6 +683,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
   {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      IF adm-new-record THEN DO:
@@ -724,14 +694,63 @@ PROCEDURE local-update-record :
         END.
      END.
   END.
+
+  RUN valid-default-bin( OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.
+
   {&methods/lValidateError.i NO}
     /* ============== end of validations ==================*/
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+    IF lCheckBinMessage THEN DO:
+        IF rsBinType:SCREEN-VALUE EQ "FG" THEN DO:
+            FIND FIRST fg-bin NO-LOCK WHERE 
+                fg-bin.company EQ g_company AND 
+                fg-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                fg-bin.loc-bin EQ location.defaultBin 
+                NO-ERROR.
+            IF NOT AVAIL fg-bin THEN do: 
+                CREATE fg-bin .
+                ASSIGN
+                    fg-bin.company = g_company
+                    fg-bin.loc = loc.loc
+                    fg-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "FG"*/
+        ELSE IF rsBinType:SCREEN-VALUE EQ "RM" THEN DO:
+            FIND FIRST rm-bin NO-LOCK WHERE 
+                rm-bin.company EQ g_company AND 
+                rm-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                rm-bin.loc-bin EQ location.defaultBin
+                NO-ERROR.
+            IF NOT AVAIL rm-bin THEN do: 
+                CREATE rm-bin .
+                ASSIGN
+                    rm-bin.company = g_company
+                    rm-bin.loc = loc.loc
+                    rm-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "rm"*/
+        ELSE IF rsBinType:SCREEN-VALUE EQ "wp" THEN DO:
+            FIND FIRST wip-bin NO-LOCK WHERE 
+                wip-bin.company EQ g_company AND 
+                wip-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
+                wip-bin.loc-bin EQ location.defaultBin
+                NO-ERROR.
+            IF NOT AVAIL wip-bin THEN do: 
+                CREATE wip-bin .
+                ASSIGN
+                    wip-bin.company = g_company
+                    wip-bin.loc = loc.loc
+                    wip-bin.loc-bin = location.defaultBin  .
+            END.
+        END. /* rsBinType:SCREEN-VALUE EQ "wp"*/
+    END.
+    
     lCheckBinMessage = NO .     
-        
+    adm-new-record = NO .    
 
 END PROCEDURE.
 
@@ -753,6 +772,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lCheckBinMessage = NO .
+  adm-new-record = NO .
 
 END PROCEDURE.
 
@@ -801,4 +821,42 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-default-bin V-table-Win 
+PROCEDURE valid-default-bin :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplRetrunError AS LOGICAL    NO-UNDO.
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO. 
+  DEFINE VARIABLE cValidMessage AS CHARACTER NO-UNDO .
+ 
+DO WITH FRAME {&frame-name}:
+    IF location.defaultBin:SCREEN-VALUE NE "" THEN
+        RUN pIsValidFGBinForLoc IN hdValidator (location.defaultBin:SCREEN-VALUE, loc.loc:SCREEN-VALUE, NO, g_company, OUTPUT lFound, OUTPUT cValidMessage).
+    IF lFound AND location.defaultBin:SCREEN-VALUE NE "" THEN 
+        RUN pIsValidRMBinForLoc IN hdValidator (location.defaultBin:SCREEN-VALUE, loc.loc:SCREEN-VALUE, NO, g_company, OUTPUT lFound, OUTPUT cValidMessage).
+    IF lFound AND location.defaultBin:SCREEN-VALUE NE "" THEN 
+        RUN pIsValidWipBinForLoc IN hdValidator (location.defaultBin:SCREEN-VALUE, loc.loc:SCREEN-VALUE, NO, g_company, OUTPUT lFound, OUTPUT cValidMessage).
+    
+    IF NOT lFound AND location.defaultBin:SCREEN-VALUE NE "" AND NOT lCheckBinMessage THEN DO:
+        MESSAGE 
+            "Do you want to add the new bin?"
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS YES-NO UPDATE lcheckflg as logical .
+        IF NOT lcheckflg THEN do:
+            location.defaultBin:SCREEN-VALUE = "" .
+            APPLY 'entry' TO location.defaultBin .
+            oplRetrunError = YES .
+        END.
+        ELSE lCheckBinMessage = YES .
+    END.
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

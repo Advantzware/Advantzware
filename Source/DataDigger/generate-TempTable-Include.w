@@ -251,12 +251,12 @@ DEFINE FRAME frMain
      btnSave AT Y 487 X 15 WIDGET-ID 36
      "Indent:" VIEW-AS TEXT
           SIZE-PIXELS 40 BY 20 AT Y 56 X 25 WIDGET-ID 68
-     "Field Options" VIEW-AS TEXT
-          SIZE-PIXELS 90 BY 13 AT Y 180 X 25 WIDGET-ID 26
-     "Indexes" VIEW-AS TEXT
-          SIZE-PIXELS 50 BY 13 AT Y 394 X 25 WIDGET-ID 40
      "Field Prefix" VIEW-AS TEXT
           SIZE-PIXELS 75 BY 13 AT Y 261 X 25 WIDGET-ID 48
+     "Indexes" VIEW-AS TEXT
+          SIZE-PIXELS 50 BY 13 AT Y 394 X 25 WIDGET-ID 40
+     "Field Options" VIEW-AS TEXT
+          SIZE-PIXELS 90 BY 13 AT Y 180 X 25 WIDGET-ID 26
      RECT-2 AT Y 187 X 15 WIDGET-ID 24
      RECT-3 AT Y 400 X 15 WIDGET-ID 38
      RECT-4 AT Y 266 X 15 WIDGET-ID 46
@@ -559,7 +559,9 @@ PROCEDURE generateCode :
 /* Generate the code for the include
 */
   DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
-  DEFINE VARIABLE cMask         AS LONGCHAR  NO-UNDO.
+  DEFINE VARIABLE cPrefix       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cName         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMask         AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cUnique       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cHeader       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cTable        AS CHARACTER NO-UNDO.
@@ -568,6 +570,7 @@ PROCEDURE generateCode :
   DEFINE VARIABLE iMaxLabel     AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxFormat    AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxType      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE iMaxSerial    AS INTEGER   NO-UNDO.
   DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
   
   DEFINE BUFFER bField FOR ttField.
@@ -654,10 +657,9 @@ PROCEDURE generateCode :
     DO:
       cText = cText + '~n'.
       
-      #IndexLoop:
       FOR EACH bIndex BY bIndex.cIndexFlags MATCHES '*P*' DESCENDING:
         /* Skip others if we only want the primary index */
-        IF rsIndex = 1 AND NOT bIndex.cIndexFlags MATCHES '*P*' THEN NEXT #IndexLoop. 
+        IF rsIndex = 1 AND NOT bIndex.cIndexFlags MATCHES '*P*' THEN NEXT. 
         
         IF bIndex.cIndexFlags MATCHES '*P*' THEN
           cMask = '&1~n&2INDEX &3 IS PRIMARY &4'.
@@ -677,17 +679,13 @@ PROCEDURE generateCode :
                           , cUnique
                           ).
         DO i = 1 TO NUM-ENTRIES(bIndex.cFieldList):
-          FIND bField WHERE bField.cFieldName = ENTRY(i, bIndex.cFieldList) NO-ERROR.
-          IF AVAILABLE bField THEN 
-            ASSIGN 
-              cMask = '&1 &2'
-              cText = SUBSTITUTE(cMask, cText, TRIM(getNameString(bField.cFieldName, bField.cDataType, iMaxName))).
+          FIND bField WHERE bField.cFieldName = ENTRY(i, bIndex.cFieldList).
+          cText = SUBSTITUTE('&1 &2', cText, TRIM(getNameString(bField.cFieldName, bField.cDataType, iMaxName))).
         END.
 
       END.
     END.
-    cMask = '&1~n&2.'.
-    cText = SUBSTITUTE(cMask, cText, cIndent).
+    cText = SUBSTITUTE('&1~n&2.', cText, cIndent).
  
     edDefinition:SCREEN-VALUE = cText.
   END.

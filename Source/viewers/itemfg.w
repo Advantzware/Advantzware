@@ -59,7 +59,7 @@ DEFINE VARIABLE v-endspc        AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
-DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+/*DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.*/
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 {Inventory/ttInventory.i "NEW SHARED"}
@@ -68,6 +68,9 @@ DEFINE TEMP-TABLE w-est-no
     FIELD w-run    AS LOG.
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
+
+DEF BUFFER b-vendItemCost FOR vendItemCost .
+DEF BUFFER b-venditemCostlevel FOR vendItemCostLevel .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1490,7 +1493,7 @@ DO TRANSACTION:
     {sys/inc/fgsecur.i}
     {sys/inc/custlistform.i ""IF1"" }
 END.
- 
+{sys/inc/vendItemCost.i}
  
 SESSION:DATA-ENTRY-RETURN = YES.
 
@@ -1584,6 +1587,52 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyVendItemCost V-table-Win
+PROCEDURE CopyVendItemCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ipFromItem AS CHAR NO-UNDO. 
+    DEF INPUT PARAM ipToItem AS CHAR NO-UNDO.
+    
+    /* delete rec if exists before create */
+    for each vendItemCost where vendItemCost.company = cocode 
+        AND vendItemCost.itemID = ipToItem
+        AND vendItemCost.ItemType = "FG":
+                                
+        FOR EACH vendItemCostLevel WHERE vendItemCostLevel.venditemCostID = vendItemCost.vendItemCostID:
+            DELETE vendItemCostLevel.
+        END.                        
+        delete vendItemCost.                         
+    end.                             
+    
+    for each venditemcost where venditemcost.company = cocode 
+        AND venditemcost.itemID = ipFromItem
+        AND vendItemCost.ItemType = "FG"    :
+        create b-vendItemCost.
+        buffer-copy vendItemCost except vendItemCostID itemID venditemcost.rec_key to b-vendItemCost.
+        assign 
+            b-venditemcost.itemID = ipToItem
+            .
+        
+        FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID:
+            create b-vendItemCostLevel.
+            buffer-copy vendItemCostLevel except vendItemCostLevel.vendItemCostID venditemcostlevel.rec_key to b-vendItemCostLevel.
+            assign 
+                b-vendItemCostLevel.vendItemCostID = b-vendItemCost.vendItemCostID
+                .
+        END.                  
+    end.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-Navigation V-table-Win 
 PROCEDURE Disable-Navigation :
@@ -1814,6 +1863,8 @@ PROCEDURE local-assign-record :
     IF adm-new-record AND NOT adm-adding-record AND AVAILABLE b-i THEN 
     DO: /* copy */
 
+      IF lNewVendorItemCost THEN RUN CopyVendItemCost(b-i.i-no, itemfg.i-no).
+      ELSE DO:
         FOR EACH b-ei OF b-i NO-LOCK:
             FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
@@ -1836,8 +1887,10 @@ PROCEDURE local-assign-record :
 
             LEAVE.
         END.
-        IF v-cpyspc THEN 
-        DO:
+      END.
+        
+      IF v-cpyspc THEN 
+      DO:
             FOR EACH notes WHERE notes.rec_key = b-i.rec_key
                 AND notes.note_type EQ "S" 
                 AND notes.note_code GE v-begspc 
@@ -1852,7 +1905,7 @@ PROCEDURE local-assign-record :
             ASSIGN 
                 v-cpyspc = NO .
 
-        END. /*IF v-cpyspc THEN */
+      END. /*IF v-cpyspc THEN */
 
     END.
 
