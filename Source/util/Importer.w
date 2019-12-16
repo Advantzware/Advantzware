@@ -818,7 +818,10 @@ PROCEDURE pLoad :
     DEFINE VARIABLE lUpdateDuplicates AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lLimitReached     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iProcessed        AS INTEGER   NO-UNDO.
-    
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+    SESSION:ADD-SUPER-PROCEDURE (hdValidator).
+        
     cFile = iphdImportFileName:SCREEN-VALUE.
     lUpdateDuplicates = rdDuplicates EQ 1.
     
@@ -849,6 +852,8 @@ PROCEDURE pLoad :
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
         APPLY "ENTRY" TO iphdImportFileName. 
     END.
+    SESSION:REMOVE-SUPER-PROCEDURE (hdValidator).
+    DELETE OBJECT hdValidator.
     SESSION:SET-WAIT-STATE(""). 
     
 END PROCEDURE.
