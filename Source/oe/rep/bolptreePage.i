@@ -71,19 +71,21 @@
 
    PUT "<||><R15><C2><FROM><R16><C77><RECT>" "<R15><C2><B><p8> CONSIGNEE (SHIP TO) </B>" SKIP.
    PUT "<FArial><R16.5><C2><B><p7> " v-ship-name FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R17.5><C2><B><p7> ATTN:" (IF AVAIL oe-ord THEN oe-ord.contact ELSE "") FORMAT "x(20)" "</B>" SKIP.
-   PUT "<FArial><R18.5><C2><B><p7> " v-ship-addr[1] FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R19.5><C2><B><p7> " v-ship-addr[2] FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R20.5><C2><B><p7> " v-ship-addr3 FORMAT "x(30)" "</B>" SKIP.
-   PUT  SKIP(3) "<R21><C2><FROM><R21><C77><LINE>" SKIP.
+   /*PUT "<FArial><R17.5><C2><B><p7> ATTN:" (IF AVAIL oe-ord THEN oe-ord.contact ELSE "") FORMAT "x(20)" "</B>" SKIP.*/
+   PUT "<FArial><R17.5><C2><B><p7> " v-ship-addr[1] FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R18.5><C2><B><p7> " v-ship-addr[2] FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R19.5><C2><B><p7> " v-ship-addr3 FORMAT "x(30)" "</B>" SKIP.
+   PUT  SKIP(3) "<R20><C2><FROM><R20><C77><LINE>" SKIP.
 
    
 
-   PUT "<FArial><R21.5><C2><B><p7> CUST.ORDER#: " (IF AVAIL bf-oe-boll THEN bf-oe-boll.lot-no ELSE "") FORMAT "x(20)" 
+   PUT "<FArial><R20.5><C2><B><p7> CUST.ORDER#: " (IF AVAIL bf-oe-boll THEN bf-oe-boll.lot-no ELSE "") FORMAT "x(20)" 
              " <c45> OUR ORDER#: "   (IF AVAIL bf-oe-boll THEN bf-oe-boll.ord-no ELSE 0) FORMAT ">>>>>>>>" "</B>" SKIP.
    
-   PUT "<FArial><R22.5><C2><B><p7> Special Instructions: </B>" /*ship_note FORMAT "x(200)"*/  SKIP.    
-   PUT "<FArial><R23.5><C2><B><p8> REFFRENCE # 19-001896-142 </B>" SKIP.     
+   PUT "<FArial><R21.5><C2><B><p7> Special Instructions: </B>" oe-bolh.ship-i[1] FORMAT "x(200)"  SKIP.    
+   PUT "<FArial><R22.4><C2><B><p7> </B>" oe-bolh.ship-i[2] FORMAT "x(200)" SKIP . 
+   PUT "<FArial><R23.3><C2><B><p7> </B>" oe-bolh.ship-i[3] FORMAT "x(200)" SKIP .
+   PUT "<FArial><R24.2><C2><B><p7> </B>" oe-bolh.ship-i[4] FORMAT "x(200)" SKIP .
    PUT "<||><R25><C2><FROM><R32><C42><RECT>" "<R25><C2><B><p8> THIRD PARTY FREIGHT CHARGES BILL TO </B>"
        "<||><R25><C42><FROM><R32><C60><RECT>" "<R25><C43><B><p8> Freight charges are: </B>" SKIP.
    PUT "<||><R25><C42><FROM><R32><C77><RECT>"  SKIP. 
@@ -116,15 +118,15 @@
           AND oe-ordl.i-no    EQ oe-boll.i-no
           AND oe-ordl.line    EQ oe-boll.LINE
 	    NO-LOCK:
-        
+       
       FIND FIRST itemfg NO-LOCK
           WHERE itemfg.company EQ oe-boll.company
             AND itemfg.i-no EQ oe-boll.i-no NO-ERROR .
         iLineCount = iLineCount + 1 .
       PUT "<P8><C2>" oe-boll.cases 
-          "<C8>" oe-ordl.i-name FORMAT "x(20)" 
+          "<C8>" oe-ordl.i-name FORMAT "x(30)" 
           "<C25>" oe-ordl.part-no FORMAT "x(15)"
-          "<C40>" oe-ordl.part-dscr1 FORMAT "x(15)"
+          "<C40>" oe-ordl.part-dscr1 FORMAT "x(30)"
           "<C59>" oe-boll.weight 
           "<C63>" (IF AVAIL itemfg THEN itemfg.frt-class ELSE "") FORMAT "x(5)"
           "<C66>" ( IF AVAIL tt-temp-report AND iLineCount EQ 1 THEN tt-temp-report.key-02 ELSE "") FORMAT "x(10)"
