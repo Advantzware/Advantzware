@@ -431,7 +431,7 @@ PROCEDURE GetVendorUOM:
             
 END PROCEDURE.
 
-PROCEDURE VendorCost_GetDimCharge:
+PROCEDURE GetDimCharge:
     /*------------------------------------------------------------------------------
      Purpose: To get the Dim charge   
      Parameters:  <none>

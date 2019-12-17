@@ -31,8 +31,6 @@ CREATE WIDGET-POOL.
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
-
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -66,8 +64,6 @@ DEF TEMP-TABLE temp-adder NO-UNDO
 DEFINE BUFFER xjob-mat FOR job-mat.
 
 DEFINE STREAM st-excel.
-
-RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,9 +500,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* PO Purchased Variance */
 DO:
-    IF VALID-HANDLE(hdVendorCostProcs) THEN
-        DELETE OBJECT hdVendorCostProcs.
-      
+  
   /* This event will close the window and terminate the procedure.  */
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
@@ -585,11 +579,8 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-    IF VALID-HANDLE(hdVendorCostProcs) THEN
-      DELETE OBJECT hdVendorCostProcs.
-      
-  /* This event will close the window and terminate the procedure.  */
+DO: 
+    /* This event will close the window and terminate the procedure.  */
      APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
@@ -1553,7 +1544,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
     IF AVAIL tt-eiv THEN DO:
       ld-dim-charge = 0.
       IF LOGICAL(cReturnValue) AND AVAILABLE(vendItemCost) THEN 
-          RUN VendorCost_GetDimCharge IN hdVendorCostProcs(
+          RUN GetDimCharge(
               INPUT ROWID(vendItemCost),  /*VendItemCost RowID*/
               INPUT po-ordl.s-wid,        /*Width             */
               INPUT po-ordl.s-len,        /*Length            */

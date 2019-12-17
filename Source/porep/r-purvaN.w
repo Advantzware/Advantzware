@@ -74,10 +74,6 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
-
-RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
-
 ASSIGN cTextListToSelect = "PO #,Vendor #,Job #,Item #,Due Date,Rec Date,MSF,Vendor $," +
                            "Bought $,Diff $,MPV %,Overs %,Adder code1,Adder code2"
            cFieldListToSelect = "po-no,vend,job,item,due-dt,rcd-dt,msf,vend-$," +
@@ -580,11 +576,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* PO Purchased Variance */
 DO:
-  IF VALID-HANDLE(hdVendorCostProcs) THEN
-      DELETE OBJECT hdVendorCostProcs.
   /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -660,10 +654,7 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-    IF VALID-HANDLE(hdVendorCostProcs) THEN
-      DELETE OBJECT hdVendorCostProcs.
-      
+DO: 
   /* This event will close the window and terminate the procedure.  */
      APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
@@ -1259,7 +1250,7 @@ PROCEDURE pBuildTTVendItemCost PRIVATE:
   Purpose:  Populates tt-ei and tt-eiv from vendItemCost and vendItemcostLevel tables  
   Parameters:  <none>
   Notes:    
---------------------------------------------------------------------------------*/  
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemId   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
@@ -2001,7 +1992,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
     IF AVAIL tt-eiv THEN DO:
       ld-dim-charge = 0.
       IF LOGICAL(cReturnValue) AND AVAILABLE(vendItemCost) THEN
-          RUN VendorCost_GetDimCharge IN hdVendorCostProcs(
+          RUN GetDimCharge (
               INPUT ROWID(vendItemCost),  /*VendItemCost RowID*/
               INPUT po-ordl.s-wid,        /*Width             */
               INPUT po-ordl.s-len,        /*Length            */
