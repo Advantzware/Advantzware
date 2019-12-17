@@ -78,11 +78,13 @@ DEF STREAM excel.
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_date ~
 end_date begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no ~
 end_rm-no td_only-fgitem percent_chg td_imported rd_i-code rd_pur-man ~
-rd_round-EA rd_round tb_prmtx tb_undo fi_file btn-process btn-cancel 
+rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx tb_undo fi_file ~
+btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_date end_date ~
 begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no ~
 td_only-fgitem percent_chg td_imported rd_i-code lbl_i-code rd_pur-man ~
-lbl_pur-man rd_round-EA rd_round tb_prmtx tb_undo fi_file 
+lbl_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx ~
+tb_undo fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -196,18 +198,18 @@ DEFINE VARIABLE rd_round AS CHARACTER INITIAL "P"
      RADIO-BUTTONS 
           "Penny", "P",
 "Dime", "D",
-"Buck", "B",
+"Dollar", "B",
 "No Round", "N"
-     SIZE 48 BY 1 NO-UNDO.
+     SIZE 45.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_round-EA AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Penny", "P",
 "Dime", "D",
-"Buck", "B",
+"Dollar", "B",
 "No Round", "N"
-     SIZE 48 BY 1 NO-UNDO.
+     SIZE 45.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -217,6 +219,16 @@ DEFINE VARIABLE tb_prmtx AS LOGICAL INITIAL no
      LABEL "Update Price Matrix?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_RoundDown AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.4 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_RoundDownEA AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_undo AS LOGICAL INITIAL no 
      LABEL "UNDO a prior price change?" 
@@ -264,22 +276,28 @@ DEFINE FRAME FRAME-A
      lbl_i-code AT ROW 10.24 COL 23 COLON-ALIGNED NO-LABEL
      rd_pur-man AT ROW 11.38 COL 38 NO-LABEL
      lbl_pur-man AT ROW 11.43 COL 19 COLON-ALIGNED NO-LABEL
-     rd_round-EA AT ROW 12.57 COL 38 NO-LABEL WIDGET-ID 2
-     rd_round AT ROW 13.76 COL 38 NO-LABEL
+     rd_round-EA AT ROW 12.62 COL 29.2 NO-LABEL WIDGET-ID 2
+     tb_RoundDownEA AT ROW 12.81 COL 75 WIDGET-ID 22
+     rd_round AT ROW 13.76 COL 29.4 NO-LABEL
+     tb_RoundDown AT ROW 13.86 COL 75 WIDGET-ID 24
      tb_prmtx AT ROW 15 COL 35
-     tb_undo AT ROW 15.24 COL 35
+     tb_undo AT ROW 15.05 COL 34
      fi_file AT ROW 16.19 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
      btn-process AT ROW 18.48 COL 23
      btn-cancel AT ROW 18.48 COL 55
-     "For all other UOM, round up to:" VIEW-AS TEXT
-          SIZE 30 BY .71 AT ROW 13.91 COL 7 WIDGET-ID 12
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "For UOM=EA, round up to:" VIEW-AS TEXT
-          SIZE 26 BY .71 AT ROW 12.71 COL 11 WIDGET-ID 14
-     RECT-17 AT ROW 2.05 COL 1
+     "For UOM=EA, round  to:" VIEW-AS TEXT
+          SIZE 23.6 BY .71 AT ROW 12.67 COL 4.2 WIDGET-ID 14
+     "Round Down" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 13.91 COL 79 WIDGET-ID 28
+     "Round Down" VIEW-AS TEXT
+          SIZE 12.8 BY .95 AT ROW 12.71 COL 79.2 WIDGET-ID 26
+     "For all other UOM, round to:" VIEW-AS TEXT
+          SIZE 28 BY .71 AT ROW 13.86 COL 1.4 WIDGET-ID 12
+     RECT-17 AT ROW 1.29 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -305,10 +323,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Global Quote Price Change"
          HEIGHT             = 19.86
          WIDTH              = 94.2
-         MAX-HEIGHT         = 19.86
-         MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.86
-         VIRTUAL-WIDTH      = 98.2
+         MAX-HEIGHT         = 32.52
+         MAX-WIDTH          = 273.2
+         VIRTUAL-HEIGHT     = 32.52
+         VIRTUAL-WIDTH      = 273.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -423,6 +441,14 @@ ASSIGN
 
 ASSIGN 
        tb_prmtx:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_RoundDown:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_RoundDownEA:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -665,7 +691,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_round C-Win
 ON VALUE-CHANGED OF rd_round IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+    ASSIGN {&SELF-NAME}.
+  
+    IF {&SELF-NAME} = "N" THEN DO:
+        IF tb_RoundDown:CHECKED THEN
+            tb_RoundDown:CHECKED = NO.   
+        tb_RoundDown:SENSITIVE = FALSE.
+    END.   
+    
+    ELSE tb_RoundDown:Sensitive = TRUE.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,8 +709,15 @@ END.
 &Scoped-define SELF-NAME rd_round-EA
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_round-EA C-Win
 ON VALUE-CHANGED OF rd_round-EA IN FRAME FRAME-A
-DO:
-  assign {&self-name}.
+DO: 
+    ASSIGN {&SELF-NAME}.
+    IF {&SELF-NAME} = "N" THEN DO:
+        IF tb_RoundDownEA:CHECKED THEN
+            tb_RoundDownEA:CHECKED = NO.
+        tb_RoundDownEA:SENSITIVE = FALSE.    
+    END.
+      
+    ELSE tb_RoundDownEA:SENSITIVE = TRUE. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -803,12 +844,14 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
           begin_fg-cat end_fg-cat begin_rm-no end_rm-no td_only-fgitem 
           percent_chg td_imported rd_i-code lbl_i-code rd_pur-man lbl_pur-man 
-          rd_round-EA rd_round tb_prmtx tb_undo fi_file 
+          rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx tb_undo 
+          fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
          end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no 
          td_only-fgitem percent_chg td_imported rd_i-code rd_pur-man 
-         rd_round-EA rd_round tb_prmtx tb_undo fi_file btn-process btn-cancel 
+         rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx tb_undo 
+         fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -933,17 +976,22 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 def var v-process as log INIT NO no-undo.
 DEF BUFFER bf-quoteitm FOR quoteitm.
 
-assign
- fcust   = begin_cust
- tcust   = end_cust
- fdate   = begin_date
- tdate   = end_date
- v-pct   = percent_chg
- v-round = rd_round
- v-round-EA = rd_round-EA
- v-undo  = /*tb_undo*/ NO .
+DEFINE VARIABLE lRoundDown   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lRoundDownEA AS LOGICAL NO-UNDO.
 
-session:set-wait-state("General").
+assign
+ fcust        = begin_cust
+ tcust        = end_cust
+ fdate        = begin_date
+ tdate        = end_date
+ v-pct        = percent_chg
+ v-round      = rd_round
+ v-round-EA   = rd_round-EA
+ v-undo       = /*_undo*/ NO
+ lRoundDown   = tb_RoundDown
+ lRoundDownEA = tb_RoundDownEA .
+ 
+ session:set-wait-state("General").
 
 EMPTY TEMP-TABLE tt-rowid.
 EMPTY TEMP-TABLE tt-quoteqty .
@@ -1066,24 +1114,35 @@ for each quotehd
     ll = YES.
     
      BUFFER-COPY  quoteqty TO  tt-quoteqty.
-
+      
     v-orig-price = quoteqty.price.
     if v-undo then
       tt-quoteqty.price = tt-quoteqty.price / (1 - (v-pct / 100)).
     else
       tt-quoteqty.price = tt-quoteqty.price + (tt-quoteqty.price * v-pct / 100).
     v-orig-price = tt-quoteqty.price.
-
+    
     /* Perform rounding */
     IF NOT v-round = "N" AND tt-quoteqty.uom NE "EA" THEN DO:
-        tt-quoteqty.price = ROUND(tt-quoteqty.price, v).    
-        IF tt-quoteqty.price LT v-orig-price THEN
-          RUN round-up (INPUT v-orig-price, INPUT tt-quoteqty.price, INPUT v-round, OUTPUT tt-quoteqty.price).
+        IF lRoundDown THEN /* Perform RoundDown */
+            tt-quoteqty.price = TRUNCATE(tt-quoteqty.price,v).
+            
+        ELSE DO: /* Else do RoundUp */
+            tt-quoteqty.price = ROUND(tt-quoteqty.price, v). 
+            IF tt-quoteqty.price LT v-orig-price THEN
+            RUN round-up (INPUT v-orig-price, INPUT tt-quoteqty.price , INPUT v-round, OUTPUT tt-quoteqty.price).
+        END.    
     END.
+    
     IF NOT v-round-EA = "N" AND tt-quoteqty.uom EQ "EA" THEN DO:
-        tt-quoteqty.price = ROUND(tt-quoteqty.price, v-EA).    
-        IF tt-quoteqty.price LT v-orig-price THEN
-          RUN round-up (INPUT v-orig-price, INPUT tt-quoteqty.price, INPUT v-round-EA, OUTPUT tt-quoteqty.price).
+        IF lRoundDownEA THEN /* Perform Rounddown */
+            tt-quoteqty.price = TRUNCATE(tt-quoteqty.price,v-EA).
+        
+        ELSE DO: /* Perform RoundUp */
+            tt-quoteqty.price = ROUND(tt-quoteqty.price, v-EA).    
+            IF tt-quoteqty.price LT v-orig-price THEN
+                RUN round-up (INPUT v-orig-price, INPUT tt-quoteqty.price, INPUT v-round-EA, OUTPUT tt-quoteqty.price).
+        END.    
     END.
 
     PUT STREAM excel UNFORMATTED
@@ -1225,14 +1284,24 @@ for each quotehd
 
     /* Perform rounding */
     IF NOT v-round = "N" AND quoteqty.uom NE "EA" THEN DO:
-        quoteqty.price = ROUND(quoteqty.price, v).    
-        IF quoteqty.price LT v-orig-price THEN
-          RUN round-up (INPUT v-orig-price, INPUT quoteqty.price, INPUT v-round, OUTPUT quoteqty.price).
+        IF lRoundDown THEN /* Perform RoundDown */
+            quoteqty.price = TRUNCATE(quoteqty.price,v).
+            
+        ELSE DO:    /* Perform RoundUp */ 
+            quoteqty.price = ROUND(quoteqty.price, v).    
+            IF quoteqty.price LT v-orig-price THEN
+                RUN round-up (INPUT v-orig-price, INPUT quoteqty.price, INPUT v-round, OUTPUT quoteqty.price).
+        END.  
     END.
     IF NOT v-round-EA = "N" AND quoteqty.uom EQ "EA" THEN DO:
-        quoteqty.price = ROUND(quoteqty.price, v-EA).    
-        IF quoteqty.price LT v-orig-price THEN
-          RUN round-up (INPUT v-orig-price, INPUT quoteqty.price, INPUT v-round-EA, OUTPUT quoteqty.price).
+        IF lRoundDownEA THEN /* Perform RoundDown */
+            quoteqty.price = TRUNCATE(quoteqty.price,v-EA).
+        
+        ELSE DO:  /* Perform RoundUp */   
+            quoteqty.price = ROUND(quoteqty.price, v-EA).    
+            IF quoteqty.price LT v-orig-price THEN
+            RUN round-up (INPUT v-orig-price, INPUT quoteqty.price, INPUT v-round-EA, OUTPUT quoteqty.price).
+        END.    
     END.
      
   end.
