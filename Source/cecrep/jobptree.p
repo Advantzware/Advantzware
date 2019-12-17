@@ -1504,6 +1504,7 @@ ASSIGN
                         "<C70>" "<#32><UNITS=INCHES><C71><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
                           cJobMchID FORMAT "x(19)" ">"   "<R-1.5>" .
        END.
+       PAGE.
      END.  /* lPrintDMIPage */
     END.  /* each job */
 /*    end.  /* end v-local-loop  */*/
