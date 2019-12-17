@@ -74,6 +74,10 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
+
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
+
 ASSIGN cTextListToSelect = "PO #,Vendor #,Job #,Item #,Due Date,Rec Date,MSF,Vendor $," +
                            "Bought $,Diff $,MPV %,Overs %,Adder code1,Adder code2"
            cFieldListToSelect = "po-no,vend,job,item,due-dt,rcd-dt,msf,vend-$," +
@@ -576,6 +580,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* PO Purchased Variance */
 DO:
+  IF VALID-HANDLE(hdVendorCostProcs) THEN
+      DELETE OBJECT hdVendorCostProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -655,7 +661,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+    IF VALID-HANDLE(hdVendorCostProcs) THEN
+      DELETE OBJECT hdVendorCostProcs.
+      
+  /* This event will close the window and terminate the procedure.  */
+     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1245,11 +1255,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTTVendItemCost C-Win 
 PROCEDURE pBuildTTVendItemCost PRIVATE:
-/*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------ 
   Purpose:  Populates tt-ei and tt-eiv from vendItemCost and vendItemcostLevel tables  
   Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+  Notes:    
+--------------------------------------------------------------------------------*/  
     DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemId   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
@@ -1437,36 +1447,6 @@ PROCEDURE enable_UI :
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDimCharge C-Win 
-PROCEDURE pGetDimCharge PRIVATE :
-/*------------------------------------------------------------------------------
-  Purpose: To get the Dim charge   
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    DEFINE INPUT        PARAMETER ipriID        AS ROWID   NO-UNDO.
-    DEFINE INPUT        PARAMETER ipdWidth      AS DECIMAL NO-UNDO.
-    DEFINE INPUT        PARAMETER ipdLength     AS DECIMAL NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopdDimCharge AS DECIMAL NO-UNDO.
-    
-    FIND FIRST vendItemCost NO-LOCK 
-         WHERE ROWID(vendItemCost) = ipriID
-         NO-ERROR.
-        
-    IF AVAILABLE(vendItemCost) THEN DO:
-        IF ipdWidth LT vendItemCost.dimWidthUnder  THEN
-            iopdDimCharge = iopdDimCharge + (vendItemCost.dimWidthUnder).
-    
-        IF ipdLength LT vendItemCost.dimlengthUnder THEN
-            iopdDimCharge = iopdDimCharge + (vendItemCost.dimLengthUnder).
-    END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1709,8 +1689,9 @@ DEF VAR vaddr AS CHAR NO-UNDO.
 DEF VAR vaddr2 AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1929,16 +1910,17 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
     EMPTY TEMP-TABLE tt-ei.
     EMPTY TEMP-TABLE tt-eiv.
     
-    IF po-ordl.item-type THEN DO:
-        IF lRecFound AND LOGICAL(cReturnValue) THEN 
-            RUN pBuildTTVendItemCost( 
-                INPUT cocode,          /*Company code  */
-                INPUT po-ordl.i-no,    /*Item number   */
-                INPUT "RM",            /*Item type     */
-                INPUT po-ord.vend-no   /*Vendor number */
-                ).
-    
-        ELSE DO:
+    IF lRecFound AND LOGICAL(cReturnValue) THEN 
+        RUN pBuildTTVendItemCost( 
+            INPUT cocode,                                     /*Company code  */
+            INPUT po-ordl.i-no,                               /*Item number   */                
+            INPUT (IF po-ordl.item-type THEN "RM" ELSE "FG"), /*Item type     */
+            INPUT po-ord.vend-no                              /*Vendor number */
+            ).
+                
+    ELSE DO: 
+        /* If item type is RM (Raw Material) */
+        IF po-ordl.item-type THEN DO:
             FIND FIRST e-item
                  WHERE e-item.company EQ cocode
                    AND e-item.i-no    EQ po-ordl.i-no
@@ -1956,7 +1938,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
                     CREATE tt-eiv.
                     DO pr-ct = 1 TO 10:
                         ASSIGN
-                            tt-eiv.run-qty[pr-ct] = e-item-vend.run-qty[pr-ct]
+                            tt-eiv.run-qty[pr-ct]  = e-item-vend.run-qty[pr-ct]
                             tt-eiv.run-cost[pr-ct] = e-item-vend.run-cost[pr-ct]
                             .
                     END.
@@ -1972,18 +1954,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
                 END.
             END.
         END.
-    END.
-
-    ELSE DO:
-        IF lRecFound AND LOGICAL(cReturnValue) THEN 
-            RUN pBuildTTVendItemCost(
-                INPUT cocode,        /*Company code  */
-                INPUT po-ordl.i-no,  /*Item number   */
-                INPUT "FG",          /*Item type     */
-                INPUT po-ord.vend-no /*Vendor number */
-                ).
-              
-        ELSE DO:
+        ELSE DO: /* If item type is FG (Finished Goods) */
             FIND FIRST e-itemfg
                 WHERE e-itemfg.company EQ cocode
                   AND e-itemfg.i-no    EQ po-ordl.i-no
@@ -2030,13 +2001,12 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
     IF AVAIL tt-eiv THEN DO:
       ld-dim-charge = 0.
       IF LOGICAL(cReturnValue) AND AVAILABLE(vendItemCost) THEN
-          RUN pGetDimCharge(
+          RUN VendorCost_GetDimCharge IN hdVendorCostProcs(
               INPUT ROWID(vendItemCost),  /*VendItemCost RowID*/
               INPUT po-ordl.s-wid,        /*Width             */
               INPUT po-ordl.s-len,        /*Length            */
               INPUT-OUTPUT ld-dim-charge  /*Dim charge        */
-              ).
-              
+              ).               
       ELSE IF AVAILABLE(e-item-vend)  THEN
           RUN est/dim-charge.p (
               INPUT e-item-vend.rec_key,

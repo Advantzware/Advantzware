@@ -431,6 +431,36 @@ PROCEDURE GetVendorUOM:
             
 END PROCEDURE.
 
+PROCEDURE VendorCost_GetDimCharge:
+    /*------------------------------------------------------------------------------
+     Purpose: To get the Dim charge   
+     Parameters:  <none>
+     Notes:       
+     ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT        PARAMETER ipriID        AS ROWID   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdWidth      AS DECIMAL NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdLength     AS DECIMAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdDimCharge AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR VendItemCost.
+    
+    FIND FIRST bf-vendItemCost NO-LOCK 
+         WHERE ROWID(bf-vendItemCost) = ipriID
+         NO-ERROR.
+        
+    IF AVAILABLE(bf-vendItemCost) THEN DO:
+        IF ipdWidth LT bf-vendItemCost.dimWidthUnder THEN
+            iopdDimCharge = iopdDimCharge + (bf-vendItemCost.dimWidthUnder).
+    
+        IF ipdLength LT bf-vendItemCost.dimlengthUnder THEN
+            iopdDimCharge = iopdDimCharge + (bf-vendItemCost.dimLengthUnder).
+    END.
+
+
+
+END PROCEDURE.
+
 PROCEDURE pConvertDim PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Converts a dimensional length to desired UOM
