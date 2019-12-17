@@ -6911,8 +6911,7 @@ PROCEDURE check-cust-hold :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-    DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -6921,22 +6920,21 @@ PROCEDURE check-cust-hold :
             AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
         
         IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add"  THEN DO:
-            RUN pGetMessageProcs IN hMessageProcs (INPUT "12", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-            IF NOT lSuppressMessage THEN do:
-                FIND FIRST cust NO-LOCK 
-                    WHERE cust.company EQ cocode 
-                    AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
-                IF AVAIL cust AND cust.cr-hold THEN do:
-                    MESSAGE  cCurrentMessage
-                        VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans AS LOGICAL .
-                    IF NOT ll-ans THEN do:
-                        po-ordl.i-no:SCREEN-VALUE = "" .
-                        APPLY "entry" TO po-ordl.i-no .
-                        oplReturnError = YES .
-                    END.
-                    ELSE lCheckValidHold = YES .
-                END.
-            END.
+              RUN pGetMessageFlag IN hMessageProcs (INPUT "12", OUTPUT lSuppressMessage).
+              IF NOT lSuppressMessage THEN do:
+                  FIND FIRST cust NO-LOCK 
+                      WHERE cust.company EQ cocode 
+                      AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
+                  IF AVAIL cust AND cust.cr-hold AND NOT lSuppressMessage THEN do:
+                      RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "12", OUTPUT  lGetOutPutValue).
+                      IF NOT lGetOutPutValue THEN do:
+                          po-ordl.i-no:SCREEN-VALUE = "" .
+                          APPLY "entry" TO po-ordl.i-no .
+                          oplReturnError = YES .
+                      END.
+                      ELSE lCheckValidHold = YES .
+                  END.
+              END. /* NOT lSuppressMessage */
         END.
     END.
 
