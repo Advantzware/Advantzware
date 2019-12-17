@@ -1,7 +1,9 @@
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
+{sys/inc/var.i SHARED}
 {rm/bestvend.i}
+{sys/inc/venditemcost.i}
 
 DEF TEMP-TABLE w-run NO-UNDO
     FIELD w-qty AS DEC
@@ -23,6 +25,8 @@ FIND FIRST ef
       AND ef.form-no EQ eb.form-no
     NO-LOCK NO-ERROR.
 
+IF lNewVendorItemCost THEN RUN createTempFromVendItemCost.
+ELSE DO: 
 IF eb.pur-man THEN
 FOR EACH e-itemfg-vend NO-LOCK
     WHERE e-itemfg-vend.company  EQ eb.company
@@ -146,6 +150,7 @@ FOR EACH e-item
     END.
   END.
 END.
+END.  /* not lNewVendorItemCost */
 
 ll-select = NO.
 
@@ -193,3 +198,78 @@ FOR EACH tt-eiv:
     DELETE w-run.
   END.
 END.
+
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE createTempFromVendItemCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR v-index AS INT NO-UNDO.
+    
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company  EQ eb.company
+        AND vendItemCost.itemType =  (if eb.pur-man then "FG" ELSE "RM")
+        AND vendItemCost.estimateNo   EQ eb.est-no
+        /*    AND vendItemCost.eqty     EQ eb.eqty*/
+        AND vendItemCost.formNo  EQ eb.form-no
+        AND vendItemCost.blankNo EQ eb.blank-no
+        BREAK BY vendItemCost.vendorID:
+
+        IF FIRST(vendItemCost.vendorID) THEN 
+        DO:
+
+            CREATE tt-ei.
+            ASSIGN
+                tt-ei.std-uom = IF vendItemCost.vendorUOM <> "" THEN vendItemCost.vendorUOM ELSE "EA"
+                tt-ei.i-no    = eb.stock-no
+                tt-ei.company = vendItemCost.company.
+
+
+        /*    DO li = 1 TO 10:                                      */
+        /*       ASSIGN                                             */
+        /*          tt-ei.run-qty[li] = e-itemfg-vend.run-qty[li]   */
+        /*          tt-ei.run-cost[li] = e-itemfg-vend.run-cost[li].*/
+        /*    END.                                                  */
+        END.
+
+        v-index = 0.
+        FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
+            BY vendItemCostLevel.vendItemCostLevelID:
+         
+            v-index = v-index + 1.
+
+            IF NOT CAN-FIND(FIRST tt-eiv
+                WHERE tt-eiv.company   EQ vendItemCost.company
+                AND tt-eiv.i-no      EQ eb.stock-no
+                AND tt-eiv.vend-no   EQ vendItemCost.vendorID) THEN 
+            DO:
+                CREATE tt-eiv.
+                ASSIGN
+                    tt-eiv.row-id = ROWID(vendItemCost)
+                    tt-eiv.i-no   = eb.stock-no
+                    tt-eiv.company = vendItemCost.company
+                    tt-eiv.vend-no = vendItemCost.vendorID
+                    tt-eiv.item-type = vendItemCost.itemType = "RM"
+                    tt-eiv.rec_key   = vendItemCost.rec_key.
+
+                IF v-index GT 0 AND v-index LE 10 THEN 
+                    ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
+                        tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
+                        tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
+                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
+                        tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */
+                        tt-eiv.SELECTED[li] = vendItemCost.useQuantityFromBase
+                        .
+                IF v-index GT 10 AND v-index LE 30 THEN           
+                    assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
+                        .
+
+            END.
+        END.
+    END.
+
+
+END PROCEDURE.
