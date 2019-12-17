@@ -466,7 +466,7 @@ FOR EACH oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
 
   oe-bolh.printed = yes.
 
-  if LAST(oe-bolh.bol-no) then do:
+  if LAST(oe-bolh.bol-no) AND lPrintDetailPage then do:
 
       {oe/rep/bolptreePage.i} 
    
