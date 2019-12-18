@@ -48,6 +48,10 @@ DEFINE VARIABLE hPgmSecurity  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lAuditMonitor AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hSession      AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cResourceTypeASI          AS CHARACTER NO-UNDO INITIAL "ASI".
+DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
+RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
+
 RUN system/session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
@@ -266,6 +270,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* {1} Monitor */
 DO:
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+
        RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -293,6 +300,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+
   RUN system/userLogOut.p (NO, 0).
   APPLY 'CLOSE' TO THIS-PROCEDURE.
   /* Must not go to the editor when started from the command line */
@@ -334,8 +344,16 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN postMonitor.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN postMonitor.
 
+    RUN AdvantzwareMonitor_UpdateResourceStatusTime IN hdAdvantzwareMonitorProcs (
+        INPUT  "{1}",
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
