@@ -341,7 +341,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-message ).
-       RUN set-position IN h_v-message ( 5.29 , 14.00 ) NO-ERROR.
+      RUN set-position IN h_v-message ( 4.64 , 5.00 ) NO-ERROR.
+      RUN set-size IN h_v-message ( 14.00 , 113.00 ) NO-ERROR.
        /* Size in UIB:  ( 12.62 , 123.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

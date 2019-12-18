@@ -160,9 +160,6 @@ PROCEDURE os-Process-Hold-Status :
    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO .
    DEFINE VARIABLE lHold AS LOGICAL NO-UNDO .
    DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO .
-   DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-   RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-
 
    /* Find the order record. */
    FIND FIRST b-oe-ord NO-LOCK WHERE
@@ -186,11 +183,8 @@ PROCEDURE os-Process-Hold-Status :
        /*MESSAGE "Take Order off Hold Status?"                                   */
        /*    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.*/
        
-       RUN pGetMessageFlag IN hMessageProcs (INPUT "10", OUTPUT lSuppressMessage ).
-
-       IF NOT lSuppressMessage THEN
-           RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "10", OUTPUT lContinue) .
-       ELSE lContinue = TRUE .
+       RUN displayMessageQuestion ("10", OUTPUT cMsgRtn).
+       lContinue = LOGICAL(cMsgRtn).             
        
        IF NOT lContinue THEN RETURN.
 
@@ -210,12 +204,9 @@ PROCEDURE os-Process-Hold-Status :
        /*MESSAGE "Place Order on Hold?"                                     */
        /*    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lHold AS LOGICAL.*/
        
-       RUN pGetMessageFlag IN hMessageProcs (INPUT "9", OUTPUT lSuppressMessage ).
+       RUN displayMessageQuestion ("9", OUTPUT cMsgRtn).
+       lHold = LOGICAL(cMsgRtn).             
 
-       IF NOT lSuppressMessage THEN
-           RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "9", OUTPUT lHold) .
-       ELSE lHold = TRUE .
-       
        IF NOT lHold THEN RETURN.
 
        /* Prompt the user to select order hold status type. */
@@ -268,7 +259,6 @@ PROCEDURE os-Process-Hold-Status :
 
    /* reset item update flag. */
    ASSIGN glStatTypeItemUpdate = NO.
-   DELETE OBJECT hMessageProcs.
 
 END PROCEDURE.
 

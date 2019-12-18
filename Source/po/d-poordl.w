@@ -171,9 +171,6 @@ RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -975,7 +972,6 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
     DISABLE TRIGGERS FOR LOAD OF po-ordl.
-    DELETE OBJECT hMessageProcs.
     IF lv-item-recid <> ? THEN DO:
        FIND po-ordl EXCLUSIVE-LOCK WHERE RECID(po-ordl) = lv-item-recid  NO-ERROR.
        IF AVAILABLE po-ordl THEN DELETE po-ordl.
@@ -1265,7 +1261,6 @@ DO:
       
 END. /* If a finished good */
 
-DELETE OBJECT hMessageProcs.
 APPLY "go" TO FRAME {&frame-name}.
 END.
 
@@ -5384,7 +5379,6 @@ PROCEDURE valid-b-num :
             po-ordl.job-no:SCREEN-VALUE =
                 FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
                 TRIM(po-ordl.job-no:SCREEN-VALUE).
-              RUN pGetMessageFlag IN hMessageProcs (INPUT "5", OUTPUT lSuppressMessage ).
             IF NOT ll-pojob-warned THEN
                 FIND FIRST xpo-ordl NO-LOCK
                     WHERE xpo-ordl.company EQ g_company
@@ -5400,16 +5394,11 @@ PROCEDURE valid-b-num :
                     WHERE xpo-ord.company EQ xpo-ordl.company
                     AND xpo-ord.po-no   EQ xpo-ordl.po-no)
                     USE-INDEX ITEM NO-ERROR.
-            IF AVAILABLE xpo-ordl AND NOT lSuppressMessage THEN 
+            IF AVAILABLE xpo-ordl THEN 
             DO:
                 ll-ans = NO.
-
-                /*MESSAGE "Purchase order " +                              */
-                /*    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +            */
-                /*    " already exists for Job/Item/Sheet/Blank, continue?"*/
-                  
-                RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "5", OUTPUT ll-ans ).
-              
+                RUN displayMessageQuetion ("5", OUTPUT cMsgRtn).
+                ll-ans = LOGICAL(cMsgRtn).             
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
             END.
@@ -6920,13 +6909,13 @@ PROCEDURE check-cust-hold :
             AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
         
         IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add"  THEN DO:
-              RUN pGetMessageFlag IN hMessageProcs (INPUT "12", OUTPUT lSuppressMessage).
-              IF NOT lSuppressMessage THEN do:
-                  FIND FIRST cust NO-LOCK 
-                      WHERE cust.company EQ cocode 
-                      AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
-                  IF AVAIL cust AND cust.cr-hold AND NOT lSuppressMessage THEN do:
-                      RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "12", OUTPUT  lGetOutPutValue).
+            FIND FIRST cust NO-LOCK 
+                WHERE cust.company EQ cocode 
+                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
+            IF AVAIL cust AND cust.cr-hold AND NOT lSuppressMessage THEN 
+            do:
+              RUN displayMessageQuestion("12", OUTPUT cMsgRtn).
+              lGetOutputValue = LOGICAL(cMsgRtn).
                       IF NOT lGetOutPutValue THEN do:
                           po-ordl.i-no:SCREEN-VALUE = "" .
                           APPLY "entry" TO po-ordl.i-no .

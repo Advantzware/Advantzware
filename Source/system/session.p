@@ -1598,6 +1598,114 @@ END PROCEDURE.
 
 &ENDIF
 
+PROCEDURE displayMessage:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message in standard format
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
+    
+    FIND FIRST zMessage NO-LOCK
+        WHERE zMessage.msgID EQ ipcMessageID       
+        NO-ERROR.
+    
+    IF NOT AVAIL zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress EQ TRUE THEN 
+            RETURN.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "Error" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX ERROR 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            WHEN "Info" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX INFO
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            WHEN "Message" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX MESSAGE 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            WHEN "Warning" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX WARNING 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            OTHERWISE DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
+                    "NOTE: Message type for this record is not correct." SKIP 
+                    "Please correct using NZ@ or contact ASI Support."
+                    VIEW-AS ALERT-BOX WARNING 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+        END CASE.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE displayMessageQuestion:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message and returns a character-based answer as output
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcOutput AS CHAR NO-UNDO.
+
+    FIND FIRST zMessage NO-LOCK
+        WHERE zMessage.msgID EQ ipcMessageID       
+        NO-ERROR.
+    
+    IF NOT AVAIL zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress THEN DO:
+        ASSIGN 
+            opcOutput = zMessage.rtnValue.
+    END.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "QUESTION-YN" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle)
+                    UPDATE cLog AS LOG.
+                ASSIGN 
+                    opcOutput = STRING(cLog).
+                END.
+            /* Deal with these options in next phase */
+            WHEN "QUESTION-CHAR" THEN DO:
+            END.
+            WHEN "QUESTION-INT" THEN DO:
+            END.
+            WHEN "QUESTION-DECI" THEN DO:
+            END.
+            WHEN "QUESTION-DATE" THEN DO:
+            END.
+        END CASE.
+    END.
+
+END PROCEDURE.
+
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
