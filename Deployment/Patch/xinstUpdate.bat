@@ -34,6 +34,9 @@ IF NOT %errorlevel%==0 (
 
 :Continue
 
+:: Stop node listeners
+taskkill /im node.exe /F > NUL
+
 :: Move to Admin/EnvAdmin dir
 CD ..\Admin\Envadmin
 

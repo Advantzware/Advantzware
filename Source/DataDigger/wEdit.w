@@ -6,7 +6,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wEdit 
 /*------------------------------------------------------------------------
 
-  Name : wEdit.i
+  Name : wEdit.w
   Desc : Edit one or more records
 
   ----------------------------------------------------------------------*/
@@ -14,9 +14,6 @@
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
 
 /* Parameters Definitions ---                                           */
@@ -36,7 +33,6 @@ DEFINE {&outvar} porRepositionId   AS ROWID     NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE gcUniqueFields AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glInEditMode   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ghBackupTable  AS HANDLE    NO-UNDO.
 
 /* This table holds the actual values of the selected records */
@@ -50,6 +46,7 @@ DEFINE TEMP-TABLE ttData NO-UNDO RCODE-INFORMATION
 &GLOBAL-DEFINE field-cFullName 3
 &GLOBAL-DEFINE field-cLabel    4
 &GLOBAL-DEFINE field-cNewValue 5
+&GLOBAL-DEFINE field-maxLength 10000
 
 /* TT to keep track of records we are editing */
 DEFINE TEMP-TABLE ttRecordMapping NO-UNDO
@@ -570,7 +567,7 @@ DO:
 
     RUN VALUE(getProgramDir() + 'wViewAsEditor.w')(INPUT-OUTPUT cValue).
 
-    ttColumn.cNewValue:SCREEN-VALUE IN BROWSE brRecord = cValue.
+    ttColumn.cNewValue:SCREEN-VALUE IN BROWSE brRecord = STRING(cValue).
     APPLY 'value-changed' TO ttColumn.cNewValue IN BROWSE brRecord.
   END.
 END.
@@ -887,7 +884,6 @@ ON "leave" OF ttColumn.cNewValue IN BROWSE brRecord
 DO:
   DO WITH FRAME {&FRAME-NAME}:
     brRecord:TOOLTIP = "fields to edit".
-/*     ttColumn.cNewValue = ttColumn.cOldValue. */
     RUN enableToolbar("").
   END.
 END. /* leave cNewValue */
@@ -969,8 +965,12 @@ PROCEDURE btnGoChoose :
   DEFINE VARIABLE iRow            AS INTEGER NO-UNDO.
   DEFINE VARIABLE iStartTime      AS INTEGER NO-UNDO.
   DEFINE VARIABLE lDisableTrigger AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cRealOldValue   AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE lCommit         AS LOGICAL    NO-UNDO.
+  DEFINE VARIABLE iFormatLength   AS INTEGER    NO-UNDO.
 
   DEFINE BUFFER bColumn FOR ttColumn.
+  DEFINE BUFFER bField  FOR ttField.
 
   /* In read-only mode, return */
   IF plReadOnlyDigger THEN
@@ -978,7 +978,7 @@ PROCEDURE btnGoChoose :
     plSuccess = TRUE.
     RETURN.
   END.
-  
+
   lDisableTrigger = (tgWriteTrigger:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "no").
 
   /* See if any fields have been set. If not, go back. */
@@ -1072,7 +1072,7 @@ PROCEDURE btnGoChoose :
         /* Dump the original record as a backup */
         RUN dumpRecord(INPUT "Update", INPUT hBufferDB, OUTPUT plSuccess).
         IF NOT plSuccess THEN UNDO #CommitLoop, LEAVE #CommitLoop.
-      
+
         /* Check for changes by other users */
         FOR EACH bColumn WHERE bColumn.lShow = TRUE
           ON ERROR UNDO #CommitLoop, LEAVE #CommitLoop:
@@ -1087,10 +1087,9 @@ PROCEDURE btnGoChoose :
                                     , hBufferDB:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent)
                                     ) ).
 
-            CASE getRegistry('DataDigger:help', 'DataChanged:answer'):
-              WHEN '1' THEN . /* yes */
+            /* 1=yes 2=no 3=yes-all 4=cancel */
+            CASE getRegistry('DataDigger:Help', 'DataChanged:answer'):
               WHEN '2' THEN NEXT #RecordLoop. /* no */
-              WHEN '3' THEN . /* yes-all */
               WHEN '4' THEN UNDO #CommitLoop, LEAVE #CommitLoop. /* cancel */
             END CASE.
           END.
@@ -1105,14 +1104,41 @@ PROCEDURE btnGoChoose :
           hSourceBuffer = hBuffer.
         ELSE /* Edit */
           hSourceBuffer = hBufferDB.
-          
+
         FOR EACH bColumn WHERE bColumn.lShow = TRUE
           ON ERROR UNDO #CommitLoop, LEAVE #CommitLoop:
+
+          FIND bField WHERE bField.cFieldName = bColumn.cFieldName NO-ERROR.
+
+          /* Check for unknown value in mandatory field */
+          IF (bColumn.cNewValue = '' OR bColumn.cNewValue = ?) AND bField.cDataType <> 'CHARACTER' THEN 
+            bColumn.cNewValue = bField.cInitial.
+
           /* 2016-08-08 richardk large decimal values are not correctly casted from string,
            * last two digits of a 23 digit decimal are always zero */
           CASE hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):DATA-TYPE:
-            WHEN "decimal" THEN hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent) = DECIMAL(bColumn.cNewValue).
-            OTHERWISE hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent) = bColumn.cNewValue.
+            WHEN "decimal" THEN
+              hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent) = DECIMAL(bColumn.cNewValue).
+            OTHERWISE
+            DO:
+              lCommit = YES.
+
+              IF bField.cFormat BEGINS "x(" THEN
+              DO:
+                cRealOldValue = hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent).
+                iFormatLength = INTEGER(ENTRY(1, ENTRY(2, bField.cFormat, "("), ")")) NO-ERROR.
+
+                IF   iFormatLength <> ?
+                 AND iFormatLength > 0
+                 AND LENGTH(cRealOldValue) > iFormatLength
+                 AND LENGTH(bColumn.cNewValue) = {&field-maxLength}   /* Betekent dat ie afgekapt is */
+                THEN
+                  lCommit = NO.
+              END.
+
+              IF lCommit THEN
+                hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent) = bColumn.cNewValue.
+            END.
           END CASE.
         END. /* f/e bColumn */
       END. /* Copy data to record */
@@ -1295,14 +1321,14 @@ PROCEDURE getOriginalData :
  */
   DEFINE INPUT PARAMETER pcDatabase AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER pcTable    AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER phBrowse   AS HANDLE    NO-UNDO.
+  DEFINE INPUT PARAMETER phBrowse AS HANDLE    NO-UNDO.
 
   DEFINE VARIABLE hBufferTT    AS HANDLE  NO-UNDO.
   DEFINE VARIABLE hBufferDB    AS HANDLE  NO-UNDO.
   DEFINE VARIABLE i            AS INTEGER NO-UNDO.
 
   CREATE TEMP-TABLE ghBackupTable.
-  ghBackupTable:ADD-FIELDS-FROM( SUBSTITUTE('&1.&2',picDatabase, picTableName)).
+  ghBackupTable:ADD-FIELDS-FROM( SUBSTITUTE('&1.&2',pcDatabase, pcTable)).
   ghBackupTable:TEMP-TABLE-PREPARE('ttBackup').
   hBufferTT = ghBackupTable:DEFAULT-BUFFER-HANDLE.
 
@@ -1459,43 +1485,53 @@ PROCEDURE initializeObject :
 
       iMaxNameLength = MAXIMUM(iMaxNameLength,FONT-TABLE:GET-TEXT-WIDTH-PIXELS(bColumn.cFullName,iDefaultFont)).
     END.
-  END.    
+  END.
 
   /* Collect data for all fields
    * And if we only have 1 value for all selected records, let's show that
    */
   FOR EACH bField:
-    
+
     /* Set max length for chars */
     IF bField.cDatatype = 'character' THEN iMaxLength = 1.
-        
+
     FOR EACH bColumn WHERE bColumn.cFieldname = bField.cFieldname:
-    
+
       IF CAN-DO('Clone,Edit',picMode) THEN
         RUN getDataValues(pihBrowse,bColumn.cFullName, bColumn.iExtent).
+
+      IF bField.cDatatype = 'character' THEN
+      DO:
+        IF NUM-ENTRIES(bField.cFormat,'(') > 1 THEN
+          iFieldLength = INTEGER(TRIM(bField.cFormat,'9X()')) NO-ERROR.
+        ELSE
+          iFieldLength = LENGTH(bField.cFormat).
+
+        IF iFieldLength = ? THEN iFieldLength = MAXIMUM(8,bField.iWidth).
+        iMaxLength = MAXIMUM(iMaxLength, iFieldLength).
+      END.
 
       FIND ttData WHERE ttData.cFieldName = bColumn.cFullName NO-ERROR.
       IF AVAILABLE ttData THEN
       DO:
+        IF   bField.cDatatype = "character"
+         AND iMaxLength <> ?
+         AND iMaxLength  > 0
+         AND length(ttData.cValue) > {&field-maxLength} THEN
+          ttData.cValue = SUBSTRING(ttData.cValue, 1, {&field-maxLength}).
+
         ASSIGN
           bColumn.cOldValue = ttData.cValue /* so we can revert to the old value */
           bColumn.cNewValue = ttData.cValue
           bColumn.lShow     = TRUE.
       END.
-      
-      IF bField.cDatatype = 'character' THEN
-      DO:
-        iFieldLength = INTEGER(TRIM(bField.cFormat,'X()')) NO-ERROR.
-        IF iFieldLength = ? THEN iFieldLength = MAXIMUM(8,bField.iWidth).
-        iMaxLength = MAXIMUM(iMaxLength, iFieldLength).
-      END.
-    END.
-    
+     END.
+
     /* If the data is longer than the format allows, adjust format up to a max of 10k */
     IF bField.cDatatype = 'character' THEN
-      bField.cFormat = SUBSTITUTE('x(&1)', MINIMUM(iMaxLength * 2,10000)).
+      bField.cFormat = SUBSTITUTE('x(&1)', MINIMUM(iMaxLength * 2, {&field-maxLength})).
   END.
-   
+
   /* When editing records, keep a copy of the original data */
   IF picMode = 'Edit' THEN
     RUN getOriginalData(picDatabase, picTableName, pihBrowse).
@@ -1531,7 +1567,7 @@ PROCEDURE initializeObject :
 
     /* to avoid scrollbars on the frame */
     FRAME {&FRAME-NAME}:SCROLLABLE = FALSE.
-    
+
     iValue = INTEGER(getRegistry('DataDigger:Edit', 'Window:x' )).
     IF iValue = ? THEN iValue = INTEGER(getRegistry('DataDigger', 'Window:x' )) + 50.
     ASSIGN wEdit:X = iValue NO-ERROR.
@@ -1570,6 +1606,8 @@ PROCEDURE initializeObject :
 
   RUN reopenFieldBrowse(?,?).
 
+  /* Treat -RO database the same as read-only mode */
+  IF CAN-DO(DBRESTRICTIONS(picDatabase), "READ-ONLY") = YES THEN plReadOnlyDigger = TRUE.
   IF plReadOnlyDigger THEN btnOk:SENSITIVE = FALSE.
 
   /* Start listener to table changes in main window */
@@ -1748,3 +1786,4 @@ END FUNCTION. /* increaseCharValue */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
