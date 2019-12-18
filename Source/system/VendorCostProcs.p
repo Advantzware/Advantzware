@@ -438,27 +438,40 @@ PROCEDURE GetDimCharge:
      Notes:       
      ------------------------------------------------------------------------------*/
 
-    DEFINE INPUT        PARAMETER ipriID        AS ROWID   NO-UNDO.
-    DEFINE INPUT        PARAMETER ipdWidth      AS DECIMAL NO-UNDO.
-    DEFINE INPUT        PARAMETER ipdLength     AS DECIMAL NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopdDimCharge AS DECIMAL NO-UNDO.
+    DEFINE INPUT        PARAMETER ipriID                 AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdDimWidth            AS DECIMAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdDimLength           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcDimUOM              AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdCostPerUOMUpcharge AS DECIMAL   NO-UNDO.  
+    DEFINE OUTPUT       PARAMETER oplError               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage             AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-vendItemCost FOR VendItemCost.
     
     FIND FIRST bf-vendItemCost NO-LOCK 
-         WHERE ROWID(bf-vendItemCost) = ipriID
+         WHERE ROWID(bf-vendItemCost) EQ ipriID
          NO-ERROR.
-        
-    IF AVAILABLE(bf-vendItemCost) THEN DO:
-        IF ipdWidth LT bf-vendItemCost.dimWidthUnder THEN
-            iopdDimCharge = iopdDimCharge + (bf-vendItemCost.dimWidthUnder).
-    
-        IF ipdLength LT bf-vendItemCost.dimlengthUnder THEN
-            iopdDimCharge = iopdDimCharge + (bf-vendItemCost.dimLengthUnder).
+         
+    IF NOT AVAILABLE bf-vendItemCost THEN DO:
+        ASSIGN 
+            oplError   = TRUE
+            opcMessage = "Invalid vendItemCost record"
+            .
+        RETURN.
     END.
-
-
-
+    
+    RUN pGetUpchargeCostsForVendItemCost(
+        BUFFER bf-vendItemCost, 
+        INPUT  ipdDimLength, 
+        INPUT  ipdDimWidth, 
+        INPUT  ipcDimUOM, 
+        OUTPUT iopdCostPerUOMUpcharge, 
+        OUTPUT oplError, 
+        INPUT-OUTPUT opcMessage
+        ).
+        
+    RELEASE bf-vendItemCost.    
+    
 END PROCEDURE.
 
 PROCEDURE pConvertDim PRIVATE:
@@ -690,11 +703,25 @@ PROCEDURE pGetUpchargeCostsForVendItemCost PRIVATE:
 
     IF ipcDimUOM NE ipbf-vendItemCost.dimUOM THEN 
     DO:
-        RUN pConvertDim(ipbf-vendItemCost.company, ipdDimLength, ipcDimUOM, ipbf-vendItemCost.dimUOM, 
-            OUTPUT dDimLengthInVendorDimUOM, OUTPUT oplError, OUTPUT iopcMessage).
+        RUN pConvertDim(
+            INPUT  ipbf-vendItemCost.company, 
+            INPUT  ipdDimLength, 
+            INPUT  ipcDimUOM,
+            INPUT  ipbf-vendItemCost.dimUOM, 
+            OUTPUT dDimLengthInVendorDimUOM, 
+            OUTPUT oplError, 
+            INPUT-OUTPUT iopcMessage
+            ).
         IF NOT oplError THEN 
-            RUN pConvertDim(ipbf-vendItemCost.company, ipdDimWidth, ipcDimUOM, ipbf-vendItemCost.dimUOM, 
-                OUTPUT dDimWidthInVendorDimUOM, OUTPUT oplError, OUTPUT iopcMessage).
+            RUN pConvertDim(
+                INPUT  ipbf-vendItemCost.company, 
+                INPUT  ipdDimWidth,
+                INPUT  ipcDimUOM, 
+                INPUT  ipbf-vendItemCost.dimUOM, 
+                OUTPUT dDimWidthInVendorDimUOM, 
+                OUTPUT oplError,
+                INPUT-OUTPUT iopcMessage
+                ).
         IF oplError THEN RETURN.
     END.
     ELSE 

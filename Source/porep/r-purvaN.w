@@ -1683,6 +1683,8 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1993,11 +1995,14 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
       ld-dim-charge = 0.
       IF LOGICAL(cReturnValue) AND AVAILABLE(vendItemCost) THEN
           RUN GetDimCharge (
-              INPUT ROWID(vendItemCost),  /*VendItemCost RowID*/
-              INPUT po-ordl.s-wid,        /*Width             */
-              INPUT po-ordl.s-len,        /*Length            */
-              INPUT-OUTPUT ld-dim-charge  /*Dim charge        */
-              ).               
+              INPUT ROWID(vendItemCost),        /*VendItemCost RowID*/
+              INPUT po-ordl.s-wid,              /*Width             */
+              INPUT po-ordl.s-len,              /*Length            */
+              INPUT po-ordl.pr-qty-uom,         /*UOM               */
+              INPUT-OUTPUT ld-dim-charge,       /*Dim charge        */
+              OUTPUT lError,                    /*Success flag      */
+              OUTPUT cMessage                   /*Message           */
+              ) NO-ERROR.               
       ELSE IF AVAILABLE(e-item-vend)  THEN
           RUN est/dim-charge.p (
               INPUT e-item-vend.rec_key,
