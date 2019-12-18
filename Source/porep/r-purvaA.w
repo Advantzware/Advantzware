@@ -1550,7 +1550,6 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
               INPUT ROWID(vendItemCost),        /*VendItemCost RowID*/
               INPUT po-ordl.s-wid,              /*Width             */
               INPUT po-ordl.s-len,              /*Length            */
-              INPUT po-ordl.pr-qty-uom,         /*UOM               */
               INPUT-OUTPUT ld-dim-charge,       /*Dim charge        */
               OUTPUT lError,                    /*Success flag      */
               OUTPUT cMessage                   /*Message           */

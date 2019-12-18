@@ -441,7 +441,6 @@ PROCEDURE GetDimCharge:
     DEFINE INPUT        PARAMETER ipriID                 AS ROWID     NO-UNDO.
     DEFINE INPUT        PARAMETER ipdDimWidth            AS DECIMAL   NO-UNDO.
     DEFINE INPUT        PARAMETER ipdDimLength           AS DECIMAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcDimUOM              AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdCostPerUOMUpcharge AS DECIMAL   NO-UNDO.  
     DEFINE OUTPUT       PARAMETER oplError               AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage             AS CHARACTER NO-UNDO.
@@ -464,7 +463,7 @@ PROCEDURE GetDimCharge:
         BUFFER bf-vendItemCost, 
         INPUT  ipdDimLength, 
         INPUT  ipdDimWidth, 
-        INPUT  ipcDimUOM, 
+        INPUT  bf-vendItemCost.dimUOM, 
         OUTPUT iopdCostPerUOMUpcharge, 
         OUTPUT oplError, 
         INPUT-OUTPUT opcMessage
