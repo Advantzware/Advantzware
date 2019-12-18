@@ -24,6 +24,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD Company         AS CHARACTER 
     FIELD Location        AS CHARACTER 
     FIELD riParentEst     AS ROWID   /*Can be the row-id of the est table or blank for new estimate*/
+    FIELD EstGroup        AS CHARACTER 
     FIELD Industry        AS CHARACTER FORMAT "X" COLUMN-LABEL "Industry" HELP "Required - Must Be F or C - Size:1"
     FIELD EstimateNo      AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Est #" HELP "Auto-incremented if not provided - Size:8"
     FIELD Quantity        AS INTEGER   FORMAT ">>>>>>>" COLUMN-LABEL "Quantity" HELP "Required - Integer"
@@ -119,7 +120,9 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD Direction       AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Direction" HELP "Optional - N B or S"
     FIELD ImageBoxDesign  AS CHARACTER FORMAT "X(200)" COLUMN-LABEL "Box Design" HELP "Optional - Size:Large"
     .
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 3. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+
+DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -808,16 +811,63 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cIndustry AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iEstType  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE riItemfg  AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cEstNumber AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
         
     ASSIGN 
         cIndustry = ipbf-ttImportEstimate.Industry
+        cEstNumber = ipbf-ttImportEstimate.EstimateNo
         .
     IF cIndustry EQ "C" THEN 
         iEstType = 5. 
     ELSE 
         iEstType = 1.
+    IF cEstNumber NE "" THEN DO: 
+        FIND FIRST est NO-LOCK 
+            WHERE est.company EQ ipbf-ttImportEstimate.Company
+            AND est.est-no EQ cEstNumber 
+            NO-ERROR.
+        
+        IF cEstNumber BEGINS gcAutoIndicator THEN DO:
+        /*Auto numbering logic*/
+        /*Get the EstGroup as string to the right of the indicator*/
+            IF LENGTH(cEstNumber) NE LENGTH(gcAutoIndicator) THEN 
+                cEstGroup = SUBSTRING(cEstNumber,LENGTH(gcAutoIndicator) + 1, LENGTH(cEstNumber) - LENGTH(gcAutoIndicator)).
+            IF cEstGroup NE "" THEN 
+                FIND FIRST bf-ttImportEstimate NO-LOCK
+                    WHERE bf-ttImportEstimate.EstGroup EQ cEstGroup
+                    NO-ERROR.
+            IF AVAILABLE bf-ttImportEstimate THEN DO:
+                FIND FIRST est NO-LOCK 
+                    WHERE est.company EQ bf-ttImportEstimate.Company 
+                    AND est.est-no EQ bf-ttImportEstimate.EstimateNo
+                NO-ERROR.
+                IF AVAILABLE est THEN DO:
+                    FIND CURRENT ipbf-ttImportEstimate EXCLUSIVE-LOCK.
+                    ASSIGN
+                        ipbf-ttImportEstimate.EstGroup = cEstGroup
+                        ipbf-ttImportEstimate.EstimateNo = est.est-no
+                        ipbf-ttImportEstimate.riParentEst = ROWID(est)
+                        cEstNumber = est.est-no.
+                    FIND CURRENT ipbf-ttImportEstimate NO-LOCK. 
+                END.
+            END.
+            ELSE 
+                ASSIGN 
+                    lAutoNumber = YES
+                    cEstNumber = "".
+        END.
+        ELSE 
+            ASSIGN 
+                cEstNumber = STRING(INTEGER(ipbf-ttImportEstimate.EstimateNo),">>>>>>>>").        
+    END.
     FIND FIRST est NO-LOCK 
         WHERE ROWID(est) EQ ipbf-ttImportEstimate.riParentEst NO-ERROR.
+    
     IF NOT AVAILABLE est THEN 
     DO:
         RUN est/NewEstimate.p (cIndustry, iEstType, OUTPUT riEb).
@@ -827,21 +877,36 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN est/NewEstimateForm.p (cIndustry, ROWID(est), OUTPUT riEb).
     END.
     iopiAdded = iopiAdded + 1.
-    FIND eb 
+    FIND eb EXCLUSIVE-LOCK
         WHERE ROWID(eb) EQ riEb  
         NO-ERROR.
-    FIND FIRST ef OF eb
+    FIND FIRST ef OF eb EXCLUSIVE-LOCK
         NO-ERROR.
-    FIND FIRST est NO-LOCK WHERE 
-        est.company EQ eb.company AND 
-        est.est-no EQ eb.est-no 
+    FIND FIRST est EXCLUSIVE-LOCK
+        WHERE est.company EQ eb.company 
+        AND est.est-no EQ eb.est-no 
         NO-ERROR.
-    FIND est-qty 
+    FIND est-qty EXCLUSIVE-LOCK
         WHERE est-qty.company EQ ef.company
         AND est-qty.est-no EQ ef.est-no
         AND est-qty.eqty EQ ef.eqty 
         NO-ERROR.
-        
+    IF cEstNumber NE "" THEN 
+        ASSIGN 
+            eb.est-no = cEstNumber
+            est.est-no = cEstNumber
+            ef.est-no = cEstNumber
+            est-qty.est-no = cEstNumber
+            .
+    IF lAutoNumber AND cEstGroup NE "" THEN DO:
+        FIND CURRENT ipbf-ttImportEstimate EXCLUSIVE-LOCK.
+        ASSIGN 
+            ipbf-ttImportEstimate.EstGroup = cEstGroup
+            ipbf-ttImportEstimate.estimateNo = STRING(eb.est-no)
+            .
+        FIND CURRENT ipbf-ttImportEstimate NO-LOCK.
+    END.            
+    
     IF eb.eqty EQ 0 THEN 
         eb.eqty         = ipbf-ttImportEstimate.Quantity.
     ASSIGN 
