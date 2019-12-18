@@ -134,49 +134,49 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.nationalAcct cust.active cust.name ~
-cust.addr[1] cust.addr[2] cust.city cust.state cust.zip cust.terms ~
-cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
-cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
-cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
-cust.sort cust.tax-gr cust.tax-id cust.date-field[2] cust.spare-char-2 ~
-cust.date-field[1] cust.type cust.csrUser_id cust.contact cust.sman ~
-cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
-cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
-cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
-cust.ship-days cust.manf-day cust.imported cust.spare-int-1 cust.pallet ~
-cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] cust.spare-char-3 
+&Scoped-Define ENABLED-FIELDS cust.active cust.name cust.addr[1] ~
+cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
+cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
+cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
+cust.csrUser_id cust.scomm cust.terms cust.cr-use cust.cr-hold-invdays ~
+cust.cr-hold-invdue cust.cr-rating cust.cust-level cust.cr-lim cust.ord-lim ~
+cust.disc cust.curr-code cust.cr-hold cust.fin-chg cust.auto-reprice ~
+cust.an-edi-cust cust.factored cust.sort cust.tax-gr cust.tax-id ~
+cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
+cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
+cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
+cust.case-bundle cust.int-field[1] cust.po-mandatory cust.imported ~
+cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
-&Scoped-Define DISPLAYED-FIELDS cust.nationalAcct cust.cust-no cust.active ~
-cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
-cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
-cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
-cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
-cust.sort cust.tax-gr cust.tax-id cust.date-field[2] cust.spare-char-2 ~
-cust.date-field[1] cust.type cust.csrUser_id cust.contact cust.sman ~
-cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
-cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
-cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
-cust.ship-days cust.manf-day cust.imported cust.spare-int-1 cust.pallet ~
-cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
-cust.log-field[1] cust.spare-char-3 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 btn_bank-info 
+&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
+cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
+cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
+cust.contact cust.sman cust.area-code cust.phone cust.fax-prefix ~
+cust.csrUser_id cust.scomm cust.terms cust.cr-use cust.cr-hold-invdays ~
+cust.cr-hold-invdue cust.cr-rating cust.cust-level cust.cr-lim cust.ord-lim ~
+cust.disc cust.curr-code cust.cr-hold cust.fin-chg cust.auto-reprice ~
+cust.an-edi-cust cust.factored cust.sort cust.tax-gr cust.tax-id ~
+cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
+cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
+cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
+cust.case-bundle cust.int-field[1] cust.po-mandatory cust.imported ~
+cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
-&Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
-stax_tax-dscr custype_dscr sman_sname fi_flat-comm faxAreaCode faxNumber ~
-loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr 
+&Scoped-Define DISPLAYED-OBJECTS custype_dscr fl_custemail faxAreaCode ~
+faxNumber sman_sname fi_flat-comm terms_dscr rd_inv-meth loc_dscr ~
+carrier_dscr carr-mtx_del-dscr terr_dscr stax_tax-dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
 &Scoped-define ADM-CREATE-FIELDS cust.cust-no 
-&Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
-cust.imported cust.po-mandatory cust.show-set 
-&Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
-cust.type cust.csrUser_id cust.sman cust.loc cust.carrier cust.del-zone ~
-cust.terr cust.imported cust.po-mandatory cust.show-set 
+&Scoped-define ADM-ASSIGN-FIELDS fl_custemail fi_flat-comm rd_inv-meth ~
+cust.po-mandatory cust.imported cust.show-set 
+&Scoped-define DISPLAY-FIELD cust.state cust.type fl_custemail cust.sman ~
+cust.csrUser_id cust.terms cust.tax-gr cust.loc cust.carrier cust.del-zone ~
+cust.terr cust.po-mandatory cust.imported cust.show-set 
 &Scoped-define faxFields faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -300,10 +300,6 @@ DEFINE RECTANGLE RECT-4
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cust.nationalAcct AT ROW 18.14 COL 128
-          LABEL "National Account"
-          VIEW-AS TOGGLE-BOX
-          SIZE 23 BY .81
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
@@ -329,6 +325,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 52 BY 1
           BGCOLOR 15 FONT 4
+     cust.spare-char-3 AT ROW 4.81 COL 12 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
+          VIEW-AS FILL-IN 
+          SIZE 52 BY 1
+          BGCOLOR 15 FONT 4
      cust.city AT ROW 5.76 COL 12 COLON-ALIGNED FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
@@ -341,21 +341,103 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FONT 4
+     cust.fax-country AT ROW 6.71 COL 12 COLON-ALIGNED
+          LABEL "Country"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+          BGCOLOR 15 
+     cust.spare-char-2 AT ROW 1 COL 78 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Group" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 17.2 BY 1
+          BGCOLOR 15 FONT 4
+     cust.type AT ROW 1.95 COL 78 COLON-ALIGNED
+          LABEL "Type"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 4
+     cust.date-field[1] AT ROW 1 COL 133 COLON-ALIGNED
+          LABEL "Date Added" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 4 NO-TAB-STOP 
+     cust.contact AT ROW 2.91 COL 78 COLON-ALIGNED
+          LABEL "Contact"
+          VIEW-AS FILL-IN 
+          SIZE 44 BY 1
+          BGCOLOR 15 FONT 4
+     custype_dscr AT ROW 1.95 COL 95 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fl_custemail AT ROW 3.86 COL 78 COLON-ALIGNED WIDGET-ID 2
+     cust.sman AT ROW 4.81 COL 78 COLON-ALIGNED
+          LABEL "Sales Grp"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15 FONT 4
+     cust.area-code AT ROW 5.81 COL 78 COLON-ALIGNED AUTO-RETURN 
+          LABEL "Phone#" FORMAT "(xxx)"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+          BGCOLOR 15 FONT 4
+     cust.phone AT ROW 5.81 COL 86 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
+     faxAreaCode AT ROW 6.71 COL 78 COLON-ALIGNED AUTO-RETURN 
+     faxNumber AT ROW 6.71 COL 86 COLON-ALIGNED NO-LABEL
+     cust.fax-prefix AT ROW 6.71 COL 111 COLON-ALIGNED
+          LABEL "Prefix"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+          BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     sman_sname AT ROW 4.81 COL 86 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.csrUser_id AT ROW 2.67 COL 133 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 4
+     btn_bank-info AT ROW 3.62 COL 135
+     fi_flat-comm AT ROW 4.81 COL 140 COLON-ALIGNED
+     cust.scomm AT ROW 5.81 COL 140 COLON-ALIGNED HELP
+          "Enter Salesman Flat Commission Percentage" WIDGET-ID 8
+          LABEL "Broker Comm%"
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
      cust.terms AT ROW 8.62 COL 17 COLON-ALIGNED
           LABEL "Terms"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
           BGCOLOR 15 FONT 4
-     terms_dscr AT ROW 8.62 COL 27 COLON-ALIGNED NO-LABEL
      cust.cr-use AT ROW 9.57 COL 17 COLON-ALIGNED
           LABEL "Cr. Acct #"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
+     cust.cr-hold-invdays AT ROW 9.57 COL 46 COLON-ALIGNED
+          LABEL "Grace Days"
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
+          BGCOLOR 15 FONT 4
+     cust.cr-hold-invdue AT ROW 9.57 COL 55 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 FONT 1
+     terms_dscr AT ROW 8.62 COL 27 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.cr-rating AT ROW 10.52 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+          BGCOLOR 15 FONT 4
+     cust.cust-level AT ROW 10.52 COL 56 COLON-ALIGNED
+          LABEL "Price Level"
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
           BGCOLOR 15 FONT 4
      cust.cr-lim AT ROW 11.48 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -375,38 +457,18 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
           BGCOLOR 15 
-     cust.cr-hold-invdays AT ROW 9.81 COL 46.4 COLON-ALIGNED
-          LABEL "Grace Days"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
-          BGCOLOR 15 FONT 4
-     cust.cr-hold-invdue AT ROW 9.81 COL 55.4 COLON-ALIGNED
-          LABEL "$"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 FONT 1
-     cust.cust-level AT ROW 10.76 COL 56 COLON-ALIGNED
-          LABEL "Price Level"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
-          BGCOLOR 15 FONT 4
+     rd_inv-meth AT ROW 15.43 COL 19 NO-LABEL
      cust.cr-hold AT ROW 11.71 COL 47
           LABEL "Credit Hold"
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      cust.fin-chg AT ROW 12.43 COL 47
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
      cust.auto-reprice AT ROW 13.24 COL 47
           VIEW-AS TOGGLE-BOX
           SIZE 23.2 BY .81
+     loc_dscr AT ROW 10.52 COL 105 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.an-edi-cust AT ROW 13.95 COL 47
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
@@ -415,7 +477,6 @@ DEFINE FRAME F-Main
           LABEL "Factored"
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY .81
-     rd_inv-meth AT ROW 15.43 COL 19 NO-LABEL
      cust.sort AT ROW 17.05 COL 22 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -427,7 +488,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     stax_tax-dscr AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     carrier_dscr AT ROW 11.48 COL 105 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.tax-id AT ROW 18.81 COL 16 COLON-ALIGNED
           LABEL "Tax Resale#"
           VIEW-AS FILL-IN 
@@ -437,73 +505,6 @@ DEFINE FRAME F-Main
           LABEL "Exp."
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     cust.spare-char-2 AT ROW 1 COL 78 COLON-ALIGNED WIDGET-ID 14
-          LABEL "Group" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 17.2 BY 1
-          BGCOLOR 15 FONT 4
-     cust.date-field[1] AT ROW 1 COL 133 COLON-ALIGNED
-          LABEL "Date Added" FORMAT "99/99/9999"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 4
-     cust.type AT ROW 1.95 COL 78 COLON-ALIGNED
-          LABEL "Type"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 4
-     cust.csrUser_id AT ROW 2.67 COL 133 COLON-ALIGNED
-          LABEL "CSR"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-          BGCOLOR 15 FONT 4
-     custype_dscr AT ROW 1.95 COL 95 COLON-ALIGNED NO-LABEL
-     cust.contact AT ROW 2.91 COL 78 COLON-ALIGNED
-          LABEL "Contact"
-          VIEW-AS FILL-IN 
-          SIZE 44 BY 1
-          BGCOLOR 15 FONT 4
-     btn_bank-info AT ROW 3.62 COL 135
-     cust.sman AT ROW 4.81 COL 78 COLON-ALIGNED
-          LABEL "Sales Grp"
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-          BGCOLOR 15 FONT 4
-     sman_sname AT ROW 4.81 COL 86 COLON-ALIGNED NO-LABEL
-     fi_flat-comm AT ROW 4.81 COL 140 COLON-ALIGNED
-     cust.area-code AT ROW 5.81 COL 78 COLON-ALIGNED AUTO-RETURN 
-          LABEL "Phone#" FORMAT "(xxx)"
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-          BGCOLOR 15 FONT 4
-     cust.phone AT ROW 5.81 COL 86 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 FONT 4
-     cust.scomm AT ROW 5.81 COL 140 COLON-ALIGNED HELP
-          "Enter Salesman Flat Commission Percentage" WIDGET-ID 8
-          LABEL "Broker Comm%"
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     faxAreaCode AT ROW 6.71 COL 78 COLON-ALIGNED AUTO-RETURN 
-     faxNumber AT ROW 6.71 COL 86 COLON-ALIGNED NO-LABEL
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     cust.fax-prefix AT ROW 6.71 COL 111 COLON-ALIGNED
-          LABEL "Prefix"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-          BGCOLOR 15 
-     cust.fax-country AT ROW 6.71 COL 12 COLON-ALIGNED
-          LABEL "Country"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-          BGCOLOR 15 
      cust.frt-pay AT ROW 8.62 COL 99 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -518,6 +519,7 @@ DEFINE FRAME F-Main
                     "Destination", "DEST":U,
 "Origin", "ORIG":U
           SIZE 28 BY .81
+     carr-mtx_del-dscr AT ROW 12.48 COL 105 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.ship-part AT ROW 9.57 COL 131
           LABEL "Partial Ship"
           VIEW-AS TOGGLE-BOX
@@ -527,23 +529,20 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 FONT 4
-     loc_dscr AT ROW 10.52 COL 105 COLON-ALIGNED NO-LABEL
      cust.carrier AT ROW 11.48 COL 93 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     carrier_dscr AT ROW 11.48 COL 105 COLON-ALIGNED NO-LABEL
      cust.del-zone AT ROW 12.48 COL 93 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     carr-mtx_del-dscr AT ROW 12.48 COL 105 COLON-ALIGNED NO-LABEL
+     terr_dscr AT ROW 13.43 COL 99 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.terr AT ROW 13.43 COL 93 COLON-ALIGNED
           LABEL "Territory"
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
           BGCOLOR 15 FONT 4
-     terr_dscr AT ROW 13.43 COL 99 COLON-ALIGNED NO-LABEL
      cust.under-pct AT ROW 14.33 COL 93 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
@@ -567,10 +566,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           FONT 4
-     cust.imported AT ROW 17.43 COL 128
-          LABEL "Contract Pricing"
-          VIEW-AS TOGGLE-BOX
-          SIZE 22.4 BY .81
      cust.spare-int-1 AT ROW 13.43 COL 134 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -584,6 +579,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 4
+     cust.int-field[1] AT ROW 16.24 COL 132 COLON-ALIGNED
+          LABEL "# of Labels per Skid" FORMAT "->,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 13.6 BY 1
+          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -591,45 +591,45 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.int-field[1] AT ROW 16.24 COL 132 COLON-ALIGNED
-          LABEL "# of Labels per Skid" FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-          BGCOLOR 15 FONT 4
      cust.po-mandatory AT ROW 17.43 COL 110
           LABEL "PO Req'd"
           VIEW-AS TOGGLE-BOX
           SIZE 14.4 BY .81
+     cust.imported AT ROW 17.43 COL 128
+          LABEL "Contract Pricing"
+          VIEW-AS TOGGLE-BOX
+          SIZE 22.4 BY .81
      cust.show-set AT ROW 18.14 COL 110
           LABEL "Show Sets"
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
+     cust.nationalAcct AT ROW 18.14 COL 128
+          LABEL "National Account"
+          VIEW-AS TOGGLE-BOX
+          SIZE 23 BY .81
      cust.log-field[1] AT ROW 18.86 COL 110 HELP
           "" WIDGET-ID 16
           LABEL "Paperless"
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
-     cust.spare-char-3 AT ROW 4.81 COL 12 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
-          VIEW-AS FILL-IN 
-          SIZE 52 BY 1
-          BGCOLOR 15 FONT 4
+     stax_tax-dscr AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     " Credit Information" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 7.91 COL 5
+          FGCOLOR 9 FONT 4
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      " Tax Information" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 16.24 COL 4
           FGCOLOR 9 FONT 4
-     " Credit Information" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 7.91 COL 5
-          FGCOLOR 9 FONT 4
-     "FOB:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 9.57 COL 89
-     "Freight Terms:" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 8.62 COL 78
+     "Invoice Per:" VIEW-AS TEXT
+          SIZE 14 BY .81 AT ROW 15.1 COL 4
      " Other Information" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 7.91 COL 77
           FGCOLOR 9 FONT 4
-     "Invoice Per:" VIEW-AS TEXT
-          SIZE 14 BY .81 AT ROW 15.1 COL 4
+     "Freight Terms:" VIEW-AS TEXT
+          SIZE 20 BY .71 AT ROW 8.62 COL 78
+     "FOB:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 9.57 COL 89
      RECT-2 AT ROW 8.14 COL 1
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 71.6
