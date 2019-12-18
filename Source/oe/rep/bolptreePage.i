@@ -70,21 +70,22 @@
       NO-ERROR.
 
    PUT "<||><R15><C2><FROM><R16><C77><RECT>" "<R15><C2><B><p8> CONSIGNEE (SHIP TO) </B>" SKIP.
-   PUT "<FArial><R16.5><C2><B><p7> " v-ship-name FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R16.4><C2><B><p7> " v-ship-name FORMAT "x(30)" "</B>" SKIP.
    /*PUT "<FArial><R17.5><C2><B><p7> ATTN:" (IF AVAIL oe-ord THEN oe-ord.contact ELSE "") FORMAT "x(20)" "</B>" SKIP.*/
-   PUT "<FArial><R17.5><C2><B><p7> " v-ship-addr[1] FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R18.5><C2><B><p7> " v-ship-addr[2] FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R19.5><C2><B><p7> " v-ship-addr3 FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R17.3><C2><B><p7> " v-ship-addr[1] FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R18.2><C2><B><p7> " v-ship-addr[2] FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R19.1><C2><B><p7> " v-ship-addr3 FORMAT "x(30)" "</B>" SKIP.
    PUT  SKIP(3) "<R20><C2><FROM><R20><C77><LINE>" SKIP.
 
    
 
-   PUT "<FArial><R20.5><C2><B><p7> CUST.ORDER#: " (IF AVAIL bf-oe-boll THEN bf-oe-boll.lot-no ELSE "") FORMAT "x(20)" 
+   PUT "<FArial><R20.4><C2><B><p7> CUST.ORDER#: " (IF AVAIL bf-oe-boll THEN bf-oe-boll.lot-no ELSE "") FORMAT "x(20)" 
              " <c45> OUR ORDER#: "   (IF AVAIL bf-oe-boll THEN bf-oe-boll.ord-no ELSE 0) FORMAT ">>>>>>>>" "</B>" SKIP.
    
-   PUT "<FArial><R21.5><C2><B><p7> Special Instructions: </B>" oe-bolh.ship-i[1] FORMAT "x(200)"  SKIP.    
-   PUT "<FArial><R22.4><C2><B><p7> </B>" oe-bolh.ship-i[2] FORMAT "x(200)" SKIP . 
-   PUT "<FArial><R23.3><C2><B><p7> </B>" oe-bolh.ship-i[3] FORMAT "x(200)" SKIP .
+   PUT "<FArial><R21.2><C2><B><p7> Special Instructions: </B>"   SKIP.  
+   PUT "<FArial><R22.0><C2><B><p7> </B>" oe-bolh.ship-i[1] FORMAT "x(200)" SKIP .
+   PUT "<FArial><R22.8><C2><B><p7> </B>" oe-bolh.ship-i[2] FORMAT "x(200)" SKIP . 
+   PUT "<FArial><R23.5><C2><B><p7> </B>" oe-bolh.ship-i[3] FORMAT "x(200)" SKIP .
    PUT "<FArial><R24.2><C2><B><p7> </B>" oe-bolh.ship-i[4] FORMAT "x(200)" SKIP .
    PUT "<||><R25><C2><FROM><R32><C42><RECT>" "<R25><C2><B><p8> THIRD PARTY FREIGHT CHARGES BILL TO </B>"
        "<||><R25><C42><FROM><R32><C60><RECT>" "<R25><C43><B><p8> Freight charges are: </B>" SKIP.
@@ -163,6 +164,6 @@
    PUT "<FArial><R61><C2><B><p9> PER:    "   oe-bolh.USER-ID FORMAT "x(8)" "</B>" SKIP
        "<R62><C2><B><p9> Shipper Phone # / Fax # / E-mail  </B>" SKIP
        "<R63><C2><B><p9> " v-comp-add4  v-comp-add5    "</B>" SKIP 
-       "<R64><C2>" lv-email "<C50><B><p9>Receiving & Carrier Signatures           Date  </B>" SKIP
+       "<R64><C2>" lv-email "<C50><B><p9>Receiving & Carrier Signatures           Date  </B>" 
        "<R64><C45><FROM><R64><C75><LINE>" .
    
