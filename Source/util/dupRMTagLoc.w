@@ -65,15 +65,12 @@ btnBrowseFolder tgCsvExport btn-process btn-cancel
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnConvertSlash C-Win
-FUNCTION fnConvertSlash RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnConvertSlash C-Win 
+FUNCTION fnConvertSlash RETURNS CHARACTER
   ( ipcPath AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnDefaultRptName C-Win 
 FUNCTION fnDefaultRptName RETURNS CHARACTER
@@ -167,7 +164,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Duplicate FG Tag Locations Report"
+         TITLE              = "Duplicate RM Tag Locations Report"
          HEIGHT             = 13.19
          WIDTH              = 114.4
          MAX-HEIGHT         = 32.52
@@ -224,7 +221,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Duplicate FG Tag Locations Report */
+ON END-ERROR OF C-Win /* Duplicate RM Tag Locations Report */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
@@ -238,7 +235,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Duplicate FG Tag Locations Report */
+ON WINDOW-CLOSE OF C-Win /* Duplicate RM Tag Locations Report */
 DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -436,29 +433,25 @@ SESSION:SET-WAIT-STATE("General").
     DEFINE VARIABLE iRecs    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotRecs AS INTEGER NO-UNDO.
     DEFINE VARIABLE iDups    AS INTEGER NO-UNDO.
-    
-    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    DEFINE BUFFER bf-rm-bin FOR rm-bin.
     
     DO WITH FRAME {&frame-name}:
         ASSIGN fiCsv fiReport tgCsvExport.
     END.
-    
-    ASSIGN 
-        fiReport = fnConvertSlash(fiReport)
-        fiCsv    = fnConvertSlash(fiCsv)
-        .
+    ASSIGN fiReport = fnConvertSlash(fiReport)
+           fiCsv    = fnConvertSlash(fiCsv)
+           .
     OUTPUT stream sRpt to VALUE(fiReport).
     IF tgCsvExport THEN 
         OUTPUT stream sCsv to VALUE(fiCsv).
         
     PAUSE 0 BEFORE-HIDE.
     IF tgCsvExport THEN 
-        EXPORT STREAM sCsv DELIMITER "," "Company" "FGItem" "Tag" "Loc" "Bin" "Qty".
+        EXPORT STREAM sCsv DELIMITER "," "Company" "RMItem" "Tag" "Loc" "Bin" "Qty".
+    FOR EACH  rm-bin NO-LOCK 
+        WHERE rm-bin.tag GT "" 
+        USE-INDEX tag:
 
-    FOR EACH  fg-bin NO-LOCK 
-        WHERE fg-bin.company EQ g_company
-          AND fg-bin.tag     GT ""
-        USE-INDEX tag: 
         iRecs = iRecs + 1.
         IF iRecs GT 4999 THEN 
         DO:
@@ -467,55 +460,51 @@ SESSION:SET-WAIT-STATE("General").
             STATUS DEFAULT STRING(iTotRecs).
         END.
   
-        IF fg-bin.qty EQ 0 THEN 
+        IF rm-bin.qty EQ 0 THEN 
             NEXT.
-
-        FOR EACH bf-fg-bin NO-LOCK
-            WHERE bf-fg-bin.company   EQ fg-bin.company
-              AND bf-fg-bin.tag       EQ fg-bin.tag
-              AND bf-fg-bin.qty       NE 0
-              AND  (bf-fg-bin.loc     NE fg-bin.loc OR 
-                    bf-fg-bin.loc-bin NE fg-bin.loc-bin)
-              BREAK BY bf-fg-bin.tag:
-        
+  
+        FOR EACH  bf-rm-bin NO-LOCK
+            WHERE bf-rm-bin.company  EQ rm-bin.company
+              AND bf-rm-bin.tag      EQ rm-bin.tag
+              AND bf-rm-bin.qty      NE 0
+              AND (bf-rm-bin.loc     NE rm-bin.loc 
+               OR  bf-rm-bin.loc-bin NE rm-bin.loc-bin) 
+              BREAK BY bf-rm-bin.tag:
             iDups = iDups + 1.
-            
-            IF FIRST-OF(bf-fg-bin.tag) THEN
-                DISPLAY STREAM sRpt  
-                    fg-bin.company COLUMN-LABEL "Company"
-                    fg-bin.i-no    COLUMN-LABEL "FGItem" FORMAT "x(22)"
-                    fg-bin.tag     COLUMN-LABEL "Tag"    FORMAT "x(27)"
-                    fg-bin.loc     COLUMN-LABEL "Loc" 
-                    fg-bin.loc-bin COLUMN-LABEL "Bin" 
-                    fg-bin.qty     COLUMN-LABEL "Qty"    FORMAT "->>>>>>,>>9.9<<<<<"
-                    WITH FRAME FirstLine WIDTH 200 STREAM-IO.
-            
-            DISPLAY STREAM sRpt 
-                 bf-fg-bin.loc     NO-LABEL AT 60 
-                 bf-fg-bin.loc-bin NO-LABEL  
-                 bf-fg-bin.qty     NO-LABEL FORMAT "->>>>>>,>>9.9<<<<<"
-                 WITH FRAME NextLine WIDTH 200 STREAM-IO NO-BOX.
-              
+
+           IF FIRST-OF(bf-rm-bin.tag) THEN
+               DISPLAY STREAM sRpt 
+                   rm-bin.company COLUMN-LABEL "Company"
+                   rm-bin.i-no    COLUMN-LABEL "RMItem" FORMAT "x(22)"
+                   rm-bin.tag     COLUMN-LABEL "Tag"    FORMAT "x(27)" 
+                   rm-bin.loc     COLUMN-LABEL "Loc"
+                   rm-bin.loc-bin COLUMN-LABEL "Bin"
+                   rm-bin.qty     COLUMN-LABEL "Qty"    FORMAT "->>>>>>,>>9.9<<<<<"
+                   WITH FRAME FirstLine WIDTH 200 STREAM-IO.
+           DISPLAY STREAM sRpt 
+                bf-rm-bin.loc     NO-LABEL AT 60 
+                bf-rm-bin.loc-bin NO-LABEL  
+                bf-rm-bin.qty     NO-LABEL FORMAT "->>>>>>,>>9.9<<<<<"
+                WITH FRAME NextLine WIDTH 200 STREAM-IO NO-BOX.
             IF tgCsvExport THEN DO:
-                IF FIRST-OF(bf-fg-bin.tag) THEN
+                IF FIRST-OF(bf-rm-bin.tag) THEN
                     EXPORT STREAM sCsv DELIMITER ","  
-                           fg-bin.company       
-                           fg-bin.i-no
-                           fg-bin.tag
-                           fg-bin.loc
-                           fg-bin.loc-bin
-                           fg-bin.qty SKIP
-                            . 
+                           rm-bin.company       
+                           rm-bin.i-no
+                           rm-bin.tag
+                           rm-bin.loc
+                           rm-bin.loc-bin
+                           rm-bin.qty
+                           . 
                 EXPORT STREAM sCsv DELIMITER "," 
-                     "" /* Company */
-                     "" /* Item no */
-                     "" /* Tag */
-                     bf-fg-bin.loc
-                     bf-fg-bin.loc-bin
-                     bf-fg-bin.qty SKIP
-                     . 
-            END.
-                                   
+                       "" /* Company */
+                       "" /* Item no */
+                       "" /* Tag */
+                       bf-rm-bin.loc
+                       bf-rm-bin.loc-bin
+                       bf-rm-bin.qty SKIP
+                       .  
+            END.                  
         END.
     
     END.
@@ -574,9 +563,9 @@ FUNCTION fnDefaultRptName RETURNS CHARACTER
         
     CASE ipcType:
         WHEN "Rpt" THEN 
-            cFileName = "DuplicateFGTagLocations" + cDateAsChar + ".txt".
+            cFileName = "DuplicateRMTagLocations" + cDateAsChar + ".txt".
         WHEN "csv" THEN 
-            cFileName = "DuplicateFGTagLocations" + cDateAsChar + ".csv".
+            cFileName = "DuplicateRMTagLocations" + cDateAsChar + ".csv".
     END CASE.
         
     RETURN cFileName.
