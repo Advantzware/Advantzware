@@ -33,10 +33,27 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
-
+{custom/globdefs.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lFGForceCommission AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dFGForceCommission AS DECIMAL NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT g_company, "FGForceCommission", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lFGForceCommission = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "FGForceCommission", "D" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    dFGForceCommission = decimal(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,6 +90,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table cust-part.cust-no ~
 cust-part.part-no ~
 cust-part.spare-char-1 ~
+cust-part.forcedCommissionPercent ~
 cust-part.labelCase ~
 cust-part.labelPallet   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table cust-part 
@@ -163,12 +181,14 @@ DEFINE BROWSE br_table
       cust-part.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
             WIDTH 23
       cust-part.spare-char-1 COLUMN-LABEL "Sls Rep" FORMAT "x(7)":U
+      cust-part.forcedCommissionPercent COLUMN-LABEL "Forced Commission" FORMAT ">>>>9.99":U
       cust-part.labelCase COLUMN-LABEL "Case Label" FORMAT "X(80)":U
       cust-part.labelPallet  COLUMN-LABEL "Pallet Label" FORMAT "X(50)":U
   ENABLE
       cust-part.cust-no
       cust-part.part-no
       cust-part.spare-char-1
+      cust-part.forcedCommissionPercent
       cust-part.labelCase
       cust-part.labelPallet
 /* _UIB-CODE-BLOCK-END */
@@ -339,6 +359,20 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cust-part.forcedCommissionPercent
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust-part.forcedCommissionPercent br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF cust-part.forcedCommissionPercent IN BROWSE br_table /* comm */
+DO:
+  IF NOT lFGForceCommission THEN do:
+    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
+    RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -541,6 +575,11 @@ PROCEDURE local-create-record :
   ASSIGN
    cust-part.company = itemfg.company
    cust-part.i-no    = itemfg.i-no.
+
+  IF lFGForceCommission THEN
+      ASSIGN
+      cust-part.forcedCommissionPercent = dFGForceCommission
+      cust-part.forcedCommissionPercent:SCREEN-VALUE IN BROWSE {&browse-name}  = string(dFGForceCommission) .
 
 END PROCEDURE.
 
