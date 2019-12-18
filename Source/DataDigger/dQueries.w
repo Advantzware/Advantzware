@@ -8,15 +8,11 @@
   Name: dQueries.w
   Desc: Let user maintain previously used queries
 
-------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
-
-/* Parameters Definitions ---                                           */
 
 DEFINE INPUT PARAMETER  pcDatabase     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER  pcTable        AS CHARACTER NO-UNDO.
@@ -28,7 +24,6 @@ DEFINE OUTPUT PARAMETER piQueryNr      AS INTEGER NO-UNDO INITIAL ?.
 DEFINE VARIABLE giQueryOffset  AS INTEGER NO-UNDO.
 DEFINE VARIABLE ghEditor       AS HANDLE  EXTENT 5 NO-UNDO.
 DEFINE VARIABLE ghDelButton    AS HANDLE  EXTENT 5 NO-UNDO.
-DEFINE VARIABLE giQuery        AS INTEGER EXTENT 5 NO-UNDO.
 DEFINE VARIABLE ghActiveEditor AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */

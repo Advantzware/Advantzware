@@ -2990,7 +2990,6 @@ PROCEDURE ipDataFixConfig :
 ------------------------------------------------------------------------------*/
     FOR EACH config EXCLUSIVE:
         ASSIGN
-            config.audit_dir = ".\CustFiles\Logs\AuditFiles"
             config.logs_dir = ".\CustFiles\Logs"
             config.spool_dir = ".\CustFiles\Logs\Spool".
     END.
@@ -3224,16 +3223,22 @@ PROCEDURE ipDeleteAudit :
     ELSE DO:
         RUN ipStatus ("    Deleting audit records older than 180 days...").
         RUN ipStatus ("      (30 minute limit on this process)").
-        FOR EACH AuditHdr WHERE 
+        FOR EACH AuditHdr NO-LOCK WHERE 
             DATE(auditHdr.auditDateTime) LT TODAY - 180:
-            FOR EACH AuditDtl OF auditHdr:
-                DELETE AuditDtl.
+            FOR EACH AuditDtl OF auditHdr NO-LOCK:
+                FIND CURRENT AuditDtl EXCLUSIVE-LOCK NO-WAIT.
+                IF AVAIL AuditDtl THEN DO:
+                    DELETE AuditDtl.
+                    ASSIGN
+                        iDelCount = iDelCount + 1.
+                END.
+            END.
+            FIND CURRENT AuditHdr EXCLUSIVE-LOCK NO-WAIT.
+            IF AVAIL auditHdr THEN DO:
+                DELETE AuditHdr.
                 ASSIGN
                     iDelCount = iDelCount + 1.
             END.
-            DELETE AuditHdr.
-            ASSIGN
-                iDelCount = iDelCount + 1.
             IF etime GT 1800000 THEN 
                 LEAVE.
         END.

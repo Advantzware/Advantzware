@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME wImportLoad
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wImportLoad 
 /*------------------------------------------------------------------------
 
   Name : wImportLoad.w
@@ -12,9 +12,6 @@
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
 
 /* Parameters Definitions ---                                           */
@@ -28,7 +25,7 @@ DEFINE OUTPUT PARAMETER polSuccess        AS LOGICAL   NO-UNDO INITIAL ?.
 DEFINE OUTPUT PARAMETER porRepositionId   AS ROWID     NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE giCurrentRecord    AS INTEGER NO-UNDO.
+{&_proparse_prolint-nowarn(varusage)}
 DEFINE VARIABLE giNumRecords       AS INTEGER NO-UNDO.
 DEFINE VARIABLE ghXmlBuffer        AS HANDLE  NO-UNDO.
 DEFINE VARIABLE ghXmlQuery         AS HANDLE  NO-UNDO.
@@ -42,7 +39,7 @@ DEFINE VARIABLE giMaxFilterHistory AS INTEGER NO-UNDO.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -53,8 +50,8 @@ DEFINE VARIABLE giMaxFilterHistory AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME frMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnBack btnFinish tgWriteTrigger
-&Scoped-Define DISPLAYED-OBJECTS tgWriteTrigger
+&Scoped-Define ENABLED-OBJECTS btnBack btnFinish tgWriteTrigger 
+&Scoped-Define DISPLAYED-OBJECTS tgWriteTrigger 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -67,23 +64,23 @@ DEFINE VARIABLE giMaxFilterHistory AS INTEGER NO-UNDO.
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE wImportLoad AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR wImportLoad AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnBack
-     LABEL "&Back"
+DEFINE BUTTON btnBack 
+     LABEL "&Back" 
      SIZE-PIXELS 74 BY 24 TOOLTIP "cancel load data".
 
-DEFINE BUTTON btnFinish
-     LABEL "&Finish"
+DEFINE BUTTON btnFinish 
+     LABEL "&Finish" 
      SIZE-PIXELS 74 BY 24 TOOLTIP "load the data to the database".
 
 DEFINE RECTANGLE rctData
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE-PIXELS 699 BY 455.
 
-DEFINE VARIABLE tgWriteTrigger AS LOGICAL INITIAL YES
-     LABEL "Use &write trigger"
+DEFINE VARIABLE tgWriteTrigger AS LOGICAL INITIAL yes 
+     LABEL "Use &write trigger" 
      VIEW-AS TOGGLE-BOX
      SIZE-PIXELS 120 BY 17 TOOLTIP "Enable write triggers or not" NO-UNDO.
 
@@ -95,9 +92,9 @@ DEFINE FRAME frMain
      btnFinish AT Y 460 X 615 WIDGET-ID 4
      tgWriteTrigger AT Y 463 X 15 WIDGET-ID 16
      rctData AT Y 0 X 1 WIDGET-ID 52
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
-         SIDE-LABELS NO-UNDERLINE THREE-D
-         AT COL 1 ROW 1 SCROLLABLE
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
          CANCEL-BUTTON btnBack WIDGET-ID 100.
 
 
@@ -124,15 +121,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH-P        = 1600
          VIRTUAL-HEIGHT-P   = 2079
          VIRTUAL-WIDTH-P    = 1600
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -146,22 +143,22 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME frMain
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-ASSIGN
+ASSIGN 
        FRAME frMain:SCROLLABLE       = FALSE
        FRAME frMain:RESIZABLE        = TRUE.
 
 /* SETTINGS FOR RECTANGLE rctData IN FRAME frMain
    NO-ENABLE                                                            */
-ASSIGN
+ASSIGN 
        rctData:HIDDEN IN FRAME frMain           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wImportLoad)
-THEN wImportLoad:HIDDEN = YES.
+THEN wImportLoad:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -284,7 +281,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK wImportLoad 
 
 
 /* ***************************  Main Block  *************************** */
@@ -335,9 +332,9 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnFinishChoose wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnFinishChoose wImportLoad 
 PROCEDURE btnFinishChoose :
-  /* Proceed to procedure that actually loads the data
+/* Proceed to procedure that actually loads the data
   */
   DEFINE OUTPUT PARAMETER plSuccess AS LOGICAL NO-UNDO.
 
@@ -360,15 +357,14 @@ END PROCEDURE. /* btnFinishChoose */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createBrowse wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createBrowse wImportLoad 
 PROCEDURE createBrowse :
-  /* Create the browse
+/* Create the browse
   */
   DEFINE VARIABLE iColumnWidth AS INTEGER     NO-UNDO.
   DEFINE VARIABLE iMinWidth    AS INTEGER     NO-UNDO.
   DEFINE VARIABLE cMyFormat    AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE iPos         AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE hField       AS HANDLE      NO-UNDO.
   DEFINE VARIABLE cColumnName  AS CHARACTER   NO-UNDO.
 
   DEFINE BUFFER bColumn FOR ttColumn.
@@ -395,14 +391,7 @@ PROCEDURE createBrowse :
     COLUMN-RESIZABLE  = TRUE
     COLUMN-SCROLLING  = TRUE /* scroll with whole columns at a time */
     TRIGGERS:
-/*       ON "CTRL-A"           PERSISTENT RUN dataSelectAll           IN THIS-PROCEDURE (ghDataBrowse). */
-/*       ON "CTRL-D"           PERSISTENT RUN dataSelectNone          IN THIS-PROCEDURE (ghDataBrowse). */
       ON "ROW-DISPLAY"      PERSISTENT RUN dataRowDisplay          IN THIS-PROCEDURE (ghXmlBuffer).
-/*       ON "START-SEARCH"     PERSISTENT RUN dataColumnSort          IN THIS-PROCEDURE.                */
-/*       ON "VALUE-CHANGED"    PERSISTENT RUN dataRowValueChanged     IN THIS-PROCEDURE (ghXmlBuffer).  */
-/*       ON "END"              PERSISTENT RUN dataRowJumpToEnd        IN THIS-PROCEDURE (ghXmlBuffer).  */
-/*       ON "DEFAULT-ACTION"   PERSISTENT RUN dataDoubleClick         IN THIS-PROCEDURE (ghDataBrowse). */
-/*       ON "OFF-HOME"         PERSISTENT RUN dataOffHome             IN THIS-PROCEDURE.                */
     END TRIGGERS.
 
 
@@ -449,17 +438,6 @@ PROCEDURE createBrowse :
         END.
       END.
 
-      /* Apply the format */
-      IF NOT cMyFormat BEGINS "HH:MM" THEN
-      DO:
-        hField:FORMAT = cMyFormat NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN
-        DO:
-          bField.cFormat = bField.cFormatOrg.
-          hField:FORMAT = bField.cFormat NO-ERROR.
-        END.
-      END.
-
       /* Add a calculated column for integers with time format */
       cColumnName = SUBSTITUTE("&1.&2", bColumn.cTableName, bColumn.cFullName).
 
@@ -471,7 +449,7 @@ PROCEDURE createBrowse :
       END.
       ELSE
       DO:
-        bColumn.hColumn = ghDataBrowse:ADD-LIKE-COLUMN(cColumnName).
+        bColumn.hColumn = ghDataBrowse:ADD-LIKE-COLUMN(cColumnName). 
       END.
 
       bColumn.hColumn:LABEL = bColumn.cFullName.
@@ -488,14 +466,11 @@ PROCEDURE createBrowse :
     /* Get last defined width from registry. Might have been set by user */
     iColumnWidth = INTEGER(getRegistry(SUBSTITUTE("DB:&1",bColumn.cDatabase), SUBSTITUTE("&1.&2:width", bColumn.cTableName, bColumn.cFullname)) ) NO-ERROR.
 
-    .message bColumn.cFullname iColumnWidth view-as alert-box.
-
     /* If it's not set, calculate a width. Make sure it is not wider than 300px */
     IF iColumnWidth = ? THEN iColumnWidth = MINIMUM(300, bColumn.hColumn:WIDTH-PIXELS).
 
     /* Make sure the column is at least as wide as its name */
     iMinWidth = FONT-TABLE:GET-TEXT-WIDTH-PIXELS(bColumn.cFullname,getFont("default")).
-    .message bColumn.cFullname iMinWidth view-as alert-box.
 
     /* For the combo-filters, reserve some extra space for the arrow down */
     /* And if the filter is of type COMBO, reserve some extra space for the arrow down */
@@ -510,26 +485,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dataColumnSort wImportLoad
-PROCEDURE dataColumnSort :
-/*------------------------------------------------------------------------------
-  Purpose:
-  Parameters:  <none>
-  Notes:
-------------------------------------------------------------------------------*/
-
-  /*
-    run reopenDataBrowse(self:current-column:name,?).
-  */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dataRowDisplay wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dataRowDisplay wImportLoad 
 PROCEDURE dataRowDisplay :
-  /* Set the background color to another color to get an odd/even coloring of the rows.
+/* Set the background color to another color to get an odd/even coloring of the rows.
   */
   DEFINE INPUT PARAMETER phBrowseBuffer AS HANDLE NO-UNDO.
 
@@ -572,7 +530,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide
+               dynamic widgets we have created and/or hide 
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -593,12 +551,12 @@ PROCEDURE enable_UI :
   Notes:       Here we display/view/enable the widgets in the
                user-interface.  In addition, OPEN all queries
                associated with each FRAME and BROWSE.
-               These statements here are based on the "Other
+               These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tgWriteTrigger
+  DISPLAY tgWriteTrigger 
       WITH FRAME frMain IN WINDOW wImportLoad.
-  ENABLE btnBack btnFinish tgWriteTrigger
+  ENABLE btnBack btnFinish tgWriteTrigger 
       WITH FRAME frMain IN WINDOW wImportLoad.
   {&OPEN-BROWSERS-IN-QUERY-frMain}
 END PROCEDURE.
@@ -606,9 +564,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideNonExistingFields wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideNonExistingFields wImportLoad 
 PROCEDURE hideNonExistingFields :
-  /* Hide non-existing fields.
+/* Hide non-existing fields.
   */
   DEFINE INPUT PARAMETER phBuffer AS HANDLE NO-UNDO.
 
@@ -640,9 +598,9 @@ END PROCEDURE. /* hideNonExistingFields */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wImportLoad 
 PROCEDURE initializeObject :
-  /* Setup
+/* Setup
   */
   DEFINE VARIABLE cSetting AS CHARACTER   NO-UNDO.
 
@@ -712,11 +670,6 @@ PROCEDURE initializeObject :
   /* Set window back to last known pos */
   RUN restoreWindowPos(wImportLoad:HANDLE, "DataDigger:ImportLoad").
 
-  /* Restore sort */
-/*   cSetting = getRegistry('DataDigger','ColumnSortRecord').                                */
-/*   IF cSetting <> ? THEN                                                                   */
-/*     ghDataBrowse:SET-SORT-ARROW(INTEGER(ENTRY(1,cSetting)), LOGICAL(ENTRY(2,cSetting)) ). */
-
   /* In read-only mode, disable FINISH button */
   IF plReadOnlyDigger THEN btnFinish:SENSITIVE = FALSE.
 
@@ -725,9 +678,9 @@ END PROCEDURE. /* initializeObject */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadData wImportLoad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadData wImportLoad 
 PROCEDURE loadData :
-  /* Write changes to database, optionally roll back
+/* Write changes to database, optionally roll back
   */
   DEFINE INPUT  PARAMETER plKeepData    AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER plErrorsFound AS LOGICAL NO-UNDO.
@@ -835,6 +788,9 @@ PROCEDURE loadData :
         NEXT XmlLoop.
       END.
 
+      /* Save rowid of first loaded record so DD can reposition to that */
+      IF porRepositionId = ? THEN porRepositionId = hDbBuffer:ROWID.
+
       /* Let it go ... */
       hXmlBuffer:BUFFER-RELEASE.
     END. /* XmlLoop */
@@ -854,3 +810,4 @@ END PROCEDURE. /* loadData */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

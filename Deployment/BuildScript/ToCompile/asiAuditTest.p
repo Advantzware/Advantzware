@@ -1,6 +1,8 @@
 DEF OUTPUT PARAMETER oplAuditLicensed AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplHasTables AS LOG NO-UNDO.
 
+ASSIGN 
+    oplAuditLicensed = FALSE.
 FIND FIRST module NO-LOCK WHERE 
     module.module = "audit." OR
     module.module = "audit"
