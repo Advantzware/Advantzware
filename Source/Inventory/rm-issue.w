@@ -43,7 +43,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE DEBUG FALSE
+&SCOPED-DEFINE DEBUG TRUE
 
 /* Parameters Definitions ---                                           */
 &IF {&DEBUG} &THEN
