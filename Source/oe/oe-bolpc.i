@@ -1,6 +1,15 @@
 DEF BUFFER tmp-oe-boll FOR oe-boll.
 DEF VAR v-sum-qty LIKE oe-boll.qty NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cBOLPartialFlag AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iRelQty AS INTEGER NO-UNDO.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLPartialFlag", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cBOLPartialFlag = cRtnChar NO-ERROR.
 
 FIND FIRST oe-ordl NO-LOCK
     WHERE oe-ordl.company EQ oe-boll.company
@@ -23,8 +32,20 @@ IF AVAIL oe-ordl THEN DO:
     v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
   END.
 
-  oe-boll.p-c = oe-boll.qty + v-sum-qty GE
-                (oe-ordl.qty * (1 - (oe-ordl.under-pct / 100))).
+  IF  cBOLPartialFlag EQ "Release Quantity" THEN do:
+      iRelQty = 0.
+      FOR EACH oe-rell FIELDS(qty) NO-LOCK
+          WHERE oe-rell.company EQ cocode 
+          AND oe-rell.r-no    eq oe-boll.r-no :
+          iRelQty = iRelQty + oe-rell.qty .
+      END.
+
+      oe-boll.p-c = oe-boll.qty + v-sum-qty GE iRelQty .
+  END.
+  ELSE DO:
+      oe-boll.p-c = oe-boll.qty + v-sum-qty GE
+                    (oe-ordl.qty * (1 - (oe-ordl.under-pct / 100))).
+  END. /* cBOLPartialFlag EQ "Order Quantity"*/
 END.
 
 /* To catch multiple tags selected, need to examine all other lines */
