@@ -806,14 +806,30 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEF VAR liFromVendItemCostID LIKE vendItemCost.vendItemCostID NO-UNDO.
+  DEF BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  liFromVendItemCostID = vendItemCost.vendItemCostID.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    /* Code placed here will execute AFTER standard behavior.    */
+    
+  IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
+     FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = liFromVendItemCostID NO-LOCK: 
+       CREATE bf-vendItemCostLevel.
+       BUFFER-COPY vendItemCostLevel except vendItemCostLevel.vendItemCostID vendItemCostLevel.rec_key TO bf-vendItemCostLevel.      
+       ASSIGN 
+          bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID           
+/*          bf-vendItemCostLevel.quantityBase   = vendItemCostLevel.quantityBase                   */
+/*          bf-vendItemCostLevel.costPerUOM     = vendItemCostLevel.costPerUOM*/
+/*          bf-vendItemCostLevel.costSetup      = vendItemCostLevel.costSetup */
+          .
+     END.     
+  END.
+  
 
 END PROCEDURE.
 
