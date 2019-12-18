@@ -236,7 +236,10 @@ PROCEDURE pCreateDynParameters :
         IF dynParamSetDtl.initializeProc NE "" AND
            CAN-DO(hDynInitProc:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
             RUN VALUE(dynParamSetDtl.initializeProc) IN hDynInitProc.
-            cInitItems = RETURN-VALUE.
+            ASSIGN
+                cInitItems  = RETURN-VALUE
+                cParamValue = cInitItems
+                .
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
            dynParamSet.setRectangle THEN DO:
