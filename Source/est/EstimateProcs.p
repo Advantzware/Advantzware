@@ -65,6 +65,9 @@ ASSIGN
       opcBaseDir = TRIM(opcBaseDir,"\") + "\"  /*ensure there is a slash on the end*/
       .
 
+IF opcSubDir EQ "0" THEN
+    opcSubDir = STRING(YEAR(TODAY)) + "." + STRING(MONTH(TODAY)) .
+
 IF DEC(opcSubDir) GT 0 THEN DO:
     opcSubDir = opcBaseDir + opcSubDir + "\".
     FILE-INFO:FILE-NAME = opcSubDir.
