@@ -747,8 +747,8 @@ PROCEDURE pRunning :
     FOR EACH ttRunning:
         cSuperProcedure = cSuperProcedure
                         + "[" + ttRunning.procHandle + "] "
-                        + ttRunning.procName + " ["
-                        + ttRunning.calledFrom + "]"
+                        + "[" + ttRunning.calledFrom + "] => "
+                        + ttRunning.procName
                         + CHR(10)
                         .
     END. /* each ttrunning */
