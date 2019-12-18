@@ -3724,7 +3724,7 @@ PROCEDURE valid-i-no :
       RELEASE po-ord.
 
       FIND FIRST po-ordl
-          WHERE po-ordl.company   EQ rm-rctd.company
+          WHERE po-ordl.company   EQ g_company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
