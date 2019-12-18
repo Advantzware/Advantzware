@@ -473,7 +473,14 @@ PROCEDURE CheckInventoryStockIDAlias:
     ELSE DO:
         FIND FIRST loadtag NO-LOCK
              WHERE loadtag.company     EQ ipcCompany
+               AND loadtag.item-type   EQ NO
                AND loadtag.tag-no      EQ ipcLookupID NO-ERROR.
+        IF NOT AVAILABLE loadtag THEN
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company     EQ ipcCompany
+                   AND loadtag.item-type   EQ YES
+                   AND loadtag.tag-no      EQ ipcLookupID NO-ERROR.
+        
         IF AVAILABLE loadtag THEN
             ASSIGN
                 opcInventoryStockID = ""
@@ -495,19 +502,24 @@ PROCEDURE CreateInventoryStockFromLoadtag:
      received.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplCreateReceipt AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
-    
-       
+    DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateReceipt    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+           
     /*Copy Loadtags to inventoryStock*/
     FIND FIRST ttInventoryStockLoadtag NO-LOCK
         WHERE ttInventoryStockLoadtag.inventoryStockID EQ ipcInventoryStockID
         NO-ERROR. 
     IF AVAILABLE ttInventoryStockLoadtag THEN 
-    RUN pCreateStockFromLoadtag(BUFFER ttInventoryStockLoadtag, iplCreateReceipt, iplPost, OUTPUT oplCreated, OUTPUT opcMessage).        
+        RUN pCreateStockFromLoadtag(
+            BUFFER ttInventoryStockLoadtag, 
+            INPUT  iplCreateReceipt, 
+            INPUT  iplPost, 
+            OUTPUT oplCreated, 
+            OUTPUT opcMessage
+            ).        
     ELSE 
         ASSIGN 
             oplCreated = NO
@@ -625,7 +637,7 @@ PROCEDURE CreateInventoryStockFromInputsFG:
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
-    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-oe-rel  FOR oe-rel.
     
     FIND FIRST bf-job-mch NO-LOCK 
@@ -704,10 +716,9 @@ PROCEDURE CreateInventoryStockFromInputsFG:
         DO:
             FIND FIRST bf-oe-ordl NO-LOCK
                  WHERE bf-oe-ordl.company EQ bf-job-hdr.company
-                   AND bf-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
                    AND bf-oe-ordl.i-no    EQ bf-job-hdr.i-no
+                   AND bf-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
                    NO-ERROR.
- 
             IF AVAIL bf-oe-ordl THEN DO:
                 ASSIGN
 /*                     inventoryStock.poID      = bf-oe-ordl.po-no */
@@ -715,38 +726,40 @@ PROCEDURE CreateInventoryStockFromInputsFG:
                     .
                 
                 FIND FIRST bf-po-ordl NO-LOCK
-                     WHERE bf-po-ordl.company  EQ bf-job-hdr.company
-                       AND bf-po-ordl.ord-no   EQ bf-oe-ordl.ord-no
+                     WHERE bf-po-ordl.company EQ bf-job-hdr.company
+                       AND bf-po-ordl.po-no   EQ INTEGER(bf-oe-ordl.po-no)
+                       AND bf-po-ordl.line    EQ bf-oe-ordl.line
                        NO-ERROR.
                 IF AVAILABLE bf-po-ordl THEN
                     inventoryStock.poLine = bf-po-ordl.line.
-            END.
-            
-            FIND FIRST bf-oe-bolh NO-LOCK
-                 WHERE bf-oe-bolh.company  EQ bf-job-hdr.company
-                   AND bf-oe-bolh.ord-no   EQ bf-job-hdr.ord-no
-                   NO-ERROR.
-            IF AVAILABLE bf-oe-bolh THEN DO:                
-                inventoryStock.bolID = STRING(bf-oe-bolh.bol-no).
-                
-                FIND FIRST bf-oe-rel NO-LOCK
-                     WHERE bf-oe-rel.r-no EQ bf-oe-bolh.r-no
-                       NO-ERROR.
-                IF AVAILABLE bf-oe-rel THEN
-                    ASSIGN
-                        inventoryStock.releaseID   = bf-oe-rel.rel-no
-                        inventoryStock.releaseLine = bf-oe-rel.line
-                        .                
-            END.                     
+
+                FIND FIRST bf-oe-boll NO-LOCK
+                     WHERE bf-oe-boll.company  EQ bf-oe-ordl.company
+                       AND bf-oe-boll.ord-no   EQ bf-oe-ordl.ord-no
+                       AND bf-oe-boll.line     EQ bf-oe-ordl.line
+                     NO-ERROR.
+                IF AVAILABLE bf-oe-boll THEN DO:                
+                    inventoryStock.bolID = STRING(bf-oe-boll.bol-no).
+                    
+                    FIND FIRST bf-oe-rel NO-LOCK
+                         WHERE bf-oe-rel.r-no EQ bf-oe-boll.r-no
+                         NO-ERROR.
+                    IF AVAILABLE bf-oe-rel THEN
+                        ASSIGN
+                            inventoryStock.releaseID   = bf-oe-rel.rel-no
+                            inventoryStock.releaseLine = bf-oe-rel.line
+                            .                
+                END.
+            END.            
         END.
         RUN sys/ref/nk1look.p (
-            bf-job-mch.company,
-            "WIPTAGSDefaultLocation",
-            "C",
-            NO,
-            NO,
-            "",
-            "",
+            INPUT  bf-job-mch.company,
+            INPUT  "WIPTAGSDefaultLocation",
+            INPUT  "C",
+            INPUT  NO,
+            INPUT  NO,
+            INPUT  "",
+            INPUT  "",
             OUTPUT cDefaultLocation,OUTPUT lFound
             ).
         IF lFound THEN
@@ -764,7 +777,7 @@ PROCEDURE CreateInventoryStockFromInputsFG:
     RELEASE bf-job-hdr.
     RELEASE bf-oe-ordl.   
     RELEASE bf-po-ordl. 
-    RELEASE bf-oe-bolh.  
+    RELEASE bf-oe-boll.  
     RELEASE bf-oe-rel.      
 END PROCEDURE.
 
@@ -953,14 +966,14 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
      for processing.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriJobMch AS ROWID NO-UNDO.  /*Last Operation*/
-    DEFINE INPUT PARAMETER ipriJobMat AS ROWID NO-UNDO.  /*Board Material*/
-    DEFINE INPUT PARAMETER ipdQuantityTotal AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantityPerSubUnit AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriJobMch                 AS ROWID     NO-UNDO.  /*Last Operation*/
+    DEFINE INPUT  PARAMETER ipriJobMat                 AS ROWID     NO-UNDO.  /*Board Material*/
+    DEFINE INPUT  PARAMETER ipdQuantityTotal           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated                 AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cDefaultLocation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
@@ -1007,22 +1020,20 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             OUTPUT ttInventoryStockPreLoadtag.quantityOfSubUnits, OUTPUT ttInventoryStockPreLoadtag.quantityOfUnits, OUTPUT ttInventoryStockPreLoadtag.quantityPartial).
             
         FIND FIRST bf-item NO-LOCK 
-            WHERE bf-item.company EQ bf-job-mat.company
-            AND bf-item.i-no EQ bf-job-mat.rm-i-no
-            NO-ERROR.
+             WHERE bf-item.company EQ bf-job-mat.company
+               AND bf-item.i-no    EQ bf-job-mat.rm-i-no
+             NO-ERROR.
         IF AVAILABLE bf-item THEN 
             ASSIGN 
                 ttInventoryStockPreLoadtag.basisWeight    = bf-item.basis-w
                 ttInventoryStockPreLoadtag.basisWeightUOM = "LBS/MSF"
                 .
         FIND FIRST bf-job-hdr NO-LOCK 
-            WHERE bf-job-hdr.company EQ bf-job-mch.company
-            AND bf-job-hdr.job EQ bf-job-mch.job
-            AND bf-job-hdr.job-no EQ bf-job-mch.job-no
-            AND bf-job-hdr.job-no2 EQ bf-job-mch.job-no2
-            AND (bf-job-hdr.frm EQ bf-job-mch.frm OR bf-job-hdr.frm EQ 0)
-            AND (bf-job-hdr.blank-no EQ bf-job-mch.blank-no OR bf-job-mch.blank-no EQ 0)
-            NO-ERROR.
+             WHERE bf-job-hdr.company EQ bf-job-mch.company
+               AND bf-job-hdr.job     EQ bf-job-mch.job
+               AND bf-job-hdr.job-no  EQ bf-job-mch.job-no
+               AND bf-job-hdr.job-no2 EQ bf-job-mch.job-no2
+             NO-ERROR.
         IF AVAILABLE bf-job-hdr THEN 
             ASSIGN 
                 ttInventoryStockPreLoadtag.fgItemID    = bf-job-hdr.i-no
@@ -1031,11 +1042,17 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
                 ttInventoryStockPreLoadtag.customerID  = bf-job-hdr.cust-no
                 .
         RUN sys/ref/nk1look.p (
-            bf-job-mch.company,"WIPTAGSDefaultLocation","C",NO,NO,"","",
+            INPUT  bf-job-mch.company,
+            INPUT  "WIPTAGSDefaultLocation",
+            INPUT  "C",
+            INPUT  NO,
+            INPUT  NO,
+            INPUT  "",
+            INPUT  "",
             OUTPUT cDefaultLocation,OUTPUT lFound
             ).
         IF lFound THEN
-        ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
+            ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
     END.
     ELSE 
         ASSIGN 
@@ -1043,6 +1060,10 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             opcMessage = "Invalid Machine or Material Inputs" 
             .    
 
+    RELEASE bf-job-hdr.
+    RELEASE bf-job-mat.
+    RELEASE bf-job-mch.
+    RELEASE bf-item.
 END PROCEDURE.
 
 PROCEDURE CreatePrintInventory:
@@ -1607,11 +1628,37 @@ PROCEDURE CreateTransactionInitializedFromJob:
     DEFINE VARIABLE iCountOfFullLoadtags      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dQuantityOfPartialLoadtag AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cInventoryStockID         AS CHARACTER NO-UNDO.
+
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ ipcCompany
+           AND job-hdr.job-no   EQ ipcJobno
+           AND job-hdr.job-no2  EQ ipiJobno2
+    NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN DO:
+        ASSIGN
+            oplCreated = FALSE
+            opcMessage = "Invalid Job Header".
+        RETURN.
+    END.
     
+    FIND FIRST job NO-LOCK
+         WHERE job.company EQ job-hdr.company
+           AND job.job     EQ job-hdr.job
+           AND job.job-no  EQ job-hdr.job-no
+           AND job.job-no2 EQ job-hdr.job-no2
+         NO-ERROR.  
+    IF NOT AVAILABLE job-hdr THEN DO:
+        ASSIGN
+            oplCreated = FALSE
+            opcMessage = "Invalid Job".
+        RETURN.
+    END.
+               
     FIND FIRST job-mch NO-LOCK
-         WHERE job-mch.company  EQ ipcCompany
-           AND job-mch.job-no   EQ ipcJobno
-           AND job-mch.job-no2  EQ ipiJobno2
+         WHERE job-mch.company  EQ job-hdr.company
+           AND job-mch.job      EQ job-hdr.job
+           AND job-mch.job-no   EQ job-hdr.job-no
+           AND job-mch.job-no2  EQ job-hdr.job-no2
            AND job-mch.m-code   EQ ipcMachine
            AND job-mch.frm      EQ ipiFormno
            AND job-mch.blank-no EQ ipiBlankno
@@ -1624,10 +1671,12 @@ PROCEDURE CreateTransactionInitializedFromJob:
     END.
 
     FIND FIRST job-mat NO-LOCK  
-         WHERE job-mat.company  EQ job-mch.company
-           AND job-mat.job-no   EQ job-mch.job-no
-           AND job-mat.job-no2  EQ job-mch.job-no2
-           AND job-mat.frm      EQ job-mch.frm
+         WHERE job-mat.company  EQ job-hdr.company
+           AND job-mat.job      EQ job-hdr.job 
+           AND job-mat.job-no   EQ job-hdr.job-no
+           AND job-mat.job-no2  EQ job-hdr.job-no2
+           AND job-mat.frm      EQ ipiFormNo
+           AND job-mat.blank-no EQ ipiBlankNo
            AND (IF ipcRMItem    EQ "" THEN 
                     TRUE
                 ELSE
@@ -1638,21 +1687,6 @@ PROCEDURE CreateTransactionInitializedFromJob:
         ASSIGN
             oplCreated = FALSE
             opcMessage = "Invalid Material".
-        RETURN.
-    END.
-
-    FIND FIRST job-hdr NO-LOCK 
-         WHERE job-hdr.company   EQ job-mch.company
-           AND job-hdr.job       EQ job-mch.job
-           AND job-hdr.job-no    EQ job-mch.job-no
-           AND job-hdr.job-no2   EQ job-mch.job-no2
-           AND (job-hdr.frm      EQ job-mch.frm OR job-hdr.frm EQ 0)
-           AND (job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0)
-           NO-ERROR.
-    IF NOT AVAILABLE job-hdr THEN DO:
-        ASSIGN
-            oplCreated = FALSE
-            opcMessage = "Invalid Job Header".
         RETURN.
     END.
 
@@ -1679,12 +1713,12 @@ PROCEDURE CreateTransactionInitializedFromJob:
     CASE ipcItemType:
         WHEN gcItemTypeWIP THEN DO:
             RUN CreatePreLoadtagsFromInputsWIP (
-                ROWID(job-mch),
-                ROWID(job-mat), 
-                ipdQuantityTotal,
-                ipdQuantityPerSubUnit,
-                ipiQuantitySubUnitsPerUnit,
-                ipcQuantityUOM,
+                INPUT  ROWID(job-mch),
+                INPUT  ROWID(job-mat), 
+                INPUT  ipdQuantityTotal,
+                INPUT  ipdQuantityPerSubUnit,
+                INPUT  ipiQuantitySubUnitsPerUnit,
+                INPUT  ipcQuantityUOM,
                 OUTPUT oplCreated,
                 OUTPUT opcMessage
                 ).
@@ -1696,9 +1730,9 @@ PROCEDURE CreateTransactionInitializedFromJob:
                     oplCreated = NO
                     opcMessage = "". 
                 RUN CreateInventoryStockFromLoadtag (
-                    ttInventoryStockLoadtag.inventoryStockID,
-                    YES,
-                    NO,
+                    INPUT  ttInventoryStockLoadtag.inventoryStockID,
+                    INPUT  YES,
+                    INPUT  NO,
                     OUTPUT oplCreated,
                     OUTPUT opcMessage
                     ).
@@ -1707,13 +1741,13 @@ PROCEDURE CreateTransactionInitializedFromJob:
         WHEN gcItemTypeFG THEN DO:
             DO iCountOfLoadtags = 1 TO iCountOfFullLoadtags:
                 RUN CreateInventoryStockFromInputsFG (
-                    ROWID(job-mch),
-                    ROWID(job-mat), 
-                    ROWID(job-hdr),
-                    ipdQuantityPerSubUnit,
-                    ipdQuantityPerSubUnit,
-                    ipiQuantitySubUnitsPerUnit,
-                    ipcQuantityUOM,
+                    INPUT  ROWID(job-mch),
+                    INPUT  ROWID(job-mat), 
+                    INPUT  ROWID(job-hdr),
+                    INPUT  ipdQuantityPerSubUnit,
+                    INPUT  ipdQuantityPerSubUnit,
+                    INPUT  ipiQuantitySubUnitsPerUnit,
+                    INPUT  ipcQuantityUOM,
                     OUTPUT cInventoryStockID,
                     OUTPUT oplCreated,
                     OUTPUT opcMessage
@@ -1721,23 +1755,23 @@ PROCEDURE CreateTransactionInitializedFromJob:
                 
                 IF oplCreated THEN
                     RUN CreateInventoryStockReceipt (
-                        ipcCompany,
-                        cInventoryStockID,
-                        TRUE, /* Create Receipt Transaction */
-                        FALSE, /* Post Receipt Transaction */
+                        INPUT ipcCompany,
+                        INPUT cInventoryStockID,
+                        INPUT TRUE, /* Create Receipt Transaction */
+                        INPUT FALSE, /* Post Receipt Transaction */
                         OUTPUT oplCreated,
                         OUTPUT opcMessage
                         ).                
             END. 
             IF dQuantityOfPartialLoadtag NE 0 THEN DO:
                 RUN CreateInventoryStockFromInputsFG (
-                    ROWID(job-mch),
-                    ROWID(job-mat), 
-                    ROWID(job-hdr),
-                    dQuantityOfPartialLoadtag,
-                    dQuantityOfPartialLoadtag,
-                    ipiQuantitySubUnitsPerUnit,
-                    ipcQuantityUOM,
+                    INPUT  ROWID(job-mch),
+                    INPUT  ROWID(job-mat), 
+                    INPUT  ROWID(job-hdr),
+                    INPUT  dQuantityOfPartialLoadtag,
+                    INPUT  dQuantityOfPartialLoadtag,
+                    INPUT  ipiQuantitySubUnitsPerUnit,
+                    INPUT  ipcQuantityUOM,
                     OUTPUT cInventoryStockID,
                     OUTPUT oplCreated,
                     OUTPUT opcMessage
@@ -1745,10 +1779,10 @@ PROCEDURE CreateTransactionInitializedFromJob:
                 
                 IF oplCreated THEN
                     RUN CreateInventoryStockReceipt (
-                        ipcCompany,
-                        cInventoryStockID,
-                        TRUE, /* Create Receipt Transaction */
-                        FALSE, /* Post Receipt Transaction */
+                        INPUT  ipcCompany,
+                        INPUT  cInventoryStockID,
+                        INPUT  TRUE, /* Create Receipt Transaction */
+                        INPUT  FALSE, /* Post Receipt Transaction */
                         OUTPUT oplCreated,
                         OUTPUT opcMessage
                         ).
