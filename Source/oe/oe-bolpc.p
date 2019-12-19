@@ -17,6 +17,8 @@ DEF VAR v-p-c LIKE oe-boll.p-c NO-UNDO.
 DEF VAR cReturn AS CHAR NO-UNDO.
 DEF VAR lFound AS LOG NO-UNDO.
 DEF VAR dRelPost AS INT NO-UNDO.
+DEFINE VARIABLE cBOLPartialFlag AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iRelQty AS INTEGER NO-UNDO.
 
 FIND bf-oe-boll WHERE ROWID(bf-oe-boll) EQ ipr-oe-boll
                 NO-LOCK NO-ERROR.
@@ -30,6 +32,13 @@ RUN sys/ref/nk1look.p (v-company, "RELPOST", "D", no, no, "", "",
                           Output cReturn, output lFound).
 IF lFound THEN
     dRelPost = DEC(cReturn).
+
+RUN sys/ref/nk1look.p (INPUT v-company, "BOLPartialFlag", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cReturn, OUTPUT lFound).
+IF lFound THEN
+    cBOLPartialFlag = cReturn NO-ERROR.
+
 
 FOR EACH bf-oe-boll WHERE bf-oe-boll.company EQ v-company
                       AND bf-oe-boll.ord-no  EQ v-ord-no
@@ -59,8 +68,19 @@ FOR EACH bf-oe-boll WHERE bf-oe-boll.company EQ v-company
                 USE-INDEX ord-no:
                 v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
             END.
+            IF cBOLPartialFlag EQ "Release Quantity" THEN do:
+                iRelQty = 0.
+                FOR EACH oe-rell FIELDS(qty) NO-LOCK
+                    WHERE oe-rell.company EQ bf-oe-boll.company 
+                    AND oe-rell.r-no    eq bf-oe-boll.r-no :
+                    iRelQty = iRelQty + oe-rell.qty .
+                END.
+                v-p-c = bf-oe-boll.qty + v-sum-qty GE iRelQty .
+            END.
+            ELSE DO:
             v-p-c = bf-oe-boll.qty + v-sum-qty GE
                         (bf-oe-ordl.qty * (1 - (bf-oe-ordl.under-pct / 100))).
+            END.
         END /*not iRelPost eq 1*/.
         ELSE v-p-c = YES.
         IF v-p-c NE bf-oe-boll.p-c THEN DO:
