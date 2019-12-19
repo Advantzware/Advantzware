@@ -567,7 +567,7 @@ DO:
         {src/adm/template/brschnge.i}
     {methods/template/local/setvalue.i}
 
-   RUN dept-pan-image-proc.  
+   RUN dept-pan-image-proc.
   
 END.
 
@@ -903,8 +903,6 @@ PROCEDURE local-display-fields :
         fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
     END.
-                    
-                    
     
 END PROCEDURE.
 
@@ -1024,7 +1022,8 @@ PROCEDURE local-open-query :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE cVendItemCost AS CHAR NO-UNDO.
+    
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
@@ -1051,9 +1050,12 @@ PROCEDURE local-open-query :
 
     END.
     
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost').     
-    IF RETURN-VALUE <> "" AND RETURN-VALUE <> ? THEN DO:        
-       RUN openqueryOne (return-value).            
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+    cVendItemCost = RETURN-VALUE.
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
+    IF (cVendItemCost NE "" AND cVendItemCost NE ?) or
+       (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:        
+       RUN openqueryOne (cVendItemCost).            
     END.     
      
     ll-show-all = NO .
@@ -1147,13 +1149,16 @@ PROCEDURE openQueryOne:
     fi_vend-no = IF RETURN-VALUE <> ? THEN RETURN-VALUE ELSE "".
     
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType').
-    fi_hotkey = IF RETURN-VALUE = "yes" THEN "RM" 
-                ELSE IF RETURN-VALUE = "No" THEN "FG"
-                ELSE "ALL".
+    fi_hotkey = IF RETURN-VALUE = "RM" THEN fi_hotkey:ENTRY(3) IN FRAME {&FRAME-NAME}  
+                ELSE IF RETURN-VALUE = "FG" THEN fi_hotkey:ENTRY(2)
+                ELSE fi_hotkey:ENTRY(1).                    
     
-    ASSIGN fi_i-no = ipcValue.
-    DISPLAY fi_i-no fi_vend-no fi_hotkey WITH FRAME {&frame-name}.
-           
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').
+    fi_est-no = RETURN-VALUE.
+    
+    ASSIGN fi_i-no = ipcValue           .
+    DISPLAY fi_i-no fi_vend-no fi_hotkey fi_est-no WITH FRAME {&frame-name}.
+                   
     RUN query-go.
 
 END PROCEDURE.
