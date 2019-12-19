@@ -373,8 +373,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     
     APPLY 'value-changed' TO tbArchive.
-    ASSIGN 
-        cDumpLoc = "C:\tmp\OrderPurge" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99"). 
 
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -472,6 +470,9 @@ PROCEDURE run-process :
             tbInvoices
             tbArchive.
     END.
+    
+    ASSIGN 
+        cDumpLoc = "C:\tmp\OrderPurge-" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99" + "-" + STRING(TIME,"99999")). 
     
     IF tbArchive THEN DO:
         OS-CREATE-DIR VALUE(cDumpLoc).
