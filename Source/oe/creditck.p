@@ -23,9 +23,6 @@ DO TRANSACTION:
     {sys/inc/oecredit.i}
 END.
 
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-
 IF PROGRAM-NAME(2) MATCHES ("*v-ord.*") THEN
     ASSIGN lCheckOrderOnly = YES .
 FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ ip-rowid NO-ERROR.
@@ -101,7 +98,7 @@ DO:
         DO:
             IF AVAIL oe-ord AND lCheckOrderOnly THEN DO:
                IF oecredit-log THEN DO:
-                 RUN pDisplayMessageGetOutput IN hMessageProcs (INPUT "8") .
+                 RUN displayMessage ("8") .
                END. /* oecredit-log */
             END.  /* avail ord */
             ELSE DO: 
@@ -117,7 +114,7 @@ DO:
         DO:
             IF AVAIL oe-ord OR lCheckOrderOnly THEN DO:
                IF oecredit-log THEN DO:
-                   RUN pDisplayMessageGetOutput IN hMessageProcs (INPUT "8") .
+                   RUN displayMessage ("8") .
                END. /* oecredit-log */
             END.  /* avail ord */
             ELSE DO:   
@@ -242,4 +239,3 @@ DO:
     END. /* DO TRANSACTION: */  
 
 END. /* IF AVAIL cust */
-DELETE OBJECT hMessageProcs.

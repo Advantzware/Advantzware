@@ -2235,15 +2235,12 @@ PROCEDURE import-price :
   DEFINE BUFFER b-eb FOR eb.
   DEFINE BUFFER bff-probe FOR probe .
 
-  DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-  RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-  
   {est/checkuse.i}
 
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
-  IF lMultiRecords THEN do:
-
-     RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "7", OUTPUT lcheckflg ).
+  IF lMultiRecords THEN DO:
+     RUN displayMessageQuestion(INPUT "7", OUTPUT cMsgRtn).
+     lCheckFlg = LOGICAL(cMsgRtn).
   END.
 
  FOR EACH bff-probe NO-LOCK
@@ -2327,8 +2324,6 @@ PROCEDURE import-price :
     END.
   END.
  END.
-
- DELETE OBJECT hMessageProcs.
 
 END PROCEDURE.
 

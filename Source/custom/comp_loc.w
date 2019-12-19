@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{sys/inc/var.i "new shared"}
 
 DEFINE VARIABLE onlyone    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE save-rowid AS ROWID   NO-UNDO.
@@ -53,9 +54,6 @@ DEFINE TEMP-TABLE ttProcedure NO-UNDO
 DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
-
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -525,8 +523,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCloseProcedures C-Win
-PROCEDURE pCloseProcedures:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCloseProcedures C-Win 
+PROCEDURE pCloseProcedures :
 /*------------------------------------------------------------------------------
  Purpose: close any open procedures
  Notes:
@@ -548,13 +546,8 @@ PROCEDURE pCloseProcedures:
         hProc = hProc:NEXT-SIBLING.
     END. /* do while */
     IF CAN-FIND(FIRST ttProcedure) THEN DO:
-
-        RUN pGetMessageFlag IN hMessageProcs (INPUT "11", OUTPUT lCheckMessage ).
-
-        IF NOT lCheckMessage THEN
-            RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT "11", OUTPUT oplClose ).
-        ELSE oplClose = TRUE .
-
+        RUN displayMessageQuestion("11", OUTPUT cMsgRtn).
+        oplClose = LOGICAL(cMsgRtn).
         IF oplClose THEN
         FOR EACH ttProcedure:
             IF VALID-HANDLE(ttProcedure.hProcedure) THEN
@@ -563,7 +556,7 @@ PROCEDURE pCloseProcedures:
     END. /* if can-find */
    
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -637,3 +630,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

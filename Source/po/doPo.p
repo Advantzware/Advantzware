@@ -394,8 +394,6 @@ IF v-from-po-entry THEN
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4994,18 +4992,14 @@ PROCEDURE pCheckFGItemCustHold :
             AND bff-itemfg.i-no    EQ ipcFGItem NO-ERROR.
         
         IF AVAIL bff-itemfg AND bff-itemfg.cust-no NE ""  THEN DO:
-            RUN pGetMessageProcs IN hMessageProcs (INPUT "12", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-            IF NOT lSuppressMessage THEN do:
-                FIND FIRST cust NO-LOCK 
-                    WHERE cust.company EQ cocode 
-                    AND cust.cust-no EQ bff-itemfg.cust-no NO-ERROR .
-                IF AVAIL cust AND cust.cr-hold THEN do:
-                    MESSAGE  cCurrentMessage
-                        VIEW-AS ALERT-BOX BUTTON YES-NO title cCurrentTitle UPDATE ll-ans AS LOGICAL .
-                    IF NOT ll-ans THEN do:
-                       oplFgItemCustHold = NO .
-                    END.
-                END.
+            FIND FIRST cust NO-LOCK 
+                WHERE cust.company EQ cocode 
+                AND cust.cust-no EQ bff-itemfg.cust-no NO-ERROR .
+            IF AVAIL cust AND cust.cr-hold THEN 
+            do:
+                RUN displayMessageQuestion("12", cMsgRtn).
+                IF NOT LOGICAL(cMsgRtn) THEN
+                   oplFgItemCustHold = NO .
             END.
         END.
     

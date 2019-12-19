@@ -65,8 +65,6 @@ DO TRANSACTION:
 END.
 
 DEF STREAM excel.
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -433,7 +431,6 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Production Control Edit List */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  DELETE OBJECT hMessageProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -501,7 +498,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   DELETE OBJECT hMessageProcs.
    apply "close" to this-procedure.
 END.
 
@@ -2296,8 +2292,6 @@ DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-RUN pGetMessageFlag IN hMessageProcs (INPUT "6" , OUTPUT lSuppressMessage) .
-
 form
     pc-prdd.m-code column-label "MACH"
     mach.m-dscr column-label "DESCRIPT" format "x(10)"
@@ -2513,11 +2507,9 @@ for each pc-prdd
       end.
 
       if v-tot-fg gt v-tot-rm THEN do:
-          IF NOT lSuppressMessage THEN DO:
-              RUN pDisplayMessageGetOutput IN hMessageProcs (INPUT "6" ).
-              ll-ok-to-post = NO .
-              RETURN NO-APPLY .
-          END.
+          RUN displayMessageQuestion("6", OUTPUT cMsgRtn).
+          ll-ok-to-post = LOGICAL(cMsgRtn).
+          RETURN NO-APPLY .
           next.
       END.
     end.
