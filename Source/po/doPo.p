@@ -4997,7 +4997,7 @@ PROCEDURE pCheckFGItemCustHold :
                 AND cust.cust-no EQ bff-itemfg.cust-no NO-ERROR .
             IF AVAIL cust AND cust.cr-hold THEN 
             do:
-                RUN displayMessage("12", cMsgRtn).
+                RUN displayMessageQuestion("12", cMsgRtn).
                 IF NOT LOGICAL(cMsgRtn) THEN
                    oplFgItemCustHold = NO .
             END.
