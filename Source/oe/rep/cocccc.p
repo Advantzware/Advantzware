@@ -303,16 +303,17 @@ FOR EACH report
                            AVAIL eb AND eb.est-type LE 4 THEN 
                            ASSIGN cBoard = cBoard + "/C1S".
                        IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:
-                            IF AVAIL eb THEN
-                                FIND FIRST prodl NO-LOCK
-                                WHERE prodl.company EQ cocode AND
-                                prodl.procat EQ eb.procat NO-ERROR .
-                            ELSE RELEASE prodl .
-
-                            IF AVAIL prodl AND prodl.prolin EQ "Labels" THEN 
-                              ASSIGN cBoard = cBoard + "/40#SCK".
-                            ELSE ASSIGN cBoard = cBoard + "/C1S".
-                       END.
+                        /*    IF AVAIL eb THEN                                  */
+                        /*        FIND FIRST prodl NO-LOCK                      */
+                        /*        WHERE prodl.company EQ cocode AND             */
+                        /*        prodl.procat EQ eb.procat NO-ERROR .          */
+                        /*    ELSE RELEASE prodl .                              */
+                        /*                                                      */
+                        /*    IF AVAIL prodl AND prodl.prolin EQ "Labels" THEN  */
+                        /*      ASSIGN cBoard = cBoard + "/40#SCK".             */
+                        /*    ELSE ASSIGN cBoard = cBoard + "/C1S".             */
+                         cBoard = " 22PT/SBS/C1S " .
+                       END.                                                     
                     END.
 
                     ASSIGN 
