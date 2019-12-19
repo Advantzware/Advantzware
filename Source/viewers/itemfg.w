@@ -2080,12 +2080,12 @@ PROCEDURE local-display-fields :
 
     IF AVAILABLE itemfg THEN 
     DO:
-        IF poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE itemfg.poStatus THEN DO:
-            IF itemfg.poStatus = " " THEN
-                poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ' '.
-            ELSE poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = itemfg.poStatus.     
-        END.    
-        
+        IF poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE itemfg.poStatus THEN
+           poStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF itemfg.poStatus EQ "" THEN
+                                                              ' '
+                                                          ELSE
+                                                              itemfg.poStatus.
+
         FIND FIRST cust WHERE cust.company = itemfg.company
             AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
         IF AVAILABLE cust AND cust.name <> itemfg.cust-name THEN
