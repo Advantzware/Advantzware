@@ -3223,6 +3223,49 @@ PROCEDURE ValidatePOLine:
         opcMessage = "Success".                                
 END PROCEDURE.
 
+PROCEDURE Inventory_GetLoadTagJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch job-no and job-no2 for a loadtag
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJobID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiJobID2   AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplValidTag AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.    
+
+    DEFINE VARIABLE lItemType AS LOGICAL NO-UNDO.
+        
+    DEFINE BUFFER bf-loadtag FOR loadtag.
+    
+    RUN ValidateLoadTag (
+        INPUT  ipcCompany,
+        INPUT  ipcItemType,
+        INPUT  ipcTag,
+        OUTPUT oplValidTag,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF NOT oplValidTag THEN
+        RETURN.
+
+    lItemType = ipcItemType EQ gcItemTypeRM.
+    
+    FIND FIRST bf-loadtag NO-LOCK
+         WHERE bf-loadtag.company   EQ ipcCompany
+           AND bf-loadtag.item-type EQ lItemType
+           AND bf-loadtag.tag-no    EQ ipcTag
+         NO-ERROR.
+    IF AVAILABLE bf-loadtag THEN
+        ASSIGN
+            opcJobID  = bf-loadtag.job-no
+            opiJobID2 = bf-loadtag.job-no2
+            .
+    
+    RELEASE bf-loadtag.    
+END PROCEDURE.
+
 PROCEDURE ValidateLoadTag:
     /*------------------------------------------------------------------------------
      Purpose: Validation for tag-no in loadtag table
