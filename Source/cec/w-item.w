@@ -977,10 +977,7 @@ PROCEDURE local-change-page :
    
     IF li-prev-page = 11 AND llPage11Opened THEN DO:
        RUN select-page(lv-current-page) .
-       llPage11Opened = NO.
-       
-       MESSAGE "set page back to before vendcost"  li-prev-page llPage11opened
-       VIEW-AS ALERT-BOX. 
+       llPage11Opened = NO.      
     END.
      
     {methods/winReSizePgChg.i}
