@@ -83,6 +83,11 @@ DEFINE STREAM sDebug.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
+
 RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
                    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                    OUTPUT cReturnValue, OUTPUT lRecFound).
@@ -90,11 +95,32 @@ lUseLogs = LOGICAL(cReturnValue ) NO-ERROR.
 RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "C" /* Logical */, NO /* check by cust */, 
                    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                    OUTPUT cLogFolder, OUTPUT lRecFound).    
-cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").
-cLogFolder = TRIM(cLogFolder, "\").    
-cDebugLog = clogFolder + "/" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
-IF lUseLogs THEN 
-    OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+IF lUseLogs THEN DO:
+    RUN system\FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+    cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").    
+    cDebugLog = clogFolder + "/oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
+
+    RUN FileSys_ValidateDirectory IN hdFileSysProcs (
+        INPUT  cLogFolder,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ).    
+    IF NOT lValid THEN 
+        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+            INPUT  cLogFolder,
+            OUTPUT lValid,
+            OUTPUT cMessage
+            ).      
+      
+    lUseLogs = lValid.
+   
+    
+    IF lUseLogs THEN 
+        OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+    IF ERROR-STATUS:ERROR THEN 
+        lUseLogs = FALSE.
+    DELETE OBJECT hdFileSysProcs.            
+END. /* If luseLogs */
 
 cLogFile = cLogFolder + "/" + "r-bolpst.errs".
 IF lUseLogs THEN DO:
