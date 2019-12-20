@@ -184,6 +184,7 @@ DEF VAR v-relflg AS LOG NO-UNDO.
 DEF VAR v-ponoUp AS LOG NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 
@@ -340,10 +341,24 @@ RUN methods/prgsecur.p
 DEF VAR lcReturn AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
+DEFINE VARIABLE lFGForcedCommission AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dFGForcedCommission AS DECIMAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
    llOeShipFromLog = LOGICAL(lcReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT llRecFound).
+IF llRecFound THEN
+lFGForcedCommission = LOGICAL(v-rtn-char) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "D" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT llRecFound).
+IF llRecFound THEN
+dFGForcedCommission = DECIMAL(v-rtn-char) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1638,6 +1653,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME oe-ordl.i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.i-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
+DO:
+   lCheckFgForceWarning = NO .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.i-no d-oeitem
 ON LEAVE OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
@@ -1841,6 +1866,16 @@ DO:
          RETURN NO-APPLY.
      END.   
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ordl.part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
+DO:
+  lCheckFgForceWarning = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2701,7 +2736,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
       IF INDEX(ip-type,"Update-") NE 0 AND oe-ordl.est-no NE "" THEN
          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-
+         RUN pGetPartComm (YES) .
       ASSIGN btn_done:hidden = YES.
       RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
 
@@ -4561,6 +4596,8 @@ PROCEDURE display-est-detail :
      oe-ordl.cases-unit:SCREEN-VALUE = "1".
   IF AVAIL itemfg THEN
       IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
+    RUN pGetPartComm (YES) .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4844,6 +4881,7 @@ DO WITH FRAME {&FRAME-NAME}:
    ASSIGN oe-ordl.pr-uom oe-ordl.price.
    RUN get-price.
  END.
+ RUN pGetPartComm(NO) .
 END.
 
 END PROCEDURE.
@@ -5035,6 +5073,8 @@ END.  /* frame {&frame-name} */
  END.
 
  RUN get-price.
+
+ RUN pGetPartComm(NO) .
  
  IF oe-ordl.qty:screen-value = "0" OR oe-ordl.qty:screen-value = "" THEN
     APPLY "entry" TO oe-ordl.qty.
@@ -9653,11 +9693,56 @@ PROCEDURE pCrtPart :
                 cust-part.i-no    = oe-ordl.i-no:SCREEN-VALUE
                 cust-part.cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no
                 cust-part.part-no = oe-ordl.part-no:SCREEN-VALUE .
+            IF lFGForcedCommission THEN
+               cust-part.forcedCommissionPercent = dFGForcedCommission .
 
            RELEASE cust-part .
            io-rowid = ROWID(itemfg).
         END.
         
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPartComm d-oeitem 
+PROCEDURE pGetPartComm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplCheckValue AS LOGICAL NO-UNDO .
+    DEFINE BUFFER b-cust-part FOR cust-part .
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+    IF iplCheckValue THEN
+        lCheckFgForceWarning = NO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+      IF lFGForcedCommission AND NOT lCheckFgForceWarning THEN do:
+          cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
+           
+        FIND FIRST b-cust-part NO-LOCK
+            WHERE b-cust-part.company EQ cocode
+            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
+            AND b-cust-part.cust-no EQ cCustNo
+            AND b-cust-part.part-no EQ oe-ordl.part-no:SCREEN-VALUE NO-ERROR .
+        IF AVAIL b-cust-part THEN do:
+            IF b-cust-part.forcedCommissionPercent EQ 0  THEN 
+                MESSAGE "N-K-1 Setting = FGForceCommission = Yes, but there is no commission percentage set for this item."
+                  "Defaulting to normal commission percentage" VIEW-AS ALERT-BOX WARNING .
+            ELSE do:
+                 oe-ordl.s-comm[1]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+                 IF oe-ordl.s-man[2]:SCREEN-VALUE NE "" THEN
+                     oe-ordl.s-comm[2]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+                 IF oe-ordl.s-man[3]:SCREEN-VALUE NE "" THEN
+                     oe-ordl.s-comm[3]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+            END.
+            lCheckFgForceWarning = YES .
+        END.
+      END.
     END.
 END PROCEDURE.
 
