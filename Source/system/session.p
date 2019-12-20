@@ -410,6 +410,8 @@ PROCEDURE displayMessageQuestion:
     END.
 
 END PROCEDURE.
+&ANALYZE-RESUME
+&ENDIF
 
 
 &IF DEFINED(EXCLUDE-displayMessageQuestionLOG) = 0 &THEN
