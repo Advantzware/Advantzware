@@ -875,6 +875,10 @@ PROCEDURE pProcessRecord PRIVATE:
     ELSE 
     DO:
         RUN est/NewEstimateForm.p (cIndustry, ROWID(est), OUTPUT riEb).
+        IF cIndustry EQ "C" THEN 
+            iEstType = 8. 
+        ELSE 
+            iEstType = 4.
     END.
     iopiAdded = iopiAdded + 1.
     FIND eb EXCLUSIVE-LOCK
@@ -898,6 +902,12 @@ PROCEDURE pProcessRecord PRIVATE:
             ef.est-no = cEstNumber
             est-qty.est-no = cEstNumber
             .
+    IF iEstType NE est.est-type THEN 
+        ASSIGN 
+            est.est-type = iEstType
+            eb.est-type = iEstType
+            ef.est-type = iEstType
+            .
     IF lAutoNumber AND cEstGroup NE "" THEN DO:
         FIND CURRENT ipbf-ttImportEstimate EXCLUSIVE-LOCK.
         ASSIGN 
@@ -914,7 +924,7 @@ PROCEDURE pProcessRecord PRIVATE:
         est.est-qty[1] = eb.eqty
         ef.eqty        = eb.eqty
         est-qty.qty[1] = eb.eqty
-        eb.bl-qty      = eb.eqty
+        eb.bl-qty      = ipbf-ttImportEstimate.Quantity
         .
 
     ASSIGN 
