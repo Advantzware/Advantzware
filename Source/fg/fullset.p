@@ -45,8 +45,7 @@
             FOR EACH fg-set NO-LOCK WHERE 
                 fg-set.company EQ cocode AND 
                 fg-set.set-no  EQ tt-fg-set.part-no AND 
-                fg-set.set-no  NE fg-set.part-no AND 
-                NOT fg-set.noReceipt ,
+                fg-set.set-no  NE fg-set.part-no,
                 FIRST itemfg NO-LOCK WHERE 
                     itemfg.company EQ cocode AND 
                     itemfg.i-no    EQ fg-set.part-no:
