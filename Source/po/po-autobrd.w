@@ -216,6 +216,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
+   DEFINE VARIABLE cMsgID AS CHARACTER NO-UNDO INITIAL "5".
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN
@@ -236,8 +237,18 @@ DO:
          END.
       ELSE
       DO:
-         APPLY "CLOSE":U TO THIS-PROCEDURE.
-         RETURN NO-APPLY.
+          FIND FIRST po-ordl NO-LOCK
+               WHERE po-ordl.company EQ cocode
+                 AND po-ordl.job-no  EQ op-job-no
+                 AND po-ordl.job-no2 EQ op-job-no2
+               NO-ERROR.
+          IF AVAILABLE po-ordl THEN DO:
+              RUN displayMessage (
+                  INPUT cMsgID
+                  ).
+          END.
+          APPLY "CLOSE":U TO THIS-PROCEDURE.
+          RETURN NO-APPLY.
       END.
    END.
 END.
