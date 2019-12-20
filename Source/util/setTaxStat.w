@@ -37,7 +37,15 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {custom/gcompany.i}
+{custom/gloc.i}
+{custom/getloc.i}
 {custom/getcmpny.i}
+{sys/inc/var.i new shared}
+
+assign
+ cocode = gcompany
+ locode = gloc.
+
 DEFINE VARIABLE hTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lOrderChanged AS LOGICAL NO-UNDO.
 
