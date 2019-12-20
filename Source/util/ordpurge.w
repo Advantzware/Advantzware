@@ -435,7 +435,10 @@ PROCEDURE run-process :
     DEFINE VARIABLE v-first-ord LIKE oe-ord.ord-no NO-UNDO.
     DEFINE VARIABLE v-last-ord LIKE oe-ord.ord-no NO-UNDO.
     
-    DISABLE TRIGGERS FOR LOAD OF oe-ord.
+/*  DISABLE TRIGGERS FOR LOAD OF oe-ord.                                                                      */
+/*  Leaving triggers to fire for oe-ord so that audit is written                                              */
+/*  Since ALL other records should have been deleted prior to order deletion, the triggers should not cascade */
+
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
     DISABLE TRIGGERS FOR LOAD OF oe-rell.
     DISABLE TRIGGERS FOR LOAD OF oe-relh.
