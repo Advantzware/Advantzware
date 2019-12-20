@@ -78,7 +78,7 @@ account.terms-discount account.bud[6] account.ly-bud[6] account.bud[7] ~
 account.ly-bud[7] account.bud[8] account.ly-bud[8] account.bud[9] ~
 account.ly-bud[9] account.bud[10] account.ly-bud[10] account.bud[11] ~
 account.ly-bud[11] account.bud[12] account.ly-bud[12] account.bud[13] ~
-account.ly-bud[13] 
+account.ly-bud[13] account.inactive
 &Scoped-define ENABLED-TABLES account
 &Scoped-define FIRST-ENABLED-TABLE account
 &Scoped-Define ENABLED-OBJECTS RECT-1 
@@ -96,7 +96,8 @@ account.cyr[9] account.lyr[9] account.bud[9] account.ly-bud[9] ~
 account.cyr[10] account.lyr[10] account.bud[10] account.ly-bud[10] ~
 account.cyr[11] account.lyr[11] account.bud[11] account.ly-bud[11] ~
 account.cyr[12] account.lyr[12] account.bud[12] account.ly-bud[12] ~
-account.cyr[13] account.lyr[13] account.bud[13] account.ly-bud[13] 
+account.cyr[13] account.lyr[13] account.bud[13] account.ly-bud[13] ~
+account.inactive
 &Scoped-define DISPLAYED-TABLES account
 &Scoped-define FIRST-DISPLAYED-TABLE account
 
@@ -161,6 +162,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
+     account.inactive AT ROW 2.43 COL 61.5
+          LABEL "Inactive"
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY 1.00
      account.lyr-open AT ROW 2.43 COL 98 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
@@ -565,6 +570,8 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX account.terms-discount IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX account.inactive IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
