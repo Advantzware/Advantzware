@@ -2402,8 +2402,7 @@ for each pc-prdd
         end.
 
         if v-tot-fg gt v-tot-rm THEN do:
-              RUN displayMessageQuestion ("6", OUTPUT cMsgRtn).
-              ll-ok-to-post = LOGICAL(cMsgRtn).
+              RUN displayMessageQuestionLOG ("6", OUTPUT ll-ok-to-post).
               RETURN NO-APPLY .
           END.
           next.

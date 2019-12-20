@@ -8,7 +8,6 @@
 
 def {1} {3} {2} var cocode     as   char  format "x(3)"  no-undo.
 def {1} {3} {2} var locode     as   char  format "x(5)"  no-undo.
-def {1} {3} {2} var cMsgRtn    as   char  no-undo.
 
 def {1} {3} {2} var  x  as   int no-undo.
 def {1} {3} {2} var  y  as   int no-undo.
