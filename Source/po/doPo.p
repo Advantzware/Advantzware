@@ -194,6 +194,9 @@ DEFINE VARIABLE llFirstOfJobFrm AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gvrJcCalc       AS ROWID     NO-UNDO.
 DEFINE VARIABLE lNextOuters     AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dOeAutoFg AS DECIMAL   NO-UNDO.
 
 DEFINE NEW SHARED WORKFILE work-vend NO-UNDO
     FIELD cost AS DECIMAL FORMAT ">>,>>9.9999"
@@ -391,6 +394,21 @@ IF oeautofg-log THEN
 IF v-from-po-entry THEN 
     v-autofg-sec = TRUE.
 
+/* Code to fetch sys-ctrl configuration "OEAUTOFG" decimal field */
+RUN sys/ref/nk1look.p (
+    INPUT  cocode,     /* Company       */
+    INPUT  "OEAUTOFG", /* Sys-Ctrl Name */
+    INPUT  "D",        /* Logical       */
+    INPUT  NO,         /* Check by cust */
+    INPUT  YES,        /* Use Cust      */
+    INPUT  "",         /* Customer      */
+    INPUT  "",         /* Ship-to       */
+    OUTPUT cRtnChar,
+    OUTPUT lRecFound
+    ).
+IF lRecFound THEN
+    dOeAutoFG = DECIMAL(cRtnChar).
+    
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -1107,9 +1125,31 @@ PROCEDURE calcDueDate :
     DEFINE BUFFER bf-w-job-mat FOR w-job-mat.
     FIND bf-w-job-mat WHERE ROWID(bf-w-job-mat) EQ iprWJobMat EXCLUSIVE-LOCK NO-ERROR.
 
-    RUN po/d-podate.w ("PO",INPUT-OUTPUT gvdPoDate, v-job, bf-w-job-mat.frm, bf-w-job-mat.rm-i-no).
-    IF gvdDueDate LE gvdPoDate THEN gvdDueDate = gvdPoDate + 1.
-    RUN po/d-podate.w ("Due",INPUT-OUTPUT gvdDueDate, v-job, bf-w-job-mat.frm, bf-w-job-mat.rm-i-no).
+    IF dOeAutoFG EQ 1 THEN
+        gvdPoDate = TODAY.
+    ELSE
+        RUN po/d-podate.w (
+            INPUT        "PO",
+            INPUT-OUTPUT gvdPoDate,
+            INPUT        v-job,
+            INPUT        bf-w-job-mat.frm,
+            INPUT        bf-w-job-mat.rm-i-no
+            ).
+        
+    IF gvdDueDate LE gvdPoDate THEN 
+        gvdDueDate = gvdPoDate + 1.
+    
+    IF dOeAutoFG EQ 1 THEN
+        gvdDueDate = TODAY + 1.  
+    ELSE    
+        RUN po/d-podate.w (
+            INPUT        "Due",
+            INPUT-OUTPUT gvdDueDate, 
+            INPUT        v-job, 
+            INPUT        bf-w-job-mat.frm, 
+            INPUT        bf-w-job-mat.rm-i-no
+            ).
+            
     RELEASE bf-w-job-mat.
 
 END PROCEDURE.
@@ -3543,15 +3583,17 @@ PROCEDURE promptCreatePoLine :
         AND ((v-autopo-sec AND w-job-mat.this-is-a-rm) OR (v-autofg-sec AND NOT w-job-mat.this-is-a-rm AND lCheckFgItemPoStatus )) 
         AND NOT w-job-mat.isaset THEN 
     DO ON ENDKEY UNDO, LEAVE:
-
-        MESSAGE "Do you wish to create a PO line for " +
-            (IF w-job-mat.this-is-a-rm
-            THEN ("Job/Form/RM#: " + TRIM(v-job) + "/" +
-            TRIM(STRING(w-job-mat.frm,"99")))
-            ELSE ("Order/FG#: " +
-            TRIM(STRING(v-ord-no,">>>>>>>>>>")))) +
-            "/" + TRIM(w-job-mat.rm-i-no) + "?"
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE gvlChoice.
+        IF dOeAutoFG EQ 1 THEN
+            gvlChoice = TRUE.
+        ELSE
+            MESSAGE "Do you wish to create a PO line for " +
+                (IF w-job-mat.this-is-a-rm
+                THEN ("Job/Form/RM#: " + TRIM(v-job) + "/" +
+                TRIM(STRING(w-job-mat.frm,"99")))
+                ELSE ("Order/FG#: " +
+                TRIM(STRING(v-ord-no,">>>>>>>>>>")))) +
+                "/" + TRIM(w-job-mat.rm-i-no) + "?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE gvlChoice.
     END. /* Prompt to create po line */
 END PROCEDURE.
 
@@ -3572,11 +3614,14 @@ PROCEDURE promptDropShip :
     ------------------------------------------------------------------------------*/
 
     ll-drop = NO.
-    IF nk1-oeautopo-int EQ 1 THEN
-        MESSAGE "Is this a Drop Shipment?"
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll-drop.
-
+    IF nk1-oeautopo-int EQ 1 THEN DO:
+        IF dOeAutoFG EQ 1 THEN
+            ll-drop = TRUE.
+        ELSE
+            MESSAGE "Is this a Drop Shipment?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE ll-drop.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3598,11 +3643,15 @@ PROCEDURE promptExistingPo :
         May release po-ord
     ------------------------------------------------------------------------------*/
       
-    IF NOT gvlChoice AND nk1-oeautopo-log THEN
-        MESSAGE "PO exists for given Vendor and Date." SKIP
-            "Do you want to update existing PO? " 
-            VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE gvlChoice.
-
+    IF NOT gvlChoice AND nk1-oeautopo-log THEN DO:
+        IF dOeAutoFG EQ 1 THEN
+            gvlChoice = TRUE.
+        ELSE    
+            MESSAGE "PO exists for given Vendor and Date." SKIP
+                "Do you want to update existing PO? " 
+                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE gvlChoice.
+    END.
+    
     IF  nk1-oeautopo-log = NO THEN
         gvlChoice = NO.
 
