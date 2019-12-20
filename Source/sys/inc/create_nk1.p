@@ -801,7 +801,7 @@ CASE ip-nk1-value:
     WHEN "OEBOLLOG" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Generate log during BOL Posting",
-        INPUT "logs" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT ".\custfiles\logs" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).     
     WHEN "FGForceCommission" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
