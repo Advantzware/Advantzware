@@ -66,7 +66,7 @@ ASSIGN
       .
 
 IF opcSubDir EQ "0" THEN
-    opcSubDir = STRING(YEAR(TODAY)) + "." + STRING(MONTH(TODAY)) .
+    opcSubDir = STRING(YEAR(TODAY),"9999") + "." + STRING(MONTH(TODAY),"99") .
 
 IF DEC(opcSubDir) GT 0 THEN DO:
     opcSubDir = opcBaseDir + opcSubDir + "\".
