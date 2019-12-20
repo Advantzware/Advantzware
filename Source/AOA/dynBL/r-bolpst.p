@@ -93,6 +93,10 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
     ASSIGN
         cocode = cCompany
         locode = cLocation
@@ -109,15 +113,39 @@ PROCEDURE pBusinessLogic:
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cLogFolder, OUTPUT lRecFound).    
     cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").  
-    cDebugLog = clogFolder + "/" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
-    IF lUseLogs THEN 
-        OUTPUT STREAM sDebug TO VALUE(cDebugLog).
-    
-    cLogFile = cLogFolder + "/" + "r-bolpst.errs".
+   
     IF lUseLogs THEN DO:
-      OUTPUT TO VALUE(cLogFile) APPEND.
-      PUT STRING(TODAY,"99999999") + " " + STRING(TIME).
-    END.
+        RUN system\FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+        cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").    
+        cDebugLog = clogFolder + "/oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
+    
+        RUN FileSys_ValidateDirectory IN hdFileSysProcs (
+            INPUT  cLogFolder,
+            OUTPUT lValid,
+            OUTPUT cMessage
+            ).    
+        IF NOT lValid THEN 
+            RUN FileSys_CreateDirectory IN hdFileSysProcs (
+                INPUT  cLogFolder,
+                OUTPUT lValid,
+                OUTPUT cMessage
+                ).      
+          
+        lUseLogs = lValid.
+               
+        IF lUseLogs THEN 
+            OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+        IF ERROR-STATUS:ERROR THEN 
+            lUseLogs = FALSE.
+        cLogFile = cLogFolder + "/" + "r-bolpst.errs".
+        IF lUseLogs THEN DO:
+          OUTPUT TO VALUE(cLogFile) APPEND.
+          PUT STRING(TODAY,"99999999") + " " + STRING(TIME).
+        END.            
+        DELETE OBJECT hdFileSysProcs.            
+    END. /* If luseLogs */
+    
+
     
     /* ***************************  Main Block  *************************** */    
     PAUSE 0 BEFORE-HIDE.
