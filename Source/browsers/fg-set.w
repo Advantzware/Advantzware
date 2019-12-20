@@ -78,12 +78,12 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table fg-set.qtyPerSet fg-set.part-no ~
+&Scoped-define FIELDS-IN-QUERY-br_table fg-set.qtyPerSet fg-set.noReceipt fg-set.part-no ~
 get-itemfg () @ lv-i-name lv-q-onh @ lv-q-onh lv-q-ono @ lv-q-ono ~
 lv-q-all @ lv-q-all lv-q-bak @ lv-q-bak ~
 lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table fg-set.qtyPerSet ~
-fg-set.part-no 
+fg-set.noReceipt fg-set.part-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table fg-set
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table fg-set
 &Scoped-define QUERY-STRING-br_table FOR EACH fg-set WHERE fg-set.company = itemfg.company ~
@@ -179,6 +179,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       fg-set.qtyPerSet FORMAT "->>,>>9.99<<<<":U WIDTH 15.2
+      fg-set.noReceipt COLUMN-LABEL "No Receipt" VIEW-AS TOGGLE-BOX 
       fg-set.part-no FORMAT "x(15)":U
       get-itemfg () @ lv-i-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       lv-q-onh @ lv-q-onh COLUMN-LABEL "On Hand" FORMAT "->>>,>>9":U
@@ -192,6 +193,7 @@ DEFINE BROWSE br_table
             WIDTH 12.4
   ENABLE
       fg-set.qtyPerSet
+      fg-set.noReceipt
       fg-set.part-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -279,19 +281,21 @@ ASSIGN
   AND ASI.fg-set.set-no = ASI.itemfg.i-no"
      _FldNameList[1]   > ASI.fg-set.qtyPerSet
 "fg-set.qtyPerSet" ? ? "DECIMAL" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.fg-set.part-no
+     _FldNameList[2]   > ASI.fg-set.noReceipt
+"fg-set.noReceipt" "No Receipt" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.fg-set.part-no
 "fg-set.part-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"get-itemfg () @ lv-i-name" "Name" "x(25)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"lv-q-onh @ lv-q-onh" "On Hand" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-itemfg () @ lv-i-name" "Name" "x(25)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"lv-q-ono @ lv-q-ono" "POs/Jobs!On Order" "->>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-onh @ lv-q-onh" "On Hand" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"lv-q-all @ lv-q-all" "Allocated!To Orders" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-ono @ lv-q-ono" "POs/Jobs!On Order" "->>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"lv-q-bak @ lv-q-bak" "Backorder" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-all @ lv-q-all" "Allocated!To Orders" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
+"lv-q-bak @ lv-q-bak" "Backorder" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > "_<CALC>"
 "lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl" "Available" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
