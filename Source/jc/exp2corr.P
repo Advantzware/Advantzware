@@ -10,10 +10,7 @@
 {cec/descalc.i NEW}
 {jcrep/r-ticket.i "new shared"}
 {cecrep/jobtick.i "new shared"}
-MESSAGE "here cocode" cocode
-VIEW-AS ALERT-BOX.
-IF cocode = "" THEN 
-  cocode = "001".
+
 DEF SHARED TEMP-TABLE tt-job-hdr NO-UNDO FIELD jobhdr-rowid AS ROWID. 
 
 DEF VAR jobNumber AS cha FORM "x(10)" NO-UNDO.
@@ -110,8 +107,6 @@ RUN sys/ref/nk1look.p (cocode, "JobExport", "I", NO, NO, "", "",
     OUTPUT cReturn, OUTPUT lrecFound).
 IF lRecfound THEN    
     lNetQty = cReturn EQ '1'.
-    MESSAGE "lnetq" lNetQty
-    VIEW-AS ALERT-BOX.
     lNetQty = YES.
 {sys/inc/f16to32.i}
     
@@ -355,7 +350,6 @@ SUBSTRING(download-record1,72,10) = job-hdr.cust-no
 SUBSTRING(download-record1,82,10) = job-hdr.po-no  /*cust-po*/
 SUBSTRING(download-record1,92,10) = "          "   /* download-item*/
 v-sheets = 0.
-
 /*SUBSTRING(download-record1,102,6) = string(job-hdr.qty)  /*download-quantity*/ */
 IF lNetQty THEN DO:
     FOR EACH job-mat NO-LOCK 
@@ -365,24 +359,28 @@ IF lNetQty THEN DO:
         :
         FIND ITEM NO-LOCK 
             WHERE item.company EQ job-hdr.company
-            AND item.i-no    EQ job-mat.rm-i-noR
+            AND item.i-no    EQ job-mat.rm-i-no
             NO-ERROR.
-        IF AVAILABLE ITEM 
-           AND (item.mat-type EQ "B" OR item.mat-type EQ "P") THEN 
-        DO: 
-            MESSAGE "eb.num-up" eb.num-up
-            VIEW-AS ALERT-BOX.
+
             /* #56309 - correction for when more than 1 up */
             IF AVAIL eb AND eb.num-up GT 1 THEN DO:
-              RUN pSheetCalc (job-hdr.frm, OUTPUT v-sheets).
-              MESSAGE "after psheetc" v-sheets
-              VIEW-AS ALERT-BOX.              
+              for each job-mch no-lock
+                where job-mch.company eq job-hdr.company
+                  and job-mch.job-no eq job-hdr.job-no
+                  and job-mch.job-no2 eq job-hdr.job-no2
+                :
+              
+                v-sheets = job-mch.run-qty.
+                leave.
+              end.
+              if v-sheets = 0 then 
+                v-sheets = job-hdr.qty.
+              
             END.
             ELSE 
               v-sheets = job-mat.qty.
             LEAVE.          
-        END.
-         
+   
     END.
 END.
 ELSE DO:
@@ -835,222 +833,4 @@ PUT UNFORMATTED download-record4 SKIP.
 PAUSE 0.
 OUTPUT CLOSE.
 
-PROCEDURE pSheetCalc:
-DEFINE INPUT  PARAMETER ipiForm AS INTEGER NO-UNDO.
-DEFINE OUTPUT PARAMETER opiSheets AS INTEGER NO-UNDO.
-DEF VAR v-sht-dec AS DEC NO-UNDO.
 
-DEF VAR v-local-loop AS INT INIT 1 NO-UNDO.
-DEF VAR v-local-copies AS INT INIT 1 NO-UNDO.
-DEF VAR v-format AS CHAR INIT "delta10" NO-UNDO.
-DEF VAR dJobQty AS DEC NO-UNDO.
-DEF VAR v-op-qty LIKE est-op.qty.
-DEF VAR v-out2 AS INT NO-UNDO.
-DEF VAR v-dec AS DEC .
-DEF VAR v-yld-qty AS INT NO-UNDO.
-DEF VAR xg-flag AS LOG NO-UNDO.
-DEF VAR v-space AS LOG NO-UNDO.
-
-RUN cecrep/jobtick1.p (RECID(job-hdr), v-format,
-    v-local-loop, v-local-copies).
- 
-    
-FIND FIRST xest WHERE xest.compan = job-hdr.company
-                  AND xest.est-no EQ job-hdr.est-no NO-LOCK NO-ERROR.
-
-IF AVAIL xest THEN DO:
-  FIND FIRST xef
-      WHERE xef.company = xest.company 
-        AND xef.est-no   EQ xest.est-no
-      NO-LOCK NO-ERROR.
-      
-  FIND FIRST xeb
-      WHERE xeb.company = xest.company 
-        AND xeb.est-no   EQ xest.est-no
-      NO-LOCK NO-ERROR.
-END.
-
-dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
-
-/* testing:  */
-FIND FIRST w-ef 
-    WHERE w-ef.frm EQ ipiForm
-    NO-ERROR.
-MESSAGE "ipiForm" ipiForm
-"avail w-ef" avail(w-ef)
-VIEW-AS ALERT-BOX.
-IF NOT AVAIL w-ef THEN 
-    FIND FIRST w-ef.
-IF NOT AVAIL w-ef THEN 
-  RETURN.
-
-
-    RUN est/ef-#out.p (ROWID(xef), OUTPUT v-out).
-    ASSIGN
-       v-out2 = v-out
-       v-out = xeb.num-up * v-out.
-
-/* Scores Calc */
-  IF AVAIL xeb THEN DO:
-    FIND FIRST item
-        WHERE item.company EQ cocode
-          AND item.i-no    EQ xeb.adhesive
-        NO-LOCK NO-ERROR.
-    ASSIGN
-     v-outw       = IF xef.n-out   NE 0 THEN xef.n-out   ELSE 1
-     v-outl       = IF xef.n-out-l NE 0 THEN xef.n-out-l ELSE 1
-     v-upw        = IF xeb.num-wid NE 0 THEN xeb.num-wid ELSE 1
-     v-upl        = IF xeb.num-len NE 0 THEN xeb.num-len ELSE 1
-     v-joint-dscr = IF AVAIL item THEN item.i-name ELSE ""
-     v-joint-dscr = v-joint-dscr +
-                    (IF v-joint-dscr NE ""      AND
-                     xeb.adhesive NE "NO JOINT" AND
-                     xeb.tab-in NE ?            THEN
-                       " - TAB " + string(xeb.tab-in,"IN/OUT") ELSE "")
-     v-joint-dscr = TRIM(v-joint-dscr).
-
-    RUN est/ef-#out.p (ROWID(xef), OUTPUT v-out).
-    ASSIGN
-       v-out2 = v-out
-       v-out = xeb.num-up * v-out.
-
-    IF xeb.tr-no EQ "" THEN v-error = YES.
-    
-    ELSE
-      RUN cec/kpallet.p(INPUT  RECID(xest),
-                        OUTPUT v-cas-pal,
-                        OUTPUT v-tr-cnt,
-                        OUTPUT v-numstacks,
-                        OUTPUT v-stackcode,
-                        OUTPUT v-error).
-
-    IF v-error THEN
-      ASSIGN
-       v-numstacks = 0
-       v-stackcode = "".
-                      
-    IF xeb.stack-code NE "" THEN v-stackcode = xeb.stack-code.
-    
-
-    IF v-stackcode NE "" THEN v-stackcode = "Pattern:" + trim(v-stackcode).
-    
-    IF xeb.stacks EQ 0 THEN DO:
-      IF xeb.tr-cas NE 0 THEN DO:
-        v-dec = xeb.cas-pal / xeb.tr-cas.
-        {sys/inc/roundup.i v-dec}
-        v-numstacks = v-dec.
-      END.
-    END.
-    ELSE v-numstacks = xeb.stacks.
-
-    IF v-numstacks NE 0 AND xeb.tr-cas NE 0 THEN
-      v-stackcode = (IF v-stackcode <> "" THEN (v-stackcode + ",") ELSE "") +
-                    trim(STRING(v-numstacks,">>9")) + " Stack/" +
-                    trim(STRING(xeb.tr-cas,">>9")) + " Layer".
-
-    xg-flag = xef.xgrain EQ "S" OR xef.xgrain EQ "B".
-
-    IF xg-flag THEN
-      ASSIGN
-       v-dec = v-upw
-       v-upw = v-upl
-       v-upl = v-dec.
-
-    FIND FIRST xstyle
-        WHERE xstyle.company EQ xeb.company
-          AND xstyle.style   EQ xeb.style
-        NO-LOCK NO-ERROR.
-    IF AVAIL xstyle THEN DO:
-      FIND FIRST box-design-hdr
-          WHERE box-design-hdr.design-no EQ xstyle.design-no
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL box-design-hdr THEN DO:
-        RUN cec/descalc.p (RECID(xest), RECID(xeb)).
-
-        v-lscore-c = TRIM(v-lscore-c).
-
-        /*if xg-flag then*/ DO x = 1 TO LENGTH(v-lscore-c):
-          IF SUBSTRING(v-lscore-c,x,1) NE "" THEN
-            ASSIGN
-             v-len-score = v-len-score + trim(substr(v-lscore-c,x,1))
-             v-space     = YES.
-
-          ELSE
-          IF v-space THEN
-            ASSIGN
-             v-len-score = v-len-score + " "
-             v-space     = NO.
-        END.
-      
-        FOR EACH box-design-line OF box-design-hdr NO-LOCK:
-          FIND FIRST w-box-design-line
-              WHERE w-box-design-line.line-no EQ box-design-line.line-no
-              NO-ERROR.
-          IF AVAIL w-box-design-line THEN DO:
-            v-wid-score = TRIM(v-wid-score) + " " + 
-                          trim(w-box-design-line.wscore-c).
-            DELETE w-box-design-line.
-          END.
-        END.
-
-        v-wid-score = TRIM(v-wid-score).
-      END.    
-    END.
-
-  END.
-
-
-/* End Scores Calc */
-
-/* Begin v-sht-dec calc */       
-IF v-standards THEN DO:
-  v-sht-dec = xef.gsh-qty. 
-END.
-ELSE DO:
-  v-op-qty = 0.
-  
-  FOR EACH est-op FIELDS(qty)
-      WHERE est-op.company = xest.company
-        AND est-op.est-no EQ xest.est-no
-        AND est-op.s-num EQ w-ef.frm
-        AND est-op.line  GT 500
-     NO-LOCK
-     
-     BREAK BY est-op.qty:
-     
-    IF FIRST-OF(est-op.qty) THEN DO:
-      v-op-qty = est-op.qty.
-      IF est-op.qty GE job-hdr.qty THEN LEAVE.
-    END.
-  END.
-  
-  FOR EACH est-op FIELDS(num-sh)
-      WHERE est-op.company = xest.company
-        AND est-op.est-no EQ xest.est-no
-        AND est-op.s-num EQ w-ef.frm
-        AND est-op.qty   EQ v-op-qty
-        AND est-op.line  GT 500
-      NO-LOCK:
-      
-    v-sht-dec = est-op.num-sh.
-    LEAVE.
-  END.
-END.
-    
-IF v-net-shts AND (xeb.est-type EQ 6 OR xeb.est-type EQ 2) THEN 
-          ASSIGN
-            v-sht-dec = job-hdr.qty / (v-out2 * xeb.num-up)
-            v-yld-qty = IF xeb.est-type EQ 6 THEN xeb.quantityPerSet
-                        ELSE
-                        IF xeb.est-type EQ 2 THEN xeb.cust-%
-                        ELSE 1
-            v-sht-dec = v-sht-dec *
-                       (IF v-yld-qty LT 0 THEN (-1 / v-yld-qty)
-                        ELSE v-yld-qty).
-ELSE IF v-net-shts THEN  v-sht-dec = job-hdr.qty / v-out.
-{sys/inc/roundup.i v-sht-dec}
-v-sht-qty = v-sht-dec.
-opiSheets = v-sht-qty.    
-/* end v-sht-dec calc */    
-END PROCEDURE.
