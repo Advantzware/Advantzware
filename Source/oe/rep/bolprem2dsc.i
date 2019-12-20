@@ -11,9 +11,8 @@ PUT
   "<=1><R+3.5><UNITS=INCHES><C50><FROM><C+20><R+3><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE= " + string(oe-bolh.bol-no) + ">" FORMAT "x(250)"
   "<C3><R-7><#1><R+5><C+45><IMAGE#1=" ls-full-img1 SKIP
   "<FCourier New><C3><=1><R+1><C30><P18><B>Drivers Copy<P10></B> "
-  "<C3><=1><R+6> Premier Packaging "
-  "<C3><=1><R+7> 4219 State Route 42 "
-  "<C3><=1><R+8> Mason, OH 45040 " skip(1)
+  "<C3><=1><R+7> PO Box 39505, Louisville, KY 40233 "
+  "<C3><=1><R+8> Phone:800 518-6305 Fax: 502 935-3354 " skip(1)
   "<FCourier New>"
   "Bill To:" SPACE(30) "Ship To:"  SKIP
   SPACE(5) v-comp-name v-ship-name AT 45 skip

@@ -63,7 +63,13 @@ DEF VAR hHistory AS HANDLE NO-UNDO.
 &SCOPED-DEFINE sortby-phrase-desc BY ({&sortby-log}) DESC {&sortby}
 
 {sys/inc/rmissue.i}
-
+{sys/inc/venditemcost.i}
+DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-setup FOR reftable.
 
@@ -1329,15 +1335,16 @@ PROCEDURE new-i-no PRIVATE :
       
       itemfg.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
 
-      FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
+      IF lNewVendorItemCost THEN FIND vendItemCost OF itemfg NO-LOCK WHERE vendItemCost.itemType = "FG"NO-ERROR.
+      ELSE FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
       IF job-farm.qty-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
         job-farm.qty-uom:SCREEN-VALUE IN BROWSE {&browse-name} =
-          IF itemfg.i-code EQ "E" AND AVAIL e-itemfg THEN e-itemfg.std-uom ELSE itemfg.cons-uom.
+          IF itemfg.i-code EQ "E" AND AVAIL e-itemfg THEN e-itemfg.std-uom ELSE IF itemfg.i-code EQ "E" AND AVAIL vendItemCost THEN vendItemCost.vendorUOM ELSE itemfg.cons-uom.
                             
       IF job-farm.sc-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
         job-farm.sc-uom:SCREEN-VALUE IN BROWSE {&browse-name} =
-          IF itemfg.i-code EQ "E" AND AVAIL e-itemfg THEN e-itemfg.std-uom ELSE itemfg.cons-uom.
+          IF itemfg.i-code EQ "E" AND AVAIL e-itemfg THEN e-itemfg.std-uom ELSE IF itemfg.i-code EQ "E" AND AVAIL vendItemCost THEN vendItemCost.vendorUOM ELSE itemfg.cons-uom.
 
       IF adm-adding-record THEN DO:
         FOR EACH job-hdr
@@ -1440,14 +1447,40 @@ PROCEDURE new-i-no PRIVATE :
                 END.
              END.
           END.
-
+          
 /*           IF AVAIL e-itemfg-vend THEN                                                      */
 /*             RUN est/dim-charge.p (e-itemfg-vend.rec_key,                                   */
 /*                                   DEC(job-farm.wid:SCREEN-VALUE IN BROWSE {&browse-name}), */
 /*                                   DEC(job-farm.len:SCREEN-VALUE IN BROWSE {&browse-name}), */
 /*                                   INPUT-OUTPUT v-cost).                                    */
         END.
-
+        ELSE IF AVAIL vendItemCost /*lNewVendorItemCost*/ THEN 
+        DO:
+            RUN GetVendorCost(vendItemCost.company, 
+                vendItemCost.ItemID, 
+                vendItemCost.itemType, 
+                vendItemCost.vendorID, 
+                vendItemCost.customerID, 
+                "", 
+                0, 
+                0,
+                v-qty, 
+                vendItemCost.vendorUOM,
+                itemfg.t-len, 
+                itemfg.t-wid, 
+                0, 
+                "IN", 
+                itemfg.weight-100 / 100, 
+                "LB/EA", 
+                NO,
+                OUTPUT v-uom, 
+                OUTPUT dCostSetup, 
+                OUTPUT cCostUOM,
+                OUTPUT v-cost, 
+                OUTPUT lError, 
+                OUTPUT cMessage).  
+               
+        END.
         /* 02201203 */
         ASSIGN
            v-cost   = decimal(job-farm.std-cost:SCREEN-VALUE IN BROWSE {&browse-name})

@@ -198,8 +198,21 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rejct-cd.code V-table-Win
+ON LEAVE OF rejct-cd.code IN FRAME F-Main /*  Code */
+DO:
+   DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-reason(OUTPUT lopError) NO-ERROR.
+       IF lopError THEN RETURN NO-APPLY.
+   END.
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -261,6 +274,57 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
+PROCEDURE local-create-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+  DO WITH FRAME {&FRAME-NAME}:
+   /* IF adm-adding-record THEN DO:
+      DISPLAY mach.loc mach.d-seq mach.m-seq.
+      mach.sch-m-code:SCREEN-VALUE = mach.m-code.
+    END.*/
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* when new record created from last row, get error "No rm-rctd" record ava */
+
+  RUN valid-reason(OUTPUT lopError) NO-ERROR.
+  IF lopError THEN RETURN NO-APPLY.
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  adm-new-record = NO .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,3 +432,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason B-table-Win 
+PROCEDURE valid-reason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+  DEFINE BUFFER bf-rejct-cd FOR rejct-cd .
+  DO WITH FRAME {&FRAME-NAME}:
+
+      IF adm-new-record THEN DO:
+          FIND FIRST bf-rejct-cd NO-LOCK
+              WHERE bf-rejct-cd.CODE EQ rejct-cd.CODE:SCREEN-VALUE
+                AND ROWID(bf-rejct-cd) NE ROWID(rejct-cd) NO-ERROR .
+          IF AVAIL bf-rejct-cd THEN DO:
+               MESSAGE "This reason code is used in another area of the system.  Use a different Adjustment Reason code." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO rejct-cd.CODE .
+               oplReturnError = YES .
+          END.
+      END.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

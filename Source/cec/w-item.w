@@ -951,7 +951,7 @@ PROCEDURE local-change-page :
   if li-current-page = 5 AND lNewVendorItemCost then 
   do:
      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ' + item.mat-type ).
+     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
 /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
      RUN select-page (11).
@@ -977,10 +977,7 @@ PROCEDURE local-change-page :
    
     IF li-prev-page = 11 AND llPage11Opened THEN DO:
        RUN select-page(lv-current-page) .
-       llPage11Opened = NO.
-       
-       MESSAGE "set page back to before vendcost"  li-prev-page llPage11opened
-       VIEW-AS ALERT-BOX. 
+       llPage11Opened = NO.      
     END.
      
     {methods/winReSizePgChg.i}

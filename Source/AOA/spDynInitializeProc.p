@@ -55,7 +55,19 @@ PROCEDURE dynInitLocation:
     RETURN cSessionValue.
 END PROCEDURE.
 
+PROCEDURE dynInitNO:
+    RETURN "NO".
+END PROCEDURE.
+
 PROCEDURE dynInitSecure:
     RUN spSetSessionParam ("Secure", "NO").
     RETURN "NO".
+END PROCEDURE.
+
+PROCEDURE dynInitUser:
+    RETURN USERID("ASI").
+END PROCEDURE.
+
+PROCEDURE dynInitYES:
+    RETURN "YES".
 END PROCEDURE.

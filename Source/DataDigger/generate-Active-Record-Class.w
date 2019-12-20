@@ -7,17 +7,12 @@
   Name: generate-Active-Record-Class.w
   Desc: Generate class file for current file
 
-------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
-
-/* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_IS_RUNNING) = 0 &THEN
   DEFINE INPUT PARAMETER pcDatabase AS CHARACTER NO-UNDO.
@@ -32,7 +27,7 @@ CREATE WIDGET-POOL.
   RUN datadiggerlib.p PERSISTENT SET hLib.
   THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hLib,SEARCH-TARGET).
   
-  RUN fillTT.
+  RUN getDummyScheme.p(OUTPUT TABLE ttField, OUTPUT TABLE ttIndex).
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -448,38 +443,15 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fillTT C-Win 
-PROCEDURE fillTT :
-/* Fill tt for testing in UIB
-  */
-  DEFINE BUFFER bField FOR ttField.
-  DEFINE BUFFER bIndex FOR ttIndex.
-  
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-nr'      bField.lShow = TRUE bField.cDataType = 'INTEGER'   bField.cFormat = '>>>9'  bField.cLabel = 'Rep nr'.
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-name'    bField.lShow = TRUE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(30)' bField.cLabel = 'Rep name'.
-  CREATE bField. ASSIGN bField.cFieldName = 'region'      bField.lShow = FALSE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(8)'  bField.cLabel = 'Region'.
-  CREATE bField. ASSIGN bField.cFieldName = 'month-quota' bField.lShow = FALSE bField.cDataType = 'INTEGER'   bField.cFormat = '->,>>>,>>9' bField.cLabel = 'Rep name' bField.iExtent = 12.
-         
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iPrim'   bIndex.cIndexFlags = 'P U' bIndex.cFieldList  = 'rep-nr'.
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iRegion' bIndex.cIndexFlags = ''    bIndex.cFieldList  = 'region,rep-name'.   
-
-END PROCEDURE. /* fillTT */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE generateClass C-Win 
 PROCEDURE generateClass :
 DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
-  DEFINE VARIABLE cPrefix       AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cName         AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cMask         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMask         AS LONGCHAR  NO-UNDO.
   DEFINE VARIABLE cHeader       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cIndent       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iMaxName      AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxType      AS INTEGER   NO-UNDO.
-  DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
-  
+
   DEFINE BUFFER bField FOR ttField.
   
   DO WITH FRAME frMain:
@@ -509,7 +481,8 @@ DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
     IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
     cText = SUBSTITUTE(cMask, cHeader).
 
-    cText = SUBSTITUTE('&1~n&2 data.&3.&4'
+    cMask = '&1~n&2 data.&3.&4:'.
+    cText = SUBSTITUTE(cMask
                       , cText
                       , (IF tgLowerCase:CHECKED THEN 'class' ELSE 'CLASS')
                       , pcDatabase
@@ -538,7 +511,7 @@ DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
         AND bField.cFieldName <> 'ROWID'
         AND (NOT tgSelectedOnly:CHECKED OR bField.lShow):        
       
-      cMask = '&1DEFINE PUBLIC PROPERTY &2 AS &3 NO-UNDO. GET. SET.'.
+      cMask = '&1DEFINE PUBLIC PROPERTY &2 AS &3 NO-UNDO GET. SET.'.
       IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
       
       cText = cText + '~n' + SUBSTITUTE(cMask
@@ -745,7 +718,6 @@ FUNCTION getNameString RETURNS CHARACTER
 
   DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cMask        AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cPrefix      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i            AS INTEGER   NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:

@@ -2,28 +2,24 @@
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
-/*
--------------------------------------------------------------------
-Copyright (c) 2001 and later Netsetup B.V.
--------------------------------------------------------------------
-Name         : wDebugger.w
-Purpose      : Debugger for DataDigger
+/* -------------------------------------------------------------------
 
-15/04/13 PT    Changed to 'light' version for DataDigger, originating
-               from the DWP Debugger.
+  Name : wDebugger.w
+  Desc : Debugger for DataDigger
 
-----------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.    */
-/*--------------------------------------------------------------------*/
+  15/04/2013 Changed to 'light' version for DataDigger, originating
+             from the DWP Debugger of NetSetup.
+
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
+/*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
 { DataDigger.i }
 
 /* Local Variable Definitions */
-DEFINE VARIABLE giPrevTime AS INTEGER     NO-UNDO. /* remember last TIME */.
-DEFINE VARIABLE gnPrevProg AS CHARACTER   NO-UNDO. /* program-name(2) */.
-
+DEFINE VARIABLE giPrevTime AS INTEGER     NO-UNDO. /* remember last TIME */
+DEFINE VARIABLE gnPrevProg AS CHARACTER   NO-UNDO. /* program-name(2) */
 /* Temptable to keep track of all published messages. */
 DEFINE TEMP-TABLE ttMessage NO-UNDO
   FIELD dtEvent   AS DATETIME
@@ -446,9 +442,11 @@ PROCEDURE applyFilter :
   Desc: Refilter all messages
 ------------------------------------------------------------------------------*/
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE iReturnCode AS INTEGER    NO-UNDO.
 
   /* Avoid flashing */
+  {&_proparse_ prolint-nowarn(varusage)}
   RUN lockWindowUpdate (INPUT FRAME {&frame-name}:hwnd, OUTPUT iReturnCode).
 
   /* clear viewport */
@@ -473,6 +471,7 @@ PROCEDURE applyFilter :
   END.
 
   /* Unlock window */
+  {&_proparse_prolint-nowarn(varusage)}
   RUN lockWindowUpdate (INPUT 0, OUTPUT iReturnCode).
 
   /* Set focus to editor */
@@ -495,6 +494,7 @@ PROCEDURE debugInfo :
   DEFINE INPUT PARAMETER piLevel    AS INTEGER   NO-UNDO.
   DEFINE INPUT PARAMETER pcMessage  AS CHARACTER NO-UNDO.
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE iReturnCode AS INTEGER    NO-UNDO.
 
   /* Avoid flashing */

@@ -8,14 +8,12 @@
   Name: dSorting.w
   Desc: Let user maintain data sort
 
-------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
-/* ***************************  Definitions  ************************** */
 { DataDigger.i }
 
-/* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER TABLE FOR ttColumn.
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuerySort.
 DEFINE OUTPUT PARAMETER plSortChanged AS LOGICAL NO-UNDO.
@@ -514,14 +512,6 @@ END PROCEDURE.
 PROCEDURE initializeObject :
 /*
  * Prepare widgets
- */
-/*
-DEFINE TEMP-TABLE ttQuerySort NO-UNDO RCODE-INFORMATION
-  FIELD iGroup     AS INTEGER /* 1:query, 2:browse */
-  FIELD iSortNr    AS INTEGER
-  FIELD cSortField AS CHARACTER
-  FIELD lAscending AS LOGICAL
-  INDEX iPrim IS PRIMARY iGroup iSortNr
  */
 DEFINE VARIABLE cFields   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE i         AS INTEGER   NO-UNDO.

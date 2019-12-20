@@ -100,6 +100,7 @@ DO TRANSACTION:
     {sys/ref/postatus.i} 
     {sys/inc/poqty.i}
 END.
+{sys/inc/venditemcost.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "POChangeDueDate", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -1011,6 +1012,9 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE change-page-logic V-table-Win 
 PROCEDURE change-page-logic :

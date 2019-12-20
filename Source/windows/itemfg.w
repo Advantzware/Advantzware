@@ -1322,9 +1322,11 @@ PROCEDURE local-change-page :
     assign li-cur-page  = int(return-value).
 
   if li-cur-page = 8 AND lNewVendorItemCost then do:
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + itemfg.i-no).          
+     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(itemfg.i-no) ).      
+     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).    
      RUN select-page (14).
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
+     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
+     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).  
      RETURN.
   END.
 

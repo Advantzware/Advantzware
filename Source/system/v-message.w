@@ -46,10 +46,6 @@ FIND FIRST users NO-LOCK WHERE
 IF AVAILABLE users THEN ASSIGN 
         iSecurityLevel = users.securityLevel.
 
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -74,24 +70,20 @@ RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR zMessage.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS zMessage.msgID zMessage.module ~
-zMessage.hotKey zMessage.msgName zMessage.currSecLevel ~
-zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType ~
-zMessage.userSuppress zMessage.currentTitle zMessage.logMessage ~
-zMessage.currMessage zMessage.displayOptions zMessage.rtnValue ~
-zMessage.options zMessage.contextParms 
+&Scoped-Define ENABLED-FIELDS zMessage.msgID zMessage.msgName ~
+zMessage.msgType zMessage.module zMessage.hotKey zMessage.currSecLevel ~
+zMessage.defaultTitle zMessage.defaultMsg zMessage.currentTitle ~
+zMessage.currMessage zMessage.userSuppress zMessage.rtnValue 
 &Scoped-define ENABLED-TABLES zMessage
 &Scoped-define FIRST-ENABLED-TABLE zMessage
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Test
-&Scoped-Define DISPLAYED-FIELDS zMessage.msgID zMessage.module ~
-zMessage.hotKey zMessage.msgName zMessage.currSecLevel ~
-zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType ~
-zMessage.userSuppress zMessage.currentTitle zMessage.logMessage ~
-zMessage.currMessage zMessage.displayOptions zMessage.rtnValue ~
-zMessage.options zMessage.contextParms 
+&Scoped-Define ENABLED-OBJECTS Btn_Test 
+&Scoped-Define DISPLAYED-FIELDS zMessage.msgID zMessage.msgName ~
+zMessage.msgType zMessage.module zMessage.hotKey zMessage.currSecLevel ~
+zMessage.defaultTitle zMessage.defaultMsg zMessage.currentTitle ~
+zMessage.currMessage zMessage.userSuppress zMessage.rtnValue 
 &Scoped-define DISPLAYED-TABLES zMessage
 &Scoped-define FIRST-DISPLAYED-TABLE zMessage
-
+&Scoped-Define DISPLAYED-OBJECTS fiDfltMsg fiCurrtMsg 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -126,91 +118,86 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED 
-     SIZE 123 BY 14.29.
+DEFINE BUTTON Btn_Test 
+     LABEL "&Test" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
-DEFINE BUTTON Btn_Test
-    LABEL "&Test" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+DEFINE VARIABLE fiCurrtMsg AS CHARACTER FORMAT "X(256)":U INITIAL "Custom Message:" 
+      VIEW-AS TEXT 
+     SIZE 17 BY .62 NO-UNDO.
+
+DEFINE VARIABLE fiDfltMsg AS CHARACTER FORMAT "X(256)":U INITIAL "Default Message:" 
+      VIEW-AS TEXT 
+     SIZE 17 BY .62 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     zMessage.msgID AT ROW 1.24 COL 23.6 COLON-ALIGNED HELP
+     zMessage.msgID AT ROW 1.24 COL 19 COLON-ALIGNED HELP
           "Enter Utility Name"
-          LABEL "Message Id" FORMAT "x(32)"
+          LABEL "Message Id"
           VIEW-AS FILL-IN 
-          SIZE 25 BY 1
-          BGCOLOR 15
-     zMessage.module AT ROW 1.24 COL 70.6 COLON-ALIGNED HELP
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     zMessage.msgName AT ROW 1.24 COL 43 COLON-ALIGNED FORMAT "x(48)"
+          VIEW-AS FILL-IN 
+          SIZE 56 BY 1
+          BGCOLOR 15 
+     zMessage.msgType AT ROW 2.67 COL 19 COLON-ALIGNED FORMAT "x(12)"
+          VIEW-AS COMBO-BOX INNER-LINES 10
+          LIST-ITEMS "","ERROR","INFO","MESSAGE","WARNING","QUESTION-YN" 
+          DROP-DOWN-LIST
+          SIZE 24.6 BY 1
+          BGCOLOR 15 
+     zMessage.module AT ROW 2.67 COL 58 COLON-ALIGNED HELP
           "Enter Module Code"
           LABEL "Module" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-          BGCOLOR 15
-     zMessage.hotKey AT ROW 1.24 COL 96 COLON-ALIGNED
+          BGCOLOR 15 
+     zMessage.hotKey AT ROW 2.67 COL 78 COLON-ALIGNED
           LABEL "Hot Key" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-          BGCOLOR 15
-     zMessage.msgName AT ROW 2.43 COL 23.6 COLON-ALIGNED FORMAT "x(48)"
-          VIEW-AS FILL-IN 
-          SIZE 56 BY 1
-          BGCOLOR 15
-     zMessage.currSecLevel AT ROW 2.43 COL 96 COLON-ALIGNED HELP
+          BGCOLOR 15 
+     zMessage.currSecLevel AT ROW 2.67 COL 97 COLON-ALIGNED HELP
           ""
           LABEL "Sec. Lvl" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-          BGCOLOR 15
-     zMessage.defaultTitle AT ROW 3.62 COL 23.6 COLON-ALIGNED
+          BGCOLOR 15 
+     zMessage.defaultTitle AT ROW 3.86 COL 19 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 67 BY 1
+          BGCOLOR 15 
+     zMessage.defaultMsg AT ROW 5.05 COL 21 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 67 BY 2.62
+          BGCOLOR 15 
+     zMessage.currentTitle AT ROW 7.91 COL 19 COLON-ALIGNED
+          LABEL "Custom Title"
           VIEW-AS FILL-IN 
           SIZE 55.4 BY 1
-          BGCOLOR 15
-     zMessage.defaultMsg AT ROW 4.81 COL 23.8 COLON-ALIGNED
+          BGCOLOR 15 
+     zMessage.currMessage AT ROW 9.1 COL 21 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 55.2 BY 2.24
-          BGCOLOR 15
-     zMessage.msgType AT ROW 4.91 COL 96 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-          BGCOLOR 15
-     zMessage.userSuppress AT ROW 6.14 COL 98
+          SIZE 71 BY 2.62
+          BGCOLOR 15 
+     zMessage.userSuppress AT ROW 11.95 COL 21
+          LABEL "Suppress Display"
           VIEW-AS TOGGLE-BOX
-          SIZE 20 BY 1
-          BGCOLOR 15
-     zMessage.currentTitle AT ROW 7.24 COL 23.6 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 55.4 BY 1
-          BGCOLOR 15
-     zMessage.logMessage AT ROW 7.38 COL 98
-          VIEW-AS TOGGLE-BOX
-          SIZE 20 BY 1
-          BGCOLOR 15
-     zMessage.currMessage AT ROW 8.38 COL 23.6 COLON-ALIGNED
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 71 BY 3.1
-          BGCOLOR 15
-     zMessage.displayOptions AT ROW 8.62 COL 98
-          VIEW-AS TOGGLE-BOX
-          SIZE 20 BY 1
-          BGCOLOR 15
-     zMessage.rtnValue AT ROW 11.62 COL 23.6 COLON-ALIGNED
+          SIZE 21 BY 1
+          BGCOLOR 15 
+     Btn_Test AT ROW 12.91 COL 91
+     zMessage.rtnValue AT ROW 13.14 COL 19 COLON-ALIGNED
+          LABEL "Default Answer"
           VIEW-AS FILL-IN 
           SIZE 55 BY 1
-          BGCOLOR 15
-     zMessage.options AT ROW 12.71 COL 23.6 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 55 BY 1
-          BGCOLOR 15
-     zMessage.contextParms AT ROW 13.95 COL 23.6 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 55 BY 1
-          BGCOLOR 15
-    Btn_Test AT ROW 13.95 COL 100
-     RECT-1 AT ROW 1.05 COL 1.2
+          BGCOLOR 15 
+     fiDfltMsg AT ROW 4.81 COL 1 COLON-ALIGNED NO-LABEL
+     fiCurrtMsg AT ROW 9.1 COL 1 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -244,8 +231,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 14.57
-         WIDTH              = 124.4.
+         HEIGHT             = 13.43
+         WIDTH              = 112.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -273,16 +260,34 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN zMessage.currentTitle IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN zMessage.currSecLevel IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN fiCurrtMsg IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiCurrtMsg:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiDfltMsg IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiDfltMsg:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN zMessage.hotKey IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN zMessage.module IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN zMessage.msgID IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN zMessage.msgName IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR COMBO-BOX zMessage.msgType IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN zMessage.rtnValue IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX zMessage.userSuppress IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -301,6 +306,26 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME Btn_Test
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Test V-table-Win
+ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
+DO:
+    DEF VAR cOutput AS CHAR NO-UNDO.  
+    RUN local-update-record.
+    IF zMessage.msgType:SCREEN-VALUE BEGINS "Question" THEN DO:
+        RUN displayMessageQuestion (zMessage.msgID, OUTPUT cOutput).
+        MESSAGE 
+            "Output value returned = '" + cOUtput + "'"
+            VIEW-AS ALERT-BOX INFO.
+    END.
+    ELSE 
+        RUN displayMessage (zMessage.msgID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME zMessage.currSecLevel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zMessage.currSecLevel V-table-Win
@@ -370,21 +395,6 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Test
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Test V-table-Win
-ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
-    DO:
-    DEFINE VARIABLE oplClose AS LOGICAL NO-UNDO .
-    
-    RUN pDisplayMessageGetYesNo IN hMessageProcs (INPUT STRING(zMessage.msgID), OUTPUT oplClose ).
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME zMessage.msgID
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -653,8 +663,7 @@ PROCEDURE local-enable-fields :
             DISABLE  zMessage.msgID zMessage.module 
                 zMessage.hotKey zMessage.msgName zMessage.currSecLevel 
                 zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType 
-                zMessage.logMessage zMessage.rtnValue
-                zMessage.options zMessage.contextParms  .
+                zMessage.rtnValue.
             END.
         END.
 END PROCEDURE.
@@ -743,8 +752,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons V-table-Win 
 PROCEDURE valid-buttons :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -768,3 +776,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

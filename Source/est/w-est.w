@@ -154,6 +154,7 @@ DEFINE VARIABLE h_vp-est AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -248,7 +249,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME est:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -321,7 +322,11 @@ END.
 
 /* ***************************  Main Block  *************************** */
 session:data-entry-return = yes.
-
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -1356,6 +1361,18 @@ PROCEDURE local-change-page :
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
   END.
+  IF li-page[1] = 11 AND lNewVendorItemCost THEN 
+  DO: /* farm */
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
+        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).  */        
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ). 
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
+        RUN select-page (13).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').     
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).           
+  END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1367,7 +1384,11 @@ PROCEDURE local-create-objects :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEF VAR v-current-page AS INT NO-UNDO.
+    
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN v-current-page = INTEGER(RETURN-VALUE).
+        
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ g_company
                                 AND sys-ctrl.name    EQ 'EFBROWSE' NO-ERROR.
@@ -1396,6 +1417,21 @@ PROCEDURE local-create-objects :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* {methods/winReSizePgChg.i} */
+
+  IF v-current-page = 13 THEN DO:
+     RUN init-object IN THIS-PROCEDURE (
+          INPUT  'windows/vendcostmtx.w':U ,
+          INPUT  {&WINDOW-NAME} ,
+          INPUT  'Layout = ':U ,
+          OUTPUT h_vendcostmtx ).
+      /* Position in AB:  ( 5.91 , 7.60 ) */
+      /* Size in UIB:  ( 1.86 , 10.80 ) */
+    
+      /* Initialize other pages that this page requires. */
+      RUN init-pages IN THIS-PROCEDURE ('13':U) NO-ERROR.        
+  END. /* Page 11 */
+
+
 
 END PROCEDURE.
 
