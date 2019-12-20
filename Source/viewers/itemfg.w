@@ -2096,6 +2096,9 @@ PROCEDURE local-display-fields :
         RUN SetPurMan(itemfg.isaset).
         RUN pCalCount .
     END. /* avail itemfg */
+    DO WITH FRAME {&frame-name}:
+        DISABLE iCount .
+    END.
 
     RUN new-type.
 
