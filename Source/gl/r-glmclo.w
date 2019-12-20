@@ -71,12 +71,12 @@ def var fiscal-yr like period.yr NO-UNDO.
 
 def buffer b-racct for account.
 def buffer b-cacct for account.
-DEF VAR udate AS DATE NO-UNDO.
 DEF VAR uperiod AS INT NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
 
 ASSIGN time_stamp = string(time,"hh:mmam")
        .
+DEF STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -89,14 +89,18 @@ ASSIGN time_stamp = string(time,"hh:mmam")
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd-dest ~
-lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS tran-date tran-period rd-dest ~
-lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm v-msg1 v-msg2 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-year ~
+tran-period tb_inact tb_prior-period-data tb_out-bal ~
+tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page ~
+lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tran-year tran-period ~
+tb_inact tb_prior-period-data tb_out-bal tb_invalid-period ~
+tb_post-out-period fi_file rd-dest lines-per-page lv-ornt lv-font-no ~
+lv-font-name td-show-parm v-msg1 v-msg2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -120,6 +124,11 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(250)":U INITIAL "c:~\tmp~\r-glmclo.csv" 
+     LABEL "File Location" 
+     VIEW-AS FILL-IN 
+     SIZE 57.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -134,15 +143,15 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Transaction Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
 DEFINE VARIABLE tran-period AS INTEGER FORMAT ">>":U INITIAL 0 
      LABEL "Period" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 7 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tran-year AS INTEGER FORMAT ">>>>":U INITIAL 0 
+     LABEL "Year" 
+     VIEW-AS FILL-IN 
+     SIZE 8.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE v-msg1 AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -171,11 +180,36 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.05.
+     SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.76.
+     SIZE 94 BY 13.57.
+
+DEFINE VARIABLE tb_inact AS LOGICAL INITIAL no 
+     LABEL "JE's with inactive account" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_invalid-period AS LOGICAL INITIAL no 
+     LABEL "Invalid Period Entries" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_out-bal AS LOGICAL INITIAL no 
+     LABEL "Out of balance entries" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_post-out-period AS LOGICAL INITIAL no 
+     LABEL "Posting Date Outside Period" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_prior-period-data AS LOGICAL INITIAL no 
+     LABEL "Prior period data" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY 1 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -186,28 +220,37 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tran-date AT ROW 3.62 COL 39 COLON-ALIGNED
-     tran-period AT ROW 4.81 COL 39 COLON-ALIGNED
-     rd-dest AT ROW 13.14 COL 9 NO-LABEL
-     lines-per-page AT ROW 13.14 COL 83 COLON-ALIGNED
-     lv-ornt AT ROW 13.38 COL 31 NO-LABEL
-     lv-font-no AT ROW 15.52 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16.71 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 18.38 COL 10
-     btn-ok AT ROW 20.76 COL 18
-     btn-cancel AT ROW 20.76 COL 57
-     v-msg1 AT ROW 6.95 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     v-msg2 AT ROW 8.62 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     tran-year AT ROW 3.62 COL 19.4 COLON-ALIGNED WIDGET-ID 6
+     tran-period AT ROW 3.67 COL 37.6 COLON-ALIGNED
+     tb_inact AT ROW 5.29 COL 21.8 WIDGET-ID 10
+     tb_prior-period-data AT ROW 5.29 COL 57 WIDGET-ID 40
+     tb_out-bal AT ROW 6.43 COL 21.8 WIDGET-ID 12
+     tb_invalid-period AT ROW 7.52 COL 21.8 WIDGET-ID 14
+     tb_post-out-period AT ROW 8.57 COL 21.8 WIDGET-ID 16
+     fi_file AT ROW 10.29 COL 19.4 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 18
+     rd-dest AT ROW 16.1 COL 9 NO-LABEL
+     lines-per-page AT ROW 16.1 COL 83 COLON-ALIGNED
+     lv-ornt AT ROW 16.33 COL 31 NO-LABEL
+     lv-font-no AT ROW 18.48 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 19.67 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.33 COL 10
+     btn-ok AT ROW 23.05 COL 18
+     btn-cancel AT ROW 23.05 COL 57
+     v-msg1 AT ROW 11.52 COL 3.2 NO-LABEL WIDGET-ID 2
+     v-msg2 AT ROW 13.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     /*" --" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 3.90 COL 53 WIDGET-ID 38*/
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.19 COL 5
-     RECT-6 AT ROW 10.52 COL 1
+          SIZE 18 BY .62 AT ROW 15.14 COL 5
+     RECT-6 AT ROW 14.67 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 21.57.
+         SIZE 95.2 BY 24.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -227,7 +270,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "G/L Month-End Closing"
-         HEIGHT             = 21.81
+         HEIGHT             = 24.76
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -260,26 +303,47 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-       tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_inact:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+ASSIGN 
+       tb_invalid-period:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_out-bal:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_post-out-period:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_prior-period-data:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 ASSIGN 
        tran-period:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tran-year:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR FILL-IN v-msg1 IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 ASSIGN 
        v-msg1:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -294,7 +358,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -342,9 +406,8 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest
-           tran-date
+           
            tran-period
-           udate = tran-date
            uperiod = tran-period
            .
 
@@ -352,9 +415,8 @@ DO:
   if v-invalid then return no-apply.       
 
   assign rd-dest
-         tran-date
+         
          tran-period
-         udate = tran-date
          uperiod = tran-period
          .
 
@@ -383,6 +445,32 @@ DO:
   END.
 
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* File Location */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* File Location */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -458,6 +546,61 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_inact
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inact C-Win
+ON VALUE-CHANGED OF tb_inact IN FRAME FRAME-A /* JE's with inactive account */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_invalid-period
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_invalid-period C-Win
+ON VALUE-CHANGED OF tb_invalid-period IN FRAME FRAME-A /* Invalid Period Entries */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_out-bal
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_out-bal C-Win
+ON VALUE-CHANGED OF tb_out-bal IN FRAME FRAME-A /* Out of balance entries */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_post-out-period
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-out-period C-Win
+ON VALUE-CHANGED OF tb_post-out-period IN FRAME FRAME-A /* Posting Date Outside Period */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_prior-period-data
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prior-period-data C-Win
+ON VALUE-CHANGED OF tb_prior-period-data IN FRAME FRAME-A /* Prior period data */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
@@ -469,12 +612,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tran-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
-ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
+&Scoped-define SELF-NAME tran-period
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
+ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
 DO:
   assign {&self-name}.
-
   if lastkey ne -1 then do:
     run check-date (NO).
     if v-invalid then return no-apply.
@@ -485,9 +627,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tran-period
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
-ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
+&Scoped-define SELF-NAME tran-year
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-year C-Win
+ON LEAVE OF tran-year IN FRAME FRAME-A /* Year */
 DO:
   assign {&self-name}.
 END.
@@ -526,23 +668,30 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  TRAN-date = TODAY.
-
-  find first period where period.company eq cocode
+  
+  tran-year = YEAR(TODAY) .
+  tran-period = (MONTH(TODAY))  .
+ 
+  /*find first period where period.company eq cocode
                       and period.pst     le tran-date
                       and period.pend    ge tran-date
                       no-lock no-error.
-  if avail period then tran-period = (period.pnum).
-
+  if avail period THEN  tran-period = (period.pnum).*/
+  
   find first company NO-LOCK where company.company eq cocode NO-ERROR.
   if not company.yend-per then do:
      MESSAGE "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" VIEW-AS ALERT-BOX ERROR.
      return.
   end.
 
+
   RUN enable_UI.
 
   {methods/nowait.i}
+      DO with frame {&frame-name}:
+    
+    APPLY "entry" TO tran-period .
+END.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN 
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -570,8 +719,8 @@ PROCEDURE check-date :
 
     find first period                   
         where period.company eq cocode
-          and period.pst     le tran-date
-          and period.pend    ge tran-date
+          AND period.yr   EQ tran-year
+          AND period.pnum EQ tran-period
         no-lock no-error.
     if avail period THEN DO:
        IF NOT period.pstat THEN DO:
@@ -595,8 +744,8 @@ PROCEDURE check-date :
          /* CODE FOR VERIFYING CLOSE OF ALL PRIOR PERIODS */
          else do:
            find first alt-period where alt-period.company eq cocode
-                                   and alt-period.pst     le tran-date
-                                   and alt-period.pend    ge tran-date
+                                   AND alt-period.yr   EQ tran-year
+                                   AND alt-period.pnum EQ tran-period
                                  no-lock no-error.
            if avail alt-period then fiscal-yr = alt-period.yr.
            find first alt-period where alt-period.company eq cocode
@@ -622,11 +771,11 @@ PROCEDURE check-date :
            end.
          end.
        END.
-       tran-period:SCREEN-VALUE = string(period.pnum).
+       /*tran-period:SCREEN-VALUE = string(period.pnum).*/
     END.
 
     ELSE DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
+      message "No Defined Period Exists for" tran-period view-as alert-box error.
       v-invalid = yes.
     END.
   END.
@@ -939,8 +1088,7 @@ PROCEDURE close-month :
    do transaction:
       find first period
           where period.company eq cocode
-            and period.pst     le tran-date
-            and period.pend    ge tran-date
+            AND period.yr      EQ tran-year
             and period.pnum    eq uperiod
             and period.pstat   eq yes
           exclusive-lock.
@@ -1026,11 +1174,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period rd-dest lines-per-page lv-ornt lv-font-no 
-          lv-font-name td-show-parm v-msg1 v-msg2 
+  DISPLAY tran-year tran-period tb_inact 
+          tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period 
+          fi_file rd-dest lines-per-page lv-ornt lv-font-no lv-font-name 
+          td-show-parm v-msg1 v-msg2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tran-date rd-dest lines-per-page lv-ornt lv-font-no 
-         td-show-parm btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 tran-year tran-period tb_inact 
+         tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period 
+         fi_file rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1112,6 +1264,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
+ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+ DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+
+ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+ OUTPUT STREAM excel TO VALUE(cFileName).
+ excelheader = "Account,Description,Reason" .
+ PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+
+ 
 form account.actnum label "Account Number"
      account.dscr   label "Account Description"
      gltrans.jrnl   label " Journal "
@@ -1126,12 +1288,12 @@ form account.actnum label "Account Number"
 
  IF td-show-parm THEN RUN show-param.
  SESSION:SET-WAIT-STATE("general").
- ASSIGN uperiod = tran-period
-        udate = tran-date.
+ ASSIGN uperiod = tran-period .
+        
  find first period                   
         where period.company eq cocode
-          and period.pst     le tran-date
-          and period.pend    ge tran-date
+            AND period.yr   EQ tran-year
+            AND period.pnum EQ tran-period
         no-lock no-error.
 
 
@@ -1149,7 +1311,98 @@ form account.actnum label "Account Number"
    display str-tit3 format "x(130)" skip(1) with frame r-top.
 
    SESSION:SET-WAIT-STATE ("general").
+
+   for each account where account.company eq cocode NO-LOCK :
+       IF tb_inact AND account.inactive THEN do:
+           PUT STREAM excel UNFORMATTED
+               '"' account.actnum                   '",'
+               '"' account.dscr                     '",'
+               '"' "Inactive Account"               '",'
+                       SKIP.
+       END.
+   END.
+
+   PUT STREAM excel UNFORMATTED SKIP(1) .
+
+   PUT STREAM excel UNFORMATTED
+       '"' "Account "                 '",'
+       '"' "TR No   "                 '",'
+       '"' "Description"              '",'
+       '"' "Journal"                  '",'
+       '"' "Date"                     '",'
+       '"' "Period"                   '",'
+       '"' "Amount"                   '",'
+       '"' "Reason  "                 '",'
+       SKIP.
+
    for each account where account.company eq cocode no-lock with frame r-mclo:
+       
+       IF tb_out-bal THEN DO:
+
+       END.
+
+       IF tb_invalid-period THEN DO:
+          FOR EACH gltrans no-lock 
+              where gltrans.company eq cocode
+              and gltrans.actnum  eq account.actnum
+              and gltrans.tr-date ge period.pst
+              and gltrans.tr-date le period.pend
+              and gltrans.period EQ 0 BREAK BY gltrans.actnum:
+              
+              PUT STREAM excel UNFORMATTED
+                  '"' account.actnum                  '",'
+                  '"' gltrans.trnum                   '",'
+                  '"' account.dscr                    '",'
+                  '"' gltrans.jrnl                    '",'
+                  '"' gltrans.tr-date                 '",'
+                  '"' gltrans.period                 '",'
+                  '"' gltrans.tr-amt                  '",'
+                  '"' "Invalid Period  "               '",'
+                  SKIP.
+          END.
+       END.
+      
+       IF tb_post-out-period THEN DO:
+           FOR EACH gltrans no-lock 
+              where gltrans.company eq cocode
+              and gltrans.actnum  eq account.actnum
+              and gltrans.tr-date LT period.pst
+              and gltrans.tr-date GT period.pend
+              and gltrans.period EQ uperiod BREAK BY gltrans.actnum:
+              
+              PUT STREAM excel UNFORMATTED
+                  '"' account.actnum                  '",'
+                  '"' gltrans.trnum                   '",'
+                  '"' account.dscr                    '",'
+                  '"' gltrans.jrnl                    '",'
+                  '"' gltrans.tr-date                 '",'
+                  '"' gltrans.period                 '",'
+                  '"' gltrans.tr-amt                  '",'
+                  '"' "Data outside period  "         '",'
+                  SKIP.
+          END.
+       END.
+
+       IF tb_prior-period-data THEN DO:
+           FOR EACH gltrans no-lock 
+              where gltrans.company eq cocode
+              and gltrans.actnum  eq account.actnum
+              and gltrans.tr-date LT period.pst :
+              
+              PUT STREAM excel UNFORMATTED
+                  '"' account.actnum                  '",'
+                  '"' gltrans.trnum                   '",'
+                  '"' account.dscr                    '",'
+                  '"' gltrans.jrnl                    '",'
+                  '"' gltrans.tr-date                 '",'
+                  '"' gltrans.period                 '",'
+                  '"' gltrans.tr-amt                  '",'
+                  '"' "Invalid Data  "  '",'
+                  SKIP.
+          END.
+       END.
+
+
       if line-counter gt page-size - 3 then page.
       open-amt = account.cyr-open.
       do i = 1 to uperiod:
@@ -1176,6 +1429,8 @@ form account.actnum label "Account Number"
             and gltrans.tr-date le period.pend
             and gltrans.period  eq uperiod
           break by gltrans.jrnl with frame r-mclo:
+
+           
 
          if line-counter gt page-size - 2 then page.
 
@@ -1212,6 +1467,10 @@ form account.actnum label "Account Number"
            tot-tx  @ gltrans.tr-amt
            tot-all @ open-amt
            with frame r-mclo.
+
+
+   OUTPUT STREAM excel CLOSE.
+   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 
 
  SESSION:SET-WAIT-STATE("").
