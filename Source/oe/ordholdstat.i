@@ -183,8 +183,7 @@ PROCEDURE os-Process-Hold-Status :
        /*MESSAGE "Take Order off Hold Status?"                                   */
        /*    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.*/
        
-       RUN displayMessageQuestion ("10", OUTPUT cMsgRtn).
-       lContinue = LOGICAL(cMsgRtn).             
+       RUN displayMessageQuestionLOG ("10", OUTPUT lContinue).
        
        IF NOT lContinue THEN RETURN.
 
@@ -204,8 +203,7 @@ PROCEDURE os-Process-Hold-Status :
        /*MESSAGE "Place Order on Hold?"                                     */
        /*    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lHold AS LOGICAL.*/
        
-       RUN displayMessageQuestion ("9", OUTPUT cMsgRtn).
-       lHold = LOGICAL(cMsgRtn).             
+       RUN displayMessageQuestionLOG ("9", OUTPUT lHold).
 
        IF NOT lHold THEN RETURN.
 

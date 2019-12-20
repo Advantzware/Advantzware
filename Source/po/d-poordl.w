@@ -5397,8 +5397,7 @@ PROCEDURE valid-b-num :
             IF AVAILABLE xpo-ordl THEN 
             DO:
                 ll-ans = NO.
-                RUN displayMessageQuetion ("5", OUTPUT cMsgRtn).
-                ll-ans = LOGICAL(cMsgRtn).             
+                RUN displayMessageQuetionLOG ("5", OUTPUT ll-ans).
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
             END.
@@ -6912,18 +6911,16 @@ PROCEDURE check-cust-hold :
             FIND FIRST cust NO-LOCK 
                 WHERE cust.company EQ cocode 
                 AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
-            IF AVAIL cust AND cust.cr-hold AND NOT lSuppressMessage THEN 
-            do:
-              RUN displayMessageQuestion("12", OUTPUT cMsgRtn).
-              lGetOutputValue = LOGICAL(cMsgRtn).
-                      IF NOT lGetOutPutValue THEN do:
-                          po-ordl.i-no:SCREEN-VALUE = "" .
-                          APPLY "entry" TO po-ordl.i-no .
-                          oplReturnError = YES .
-                      END.
-                      ELSE lCheckValidHold = YES .
-                  END.
-              END. /* NOT lSuppressMessage */
+            IF AVAIL cust AND cust.cr-hold AND NOT lSuppressMessage THEN do:
+                RUN displayMessageQuestionLOG ("12", OUTPUT lGetOutputValue).
+                IF NOT lGetOutPutValue THEN do:
+                    po-ordl.i-no:SCREEN-VALUE = "" .
+                    APPLY "entry" TO po-ordl.i-no .
+                    oplReturnError = YES .
+                END.
+                ELSE 
+                    lCheckValidHold = YES .
+            END. /* NOT lSuppressMessage */
         END.
     END.
 
