@@ -1135,8 +1135,55 @@ FOR EACH job-hdr NO-LOCK
 
                             FIND FIRST ITEM NO-LOCK 
                                 WHERE ITEM.company EQ ef.company
-                                AND ITEM.i-no EQ ef.board NO-ERROR . 
-                 
+                                AND ITEM.i-no EQ ef.board NO-ERROR .
+
+                            IF FIRST(tt-reftable.val[12]) THEN DO: 
+                                FOR EACH bff-eb NO-LOCK
+                                    WHERE bff-eb.est-no EQ eb.est-no
+                                    AND bff-eb.form-no EQ 0
+                                    AND bff-eb.est-type EQ 2 :
+
+                                    IF LINE-COUNTER > 70 THEN DO: 
+                                        PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                                        PAGE.
+                                        RUN pPrintHeader .
+                                    END.
+                                    
+                                     PUT 
+                                         "<BGCOLOR=255,255,0><C1.5><FROM><R+1><C12><FILLRECT><R-1><BGCOLOR=WHITE>"
+                                         "<C1.5><FROM><R+1><C12><RECT><R-1>"
+                                         "<P10><B><C2>Form " TRIM(STRING(bff-eb.form-no,"99")) "</B>" 
+                                         "<P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
+                                         "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    skip 
+                                         
+                                         "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
+                                         "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(12)" skip
+                                         
+                                         "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
+                                         "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)" SKIP
+                                         
+                                         "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  
+                                         "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" SKIP .
+                                         IF LINE-COUNTER > 70 THEN DO: 
+                                             PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                                             PAGE.
+                                             RUN pPrintHeader .
+                                         END.
+                                       
+                                       PUT  
+                                         "<C19.5><FROM><R+3><C65><RECT><R-3>"
+                                         "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
+                                         "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
+
+                                         "<P10><C20><b>Case Size: </B>" (STRING(bff-eb.cas-len,">9.9999") + " x " + STRING(bff-eb.cas-wid,">9.9999") + " x " + STRING(bff-eb.cas-dep,"99.9999")) FORMAT "x(40)"  
+                                         "<C45><b>Ctn/Bdl.Per: </b>" STRING(bff-eb.cas-pal) SKIP
+
+                                         "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  SKIP  .
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                        PUT v-fill SKIP .
+                                END.
+                                PUT "<R-1>" .
+                            END.
 
                             IF FIRST-OF(eb.form-no) THEN 
                             DO:
