@@ -818,7 +818,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
-
+    ASSIGN
+        begin_user:SCREEN-VALUE = USERID("ASI")
+        end_user:SCREEN-VALUE   = USERID("ASI")
+        .
     IF postdate-log THEN DO:
       tran-date:SCREEN-VALUE = STRING(TODAY).
       RUN check-date.
