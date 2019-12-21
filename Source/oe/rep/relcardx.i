@@ -95,6 +95,7 @@ DEF BUFFER xitemfg FOR itemfg.
 DEF VAR lv-comp-unit AS INT NO-UNDO.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
+DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -446,6 +447,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             {sys/inc/roundup.i w-cas}
 
             IF v-printline > 44 THEN DO:
+               PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  iLineCount = 0 .
                PAGE.
                v-printline = 0.
                {oe/rep/relcardx2.i}
@@ -466,11 +471,18 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 with frame rel-mid. 
 
             v-printline = v-printline + 1.
+            IF FIRST(w-qty[2]) THEN
+                iLineCount = 0 .
+            iLineCount = iLineCount + 1 . 
             TotOnHand = TotOnHand + w-qty[1] .
             if last(w-qty[2]) then do:
               if w-loc ne "" or w-bin ne "" then down {2} with frame rel-mid.
 
               IF v-printline > 44 THEN DO:
+                  PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  iLineCount = 0 .
                  PAGE.
                  v-printline = 0.
                  {oe/rep/relcardx2.i}
@@ -484,6 +496,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   with frame rel-mid. 
               /*PUT SKIP(1) .  */
               PUT "<C1><FROM><C80><LINE><R-1>" SKIP .
+              PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+              PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+              PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               v-printline = v-printline + 2.
             end.
 
