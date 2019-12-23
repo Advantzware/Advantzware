@@ -922,8 +922,12 @@ PROCEDURE fg-post:
         WHERE w-fg-rctd.company EQ job.company
           AND w-fg-rctd.job-no EQ job.job-no
           AND w-fg-rctd.job-no2 EQ job.job-no2
-          :      
-          IF fCanCloseJob(w-job.rec-id, w-fg-rctd.i-no) THEN
+          BREAK BY w-fg-rctd.job-no 
+                BY w-fg-rctd.job-no2 
+                BY w-fg-rctd.i-no
+          :    
+                
+          IF LAST-OF(w-fg-rctd.i-no) AND fCanCloseJob(w-job.rec-id, w-fg-rctd.i-no) THEN
             lAnyJobCloses = YES.                  
        END.
        IF NOT lAnyJobCloses THEN DELETE w-job.  
