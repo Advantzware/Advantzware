@@ -1935,6 +1935,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConfirmMonitorUser C-Win 
+PROCEDURE ipConfirmMonitorUser :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Validating Monitor User Entries").
+
+    DISABLE TRIGGERS FOR LOAD OF users.
+
+    FIND users EXCLUSIVE WHERE 
+        users.user_id = "monitor"
+        NO-ERROR.
+    ASSIGN
+        users.developer = false
+        users.fax = ""
+        users.fax-cnty = ""
+        users.image_filename = "asiHelp@advantzware.com"
+        users.isActive = true
+        users.isLocked = false
+        users.phone = "2153697800"
+        users.phone-cnty = "1"
+        users.securityLevel = 1000
+        users.showOnAck = false
+        users.showOnBol = false
+        users.showOnInv = false
+        users.showOnPO = false
+        users.showOnQuote = false
+        users.track_usage = true
+        users.updateDate = today
+        users.updateTime = time
+        users.updateUser = "monitor"
+        users.userType = "Administrator"
+        users.user_language = "English"
+        users.user_name = "ASI Monitor Runner Account"
+        users.user_program[1] = ""
+        users.user_program[2] = ""
+        users.user_program[3] = ""
+        users.use_colors = false
+        users.use_ctrl_keys = false
+        users.use_fonts = false
+        users.widget_bgc = 0
+        users.widget_fgc = 0
+        users.widget_font = 0
+        . 
+    
+    RUN ipSetMonitorPwd IN THIS-PROCEDURE.
+    RUN ipAddSuppUserRecords IN THIS-PROCEDURE (INPUT users.user_id).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertModule C-Win 
 PROCEDURE ipConvertModule :
 /*------------------------------------------------------------------------------
@@ -2448,6 +2503,31 @@ PROCEDURE ipCreateDataLoader:
     
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateMonitorUser C-Win 
+PROCEDURE ipCreateMonitorUser :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("Creating Monitor User").
+
+    DISABLE TRIGGERS FOR LOAD OF users.
+
+    CREATE users.
+    ASSIGN
+        users.user_id = "monitor"
+        users.createDate = today
+        users.createTime = time
+        users.createUser = USERID(LDBNAME(1)).
+        
+    RUN ipConfirmMonitorUser IN THIS-PROCEDURE.
+
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3590,6 +3670,12 @@ PROCEDURE ipFixUsers :
         RUN ipCreateAdminUser IN THIS-PROCEDURE.
     ELSE 
         RUN ipConfirmAdminUser IN THIS-PROCEDURE.
+
+    IF NOT CAN-FIND (FIRST users WHERE
+        users.user_id = "monitor") THEN
+        RUN ipCreateMonitorUser IN THIS-PROCEDURE.
+    ELSE 
+        RUN ipConfirmMonitorUser IN THIS-PROCEDURE.
 
     RUN ipLoadNewUserData IN THIS-PROCEDURE.
     RUN ipCleanBadUserData IN THIS-PROCEDURE.
@@ -5649,6 +5735,44 @@ PROCEDURE ipSetImageFiles :
         mach.machineImage[1] = "Graphics\32x32\gearwheels.png".
     END. /* each users */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetMonitorPwd C-Win 
+PROCEDURE ipSetMonitorPwd :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+        
+    RUN ipStatus ("  Setting Monitor Password").
+
+    FIND FIRST _User WHERE 
+        _User._UserId = "monitor" 
+        EXCLUSIVE-LOCK NO-ERROR.
+
+    IF AVAIL (_User) THEN 
+    DO:
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
+        ASSIGN 
+            tempUser._Password = "laaEbPjiXlakhcq".
+        DELETE _User.
+        CREATE _User.
+        BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+    END.
+    ELSE 
+    DO:
+        CREATE _User.
+        ASSIGN
+            _User._UserId = "monitor"
+            _User._Password = "laaEbPjiXlakhcq".
+    END.
+
+    RELEASE _user.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
