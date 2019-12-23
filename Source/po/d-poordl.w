@@ -976,7 +976,7 @@ DO:
        FIND po-ordl EXCLUSIVE-LOCK WHERE RECID(po-ordl) = lv-item-recid  NO-ERROR.
        IF AVAILABLE po-ordl THEN DELETE po-ordl.
     END.
-    APPLY 'GO':U TO FRAME {&FRAME-NAME}.
+    APPLY 'WINDOW-CLOSE' TO FRAME Dialog-Frame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1019,7 +1019,7 @@ DO:
   END.
 
   RUN check-cust-hold(OUTPUT op-error) NO-ERROR.
-  IF op-error THEN RETURN NO-APPLY.
+  IF op-error THEN APPLY 'choose' TO btn_Cancel.
 
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1361,7 +1361,7 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
             RUN check-cust-hold(OUTPUT lReturnError) NO-ERROR.
-            IF lReturnError THEN RETURN NO-APPLY.
+            IF lReturnError THEN APPLY 'choose' TO btn_Cancel.
 
             /* gdm - 06040918 */
             FIND FIRST bf-itemfg NO-LOCK 
@@ -6900,7 +6900,6 @@ PROCEDURE check-cust-hold :
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST bf-itemfg NO-LOCK
@@ -6910,17 +6909,16 @@ PROCEDURE check-cust-hold :
         IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add"  THEN DO:
             FIND FIRST cust NO-LOCK 
                 WHERE cust.company EQ cocode 
-                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR .
-            IF AVAIL cust AND cust.cr-hold AND NOT lSuppressMessage THEN do:
+                AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
+            IF AVAIL cust AND cust.cr-hold THEN DO:
                 RUN displayMessageQuestionLOG ("12", OUTPUT lGetOutputValue).
-                IF NOT lGetOutPutValue THEN do:
-                    po-ordl.i-no:SCREEN-VALUE = "" .
-                    APPLY "entry" TO po-ordl.i-no .
-                    oplReturnError = YES .
+                IF NOT lGetOutPutValue THEN DO:
+                    ASSIGN 
+                        oplReturnError = TRUE.
                 END.
                 ELSE 
                     lCheckValidHold = YES .
-            END. /* NOT lSuppressMessage */
+            END. 
         END.
     END.
 
