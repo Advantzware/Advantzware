@@ -1388,6 +1388,7 @@ PROCEDURE create-ord-job :
          job.job-no     = v-job-no
          job.job-no2    = v-job-no2
          job.stat       = "P"
+         job.orderType  = oe-ord.type
          op-recid       = RECID(job).
 
   FOR EACH oe-ordl WHERE oe-ordl.company EQ ipToCompany

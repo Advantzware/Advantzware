@@ -36,7 +36,8 @@ jobNo2 = (IF AVAIL b2job THEN b2Job.job-no2 ELSE 0) + 1.
 BUFFER-COPY b1Job EXCEPT job start-date due-date TO job
   ASSIGN job.job-no = b1Job.job-no
          job.job-no2 = jobNo2
-         job.stat = "R".
+         job.stat = "R"
+         job.ordertype = "R".
 
 FOR EACH bJobHdr OF b1Job NO-LOCK:
   CREATE job-hdr.
