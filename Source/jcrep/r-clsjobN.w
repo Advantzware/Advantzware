@@ -102,6 +102,14 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+
+DEFINE VARIABLE cOrdType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOrdName AS CHARACTER NO-UNDO.
+
+RUN sys/ref/ordtypes.p(
+    OUTPUT cOrdType, 
+    OUTPUT cOrdName
+    ).     
                       
 
 ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Name,Qty Ordered,QTY Produced,MAT. Act Cost," +
@@ -113,7 +121,7 @@ ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Na
                        "TotaL ACT Cost,Total Stnd Cost,Total Var,Total Var%," +
                        "MAT Usage,Board Usage,Other Usage,Labor Eff,Fixed O/H Eff,Var O/H Eff,Total Var," +
                        "SP Standard,SP Actual,COS Stand,COS Actual," +
-                       "Cont. Stand,Cont. Actual,%Cont. Stand,%Cont Actual,Total Variance,Job Close Date,Ship To,Release Date,Prod. Com. Date,Manufacturing Date" 
+                       "Cont. Stand,Cont. Actual,%Cont. Stand,%Cont Actual,Total Variance,Job Close Date,Ship To,Release Date,Prod. Com. Date,Manufacturing Date,Job Type,Job Type Description" 
 
        cFieldListToSelect = "job,job2,ino,dscr,cust,cust-name,qty-ord,qty-pro,mat-act-cst," +
                                         "mat-stnd-cost,mat-var,mar-%-var,brd-act-cst,oth-act-cst,brd-stnd-cost,oth-stnd-cost,brd-var," +
@@ -124,10 +132,10 @@ ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Na
                                         "ttl-act-cost,ttl-stnd-cst,ttl-var,ttl-%var," + 
                                         "mat-usg,brd-usg,oth-usg,lbr-eff,fix-oh-eff,var-on-eff,ttl-var," + 
                                         "sp-stnd,sp-act,cos-stnd,cos-act," + 
-                                        "cnt-stnd,cnt-acl,%-cnt-stnd,%cnt-acl,ttl-varnc,job-cls-date,shp-to,rel-date,prd-cmp-date,mfg-date" 
+                                        "cnt-stnd,cnt-acl,%-cnt-stnd,%cnt-acl,ttl-varnc,job-cls-date,shp-to,rel-date,prd-cmp-date,mfg-date,orderType,Job-Description" 
        cFieldLength = "6,5,15,30,8,30,13,13,15," + "15,15,9,15,15,15,15,15,"  + "15,11,11,15,15,15," + "9,18,19,"  
-                                + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15,14,8,12,15,18"  
-       cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,"  + "i,i,i,i,i,i," + "i,i,i,"  + "i,i,i," + "i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,c,c,c,c,18" 
+                                + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15,14,8,12,15,18,1,18"  
+       cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,"  + "i,i,i,i,i,i," + "i,i,i,"  + "i,i,i," + "i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,c,c,c,c,18,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -2351,9 +2359,11 @@ FOR EACH tt-report,
                          WHEN "rel-date"                THEN cVarValue = IF cRelDate <> ? THEN STRING(cRelDate,"99/99/9999") ELSE ""  .
                          WHEN "prd-cmp-date"            THEN cVarValue = IF cProdDate <> ? THEN STRING(cProdDate,"99/99/9999") ELSE "" .
                          WHEN "mfg-date"                THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.prom-date <> ? THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE ""  .
-                                                                                                                                                                                                                                                                 
+                         WHEN "orderType"               THEN cVarValue = job.orderType.
+                         WHEN "Job-Description"         THEN cVarValue = IF LOOKUP(job.orderType, cOrdType) NE 0 THEN ENTRY(LOOKUP(job.orderType, cOrdType), cOrdName) ELSE "".
+                                                                                                                                                                                                                                                     
                     END CASE.                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                 
                     cExcelVarValue = cVarValue.                                                                                                                                                                                                         
                     cDisplay = cDisplay + cVarValue +                                                                                                                                                                                                                                                        
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).                                                                                                                                           

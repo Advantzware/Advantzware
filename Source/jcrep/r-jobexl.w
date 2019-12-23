@@ -85,15 +85,15 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
 ASSIGN cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date,Close Date," +
                             "Status,Customer Part,Job Qty,Ord Qty,Prod.Qty,On Hand Qty," +
                             "Shipped Qty,Invoice Qty,WIP Qty,O/U%,Cust Sales Rep,Job Hold Reason," +
-                            "Created Date,Due Date,User ID"
+                            "Created Date,Due Date,User ID,Job Type"
 
        cFieldListToSelect = "job,job-hdr.i-no,job-hdr.est-no,job-hdr.ord-no,job-hdr.cust-no,start-date,close-date," +
                             "job.stat,cust-part,job-qty,ord-qty,prod-qty,oh-qty," +
                             "ship-qty,inv-qty,wip-qty,ou-pct,sales-rep,job-hold," +
-                            "create-date,due-date,job.user-id"
+                            "create-date,due-date,job.user-id,job.orderType"
                             
-        cFieldLength = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10"
-           cFieldType = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c," + "c,c,c"
+        cFieldLength = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10,1"
+           cFieldType = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c," + "c,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
