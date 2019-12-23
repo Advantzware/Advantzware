@@ -2238,10 +2238,8 @@ PROCEDURE import-price :
   {est/checkuse.i}
 
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
-  IF lMultiRecords THEN DO:
-     RUN displayMessageQuestion(INPUT "7", OUTPUT cMsgRtn).
-     lCheckFlg = LOGICAL(cMsgRtn).
-  END.
+  IF lMultiRecords THEN
+     RUN displayMessageQuestionLOG (INPUT "7", OUTPUT lCheckFlg).
 
  FOR EACH bff-probe NO-LOCK
      WHERE bff-probe.company = eb.company 

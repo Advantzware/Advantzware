@@ -148,7 +148,8 @@ DO:
                     /* multiple fg-rctd records created from existing bins to fulfill quantity   */ 
                                                
                     FIND FIRST tt-fg-set NO-LOCK 
-                        WHERE tt-fg-set.part-no EQ b-itemfg.i-no NO-ERROR.
+                        WHERE tt-fg-set.part-no EQ b-itemfg.i-no 
+                          AND NOT tt-fg-set.noReceipt NO-ERROR.
                         
                     IF AVAILABLE tt-fg-set THEN 
                         RUN processComponent.
@@ -240,7 +241,7 @@ DO:
              
             RUN fg/fullset.p (ROWID(itemfg)).        
 
-            FOR EACH tt-fg-set,
+            FOR EACH tt-fg-set WHERE NOT tt-fg-set.noReceipt,
 
                 FIRST b-itemfg
                 WHERE b-itemfg.company EQ cocode      

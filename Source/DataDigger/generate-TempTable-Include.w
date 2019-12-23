@@ -7,17 +7,12 @@
   Name: generate-TempTable-Include.w
   Desc: Generate include file with TT definition for current file
 
-------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
-
-/* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_IS_RUNNING) = 0 &THEN
   DEFINE INPUT PARAMETER pcDatabase AS CHARACTER NO-UNDO.
@@ -32,7 +27,7 @@ CREATE WIDGET-POOL.
   RUN datadiggerlib.p PERSISTENT SET hLib.
   THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hLib,SEARCH-TARGET).
   
-  RUN fillTT.
+  RUN getDummyScheme.p(OUTPUT TABLE ttField, OUTPUT TABLE ttIndex).
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,34 +529,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fillTT C-Win 
-PROCEDURE fillTT :
-/* Fill tt for testing in UIB
-  */
-  DEFINE BUFFER bField FOR ttField.
-  DEFINE BUFFER bIndex FOR ttIndex.
-  
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-nr'      bField.lShow = TRUE bField.cDataType = 'INTEGER'   bField.cFormat = '>>>9'  bField.cLabel = 'Rep nr'.
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-name'    bField.lShow = TRUE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(30)' bField.cLabel = 'Rep name'.
-  CREATE bField. ASSIGN bField.cFieldName = 'region'      bField.lShow = FALSE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(8)'  bField.cLabel = 'Region'.
-  CREATE bField. ASSIGN bField.cFieldName = 'month-quota' bField.lShow = FALSE bField.cDataType = 'INTEGER'   bField.cFormat = '->,>>>,>>9' bField.cLabel = 'Rep name' bField.iExtent = 12.
-         
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iPrim'   bIndex.cIndexFlags = 'P U' bIndex.cFieldList  = 'rep-nr'.
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iRegion' bIndex.cIndexFlags = ''    bIndex.cFieldList  = 'region,rep-name'.   
-
-END PROCEDURE. /* fillTT */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE generateCode C-Win 
 PROCEDURE generateCode :
 /* Generate the code for the include
 */
   DEFINE VARIABLE cText         AS LONGCHAR  NO-UNDO.
-  DEFINE VARIABLE cPrefix       AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cName         AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cMask         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMask         AS LONGCHAR  NO-UNDO.
   DEFINE VARIABLE cUnique       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cHeader       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cTable        AS CHARACTER NO-UNDO.
@@ -570,7 +543,6 @@ PROCEDURE generateCode :
   DEFINE VARIABLE iMaxLabel     AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxFormat    AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iMaxType      AS INTEGER   NO-UNDO.
-  DEFINE VARIABLE iMaxSerial    AS INTEGER   NO-UNDO.
   DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
   
   DEFINE BUFFER bField FOR ttField.
@@ -657,9 +629,10 @@ PROCEDURE generateCode :
     DO:
       cText = cText + '~n'.
       
+      #IndexLoop:
       FOR EACH bIndex BY bIndex.cIndexFlags MATCHES '*P*' DESCENDING:
         /* Skip others if we only want the primary index */
-        IF rsIndex = 1 AND NOT bIndex.cIndexFlags MATCHES '*P*' THEN NEXT. 
+        IF rsIndex = 1 AND NOT bIndex.cIndexFlags MATCHES '*P*' THEN NEXT #IndexLoop. 
         
         IF bIndex.cIndexFlags MATCHES '*P*' THEN
           cMask = '&1~n&2INDEX &3 IS PRIMARY &4'.
@@ -668,8 +641,10 @@ PROCEDURE generateCode :
           
         IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
 
-        cUnique = STRING(bIndex.cIndexFlags MATCHES '*u*','UNIQUE/').
-        cUnique = TRIM(cUnique).
+        IF bIndex.cIndexFlags MATCHES '*u*' THEN 
+          cUnique = (IF NOT bIndex.cIndexFlags MATCHES '*P*' THEN 'IS UNIQUE' ELSE 'UNIQUE').
+        ELSE 
+          cUnique = ''.
         IF tgLowerCase:CHECKED THEN cUnique = LC(cUnique).
 
         cText = SUBSTITUTE(cMask
@@ -679,13 +654,17 @@ PROCEDURE generateCode :
                           , cUnique
                           ).
         DO i = 1 TO NUM-ENTRIES(bIndex.cFieldList):
-          FIND bField WHERE bField.cFieldName = ENTRY(i, bIndex.cFieldList).
-          cText = SUBSTITUTE('&1 &2', cText, TRIM(getNameString(bField.cFieldName, bField.cDataType, iMaxName))).
+          FIND bField WHERE bField.cFieldName = ENTRY(i, bIndex.cFieldList) NO-ERROR.
+          IF AVAILABLE bField THEN 
+            ASSIGN 
+              cMask = '&1 &2'
+              cText = SUBSTITUTE(cMask, cText, TRIM(getNameString(bField.cFieldName, bField.cDataType, iMaxName))).
         END.
 
       END.
     END.
-    cText = SUBSTITUTE('&1~n&2.', cText, cIndent).
+    cMask = '&1~n&2.'.
+    cText = SUBSTITUTE(cMask, cText, cIndent).
  
     edDefinition:SCREEN-VALUE = cText.
   END.

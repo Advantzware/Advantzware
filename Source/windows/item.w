@@ -871,7 +871,7 @@ DEF VAR lv-current-page AS INT NO-UNDO.
   if lv-current-page = 5 AND lNewVendorItemCost then 
     do:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ' + item.mat-type ).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" '  ).
         /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).          
         RUN select-page (10).

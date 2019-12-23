@@ -169,8 +169,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "{1} Monitor"
-         HEIGHT             = 27.05
-         WIDTH              = 168.4
+         HEIGHT-P           = 768
+         WIDTH-p            = 1024
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -595,7 +595,8 @@ PROCEDURE winReSize :
   ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
 &ENDIF
   ASSIGN
-    {&WINDOW-NAME}:WINDOW-STATE = 1
+  /* Get rid of the full-screen */
+/*    {&WINDOW-NAME}:WINDOW-STATE = 1*/
     {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 30
     {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
@@ -608,7 +609,6 @@ PROCEDURE winReSize :
 &ELSE
   ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
 &ENDIF
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

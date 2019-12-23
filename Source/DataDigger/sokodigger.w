@@ -31,6 +31,9 @@ DEFINE TEMP-TABLE ttBlock NO-UNDO
   FIELD cType   AS CHARACTER
   FIELD hBlock  AS HANDLE
   FIELD lSolid  AS LOGICAL
+  INDEX iPrim IS PRIMARY iPosY iPosX cType
+  INDEX iType cType
+  INDEX iSolid iPosX iPosY lSolid
   .
 
 DEFINE TEMP-TABLE ttMove NO-UNDO
@@ -38,17 +41,21 @@ DEFINE TEMP-TABLE ttMove NO-UNDO
   FIELD cDirection AS CHARACTER /* direction */
   FIELD iDeltaX    AS INTEGER
   FIELD iDeltaY    AS INTEGER
-  FIELD rBlock     AS RECID
+  FIELD rBlock     AS ROWID
+  INDEX iPrim IS PRIMARY iMoveNr
   .
 
 DEFINE TEMP-TABLE ttLevel NO-UNDO
   FIELD iLevelNr AS INTEGER
   FIELD cData    AS CHARACTER
+  INDEX iPrim IS PRIMARY UNIQUE iLevelNr
   .
 
 DEFINE TEMP-TABLE ttImage NO-UNDO
   FIELD cType   AS CHARACTER
   FIELD hImage  AS HANDLE
+  INDEX iPrim IS PRIMARY hImage
+  INDEX iType cType
   .
 
 DEFINE VARIABLE giBlockWidth     AS INTEGER   NO-UNDO.
@@ -56,6 +63,7 @@ DEFINE VARIABLE giBlockHeight    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE giMaxWidth       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE giMaxHeight      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE giNumMoves       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE giNumLevels      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE giCurrentLevel   AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE glLevelComplete  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giLockCounter    AS INTEGER   NO-UNDO.
@@ -90,6 +98,10 @@ END PROCEDURE.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME frMain
 
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS fiFocus 
+&Scoped-Define DISPLAYED-OBJECTS fiFocus 
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -121,14 +133,20 @@ DEFINE MENU mainMenu MENUBAR
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE fiFocus AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1
+     FGCOLOR 7 FONT 0 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME frMain
+     fiFocus AT ROW 1.24 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 98.8 BY 20.95 WIDGET-ID 100.
+         SIZE 160 BY 28.57 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -148,15 +166,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wSokoDigger ASSIGN
          HIDDEN             = YES
          TITLE              = "SokoDigger"
-         HEIGHT             = 20.95
-         WIDTH              = 98.8
+         HEIGHT             = 28.57
+         WIDTH              = 160
          MAX-HEIGHT         = 100
          MAX-WIDTH          = 200
          VIRTUAL-HEIGHT     = 100
          VIRTUAL-WIDTH      = 200
          RESIZE             = yes
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
@@ -178,6 +196,9 @@ ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU mainMenu:HANDLE.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME frMain
    FRAME-NAME                                                           */
+ASSIGN 
+       fiFocus:READ-ONLY IN FRAME frMain        = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wSokoDigger)
 THEN wSokoDigger:HIDDEN = no.
 
@@ -312,6 +333,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiFocus
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFocus wSokoDigger
+ON END-ERROR OF fiFocus IN FRAME frMain /* Dummy field to get focus */
+ANYWHERE 
+DO:
+  APPLY 'window-close' TO {&WINDOW-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME m_Redo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Redo wSokoDigger
 ON CHOOSE OF MENU-ITEM m_Redo /* Redo */
@@ -398,8 +431,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN initObject.
   RUN startLevel.
 
-  APPLY 'entry' TO FRAME {&FRAME-NAME}.
-
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -425,12 +456,13 @@ PROCEDURE calcBlockSize :
   DEFINE BUFFER bLevel FOR ttLevel.
 
   /* Get min/max coordinates of the levels */
-  FOR EACH bLevel:
+  FOR EACH bLevel {&TABLE-SCAN}:
     DO iPosY = 1 TO NUM-ENTRIES(bLevel.cData,'|'):
       cLine = ENTRY(iPosY,bLevel.cData,'|').
   
+      #CheckX:
       DO iPosX = 1 TO LENGTH(cLine):
-        IF SUBSTRING(cLine,iPosX,1) = ' ' THEN NEXT.
+        IF SUBSTRING(cLine,iPosX,1) = ' ' THEN NEXT #CheckX.
     
         ASSIGN
           iMinX = MINIMUM(iMinX, iPosX)
@@ -506,18 +538,13 @@ PROCEDURE drawButtons :
   */
   DEFINE BUFFER bBlock FOR ttBlock.
 
-/*   FOR EACH bBlock:                        */
-/*     ASSIGN bBlock.hBlock:VISIBLE = FALSE. */
-/*   END. /* for each bBlock */              */
-
-  FOR EACH bBlock:
-    RUN drawElement(RECID(bBlock), NO).
+  FOR EACH bBlock {&TABLE-SCAN}:
+    RUN drawElement(ROWID(bBlock)).
   END. /* for each bBlock */
 
-  FOR EACH bBlock:
+  FOR EACH bBlock {&TABLE-SCAN}:
     ASSIGN bBlock.hBlock:VISIBLE = TRUE.
   END. /* for each bBlock */
-
 
 END PROCEDURE. /* drawButtons */
 
@@ -528,18 +555,17 @@ END PROCEDURE. /* drawButtons */
 PROCEDURE drawElement :
 /* Draw a single element.
   */
-  DEFINE INPUT PARAMETER prBlock     AS RECID   NO-UNDO.
-  DEFINE INPUT PARAMETER plShowBlock AS LOGICAL NO-UNDO.
+  DEFINE INPUT PARAMETER prBlock AS ROWID NO-UNDO.
 
   DEFINE BUFFER bBlock FOR ttBlock.
 
-  FIND bBlock WHERE RECID(bBlock) = prBlock.
-
-  ASSIGN
-    bBlock.hBlock:X             = ( bBlock.iPosX - 1) * giBlockWidth + 1 
-    bBlock.hBlock:Y             = ( bBlock.iPosY - 1) * giBlockHeight + 1
-    bBlock.hBlock:WIDTH-PIXELS  = giBlockWidth
-    bBlock.hBlock:HEIGHT-PIXELS = giBlockHeight.
+  FIND bBlock WHERE ROWID(bBlock) = prBlock NO-ERROR.
+  IF AVAILABLE bBlock THEN 
+    ASSIGN
+      bBlock.hBlock:X             = ( bBlock.iPosX - 1) * giBlockWidth + 1 
+      bBlock.hBlock:Y             = ( bBlock.iPosY - 1) * giBlockHeight + 1
+      bBlock.hBlock:WIDTH-PIXELS  = giBlockWidth
+      bBlock.hBlock:HEIGHT-PIXELS = giBlockHeight.
 
 END PROCEDURE. /* drawElement */
 
@@ -592,7 +618,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  VIEW FRAME frMain IN WINDOW wSokoDigger.
+  DISPLAY fiFocus 
+      WITH FRAME frMain IN WINDOW wSokoDigger.
+  ENABLE fiFocus 
+      WITH FRAME frMain IN WINDOW wSokoDigger.
   {&OPEN-BROWSERS-IN-QUERY-frMain}
   VIEW wSokoDigger.
 END PROCEDURE.
@@ -610,7 +639,7 @@ PROCEDURE initObject :
 
   /* Set max dimensions for the window to that of the monitor */
   THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-  {&WINDOW-NAME}:MAX-WIDTH-PIXELS = SESSION:WIDTH-PIXELS.
+  {&WINDOW-NAME}:MAX-WIDTH-PIXELS  = SESSION:WIDTH-PIXELS.
   {&WINDOW-NAME}:MAX-HEIGHT-PIXELS = SESSION:HEIGHT-PIXELS.
 
   /* Set bg color of frame to a kind of sand color */
@@ -627,6 +656,8 @@ PROCEDURE initObject :
     PROPATH = PROPATH + ',c:\Data\DropBox\progress\Sokoban'.
   
   RUN readLevelFile(SEARCH('SokoDigger.txt')).
+  RUN readLevelFile(SEARCH('Sokodigger2.txt')).
+  
   RUN calcBlockSize.
 
   /* Get last completed level */
@@ -659,6 +690,7 @@ PROCEDURE lockWindow :
   DEFINE INPUT PARAMETER phWindow AS HANDLE  NO-UNDO.
   DEFINE INPUT PARAMETER plLock   AS LOGICAL NO-UNDO.
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE iRet AS INTEGER NO-UNDO.
 
   /* Locking / unlocking windows */
@@ -676,10 +708,17 @@ PROCEDURE lockWindow :
   IF phWindow:HWND <> ? THEN 
   DO:
     IF giLockCounter > 0 THEN
+    DO:
+      {&_proparse_prolint-nowarn(varusage)}
       RUN SendMessageA(phWindow:HWND, {&WM_SETREDRAW}, 0, 0, OUTPUT iRet).
+    END.
+    
     ELSE
     DO:
+      {&_proparse_prolint-nowarn(varusage)}
       RUN SendMessageA(phWindow:HWND, {&WM_SETREDRAW}, 1, 0, OUTPUT iRet).
+      
+      {&_proparse_prolint-nowarn(varusage)}
       RUN RedrawWindow(phWindow:HWND, 0, 0, {&RDW_ALLCHILDREN} + {&RDW_ERASE} + {&RDW_INVALIDATE}, OUTPUT iRet).
     END.
   END.
@@ -692,14 +731,15 @@ END PROCEDURE. /* lockWindow */
 PROCEDURE moveBlock :
 /* Move a block and check if it is placed on a target field.
   */
-  DEFINE INPUT PARAMETER prBox  AS RECID   NO-UNDO.
+  DEFINE INPUT PARAMETER prBox  AS ROWID   NO-UNDO.
   DEFINE INPUT PARAMETER piDifX AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER piDifY AS INTEGER NO-UNDO.
 
   DEFINE BUFFER bBox    FOR ttBlock.
   DEFINE BUFFER bTarget FOR ttBlock.
 
-  FIND bBox WHERE RECID(bBox) = prBox.
+  FIND bBox WHERE ROWID(bBox) = prBox NO-ERROR.
+  IF NOT AVAILABLE bBox THEN RETURN.
 
   /* Was there a target place underneath the box? */
   FIND bTarget
@@ -739,7 +779,7 @@ PROCEDURE moveBlock :
   END. 
 
   /* draw box */
-  RUN drawElement(prBox, YES).
+  RUN drawElement(prBox).
 
 END PROCEDURE. /* moveBlock */
 
@@ -758,7 +798,9 @@ PROCEDURE movePlayer :
   DO WITH FRAME {&FRAME-NAME}:
 
     /* Move the player to the new position */
-    FIND bPlayer WHERE bPlayer.cType = 'player'.
+    FIND bPlayer WHERE bPlayer.cType = 'player' NO-ERROR.
+    IF NOT AVAILABLE bPlayer THEN RETURN.
+    
     ASSIGN 
       bPlayer.iPosX = bPlayer.iPosX + piMoveX
       bPlayer.iPosY = bPlayer.iPosY + piMoveY
@@ -773,6 +815,8 @@ PROCEDURE movePlayer :
       bPlayer.hBlock:HEIGHT-PIXELS = giBlockHeight
       bPlayer.hBlock:VISIBLE       = TRUE
       .
+
+    STATUS INPUT SUBSTITUTE('Moves: &1', giNumMoves).
   END.
 
 END PROCEDURE. /* movePlayer */
@@ -819,7 +863,9 @@ PROCEDURE processKeystroke :
   END CASE.
 
   /* Calculate new position of the player */
-  FIND bBlock WHERE bBlock.cType = 'player'.
+  FIND bBlock WHERE bBlock.cType = 'player' NO-ERROR.
+  IF NOT AVAILABLE bBlock THEN RETURN.
+  
   ASSIGN
     iNewX = bBlock.iPosX + bMove.iDeltaX
     iNewY = bBlock.iPosY + bMove.iDeltaY.
@@ -847,11 +893,11 @@ PROCEDURE processKeystroke :
                    AND bBlock.iPosY  = iNewY + bMove.iDeltaY
                    AND bBlock.lSolid = TRUE) THEN
     DO:
-      RUN moveBlock(RECID(bBlock), bMove.iDeltaX, bMove.iDeltaY).
+      RUN moveBlock(ROWID(bBlock), bMove.iDeltaX, bMove.iDeltaY).
       ASSIGN lValidMove = TRUE.
 
       /* Register the move of the block */
-      ASSIGN bMove.rBlock = RECID(bBlock).
+      ASSIGN bMove.rBlock = ROWID(bBlock).
     END. /* block */
     ELSE
       ASSIGN lValidMove = FALSE.
@@ -887,40 +933,38 @@ PROCEDURE readLevelFile :
 */
   DEFINE INPUT PARAMETER pcLevelFile AS CHARACTER NO-UNDO.
 
-  DEFINE VARIABLE cLine   AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iLineNr AS INTEGER   NO-UNDO.
-  DEFINE VARIABLE iLevNum AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER bLevel FOR ttLevel.
-
-  FIND LAST bLevel NO-ERROR.
-  ASSIGN iLevNum = (IF AVAILABLE bLevel THEN bLevel.iLevelNr ELSE 0).
 
   INPUT FROM VALUE(pcLevelFile).
 
   #ReadCollection:
   REPEAT:
     /* New level */
-    iLevNum = iLevNum + 1.
+    giNumLevels = giNumLevels + 1.
     CREATE bLevel.
-    ASSIGN bLevel.iLevelNr = iLevNum.
+    ASSIGN bLevel.iLevelNr = giNumLevels.
 
     /* Read until level starts */
+    #HeaderBlock:
     REPEAT ON ENDKEY UNDO, LEAVE #ReadCollection:
       IMPORT UNFORMATTED cLine.
-      IF cLine MATCHES '*#*' THEN LEAVE. 
+      IF cLine MATCHES '*#*' THEN LEAVE #HeaderBlock. 
     END.
   
     /* Read level data */
+    #LevelBlock:
     REPEAT ON ENDKEY UNDO, LEAVE #ReadCollection:
       bLevel.cData = bLevel.cData + cLine + '|'.
       IMPORT UNFORMATTED cLine.
-      IF NOT cLine MATCHES '*#*' THEN LEAVE. 
+      IF NOT cLine MATCHES '*#*' THEN LEAVE #LevelBlock. 
     END.
 
     /* Read level info */
+    #InfoBlock:
     REPEAT ON ENDKEY UNDO, LEAVE #ReadCollection:
-      IF cLine = '' THEN LEAVE. 
+      IF cLine = '' THEN LEAVE #InfoBlock. 
       IMPORT UNFORMATTED cLine.
     END.
   END. 
@@ -1042,9 +1086,8 @@ END PROCEDURE. /* saveImage */
 PROCEDURE showLevel :
 /* Read a level from an ascii file and put it in the temp-table.
   */
-  DEFINE INPUT PARAMETER piLevel  AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER piLevel AS INTEGER NO-UNDO.
 
-  DEFINE VARIABLE cFile    AS CHARACTER          NO-UNDO.
   DEFINE VARIABLE iPosY    AS INTEGER            NO-UNDO.
   DEFINE VARIABLE iPosX    AS INTEGER            NO-UNDO.
   DEFINE VARIABLE cLine    AS CHARACTER          NO-UNDO.
@@ -1087,7 +1130,7 @@ PROCEDURE showLevel :
   END.
 
   /* Clear the temp-table, save images */
-  FOR EACH bBlock:
+  FOR EACH bBlock {&TABLE-SCAN}:
     RUN saveImage(bBlock.cType, bBlock.hBlock).
     DELETE bBlock.
   END.
@@ -1099,9 +1142,10 @@ PROCEDURE showLevel :
   DO iPosY = 1 TO NUM-ENTRIES(bLevel.cData,'|'):
     cLine = ENTRY(iPosY,bLevel.cData,'|').
 
+    #HorLoop:
     DO iPosX = 1 TO LENGTH(cLine):
       cElement = SUBSTRING(cLine,iPosX,1).
-      IF cElement = ' ' THEN NEXT.
+      IF cElement = ' ' THEN NEXT #HorLoop.
 
       /* element found */
       CASE cElement:
@@ -1135,7 +1179,7 @@ PROCEDURE showLevel :
   END. /* iPosX */
 
   /* Get min/max coordinates of the level */
-  FOR EACH bBlock:
+  FOR EACH bBlock {&TABLE-SCAN}:
     ASSIGN
       iMinX = MINIMUM(iMinX, bBlock.iPosX)
       iMaxX = MAXIMUM(iMaxX, bBlock.iPosX)
@@ -1144,14 +1188,22 @@ PROCEDURE showLevel :
   END.
 
   /* Center the level */
-  FOR EACH bBlock:
+  FOR EACH bBlock {&TABLE-SCAN}:
     ASSIGN
       bBlock.iPosX = bBlock.iPosX + ROUND((giMaxWidth  - (iMaxX - iMinX + 1)) / 2,0)
       bBlock.iPosY = bBlock.iPosY + ROUND((giMaxHeight - (iMaxY - iMinY + 1)) / 2,0).
   END.
 
-  ASSIGN {&WINDOW-NAME}:TITLE = 'Sokoban level ' + STRING(giCurrentLevel).
+  ASSIGN {&WINDOW-NAME}:TITLE = SUBSTITUTE('Sokoban level &1 / &2', giCurrentLevel, giNumLevels).
 
+  /* We want to have focus on the screen but all elements 
+  ** are defined as flat, so nothing has focus. Trick Progress into 
+  ** giving focus to the screen by enabling a field that is not 
+  ** visible on the screen.  
+  */
+  DO WITH FRAME {&FRAME-NAME}:
+    fiFocus:Y = -30 NO-ERROR.
+  END.
 END PROCEDURE. /* showLevel */
 
 /* _UIB-CODE-BLOCK-END */
@@ -1261,4 +1313,3 @@ END FUNCTION. /* getSavedImage */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

@@ -3207,7 +3207,7 @@ PROCEDURE valid-loc-bin-tag :
         END.
 
       IF NOT AVAIL rm-rdtlh THEN DO:
-        MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
+        MESSAGE "Invalid entry, no bin and location found for this tag..." VIEW-AS ALERT-BOX.
         IF ip-int EQ 3 THEN
           APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
         ELSE

@@ -546,8 +546,7 @@ PROCEDURE pCloseProcedures :
         hProc = hProc:NEXT-SIBLING.
     END. /* do while */
     IF CAN-FIND(FIRST ttProcedure) THEN DO:
-        RUN displayMessageQuestion("11", OUTPUT cMsgRtn).
-        oplClose = LOGICAL(cMsgRtn).
+        RUN displayMessageQuestionLOG ("11", OUTPUT oplClose).
         IF oplClose THEN
         FOR EACH ttProcedure:
             IF VALID-HANDLE(ttProcedure.hProcedure) THEN

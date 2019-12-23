@@ -62,7 +62,7 @@ IF AVAIL itemfg                     AND
 
    RUN fg/fullset.p (ROWID(itemfg)).
    
-   FOR EACH tt-fg-set,
+   FOR EACH tt-fg-set WHERE NOT tt-fg-set.noReceipt,
   
        FIRST b-itemfg
        WHERE b-itemfg.company EQ cocode

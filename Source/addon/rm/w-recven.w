@@ -318,12 +318,14 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/rm/b-recven.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_b-recven ).
        RUN set-position IN h_b-recven ( 9.33 , 3.00 ) NO-ERROR.
        RUN set-size IN h_b-recven ( 12.52 , 146.00 ) NO-ERROR.
-       /* Position in AB:  ( 9.33 , 3.00 ) */
-       /* Size in UIB:  ( 12.52 , 146.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updven.w':U ,

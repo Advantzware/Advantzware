@@ -559,7 +559,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      Task.module AT ROW 3.62 COL 124 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
-          LIST-ITEMS "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?" 
+          LIST-ITEMS "AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","SS","TS" 
           DROP-DOWN-LIST
           SIZE 8.2 BY 1
           BGCOLOR 15 

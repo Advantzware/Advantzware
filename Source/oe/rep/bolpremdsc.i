@@ -267,12 +267,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
                        shipto.ship-state + "  " +
                        shipto.ship-zip
       v-phone-num    = cust.area-code + cust.phone
-      v-comp-name    = cust.name
-      v-comp-addr[1] = cust.addr[1]
-      v-comp-addr[2] = cust.addr[2]
-      v-comp-addr3   = cust.city + ", " +
-                       cust.state + "  " +
-                       cust.zip
+      v-comp-name    = "Premier Packaging C/O UTS"
+      v-comp-addr[1] = "PO Box 888470"
+      v-comp-addr[2] = "Grand Rapids, MI 49588"
+      v-comp-addr3   = ""
       /* 05291402 */
       v-ship-city    = shipto.ship-city
       v-ship-state   = shipto.ship-state
@@ -442,10 +440,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
  IF v-footer THEN do:
      PUT "<FArial><C2><R46><#3><R+5><C+160><IMAGE#3=" cImageFooter + ">" FORMAT "x(200)"  .
  END.
-
-  PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
-      "<=8><R+1> Total Units       :" v-grand-total-cases format ">>,>>>,>>9"
-      "<=8><R+3> Total Weight      :" v-tot-wt format ">>,>>>,>>9".
   
   PUT "<FArial>"
       "<R48><C5><#9><FROM><R+3><C+15><RECT> "

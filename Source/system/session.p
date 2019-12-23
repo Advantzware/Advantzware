@@ -39,6 +39,15 @@ DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
+/* zMessage Typed return variables */
+DEF VAR chrMsgRtn AS CHAR NO-UNDO.
+DEF VAR logMsgRtn AS LOG NO-UNDO.
+DEF VAR intMsgRtn AS INT NO-UNDO.
+DEF VAR decMsgRtn AS DECIMAL NO-UNDO.
+DEF VAR recMsgRtn AS RECID NO-UNDO.
+DEF VAR rowMsgRtn AS ROWID NO-UNDO.
+DEF VAR datMsgRtn AS DATE NO-UNDO.
+DEF VAR dtmMsgRtn AS DATETIME NO-UNDO.
 
 /* alphabetical list of super-procedures comma delimited */
 ASSIGN 
@@ -288,6 +297,145 @@ END. /* each ttSuperProcedure */
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-displayMessage) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessage Procedure
+PROCEDURE displayMessage:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message in standard format
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
+    
+    FIND FIRST zMessage NO-LOCK
+        WHERE zMessage.msgID EQ ipcMessageID       
+        NO-ERROR.
+    
+    IF NOT AVAIL zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress EQ TRUE THEN 
+        RETURN.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "Error" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX ERROR 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            WHEN "Info" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX INFO
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            WHEN "Message" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX MESSAGE 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            WHEN "Warning" THEN DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                    VIEW-AS ALERT-BOX WARNING 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+            OTHERWISE DO:
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
+                    "NOTE: Message type for this record is not correct." SKIP 
+                    "Please correct using NZ@ or contact ASI Support."
+                    VIEW-AS ALERT-BOX WARNING 
+                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
+            END.
+        END CASE.
+    END.
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF
+
+&IF DEFINED(EXCLUDE-displayMessageQuestion) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestion Procedure
+PROCEDURE displayMessageQuestion:
+    /*------------------------------------------------------------------------------
+     Purpose: Displays a selected message and returns a character-based answer as output
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcOutput AS CHAR NO-UNDO.
+
+    FIND FIRST zMessage NO-LOCK
+        WHERE zMessage.msgID EQ ipcMessageID       
+        NO-ERROR.
+    
+    IF NOT AVAIL zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress THEN DO:
+        ASSIGN 
+            opcOutput = zMessage.rtnValue.
+    END.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "QUESTION-YN" THEN DO:
+                    MESSAGE 
+                        (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
+                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                        TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle)
+                        UPDATE cLog AS LOG.
+                    ASSIGN 
+                        opcOutput = STRING(cLog).
+                END.
+            /* Deal with these options in next phase */
+            WHEN "QUESTION-CHAR" THEN DO:
+            END.
+            WHEN "QUESTION-INT" THEN DO:
+            END.
+            WHEN "QUESTION-DECI" THEN DO:
+            END.
+            WHEN "QUESTION-DATE" THEN DO:
+            END.
+        END CASE.
+    END.
+
+END PROCEDURE.
+&ANALYZE-RESUME
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-displayMessageQuestionLOG) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestionLOG Procedure
+PROCEDURE displayMessageQuestionLOG:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER oplOutput AS LOG NO-UNDO.
+    
+    DEF VAR cRtnValue AS CHAR NO-UNDO.
+    
+    RUN displayMessageQuestion (INPUT ipcMessageID, OUTPUT cRtnValue).
+    
+    ASSIGN 
+        oplOutput = LOGICAL(cRtnValue).
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
@@ -1598,112 +1746,6 @@ END PROCEDURE.
 
 &ENDIF
 
-PROCEDURE displayMessage:
-/*------------------------------------------------------------------------------
- Purpose: Displays a selected message in standard format
- Notes:
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
-    
-    FIND FIRST zMessage NO-LOCK
-        WHERE zMessage.msgID EQ ipcMessageID       
-        NO-ERROR.
-    
-    IF NOT AVAIL zMessage THEN DO:
-        MESSAGE 
-            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
-            "Please correct this using function NZ@ or contact ASI Support"
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.  
-    ELSE IF zMessage.userSuppress EQ TRUE THEN 
-            RETURN.
-    ELSE DO:
-        CASE zMessage.msgType:
-            WHEN "Error" THEN DO:
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX ERROR 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            WHEN "Info" THEN DO:
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX INFO
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            WHEN "Message" THEN DO:
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX MESSAGE 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            WHEN "Warning" THEN DO:
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX WARNING 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            OTHERWISE DO:
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
-                    "NOTE: Message type for this record is not correct." SKIP 
-                    "Please correct using NZ@ or contact ASI Support."
-                    VIEW-AS ALERT-BOX WARNING 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-        END CASE.
-    END.
-
-END PROCEDURE.
-
-PROCEDURE displayMessageQuestion:
-/*------------------------------------------------------------------------------
- Purpose: Displays a selected message and returns a character-based answer as output
- Notes:
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opcOutput AS CHAR NO-UNDO.
-
-    FIND FIRST zMessage NO-LOCK
-        WHERE zMessage.msgID EQ ipcMessageID       
-        NO-ERROR.
-    
-    IF NOT AVAIL zMessage THEN DO:
-        MESSAGE 
-            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
-            "Please correct this using function NZ@ or contact ASI Support"
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.  
-    ELSE IF zMessage.userSuppress THEN DO:
-        ASSIGN 
-            opcOutput = zMessage.rtnValue.
-    END.
-    ELSE DO:
-        CASE zMessage.msgType:
-            WHEN "QUESTION-YN" THEN DO:
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle)
-                    UPDATE cLog AS LOG.
-                ASSIGN 
-                    opcOutput = STRING(cLog).
-                END.
-            /* Deal with these options in next phase */
-            WHEN "QUESTION-CHAR" THEN DO:
-            END.
-            WHEN "QUESTION-INT" THEN DO:
-            END.
-            WHEN "QUESTION-DECI" THEN DO:
-            END.
-            WHEN "QUESTION-DATE" THEN DO:
-            END.
-        END CASE.
-    END.
-
-END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */

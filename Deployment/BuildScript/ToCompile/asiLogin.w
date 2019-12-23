@@ -363,7 +363,8 @@ DEFINE FRAME DEFAULT-FRAME
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-IF SESSION:DISPLAY-TYPE = "GUI":U THEN
+IF SESSION:DISPLAY-TYPE = "GUI":U 
+AND cSessionParam EQ "" THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Login"
@@ -553,7 +554,6 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   RUN ipWriteIniFile.
 END.
 
 /* Best default for GUI applications is...                              */
@@ -570,9 +570,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cbEnvironment:LIST-ITEMS = TRIM(cEnvList,",")
         cbMode:LIST-ITEMS = TRIM(cModeList,",")
         cbDatabase:LIST-ITEMS = TRIM(cdbList,",").
+
     IF cSessionParam EQ "" THEN DO:
         RUN enable_UI.
-    /*    RUN no-top-bann (C-Win:HWND, YES, 0,0). */
         
         ASSIGN
             cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS)
@@ -582,11 +582,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         APPLY 'entry' TO fiUserID.
     
-        IF NOT THIS-PROCEDURE:PERSISTENT THEN
-            WAIT-FOR CLOSE OF THIS-PROCEDURE.
     END. /* If there is a UI */
     ELSE 
       RUN ipAutoLogin.
+
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -668,31 +669,27 @@ PROCEDURE ipAutoLogin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ASSIGN 
-      fiUserID = ENTRY(1, cSessionParam)
-      fiPassword = ENTRY(2, cSessionParam)
-      cbEnvironment = ENTRY(3, cSessionParam)
-      cbMode = ENTRY(4, cSessionParam)
-      cbDatabase = ENTRY(5, cSessionParam)
-      .   
-  
-  RUN ipFindUser.
+    ASSIGN 
+        fiUserID = ENTRY(1, cSessionParam)
+        fiPassword = ENTRY(2, cSessionParam)
+        cbEnvironment = ENTRY(3, cSessionParam)
+        cbMode = REPLACE(ENTRY(4, cSessionParam),"_"," ")
+        cbDatabase = ENTRY(5, cSessionParam)
+        .   
+    
+    RUN ipFindUser.
 
-  if avail ttUsers then do:
-  assign
-              cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
-            cDatabaseList = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-            cModeScrList = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
-            .
-  end.
+    IF AVAIL ttUsers THEN ASSIGN
+        cEnvironmentList = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
+        cDatabaseList = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
+        cModeScrList = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
+        .
+  
+    RUN ipChangeEnvironment.
+    RUN ipChangeMode. 
+    RUN ipChangeDatabase.
+    RUN ipClickOK.
 
-  
-  RUN ipChangeDatabase.
-  
-  RUN ipChangeMode. 
-  
-  RUN ipChangeEnvironment.
-  RUN ipClickOK.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -739,7 +736,7 @@ PROCEDURE ipChangeDatabase :
         RETURN NO-APPLY.
     END.
     
-    APPLY 'value-changed' TO cbMode.
+    /* APPLY 'value-changed' TO cbMode. */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,12 +765,11 @@ PROCEDURE ipChangeEnvironment :
         iEnvLevelM = iEnvLevel / 1000
         .
 
-    if cSessionParam gt "" then do:
-      cbDatabase = ENTRY(1,cDatabaseList).
-      ASSIGN
-        iLookup = LOOKUP(cbEnvironment,cEnvList)
-        cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
-        preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
+    IF cSessionParam NE "" THEN DO:
+        ASSIGN
+            iLookup = LOOKUP(cbEnvironment,cEnvList)
+            cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
+            preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
                      cTop + cEnvCustomerDir + "," +
                      cTop + cEnvOverrideDir + "," +
                      cTop + cEnvProgramsDir + "," +
@@ -786,76 +782,78 @@ PROCEDURE ipChangeEnvironment :
                      cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
         PROPATH = preProPath + origPropath.      
         RETURN.
-    end.
-    
-    CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
-        WHEN "Prod" THEN DO:
-            DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
-                    ASSIGN
-                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
-                    LEAVE.
+    END.
+    ELSE DO:
+        CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
+            WHEN "Prod" THEN DO:
+                DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
+                    IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
+                        ASSIGN
+                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                        LEAVE.
+                    END.
                 END.
             END.
-        END.
-        WHEN "Test" THEN DO:
-            DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
-                    ASSIGN
-                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
-                    LEAVE.
+            WHEN "Test" THEN DO:
+                DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
+                    IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
+                        ASSIGN
+                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                        LEAVE.
+                    END.
                 END.
             END.
-        END.
-        OTHERWISE DO:
-            ASSIGN 
-                cTestList = "".
-            DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+            OTHERWISE DO:
                 ASSIGN 
-                    iEnvLevelM = iEnvLevel / 1000
-                    iDbLevelM = intVer(ENTRY(iCtr,cDbVerList)) / 1000.
-                if iEnvLevelM GT 16085 THEN DO:
-                    IF iEnvLevelM LT iDbLevelM THEN NEXT.
-                    IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                    cTestList = "".
+                DO iCtr = 1 TO NUM-ENTRIES(cDbList):
+                    ASSIGN 
+                        iEnvLevelM = iEnvLevel / 1000
+                        iDbLevelM = intVer(ENTRY(iCtr,cDbVerList)) / 1000.
+                    if iEnvLevelM GT 16085 THEN DO:
+                        IF iEnvLevelM LT iDbLevelM THEN NEXT.
+                        IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                    END.
+                    ELSE DO:
+                        ASSIGN
+                            iEnvLevelM = 10 * TRUNCATE(iEnvLevelM / 10,0).        
+                        IF iEnvLevelM LT iDbLevelM THEN NEXT.
+                        IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                    END.
+                    ASSIGN 
+                        cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".    
                 END.
-                ELSE DO:
-                    ASSIGN
-                        iEnvLevelM = 10 * TRUNCATE(iEnvLevelM / 10,0).        
-                    IF iEnvLevelM LT iDbLevelM THEN NEXT.
-                    IF iEnvLevelM GT iDbLevelM THEN NEXT.
-                END.
-                ASSIGN 
-                    cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".    
+                IF cSessionParam EQ "" THEN ASSIGN 
+                    cTestList = TRIM(cTestList,",")
+                    cbDatabase:LIST-ITEMS = cTestList
+                    cbDatabase:SCREEN-VALUE = ENTRY(1,cTestList)
+                    cbDatabase.
+                ELSE ASSIGN 
+                    cTestList = TRIM(cTestList,",")
+                    cbDatabase:LIST-ITEMS = cTestList
+                    cbDatabase.
             END.
-            IF cSessionParam EQ "" THEN ASSIGN 
-                cTestList = TRIM(cTestList,",")
-                cbDatabase:LIST-ITEMS = cTestList
-                cbDatabase:SCREEN-VALUE = ENTRY(1,cTestList)
-                cbDatabase.
-            ELSE ASSIGN 
-                cTestList = TRIM(cTestList,",")
-                cbDatabase:LIST-ITEMS = cTestList
-                cbDatabase.
-        END.
-    END CASE.
-    IF cSessionParam EQ "" THEN 
-      APPLY 'value-changed' to cbDatabase.
+        END CASE.
+        IF cSessionParam EQ "" THEN 
+          APPLY 'value-changed' to cbDatabase.
 
-    ASSIGN
-        iLookup = LOOKUP(cbEnvironment,cEnvList)
-        cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
-        preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
-                     cTop + cEnvCustomerDir + "," +
-                     cTop + cEnvOverrideDir + "," +
-                     cTop + cEnvProgramsDir + "," +
-                     cTop + cEnvCustomerDir + "\Addon," +
-                     cTop + cEnvOverrideDir + "\Addon," +
-                     cTop + cEnvProgramsDir + "\Addon" + "," +
-                     cTop + cEnvCustFiles + "," +
-                     cTop + cEnvResourceDir + "," +
-                     cTop + cEnvResourceDir + "\Addon" + "," +
-                     cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
+        ASSIGN
+            iLookup = LOOKUP(cbEnvironment,cEnvList)
+            cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
+            preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
+                         cTop + cEnvCustomerDir + "," +
+                         cTop + cEnvOverrideDir + "," +
+                         cTop + cEnvProgramsDir + "," +
+                         cTop + cEnvCustomerDir + "\Addon," +
+                         cTop + cEnvOverrideDir + "\Addon," +
+                         cTop + cEnvProgramsDir + "\Addon" + "," +
+                         cTop + cEnvCustFiles + "," +
+                         cTop + cEnvResourceDir + "," +
+                         cTop + cEnvResourceDir + "\Addon" + "," +
+                         cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
         PROPATH = preProPath + origPropath.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -873,7 +871,7 @@ PROCEDURE ipChangeMode :
     DEF VAR iIndex AS INT NO-UNDO.
     
     ASSIGN
-        cModeItem = cbMode:{&SV}
+        cModeItem = IF cbMode:VISIBLE IN FRAME {&frame-name} THEN cbMode:{&SV} ELSE cbMode
         g-sharpshooter = IF cModeItem EQ "Sharpshooter" THEN true else false
         iIndex = LOOKUP(cModeItem,cModeList)
         cPgmItem = ENTRY(iIndex,cPgmList)
@@ -941,10 +939,8 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    IF lValueChanged THEN 
-        RUN ipWriteIniFile.
-    
-    QUIT.
+    IF cSessionParam EQ "" THEN 
+        QUIT.
     
 END PROCEDURE.
 
@@ -967,6 +963,7 @@ PROCEDURE ipConnectDb :
     DEF VAR cCmdSTring AS CHAR NO-UNDO.
     DEF VAR cMessString AS CHAR NO-UNDO.
     DEF VAR iPos AS INT NO-UNDO.
+
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
     IF fiPassword NE "" THEN ASSIGN
         cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
@@ -1187,7 +1184,7 @@ PROCEDURE ipFindUser :
             
     FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserID = cUserID AND
-        ttUsers.ttfPdbName = cbDatabase:{&SV}
+        ttUsers.ttfPdbName = cbDatabase
         NO-ERROR.
        
     /* Can't find by DB, is there a generic one? (db = '*') */

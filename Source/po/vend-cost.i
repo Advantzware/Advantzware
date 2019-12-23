@@ -74,100 +74,106 @@
         
         IF AVAILABLE job-mat THEN lv-recid = RECID(job-mat).
         v-ord-qty = DEC(po-ordl.ord-qty).
-        IF po-ordl.item-type EQ TRUE THEN 
-        DO:
-            FIND FIRST e-item NO-LOCK
-                WHERE e-item.company EQ cocode
-                AND e-item.i-no    EQ po-ordl.i-no
-                NO-ERROR.
-      
-            IF AVAILABLE e-item THEN 
+        IF lNewVendorItemCost THEN DO:
+            /* RUN CalcNewVendCost.*/
+            {po/CalcNewVendItemCost.i}
+        END.     
+        ELSE DO:
+            IF po-ordl.item-type EQ TRUE THEN 
             DO:
-                CREATE tt-ei.
-                ASSIGN 
-                    tt-ei.std-uom = e-item.std-uom.
-      
-                FIND FIRST e-item-vend NO-LOCK
-                    WHERE e-item-vend.company EQ e-item.company
-                    AND e-item-vend.i-no    EQ e-item.i-no
-                    AND e-item-vend.vend-no EQ po-ord.vend-no
+                FIND FIRST e-item NO-LOCK
+                    WHERE e-item.company EQ cocode
+                    AND e-item.i-no    EQ po-ordl.i-no
                     NO-ERROR.
-      
-                IF AVAILABLE e-item-vend THEN 
+          
+                IF AVAILABLE e-item THEN 
                 DO:
-                    CREATE tt-eiv.
-                    tt-eiv.rec_key = e-item-vend.rec_key.
-                    DO v-index = 1 TO 10:
-                        
-                        ASSIGN
-                            tt-eiv.run-qty[v-index]  = e-item-vend.run-qty[v-index]
-                            tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
-                            tt-eiv.setups[v-index]   = e-item-vend.setups[v-index].
-                    END.
-                    
-         
-                    IF AVAILABLE e-item-vend THEN
+                    CREATE tt-ei.
+                    ASSIGN 
+                        tt-ei.std-uom = e-item.std-uom.
+          
+                    FIND FIRST e-item-vend NO-LOCK
+                        WHERE e-item-vend.company EQ e-item.company
+                        AND e-item-vend.i-no    EQ e-item.i-no
+                        AND e-item-vend.vend-no EQ po-ord.vend-no
+                        NO-ERROR.
+          
+                    IF AVAILABLE e-item-vend THEN 
                     DO:
-                        
-             
+                        CREATE tt-eiv.
+                        tt-eiv.rec_key = e-item-vend.rec_key.
                         DO v-index = 1 TO 10:
                             
                             ASSIGN
-                                tt-eiv.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
-                                tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
-                                tt-eiv.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
+                                tt-eiv.run-qty[v-index]  = e-item-vend.run-qty[v-index]
+                                tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
+                                tt-eiv.setups[v-index]   = e-item-vend.setups[v-index].
+                        END.
+                        
+             
+                        IF AVAILABLE e-item-vend THEN
+                        DO:
+                            
+                 
+                            DO v-index = 1 TO 10:
+                                
+                                ASSIGN
+                                    tt-eiv.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                                    tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                                    tt-eiv.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
+                            END.
                         END.
                     END.
                 END.
             END.
-        END.
-        ELSE 
-        DO:
-            FIND FIRST e-itemfg NO-LOCK
-                WHERE e-itemfg.company EQ cocode
-                AND e-itemfg.i-no    EQ po-ordl.i-no
-                NO-ERROR.
-            IF AVAILABLE itemfg THEN
-                fiCount = (itemfg.case-count).
-            IF AVAILABLE e-itemfg THEN 
+            ELSE 
             DO:
-                CREATE tt-ei.
-                ASSIGN 
-                    tt-ei.std-uom = e-itemfg.std-uom.
-                IF po-ordl.cust-no NE "" THEN
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
-                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
-                        AND e-itemfg-vend.cust-no EQ po-ordl.cust-no
-                        NO-ERROR.
-                /* gdm - 06040918 - check for vendor */
-                IF NOT AVAILABLE e-itemfg-vend THEN
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
-                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
-                        NO-ERROR.
-                /* gdm - check for blank vendor */
-                IF NOT AVAILABLE e-itemfg-vend THEN
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
-                        AND e-itemfg-vend.vend-no EQ "" NO-ERROR.
-                IF AVAILABLE e-itemfg-vend THEN 
-                DO:            
-                    CREATE tt-eiv.
-                    tt-eiv.rec_key = e-itemfg-vend.rec_key.
-                    DO v-index = 1 TO 10:
-                        ASSIGN
-                            tt-eiv.run-qty[v-index]  = e-itemfg-vend.run-qty[v-index]
-                            tt-eiv.run-cost[v-index] = e-itemfg-vend.run-cost[v-index]
-                            tt-eiv.setups[v-index]   = e-itemfg-vend.setups[v-index].
+                FIND FIRST e-itemfg NO-LOCK
+                    WHERE e-itemfg.company EQ cocode
+                    AND e-itemfg.i-no    EQ po-ordl.i-no
+                    NO-ERROR.
+                IF AVAILABLE itemfg THEN
+                    fiCount = (itemfg.case-count).
+                IF AVAILABLE e-itemfg THEN 
+                DO:
+                    CREATE tt-ei.
+                    ASSIGN 
+                        tt-ei.std-uom = e-itemfg.std-uom.
+                    IF po-ordl.cust-no NE "" THEN
+                        FIND FIRST e-itemfg-vend NO-LOCK
+                            WHERE e-itemfg-vend.company EQ e-itemfg.company
+                            AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                            AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                            AND e-itemfg-vend.cust-no EQ po-ordl.cust-no
+                            NO-ERROR.
+                    /* gdm - 06040918 - check for vendor */
+                    IF NOT AVAILABLE e-itemfg-vend THEN
+                        FIND FIRST e-itemfg-vend NO-LOCK
+                            WHERE e-itemfg-vend.company EQ e-itemfg.company
+                            AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                            AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                            NO-ERROR.
+                    /* gdm - check for blank vendor */
+                    IF NOT AVAILABLE e-itemfg-vend THEN
+                        FIND FIRST e-itemfg-vend NO-LOCK
+                            WHERE e-itemfg-vend.company EQ e-itemfg.company
+                            AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
+                            AND e-itemfg-vend.vend-no EQ "" NO-ERROR.
+                    IF AVAILABLE e-itemfg-vend THEN 
+                    DO:            
+                        CREATE tt-eiv.
+                        tt-eiv.rec_key = e-itemfg-vend.rec_key.
+                        DO v-index = 1 TO 10:
+                            ASSIGN
+                                tt-eiv.run-qty[v-index]  = e-itemfg-vend.run-qty[v-index]
+                                tt-eiv.run-cost[v-index] = e-itemfg-vend.run-cost[v-index]
+                                tt-eiv.setups[v-index]   = e-itemfg-vend.setups[v-index].
+                        END.
+                        RELEASE e-itemfg-vend.
                     END.
-                    RELEASE e-itemfg-vend.
                 END.
-            END.
-        END. /* if item-type ne RM */
+            END. /* if item-type ne RM */
+        END. /* not lNewVendorItemCost */
         
             FIND FIRST tt-eiv NO-LOCK NO-ERROR. 
             

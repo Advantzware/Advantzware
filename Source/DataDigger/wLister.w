@@ -5,16 +5,13 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-        Name : wLister.w
-        Desc : Edit comma separated list
+  Name : wLister.w
+  Desc : Edit comma separated list
 
-        ----------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
-/* ***************************  Definitions  ************************** */
-
-/* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER pcDatabase AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER pcField    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER pcList AS CHARACTER NO-UNDO.
@@ -460,15 +457,6 @@ DO:
     RUN showNumItems.
   END.
 
-  /* Don't set focus to list when we are typing a number in
-   * fiDelimiter. Otherwise typing is weird.
-   */
-/*   IF LOOKUP(SELF:NAME, "fcDelimiter,fiDelimiter") = 0 THEN */
-/*   DO:                                                      */
-/*     APPLY 'ENTRY' TO sList.                                */
-/*     RETURN NO-APPLY.                                       */
-/*   END.                                                     */
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -551,9 +539,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FRAME {&frame-name}:font = getFont('Default').
   RUN enable_UI.
   RUN initializeObject.
-/*   APPLY "value-changed" TO rsDelimiter. */
-
-/*   IF sList:list-items <> "" THEN sList:screen-value = ENTRY(1,sList:list-items,sList:delimiter). */
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -717,10 +702,7 @@ PROCEDURE showNumItems :
  * based on the chosen delimiter
 */
   DO WITH FRAME {&FRAME-NAME}:
-/*     IF sList:LIST-ITEMS = '' THEN    */
-/*       fiNumItems:SCREEN-VALUE = '0'. */
-/*     ELSE                             */
-      fiNumItems:SCREEN-VALUE = STRING(sList:NUM-ITEMS).
+    fiNumItems:SCREEN-VALUE = STRING(sList:NUM-ITEMS).
   END.
 
 END PROCEDURE. /* showNumItems */
@@ -778,4 +760,3 @@ END PROCEDURE. /* sortList */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
