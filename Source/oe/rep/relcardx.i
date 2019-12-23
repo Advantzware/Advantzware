@@ -447,9 +447,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             {sys/inc/roundup.i w-cas}
 
             IF v-printline > 44 THEN DO:
+               PUT "<C1><R-" + trim(string(iLineCount + 1)) + "><FROM><C1><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C80><R-" + trim(string(iLineCount + 1)) + "><FROM><C80><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   iLineCount = 0 .
                PAGE.
                v-printline = 0.
@@ -479,9 +481,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               if w-loc ne "" or w-bin ne "" then down {2} with frame rel-mid.
 
               IF v-printline > 44 THEN DO:
+                  PUT "<C1><R-" + trim(string(iLineCount + 1)) + "><FROM><C1><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C80><R-" + trim(string(iLineCount + 1)) + "><FROM><C80><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   iLineCount = 0 .
                  PAGE.
                  v-printline = 0.
@@ -496,9 +500,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   with frame rel-mid. 
               /*PUT SKIP(1) .  */
               PUT "<C1><FROM><C80><LINE><R-1>" SKIP .
+              PUT "<C1><R-" + trim(string(iLineCount + 1)) + "><FROM><C1><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+              PUT "<C80><R-" + trim(string(iLineCount + 1)) + "><FROM><C80><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               v-printline = v-printline + 2.
             end.
 

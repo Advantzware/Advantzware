@@ -2637,7 +2637,7 @@ PROCEDURE set-report :
   ELSE IF v-relprint EQ "CardedX" THEN
    ASSIGN
     lv-program     = "oe/rep/relcardx.p"
-    lines-per-page = 90
+    lines-per-page = 120
     is-xprint-form = YES  . /*60*/
 
   ELSE IF v-relprint EQ "Peachtree" THEN
