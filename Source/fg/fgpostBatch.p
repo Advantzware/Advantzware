@@ -25,6 +25,7 @@ DEFINE INPUT PARAMETER TABLE FOR tt-email.
 DEFINE INPUT PARAMETER TABLE FOR tt-inv.  
 /* Need to return w-job for prompting */
 DEFINE VARIABLE ll        AS LOG     NO-UNDO.
+DEFINE VARIABLE lAnyJobCloses AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dBillAmt  AS DECIMAL NO-UNDO. /* set, not used */
 DEFINE VARIABLE lEmailBol AS LOG     NO-UNDO. /* set and used internally */
 DEFINE VARIABLE lInvFrt         AS LOG       NO-UNDO. /* set not used? */
@@ -122,7 +123,7 @@ DEF STREAM st-email.
 
 
 FUNCTION fCanCloseJob RETURNS LOGICAL 
-	( INPUT iprwFgRctdRec AS RECID ) FORWARD.
+	( INPUT iprwJobRec AS RECID, INPUT ipcIno AS CHARACTER ) FORWARD.
 
 FUNCTION get-act-rel-qty RETURNS INTEGER 
     (  ) FORWARD.
@@ -907,11 +908,25 @@ PROCEDURE fg-post:
         RUN gl-from-work (2, v-trnum).
     END.
     FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-    
-    /* Remove w-job recs that should not be prompted to close */    
-    FOR EACH w-job:     
-      IF NOT fCanCloseJob(w-job.rec-id) THEN
-        DELETE w-job.      
+
+    /* Remove w-job recs that should not be prompted to close */ 
+    EACH-JOB:   
+    FOR EACH w-job:             
+      FIND FIRST job NO-LOCK 
+        WHERE RECID(job) EQ w-job.rec-id
+        NO-ERROR.
+      IF NOT AVAIL job THEN 
+        NEXT.
+      lAnyJobCloses = NO.
+      FOR EACH w-fg-rctd NO-LOCK
+        WHERE w-fg-rctd.company EQ job.company
+          AND w-fg-rctd.job-no EQ job.job-no
+          AND w-fg-rctd.job-no2 EQ job.job-no2
+          :      
+          IF fCanCloseJob(w-job.rec-id, w-fg-rctd.i-no) THEN
+            lAnyJobCloses = YES.                  
+       END.
+       IF NOT lAnyJobCloses THEN DELETE w-job.  
     END.
     
     FIND FIRST w-job NO-ERROR.
@@ -1513,7 +1528,7 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanCloseJob RETURNS LOGICAL 
-	(INPUT iprwFgRctdRec AS RECID  ):
+	(INPUT iprwJobRec AS RECID, INPUT ipcINo AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1530,11 +1545,10 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
     DEFINE VARIABLE v-reduce-qty   AS INTEGER   NO-UNDO.   
     DEFINE VARIABLE ll-whs-item    AS LOG       NO-UNDO.       
     DEFINE BUFFER b-itemfg FOR itemfg.
-    	
-	FIND FIRST w-fg-rctd 
-	   WHERE RECID(w-fg-rctd) EQ iprwFgRctdRec
+	FIND FIRST job
+	   WHERE RECID(job) EQ iprwJobRec
 	   NO-ERROR.
-	IF NOT AVAIL w-fg-rctd THEN 
+	IF NOT AVAIL job THEN 
 	 RETURN NO.
 
     ASSIGN choice         = NO
@@ -1546,27 +1560,32 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
            v-reduce-qty   = 0
            ll-whs-item   = no
            .
+           
     FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ w-fg-rctd.i-no
+          AND itemfg.i-no    EQ ipcIno
         NO-ERROR.
-    IF w-fg-rctd.job-no    NE ""  AND
-      w-fg-rctd.rita-code NE "T" THEN
-      FIND FIRST job NO-LOCK
-        WHERE job.company EQ w-fg-rctd.company
-          AND job.job-no  EQ w-fg-rctd.job-no
-          AND job.job-no2 EQ w-fg-rctd.job-no2
-        NO-ERROR.
+    IF NOT AVAIL itemfg THEN 
+      RETURN NO.
+/*    IF w-fg-rctd.job-no    NE ""  AND         */
+/*      w-fg-rctd.rita-code NE "T" THEN         */
+/*      FIND FIRST job NO-LOCK                  */
+/*        WHERE job.company EQ cocode           */
+/*          AND job.job-no  EQ w-job.job-no     */
+/*          AND job.job-no2 EQ w-fg-rctd.job-no2*/
+/*        NO-ERROR.                             */
+        
     IF AVAIL job THEN DO:
+
         /* Determine if job may be closed via li-t-qty */
         li-t-qty = w-fg-rctd.t-qty.
-        
+       
         FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ job.company
               AND job-hdr.job     eq job.job
               AND job-hdr.job-no  eq job.job-no
               AND job-hdr.job-no2 eq job.job-no2
-              AND job-hdr.i-no    eq w-fg-rctd.i-no
+              AND job-hdr.i-no    eq ipcIno
             NO-ERROR.
         IF AVAIL job-hdr THEN ll-set = NO.
         
@@ -1598,7 +1617,6 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
         
               /* Get underrun quantity, v-fin-qty, uses ll-qty-changed */
               {fg/closejob.i}
-        
         
               IF v-close-job GT 0                                            AND
                  (job.stat EQ "W"                                OR

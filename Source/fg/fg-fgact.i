@@ -50,7 +50,7 @@ IF AVAIL job THEN DO:
               AND job-hdr.job-no  EQ job.job-no
               AND job-hdr.job-no2 EQ job.job-no2
            NO-ERROR.
-    /* End of pulled from fg/setrcvd.p */
+   
     /* Used to determine choice to close job, moved to fgpostbatch.p */
 /*    RUN fg/setsrcvd.p (BUFFER job, BUFFER reftable, BUFFER job-hdr,*/
 /*                       INPUT-OUTPUT li-t-qty).                     */
@@ -148,7 +148,8 @@ IF AVAIL job THEN DO:
           w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
                       TRIM(job.job-no) +
                       STRING(job.job-no2,"99")
-          w-job.rec-id = RECID(job).
+          w-job.rec-id = RECID(job)
+          .
     END.
     FIND FIRST job-hdr NO-LOCK WHERE ROWID(job-hdr) EQ lv-rowid.
 
