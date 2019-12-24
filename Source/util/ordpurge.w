@@ -38,19 +38,18 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
 {custom/gcompany.i}
 {custom/getcmpny.i}
 {custom/gloc.i}
 {custom/getloc.i}
-
 {sys/inc/var.i new shared}
 
 ASSIGN
     cocode = gcompany
     locode = gloc.
 
-DEFINE VARIABLE v-process AS LOG NO-UNDO.
+DEF VAR lProcess AS LOG NO-UNDO.
+DEF VAR lSimulate AS LOG NO-UNDO.
 DEF VAR cDumpLoc AS CHAR NO-UNDO.
 
 DEF STREAM soe-ord.
@@ -63,6 +62,7 @@ DEF STREAM sinv-line.
 DEF STREAM sinv-misc.
 DEF STREAM sinv-head.
 DEF STREAM soe-ordl.
+DEF STREAM soe-ordm.
 DEF STREAM sjob.
 DEF STREAM sjob-hdr.
 DEF STREAM sjob-mat.
@@ -76,7 +76,6 @@ DEF STREAM smat-act.
 DEF STREAM smch-act.
 DEF STREAM smisc-act.
 DEF STREAM sfg-bin.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,10 +92,10 @@ DEF STREAM sfg-bin.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 purge_date begin_order end_order ~
-tbInvoices tbArchive btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS purge_date begin_order end_order ~
-tbInvoices tbArchive fiDumpLoc 
+&Scoped-Define ENABLED-OBJECTS purge_date begin_order end_order rsClosed ~
+tbInvoices tbArchive btn-Simulate btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS purge_date begin_order end_order rsClosed ~
+tbInvoices tbArchive fiDumpLoc fiDumpLoc2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -117,7 +116,11 @@ DEFINE BUTTON btn-cancel
      SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
+     LABEL "&Start Purge" 
+     SIZE 18 BY 1.14.
+
+DEFINE BUTTON btn-Simulate 
+     LABEL "Simulate Purge" 
      SIZE 18 BY 1.14.
 
 DEFINE VARIABLE begin_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
@@ -130,20 +133,27 @@ DEFINE VARIABLE end_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiDumpLoc AS CHARACTER FORMAT "X(256)":U INITIAL "(Records to recover purged information will be stored in C:~\tmp~\OrderPurgeYYMMDD)" 
+DEFINE VARIABLE fiDumpLoc AS CHARACTER FORMAT "X(256)":U INITIAL "Records to view or recover purged information will be stored in directory:" 
       VIEW-AS TEXT 
-     SIZE 84 BY .62 NO-UNDO.
+     SIZE 74 BY .62 NO-UNDO.
+
+DEFINE VARIABLE fiDumpLoc2 AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\tmp~\OrderPurge-YYMMDD-99999~\" 
+      VIEW-AS TEXT 
+     SIZE 43 BY .62 NO-UNDO.
 
 DEFINE VARIABLE purge_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Purge Orders Prior To" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 8.57.
+DEFINE VARIABLE rsClosed AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Purge Closed Orders Only", "C",
+"ALL Orders", "A"
+     SIZE 46 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tbArchive AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbArchive AS LOGICAL INITIAL yes 
      LABEL "Create Recovery Records?" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
@@ -157,22 +167,24 @@ DEFINE VARIABLE tbInvoices AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     purge_date AT ROW 6.71 COL 27 COLON-ALIGNED
-     begin_order AT ROW 8.14 COL 27 COLON-ALIGNED HELP
+     purge_date AT ROW 6.24 COL 27 COLON-ALIGNED
+     begin_order AT ROW 7.67 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_order AT ROW 8.14 COL 63 COLON-ALIGNED HELP
+     end_order AT ROW 7.67 COL 63 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     tbInvoices AT ROW 9.57 COL 29
-     tbArchive AT ROW 10.76 COL 29
-     btn-process AT ROW 15.29 COL 21
-     btn-cancel AT ROW 15.29 COL 53
-     fiDumpLoc AT ROW 11.95 COL 2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     rsClosed AT ROW 9.1 COL 29 NO-LABEL
+     tbInvoices AT ROW 10.29 COL 29
+     tbArchive AT ROW 11.48 COL 29
+     btn-Simulate AT ROW 16 COL 7
+     btn-process AT ROW 16 COL 34
+     btn-cancel AT ROW 16 COL 63
+     fiDumpLoc AT ROW 12.91 COL 2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     fiDumpLoc2 AT ROW 13.62 COL 4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      "Selection Parameters:" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
-     RECT-17 AT ROW 4.81 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -260,6 +272,12 @@ ASSIGN
        fiDumpLoc:HIDDEN IN FRAME FRAME-A           = TRUE
        fiDumpLoc:READ-ONLY IN FRAME FRAME-A        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiDumpLoc2 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiDumpLoc2:HIDDEN IN FRAME FRAME-A           = TRUE
+       fiDumpLoc2:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -314,8 +332,23 @@ DO:
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
+ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Purge */
 DO:
+        RUN run-process.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn-Simulate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Simulate C-Win
+ON CHOOSE OF btn-Simulate IN FRAME FRAME-A /* Simulate Purge */
+DO:
+        ASSIGN
+            lSimulate = TRUE  
+            tbArchive:CHECKED = TRUE.
+        APPLY 'value-changed' TO tbArchive IN FRAME {&frame-name}.
         RUN run-process.
     END.
 
@@ -368,9 +401,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
 
-    purge_date = TODAY.
+    ASSIGN 
+        purge_date = TODAY
+        cDumpLoc = "C:\tmp\OrderPurge-" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99") + "-" + STRING(TIME,"99999"). 
 
     RUN enable_UI.
+    
+    ASSIGN 
+        fiDumpLoc2:SCREEN-VALUE = cDumpLoc.
     
     APPLY 'value-changed' TO tbArchive.
 
@@ -384,6 +422,97 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE buildHeaders C-Win 
+PROCEDURE buildHeaders :
+DEF VAR cTableList AS CHAR NO-UNDO.
+    DEF VAR cTableName AS CHAR NO-UNDO.
+    DEF VAR cLabelList AS CHAR NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR lv-count AS INT NO-UNDO.
+    
+    ASSIGN 
+        cTableList = "oe-ord,oe-rel,oe-rell,oe-relh,oe-boll,oe-bolh,inv-line,inv-misc,inv-head,oe-ordl,job,job-hdr,job-mat," + 
+                     "job-mch,job-prep,job-farm,job-farm-rctd,pc-prdd,fg-act,mat-act,mch-act,misc-act,fg-bin,oe-ordm".
+        
+    DO iCtr = 1 TO NUM-ENTRIES(cTableList):
+        ASSIGN 
+            cTableName = ENTRY(iCtr,cTableList)
+            cLabelList = "".
+        FIND FIRST _file NO-LOCK WHERE  
+            _file._file-name EQ cTableName
+            NO-ERROR.
+        FOR EACH _field OF _file NO-LOCK BY _field._Order:
+            ASSIGN 
+                lv-count = 1.
+            IF _field._extent = 0 THEN
+                ASSIGN cLabelList = cLabelList + "," + (IF _field._label NE "" AND _field._label NE ? THEN _field._label ELSE _field._field-name).
+            ELSE 
+                ASSIGN cLabelList = cLabelList + "," + (IF _field._label NE "" AND _field._label NE ? THEN _field._label ELSE _field._field-name) + "[1]".
+            DO WHILE lv-count < _field._extent:
+                ASSIGN 
+                    lv-count    = lv-count + 1
+                    cLabelList = cLabelList + "," + (IF _field._label NE "" AND _field._label NE ? THEN _field._label ELSE _field._field-name) + "[" + STRING(lv-count) + "]".
+            END.
+        END.        
+        ASSIGN 
+            cLabelList = TRIM(cLabelList,",").
+        
+        CASE cTableName:
+            WHEN "oe-ord" THEN 
+                PUT STREAM soe-ord UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-rel" THEN 
+                PUT STREAM soe-rel UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-rell" THEN 
+                PUT STREAM soe-rell UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-relh" THEN 
+                PUT STREAM soe-relh UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-boll" THEN 
+                PUT STREAM soe-boll UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-bolh" THEN 
+                PUT STREAM soe-bolh UNFORMATTED cLabelList + CHR(10).
+            WHEN "inv-line" THEN 
+                PUT STREAM sinv-line UNFORMATTED cLabelList + CHR(10).
+            WHEN "inv-misc" THEN 
+                PUT STREAM sinv-misc UNFORMATTED cLabelList + CHR(10).
+            WHEN "inv-head" THEN 
+                PUT STREAM sinv-head UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-ordl" THEN 
+                PUT STREAM soe-ordl UNFORMATTED cLabelList + CHR(10).
+            WHEN "job" THEN 
+                PUT STREAM sjob UNFORMATTED cLabelList + CHR(10).
+            WHEN "job-hdr" THEN 
+                PUT STREAM sjob-hdr UNFORMATTED cLabelList + CHR(10).
+            WHEN "job-mat" THEN 
+                PUT STREAM sjob-mat UNFORMATTED cLabelList + CHR(10).
+            WHEN "job-mch" THEN 
+                PUT STREAM sjob-mch UNFORMATTED cLabelList + CHR(10).
+            WHEN "job-prep" THEN 
+                PUT STREAM sjob-prep UNFORMATTED cLabelList + CHR(10).
+            WHEN "job-farm" THEN 
+                PUT STREAM sjob-farm UNFORMATTED cLabelList + CHR(10).
+            WHEN "job-farm-rctd" THEN 
+                PUT STREAM sjobfarmrctd UNFORMATTED cLabelList + CHR(10).
+            WHEN "pc-prdd" THEN 
+                PUT STREAM spc-prdd UNFORMATTED cLabelList + CHR(10).
+            WHEN "fg-act" THEN 
+                PUT STREAM sfg-act UNFORMATTED cLabelList + CHR(10).
+            WHEN "mat-act" THEN 
+                PUT STREAM smat-act UNFORMATTED cLabelList + CHR(10).
+            WHEN "mch-act" THEN 
+                PUT STREAM smch-act UNFORMATTED cLabelList + CHR(10).
+            WHEN "misc-act" THEN 
+                PUT STREAM smisc-act UNFORMATTED cLabelList + CHR(10).
+            WHEN "fg-bin" THEN 
+                PUT STREAM sfg-bin UNFORMATTED cLabelList + CHR(10).
+            WHEN "oe-ordm" THEN 
+                PUT STREAM soe-ordm UNFORMATTED cLabelList + CHR(10).
+        END CASE.            
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -415,10 +544,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY purge_date begin_order end_order tbInvoices tbArchive fiDumpLoc 
+  DISPLAY purge_date begin_order end_order rsClosed tbInvoices tbArchive 
+          fiDumpLoc fiDumpLoc2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 purge_date begin_order end_order tbInvoices tbArchive 
-         btn-process btn-cancel 
+  ENABLE purge_date begin_order end_order rsClosed tbInvoices tbArchive 
+         btn-Simulate btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -431,7 +561,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-    DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
+DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
     DEFINE VARIABLE v-first-ord LIKE oe-ord.ord-no NO-UNDO.
     DEFINE VARIABLE v-last-ord LIKE oe-ord.ord-no NO-UNDO.
     
@@ -448,6 +578,7 @@ PROCEDURE run-process :
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
     DISABLE TRIGGERS FOR LOAD OF inv-head.
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    DISABLE TRIGGERS FOR LOAD OF oe-ordm.
     DISABLE TRIGGERS FOR LOAD OF job.
     DISABLE TRIGGERS FOR LOAD OF job-hdr.
     DISABLE TRIGGERS FOR LOAD OF job-mat.
@@ -465,6 +596,13 @@ PROCEDURE run-process :
     DEFINE BUFFER b-boll FOR oe-boll.
     DEFINE BUFFER b-rell FOR oe-rell.
 
+    IF NOT lSimulate THEN MESSAGE 
+        "Are you sure you want to delete the orders within the selection parameters?"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE lProcess.
+    IF NOT lSimulate 
+    AND NOT lProcess THEN 
+        RETURN.
+
     DO WITH FRAME {&frame-name}:
         ASSIGN
             purge_date
@@ -474,70 +612,88 @@ PROCEDURE run-process :
             tbArchive.
     END.
     
-    ASSIGN 
-        cDumpLoc = "C:\tmp\OrderPurge-" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99") + "-" + STRING(TIME,"99999"). 
-    
     IF tbArchive THEN DO:
         OS-CREATE-DIR VALUE(cDumpLoc).
-        OUTPUT STREAM soe-ord       TO VALUE (cDumpLoc + "/oe-ord.d") APPEND.    
-        OUTPUT STREAM soe-rel       TO VALUE (cDumpLoc + "/oe-rel.d") APPEND.    
-        OUTPUT STREAM soe-rell      TO VALUE (cDumpLoc + "/oe-rell.d") APPEND.   
-        OUTPUT STREAM soe-relh      TO VALUE (cDumpLoc + "/oe-relh.d") APPEND.   
-        OUTPUT STREAM soe-boll      TO VALUE (cDumpLoc + "/oe-boll.d") APPEND.   
-        OUTPUT STREAM soe-bolh      TO VALUE (cDumpLoc + "/oe-bolh.d") APPEND.   
-        OUTPUT STREAM sinv-line     TO VALUE (cDumpLoc + "/inv-line.d") APPEND.  
-        OUTPUT STREAM sinv-misc     TO VALUE (cDumpLoc + "/inv-misc.d") APPEND.  
-        OUTPUT STREAM sinv-head     TO VALUE (cDumpLoc + "/inv-head.d") APPEND.  
-        OUTPUT STREAM soe-ordl      TO VALUE (cDumpLoc + "/oe-ordl.d") APPEND.   
-        OUTPUT STREAM sjob          TO VALUE (cDumpLoc + "/job.d") APPEND.       
-        OUTPUT STREAM sjob-hdr      TO VALUE (cDumpLoc + "/job-hdr.d") APPEND.   
-        OUTPUT STREAM sjob-mat      TO VALUE (cDumpLoc + "/job-mat.d") APPEND.   
-        OUTPUT STREAM sjob-mch      TO VALUE (cDumpLoc + "/job-mch.d") APPEND.   
-        OUTPUT STREAM sjob-prep     TO VALUE (cDumpLoc + "/job-prep.d") APPEND.  
-        OUTPUT STREAM sjob-farm     TO VALUE (cDumpLoc + "/job-farm.d") APPEND.  
-        OUTPUT STREAM sjobfarmrctd  TO VALUE (cDumpLoc + "/job-farm-rctd.d") APPEND.           
-        OUTPUT STREAM spc-prdd      TO VALUE (cDumpLoc + "/pc-prdd.d") APPEND.   
-        OUTPUT STREAM sfg-act       TO VALUE (cDumpLoc + "/fg-act.d") APPEND.    
-        OUTPUT STREAM smat-act      TO VALUE (cDumpLoc + "/mat-act.d") APPEND.   
-        OUTPUT STREAM smch-act      TO VALUE (cDumpLoc + "/mch-act.d") APPEND.   
-        OUTPUT STREAM smisc-act     TO VALUE (cDumpLoc + "/misc-act.d") APPEND.  
-        OUTPUT STREAM sfg-bin       TO VALUE (cDumpLoc + "/fg-bin.d") APPEND.
+        OUTPUT STREAM soe-ord       TO VALUE (cDumpLoc + "/oe-ord" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.    
+        OUTPUT STREAM soe-rel       TO VALUE (cDumpLoc + "/oe-rel" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.    
+        OUTPUT STREAM soe-rell      TO VALUE (cDumpLoc + "/oe-rell" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM soe-relh      TO VALUE (cDumpLoc + "/oe-relh" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM soe-boll      TO VALUE (cDumpLoc + "/oe-boll" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM soe-bolh      TO VALUE (cDumpLoc + "/oe-bolh" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM sinv-line     TO VALUE (cDumpLoc + "/inv-line" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.  
+        OUTPUT STREAM sinv-misc     TO VALUE (cDumpLoc + "/inv-misc" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.  
+        OUTPUT STREAM sinv-head     TO VALUE (cDumpLoc + "/inv-head" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.  
+        OUTPUT STREAM soe-ordl      TO VALUE (cDumpLoc + "/oe-ordl" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM soe-ordm      TO VALUE (cDumpLoc + "/oe-ordm" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM sjob          TO VALUE (cDumpLoc + "/job" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.       
+        OUTPUT STREAM sjob-hdr      TO VALUE (cDumpLoc + "/job-hdr" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM sjob-mat      TO VALUE (cDumpLoc + "/job-mat" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM sjob-mch      TO VALUE (cDumpLoc + "/job-mch" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM sjob-prep     TO VALUE (cDumpLoc + "/job-prep" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.  
+        OUTPUT STREAM sjob-farm     TO VALUE (cDumpLoc + "/job-farm" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.  
+        OUTPUT STREAM sjobfarmrctd  TO VALUE (cDumpLoc + "/job-farm-rctd" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.           
+        OUTPUT STREAM spc-prdd      TO VALUE (cDumpLoc + "/pc-prdd" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM sfg-act       TO VALUE (cDumpLoc + "/fg-act" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.    
+        OUTPUT STREAM smat-act      TO VALUE (cDumpLoc + "/mat-act" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM smch-act      TO VALUE (cDumpLoc + "/mch-act" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.   
+        OUTPUT STREAM smisc-act     TO VALUE (cDumpLoc + "/misc-act" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.  
+        OUTPUT STREAM sfg-bin       TO VALUE (cDumpLoc + "/fg-bin" + (IF lSimulate THEN ".csv" ELSE ".d")) APPEND.
+        IF lSimulate THEN 
+            RUN buildHeaders.
     END.    
 
     ASSIGN
         v-post-date = purge_date
         v-first-ord = begin_order
-        v-last-ord  = end_order
-        v-process   = NO.
+        v-last-ord  = end_order.
 
-    MESSAGE 
-        "Are you sure you want to delete the orders within the selection parameters?"
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-
-    IF v-process THEN DO:
+    IF lProcess 
+    OR lSimulate THEN DO:
         FOR EACH oe-ord NO-LOCK 
             WHERE oe-ord.company  EQ cocode
             AND oe-ord.ord-date LT v-post-date
             AND oe-ord.ord-no   GE v-first-ord
             AND oe-ord.ord-no   LE v-last-ord
             TRANSACTION:
+                
+            IF rsClosed:SCREEN-VALUE EQ "C" 
+            AND oe-ord.stat NE "C" THEN NEXT.                
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...".
             
+            STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing order misc records".
+            FOR EACH oe-ordm EXCLUSIVE WHERE 
+                oe-ordm.company EQ cocode AND 
+                oe-ordm.ord-no  EQ oe-ord.ord-no:
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM soe-ordm     oe-ordm.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-ordm DELIMITER "," oe-ordm.
+                END.
+                IF lProcess THEN DELETE oe-ordm.
+            END. /* oe-ordm */
+
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release records".
             FOR EACH oe-rel EXCLUSIVE WHERE 
                 oe-rel.company EQ cocode AND 
                 oe-rel.ord-no  EQ oe-ord.ord-no:
-                IF tbArchive THEN EXPORT STREAM soe-rel      oe-rel.
-                DELETE oe-rel.
+                IF tbArchive THEN DO:
+                    IF lProcess THEN EXPORT STREAM soe-rel      oe-rel.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-rel DELIMITER "," oe-rel.
+                END.
+                IF lProcess THEN DELETE oe-rel.
             END. /* oe-rel */
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release line records".
             FOR EACH oe-rell EXCLUSIVE WHERE 
                 oe-rell.company EQ oe-ord.company AND 
                 oe-rell.ord-no  EQ oe-ord.ord-no:
-                IF tbArchive THEN EXPORT STREAM soe-rell     oe-rell.
-                DELETE oe-rell.
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM soe-rell      oe-rell.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-rell DELIMITER "," oe-rell.
+                END.
+                IF lProcess THEN DELETE oe-rell.
             END. /* oe-rell */
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release header records".
@@ -548,17 +704,25 @@ PROCEDURE run-process :
             IF AVAIL oe-relh 
             AND NOT CAN-FIND(FIRST b-rell WHERE 
                             b-rell.r-no EQ oe-relh.r-no AND 
-                            ROWID(b-rell) NE ROWID(oe-relh)) THEN DO:
-                IF tbArchive THEN EXPORT STREAM soe-relh     oe-relh.
-                DELETE oe-relh.
+                            b-rell.ord-no NE oe-relh.ord-no) THEN DO:
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM soe-relh      oe-relh.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-relh DELIMITER "," oe-relh.
+                END.
+                IF lProcess THEN DELETE oe-relh.
             END.
             
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing BOL line records".
             FOR EACH oe-boll EXCLUSIVE WHERE 
                 oe-boll.company EQ oe-ord.company AND 
                 oe-boll.ord-no  EQ oe-ord.ord-no:
-                IF tbArchive THEN EXPORT STREAM soe-boll     oe-boll.
-                DELETE oe-boll.
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM soe-boll      oe-boll.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-boll DELIMITER "," oe-boll.
+                END.
+                IF lProcess THEN DELETE oe-boll.
             END. /* oe-boll */
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing BOL Header records".
@@ -576,29 +740,45 @@ PROCEDURE run-process :
                 FOR EACH inv-line EXCLUSIVE WHERE 
                     inv-line.r-no    EQ inv-head.r-no AND 
                     inv-line.company EQ inv-head.company:
-                    IF tbArchive THEN EXPORT STREAM sinv-line    inv-line.
-                    DELETE inv-line.
+                    IF tbArchive THEN 
+                    DO:
+                        IF lProcess THEN EXPORT STREAM sinv-line      inv-line.
+                        ELSE IF lSimulate THEN EXPORT STREAM sinv-line DELIMITER "," inv-line.
+                    END.
+                    IF lProcess THEN DELETE inv-line.
                 END. /* inv-line */
 
                 STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Misc records".
                 FOR EACH inv-misc EXCLUSIVE WHERE 
                     inv-misc.r-no    EQ inv-head.r-no AND 
                     inv-misc.company EQ inv-head.company:
-                    IF tbArchive THEN EXPORT STREAM sinv-misc    inv-misc.
-                    DELETE inv-misc.
+                    IF tbArchive THEN 
+                    DO:
+                        IF lProcess THEN EXPORT STREAM sinv-misc      inv-misc.
+                        ELSE IF lSimulate THEN EXPORT STREAM sinv-misc DELIMITER "," inv-misc.
+                    END.
+                    IF lProcess THEN DELETE inv-misc.
                 END. /* inv-misc */
 
                 STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Invoice Headers records".
-                IF tbArchive THEN EXPORT STREAM sinv-head    inv-head.
-                DELETE inv-head.
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM sinv-head      inv-head.
+                    ELSE IF lSimulate THEN EXPORT STREAM sinv-head DELIMITER "," inv-head.
+                END.
+                IF lProcess THEN DELETE inv-head.
             END. /* inv-head */
 
             IF AVAIL oe-bolh
             AND NOT CAN-FIND(FIRST b-boll WHERE 
                             b-boll.b-no EQ oe-bolh.b-no AND 
-                            ROWID(b-boll) NE ROWID(oe-bolh)) THEN DO:
-                IF tbArchive THEN EXPORT STREAM soe-bolh     oe-bolh.
-                DELETE oe-bolh.
+                            b-boll.ord-no NE oe-bolh.ord-no) THEN DO:
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM soe-bolh      oe-bolh.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-bolh DELIMITER "," oe-bolh.
+                END.
+                IF lProcess THEN DELETE oe-bolh.
             END.
 
 
@@ -610,6 +790,7 @@ PROCEDURE run-process :
                 STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Job records".
                 FOR EACH job EXCLUSIVE WHERE 
                     job.company EQ cocode AND 
+                    job.job-no  NE "" AND 
                     job.job-no  EQ oe-ordl.job-no AND 
                     job.job-no2 EQ oe-ordl.job-no2:
 
@@ -624,8 +805,12 @@ PROCEDURE run-process :
 
                         {util/dljobkey.i}
 
-                        IF tbArchive THEN EXPORT STREAM sjob-hdr     job-hdr.
-                        DELETE job-hdr.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sjob-hdr      job-hdr.
+                            ELSE IF lSimulate THEN EXPORT STREAM sjob-hdr DELIMITER "," job-hdr.
+                        END.
+                        IF lProcess THEN DELETE job-hdr.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Job material records".
@@ -634,8 +819,12 @@ PROCEDURE run-process :
                         job-mat.job     EQ job.job AND 
                         job-mat.job-no  EQ job.job-no AND 
                         job-mat.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM sjob-mat     job-mat.
-                        DELETE job-mat.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sjob-mat      job-mat.
+                            ELSE IF lSimulate THEN EXPORT STREAM sjob-mat DELIMITER "," job-mat.
+                        END.
+                        IF lProcess THEN DELETE job-mat.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Job machine records".
@@ -644,8 +833,12 @@ PROCEDURE run-process :
                         job-mch.job     EQ job.job AND 
                         job-mch.job-no  EQ job.job-no AND 
                         job-mch.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM sjob-mch     job-mch.
-                        DELETE job-mch.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sjob-mch      job-mch.
+                            ELSE IF lSimulate THEN EXPORT STREAM sjob-mch DELIMITER "," job-mch.
+                        END.
+                        IF lProcess THEN DELETE job-mch.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Job prep records".
@@ -654,8 +847,12 @@ PROCEDURE run-process :
                         job-prep.job     EQ job.job AND 
                         job-prep.job-no  EQ job.job-no AND 
                         job-prep.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM sjob-prep    job-prep.
-                        DELETE job-prep.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sjob-prep      job-prep.
+                            ELSE IF lSimulate THEN EXPORT STREAM sjob-prep DELIMITER "," job-prep.
+                        END.
+                        IF lProcess THEN DELETE job-prep.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Job farm records".
@@ -663,8 +860,12 @@ PROCEDURE run-process :
                         job-farm.company EQ job.company AND 
                         job-farm.job-no  EQ job.job-no AND 
                         job-farm.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM sjob-farm    job-farm.
-                        DELETE job-farm.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sjob-farm      job-farm.
+                            ELSE IF lSimulate THEN EXPORT STREAM sjob-farm DELIMITER "," job-farm.
+                        END.
+                        IF lProcess THEN DELETE job-farm.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Job farm receipts records".
@@ -672,8 +873,12 @@ PROCEDURE run-process :
                         job-farm-rctd.company EQ job.company AND 
                         job-farm-rctd.job-no  EQ job.job-no AND 
                         job-farm-rctd.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM sjobfarmrctd job-farm-rctd.
-                        DELETE job-farm-rctd.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sjobfarmrctd      job-farm-rctd.
+                            ELSE IF lSimulate THEN EXPORT STREAM sjobfarmrctd DELIMITER "," job-farm-rctd.
+                        END.
+                        IF lProcess THEN DELETE job-farm-rctd.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing ProdCtrl detail records".
@@ -682,8 +887,12 @@ PROCEDURE run-process :
                         pc-prdd.job     EQ job.job AND 
                         pc-prdd.job-no  EQ job.job-no AND 
                         pc-prdd.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM spc-prdd     pc-prdd.
-                        DELETE pc-prdd.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM spc-prdd      pc-prdd.
+                            ELSE IF lSimulate THEN EXPORT STREAM spc-prdd DELIMITER "," pc-prdd.
+                        END.
+                        IF lProcess THEN DELETE pc-prdd.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing FG activity records".
@@ -692,8 +901,12 @@ PROCEDURE run-process :
                         fg-act.job     EQ job.job AND 
                         fg-act.job-no  EQ job.job-no AND 
                         fg-act.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM sfg-act      fg-act.
-                        DELETE fg-act.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sfg-act      fg-act.
+                            ELSE IF lSimulate THEN EXPORT STREAM sfg-act DELIMITER "," fg-act.
+                        END.
+                        IF lProcess THEN DELETE fg-act.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing RM activity records".
@@ -702,8 +915,12 @@ PROCEDURE run-process :
                         mat-act.job     EQ job.job AND 
                         mat-act.job-no  EQ job.job-no AND 
                         mat-act.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM smat-act     mat-act.
-                        DELETE mat-act.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM smat-act      mat-act.
+                            ELSE IF lSimulate THEN EXPORT STREAM smat-act DELIMITER "," mat-act.
+                        END.
+                        IF lProcess THEN DELETE mat-act.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Machine activity records".
@@ -712,8 +929,12 @@ PROCEDURE run-process :
                         mch-act.job     EQ job.job AND 
                         mch-act.job-no  EQ job.job-no AND 
                         mch-act.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM smch-act     mch-act.
-                        DELETE mch-act.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM smch-act      mch-act.
+                            ELSE IF lSimulate THEN EXPORT STREAM smch-act DELIMITER "," mch-act.
+                        END.
+                        IF lProcess THEN DELETE mch-act.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing Misc activity records".
@@ -722,8 +943,12 @@ PROCEDURE run-process :
                         misc-act.job     EQ job.job AND 
                         misc-act.job-no  EQ job.job-no AND 
                         misc-act.job-no2 EQ job.job-no2:
-                        IF tbArchive THEN EXPORT STREAM smisc-act    misc-act.
-                        DELETE misc-act.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM smisc-act      misc-act.
+                            ELSE IF lSimulate THEN EXPORT STREAM smisc-act DELIMITER "," misc-act.
+                        END.
+                        IF lProcess THEN DELETE misc-act.
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing FG Bin (empty) records".
@@ -735,8 +960,12 @@ PROCEDURE run-process :
                         fg-bin.qty        EQ 0:
                         /* Moved here so indexing ok on for each */
                         IF TRIM(fg-bin.i-no) EQ "" THEN NEXT.
-                        IF tbArchive THEN EXPORT STREAM sfg-bin      fg-bin.
-                        DELETE fg-bin.
+                        IF tbArchive THEN 
+                        DO:
+                            IF lProcess THEN EXPORT STREAM sfg-bin      fg-bin.
+                            ELSE IF lSimulate THEN EXPORT STREAM sfg-bin DELIMITER "," fg-bin.
+                        END.
+                        IF lProcess THEN DELETE fg-bin.
                     END.
 
                     IF job.exported THEN DO:
@@ -745,20 +974,32 @@ PROCEDURE run-process :
                     END.
 
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...deleting job".
-                    IF tbArchive THEN EXPORT STREAM sjob         job.
-                    DELETE job.
+                    IF tbArchive THEN 
+                    DO:
+                        IF lProcess THEN EXPORT STREAM sjob      job.
+                        ELSE IF lSimulate THEN EXPORT STREAM sjob DELIMITER "," job.
+                    END.
+                    IF lProcess THEN DELETE job.
                 END.
 
                 STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...deleting order line".
                 FIND CURRENT oe-ordl EXCLUSIVE.
-                IF tbArchive THEN EXPORT STREAM soe-ordl     oe-ordl.
-                DELETE oe-ordl.
+                IF tbArchive THEN 
+                DO:
+                    IF lProcess THEN EXPORT STREAM soe-ordl     oe-ordl.
+                    ELSE IF lSimulate THEN EXPORT STREAM soe-ordl DELIMITER "," oe-ordl.
+                END.
+                IF lProcess THEN DELETE oe-ordl.
             END.
 
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...deleting order header".
             FIND CURRENT oe-ord EXCLUSIVE.
-            IF tbArchive THEN EXPORT STREAM soe-ord      oe-ord.
-            DELETE oe-ord.
+            IF tbArchive THEN 
+            DO:
+                IF lProcess THEN EXPORT STREAM soe-ord      oe-ord.
+                ELSE IF lSimulate THEN EXPORT STREAM soe-ord DELIMITER "," oe-ord.
+            END.
+            IF lProcess THEN DELETE oe-ord.
         END. /* oe-ord */
 
         IF tbArchive THEN DO:
@@ -772,6 +1013,7 @@ PROCEDURE run-process :
             OUTPUT STREAM sinv-misc     CLOSE. 
             OUTPUT STREAM sinv-head     CLOSE. 
             OUTPUT STREAM soe-ordl      CLOSE. 
+            OUTPUT STREAM soe-ordm      CLOSE. 
             OUTPUT STREAM sjob          CLOSE. 
             OUTPUT STREAM sjob-hdr      CLOSE. 
             OUTPUT STREAM sjob-mat      CLOSE. 
