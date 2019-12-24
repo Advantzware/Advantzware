@@ -41,6 +41,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
+def var lv-current-page as int INIT 1 no-undo.
+def var li-prev-page as int INIT 1 no-undo.
+DEF VAR li-pageb4VendCost AS INT NO-UNDO.
 
 /*  if item-spec notes window need un-comment preprocedure */
 &scoped-define item_spec RMItem
@@ -216,7 +219,7 @@ ASSIGN FRAME FRAME-D:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME FRAME-D
    UNDERLINE                                                            */
@@ -845,6 +848,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  RUN select-page (li-pageb4VendCost).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
@@ -853,7 +873,8 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-DEF VAR lv-current-page AS INT NO-UNDO.
+  li-prev-page = lv-current-page. 
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -873,7 +894,9 @@ DEF VAR lv-current-page AS INT NO-UNDO.
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" '  ).
         /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).          
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).    
+        li-pageb4VendCost = li-prev-page.              
+            
         RUN select-page (10).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
         RETURN.
@@ -930,7 +953,7 @@ PROCEDURE local-create-objects :
     
     /* Links to SmartWindow */
     /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
-    /*    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_vendcostmtx ).*/
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
     
     /* Adjust the tab order of the smart objects. */
     END. /* Page 10 */

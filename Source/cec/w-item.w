@@ -50,6 +50,7 @@ def var li-current-page as int INIT 1 no-undo.
 def var li-prev-page as int INIT 1 no-undo.
 DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
 DEF VAR llPage11Opened AS LOGICAL NO-UNDO.
+DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -920,6 +921,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+   RUN SELECT-page (li-page-b4VendCost).
+   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
 PROCEDURE import-file :
 /*------------------------------------------------------------------------------
@@ -946,21 +964,8 @@ PROCEDURE local-change-page :
   
   RUN get-attribute ('Current-Page':U).
   ASSIGN li-prev-page = li-current-page 
-         li-current-page = int(return-value).
-      
-  if li-current-page = 5 AND lNewVendorItemCost then 
-  do:
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
-/*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
-     RUN select-page (11).
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
-     llPage11Opened = YES.
-     return error.  
-  END.
+         li-current-page = int(return-value).        
     
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -975,11 +980,23 @@ PROCEDURE local-change-page :
             RUN ipShowBtn IN h_vp-rmov (FALSE).
     END.
    
-    IF li-prev-page = 11 AND llPage11Opened THEN DO:
-       RUN select-page(lv-current-page) .
-       llPage11Opened = NO.      
-    END.
-     
+    /*    IF li-prev-page = 11 AND llPage11Opened THEN DO:*/
+    /*       RUN select-page(lv-current-page) .           */
+    /*       llPage11Opened = NO.                         */
+    /*    END.                                            */
+    
+    if li-current-page = 5 AND lNewVendorItemCost then 
+    do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
+        ASSIGN li-page-b4VendCost = li-prev-page.        
+        RUN select-page (11).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
+        llPage11Opened = YES.
+      
+    END. 
     {methods/winReSizePgChg.i}
   
 END PROCEDURE.
@@ -1030,7 +1047,7 @@ PROCEDURE local-create-objects :
         RUN set-position IN h_vendcostmtx ( 5.91 , 7.60 ) NO-ERROR. 
     /* Links to SmartWindow */
     /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
-    /*    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_vendcostmtx ).*/
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
     
     /* Adjust the tab order of the smart objects. */
     END. /* Page 10 */
