@@ -1,81 +1,93 @@
 /*oe/exp2corr.P Export TO CORRTRIM  order.dat */
+//{custom/gcompany.i}
+//{custom/gloc.i}
+//{custom/getcmpny.i}
+//{custom/getloc.i}
+{sys/inc/VAR.i SHARED}
+/*assign            */
+/* cocode = gcompany*/
+/* locode = gloc.   */
+{cec/descalc.i NEW}
+{jcrep/r-ticket.i "new shared"}
+{cecrep/jobtick.i "new shared"}
 
-def shared temp-table tt-job-hdr NO-UNDO field jobhdr-rowid as rowid. 
+DEF SHARED TEMP-TABLE tt-job-hdr NO-UNDO FIELD jobhdr-rowid AS ROWID. 
 
-def var jobNumber as cha form "x(10)" no-undo.
-DEF VAR DOWNLOAD-RECORD1     AS C FORMAT "X(256)" no-undo.
-DEF VAR DOWNLOAD-RECORD2     AS C FORMAT "X(256)" no-undo.
-DEF VAR DOWNLOAD-RECORD3     AS C FORMAT "X(256)" no-undo.
-DEF VAR DOWNLOAD-RECORD4     AS C FORMAT "X(256)" no-undo.
-DEF VAR k_frac as dec init 6.25 no-undo.
-def var i as int no-undo.
-def var CORR-SCORE-DECIMAL as decimal extent 17 no-undo.
-def var DOWNLOAD-TYPE-EXIT as cha form "X" no-undo.
-def var v-wid as int no-undo.
-def var v-len as int no-undo.
-DEF VAR TEMP1 AS I no-undo.
-DEF VAR TEMP2 AS I no-undo.
-DEF VAR WORK1 AS C FORMAT "X(20)" no-undo.
+DEF VAR jobNumber AS cha FORM "x(10)" NO-UNDO.
+DEF VAR DOWNLOAD-RECORD1     AS C FORMAT "X(256)" NO-UNDO.
+DEF VAR DOWNLOAD-RECORD2     AS C FORMAT "X(256)" NO-UNDO.
+DEF VAR DOWNLOAD-RECORD3     AS C FORMAT "X(256)" NO-UNDO.
+DEF VAR DOWNLOAD-RECORD4     AS C FORMAT "X(256)" NO-UNDO.
+DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
+// def var i as int no-undo.
+DEF VAR CORR-SCORE-DECIMAL AS DECIMAL EXTENT 17 NO-UNDO.
+DEF VAR DOWNLOAD-TYPE-EXIT AS cha FORM "X" NO-UNDO.
+DEF VAR v-wid AS INT NO-UNDO.
+DEF VAR v-len AS INT NO-UNDO.
+DEF VAR TEMP1 AS I NO-UNDO.
+DEF VAR TEMP2 AS I NO-UNDO.
+DEF VAR WORK1 AS C FORMAT "X(20)" NO-UNDO.
 DEF VAR v-sheets AS INT NO-UNDO.
+DEFINE VARIABLE lNoScores AS LOGICAL NO-UNDO.
 
-DEF VAR DOWNLOAD-STYPE1      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE1      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE2      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE2      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE3      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE3      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE4      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE4      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE5      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE5      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE6      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE6      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE7      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE7      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE8      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE8      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE9      AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE9      AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE10     AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE10     AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE11     AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE11     AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE12     AS C FORMAT "XX" no-undo.
-DEF VAR DOWNLOAD-SCORE12     AS C FORMAT "X(6)" no-undo.
-DEF VAR DOWNLOAD-STYPE13     AS C FORMAT "XX" INIT "26" no-undo.
-DEF VAR DOWNLOAD-SCORE13     AS C FORMAT "X(6)" INIT "000000" no-undo.
-DEF VAR DOWNLOAD-STYPE14     AS C FORMAT "XX" INIT "26" no-undo.
-DEF VAR DOWNLOAD-SCORE14     AS C FORMAT "X(6)" INIT "000000" no-undo.
-DEF VAR DOWNLOAD-STYPE15     AS C FORMAT "XX" INIT "26" no-undo.
-DEF VAR DOWNLOAD-SCORE15     AS C FORMAT "X(6)" INIT "000000" no-undo.
-DEF VAR DOWNLOAD-STYPE16     AS C FORMAT "XX" INIT "26" no-undo.
-DEF VAR DOWNLOAD-SCORE16     AS C FORMAT "X(6)" INIT "000000" no-undo.
-DEF VAR DOWNLOAD-STYPE17     AS C FORMAT "XX" INIT "26" no-undo.
-DEF VAR DOWNLOAD-SCORE17     AS C FORMAT "X(6)" INIT "000000" no-undo.
-DEF VAR DOWNLOAD-FILLER6     AS C FORMAT "X(6)" INIT "      " no-undo.
-DEF VAR DOWNLOAD-STATION1    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION2    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION3    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION4    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION5    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION6    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION7    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION8    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION9    AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-STATION10   AS C FORMAT "X(4)" no-undo.
-DEF VAR DOWNLOAD-FILLER71    AS C FORMAT "X(71)" no-undo.
+DEF VAR DOWNLOAD-STYPE1      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE1      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE2      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE2      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE3      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE3      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE4      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE4      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE5      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE5      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE6      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE6      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE7      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE7      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE8      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE8      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE9      AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE9      AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE10     AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE10     AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE11     AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE11     AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE12     AS C FORMAT "XX" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE12     AS C FORMAT "X(6)" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE13     AS C FORMAT "XX" INIT "26" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE13     AS C FORMAT "X(6)" INIT "000000" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE14     AS C FORMAT "XX" INIT "26" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE14     AS C FORMAT "X(6)" INIT "000000" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE15     AS C FORMAT "XX" INIT "26" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE15     AS C FORMAT "X(6)" INIT "000000" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE16     AS C FORMAT "XX" INIT "26" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE16     AS C FORMAT "X(6)" INIT "000000" NO-UNDO.
+DEF VAR DOWNLOAD-STYPE17     AS C FORMAT "XX" INIT "26" NO-UNDO.
+DEF VAR DOWNLOAD-SCORE17     AS C FORMAT "X(6)" INIT "000000" NO-UNDO.
+DEF VAR DOWNLOAD-FILLER6     AS C FORMAT "X(6)" INIT "      " NO-UNDO.
+DEF VAR DOWNLOAD-STATION1    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION2    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION3    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION4    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION5    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION6    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION7    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION8    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION9    AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-STATION10   AS C FORMAT "X(4)" NO-UNDO.
+DEF VAR DOWNLOAD-FILLER71    AS C FORMAT "X(71)" NO-UNDO.
     
-DEF VAR DOWNLOADEDORDERS AS C FORMAT "X(11)" EXTENT 5000 no-undo.
-DEF VAR DOWNLOADCOUNT AS I no-undo.
+DEF VAR DOWNLOADEDORDERS AS C FORMAT "X(11)" EXTENT 5000 NO-UNDO.
+DEF VAR DOWNLOADCOUNT AS I NO-UNDO.
     
-DEF VAR cocode AS CHAR NO-UNDO.
+//DEF VAR cocode AS CHAR NO-UNDO.
 DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cOutputDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lNetQty AS LOGICAL NO-UNDO.
 
 FOR EACH tt-job-hdr,
-    first job-hdr where rowid(job-hdr) = tt-job-hdr.jobhdr-rowid:
+    FIRST job-hdr WHERE ROWID(job-hdr) = tt-job-hdr.jobhdr-rowid:
 
     cocode = job-hdr.company.
     LEAVE.
@@ -95,7 +107,7 @@ RUN sys/ref/nk1look.p (cocode, "JobExport", "I", NO, NO, "", "",
     OUTPUT cReturn, OUTPUT lrecFound).
 IF lRecfound THEN    
     lNetQty = cReturn EQ '1'.
-    
+    lNetQty = YES.
 {sys/inc/f16to32.i}
     
 /*=====
@@ -223,7 +235,7 @@ PUT UNFORMATTED download-record1 SKIP.
 
 ORDLOOP:
 FOR EACH tt-job-hdr,
-    first job-hdr where rowid(job-hdr) = tt-job-hdr.jobhdr-rowid
+    FIRST job-hdr WHERE ROWID(job-hdr) = tt-job-hdr.jobhdr-rowid
     /*job-hdr no-lock
     WHERE not can-find(first asi2corr where asi2corr.company = job-hdr.company
             and asi2corr.job-no = job-hdr.job-no
@@ -268,30 +280,35 @@ DOWNLOAD-ORDER-ID = SUBSTRING(WORK1,1,10).
 */
 
 ASSIGN
-jobNumber = (if length(trim(job-hdr.job-no)) < 6 then fill(" ", 6 - length(job-hdr.job-no))
-           else "") +   trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99") + " "
+jobNumber = (IF LENGTH(TRIM(job-hdr.job-no)) < 6 THEN FILL(" ", 6 - length(job-hdr.job-no))
+           ELSE "") +   trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99") + " "
 download-record2 = ""
-substring(DOWNLOAD-RECORD2,1,1) = "D"
+SUBSTRING(DOWNLOAD-RECORD2,1,1) = "D"
 SUBSTRING(download-record2,30,10) = jobNumber.
 
 /*==== data :  D                            M9227-24  ===*/
 
 PUT UNFORMATTED download-record2 SKIP.
 
-find FIRST cust where cust.company = job-hdr.company
-         and cust.cust-no = job-hdr.cust-no no-lock.
+FIND FIRST cust WHERE cust.company = job-hdr.company
+         AND cust.cust-no = job-hdr.cust-no NO-LOCK.
 /*find first ef where ef.company = job-hdr.company
                and ef.est-no = job-hdr.est-no no-lock no-error.
 */               
-FOR each ef where ef.company = job-hdr.company
-              and ef.est-no = job-hdr.est-no 
+FOR EACH ef WHERE ef.company = job-hdr.company
+              AND ef.est-no = job-hdr.est-no 
               AND ef.form-no > 0 NO-LOCK:
 
-find first eb OF ef /*where eb.company = job-hdr.company
+FIND FIRST eb OF ef /*where eb.company = job-hdr.company
                 and eb.est-no = job-hdr.est-no
                 and eb.stock-no = job-hdr.i-no*/
-         no-lock no-error.                        
-
+         NO-LOCK NO-ERROR.     
+/* See #56309 */                   
+IF AVAIL eb AND eb.k-wid EQ 0 AND eb.k-len EQ 0 THEN 
+  lNoScores = TRUE.
+ELSE 
+  lNoScores = FALSE.
+  
 RELEASE oe-ordl.
 RELEASE oe-ord.
 
@@ -312,46 +329,58 @@ END.
 
 ASSIGN
 download-record1 = ""
-substring(download-record1,1,1) = "A"  /* download type */ 
-substring(download-record1,2,4) = "86  " /* Corr-ID*/
+SUBSTRING(download-record1,1,1) = "A"  /* download type */ 
+SUBSTRING(download-record1,2,4) = "86  " /* Corr-ID*/
 SUBSTRING(download-record1,6,12) = ef.board /* ef.TEST + "-" + ef.Flute ef. */
 SUBSTRING(download-record1,18,6) = "      "
 SUBSTRING(download-record1,18,6) = "      "
-SUBSTRING(download-record1,24,6) = if job-hdr.due-date <> ? then (SUBSTRING(STRING(YEAR(job-hdr.due-date)),3,2)
+SUBSTRING(download-record1,24,6) = IF job-hdr.due-date <> ? THEN (SUBSTRING(STRING(YEAR(job-hdr.due-date)),3,2)
                                  + STRING(MONTH(job-hdr.due-date),"99")
                                  + STRING(DAY(job-hdr.due-date),"99"))
-                                 else "      "
+                                 ELSE "      "
 v-len = {sys/inc/k16.i ef.nsh-len} * 100                                 
 v-wid = {sys/inc/k16.i ef.nsh-wid} * 100
 SUBSTRING(download-record1,30,10) = /*string(jobNumber,"x(10)")*/
-   (if length(trim(job-hdr.job-no)) < 6 then fill(" ", 6 - length(job-hdr.job-no))
-           else "") + trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") + string(ef.form-no,"99")
-SUBSTRING(download-record1,40,6) = string(v-wid) /*BLANK WIDTH. 16ths*/ 
-SUBSTRING(download-record1,46,6) = string(v-len)/* BLANK LENGTH*/
+   (IF LENGTH(TRIM(job-hdr.job-no)) < 6 THEN FILL(" ", 6 - length(job-hdr.job-no))
+           ELSE "") + trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") + string(ef.form-no,"99")
+SUBSTRING(download-record1,40,6) = STRING(IF lNoScores THEN 0 ELSE v-wid) /*BLANK WIDTH. 16ths*/ 
+SUBSTRING(download-record1,46,6) = STRING(IF lNoScores THEN 0 ELSE v-len)/* BLANK LENGTH*/
 SUBSTRING(download-record1,52,20) = cust.NAME
 SUBSTRING(download-record1,72,10) = job-hdr.cust-no
 SUBSTRING(download-record1,82,10) = job-hdr.po-no  /*cust-po*/
 SUBSTRING(download-record1,92,10) = "          "   /* download-item*/
 v-sheets = 0.
-
 /*SUBSTRING(download-record1,102,6) = string(job-hdr.qty)  /*download-quantity*/ */
 IF lNetQty THEN DO:
     FOR EACH job-mat NO-LOCK 
         WHERE job-mat.company EQ job-hdr.company
-          AND job-mat.job-no eq job-hdr.job-no
-          AND job-mat.job-no2 eq job-hdr.job-no2
+          AND job-mat.job-no EQ job-hdr.job-no
+          AND job-mat.job-no2 EQ job-hdr.job-no2
         :
         FIND ITEM NO-LOCK 
             WHERE item.company EQ job-hdr.company
             AND item.i-no    EQ job-mat.rm-i-no
             NO-ERROR.
-        IF AVAILABLE ITEM 
-           AND (item.mat-type EQ "B" OR item.mat-type eq "P") THEN 
-        DO:
-            v-sheets = job-mat.qty.
+
+            /* #56309 - correction for when more than 1 up */
+            IF AVAIL eb AND eb.num-up GT 1 THEN DO:
+              for each job-mch no-lock
+                where job-mch.company eq job-hdr.company
+                  and job-mch.job-no eq job-hdr.job-no
+                  and job-mch.job-no2 eq job-hdr.job-no2
+                :
+              
+                v-sheets = job-mch.run-qty.
+                leave.
+              end.
+              if v-sheets = 0 then 
+                v-sheets = job-hdr.qty.
+              
+            END.
+            ELSE 
+              v-sheets = job-mat.qty.
             LEAVE.          
-        END.
-         
+   
     END.
 END.
 ELSE DO:
@@ -373,7 +402,7 @@ END.
 IF v-sheets EQ 0 THEN 
   v-sheets = job-hdr.qty.
 ASSIGN
-SUBSTRING(download-record1,102,6) = string(v-sheets)  /*download-quantity*/
+SUBSTRING(download-record1,102,6) = STRING(v-sheets)  /*download-quantity*/
 SUBSTRING(download-record1,111,3) = "   " /* std-over-pct*/
 SUBSTRING(download-record1,117,1) =  " " /* shy control - Y/N*/
 SUBSTRING(download-record1,118,2) =  "  " /* max shy */
@@ -514,9 +543,13 @@ DOWNLOAD-TYPE-EXIT = "X".
 
 /***START 051900 - CORRECT SHEET WIDTH FROM BECOMMING A SCORE
                    WHEN MULTIPLE WIDTH OUTS ARE USED***/
-do i = 1 to 12:
-   CORR-SCORE-DECIMAL[i] = eb.k-wid-array2[i].
-end.
+IF lNoScores THEN 
+    Corr-score-decimal = 0.
+ELSE DO:
+    DO i = 1 TO 12:
+       CORR-SCORE-DECIMAL[i] = eb.k-wid-array2[i].
+    END.
+END.
 
 ASSIGN
 TEMP1 = TRUNCATE(CORR-SCORE-DECIMAL[1],0)
@@ -644,19 +677,19 @@ IF PRODUCTION-MASTER.ROUTING = 10 THEN DOWNLOAD-STATION2 = "SHP".
 IF PRODUCTION-MASTER.ROUTING = 11 THEN DOWNLOAD-STATION2 = "...".
 IF PRODUCTION-MASTER.ROUTING = 12 THEN DOWNLOAD-STATION2 = "FPR". /*10/16/01*/
 ==========*/
-  for EACH job-mch WHERE job-mch.company = job-hdr.company
+  FOR EACH job-mch WHERE job-mch.company = job-hdr.company
             AND ASI.job-mch.job = job-hdr.job
             AND ASI.job-mch.job-no = job-hdr.job-no
             AND ASI.job-mch.job-no2 = job-hdr.job-no2
             AND asi.job-mch.frm = ef.form-no
-            use-index line-idx NO-LOCK :
-     if DOWNLOAD-STATION2 <> "" then do:
-        DOWNLOAD-STATION2 = substring(job-mch.m-code,1,4).
-        leave.
-     end.
-     if job-mch.m-code = "corrug" then DOWNLOAD-STATION2 = job-mch.m-code.
+            USE-INDEX line-idx NO-LOCK :
+     IF DOWNLOAD-STATION2 <> "" THEN DO:
+        DOWNLOAD-STATION2 = SUBSTRING(job-mch.m-code,1,4).
+        LEAVE.
+     END.
+     IF job-mch.m-code = "corrug" THEN DOWNLOAD-STATION2 = job-mch.m-code.
           
-  end. 
+  END. 
     
 ASSIGN
 DOWNLOAD-STATION3 =  "    "
@@ -775,20 +808,20 @@ DOWNLOADEDORDERS[DOWNLOADCOUNT] = jobNumber /*ORDERS.ORDER-NUMBER*/ .
 /* /*102600*/ */
 /*    */
 
-  find first asi2corr where asi2corr.company = job-hdr.company
-           and asi2corr.job-no = job-hdr.job-no
-           and asi2corr.job-no2 = job-hdr.job-no2
-           no-lock no-error.
-  if not avail asi2corr then do:
-     create asi2corr.
-     assign asi2corr.company = job-hdr.company
+  FIND FIRST asi2corr WHERE asi2corr.company = job-hdr.company
+           AND asi2corr.job-no = job-hdr.job-no
+           AND asi2corr.job-no2 = job-hdr.job-no2
+           NO-LOCK NO-ERROR.
+  IF NOT AVAIL asi2corr THEN DO:
+     CREATE asi2corr.
+     ASSIGN asi2corr.company = job-hdr.company
             asi2corr.job-no = job-hdr.job-no
             asi2corr.job-no2 = job-hdr.job-no2
-            asi2corr.download-date = today
-            asi2corr.download-time = time
-            asi2corr.download-user = userid('nosweat').
+            asi2corr.download-date = TODAY
+            asi2corr.download-time = TIME
+            asi2corr.download-user = USERID('nosweat').
      RELEASE asi2corr.
-  end.         
+  END.         
 
 END.  /* each ef */
 
@@ -799,3 +832,5 @@ PUT UNFORMATTED download-record4 SKIP.
 /*DISP DOWNLOAD-RECORD4 WITH NO-LABELS NO-BOX FRAME FF WIDTH 256.*/
 PAUSE 0.
 OUTPUT CLOSE.
+
+
