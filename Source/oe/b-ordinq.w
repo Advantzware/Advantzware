@@ -165,7 +165,6 @@ ll-sort-asc = NO /*oeinq*/.
     IF lv-sort-by EQ 'job-no'    THEN STRING(oe-ordl.job-no,'x(6)') + STRING(oe-ordl.job-no2,'99')ELSE ~
     IF lv-sort-by EQ 'cad-no'    THEN itemfg.cad-no ELSE ~
     IF lv-sort-by EQ 's-man'     THEN oe-ordl.s-man[1] ELSE ~
-    IF lv-sort-by EQ 'e-num'     THEN STRING(oe-ordl.e-num) ELSE ~
                                       STRING(YEAR(oe-ordl.req-date),'9999') + STRING(MONTH(oe-ordl.req-date),'99') + STRING(DAY(oe-ordl.req-date),'99')
 
 &SCOPED-DEFINE sortby BY oe-ordl.ord-no BY oe-ordl.i-no
@@ -212,7 +211,7 @@ oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
 get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-xfer-qty () @ ld-xfer-qty ~
 oe-ordl.inv-qty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
 get-wip() @ li-wip get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem ~
-oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
+oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
 getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
 fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
@@ -498,7 +497,6 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.i-name
       oe-ordl.line
       oe-ordl.po-no-po
-      oe-ordl.e-num
       oe-ordl.whsed
       oe-ordl.s-man[1]
       oe-ordl.managed), 
@@ -546,7 +544,6 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       oe-ordl.line FORMAT ">>99":U
       oe-ordl.po-no-po FORMAT ">>>>>9":U
-      oe-ordl.e-num FORMAT ">>>>>9":U
       oe-ordl.whsed FORMAT "yes/no":U
       get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Tot Returned" FORMAT ">>>,>>9":U
@@ -779,22 +776,21 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.oe-ordl.po-no-po
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   = ASI.oe-ordl.e-num
-     _FldNameList[30]   > ASI.oe-ordl.whsed
+     _FldNameList[29]   > ASI.oe-ordl.whsed
 "oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[31]   > "_<CALC>"
+     _FldNameList[30]   > "_<CALC>"
 "get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > "_<CALC>"
+     _FldNameList[31]   > "_<CALC>"
 "getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > "_<CALC>"
+     _FldNameList[32]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > ASI.oe-ordl.s-man[1]
+     _FldNameList[33]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > "_<CALC>"
+     _FldNameList[34]   > "_<CALC>"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > ASI.oe-ordl.managed
+     _FldNameList[35]   > ASI.oe-ordl.managed
 "oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-_FldNameList[37]   > "_<CALC>"
+_FldNameList[36]   > "_<CALC>"
 "fnPrevOrder(oe-ordl.est-no,oe-ordl.ord-no) @ iPreOrder" "Prev Order" ">>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
