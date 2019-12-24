@@ -863,10 +863,19 @@ PROCEDURE local-delete-record :
             INPUT cMsgID
             ).
                 
-     if not ll-ans then return error.
+    IF NOT ll-ans THEN
+        RETURN ERROR.
 
-     /* Dispatch standard ADM method.                             */
-     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+    IF ap-inv.user-id NE USERID("ASI") THEN DO:
+        MESSAGE "This record was created by another user (" + ap-inv.user-id + "). Do you still want to delete it?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lContinue AS LOGICAL.
+        
+        IF NOT lContinue THEN
+            RETURN ERROR.
+    END.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
 END PROCEDURE.
 

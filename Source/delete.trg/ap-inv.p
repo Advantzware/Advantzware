@@ -23,13 +23,6 @@ IF ap-inv.posted THEN DO:
   RETURN ERROR.
 END.
 
-IF apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN DO:
-  MESSAGE "This invoice may only be deleted by UserID: " +
-          TRIM(ap-inv.user-id) + "..."
-       VIEW-AS ALERT-BOX ERROR.
-  RETURN ERROR.
-END.
-
 for each ap-invl exclusive-lock where ap-invl.i-no = ap-inv.i-no:
       find first po-ordl
           where po-ordl.company   eq ap-inv.company
