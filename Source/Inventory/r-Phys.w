@@ -56,19 +56,7 @@ ELSE
      
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
-IF ipcInventoryType EQ "FG" THEN 
-    RUN sys/ref/nk1look.p (cocode, "FGCountDefaultPath", "C", NO, NO, "", "", 
-                              OUTPUT cNk1Char, OUTPUT lfound).
-ELSE                           
-    RUN sys/ref/nk1look.p (cocode, "RMCountDefaultPath", "C", NO, NO, "", "", 
-                              OUTPUT cNk1Char, OUTPUT lfound).
-IF lFound THEN
-    cSnapshotFolder = cNk1Char NO-ERROR.    
-ELSE
-    cSnapshotFolder = ".\custfiles".
-    
-cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "/").
-cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "\").
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,12 +74,12 @@ cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "\").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 fiTransDate fiFromItem ~
-fiEndItem fiFromBin fiToBin fiWhseList tb_fullReport fiSnapshotFile ~
-btChooseFile tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep ~
+fiEndItem fiFromBin fiToBin fiWhseList tb_fullReport btChooseFile ~
+fiSnapshotID tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep ~
 tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiTransDate fiFromItem fiEndItem fiFromBin ~
-fiToBin fiWhseList tb_fullReport fiSnapshotFolder fiSnapshotFile tb_show-fo ~
-tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
+fiToBin fiWhseList tb_fullReport fiSnapshotID tb_show-fo tb_show-vo ~
+tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -99,19 +87,15 @@ tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win
-FUNCTION fAddSpaceToList RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win 
+FUNCTION fAddSpaceToList RETURNS CHARACTER
   ( ipcList AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -147,15 +131,10 @@ DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSnapshotFile AS CHARACTER FORMAT "X(256)":U 
-     LABEL "SnapshotFile" 
+DEFINE VARIABLE fiSnapshotID AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+     LABEL "Snapshot ID" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiSnapshotFolder AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 34.4 BY 1
-     FGCOLOR 12  NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzz" 
      LABEL "To Bin" 
@@ -239,9 +218,8 @@ DEFINE FRAME FRAME-A
      fiToBin AT ROW 5.81 COL 55 COLON-ALIGNED WIDGET-ID 20
      fiWhseList AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 30
      tb_fullReport AT ROW 9.57 COL 23 WIDGET-ID 2
-     fiSnapshotFolder AT ROW 10.76 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fiSnapshotFile AT ROW 11.76 COL 20 COLON-ALIGNED WIDGET-ID 38
-     btChooseFile AT ROW 11.76 COL 75 WIDGET-ID 34
+     btChooseFile AT ROW 11.71 COL 42 WIDGET-ID 34
+     fiSnapshotID AT ROW 11.76 COL 20 COLON-ALIGNED WIDGET-ID 38
      tb_show-fo AT ROW 15.05 COL 22
      tb_show-vo AT ROW 16 COL 22
      tb_prep AT ROW 16.95 COL 22 WIDGET-ID 4
@@ -256,19 +234,16 @@ DEFINE FRAME FRAME-A
      "(Date on the history tab)" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 2.91 COL 40 WIDGET-ID 44
           FGCOLOR 9 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 22.24 COL 4
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
+     "(Comma separated List)" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 8.38 COL 22 WIDGET-ID 32
      "Exceptions" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 13.86 COL 17 WIDGET-ID 22
           FGCOLOR 9 
-     "(Comma separated List)" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 8.38 COL 22 WIDGET-ID 32
-     "Snapshot File In:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.95 COL 22 WIDGET-ID 40
-          FGCOLOR 12 
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 2 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 22.24 COL 4
      RECT-7 AT ROW 1.24 COL 1
      RECT-8 AT ROW 13.38 COL 1 WIDGET-ID 24
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -335,11 +310,6 @@ ASSIGN
 ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
-/* SETTINGS FOR FILL-IN fiSnapshotFolder IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-ASSIGN 
-       fiSnapshotFolder:READ-ONLY IN FRAME FRAME-A        = TRUE.
 
 ASSIGN 
        fi_file2:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -442,7 +412,7 @@ DO:
         iSlashPos = R-INDEX(cFileName, "\").
         IF iSlashPos GT 0 THEN 
           cFileName = SUBSTRING(cFileName, iSlashPos + 1).
-        fiSnapshotFile:SCREEN-VALUE IN FRAME frame-a = cFileName.
+        fiSnapshotID:SCREEN-VALUE IN FRAME frame-a = cFileName.
       END.
 END.
 
@@ -489,7 +459,7 @@ DO:
     VIEW-AS ALERT-BOX.
     RETURN.
   END.  
-  RUN validateSnapshotFile (INPUT fiSnapshotFolder + "\" + fiSnapshotFile, OUTPUT lValidEntry).
+  RUN validateSnapshotFile (INPUT fiSnapshotFolder + "\" + fiSnapshotID, OUTPUT lValidEntry).
   IF NOT lValidEntry THEN DO:
     MESSAGE "The snapshot file specified could not be found." 
     VIEW-AS ALERT-BOX.
@@ -844,11 +814,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiTransDate fiFromItem fiEndItem fiFromBin fiToBin fiWhseList 
-          tb_fullReport fiSnapshotFolder fiSnapshotFile tb_show-fo tb_show-vo 
-          tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
+          tb_fullReport fiSnapshotID tb_show-fo tb_show-vo tb_prep tb_excel 
+          tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 RECT-8 fiTransDate fiFromItem fiEndItem fiFromBin fiToBin 
-         fiWhseList tb_fullReport fiSnapshotFile btChooseFile tb_show-fo 
+         fiWhseList tb_fullReport btChooseFile fiSnapshotID tb_show-fo 
          tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel 
          fi_file2 btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -924,7 +894,7 @@ SESSION:SET-WAIT-STATE ("general").
         INPUT tb_show-fo,        /* snapshot only */
         INPUT tb_excel,        /* loc changed */
         INPUT tb_exclude_prep,         /* dups in scan */
-        INPUT cSnapshotFolder + "\" + fiSnapshotFile
+        INPUT fiSnapshotID
         ).
 
     DELETE OBJECT h.  
@@ -1085,11 +1055,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win
-FUNCTION fAddSpaceToList RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win 
+FUNCTION fAddSpaceToList RETURNS CHARACTER
   ( ipcList AS CHARACTER ):
 /*------------------------------------------------------------------------------
  Purpose: Needed because some loc values contained spaces at the end
@@ -1111,8 +1080,7 @@ FUNCTION fAddSpaceToList RETURNS CHARACTER
     RETURN cResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
