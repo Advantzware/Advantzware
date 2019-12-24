@@ -2591,6 +2591,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161400.
     IF fIntVer(cThisEntry) LT 16140100 THEN  
         RUN ipDataFix161401.
+    IF fIntVer(cThisEntry) LT 16150000 THEN  
+        RUN ipDataFix161500.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3016,6 +3018,22 @@ PROCEDURE ipDataFix161401:
     RUN ipStatus ("  Data Fix 161401...").
     
     RUN ipConvertVendorCosts.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161500 C-Win
+PROCEDURE ipDataFix161500:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161500...").
+    
+    RUN ipLoadEstCostData.
 
 END PROCEDURE.
     
@@ -4129,6 +4147,50 @@ PROCEDURE ipLoadEmailCodes :
                                     + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
         END.
     END.      
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEstCostData C-Win 
+PROCEDURE ipLoadEstCostData :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading EstCostData").
+
+    &SCOPED-DEFINE tablename estCostCategory
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
+        INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+        REPEAT:
+            IMPORT {&tablename}.
+        END.
+        INPUT CLOSE.
+    END.
+        
+    &SCOPED-DEFINE tablename estCostGroup
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
+        INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+        REPEAT:
+            IMPORT {&tablename}.
+        END.
+        INPUT CLOSE.
+    END.
+
+    &SCOPED-DEFINE tablename estCostGroupLevel
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
+        INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+        REPEAT:
+            IMPORT {&tablename}.
+        END.
+        INPUT CLOSE.
+    END.
   
 END PROCEDURE.
 
