@@ -612,7 +612,8 @@ PROCEDURE pFindMatchingOerell :
               AND oe-relh.deleted  EQ NO
               AND (oe-relh.printed EQ NO OR relmerge-log) 
               AND oe-relh.r-no     EQ b2-oe-rell.r-no
-            :
+            BY oe-relh.upd-date DESCENDING 
+            BY oe-relh.upd-time DESCENDING:
         FIND FIRST bf-oe-ordl NO-LOCK
             WHERE bf-oe-ordl.company EQ b-oe-rel.company
               AND bf-oe-ordl.ord-no EQ b-oe-rel.ord-no
