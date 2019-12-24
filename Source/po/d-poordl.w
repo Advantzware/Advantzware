@@ -5396,8 +5396,8 @@ PROCEDURE valid-b-num :
                     USE-INDEX ITEM NO-ERROR.
             IF AVAILABLE xpo-ordl THEN 
             DO:
-                ll-ans = NO.
-                RUN displayMessageQuetionLOG ("5", OUTPUT ll-ans).
+                ll-ans = NO. 
+                RUN displayMessageQuestionLOG ("5", OUTPUT ll-ans).
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".
             END.
