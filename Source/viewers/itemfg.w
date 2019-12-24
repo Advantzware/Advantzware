@@ -113,7 +113,7 @@ itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.palletVolume ~
 itemfg.prod-code 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define ENABLED-OBJECTS tg-Freeze-weight iCount btn_misc-est RECT-10 ~
+&Scoped-Define ENABLED-OBJECTS tg-Freeze-weight btn_misc-est RECT-10 ~
 RECT-8 RECT-9 RECT-11 RECT-12 
 &Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.poStatus ~
 itemfg.setupDate itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name ~
@@ -689,6 +689,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.upc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN iCount IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                        */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1674,7 +1676,7 @@ PROCEDURE enable-itemfg-field :
 
     DO WITH FRAME {&frame-name}:
         ENABLE ALL.
-        DISABLE iCount .
+        
         ASSIGN
             old-est-no      = IF AVAILABLE itemfg THEN itemfg.est-no ELSE ""
             lv-puruom       = ""
@@ -1682,7 +1684,7 @@ PROCEDURE enable-itemfg-field :
 
         DISABLE itemfg.cust-name
             itemfg.procat-desc
-            itemfg.style-desc itemfg.setupDate
+            itemfg.style-desc itemfg.setupDate iCount
             fi_type-dscr itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate .
 
         IF itemfg.trNo NE "" THEN
@@ -2096,10 +2098,7 @@ PROCEDURE local-display-fields :
         RUN SetPurMan(itemfg.isaset).
         RUN pCalCount .
     END. /* avail itemfg */
-    DO WITH FRAME {&frame-name}:
-        DISABLE iCount .
-    END.
-
+    
     RUN new-type.
 
 
