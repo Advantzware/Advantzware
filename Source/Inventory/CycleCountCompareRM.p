@@ -145,11 +145,12 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
+        
+    DEFINE VARIABLE lBinDups     AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lMissingCost AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lMissingMSF AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMissingMSF  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
     
     RUN pCheckBinDups (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).
     IF lBinDups THEN 
@@ -169,22 +170,33 @@ PROCEDURE exportSnapshot:
         AND lookup(rm-bin.loc, ipcWhseList) GT 0        
         AND rm-bin.qty NE 0
         AND rm-bin.tag NE ""
-        AND CAN-FIND (FIRST ITEM NO-LOCK 
-                        WHERE ITEM.company EQ rm-bin.company
-                          AND ITEM.i-no    EQ rm-bin.i-no)
+        ,
+        FIRST ITEM NO-LOCK 
+        WHERE ITEM.company EQ rm-bin.company
+        AND ITEM.i-no      EQ rm-bin.i-no
         :
-        CREATE ttSnapshot.
-        ASSIGN 
-            ttSnapShot.cCompany   = rm-bin.company
-            ttSnapShot.cFGItemID  = rm-bin.i-no
-            ttSnapShot.cTag       = rm-bin.tag
-            ttSnapShot.cSysLoc    = rm-bin.loc
-            ttSnapShot.cSysLocBin = rm-bin.loc-bin
-            ttSnapShot.dSysQty    = rm-bin.qty
-            ttSnapShot.dCost      = rm-bin.cost
+
             /* ttSnapShot.cCostUom   = rm-bin.costUom */ /* not  on rm-bin */
-            .            
-      
+
+        CREATE inventoryStockSnapshot.
+        ASSIGN                      
+            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag    
+            inventoryStockSnapshot.company             = rm-bin.company        
+            inventoryStockSnapshot.rmItemID            = ""      
+            inventoryStockSnapshot.fgItemID            = rm-bin.i-no                        
+            inventoryStockSnapshot.itemType            = "RM"                           
+            inventoryStockSnapshot.warehouseID         = rm-bin.loc    
+            inventoryStockSnapshot.locationID          = rm-bin.loc-bin
+            inventoryStockSnapshot.zoneID              = ""     
+            inventoryStockSnapshot.quantity            = 0    
+            inventoryStockSnapshot.quantityOriginal    = rm-bin.qty        
+            inventoryStockSnapshot.quantityUOM         = "EA"       
+            inventoryStockSnapshot.costStandardPerUOM  = rm-bin.cost
+            inventoryStockSnapshot.costUOM             = item.pur-uom
+            inventoryStockSnapshot.createdTime         = DATETIME(TODAY, MTIME)        
+            inventoryStockSnapshot.createdBy           = USERID("ASI")                
+            inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
+            .      
         FOR LAST rm-rdtlh NO-LOCK 
             WHERE rm-rdtlh.company EQ rm-bin.company 
             AND rm-rdtlh.tag EQ rm-bin.tag 
@@ -198,17 +210,17 @@ PROCEDURE exportSnapshot:
                 ttSnapShot.cSNum   = STRING(rm-rdtlh.s-num)
                 ttSnapShot.cBNum   = STRING(rm-rdtlh.b-num)
                 .
+            ASSIGN
+                inventoryStockSnapshot.jobID   = rm-rdtlh.job-no        
+                inventoryStockSnapshot.jobID2  = rm-rdtlh.job-no2 
+                inventoryStockSnapshot.formNo  = rm-rdtlh.s-num
+                inventoryStockSnapshot.blankNo = rm-rdtlh.b-num
+                .             
         END.            
     END.
     
-    OUTPUT STREAM sOutput TO VALUE(ipcFileName).
-    FOR EACH ttSnapShot:
-        EXPORT STREAM sOutput DELIMITER "," ttSnapShot.
-    END.
-    OUTPUT STREAM sOutput CLOSE.
     
 END PROCEDURE.
-
 
 PROCEDURE pBuildCompareTable PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1308,14 +1320,25 @@ PROCEDURE pImportSnapShot PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO.
-    INPUT STREAM sIn FROM VALUE(ipcFileName).
-    REPEAT: 
-        CREATE ttSnapshot.
-        IMPORT STREAM sIn DELIMITER "," ttSnapShot.
-    END.
-    INPUT STREAM sIn CLOSE.    
+    DEFINE INPUT  PARAMETER ipiSnapShotID  LIKE inventoryStockSnapshot.inventorySnapshotID NO-UNDO.
     
+    FOR EACH inventoryStockSnapshot NO-LOCK 
+        WHERE inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
+        :
+        CREATE ttSnapshot.
+        ASSIGN 
+            ttSnapShot.cCompany   = inventoryStockSnapshot.company
+            ttSnapShot.cFGItemID  = inventoryStockSnapshot.fgItemID
+            ttSnapShot.cTag       = inventoryStockSnapshot.inventoryStockID
+            ttSnapShot.cSysLoc    = inventoryStockSnapshot.warehouseID
+            ttSnapShot.cSysLocBin = inventoryStockSnapshot.locationID
+            ttSnapShot.dSysQty    = inventoryStockSnapshot.quantityOriginal
+            ttSnapShot.dCost      = inventoryStockSnapshot.costStandardPerUOM
+            ttSnapShot.cCostUom   = inventoryStockSnapshot.costUOM
+            ttSnapShot.cJobNo     = inventoryStockSnapshot.jobID
+            ttSnapShot.cJobNo2    = STRING(inventoryStockSnapshot.jobID2)
+            .
+    END.
 
 END PROCEDURE.
 

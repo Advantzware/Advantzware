@@ -50,25 +50,6 @@ DEFINE STREAM excel2 .
 DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSnapshotFolder AS CHARACTER NO-UNDO.
-
-IF ipcInitType EQ "FG" THEN DO:
-    fi_file = ".\custfiles\invSnapShotFG.csv".
-    RUN sys/ref/nk1look.p (cocode, "FGCountDefaultPath", "C", NO, NO, "", "", 
-                          OUTPUT cNk1Char, OUTPUT lfound).
-END.
-ELSE DO:
-    fi_file = ".\custfiles\invSnapShotRM.csv". 
-    RUN sys/ref/nk1look.p (cocode, "RMCountDefaultPath", "C", NO, NO, "", "", 
-                          OUTPUT cNk1Char, OUTPUT lfound).
-END.
-                          
-IF lFound THEN
-    cSnapshotFolder = cNk1Char NO-ERROR.    
-ELSE
-    cSnapshotFolder = ".\custfiles".
-cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "/").
-cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "\").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,9 +67,8 @@ cSnapshotFolder = RIGHT-TRIM(cSnapshotFolder, "\").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiWhseList ~
-fiSnapshotFile btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiWhseList ~
-fiSnapshotFolder fiSnapshotFile 
+btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiWhseList 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -96,19 +76,15 @@ fiSnapshotFolder fiSnapshotFile
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win
-FUNCTION fAddSpaceToList RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAddSpaceToList C-Win 
+FUNCTION fAddSpaceToList RETURNS CHARACTER
   ( ipcList AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -135,16 +111,6 @@ DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSnapshotFile AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Snapshot File" 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiSnapshotFolder AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Snapshot Folder" 
-     VIEW-AS FILL-IN 
-     SIZE 85 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
      LABEL "Whse LIst" 
      VIEW-AS FILL-IN 
@@ -161,8 +127,6 @@ DEFINE FRAME FRAME-A
      fiFromItem AT ROW 3.86 COL 13 COLON-ALIGNED WIDGET-ID 26
      fiEndItem AT ROW 3.86 COL 53 COLON-ALIGNED WIDGET-ID 28
      fiWhseList AT ROW 4.81 COL 13 COLON-ALIGNED WIDGET-ID 14
-     fiSnapshotFolder AT ROW 6.71 COL 16 COLON-ALIGNED WIDGET-ID 30
-     fiSnapshotFile AT ROW 7.91 COL 16 COLON-ALIGNED WIDGET-ID 32
      btn-ok AT ROW 11 COL 22
      btn-cancel AT ROW 11 COL 54
      "Selection Parameters" VIEW-AS TEXT
@@ -234,11 +198,6 @@ ASSIGN
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-/* SETTINGS FOR FILL-IN fiSnapshotFolder IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-ASSIGN 
-       fiSnapshotFolder:READ-ONLY IN FRAME FRAME-A        = TRUE.
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -297,12 +256,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  RUN validateSnapshotFolder (INPUT fiSnapshotFolder, OUTPUT lValidEntry).
-  IF NOT lValidEntry THEN DO:
-    MESSAGE "The snapshot folder specified is not valid, please correct NK1 value." 
-    VIEW-AS ALERT-BOX.
-    RETURN.
-  END.  
+ 
   RUN validateWhseList (INPUT fiWhseList,  OUTPUT cInvalidValues, OUTPUT lValidEntry).
   IF NOT lValidEntry THEN DO:
     MESSAGE "Entry of warehouse list is not valid: " + cInvalidValues
@@ -434,17 +388,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
   END.
-  
-  fiSnapshotFolder:SCREEN-VALUE IN FRAME {&frame-name}= cSnapshotFolder.
-    ASSIGN  fiSnapshotFile:SCREEN-VALUE IN FRAME {&frame-name} = "invSnapShot" 
-                + (IF ipcInitType EQ "FG" THEN "FG" ELSE "RM")
-                + STRING(YEAR(TODAY), "9999")
-                + STRING(MONTH(TODAY), "99")
-                + STRING(DAY(TODAY), "99")
-                + "-"
-                + SUBSTRING(STRING(time, "HH:MM"), 1, 2)
-                + SUBSTRING(STRING(time, "HH:MM"), 4, 2)
-                + ".csv"
+    
             .
   IF ipcInitType EQ "FG" THEN
     c-win:TITLE              = "FG Physical Inventory Initialize". 
@@ -491,10 +435,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fiEndItem fiWhseList fiSnapshotFolder fiSnapshotFile 
+  DISPLAY fiFromItem fiEndItem fiWhseList 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 fiFromItem fiEndItem fiWhseList fiSnapshotFile btn-ok 
-         btn-cancel 
+  ENABLE RECT-7 fiFromItem fiEndItem fiWhseList btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -505,7 +448,6 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader1 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader2 AS CHARACTER NO-UNDO.
@@ -539,19 +481,27 @@ DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE exelHeader AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE iSnapshotID AS INTEGER NO-UNDO.
 SESSION:SET-WAIT-STATE ("general").
     def var h as handle.  
     IF ipcInitType EQ "FG" THEN 
       RUN inventory/cyclecountcompare.p persistent set h.
     ELSE 
       RUN inventory/cyclecountcompareRM.p persistent set h.
+    FIND LAST inventorySnapshot NO-LOCK 
+        USE-INDEX inventorySnapshotID
+        NO-ERROR.
+    IF AVAIL inventorySnapshot THEN 
+        iSnapshotID = inventorySnapshot.inventorySnapshotID + 1.
+    ELSE 
+        iSnapshotID = 1.
+    
     run exportSnapshot in h     
      (input cocode,  
       input fiFromItem, 
       input fiEndItem,  
       input fAddSpaceToList(fiWhseList),
-      INPUT fiSnapshotFolder + "\" + fiSnapshotFile
+      INPUT iSnapshotID
       ).  
       
     delete object h.  
@@ -637,8 +587,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateSnapshotFolder C-Win
-PROCEDURE validateSnapshotFolder:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateSnapshotFolder C-Win 
+PROCEDURE validateSnapshotFolder :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -655,12 +605,12 @@ ELSE
   oplValid = YES. 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateWhseList C-Win
-PROCEDURE validateWhseList:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateWhseList C-Win 
+PROCEDURE validateWhseList :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -685,15 +635,14 @@ ASSIGN oplValid = lValid
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win
-FUNCTION fAddSpaceToList RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAddSpaceToList C-Win 
+FUNCTION fAddSpaceToList RETURNS CHARACTER
   ( ipcList AS CHARACTER ):
 /*------------------------------------------------------------------------------
  Purpose:  Needed because some loc values contained spaces at the end
@@ -715,10 +664,7 @@ FUNCTION fAddSpaceToList RETURNS CHARACTER
     RETURN cResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 

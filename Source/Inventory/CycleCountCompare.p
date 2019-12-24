@@ -105,8 +105,8 @@ DEFINE TEMP-TABLE ttDupTags
     .
     
 DEF TEMP-TABLE ttToPost
-  FIELD rFgRctd AS ROWID 
-  .    
+    FIELD rFgRctd AS ROWID 
+    .    
 DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd.
 {fg/fullset.i NEW}   
 {oe/invwork.i new} 
@@ -147,17 +147,21 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE lBinDups   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoCostMSF AS LOGICAL NO-UNDO.
-    define variable icnt as int.
+    DEFINE VARIABLE icnt       AS INT.
+    
     RUN pCheckBinDups (INPUT ipcCompany, INPUT ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).
     
     IF lBinDups THEN 
-         RETURN.
+        RETURN.
+         
     RUN pCheckNoCost (OUTPUT lNoCostMSF ). 
 
-  /*  IF lNoCostMSF THEN 
-       RETURN. */
+    /*  IF lNoCostMSF THEN 
+         RETURN. */
     FOR EACH fg-bin NO-LOCK
         WHERE fg-bin.company EQ ipcCompany
         AND fg-bin.i-no GE ipcFGItemStart
@@ -166,31 +170,137 @@ PROCEDURE exportSnapshot:
         AND fg-bin.qty NE 0
         AND fg-bin.tag NE ""
         AND CAN-FIND (FIRST itemfg NO-LOCK 
-                         WHERE itemfg.company EQ fg-bin.company 
-                           AND itemfg.i-no EQ fg-bin.i-no )        
+        WHERE itemfg.company EQ fg-bin.company 
+        AND itemfg.i-no EQ fg-bin.i-no )        
         :
         icnt = icnt + 1.
-        CREATE ttSnapshot.
-        ASSIGN 
-            ttSnapShot.cCompany   = fg-bin.company
-            ttSnapShot.cFGItemID  = fg-bin.i-no
-            ttSnapShot.cTag       = fg-bin.tag
-            ttSnapShot.cSysLoc    = fg-bin.loc
-            ttSnapShot.cSysLocBin = fg-bin.loc-bin
-            ttSnapShot.dSysQty    = fg-bin.qty
-            ttSnapShot.dCost      = fg-bin.std-tot-cost
-            ttSnapShot.cCostUom   = fg-bin.pur-uom 
-            ttSnapShot.cJobNo     = fg-bin.job-no
-            ttSnapShot.cJobNo2    = STRING(fg-bin.job-no2)
-            .            
-               
+    
+        CREATE inventoryStockSnapshot.
+        ASSIGN        
+            inventoryStockSnapshot.inventoryStockID    = fg-bin.tag    
+            inventoryStockSnapshot.company             = fg-bin.company        
+            inventoryStockSnapshot.rmItemID            = ""      
+            inventoryStockSnapshot.fgItemID            = fg-bin.i-no                        
+            inventoryStockSnapshot.itemType            = "FG"        
+            inventoryStockSnapshot.jobID               = fg-bin.job-no         
+            inventoryStockSnapshot.jobID2              = fg-bin.job-no2                   
+            inventoryStockSnapshot.warehouseID         = fg-bin.loc    
+            inventoryStockSnapshot.locationID          = fg-bin.loc-bin
+            inventoryStockSnapshot.zoneID              = ""     
+            inventoryStockSnapshot.quantity            = 0    
+            inventoryStockSnapshot.quantityOriginal    = fg-bin.qty        
+            inventoryStockSnapshot.quantityUOM         = "EA"       
+            inventoryStockSnapshot.costStandardPerUOM  = fg-bin.std-tot-cost
+            inventoryStockSnapshot.costUOM             = fg-bin.pur-uom
+            inventoryStockSnapshot.createdTime         = DATETIME(TODAY, MTIME)       
+            inventoryStockSnapshot.createdBy           = USERID("ASI")                
+            inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
+            .                  
+    END.
+    FIND FIRST inventoryStockSnapshot NO-LOCK 
+        WHERE inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
+        NO-ERROR.
+    IF AVAIL inventoryStockSnapshot THEN DO:
+        CREATE inventorySnapshot.
+        ASSIGN
+        inventorySnapshot.inventorySnapshotID         = ipiSnapshotID
+        inventorySnapshot.snapshotType                = "PhysicalInventory"
+        inventorySnapshot.itemType                    = "FG"
+        inventorySnapshot.company                     = ipcCompany
+        //warehouseID                                 = 
+        //locationID                                  =
+        inventorySnapshot.inventoryStockStatus        = "Open"
+        inventorySnapshot.snapshotUser                = USERID("ASI")
+        inventorySnapshot.snapshotTime                = DATETIME(today, mtime)
+        .
     END.
     
-    OUTPUT STREAM sOutput TO VALUE(ipcFileName) .
-    FOR EACH ttSnapShot:
-        EXPORT STREAM sOutput DELIMITER "," ttSnapShot.
+END PROCEDURE.
+
+PROCEDURE exportSnapshotRM:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
+        
+    DEFINE VARIABLE lBinDups     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMissingCost AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMissingMSF  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
+    
+    RUN pCheckBinDups (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).
+    IF lBinDups THEN 
+        RETURN. 
+    RUN pCheckMissingCostMSF (OUTPUT lMIssingCost, OUTPUT lMissingMSF).
+    
+    MESSAGE 'Some RM tags are missing cost or MSF.  Do you want to continue?' SKIP
+        VIEW-AS ALERT-BOX
+        QUESTION BUTTONS YES-NO UPDATE lContinue.
+    IF NOT lContinue THEN 
+        RETURN.
+        
+    FOR EACH rm-bin NO-LOCK
+        WHERE rm-bin.company EQ ipcCompany
+        AND rm-bin.i-no GE ipcFGItemStart
+        AND rm-bin.i-no LE ipcFGItemEnd
+        AND lookup(rm-bin.loc, ipcWhseList) GT 0        
+        AND rm-bin.qty NE 0
+        AND rm-bin.tag NE ""
+        ,
+        FIRST ITEM NO-LOCK 
+        WHERE ITEM.company EQ rm-bin.company
+        AND ITEM.i-no      EQ rm-bin.i-no
+        :
+
+            /* ttSnapShot.cCostUom   = rm-bin.costUom */ /* not  on rm-bin */
+
+        CREATE inventoryStockSnapshot.
+        ASSIGN                      
+            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag    
+            inventoryStockSnapshot.company             = rm-bin.company        
+            inventoryStockSnapshot.rmItemID            = ""      
+            inventoryStockSnapshot.fgItemID            = rm-bin.i-no                        
+            inventoryStockSnapshot.itemType            = "RM"                           
+            inventoryStockSnapshot.warehouseID         = rm-bin.loc    
+            inventoryStockSnapshot.locationID          = rm-bin.loc-bin
+            inventoryStockSnapshot.zoneID              = ""     
+            inventoryStockSnapshot.quantity            = 0    
+            inventoryStockSnapshot.quantityOriginal    = rm-bin.qty        
+            inventoryStockSnapshot.quantityUOM         = "EA"       
+            inventoryStockSnapshot.costStandardPerUOM  = rm-bin.cost
+            inventoryStockSnapshot.costUOM             = item.pur-uom
+            inventoryStockSnapshot.createdTime         = DATETIME(TODAY, MTIME)        
+            inventoryStockSnapshot.createdBy           = USERID("ASI")                
+            inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
+            .      
+        FOR LAST rm-rdtlh NO-LOCK 
+            WHERE rm-rdtlh.company EQ rm-bin.company 
+            AND rm-rdtlh.tag EQ rm-bin.tag 
+            AND rm-rdtlh.rita-code EQ "R",
+            EACH rm-rcpth NO-LOCK 
+            WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
+            AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
+            ASSIGN 
+                ttSnapShot.cJobNo  = rm-rdtlh.job-no 
+                ttSnapShot.cJobNo2 = STRING(rm-rdtlh.job-no2)
+                ttSnapShot.cSNum   = STRING(rm-rdtlh.s-num)
+                ttSnapShot.cBNum   = STRING(rm-rdtlh.b-num)
+                .
+            ASSIGN
+                inventoryStockSnapshot.jobID   = rm-rdtlh.job-no        
+                inventoryStockSnapshot.jobID2  = rm-rdtlh.job-no2 
+                inventoryStockSnapshot.formNo  = rm-rdtlh.s-num
+                inventoryStockSnapshot.blankNo = rm-rdtlh.b-num
+                .             
+        END.            
     END.
-    OUTPUT STREAM sOutput CLOSE.
+    
     
 END PROCEDURE.
 
@@ -211,25 +321,25 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     DEFINE BUFFER bf-fg-bin  FOR fg-bin.
 
-    DEFINE VARIABLE iCountBins  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dMSF        AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCalcQty    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dLFQty      AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCost       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dExtCost    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dShtWid     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dShtLen     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTransQty   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iStatusCnt1 AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iStatusCnt2 AS INTEGER NO-UNDO.
-    DEFINE var dCostPerUOMTotal AS DECIMAL NO-UNDO.
-    DEFINE var dCostPerUOMDL AS DECIMAL NO-UNDO.
-    DEFINE var dCostPerUOMFO AS DECIMAL NO-UNDO.
-    DEFINE var dCostPerUOMVO AS DECIMAL NO-UNDO.
-    DEFINE var dCostPerUOMDM AS DECIMAL NO-UNDO.  
-    DEFINE var cCostUOM AS CHARACTER NO-UNDO.
-    DEFINE var lFound AS LOGICAL NO-UNDO.       
-    DEFINE VARIABLE hCostProc   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE iCountBins       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dMSF             AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCalcQty         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLFQty           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCost            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dExtCost         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dShtWid          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dShtLen          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTransQty        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iStatusCnt1      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStatusCnt2      AS INTEGER   NO-UNDO.
+    DEFINE VAR      dCostPerUOMTotal AS DECIMAL   NO-UNDO.
+    DEFINE VAR      dCostPerUOMDL    AS DECIMAL   NO-UNDO.
+    DEFINE VAR      dCostPerUOMFO    AS DECIMAL   NO-UNDO.
+    DEFINE VAR      dCostPerUOMVO    AS DECIMAL   NO-UNDO.
+    DEFINE VAR      dCostPerUOMDM    AS DECIMAL   NO-UNDO.  
+    DEFINE VAR      cCostUOM         AS CHARACTER NO-UNDO.
+    DEFINE VAR      lFound           AS LOGICAL   NO-UNDO.       
+    DEFINE VARIABLE hCostProc        AS HANDLE    NO-UNDO.
     
     RUN system/costProcs.p PERSISTENT SET hCostProc.
     
@@ -243,8 +353,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND fg-rctd.i-no GE ipcFGItemStart
         AND fg-rctd.i-no LE ipcFGItemEnd
         AND (LOOKUP(fg-rctd.loc, ipcWhseList) GT 0
-             OR CAN-FIND(FIRST ttSnapShot WHERE ttSnapshot.cTag EQ fg-rctd.tag)
-             )        
+        OR CAN-FIND(FIRST ttSnapShot WHERE ttSnapshot.cTag EQ fg-rctd.tag)
+        )        
         AND fg-rctd.loc-bin GE ipcBinStart
         AND fg-rctd.loc-bin LE ipcBinEnd
         AND fg-rctd.qty NE 0
@@ -451,8 +561,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND fg-bin.qty NE 0
             AND fg-bin.tag NE ""
             AND CAN-FIND (FIRST itemfg NO-LOCK 
-                            WHERE itemfg.company EQ fg-bin.company 
-                              AND itemfg.i-no EQ fg-bin.i-no )
+            WHERE itemfg.company EQ fg-bin.company 
+            AND itemfg.i-no EQ fg-bin.i-no )
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ fg-bin.company
@@ -540,7 +650,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         IF NOT AVAILABLE itemfg THEN NEXT.
         
 
-       /*Only one record per tag since duplicates were removed prior to snapshot */
+        /*Only one record per tag since duplicates were removed prior to snapshot */
         FIND FIRST fg-bin NO-LOCK 
             WHERE fg-bin.company EQ ttCycleCountCompare.cCompany 
             AND fg-bin.i-no EQ ttCycleCountCompare.cFGItemID  
@@ -568,49 +678,51 @@ PROCEDURE pBuildCompareTable PRIVATE:
             ttCycleCountCompare.cSysCostUom   = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE itemfg.pur-uom      
             ttCycleCountCompare.dSysCostValue = dCost * ttCycleCountCompare.dSysQty
             .
-           /* Correction for wrong values */
-           IF AVAIL fg-bin THEN 
-            run getCostForLastReceipt IN hCostProc
-                    (input fg-bin.company,
-                     input fg-bin.i-no,
-                    output dCostPerUOMTotal,
-                    output dCostPerUOMDL,
-                    output dCostPerUOMFO,
-                    output dCostPerUOMVO,
-                    output dCostPerUOMDM,  
-                    output cCostUOM ,
-                    output lFound 
-                    ).           
-            IF lFound THEN 
-                ASSIGN 
-                       ttCycleCountCompare.dSysCost      = dCostPerUOMTotal
-                       ttCycleCountCompare.dSysCostValue = dCostPerUOMTotal * ttCycleCountCompare.dSysQty
-                       .            
-        IF ttCycleCountCompare.cTag GT "" THEN DO:
-            FOR each fg-rdtlh NO-LOCK 
+        /* Correction for wrong values */
+        IF AVAIL fg-bin THEN 
+            RUN getCostForLastReceipt IN hCostProc
+                (INPUT fg-bin.company,
+                INPUT fg-bin.i-no,
+                OUTPUT dCostPerUOMTotal,
+                OUTPUT dCostPerUOMDL,
+                OUTPUT dCostPerUOMFO,
+                OUTPUT dCostPerUOMVO,
+                OUTPUT dCostPerUOMDM,  
+                OUTPUT cCostUOM ,
+                OUTPUT lFound 
+                ).           
+        IF lFound THEN 
+            ASSIGN 
+                ttCycleCountCompare.dSysCost      = dCostPerUOMTotal
+                ttCycleCountCompare.dSysCostValue = dCostPerUOMTotal * ttCycleCountCompare.dSysQty
+                .            
+        IF ttCycleCountCompare.cTag GT "" THEN 
+        DO:
+            FOR EACH fg-rdtlh NO-LOCK 
                 WHERE fg-rdtlh.company EQ ttCycleCountCompare.cCompany
-                  AND fg-rdtlh.tag     EQ ttCycleCountCompare.cTag
-                  AND fg-rdtlh.rita-code EQ "R"
-                  USE-INDEX tag,
+                AND fg-rdtlh.tag     EQ ttCycleCountCompare.cTag
+                AND fg-rdtlh.rita-code EQ "R"
+                USE-INDEX tag,
                 EACH fg-rcpth NO-LOCK 
-                    WHERE fg-rcpth.r-no EQ fg-rdtlh.r-no
+                WHERE fg-rcpth.r-no EQ fg-rdtlh.r-no
                 BY fg-rcpth.trans-date DESCENDING:                 
             
-                    ttCycleCountCompare.dtReceiptDate = fg-rcpth.trans-date.
-                    LEAVE.
+                ttCycleCountCompare.dtReceiptDate = fg-rcpth.trans-date.
+                LEAVE.
             END.
-         END.
-         ELSE DO:
+        END.
+        ELSE 
+        DO:
             FOR EACH fg-rcpth NO-LOCK 
                 WHERE fg-rcpth.company EQ ttCycleCountCompare.cCompany
-                  AND fg-rcpth.i-no     EQ ttCycleCountCompare.cFgItemID
-                  AND fg-rcpth.rita-code EQ "R"                  
-                  :
+                AND fg-rcpth.i-no     EQ ttCycleCountCompare.cFgItemID
+                AND fg-rcpth.rita-code EQ "R"                  
+                :
 
-                    ttCycleCountCompare.dtReceiptDate = fg-rcpth.trans-date.
-                    LEAVE.
+                ttCycleCountCompare.dtReceiptDate = fg-rcpth.trans-date.
+                LEAVE.
             END.
-         END.        
+        END.        
     END. 
     DELETE OBJECT hCostProc.
 END PROCEDURE.
@@ -625,7 +737,7 @@ PROCEDURE pCheckBinDups:
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.     
     DEFINE OUTPUT PARAMETER oplNoDups AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsDups        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cDupOutputFile AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
 
@@ -633,41 +745,42 @@ PROCEDURE pCheckBinDups:
     lIsDups = NO.
     FOR EACH fg-bin NO-LOCK 
         WHERE fg-bin.company EQ ipcCompany
-          AND fg-bin.i-no GE ipcFGItemStart
-          AND fg-bin.i-no LE ipcFGItemEnd
-          AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0 
-          AND fg-bin.qty GT 0
-          AND fg-bin.tag GT "" 
-          AND CAN-FIND (FIRST itemfg NO-LOCK 
-                           WHERE itemfg.company EQ fg-bin.company 
-                             AND itemfg.i-no EQ fg-bin.i-no )
-          .
+        AND fg-bin.i-no GE ipcFGItemStart
+        AND fg-bin.i-no LE ipcFGItemEnd
+        AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0 
+        AND fg-bin.qty GT 0
+        AND fg-bin.tag GT "" 
+        AND CAN-FIND (FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ fg-bin.company 
+        AND itemfg.i-no EQ fg-bin.i-no )
+        .
         FIND FIRST bf-fg-bin NO-LOCK
             WHERE bf-fg-bin.company EQ fg-bin.company
             AND bf-fg-bin.tag EQ fg-bin.tag
             AND ROWID(bf-fg-bin) NE ROWID(fg-bin)
             AND bf-fg-bin.qty GT 0 
             AND CAN-FIND (FIRST itemfg NO-LOCK 
-                           WHERE itemfg.company EQ bf-fg-bin.company 
-                             AND itemfg.i-no EQ bf-fg-bin.i-no )
+            WHERE itemfg.company EQ bf-fg-bin.company 
+            AND itemfg.i-no EQ bf-fg-bin.i-no )
             NO-ERROR.
         IF AVAILABLE bf-fg-bin THEN 
         DO:
             lIsDups = YES.
             CREATE ttDupTags.
             ASSIGN 
-                ttDupTags.i-no = fg-bin.i-no
-                ttDupTags.tag  = fg-bin.tag
-                ttDupTags.loc1 = fg-bin.loc + " " + fg-bin.loc-bin
+                ttDupTags.i-no  = fg-bin.i-no
+                ttDupTags.tag   = fg-bin.tag
+                ttDupTags.loc1  = fg-bin.loc + " " + fg-bin.loc-bin
                 ttDupTags.i-no2 = bf-fg-bin.i-no                
-                ttDupTags.loc2 = bf-fg-bin.loc + " " + bf-fg-bin.loc-bin                
+                ttDupTags.loc2  = bf-fg-bin.loc + " " + bf-fg-bin.loc-bin                
                 .
         END.
     END.
     
     cDupOutputFile = "c:\tmp\dupbinTags.csv".
     OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
-    PUT STREAM sOutput UNFORMATTED "Item,Tag,Trans Types,Item2,Loc1,Loc2" SKIP.
+    PUT STREAM sOutput UNFORMATTED 
+        "Item,Tag,Trans Types,Item2,Loc1,Loc2" SKIP.
     FOR EACH ttDupTags:
         PUT STREAM sOutput UNFORMATTED   
             '"' ttDupTags.i-no '",'
@@ -683,7 +796,7 @@ PROCEDURE pCheckBinDups:
     oplNoDups = lIsDups.
     IF lIsDups THEN 
     DO:
-         MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
+        MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
         OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
@@ -697,7 +810,7 @@ PROCEDURE pCheckCountDups:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplDups AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsDups        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cDupOutputFile AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 
@@ -729,7 +842,8 @@ PROCEDURE pCheckCountDups:
     IF lIsDups THEN 
     DO:
         OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
-        PUT STREAM sOutput UNFORMATTED "Item#,Tag#,Transaction Types Found" SKIP.
+        PUT STREAM sOutput UNFORMATTED 
+            "Item#,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags: 
             PUT STREAM sOutput UNFORMATTED  
                 '"' ttDupTags.i-no '",'
@@ -748,36 +862,36 @@ PROCEDURE pCheckCountDups:
 END PROCEDURE.
 
 PROCEDURE pCheckNoCost:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplNoCostMSF AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lNoCost AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lNoMSF  AS LOGICAL NO-UNDO.
-ASSIGN 
-    lNoCost = FALSE 
-    lNoMSF  = FALSE
-    .
-FOR EACH fg-bin NO-LOCK 
-    WHERE fg-bin.company EQ cocode
-    :
-    FIND FIRST itemfg NO-LOCK 
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no EQ fg-bin.i-no
-        NO-ERROR.
-    IF NOT AVAILABLE itemfg THEN 
-        ASSIGN 
-            lNoCost = TRUE 
-            lNoMSF  = TRUE
-            .
-    ELSE 
-       IF itemfg.t-sqft EQ 0 THEN 
-        lNoMSF = TRUE.
-    IF fg-bin.std-tot-cost EQ 0 THEN 
-        lNoCost = TRUE.
-    oplNoCostMSF = lNoCost OR lNoMSF.
-END.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplNoCostMSF AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNoCost AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNoMSF  AS LOGICAL NO-UNDO.
+    ASSIGN 
+        lNoCost = FALSE 
+        lNoMSF  = FALSE
+        .
+    FOR EACH fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ cocode
+        :
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ fg-bin.i-no
+            NO-ERROR.
+        IF NOT AVAILABLE itemfg THEN 
+            ASSIGN 
+                lNoCost = TRUE 
+                lNoMSF  = TRUE
+                .
+        ELSE 
+            IF itemfg.t-sqft EQ 0 THEN 
+                lNoMSF = TRUE.
+        IF fg-bin.std-tot-cost EQ 0 THEN 
+            lNoCost = TRUE.
+        oplNoCostMSF = lNoCost OR lNoMSF.
+    END.
 
 END PROCEDURE.
 
@@ -786,15 +900,15 @@ PROCEDURE pCreateTransferCounts:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-   DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE VARIABLE iNextRno LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
     DEFINE VARIABLE dTransDate AS DATE      NO-UNDO.
     DEFINE VARIABLE lv-tag     AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
-    DEFINE VARIABLE iTransTime AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cEnteredBy AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtmEnteredDate AS DATETIME NO-UNDO.
+    DEFINE VARIABLE iTransTime     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cEnteredBy     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtmEnteredDate AS DATETIME  NO-UNDO.
     ASSIGN 
         dTransDate = (IF ipdtTransDate EQ ? THEN TODAY ELSE ipdtTransDate)
         iTransTime = TIME. 
@@ -824,18 +938,18 @@ PROCEDURE pCreateTransferCounts:
         :  
         FIND FIRST fg-bin NO-LOCK 
             WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
-                AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
-                AND fg-bin.tag     EQ ttCycleCountCompare.cTag        
-                AND fg-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
-                AND fg-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
-                AND fg-bin.job-no  EQ ttCycleCountCompare.cJobNo
-                AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
-                NO-ERROR.
+            AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+            AND fg-bin.tag     EQ ttCycleCountCompare.cTag        
+            AND fg-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
+            AND fg-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
+            AND fg-bin.job-no  EQ ttCycleCountCompare.cJobNo
+            AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
+            NO-ERROR.
                 
         /* In case the inventory exists in a different location */
         IF NOT AVAIL fg-bin THEN 
             FIND FIRST fg-bin NO-LOCK 
-              WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
+                WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
                 AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
                 AND fg-bin.tag     EQ ttCycleCountCompare.cTag           
                 AND fg-bin.job-no  EQ ttCycleCountCompare.cJobNo
@@ -844,7 +958,7 @@ PROCEDURE pCreateTransferCounts:
                 NO-ERROR.
         IF NOT AVAIL fg-bin THEN 
             FIND FIRST fg-bin NO-LOCK 
-              WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
+                WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
                 AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
                 AND fg-bin.tag     EQ ttCycleCountCompare.cTag   
                 AND fg-bin.qty     GT 0        
@@ -852,7 +966,7 @@ PROCEDURE pCreateTransferCounts:
         IF NOT AVAIL fg-bin THEN 
             NEXT.
                      
-            /* Finding a count record from within the past 2 weeks on assumption it will */
+        /* Finding a count record from within the past 2 weeks on assumption it will */
         /* be part of the current physical                                           */
         FIND FIRST bf-fg-rctd EXCLUSIVE-LOCK 
             WHERE bf-fg-rctd.company EQ  ttCycleCountCompare.cCompany
@@ -864,12 +978,13 @@ PROCEDURE pCreateTransferCounts:
             AND bf-fg-rctd.rct-date GE TODAY - 14
             NO-ERROR.    
        
-        IF AVAILABLE bf-fg-rctd THEN DO:
+        IF AVAILABLE bf-fg-rctd THEN 
+        DO:
             IF dTransDate NE ? THEN 
                 bf-fg-rctd.rct-date = dTransDate.
             ASSIGN                  
-                iTransTime = bf-fg-rctd.trans-time
-                cEnteredBy = bf-fg-rctd.enteredBy
+                iTransTime     = bf-fg-rctd.trans-time
+                cEnteredBy     = bf-fg-rctd.enteredBy
                 dtmEnteredDate = bf-fg-rctd.enteredDT       
                 .
             CREATE ttToPost.
@@ -920,9 +1035,9 @@ PROCEDURE pCreateTransferCounts:
         
         
         ASSIGN 
-            fg-rctd.user-id  = "PhysCnt"
-            fg-rctd.upd-date = TODAY
-            fg-rctd.upd-time = TIME
+            fg-rctd.user-id   = "PhysCnt"
+            fg-rctd.upd-date  = TODAY
+            fg-rctd.upd-time  = TIME
             fg-rctd.enteredBy = cEnteredBy 
             fg-rctd.enteredDT = DATETIME(TODAY, MTIME)
             .
@@ -1176,7 +1291,7 @@ PROCEDURE pGetCostMSF:
         RETURN.
     FIND FIRST itemfg NO-LOCK 
         WHERE itemfg.company EQ fg-bin.company
-          AND itemfg.i-no    EQ fg-bin.i-no
+        AND itemfg.i-no    EQ fg-bin.i-no
         NO-ERROR. 
     IF NOT AVAILABLE itemfg THEN 
         RETURN.
@@ -1251,7 +1366,7 @@ PROCEDURE pGetCostMSF:
           
     ASSIGN
         opdMSF = ipdQty * itemfg.t-sqft / 1000
-        v-ext = ROUND(v-ext,2).
+        v-ext  = ROUND(v-ext,2).
 
     IF ipdQty EQ ? THEN ipdQty = 0.
     IF opdMSF EQ ? THEN opdMSF = 0.
@@ -1293,14 +1408,25 @@ PROCEDURE pImportSnapShot PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcSnapshotFile AS CHARACTER NO-UNDO.
-    INPUT STREAM sIn FROM VALUE(ipcSnapshotFile).
-    REPEAT: 
-        CREATE ttSnapshot.
-        IMPORT STREAM sIn DELIMITER "," ttSnapShot.
-    END.
-    INPUT STREAM sIn CLOSE.    
+    DEFINE INPUT  PARAMETER ipiSnapShotID  LIKE inventoryStockSnapshot.inventorySnapshotID NO-UNDO.
     
+    FOR EACH inventoryStockSnapshot NO-LOCK 
+        WHERE inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
+        :
+        CREATE ttSnapshot.
+        ASSIGN 
+            ttSnapShot.cCompany   = inventoryStockSnapshot.company
+            ttSnapShot.cFGItemID  = inventoryStockSnapshot.fgItemID
+            ttSnapShot.cTag       = inventoryStockSnapshot.inventoryStockID
+            ttSnapShot.cSysLoc    = inventoryStockSnapshot.warehouseID
+            ttSnapShot.cSysLocBin = inventoryStockSnapshot.locationID
+            ttSnapShot.dSysQty    = inventoryStockSnapshot.quantityOriginal
+            ttSnapShot.dCost      = inventoryStockSnapshot.costStandardPerUOM
+            ttSnapShot.cCostUom   = inventoryStockSnapshot.costUOM
+            ttSnapShot.cJobNo     = inventoryStockSnapshot.jobID
+            ttSnapShot.cJobNo2    = STRING(inventoryStockSnapshot.jobID2)
+            .
+    END.
 
 END PROCEDURE.
 
@@ -1317,8 +1443,8 @@ PROCEDURE postFG:
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
-    DEFINE VARIABLE lDupsExist  AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lRemoveZero AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lDupsExist    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRemoveZero   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPostWithDups AS LOGICAL NO-UNDO.
     
     MESSAGE 'Remove all zero counts (all locations)?' SKIP
@@ -1328,7 +1454,8 @@ PROCEDURE postFG:
         RUN pRemoveZeroCounts .
 
     RUN pCheckCountDups (OUTPUT lDupsExist).
-    IF lDupsExist THEN DO:
+    IF lDupsExist THEN 
+    DO:
         MESSAGE 'Continue posting with duplicates?' SKIP
             VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE lPostWithDups.
@@ -1414,14 +1541,15 @@ PROCEDURE pPostCounts:
             FIND FIRST ttToPost
                 WHERE ttToPost.rFgRctd EQ ROWID(fg-rctd)  
                 NO-ERROR.
-            IF NOT AVAIL ttToPost THEN DO:
-              CREATE ttToPost.
-              ttToPost.rFgRctd = ROWID(fg-rctd).
+            IF NOT AVAIL ttToPost THEN 
+            DO:
+                CREATE ttToPost.
+                ttToPost.rFgRctd = ROWID(fg-rctd).
             END.
         END.      
         
         FOR EACH ttToPost,
-           EACH fg-rctd EXCLUSIVE-LOCK
+            EACH fg-rctd EXCLUSIVE-LOCK
             WHERE ROWID(fg-rctd) EQ ttToPost.rFgRctd
             ,  
             FIRST itemfg
@@ -1621,11 +1749,11 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER iplSnapshotOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInSnapshot AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcSnapshotFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID AS INTEGER NO-UNDO.
     DEFINE VARIABLE setFromHistory AS LOGICAL NO-UNDO.
     PROCESS EVENTS.
     STATUS DEFAULT "Import Snapshot" .       
-    RUN pImportSnapshot (ipcSnapshotFile).
+    RUN pImportSnapshot (ipiSnapshotID).
     
     STATUS DEFAULT "Build Compare Table". 
     RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
