@@ -247,8 +247,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Price Matrix */
 DO:
-  /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
+    /* This ADM code must be left here in order for the SmartWindow
+       and its descendents to terminate properly on exit. */
+  def var char-hdl as cha no-undo.
+  run get-link-handle in adm-broker-hdl(this-procedure,"VendCost-source", output char-hdl).
+  IF valid-handle(widget-handle(char-hdl)) THEN 
+     run hideVendorCost in widget-handle(char-hdl).
   
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.

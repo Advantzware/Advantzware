@@ -54,6 +54,10 @@ RUN methods/prgsecur.p
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+def var li-current-page as int INIT 1 no-undo.
+def var li-prev-page as int INIT 1 no-undo.
+DEF VAR li-page-b4VendCost AS INT NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1293,6 +1297,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+    RUN SELECT-page (li-page-b4VendCost).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
 PROCEDURE import-file :
 /*------------------------------------------------------------------------------
@@ -1314,26 +1335,28 @@ PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
-    ------------------------------------------------------------------------------*/
-    DEF VAR li-cur-page AS INT NO-UNDO.
+    ------------------------------------------------------------------------------*/    
     
     /* Code placed here will execute PRIOR to standard behavior. */
+    li-prev-page = li-current-page.
     run get-attribute ("current-page").
-    assign li-cur-page  = int(return-value).
-
-  if li-cur-page = 8 AND lNewVendorItemCost then do:
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(itemfg.i-no) ).      
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).    
-     RUN select-page (14).
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
-     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).  
-     RETURN.
-  END.
+    assign li-current-page = int(return-value).         
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
+  if li-current-page = 8 AND lNewVendorItemCost then 
+  do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(itemfg.i-no) ).      
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
+        li-page-b4VendCost = li-prev-page.     
+        RUN select-page (14).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).     
+  END.
+  
   {methods/winReSizePgChg.i}
   
 END PROCEDURE.
@@ -1404,7 +1427,7 @@ PROCEDURE local-create-objects :
     
     /* Links to SmartWindow */
 /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
-/*    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_vendcostmtx ).*/
+    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
     
     /* Adjust the tab order of the smart objects. */
 END. /* Page 12 */
