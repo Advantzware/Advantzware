@@ -475,7 +475,7 @@ PROCEDURE run-process :
     END.
     
     ASSIGN 
-        cDumpLoc = "C:\tmp\OrderPurge-" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99" + "-" + STRING(TIME,"99999")). 
+        cDumpLoc = "C:\tmp\OrderPurge-" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")+ STRING(DAY(TODAY),"99") + "-" + STRING(TIME,"99999"). 
     
     IF tbArchive THEN DO:
         OS-CREATE-DIR VALUE(cDumpLoc).
