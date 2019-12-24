@@ -858,6 +858,9 @@ PROCEDURE buildRptRecs :
     DEFINE BUFFER bf-w-job-mat FOR w-job-mat.
     DEFINE BUFFER bf-ordl      FOR oe-ordl.
 
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+
     FIND bf-w-job-mat WHERE ROWID(bf-w-job-mat) EQ iprWJobMat NO-ERROR.
     FIND bf-ordl WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
 
@@ -922,10 +925,42 @@ PROCEDURE buildRptRecs :
       
             IF gvlDebug THEN
                 PUT STREAM sDebug UNFORMATTED "buildRptRec - choose vendor " + bf-w-job-mat.i-no SKIP.
-            IF lNewVendorItemCost THEN 
-                RUN po/d-vndcstN.w (v-term, bf-w-job-mat.w-recid, bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no, INPUT v-qty-comp, INPUT v-job-mat-uom).   
-            ELSE RUN po/d-vndcst.w (v-term, bf-w-job-mat.w-recid, bf-w-job-mat.this-is-a-rm, bf-w-job-mat.i-no, INPUT v-qty-comp, INPUT v-job-mat-uom).
-      
+            
+            IF dOeAutoFG EQ 1 THEN
+                RUN GetFirstVendCostFromReport (
+                    INPUT  cocode,
+                    INPUT  v-term, 
+                    INPUT  bf-w-job-mat.w-recid, 
+                    INPUT  bf-w-job-mat.this-is-a-rm, 
+                    INPUT  bf-w-job-mat.i-no, 
+                    INPUT  v-qty-comp, 
+                    INPUT  v-job-mat-uom,
+                    INPUT  lNewVendorItemCost,   /* Send true to use new VendItemCost tables, false to use old tables */
+                    OUTPUT fil_id,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ) NO-ERROR.
+            ELSE DO:
+                IF lNewVendorItemCost THEN 
+                    RUN po/d-vndcstN.w (
+                        INPUT v-term, 
+                        INPUT bf-w-job-mat.w-recid, 
+                        INPUT bf-w-job-mat.this-is-a-rm, 
+                        INPUT bf-w-job-mat.i-no, 
+                        INPUT v-qty-comp, 
+                        INPUT v-job-mat-uom
+                        ).   
+                ELSE 
+                    RUN po/d-vndcst.w (
+                        INPUT v-term, 
+                        INPUT bf-w-job-mat.w-recid, 
+                        INPUT bf-w-job-mat.this-is-a-rm, 
+                        INPUT bf-w-job-mat.i-no, 
+                        INPUT v-qty-comp, 
+                        INPUT v-job-mat-uom
+                        ).
+            END.
+
             IF fil_id EQ ? THEN ll-canceled = YES.
             ELSE FIND report WHERE RECID(report) EQ fil_id NO-LOCK NO-ERROR.
       
