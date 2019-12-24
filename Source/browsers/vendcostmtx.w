@@ -70,7 +70,7 @@ DEFINE VARIABLE useColors               AS CHAR NO-UNDO.
 DEFINE VARIABLE v-called-setCellColumns AS LOG  NO-UNDO.
 DEFINE VARIABLE v-col-move              AS LOG  INIT YES NO-UNDO.
 DEFINE VARIABLE cLevel                  AS CHARACTER EXTENT 10 NO-UNDO .
-DEFINE VARIABLE dtEffDate               AS DATE NO-UNDO .
+DEFINE VARIABLE dtEffDate               AS DATE FORMAT "99/99/9999" NO-UNDO .
 ASSIGN 
     cocode = g_company
     locode = g_loc.
@@ -104,6 +104,19 @@ IF AVAILABLE users THEN ASSIGN
           AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) ~
           AND {&key-phrase} 
+
+&SCOPED-DEFINE for-each-ExactMatch ~
+    FOR EACH vendItemCost ~
+        WHERE {&key-phrase} ~
+          AND vendItemCost.company   EQ cocode ~
+          AND (vendItemCost.itemType BEGINS cb_itemType OR cb_itemType EQ "ALL") ~
+          AND (vendItemCost.itemID eq fi_i-no) ~
+          AND vendItemCost.vendorID  eq fi_vend-no ~
+          AND (IF TRIM(fi_est-no) BEGINS '*' THEN TRIM(vendItemCost.estimateNo) MATCHES (TRIM(fi_est-no) + "*") ~
+               ELSE TRIM(vendItemCost.estimateNo) BEGINS TRIM(fi_est-no)) ~
+          AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
+          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) 
 
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "itemType"       THEN vendItemCost.itemType ELSE ~
@@ -1159,9 +1172,19 @@ PROCEDURE openQueryOne :
     ASSIGN fi_i-no = ipcValue           .
 /*    DISPLAY fi_i-no fi_vend-no cb_itemType fi_est-no WITH FRAME {&frame-name}.*/
                    
-    RUN query-go.
+/*    RUN query-go.*/
+
+    &SCOPED-DEFINE open-query                   ~
+          OPEN QUERY {&browse-name}               ~
+            {&for-each-ExactMatch}                          ~
+               NO-LOCK
+
+    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+                    
     RUN dispatch ('display-fields').
     
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
