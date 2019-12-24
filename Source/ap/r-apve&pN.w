@@ -23,10 +23,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name as cha no-undo.
-DEF VAR init-dir AS CHA NO-UNDO.
-DEF VAR lv-comp-curr AS cha NO-UNDO.
-DEF VAR ll-secure AS LOG NO-UNDO.
+DEFINE VARIABLE list-name    AS CHARACTER no-undo.
+DEFINE VARIABLE init-dir     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-comp-curr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-secure    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAPSecure    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAPSecure    AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER bf-chk FOR ap-chk.
 
@@ -370,16 +372,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -391,6 +383,14 @@ ASSIGN
 ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -433,7 +433,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -818,9 +818,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
+    RUN sys/ref/nk1look.p (
+        g_company,"APSecure","L",NO,NO,"","",
+        OUTPUT cAPSecure,OUTPUT lAPSecure
+        ).
+    lAPSecure = cAPSecure EQ "YES".
+    IF lAPSecure THEN
     ASSIGN
         begin_user:SCREEN-VALUE = USERID("ASI")
         end_user:SCREEN-VALUE   = USERID("ASI")
+        begin_user:SENSITIVE    = NO
+        end_user:SENSITIVE      = NO
         .
     IF postdate-log THEN DO:
       tran-date:SCREEN-VALUE = STRING(TODAY).
@@ -833,8 +841,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     APPLY "entry" TO tran-date.
   END.
-
-
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 
