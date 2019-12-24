@@ -102,6 +102,7 @@ DEF VAR v-shipto-contact LIKE shipto.contact NO-UNDO.
 DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 DEF VAR v-print-barTag AS LOG NO-UNDO.
+DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
 
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
 

@@ -123,9 +123,9 @@ for each report where report.term-id eq v-term-id,
           PAGE {1}.
           {oe/rep/boldelta22.i}
         END.
-
+        cJobNo = IF oe-boll.job-no NE "" THEN (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,"99")) ELSE "No Job#".
         IF FIRST(w2.cases * w2.cas-cnt) THEN 
-          PUT {1} oe-ordl.ord-no /*oe-ordl.part-no*/
+          PUT {1} cJobNo FORMAT "x(10)" /*oe-ordl.part-no*/
                   v-job-po  AT 17 FORM "x(15)" 
                   oe-ordl.part-no /*oe-boll.i-no*/ AT 33 
                   oe-ordl.i-name FORM "x(22)"
@@ -133,7 +133,6 @@ for each report where report.term-id eq v-term-id,
                   w2.cas-cnt    FORM "->>>>>9"
                   SKIP.
         ELSE PUT {1} 
-                 oe-ordl.ord-no
                  oe-ordl.part-dscr1 FORM "x(30)" AT 33 
                  w2.cases  AT 71 FORM "->>>9" " @"
                  w2.cas-cnt FORM "->>>>>9" SKIP.
@@ -194,8 +193,9 @@ for each report where report.term-id eq v-term-id,
   END.
   /* end of summary mods */
   ELSE DO:
+     cJobNo = IF oe-boll.job-no NE "" THEN (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,"99")) ELSE "No Job#".
      DISPLAY  {1}
-          oe-ordl.ord-no   WHEN AVAIL oe-ordl 
+          cJobNo   WHEN AVAIL oe-ordl FORMAT "x(10)"
           oe-boll.po-no AT 17
           oe-ordl.part-no   WHEN AVAIL oe-ordl /*oe-boll.i-no*/ 
           oe-ordl.i-name  FORM "x(19)"
