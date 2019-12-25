@@ -43,12 +43,19 @@ CREATE WIDGET-POOL.
 {sys/inc/VAR.i NEW SHARED}
 
 DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
-           FIELD amt-due AS DEC FORM "->>,>>>,>>9.99" 
-           FIELD inv-date LIKE ap-inv.inv-date
-           FIELD tt-rowid AS ROWID
-           FIELD tt-deleted AS LOG
-           FIELD dsc-date LIKE ap-inv.inv-date.
-                        .
+    FIELD amt-due    AS DECIMAL FORM "->>,>>>,>>9.99" 
+    FIELD inv-date   LIKE ap-inv.inv-date
+    FIELD tt-rowid   AS ROWID
+    FIELD tt-deleted AS LOG
+    FIELD dsc-date   LIKE ap-inv.inv-date
+    .
+DEFINE BUFFER btt-sel FOR tt-sel.
+
+DEFINE VARIABLE dAmtDue  LIKE tt-sel.amt-due  NO-UNDO.
+DEFINE VARIABLE dAmtPaid LIKE tt-sel.amt-paid NO-UNDO.
+DEFINE VARIABLE dDiscAmt LIKE tt-sel.disc-amt NO-UNDO.
+DEFINE VARIABLE dInvBal  LIKE tt-sel.inv-bal  NO-UNDO.
+
 DEF TEMP-TABLE tt-del-list
     FIELD tt-row AS ROWID.
 
@@ -61,7 +68,6 @@ DEF VAR v-show-disc AS LOG NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
 DEF VAR lv-pre-disc AS DEC NO-UNDO.
 DEF VAR lv-pre-paid AS DEC NO-UNDO.
-
 DEF VAR lv-first AS LOG INIT YES NO-UNDO.
 DEF VAR lv-num-rec AS INT NO-UNDO.
 DEF VAR lv-in-add AS LOG NO-UNDO.
@@ -669,9 +675,25 @@ DO:
              END.
           END.   
           
-          IF dec(tt-sel.amt-paid:SCREEN-VALUE) + dec(tt-sel.disc-amt:SCREEN-VALUE) > dec(tt-sel.inv-bal:SCREEN-VALUE) THEN DO:
-             MESSAGE "Over payment is not allowed!" VIEW-AS ALERT-BOX ERROR.
-             APPLY "entry" TO tt-sel.amt-paid IN BROWSE {&browse-name}.
+          ASSIGN
+              dAmtDue  = 0
+              dAmtPaid = 0
+              dDiscAmt = 0
+              dInvBal  = 0
+              .
+          FOR EACH btt-sel:
+              ASSIGN
+                  dAmtDue  = dAmtDue  + btt-sel.amt-due
+                  dAmtPaid = dAmtPaid + btt-sel.amt-paid
+                  dDiscAmt = dDiscAmt + btt-sel.disc-amt
+                  dInvBal  = dInvBal  + btt-sel.inv-bal
+                  .
+          END. /* each btt-sel */
+          IF dAmtPaid GT dAmtDue THEN DO:
+             MESSAGE
+                "Over Payment is NOT Allowed!"
+             VIEW-AS ALERT-BOX ERROR.
+             APPLY "ENTRY":U TO tt-sel.amt-paid IN BROWSE {&browse-name}.
              RETURN NO-APPLY.
           END.
 
