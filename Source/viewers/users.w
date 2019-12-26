@@ -2187,10 +2187,6 @@ PROCEDURE local-update-record :
         
         
         IF lCopy THEN DO:
-            MESSAGE 
-            "cOldUserID:" cOldUserID SKIP
-            "users.user_id:" users.user_id:SCREEN-VALUE
-            VIEW-AS ALERT-BOX.
             FOR EACH usercust NO-LOCK WHERE 
                 usercust.user_id EQ cOldUserID AND 
                 usercust.company EQ cocode  , 
