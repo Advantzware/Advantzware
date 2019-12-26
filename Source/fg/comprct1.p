@@ -139,8 +139,15 @@ DO:
                         b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1
                         b-w-fg-rctd.SetHeaderRno = fg-rctd.r-no
                         .
-
-                        
+                    FIND FIRST tt-fg-set NO-LOCK 
+                        WHERE tt-fg-set.part-no EQ b-itemfg.i-no 
+                        AND tt-fg-set.noReceipt NO-ERROR.
+                    IF AVAIL tt-fg-set THEN DO:
+                        FIND CURRENT bf-fg-rcpts EXCLUSIVE-LOCK NO-ERROR .
+                        FIND CURRENT bf2-fg-rctd EXCLUSIVE-LOCK NO-ERROR .
+                        DELETE bf-fg-rcpts .
+                        DELETE bf2-fg-rctd .
+                    END.  /* if pur-man eq NO then not create positive components set parts*/
                 END. /* If pur-man eq NO i.e manufactured */
                 ELSE 
                 DO:
@@ -148,8 +155,7 @@ DO:
                     /* multiple fg-rctd records created from existing bins to fulfill quantity   */ 
                                                
                     FIND FIRST tt-fg-set NO-LOCK 
-                        WHERE tt-fg-set.part-no EQ b-itemfg.i-no 
-                          AND NOT tt-fg-set.noReceipt NO-ERROR.
+                        WHERE tt-fg-set.part-no EQ b-itemfg.i-no NO-ERROR.
                         
                     IF AVAILABLE tt-fg-set THEN 
                         RUN processComponent.
@@ -241,7 +247,7 @@ DO:
              
             RUN fg/fullset.p (ROWID(itemfg)).        
 
-            FOR EACH tt-fg-set WHERE NOT tt-fg-set.noReceipt,
+            FOR EACH tt-fg-set ,
 
                 FIRST b-itemfg
                 WHERE b-itemfg.company EQ cocode      
