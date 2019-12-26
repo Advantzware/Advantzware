@@ -952,13 +952,13 @@ PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"
               IF  i <= 2 THEN v-dept-note[i] = tt-formtext.tt-text.      
            END.
            PUT UNFORMATTED 
-               "<UNITS=INCHES><AT=7.25,.44><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-               (job.job-no) + STRING(job.job-no2,"99") + ">" "<AT=,.6>" 
-                   (job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") 
+               "<UNITS=INCHES> <C3><R44.5><FROM><C25><R46.8><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+               cBarCodeVal + ">" "<R46.9><C7>" 
+                   cBarCodeVal  
                "<R44><C1><FROM><C105><LINE><|3>" skip
-               "<R44><C19><FROM><R48><C19><LINE><|3>"
-               "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP
-               "<C30>" v-dept-note[2] "<=11><R+4>" SKIP.
+               "<R44><C26><FROM><R48><C26><LINE><|3>"
+               "<R44><C26.5><B>BN Notes:</B><C36>" v-dept-note[1] SKIP
+               "<C36>" v-dept-note[2] "<=11><R+4>" SKIP.
            
            v-out1-id = RECID(xeb).
            run cec/desprnL2.p (recid(xef),
