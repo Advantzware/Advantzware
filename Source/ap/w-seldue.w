@@ -49,12 +49,7 @@ DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
     FIELD tt-deleted AS LOG
     FIELD dsc-date   LIKE ap-inv.inv-date
     .
-DEFINE BUFFER btt-sel FOR tt-sel.
-
-DEFINE VARIABLE dAmtDue  LIKE tt-sel.amt-due  NO-UNDO.
-DEFINE VARIABLE dAmtPaid LIKE tt-sel.amt-paid NO-UNDO.
-DEFINE VARIABLE dDiscAmt LIKE tt-sel.disc-amt NO-UNDO.
-DEFINE VARIABLE dInvBal  LIKE tt-sel.inv-bal  NO-UNDO.
+DEFINE VARIABLE lError     AS LOGICAL         NO-UNDO.
 
 DEF TEMP-TABLE tt-del-list
     FIELD tt-row AS ROWID.
@@ -412,13 +407,10 @@ ON WINDOW-CLOSE OF W-Win /* Payment Selection by Due Date */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
-  /*  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-  */
-     APPLY "choose" TO btn-finish IN FRAME {&FRAME-NAME}.
-     RETURN NO-APPLY.
-
+/*     APPLY "choose" TO btn-finish IN FRAME {&FRAME-NAME}.*/
+/*     RETURN NO-APPLY.                                    */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,27 +667,11 @@ DO:
              END.
           END.   
           
-          ASSIGN
-              dAmtDue  = 0
-              dAmtPaid = 0
-              dDiscAmt = 0
-              dInvBal  = 0
-              .
-          FOR EACH btt-sel:
-              ASSIGN
-                  dAmtDue  = dAmtDue  + btt-sel.amt-due
-                  dAmtPaid = dAmtPaid + btt-sel.amt-paid
-                  dDiscAmt = dDiscAmt + btt-sel.disc-amt
-                  dInvBal  = dInvBal  + btt-sel.inv-bal
-                  .
-          END. /* each btt-sel */
-          IF dAmtPaid GT dAmtDue THEN DO:
-             MESSAGE
-                "Over Payment is NOT Allowed!"
-             VIEW-AS ALERT-BOX ERROR.
+          RUN pCheckPaymentAmount (OUTPUT lError).
+          IF lError THEN DO:
              APPLY "ENTRY":U TO tt-sel.amt-paid IN BROWSE {&browse-name}.
              RETURN NO-APPLY.
-          END.
+          END. /* if lerror */
 
           lv-pre-paid = DEC(tt-sel.amt-paid:SCREEN-VALUE).
           FIND FIRST ap-inv WHERE ap-inv.company = g_company
@@ -904,6 +880,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-finish W-Win
 ON CHOOSE OF btn-finish IN FRAME F-Main /* Finish */
 DO:
+    RUN pCheckPaymentAmount (OUTPUT lError).
+    IF lError THEN DO:
+        APPLY "ENTRY":U TO btn-change.
+        RETURN NO-APPLY.
+    END. /* if lerror */
     FOR EACH tt-sel:
         FIND ap-sel WHERE ROWID(ap-sel) EQ tt-sel.tt-rowid NO-ERROR.
         IF NOT AVAIL ap-sel THEN DO:
@@ -1705,6 +1686,40 @@ PROCEDURE local-initialize :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPaymentAmount W-Win
+PROCEDURE pCheckPaymentAmount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE dAmtDue  LIKE tt-sel.amt-due  NO-UNDO.
+    DEFINE VARIABLE dAmtPaid LIKE tt-sel.amt-paid NO-UNDO.
+
+    DEFINE BUFFER btt-sel FOR tt-sel.
+
+    ASSIGN
+        dAmtDue  = 0
+        dAmtPaid = 0
+        .
+    FOR EACH btt-sel:
+        ASSIGN
+            dAmtDue  = dAmtDue  + btt-sel.amt-due
+            dAmtPaid = dAmtPaid + btt-sel.amt-paid
+            .
+    END. /* each btt-sel */    
+    oplError = dAmtPaid GT dAmtDue.
+    IF oplError THEN
+    MESSAGE
+        "Over Payment is NOT Allowed!"
+    VIEW-AS ALERT-BOX ERROR.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
