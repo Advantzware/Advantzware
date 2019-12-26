@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : EstimateProcs.p
     Purpose     : Start moving some repetitive code into common procedures
