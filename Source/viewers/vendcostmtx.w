@@ -820,7 +820,7 @@ PROCEDURE local-assign-record :
   IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
      FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = liFromVendItemCostID NO-LOCK: 
        CREATE bf-vendItemCostLevel.
-       BUFFER-COPY vendItemCostLevel except vendItemCostLevel.vendItemCostID vendItemCostLevel.rec_key TO bf-vendItemCostLevel.      
+       BUFFER-COPY vendItemCostLevel except vendItemCostLevel.vendItemCostID vendItemCostLevel.vendItemCostLevelID vendItemCostLevel.rec_key TO bf-vendItemCostLevel.      
        ASSIGN 
           bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID           
 /*          bf-vendItemCostLevel.quantityBase   = vendItemCostLevel.quantityBase                   */
