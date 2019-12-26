@@ -471,8 +471,10 @@ DO:
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCommand      AS CHARACTER NO-UNDO.
-        
+    DEFINE VARIABLE cCommand      AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lSilent       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNoWait       AS LOGICAL   NO-UNDO.
+             
     DEF VAR iCurrBrowseRow AS INT NO-UNDO.
   
     SESSION:SET-WAIT-STATE("GENERAL").
@@ -481,12 +483,39 @@ DO:
 
         IF SEARCH(serverResource.startService) NE ? THEN DO:
             cCommand = SEARCH(serverResource.startService).
-            /* Re-starts AdminServer,AppServer, Node and NameServer */
+
+            IF serverResource.resourceType EQ "ASI" THEN
+                RUN pGetASIMonitorStartCommand (
+                    INPUT  serverResource.name,
+                    INPUT  SEARCH(serverResource.startService),
+                    OUTPUT cCommand
+                    ) NO-ERROR.
+
+            ASSIGN
+                lSilent = TRUE
+                lNoWait = FALSE
+                .
+            
+            /* Set Silent and NO-WAIT options to false for starting Node, as command 
+               may prompt for additional details in console */ 
+            IF serverResource.resourceType EQ "Node" THEN
+                ASSIGN
+                    lSilent = FALSE
+                    lNoWait = FALSE
+                    .
+            /* Set Silent to false for starting ASI Monitors, as command 
+               may suppress any visual objects in windows opened */
+            ELSE IF serverResource.resourceType EQ "ASI" THEN
+                ASSIGN
+                    lSilent = FALSE
+                    lNoWait = TRUE
+                    .
+            /* Re-starts AdminServer,AppServer, Node, ASI Monitors and NameServer */                                                     
             RUN OS_RunCommand IN hdOSProcs (
                 INPUT  cCommand,             /* Command string to run */
                 INPUT  "",                   /* File name to write the command output */
-                INPUT  TRUE,                 /* Run with SILENT option */
-                INPUT  FALSE,                /* Run with NO-WAIT option */
+                INPUT  lSilent,              /* Run with SILENT option */
+                INPUT  lNoWait,              /* Run with NO-WAIT option */
                 OUTPUT lSuccess,
                 OUTPUT cMessage
                 ) NO-ERROR.
@@ -530,6 +559,8 @@ DO:
     DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cCommand       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSilent        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNoWait        AS LOGICAL   NO-UNDO.
 
     SESSION:SET-WAIT-STATE("GENERAL").
   
@@ -537,11 +568,25 @@ DO:
         IF SEARCH(serverResource.stopService) NE ? THEN DO:
             cCommand = SEARCH(serverResource.stopService).
             /* Stops AdminServer, AppServer, NodeServer and NameServer */
+
+            ASSIGN
+                lSilent = TRUE
+                lNoWait = FALSE
+                .
+
+            /* Set Silent and NO-WAIT options to false for stopping Node, as command 
+               may prompt for additional details in console */             
+            IF serverResource.resourceType EQ "Node" THEN
+                ASSIGN
+                    lSilent = FALSE
+                    lNoWait = FALSE
+                    .
+            
             RUN OS_RunCommand IN hdOSProcs (
                 INPUT  cCommand,             /* Command string to run */
                 INPUT  "",                   /* File name to write the command output */
-                INPUT  TRUE,                 /* Run with SILENT option */
-                INPUT  FALSE,                /* Run with NO-WAIT option */
+                INPUT  lSilent,              /* Run with SILENT option */
+                INPUT  lNoWait,              /* Run with NO-WAIT option */
                 OUTPUT lSuccess,
                 OUTPUT cMessage
                 ) NO-ERROR.
@@ -832,6 +877,70 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStartASIMonitor C-Win
+PROCEDURE pGetASIMonitorStartCommand PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to generate ASI start service command 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcResourceName AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCommand      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCommand      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCommandParamUserID      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamPassword    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamEnvironment AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamResource    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamDatabase    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cCommandParamUserID      = "monitor"
+        cCommandParamPassword    = "monitor"
+        cCommandParamDatabase    = PDBNAME(LDBNAME(1))    /* Fetch physical DB name for "ASI" */ 
+        cCommandParamEnvironment = IF NUM-ENTRIES(ipcCommand, "\") GE 3 THEN   /* Fetch environment from batch file name */ 
+                                       ENTRY(3, ipcCommand, "\")
+                                   ELSE
+                                       ""
+        .
+
+    CASE ipcResourceName:
+        WHEN "cXML" THEN
+            cCommandParamResource = "cXMLMonitor".
+        WHEN "fgXML" THEN
+            cCommandParamResource = "FG_XML_Monitor".
+        WHEN "RelXML" THEN
+            cCommandParamResource = "Rel_XML_Monitor".
+        WHEN "RFID" THEN
+            cCommandParamResource = "RFID_Monitor".
+        WHEN "jobXML" THEN
+            cCommandParamResource = "Esko_Monitor".
+        OTHERWISE
+            "".
+    END.
+    
+    /* Command to execute should have the following arguments
+       Command - <bat file to start ASI Monitors>.bat "<param1>,<param2>,<param3>,<param4>,<param5>"
+       param1 - ASI User ID
+       param2 - Password for the param1 user id
+       param3 - Environment to run the ASI Monitor (e.g. Devel, Prod)
+       param4 - ASI Monitor Mode name. **Important** Replace any spaces in Mode name with 
+                underscore "_", as Progress cannot accept spaces in arguments
+       param5 - Database to connect. (e.g. asiDevel, asiCust1) */    
+    opcCommand = ipcCommand + ' "' 
+               + cCommandParamUserID + ","
+               + cCommandParamPassword + ","
+               + cCommandParamEnvironment + ","
+               + cCommandParamResource + ","
+               + cCommandParamDatabase
+               + '"'.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStoreHandles C-Win 
 PROCEDURE pStoreHandles :
