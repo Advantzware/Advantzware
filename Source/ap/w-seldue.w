@@ -669,8 +669,9 @@ DO:
           
           RUN pCheckPaymentAmount (OUTPUT lError).
           IF lError THEN DO:
-             APPLY "ENTRY":U TO tt-sel.amt-paid IN BROWSE {&browse-name}.
-             RETURN NO-APPLY.
+              BROWSE {&BROWSE-NAME}:REFRESH().
+              APPLY "ENTRY":U TO tt-sel.amt-paid IN BROWSE {&BROWSE-NAME}.
+              RETURN NO-APPLY.
           END. /* if lerror */
 
           lv-pre-paid = DEC(tt-sel.amt-paid:SCREEN-VALUE).
@@ -882,6 +883,7 @@ ON CHOOSE OF btn-finish IN FRAME F-Main /* Finish */
 DO:
     RUN pCheckPaymentAmount (OUTPUT lError).
     IF lError THEN DO:
+        BROWSE {&BROWSE-NAME}:REFRESH().
         APPLY "ENTRY":U TO btn-change.
         RETURN NO-APPLY.
     END. /* if lerror */
@@ -1710,6 +1712,7 @@ PROCEDURE pCheckPaymentAmount:
         ASSIGN
             dAmtDue  = dAmtDue  + btt-sel.amt-due
             dAmtPaid = dAmtPaid + btt-sel.amt-paid
+            btt-sel.amt-paid = btt-sel.amt-due
             .
     END. /* each btt-sel */    
     oplError = dAmtPaid GT dAmtDue.
