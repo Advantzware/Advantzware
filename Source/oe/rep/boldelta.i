@@ -195,7 +195,7 @@ for each report where report.term-id eq v-term-id,
   ELSE DO:
      cJobNo = IF oe-boll.job-no NE "" THEN (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,"99")) ELSE "No Job#".
      DISPLAY  {1}
-          cJobNo   WHEN AVAIL oe-ordl FORMAT "x(10)"
+          cJobNo FORMAT "x(10)"
           oe-boll.po-no AT 17
           oe-ordl.part-no   WHEN AVAIL oe-ordl /*oe-boll.i-no*/ 
           oe-ordl.i-name  FORM "x(19)"
