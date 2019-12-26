@@ -1951,8 +1951,7 @@ PROCEDURE price-change :
 
 
     RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
-
-    IF op-values NE "" THEN
+    IF op-values NE "" AND lookup("Cancel", op-values) = 0 AND lookup("No", op-values) = 0 THEN
         v-pct = DECIMAL(ENTRY(2, op-values)) .
     ELSE 
         RETURN .
