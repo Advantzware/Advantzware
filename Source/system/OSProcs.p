@@ -14,6 +14,11 @@ DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
 
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE OS_RunCommand:
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
@@ -105,6 +110,47 @@ PROCEDURE OS_RunCommand:
         oplSuccess = TRUE
         opcMessage = "Success"
         .
+END PROCEDURE.
+
+PROCEDURE OS_RunFile:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to open a file with windows default option from OS-COMMAND.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFile    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO.
+    
+    ipcFile = TRIM(ipcFile, ' ').
+    ipcFile = TRIM(ipcFile, '"').
+    
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  ipcFile,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+        
+    IF NOT oplSuccess THEN
+        RETURN.
+    
+    ipcFile = DYNAMIC-FUNCTION (
+                  "fFormatFilePath" IN hdFileSysProcs,
+                  INPUT ipcFile
+                  ).
+    
+    cCommand = '"' + ipcFile + '"'.
+    
+    RUN OS_RunCommand (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  "",                   /* File name to write the command output */
+        INPUT  FALSE,                /* Run with SILENT option */
+        INPUT  TRUE,                 /* Run with NO-WAIT option */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+
 END PROCEDURE.
 
 PROCEDURE pRunOSCommand PRIVATE:

@@ -2689,7 +2689,6 @@ PROCEDURE pCreateTransactionAndReturnID PRIVATE:
 
     CREATE inventoryTransaction.
     ASSIGN 
-        /*inventoryTransaction.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
         inventoryTransaction.inventoryTransactionID = fGetNextTransactionID()
         opiInventoryTransactionID                   = inventoryTransaction.inventoryTransactionID
         inventoryTransaction.transactionType        = ipcTransactionType
@@ -2784,7 +2783,6 @@ PROCEDURE pCreateLoadtagFromPreLoadtag PRIVATE:
     CREATE ttInventoryStockLoadtag.
     BUFFER-COPY ipbf-ttInventoryStockPreLoadtag TO ttInventoryStockLoadtag.
     ASSIGN 
-        /*        ttInventoryStockLoadtag.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
         ttInventoryStockLoadtag.inventoryStockID = fGetNextStockID(ttInventoryStockLoadtag.itemType) /*Unique ID*/
         ttInventoryStockLoadtag.quantityOriginal = ipdQuantity
         ttInventoryStockLoadtag.inventoryStatus  = gcStatusStockLoadtag
@@ -2870,9 +2868,8 @@ PROCEDURE pCreateStockFromLoadtag PRIVATE:
     
     
     CREATE inventoryStock.
-    BUFFER-COPY ipbf-ttInventoryStockLoadtag TO inventoryStock.
+    BUFFER-COPY ipbf-ttInventoryStockLoadtag EXCEPT rec_key TO inventoryStock.
     ASSIGN 
-        /*        inventoryStock.rec_key          = DYNAMIC-FUNCTION("sfGetNextRecKey")*/
         inventoryStock.inventoryStatus = gcStatusStockInitial
         oplCreated                     = YES
         opcMessage                     = "Inventory Stock Created for " + inventoryStock.inventoryStockID
