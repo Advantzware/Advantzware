@@ -873,8 +873,24 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  li-prev-page = lv-current-page. 
+  li-prev-page = lv-current-page.
+   
+  RUN get-attribute ('Current-Page':U).
+  ASSIGN lv-current-page = int(return-value).
   
+  if lv-current-page = 5 AND lNewVendorItemCost then 
+  do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" '  ).
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).    
+        li-pageb4VendCost = li-prev-page.              
+            
+        RUN select-page (10).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
+        RETURN.
+  END.
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -889,19 +905,7 @@ PROCEDURE local-change-page :
             RUN ipShowBtn IN h_vp-rmov (FALSE).
     END.
 
-  if lv-current-page = 5 AND lNewVendorItemCost then 
-    do:
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" '  ).
-        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).    
-        li-pageb4VendCost = li-prev-page.              
-            
-        RUN select-page (10).
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
-        RETURN.
-
-    END.
+  
   
   {methods/winReSizePgChg.i}
 

@@ -49,7 +49,6 @@ CREATE WIDGET-POOL.
 def var li-current-page as int INIT 1 no-undo.
 def var li-prev-page as int INIT 1 no-undo.
 DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
-DEF VAR llPage11Opened AS LOGICAL NO-UNDO.
 DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -965,6 +964,20 @@ PROCEDURE local-change-page :
   RUN get-attribute ('Current-Page':U).
   ASSIGN li-prev-page = li-current-page 
          li-current-page = int(return-value).        
+  
+    if li-current-page = 5 AND lNewVendorItemCost then 
+    do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
+        ASSIGN 
+            li-page-b4VendCost = li-prev-page.        
+        RUN select-page (11).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
+        
+        RETURN.
+    END. 
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
@@ -978,25 +991,8 @@ PROCEDURE local-change-page :
             RUN ipShowBtn IN h_vp-rmov (TRUE).
         ELSE
             RUN ipShowBtn IN h_vp-rmov (FALSE).
-    END.
+    END.    
    
-    /*    IF li-prev-page = 11 AND llPage11Opened THEN DO:*/
-    /*       RUN select-page(lv-current-page) .           */
-    /*       llPage11Opened = NO.                         */
-    /*    END.                                            */
-    
-    if li-current-page = 5 AND lNewVendorItemCost then 
-    do:
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
-        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
-        ASSIGN li-page-b4VendCost = li-prev-page.        
-        RUN select-page (11).
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
-        llPage11Opened = YES.
-      
-    END. 
     {methods/winReSizePgChg.i}
   
 END PROCEDURE.

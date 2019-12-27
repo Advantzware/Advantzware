@@ -59,6 +59,8 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEF VAR li-pageb4VendCost AS INT NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1275,6 +1277,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+    RUN select-page (li-pageb4VendCost).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-box-design W-Win 
 PROCEDURE init-box-design :
 /*------------------------------------------------------------------------------
@@ -1329,6 +1348,21 @@ PROCEDURE local-change-page :
     end.                            
   end.*/ /* ticket - 23023 */
    
+  IF li-page[1] = 11 AND lNewVendorItemCost THEN 
+  DO: /* farm */
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
+        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).  */        
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ). 
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
+      li-pageb4VendCost = li-page[2].  
+      RUN select-page (13).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').     
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+        
+      RETURN.           
+  END.
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -1361,17 +1395,7 @@ PROCEDURE local-change-page :
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
   END.
-  IF li-page[1] = 11 AND lNewVendorItemCost THEN 
-  DO: /* farm */
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
-        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).  */        
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ). 
-        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
-        RUN select-page (13).
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').     
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).           
-  END.
+  
     
 END PROCEDURE.
 
@@ -1428,7 +1452,9 @@ PROCEDURE local-create-objects :
       /* Size in UIB:  ( 1.86 , 10.80 ) */
     
       /* Initialize other pages that this page requires. */
-      RUN init-pages IN THIS-PROCEDURE ('13':U) NO-ERROR.        
+      RUN init-pages IN THIS-PROCEDURE ('13':U) NO-ERROR.       
+      RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
+       
   END. /* Page 11 */
 
 
