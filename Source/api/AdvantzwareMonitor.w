@@ -931,13 +931,13 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
         WHEN "cXML" THEN
             cCommandParamResource = "cXMLMonitor".
         WHEN "fgXML" THEN
-            cCommandParamResource = "FGXMLMonitor".
+            cCommandParamResource = "FG XML Monitor".
         WHEN "RelXML" THEN
-            cCommandParamResource = "RelXMLMonitor".
+            cCommandParamResource = "Rel XML Monitor".
         WHEN "RFID" THEN
-            cCommandParamResource = "RFIDMonitor".
+            cCommandParamResource = "RFID Monitor".
         WHEN "jobXML" THEN
-            cCommandParamResource = "EskoMonitor".
+            cCommandParamResource = "Esko Monitor".
         OTHERWISE
             "".
     END.
@@ -962,7 +962,7 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
                + cCommandParamUserID + ","
                + cCommandParamPassword + ","
                + cCommandParamEnvironment + ","
-               + cCommandParamResource + ","
+               + REPLACE(cCommandParamResource," ","_") + ","
                + cCommandParamDatabase
                + '"'.
 
