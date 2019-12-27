@@ -166,7 +166,6 @@ PROCEDURE postMonitor:
                             userLog.asiUsrNo = asi._connect._Connect-Usr AND 
                             userLog.asiPID   = asi._connect._Connect-Pid AND 
                             userLog.userStatus = "Logged In") THEN NEXT testasi.
-            END.
             ASSIGN 
                 cdb = fnGetPhysicalDb("ASI").
             RUN disconnectUser (cDb, asi._connect._Connect-Usr, asi._connect._connect-name).
