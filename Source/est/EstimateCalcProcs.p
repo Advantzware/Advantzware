@@ -19,6 +19,7 @@
 
 DEFINE VARIABLE ghVendorCost                          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
@@ -108,7 +109,8 @@ ASSIGN
 /*THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).       */
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
-
+RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFormula).
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE CalculateEstimate:
@@ -2654,7 +2656,7 @@ PROCEDURE pGetStrapping PRIVATE:
             cStrapUOM = IF stackPattern.strapUOM NE "" THEN stackPattern.strapUOM ELSE "MLI" /*Refactor to use stackPattern.strapUOM*/
             .
             
-        RUN system/FormulaProcs.p (ipbf-eb.company,  /*Company*/
+        RUN ProcessStyleFormula (ipbf-eb.company,  /*Company*/
             cFormula,  /*Formula*/
             ipbf-eb.tr-len,  /*Length*/
             ipbf-eb.tr-wid, /*Width*/
