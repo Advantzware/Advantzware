@@ -1342,20 +1342,24 @@ PROCEDURE local-change-page :
     run get-attribute ("current-page").
     assign li-current-page = int(return-value).         
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-  if li-current-page = 8 AND lNewVendorItemCost then 
-  do:
+    if li-current-page = 8 AND lNewVendorItemCost then 
+    do:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(itemfg.i-no) ).      
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
         li-page-b4VendCost = li-prev-page.     
         RUN select-page (14).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).     
-  END.
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).
+        
+        RETURN.     
+    END.
+    
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+ 
   
   {methods/winReSizePgChg.i}
   
