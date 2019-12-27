@@ -929,7 +929,7 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
     
     CASE ipcResourceName:
         WHEN "cXML" THEN
-            cCommandParamResource = "cXMLMonitor".
+            cCommandParamResource = "cXML Monitor".
         WHEN "fgXML" THEN
             cCommandParamResource = "FG XML Monitor".
         WHEN "RelXML" THEN
