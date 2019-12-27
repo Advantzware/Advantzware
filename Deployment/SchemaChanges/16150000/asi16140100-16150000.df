@@ -1,0 +1,612 @@
+DROP TABLE "patchhst"
+
+ADD TABLE "qbField"
+  AREA "Data"
+  LABEL "Query Field"
+  DUMP-NAME "qbfield"
+
+ADD FIELD "queryNr" OF "qbField" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Query Nr"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Query Nr"
+  HELP "unique nr of the query"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "tableName" OF "qbField" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table name"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Table name"
+  HELP "name of the table to include in the query"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "fieldName" OF "qbField" AS character 
+  DESCRIPTION "name of the field"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Field name"
+  POSITION 4
+  MAX-WIDTH 40
+  COLUMN-LABEL "Field name"
+  HELP "name of the field"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "orderNr" OF "qbField" AS integer 
+  DESCRIPTION "Order of the field in the results of the query"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "order of the field in the results of the query"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "fieldFormat" OF "qbField" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Format"
+  POSITION 6
+  MAX-WIDTH 24
+  COLUMN-LABEL "Format"
+  HELP "format of the field"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "fieldLabel" OF "qbField" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Field label"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "Field label"
+  HELP "label of the field"
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "datatype" OF "qbField" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Datatype"
+  POSITION 8
+  MAX-WIDTH 24
+  COLUMN-LABEL "Datatype"
+  HELP "the datatype of the field in the original database"
+  ORDER 70
+  MANDATORY
+
+ADD INDEX "idxPrim" ON "qbField" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "queryNr" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+  INDEX-FIELD "fieldName" ASCENDING 
+
+ADD TABLE "qbQuery"
+  AREA "Data"
+  LABEL "Query"
+  DESCRIPTION "Table to hold definitions for a user defined query"
+  DUMP-NAME "qbQuery"
+
+ADD FIELD "queryNr" OF "qbQuery" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "queryNr"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "queryNr"
+  HELP "unique nr of the query"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "queryName" OF "qbQuery" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Query Name"
+  POSITION 3
+  MAX-WIDTH 80
+  COLUMN-LABEL "Query Name"
+  HELP "short name of the query"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "queryDesc" OF "qbQuery" AS character 
+  FORMAT "x(400)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 800
+  COLUMN-LABEL "Description"
+  HELP "longer description of the query"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "predefined" OF "qbQuery" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Predefined"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Pre"
+  HELP "is this a predefined query"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "conditions" OF "qbQuery" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Conditions"
+  POSITION 6
+  MAX-WIDTH 400
+  COLUMN-LABEL "Conditions"
+  HELP "query conditions"
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "queryUser" OF "qbQuery" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "User Id"
+  POSITION 7
+  MAX-WIDTH 24
+  COLUMN-LABEL "User Id"
+  HELP "userid of the owner of the query"
+  ORDER 30
+  MANDATORY
+
+ADD INDEX "idxPrim" ON "qbQuery" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "queryNr" ASCENDING 
+
+ADD TABLE "qbTable"
+  AREA "Data"
+  LABEL "Query Table"
+  DESCRIPTION "Tables associated with the query, together with condition"
+  DUMP-NAME "qbtable"
+
+ADD FIELD "queryNr" OF "qbTable" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Query Nr"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Query Nr"
+  HELP "unique nr of the query"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "tableName" OF "qbTable" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table name"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Table name"
+  HELP "name of the table to include in the query"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "orderNr" OF "qbTable" AS integer 
+  DESCRIPTION "Order of the table in the query"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "order of the table in the query"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "autoJoin" OF "qbTable" AS logical 
+  DESCRIPTION "automatically join this table to its parent"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Auto Join"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Auto!Join"
+  HELP "automatically join this table to its parent"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "parentTable" OF "qbTable" AS character 
+  DESCRIPTION "Name of the parent table, must also be associated with the query. Should be blank for first table, filled for all others"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Parent table"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Parent table"
+  HELP "name of the parent table"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "conditions" OF "qbTable" AS character 
+  DESCRIPTION "Extra conditions for the join via where-clause"
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Conditions"
+  POSITION 7
+  MAX-WIDTH 400
+  COLUMN-LABEL "Conditions"
+  HELP "extra conditions for the table"
+  ORDER 60
+  MANDATORY
+
+ADD INDEX "idxPrim" ON "qbTable" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "queryNr" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+
+ADD TABLE "updateHist"
+  AREA "Data"
+  LABEL "Update History"
+  DUMP-NAME "updatehist"
+
+ADD FIELD "fromVersion" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "From Version"
+  POSITION 2
+  MAX-WIDTH 24
+  COLUMN-LABEL "From Version"
+  ORDER 10
+
+ADD FIELD "toVersion" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "To Version"
+  POSITION 3
+  MAX-WIDTH 24
+  COLUMN-LABEL "To Version"
+  ORDER 20
+
+ADD FIELD "applyDate" OF "updateHist" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Apply Date"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Apply Date"
+  ORDER 30
+
+ADD FIELD "startTimeInt" OF "updateHist" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL ""
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL ""
+  ORDER 40
+
+ADD FIELD "startTime" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Start Time"
+  POSITION 6
+  MAX-WIDTH 24
+  COLUMN-LABEL "Start Time"
+  ORDER 50
+
+ADD FIELD "endTimeInt" OF "updateHist" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL ""
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL ""
+  ORDER 60
+
+ADD FIELD "endTime" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "End Time"
+  POSITION 8
+  MAX-WIDTH 24
+  COLUMN-LABEL "End Time"
+  ORDER 70
+
+ADD FIELD "user_id" OF "updateHist" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 9
+  MAX-WIDTH 24
+  COLUMN-LABEL "User ID"
+  ORDER 80
+
+ADD FIELD "success" OF "updateHist" AS logical 
+  FORMAT "Yes/No"
+  INITIAL "no"
+  LABEL "Success"
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "Success"
+  ORDER 90
+
+ADD FIELD "updLog" OF "updateHist" AS character 
+  FORMAT "x(600)"
+  INITIAL ""
+  LABEL "Update Log"
+  POSITION 11
+  MAX-WIDTH 1200
+  COLUMN-LABEL "Update Log"
+  ORDER 100
+
+ADD INDEX "iPrimary" ON "updateHist" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "toVersion" ASCENDING 
+  INDEX-FIELD "applyDate" DESCENDING 
+  INDEX-FIELD "startTimeInt" DESCENDING 
+
+ADD INDEX "iApplyDate" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "applyDate" DESCENDING 
+
+ADD INDEX "iFromVer" ON "updateHist" 
+  AREA "Data"
+  INDEX-FIELD "fromVersion" ASCENDING 
+
+ADD INDEX "iFromVersion" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "fromVersion" ASCENDING 
+
+ADD INDEX "iStartTimeInt" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "startTimeInt" DESCENDING 
+
+ADD INDEX "iToVersion" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "toVersion" ASCENDING 
+
+ADD INDEX "iUserID" ON "updateHist" 
+  AREA "Index"
+  INDEX-FIELD "user_id" ASCENDING 
+
+ADD FIELD "inactive" OF "account" AS logical
+  FORMAT "yes/no"
+  POSITION 49
+  INITIAL "no"
+  LABEL "Inactive"
+  COLUMN-LABEL "Inactive"
+  ORDER 460
+  MAX-WIDTH 1
+
+ADD FIELD "locationID" OF "APIOutboundEvent" AS character
+  FORMAT "x(8)"
+  POSITION 18
+  INITIAL ""
+  LABEL "Location"
+  COLUMN-LABEL "Location"
+  ORDER 170
+  MAX-WIDTH 16
+
+DROP FIELD "audit_dir" OF "config"
+DROP FIELD "audit_tables" OF "config"
+DROP FIELD "audit_dir_unix" OF "config"
+DROP FIELD "smtpServer" OF "config"
+DROP FIELD "smtpPort" OF "config"
+DROP FIELD "smtpUser" OF "config"
+DROP FIELD "smtpPassword" OF "config"
+DROP FIELD "emailBody" OF "config"
+
+ADD FIELD "forcedCommissionPercent" OF "cust-part" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 25
+  INITIAL "0"
+  LABEL "Forced Sales Comm. Pct."
+  COLUMN-LABEL "Forced Sales Comm. Pct."
+  DECIMALS 6
+  ORDER 240
+  MAX-WIDTH 21
+
+DROP FIELD "spare-dec-1" OF "cust-part"
+
+ADD FIELD "description" OF "emailConfig" AS character
+  FORMAT "x(24)"
+  POSITION 20
+  INITIAL ""
+  LABEL "Description"
+  COLUMN-LABEL "Description"
+  ORDER 190
+  MAX-WIDTH 48
+
+ADD FIELD "notified" OF "emailConfig" AS logical
+  FORMAT "yes/no"
+  POSITION 21
+  INITIAL "no"
+  HELP "Email Notification Status"
+  LABEL "Email Notification Status"
+  COLUMN-LABEL "Email Notification Status"
+  ORDER 200
+  MAX-WIDTH 1
+
+ADD FIELD "quantityReference" OF "estCostHeader" AS decimal
+  DESCRIPTION "Reference Quantity for display or additional calculations"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 62
+  INITIAL "0"
+  LABEL "Ref. Qty."
+  COLUMN-LABEL "Ref. Qty."
+  DECIMALS 6
+  ORDER 1070
+  MAX-WIDTH 21
+
+ADD FIELD "hoursRunMinimum" OF "estCostOperation" AS decimal
+  DESCRIPTION "Minimum Run Hours for Operation"
+  FORMAT "->>,>>9.99"
+  POSITION 78
+  INITIAL "0"
+  HELP "Enter Min Run Hours for Operation Quantity"
+  LABEL "Min Run Hours"
+  COLUMN-LABEL "Min Run Hours"
+  DECIMALS 6
+  ORDER 800
+  MAX-WIDTH 21
+
+ADD INDEX "iCoLocBin" ON "fg-bin"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "loc" ASCENDING
+  INDEX-FIELD "loc-bin" ASCENDING
+
+ADD INDEX "iCoLocBin" ON "fg-rctd"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "loc" ASCENDING
+  INDEX-FIELD "loc-bin" ASCENDING
+
+ADD FIELD "noReceipt" OF "fg-set" AS logical
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  LABEL "Prevent Receipt"
+  COLUMN-LABEL "Prevent Receipt"
+  ORDER 270
+  MAX-WIDTH 1
+
+ADD FIELD "yr" OF "gl-jrn" AS integer
+  FORMAT "9999"
+  POSITION 35
+  INITIAL "0"
+  LABEL "Year"
+  COLUMN-LABEL "Year"
+  ORDER 320
+  MAX-WIDTH 4
+
+ADD INDEX "iCoYrPrd" ON "gl-jrn"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" ASCENDING
+  INDEX-FIELD "period" ASCENDING
+
+ADD INDEX "iCoYrPrdDesc" ON "gl-jrn"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" DESCENDING
+  INDEX-FIELD "period" DESCENDING
+
+ADD FIELD "yr" OF "glhist" AS integer
+  FORMAT "9999"
+  POSITION 28
+  INITIAL "0"
+  LABEL "Year"
+  COLUMN-LABEL "Year"
+  ORDER 260
+  MAX-WIDTH 4
+
+ADD INDEX "iCoYrPrd" ON "glhist"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" ASCENDING
+  INDEX-FIELD "period" ASCENDING
+
+ADD INDEX "iCoYrPrdDesc" ON "glhist"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" DESCENDING
+  INDEX-FIELD "period" DESCENDING
+
+ADD FIELD "yr" OF "gltrans" AS integer
+  FORMAT "9999"
+  POSITION 28
+  INITIAL "0"
+  LABEL "Year"
+  COLUMN-LABEL "Year"
+  ORDER 260
+  MAX-WIDTH 4
+
+ADD INDEX "iCoYrPrd" ON "gltrans"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" ASCENDING
+  INDEX-FIELD "period" ASCENDING
+
+ADD INDEX "iCoYrPrdDesc" ON "gltrans"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "yr" DESCENDING
+  INDEX-FIELD "period" DESCENDING
+
+ADD FIELD "orderType" OF "job" AS character
+  FORMAT "x"
+  POSITION 67
+  INITIAL ""
+  HELP "Enter Order Type (O)riginal, (R)epeat, repeat with (C)hange"
+  LABEL "Job Type"
+  COLUMN-LABEL "Job Type"
+  ORDER 660
+  MAX-WIDTH 2
+
+ADD FIELD "minRunHours" OF "mach" AS decimal
+  DESCRIPTION "This is the minimum run time for the machine for each routing instance.  If the Run time is less than the minimum defined for that machine, the minimum will be the result and charged for that machine"
+  FORMAT ">>>9.99"
+  POSITION 117
+  INITIAL "0"
+  HELP "Minimum Run Time"
+  LABEL "Min Run Hrs"
+  COLUMN-LABEL "Min Run Hrs"
+  DECIMALS 2
+  ORDER 1110
+  MAX-WIDTH 17
+
+UPDATE FIELD "adjustmentCode" OF "rm-rcpth"
+  FORMAT "x(2)"
+
+UPDATE FIELD "adjustmentCode" OF "rm-rctd"
+  FORMAT "x(2)"
+
+ADD INDEX "iCoLocBin" ON "rm-rctd"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "loc" ASCENDING
+  INDEX-FIELD "loc-bin" ASCENDING
+
+ADD FIELD "refreshFrequency" OF "serverResource" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 20
+  INITIAL "0"
+  LABEL "Refresh Frequency"
+  COLUMN-LABEL "Refresh Frequency"
+  ORDER 190
+  MAX-WIDTH 4
+
+ADD FIELD "strapUoM" OF "stackPattern" AS character
+  DESCRIPTION "Unit of Measure for strap/band material"
+  FORMAT "x(5)"
+  POSITION 10
+  INITIAL ""
+  HELP "Enter Unit of Measure for Strapping"
+  LABEL "Strap UOM"
+  COLUMN-LABEL "Strap UOM"
+  ORDER 90
+  MAX-WIDTH 10
+
+ADD SEQUENCE "queryNr"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000013613
