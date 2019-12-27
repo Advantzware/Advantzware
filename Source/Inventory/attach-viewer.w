@@ -346,6 +346,10 @@ DO:
     DELETE WIDGET-POOL "attachment-widgets" NO-ERROR.
     CREATE WIDGET-POOL "attachment-widgets" PERSISTENT.
         
+    /* Reset frame's virtual height to original height. This will remove any scrollbars
+       created from the previous search */
+    FRAME {&WIDGET-FRAME}:HANDLE:VIRTUAL-HEIGHT-PIXELS = FRAME {&WIDGET-FRAME}:HANDLE:HEIGHT-PIXELS. 
+    
     FOR EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ cCompany
           AND bf-job-hdr.job-no  EQ fiJobNo:SCREEN-VALUE 
@@ -783,18 +787,13 @@ PROCEDURE pImageClicked :
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-        
-    cCommand = "start " + ttAttachments.ttAttachFile.
-
-    RUN OS_RunCommand IN hdOSProcs (
-        INPUT  cCommand,             /* Command string to run */
-        INPUT  "",                   /* File name to write the command output */
-        INPUT  FALSE,                /* Run with SILENT option */
-        INPUT  TRUE,                 /* Run with NO-WAIT option */
+    
+    /* Command to open file with window default option */       
+    RUN OS_RunFile IN hdOSProcs (
+        INPUT  ttAttachments.ttAttachFile,
         OUTPUT lSuccess,
         OUTPUT cMessage
         ) NO-ERROR.        
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
