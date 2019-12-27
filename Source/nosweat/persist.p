@@ -153,6 +153,14 @@ PROCEDURE Get_Procedure :
     DEFINE VARIABLE iAuditID      AS INTEGER NO-UNDO.
     DEFINE VARIABLE lDummy        AS LOGICAL NO-UNDO.
 
+    IF NOT CONNECTED(LDBNAME(2)) THEN 
+    DO:
+        MESSAGE 
+            "You have been disconnected from the system." 
+            VIEW-AS ALERT-BOX INFO.
+        QUIT.
+    END.
+
     IF INDEX(proc-name,"..") NE 0 OR INDEX(proc-name,".") = 0 THEN
         RETURN.
 

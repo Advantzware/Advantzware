@@ -101,7 +101,7 @@ ASSIGN
     IF NOT lEulaAccepted THEN 
         oplExit = TRUE. 
   
-/* Get PSC connection info for this user */
+/* Get DB connection info for this user */
     FIND FIRST asi._myconnection 
         NO-LOCK NO-ERROR.  
     FIND FIRST audit._myconnection 
