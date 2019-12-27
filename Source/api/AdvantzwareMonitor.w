@@ -54,6 +54,7 @@ DEFINE VARIABLE cServerHostName           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEmailConfigDesc          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceName             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceType             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModeList                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOSProcs                 AS HANDLE    NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
@@ -475,7 +476,7 @@ DO:
     DEFINE VARIABLE lSilent       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lNoWait       AS LOGICAL   NO-UNDO.
              
-    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER NO-UNDO.
   
     SESSION:SET-WAIT-STATE("GENERAL").
 
@@ -484,12 +485,20 @@ DO:
         IF SEARCH(serverResource.startService) NE ? THEN DO:
             cCommand = SEARCH(serverResource.startService).
 
-            IF serverResource.resourceType EQ "ASI" THEN
+            IF serverResource.resourceType EQ "ASI" THEN DO:
                 RUN pGetASIMonitorStartCommand (
                     INPUT  serverResource.name,
                     INPUT  SEARCH(serverResource.startService),
-                    OUTPUT cCommand
+                    OUTPUT cCommand,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
                     ) NO-ERROR.
+                IF NOT lSuccess THEN DO:
+                    MESSAGE cMessage
+                        VIEW-AS ALERT-BOX ERROR.
+                    RETURN NO-APPLY.
+                END.
+            END.
 
             ASSIGN
                 lSilent = TRUE
@@ -769,7 +778,8 @@ PROCEDURE pFetchAPIElements :
     
     /* Create the temp-table and load var names */
     cIniVarList = "# Setup Variables,DLCDir,hostname,
-                   # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,".
+                   # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,
+                   # ASI Login Items,modeList".
     
     EMPTY TEMP-TABLE ttIniFile.
     
@@ -818,6 +828,8 @@ PROCEDURE pFetchAPIElements :
             cNameServerPort = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "hostname" THEN
             cServerHostName = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "modeList" THEN
+            cModeList = ttIniFile.cVarValue.
     END.
 END PROCEDURE.
 
@@ -888,6 +900,8 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
     DEFINE INPUT  PARAMETER ipcResourceName AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCommand      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCommand      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cCommandParamUserID      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCommandParamPassword    AS CHARACTER NO-UNDO.
@@ -904,21 +918,37 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
                                    ELSE
                                        ""
         .
-
+    
+    IF cCommandParamEnvironment EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to fetch the environment"
+            .
+        RETURN.    
+    END.
+    
     CASE ipcResourceName:
         WHEN "cXML" THEN
             cCommandParamResource = "cXMLMonitor".
         WHEN "fgXML" THEN
-            cCommandParamResource = "FG_XML_Monitor".
+            cCommandParamResource = "FGXMLMonitor".
         WHEN "RelXML" THEN
-            cCommandParamResource = "Rel_XML_Monitor".
+            cCommandParamResource = "RelXMLMonitor".
         WHEN "RFID" THEN
-            cCommandParamResource = "RFID_Monitor".
+            cCommandParamResource = "RFIDMonitor".
         WHEN "jobXML" THEN
-            cCommandParamResource = "Esko_Monitor".
+            cCommandParamResource = "EskoMonitor".
         OTHERWISE
             "".
     END.
+    
+    IF LOOKUP(cCommandParamResource, cModeList) EQ 0 THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Mode '" + cCommandParamResource + "' is not available in available mode list"
+            .
+        RETURN.        
+    END.    
     
     /* Command to execute should have the following arguments
        Command - <bat file to start ASI Monitors>.bat "<param1>,<param2>,<param3>,<param4>,<param5>"
@@ -935,6 +965,11 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
                + cCommandParamResource + ","
                + cCommandParamDatabase
                + '"'.
+
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .               
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
