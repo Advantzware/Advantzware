@@ -368,6 +368,8 @@ IF lNetQty THEN DO:
                 where job-mch.company eq job-hdr.company
                   and job-mch.job-no eq job-hdr.job-no
                   and job-mch.job-no2 eq job-hdr.job-no2
+                  by job-mch.frm 
+                  by job-mch.blank-no
                 :
               
                 v-sheets = job-mch.run-qty.
