@@ -930,6 +930,7 @@ PROCEDURE ipClickOk :
             OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
         RUN VALUE(cRunPgm).
+        QUIT.
     END.
     /* This is only used to monitor users */
     ELSE DO: 
@@ -1316,7 +1317,12 @@ PROCEDURE ipPreRun :
     AND cbMode NE "Monitor Users" 
     AND cbMode NE "Editor" THEN DO:
         RUN epUserLogin IN hPreRun (OUTPUT lExit).
-        IF lExit THEN QUIT.
+        IF lExit THEN DO:
+            DO ictr = 1 TO NUM-DBS:
+                DISCONNECT VALUE(LDBNAME(iCtr)).
+            END.
+            QUIT.
+        END.
     END.
 
     IF cbMode EQ "Touchscreen" THEN 

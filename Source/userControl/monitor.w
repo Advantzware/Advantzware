@@ -47,10 +47,10 @@ PROCEDURE ipDisconnectUserLog:
         asi._connect._Connect-Pid EQ userLog.asiPID          
         NO-ERROR.
     IF AVAILABLE asi._connect THEN DO:
-        RUN monitorActivity (STRING(TODAY) + " " + STRING(MTIME, "hh:mm") + " User  " + userLog.user_id + "(" + STRING(userLog.asiUsrNo) + ")" +  ipcLogoutMessage,YES,'').
+        RUN monitorActivity (" User  " + userLog.user_id + " (" + STRING(userLog.asiUserID) + ") " +  ipcLogoutMessage,YES,'').
         ASSIGN 
             cDb = fnGetPhysicalDb("ASI").
-        RUN disconnectUser (cDb, userLog.asiUsrNo).
+        RUN disconnectUser (cDb, userLog.asiUsrNo, userLog.user_id).
     END.
         
     FIND FIRST audit._connect NO-LOCK WHERE 
@@ -58,10 +58,10 @@ PROCEDURE ipDisconnectUserLog:
         audit._connect._Connect-Pid EQ userLog.audPID          
         NO-ERROR.
     IF AVAILABLE audit._connect THEN DO:
-        RUN monitorActivity (STRING(TODAY) + " " + STRING(MTIME, "hh:mm") + " User  " + userLog.user_id + "(" + STRING(userLog.audUsrNo) + ")" +  ipcLogoutMessage,YES,'').
+        RUN monitorActivity (" User  " + userLog.user_id + " (" + STRING(userLog.audUserID) + ") " +  ipcLogoutMessage,YES,'').
         ASSIGN 
             cDb = fnGetPhysicalDb("AUDIT").
-        RUN disconnectUser (cDb, userLog.audUsrNo).
+        RUN disconnectUser (cDb, userLog.audUsrNo, userlog.user_id).
     END.
                                              
     RUN ipLogUserOut (INPUT ROWID(userLog)).
@@ -110,7 +110,7 @@ PROCEDURE postMonitor:
         ASSIGN 
             userLog.dbDisconnect   = FALSE
             userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-            userLog.userStatus     = "User Logged Out".
+            userLog.userStatus     = "Logged Out".
     END.
     
     ASSIGN 
@@ -139,7 +139,7 @@ PROCEDURE postMonitor:
             ASSIGN 
                 cdb = fnGetPhysicalDb("ASI").
             FOR EACH userLog NO-LOCK WHERE 
-                userLog.logoutDateTime EQ ? :
+                userLog.userStatus EQ "Logged In":
                 FIND FIRST users NO-LOCK WHERE 
                     users.user_id EQ  userLog.user_id 
                     NO-ERROR.
@@ -159,23 +159,28 @@ PROCEDURE postMonitor:
         /* NEW FUNCTIONALITY */
         /* Read list of connections and compare to userLogins; if not present, log him out of DB */
         RUN monitorActivity ('Check for DB users without userLogs ' ,YES,'').
+        testasi:
         FOR EACH asi._connect NO-LOCK WHERE 
-            CAN-DO("REMC,SELF",asi._connect._connect-type) AND 
-            NOT CAN-FIND (FIRST userLog WHERE 
+            CAN-DO("REMC,SELF",asi._connect._connect-type):
+            IF CAN-FIND (FIRST userLog WHERE 
                             userLog.asiUsrNo = asi._connect._Connect-Usr AND 
-                            userLog.asiPID   = asi._connect._Connect-Pid):
+                            userLog.asiPID   = asi._connect._Connect-Pid AND 
+                            userLog.userStatus = "Logged In") THEN NEXT testasi.
+            END.
             ASSIGN 
                 cdb = fnGetPhysicalDb("ASI").
-            RUN disconnectUser (cDb, asi._connect._Connect-Usr).
+            RUN disconnectUser (cDb, asi._connect._Connect-Usr, asi._connect._connect-name).
         END.
+        testaudit:
         FOR EACH audit._connect NO-LOCK WHERE 
-            CAN-DO("REMC,SELF",audit._connect._connect-type) AND 
-            NOT CAN-FIND (FIRST userLog WHERE 
+            CAN-DO("REMC,SELF",audit._connect._connect-type): 
+            IF CAN-FIND (FIRST userLog WHERE 
                             userLog.audUsrNo = audit._connect._Connect-Usr AND 
-                            userLog.audPID   = audit._connect._Connect-Pid):
+                            userLog.audPID   = audit._connect._Connect-Pid AND 
+                            userLog.userStatus = "Logged In") THEN NEXT testaudit.
             ASSIGN 
                 cdb = fnGetPhysicalDb("audit").
-            RUN disconnectUser (cDb, audit._connect._Connect-Usr).
+            RUN disconnectUser (cDb, audit._connect._Connect-Usr, audit._connect._connect-name).
         END.
     END.
     
@@ -189,11 +194,12 @@ PROCEDURE disconnectUser:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcDb AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserNum AS INTEGER.
+    DEFINE INPUT PARAMETER ipcUserName AS CHAR NO-UNDO.
     DEFINE VARIABLE cDLC AS CHARACTER NO-UNDO.
     
     ASSIGN 
         cDLC = fnGetDLC().
-    RUN monitorActivity (STRING(TODAY) + " " + STRING(mtime, "hh:mm") + " Disconnect user # " + STRING(ipcUserNum) + " " + " from DB " + ipcDB + " ",YES,'').
+    RUN monitorActivity (" Disconnecting user # " + STRING(ipcUserNum) + " (" + STRING(ipcUserName) + ") from DB " + ipcDB + " ",YES,'').
     OS-COMMAND SILENT VALUE(cDLC + "\bin\proshut " + ipcDb + " -C disconnect " + TRIM(STRING(ipcUserNum,">>>9"))).
     RETURN.
 
@@ -211,7 +217,7 @@ PROCEDURE ipLogUserOut:
         NO-ERROR.
     IF AVAILABLE bf-UserLog THEN ASSIGN 
         bf-userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-        bf-userLog.userStatus     = "User Logged Out".
+        bf-userLog.userStatus     = "Logged Out".
     FIND CURRENT bf-userLog NO-LOCK NO-ERROR.
 
 END PROCEDURE.
