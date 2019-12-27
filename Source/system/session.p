@@ -40,14 +40,14 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 /* zMessage Typed return variables */
-DEF VAR chrMsgRtn AS CHAR NO-UNDO.
-DEF VAR logMsgRtn AS LOG NO-UNDO.
-DEF VAR intMsgRtn AS INT NO-UNDO.
-DEF VAR decMsgRtn AS DECIMAL NO-UNDO.
-DEF VAR recMsgRtn AS RECID NO-UNDO.
-DEF VAR rowMsgRtn AS ROWID NO-UNDO.
-DEF VAR datMsgRtn AS DATE NO-UNDO.
-DEF VAR dtmMsgRtn AS DATETIME NO-UNDO.
+DEFINE VARIABLE chrMsgRtn           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE logMsgRtn           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE intMsgRtn           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE decMsgRtn           AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE recMsgRtn           AS RECID     NO-UNDO.
+DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
+DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
+DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 /* alphabetical list of super-procedures comma delimited */
 ASSIGN 
@@ -98,6 +98,32 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
+FUNCTION fMessageText RETURNS CHARACTER 
+  (ipcMessageID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageTitle Procedure
+FUNCTION fMessageTitle RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 
@@ -305,13 +331,12 @@ PROCEDURE displayMessage:
  Purpose: Displays a selected message in standard format
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
-    
+    DEFINE INPUT PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+
     FIND FIRST zMessage NO-LOCK
-        WHERE zMessage.msgID EQ ipcMessageID       
-        NO-ERROR.
-    
-    IF NOT AVAIL zMessage THEN DO:
+         WHERE zMessage.msgID EQ ipcMessageID
+         NO-ERROR.    
+    IF NOT AVAILABLE zMessage THEN DO:
         MESSAGE 
             "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
             "Please correct this using function NZ@ or contact ASI Support"
@@ -322,38 +347,33 @@ PROCEDURE displayMessage:
         RETURN.
     ELSE DO:
         CASE zMessage.msgType:
-            WHEN "Error" THEN DO:
+            WHEN "Error" THEN
                 MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX ERROR 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            WHEN "Info" THEN DO:
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX ERROR 
+                TITLE fMessageTitle().
+            WHEN "Info" THEN
                 MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX INFO
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            WHEN "Message" THEN DO:
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX INFO
+                TITLE fMessageTitle().
+            WHEN "Message" THEN
                 MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX MESSAGE 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            WHEN "Warning" THEN DO:
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX MESSAGE 
+                TITLE fMessageTitle().
+            WHEN "Warning" THEN
                 MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                    VIEW-AS ALERT-BOX WARNING 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
-            OTHERWISE DO:
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX WARNING 
+                TITLE fMessageTitle().
+            OTHERWISE
                 MESSAGE 
                     (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
                     "NOTE: Message type for this record is not correct." SKIP 
                     "Please correct using NZ@ or contact ASI Support."
-                    VIEW-AS ALERT-BOX WARNING 
-                    TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle).
-            END.
+                VIEW-AS ALERT-BOX WARNING 
+                TITLE fMessageTitle().
         END CASE.
     END.
 END PROCEDURE.
@@ -364,17 +384,16 @@ END PROCEDURE.
 &IF DEFINED(EXCLUDE-displayMessageQuestion) = 0 &THEN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestion Procedure
 PROCEDURE displayMessageQuestion:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays a selected message and returns a character-based answer as output
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opcOutput AS CHAR NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message and returns a character-based answer as output
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcOutput    AS CHARACTER NO-UNDO.
 
     FIND FIRST zMessage NO-LOCK
-        WHERE zMessage.msgID EQ ipcMessageID       
-        NO-ERROR.
-    
+         WHERE zMessage.msgID EQ ipcMessageID       
+         NO-ERROR.    
     IF NOT AVAIL zMessage THEN DO:
         MESSAGE 
             "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
@@ -382,21 +401,18 @@ PROCEDURE displayMessageQuestion:
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.  
-    ELSE IF zMessage.userSuppress THEN DO:
-        ASSIGN 
-            opcOutput = zMessage.rtnValue.
-    END.
+    ELSE IF zMessage.userSuppress THEN
+         opcOutput = zMessage.rtnValue.
     ELSE DO:
         CASE zMessage.msgType:
             WHEN "QUESTION-YN" THEN DO:
-                    MESSAGE 
-                        (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg) + " (" + ipcMessageID + ")"
-                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
-                        TITLE (IF zMessage.currentTitle NE "" THEN zMessage.currentTitle ELSE zMessage.defaultTitle)
-                        UPDATE cLog AS LOG.
-                    ASSIGN 
-                        opcOutput = STRING(cLog).
-                END.
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage AS LOGICAL.
+                opcOutput = STRING(lMessage).
+            END.
             /* Deal with these options in next phase */
             WHEN "QUESTION-CHAR" THEN DO:
             END.
@@ -421,15 +437,14 @@ PROCEDURE displayMessageQuestionLOG:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMessageID AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplOutput AS LOG NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOutput    AS LOGICAL   NO-UNDO.
     
-    DEF VAR cRtnValue AS CHAR NO-UNDO.
+    DEFINE VARIABLE cRtnValue AS CHARACTER NO-UNDO.
     
     RUN displayMessageQuestion (INPUT ipcMessageID, OUTPUT cRtnValue).
     
-    ASSIGN 
-        oplOutput = LOGICAL(cRtnValue).
+    oplOutput = LOGICAL(cRtnValue).
 
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
@@ -1767,6 +1782,48 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMessageText Procedure
+FUNCTION fMessageText RETURNS CHARACTER 
+  (ipcMessageID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF zMessage.currMessage  NE "" THEN zMessage.currMessage
+           ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMessageTitle Procedure
+FUNCTION fMessageTitle RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN IF zMessage.currentTitle NE "" THEN zMessage.currentTitle
+	       ELSE zMessage.defaultTitle.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 

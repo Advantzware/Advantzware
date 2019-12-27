@@ -5080,7 +5080,7 @@ PROCEDURE pCheckFGItemCustHold :
                 WHERE cust.company EQ cocode 
                 AND cust.cust-no EQ bff-itemfg.cust-no NO-ERROR .
             IF AVAIL cust AND cust.cr-hold THEN 
-                RUN displayMessageQuestionLOG ("12", oplFgItemCustHold).
+                RUN displayMessageQuestionLOG ("12", OUTPUT oplFgItemCustHold).
         END.
     
 END PROCEDURE.
