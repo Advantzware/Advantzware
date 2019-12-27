@@ -534,13 +534,6 @@ PROCEDURE spCreateAuditHdr:
     
     DEFINE OUTPUT PARAMETER opiAuditID    AS INTEGER   NO-UNDO. 
 
-    IF NOT CONNECTED(LDBNAME(2)) THEN DO:
-        MESSAGE 
-            "You have been disconnected from the system." 
-            VIEW-AS ALERT-BOX INFO.
-        QUIT.
-    END.
-        
     CREATE AuditHdr.  
     ASSIGN  
         AuditHdr.AuditID       = NEXT-VALUE(Audit_Seq,Audit) 

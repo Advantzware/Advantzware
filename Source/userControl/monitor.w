@@ -126,7 +126,6 @@ PROCEDURE postMonitor:
         FOR EACH userLog WHERE 
             userLog.logoutDateTime NE ? AND 
             userLog.logoutDateTime LT ADD-INTERVAL(DATETIME(TODAY), -30, "Days"):
-            DISP userlog.
             DELETE userLog.
         END.
 
