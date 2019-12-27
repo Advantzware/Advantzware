@@ -160,7 +160,7 @@ DEFINE BUTTON btFirst
      SIZE 9.6 BY 2.29 TOOLTIP "First".
 
 DEFINE BUTTON btJobDetails 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/form.ico":U
+     IMAGE-UP FILE "Graphics/32x32/form.ico":U
      LABEL "" 
      SIZE 11 BY 2.62 TOOLTIP "View Current Job Details".
 
