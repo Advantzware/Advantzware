@@ -101,7 +101,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
-     IMAGE-UP FILE "C:/Asigui/Environments/16.11.02/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
      SIZE 11 BY 2.62.
 
