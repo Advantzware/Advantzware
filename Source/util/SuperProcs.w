@@ -634,14 +634,14 @@ PROCEDURE pCodeView :
         IF ttSuperProc.procType NE "Error" THEN DO:
         ASSIGN
             cDefinePhrase = ""
-            cCodePhrase   = (IF ttSuperProc.procType EQ "Procedure" THEN "RUN "
-                             ELSE "DYNAMIC-FUNCTION (~"")
+            cCodePhrase   = (IF ttSuperProc.procType EQ "Function" THEN "DYNAMIC-FUNCTION (~""
+                             ELSE "RUN ")
                           + ttSuperProc.internalProc
                           + (IF ttSuperProc.procType EQ "Function" THEN "~"" ELSE "")
                           .
         IF ttSuperProc.procParams NE "" THEN
         cCodePhrase = cCodePhrase
-                    + (IF ttSuperProc.procType EQ "Procedure" THEN " (" ELSE ",")
+                    + (IF ttSuperProc.procType EQ "Function" THEN "," ELSE " (")
                     + CHR(10)
                     + "    "
                     .            
