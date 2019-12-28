@@ -9,6 +9,8 @@ DEFINE VARIABLE cSuperProcs AS CHARACTER NO-UNDO.
 {fg/ttFGBins.i "NEW SHARED"}
 /* Inventory/InventoryProcs.p */
 {Inventory/ttInventory.i "NEW SHARED"}
+/* oe/OrderProcs.p */
+{sys/inc/var.i NEW SHARED}
 /* oerep/LoadtagProcs.p */
 {oerep/r-loadtg.i NEW}
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
@@ -20,6 +22,7 @@ DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord
 
 PROCEDURE pSuperProcs:
     DEFINE VARIABLE cInternalProcs AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProcFile      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSignature     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hSuperProc     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
@@ -54,7 +57,6 @@ PROCEDURE pSuperProcs:
                 + "system/CreditProcs.p,"
                 + "system/FreightProcs.p,"
                 + "system/ftpProcs.p,"
-                + "system/MessageProcs.p,"
                 + "system/oeValidate.p,"
                 + "system/OutputProcs.p,"
                 + "system/PgmMstrSecur.p,"
@@ -68,13 +70,26 @@ PROCEDURE pSuperProcs:
                 + "util/Validate.p"
                 .
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):
+        cProcFile = ENTRY(idx,cSuperProcs).
+        IF SEARCH(cProcFile) EQ ? THEN
+        cProcFile = REPLACE(cProcFile,".p",".r").
+        IF SEARCH(cProcFile) EQ ? THEN DO:
+            CREATE ttSuperProc.
+            ASSIGN
+                ttSuperProc.procName     = ENTRY(idx,cSuperProcs)
+                ttSuperProc.internalProc = "Error Message"
+                ttSuperProc.procType     = "ERROR"
+                ttSuperProc.procParams   = "Procedure File Not Found"
+                .
+            NEXT.
+        END. /* if search */
         RUN VALUE(ENTRY(idx,cSuperProcs)) PERSISTENT SET hSuperProc NO-ERROR.
         IF ERROR-STATUS:ERROR THEN DO:
             DO jdx = 1 TO ERROR-STATUS:NUM-MESSAGES:
                 CREATE ttSuperProc.
                 ASSIGN
                     ttSuperProc.procName     = ENTRY(idx,cSuperProcs)
-                    ttSuperProc.internalProc = "Message: " + STRING(jdx)
+                    ttSuperProc.internalProc = "Erro Message"
                     ttSuperProc.procType     = "ERROR"
                     ttSuperProc.procParams   = ERROR-STATUS:GET-MESSAGE(jdx)
                     .
