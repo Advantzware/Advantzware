@@ -50,6 +50,13 @@ PROCEDURE dynInitCompanyList:
     RETURN cCompanyList.
 END PROCEDURE.
 
+PROCEDURE dynInitItemType:
+    RUN spGetSessionParam ("ItemType", OUTPUT cSessionValue).
+    IF cSessionValue EQ "" THEN
+    cSessionValue = "All,FG,RM,WP".
+    RETURN cSessionValue.
+END PROCEDURE.
+
 PROCEDURE dynInitLocation:
     RUN spGetSessionParam ("Location", OUTPUT cSessionValue).
     RETURN cSessionValue.
