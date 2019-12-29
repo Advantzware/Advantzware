@@ -139,7 +139,7 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bExit AUTO-END-KEY 
-     IMAGE-UP FILE "N:/Environments/Devel/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
      SIZE 8 BY 2.14 TOOLTIP "Exit".
 

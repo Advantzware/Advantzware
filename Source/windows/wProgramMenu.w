@@ -214,7 +214,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN constructObject (
-             INPUT  'n:/repository/legacy/sdo/sdoprogrammenu.wDB-AWARE':U ,
+             INPUT  'sdo/sdoprogrammenu.wDB-AWARE':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'AppServiceASInfoASUsePrompt?CacheDuration0CheckCurrentChangedyesDestroyStatelessyesDisconnectAppServernoServerOperatingModeNONEShareDatanoUpdateFromSourcenoForeignFieldsObjectNamesdoprogrammenuOpenOnInityesPromptColumns(NONE)PromptOnDeleteyesRowsToBatch200RebuildOnReposnoToggleDataTargetsyes':U ,
              OUTPUT h_sdoprogrammenu ).
@@ -222,7 +222,7 @@ PROCEDURE adm-create-objects :
        /* Size in AB:  ( 1.86 , 10.80 ) */
 
        RUN constructObject (
-             INPUT  'n:/repository/legacy/brw/brwprogrammenu.w':U ,
+             INPUT  'brw/brwprogrammenu.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brwprogrammenu ).
@@ -230,7 +230,7 @@ PROCEDURE adm-create-objects :
        RUN resizeObject IN h_brwprogrammenu ( 18.10 , 76.00 ) NO-ERROR.
 
        RUN constructObject (
-             INPUT  'n:/repository/legacy/vwr/vprogrammenu.w':U ,
+             INPUT  'vwr/vprogrammenu.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vprogrammenu ).
