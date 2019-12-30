@@ -31,6 +31,7 @@ DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD cCompany                   AS CHARACTER COLUMN-LABEL "Company" 
     FIELD cFGItemID                  AS CHARACTER COLUMN-LABEL "FG Item ID"
     FIELD cTag                       AS CHARACTER COLUMN-LABEL "Tag"
+    FIELD cVendorTag                 AS CHARACTER COLUMN-LABEL "Vendor Tag"
     FIELD cSysLoc                    AS CHARACTER COLUMN-LABEL "System Warehouse"
     FIELD cSysLocBin                 AS CHARACTER COLUMN-LABEL "System Bin"
     FIELD cScanLoc                   AS CHARACTER COLUMN-LABEL "Scanned Warehouse"
@@ -66,6 +67,7 @@ DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD cJobNo2                    AS CHARACTER COLUMN-LABEL "Job#2"
     FIELD cSNum                      AS CHARACTER COLUMN-LABEL "Sheet#"
     FIELD cBNum                      AS CHARACTER COLUMN-LABEL "Blank#"
+    FIELD cShtSize                   AS CHARACTER COLUMN-LABEL "Sheet Size"
     INDEX tag  cCompany cTag 
     INDEX item cCompany cFGItemID
     INDEX i3   cCompany cSysLoc   cSysLocBin    
@@ -145,9 +147,10 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
-    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE lBinDups   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoCostMSF AS LOGICAL NO-UNDO.
@@ -162,16 +165,19 @@ PROCEDURE exportSnapshot:
 
     /*  IF lNoCostMSF THEN 
          RETURN. */
-    FOR EACH fg-bin NO-LOCK
-        WHERE fg-bin.company EQ ipcCompany
-        AND fg-bin.i-no GE ipcFGItemStart
-        AND fg-bin.i-no LE ipcFGItemEnd
+    FOR EACH itemfg no-lock
+        WHERE itemfg.company EQ ipcCompany
+          AND itemfg.i-no GE ipcFgItemStart
+          AND itemfg.i-no LE ipcFgItemEnd
+          AND itemfg.cc-code GE ipcFromCycleCode
+          AND itemfg.cc-code LE ipcToCycleCode
+          ,
+     EACH fg-bin NO-LOCK
+        WHERE fg-bin.company EQ itemfg.company
+        AND fg-bin.i-no EQ itemfg.i-no        
         AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0
         AND fg-bin.qty NE 0
-        AND fg-bin.tag NE ""
-        AND CAN-FIND (FIRST itemfg NO-LOCK 
-        WHERE itemfg.company EQ fg-bin.company 
-        AND itemfg.i-no EQ fg-bin.i-no )        
+        AND fg-bin.tag NE ""       
         :
         icnt = icnt + 1.
     
@@ -217,94 +223,6 @@ PROCEDURE exportSnapshot:
     
 END PROCEDURE.
 
-PROCEDURE exportSnapshotRM:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
-    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
-        
-    DEFINE VARIABLE lBinDups     AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lMissingCost AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lMissingMSF  AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
-    
-    RUN pCheckBinDups (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).
-    IF lBinDups THEN 
-        RETURN. 
-    RUN pCheckMissingCostMSF (OUTPUT lMIssingCost, OUTPUT lMissingMSF).
-    
-    MESSAGE 'Some RM tags are missing cost or MSF.  Do you want to continue?' SKIP
-        VIEW-AS ALERT-BOX
-        QUESTION BUTTONS YES-NO UPDATE lContinue.
-    IF NOT lContinue THEN 
-        RETURN.
-        
-    FOR EACH rm-bin NO-LOCK
-        WHERE rm-bin.company EQ ipcCompany
-        AND rm-bin.i-no GE ipcFGItemStart
-        AND rm-bin.i-no LE ipcFGItemEnd
-        AND lookup(rm-bin.loc, ipcWhseList) GT 0        
-        AND rm-bin.qty NE 0
-        AND rm-bin.tag NE ""
-        ,
-        FIRST ITEM NO-LOCK 
-        WHERE ITEM.company EQ rm-bin.company
-        AND ITEM.i-no      EQ rm-bin.i-no
-        :
-
-            /* ttSnapShot.cCostUom   = rm-bin.costUom */ /* not  on rm-bin */
-
-        CREATE inventoryStockSnapshot.
-        ASSIGN                      
-            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag    
-            inventoryStockSnapshot.company             = rm-bin.company        
-            inventoryStockSnapshot.rmItemID            = ""      
-            inventoryStockSnapshot.fgItemID            = rm-bin.i-no                        
-            inventoryStockSnapshot.itemType            = "RM"                           
-            inventoryStockSnapshot.warehouseID         = rm-bin.loc    
-            inventoryStockSnapshot.locationID          = rm-bin.loc-bin
-            inventoryStockSnapshot.zoneID              = ""     
-            inventoryStockSnapshot.quantity            = 0    
-            inventoryStockSnapshot.quantityOriginal    = rm-bin.qty        
-            inventoryStockSnapshot.quantityUOM         = "EA"       
-            inventoryStockSnapshot.costStandardPerUOM  = rm-bin.cost
-            inventoryStockSnapshot.costUOM             = item.pur-uom
-            inventoryStockSnapshot.createdTime         = DATETIME(TODAY, MTIME)        
-            inventoryStockSnapshot.createdBy           = USERID("ASI")                
-            inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
-            .      
-        FOR LAST rm-rdtlh NO-LOCK 
-            WHERE rm-rdtlh.company EQ rm-bin.company 
-            AND rm-rdtlh.tag EQ rm-bin.tag 
-            AND rm-rdtlh.rita-code EQ "R",
-            EACH rm-rcpth NO-LOCK 
-            WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
-            AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
-            ASSIGN 
-                ttSnapShot.cJobNo  = rm-rdtlh.job-no 
-                ttSnapShot.cJobNo2 = STRING(rm-rdtlh.job-no2)
-                ttSnapShot.cSNum   = STRING(rm-rdtlh.s-num)
-                ttSnapShot.cBNum   = STRING(rm-rdtlh.b-num)
-                .
-            ASSIGN
-                inventoryStockSnapshot.jobID   = rm-rdtlh.job-no        
-                inventoryStockSnapshot.jobID2  = rm-rdtlh.job-no2 
-                inventoryStockSnapshot.formNo  = rm-rdtlh.s-num
-                inventoryStockSnapshot.blankNo = rm-rdtlh.b-num
-                .             
-        END.            
-    END.
-    
-    
-END PROCEDURE.
-
-
 PROCEDURE pBuildCompareTable PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Builds the compare temp-table based on parameters
@@ -313,6 +231,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -358,6 +278,11 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND fg-rctd.loc-bin GE ipcBinStart
         AND fg-rctd.loc-bin LE ipcBinEnd
         AND fg-rctd.qty NE 0
+        AND CAN-FIND(FIRST itemfg NO-LOCK 
+                         WHERE itemfg.company EQ fg-rctd.company
+                           AND itemfg.i-no EQ fg-rctd.i-no
+                           AND itemfg.cc-code GE ipcFromCycleCode
+                           AND itemfg.cc-code LE ipcToCycleCode)
         :
             
 
@@ -408,7 +333,12 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND ttSnapshot.cFgItemID   LE ipcFgItemEnd
         AND LOOKUP(ttSnapshot.cSysLoc, ipcWhseList) GT 0        
         AND ttSnapshot.cSysLocBin  GE ipcBinStart
-        AND ttSnapshot.cSysLocBin  LE ipcBinEnd         
+        AND ttSnapshot.cSysLocBin  LE ipcBinEnd    
+        AND CAN-FIND(FIRST itemfg NO-LOCK
+                         WHERE itemfg.company EQ ttSnapshot.cCompany
+                           AND itemfg.i-no EQ ttSnapshot.cFGItemID
+                           AND itemfg.cc-code GE ipcFromCycleCode
+                           AND itemfg.cc-code LE ipcToCycleCode)     
         :
             
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
@@ -562,7 +492,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND fg-bin.tag NE ""
             AND CAN-FIND (FIRST itemfg NO-LOCK 
             WHERE itemfg.company EQ fg-bin.company 
-            AND itemfg.i-no EQ fg-bin.i-no )
+            AND itemfg.i-no EQ fg-bin.i-no 
+            AND itemfg.cc-code GE ipcFromCycleCode 
+            AND itemfg.cc-code LE ipcToCycleCode)
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ fg-bin.company
@@ -627,9 +559,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
         DO:
             iStatusCnt2 = iStatusCnt2 + iStatusCnt1.
             iStatusCnt1 = 0.
-            PROCESS EVENTS.
             STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
-            
+            PROCESS EVENTS.
         END.
  
         ttCycleCountCompare.cAction = fGetAction(
@@ -1439,6 +1370,8 @@ PROCEDURE postFG:
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -1469,7 +1402,7 @@ PROCEDURE postFG:
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
 
-    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFromCycleCode, ipcToCycleCode, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
     MESSAGE "Posting Complete"
         VIEW-AS ALERT-BOX.
@@ -1484,6 +1417,8 @@ PROCEDURE pPostCounts:
     DEFINE INPUT  PARAMETER ipdtTransDate   AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList     AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcBinStart     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd       AS CHARACTER NO-UNDO.
@@ -1533,7 +1468,13 @@ PROCEDURE pPostCounts:
             AND LOOKUP(fg-rctd.loc, ipcWhseList) > 0
             AND fg-rctd.loc-bin GE ipcBinStart
             AND fg-rctd.loc-bin LE ipcBinEnd
-            AND fg-rctd.qty NE 0 :
+            AND fg-rctd.qty NE 0 
+            AND CAN-FIND(FIRST itemfg NO-LOCK
+                             WHERE itemfg.company EQ fg-rctd.company 
+                               AND itemfg.i-no EQ fg-rctd.i-no
+                               AND itemfg.cc-code GE ipcFromCycleCode
+                               AND itemfg.cc-code LE ipcToCycleCode
+                               ):
                 
             /* Allow user to force transactions to be on a different date */
             IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
@@ -1738,8 +1679,11 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -1750,13 +1694,16 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER iplDupsInSnapshot AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSnapshotID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSkipUnscanned AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAllItemsOrProblems AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE setFromHistory AS LOGICAL NO-UNDO.
     PROCESS EVENTS.
     STATUS DEFAULT "Import Snapshot" .       
     RUN pImportSnapshot (ipiSnapshotID).
     
     STATUS DEFAULT "Build Compare Table". 
-    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd, YES /* scans only */).
     gcOutputFile = ipcOutputFile.
     PROCESS EVENTS.
@@ -1771,7 +1718,7 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE setFromHistory.
         
     IF setFromHistory THEN 
-        RUN postFG (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+        RUN postFG (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
             ipcBinStart, ipcBinEnd). 
         
 END PROCEDURE.

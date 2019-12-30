@@ -144,7 +144,6 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
-    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
         
     DEFINE VARIABLE lBinDups     AS LOGICAL NO-UNDO.
@@ -204,12 +203,7 @@ PROCEDURE exportSnapshot:
             EACH rm-rcpth NO-LOCK 
             WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
-            ASSIGN 
-                ttSnapShot.cJobNo  = rm-rdtlh.job-no 
-                ttSnapShot.cJobNo2 = STRING(rm-rdtlh.job-no2)
-                ttSnapShot.cSNum   = STRING(rm-rdtlh.s-num)
-                ttSnapShot.cBNum   = STRING(rm-rdtlh.b-num)
-                .
+
             ASSIGN
                 inventoryStockSnapshot.jobID   = rm-rdtlh.job-no        
                 inventoryStockSnapshot.jobID2  = rm-rdtlh.job-no2 
@@ -217,8 +211,25 @@ PROCEDURE exportSnapshot:
                 inventoryStockSnapshot.blankNo = rm-rdtlh.b-num
                 .             
         END.            
+        
     END.
-    
+    FIND FIRST inventoryStockSnapshot NO-LOCK 
+        WHERE inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
+        NO-ERROR.
+    IF AVAIL inventoryStockSnapshot THEN DO:
+        CREATE inventorySnapshot.
+        ASSIGN
+        inventorySnapshot.inventorySnapshotID         = ipiSnapshotID
+        inventorySnapshot.snapshotType                = "PhysicalInventory"
+        inventorySnapshot.itemType                    = "RM"
+        inventorySnapshot.company                     = ipcCompany
+        //warehouseID                                 = 
+        //locationID                                  =
+        inventorySnapshot.inventoryStockStatus        = "Open"
+        inventorySnapshot.snapshotUser                = USERID("ASI")
+        inventorySnapshot.snapshotTime                = DATETIME(today, mtime)
+        .
+    END.
     
 END PROCEDURE.
 
@@ -230,6 +241,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.   
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -265,6 +278,11 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND rm-rctd.loc-bin GE ipcBinStart
         AND rm-rctd.loc-bin LE ipcBinEnd
         AND rm-rctd.qty NE 0
+        AND CAN-FIND(FIRST ITEM NO-LOCK
+                         WHERE ITEM.company EQ rm-rctd.company 
+                           AND ITEM.i-no EQ rm-rctd.i-no
+                           AND itemfg.cc-code GE ipcFromCycleCode
+                           AND itemfg.cc-code LE ipcToCycleCode)
         :
 
         iStatusCnt1 = iStatusCnt1 + 1.
@@ -1351,6 +1369,8 @@ PROCEDURE postRM:
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -1375,7 +1395,7 @@ PROCEDURE postRM:
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
-    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd,  ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
     MESSAGE "Posting Complete"
@@ -1391,6 +1411,8 @@ PROCEDURE pPostCounts:
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -1424,6 +1446,12 @@ PROCEDURE pPostCounts:
             AND rm-rctd.loc-bin GE ipcBinStart
             AND rm-rctd.loc-bin LE ipcBinEnd
             AND rm-rctd.qty GE 0  
+            AND CAN-FIND(FIRST ITEM NO-LOCK
+                         WHERE ITEM.company EQ rm-rctd.company 
+                           AND ITEM.i-no EQ rm-rctd.i-no
+                           AND itemfg.cc-code GE ipcFromCycleCode
+                           AND itemfg.cc-code LE ipcToCycleCode)
+            
             :
             IF ipdtTransDate NE ? AND ipdtTransDate NE rm-rctd.rct-date THEN 
               rm-rctd.rct-date = ipdtTransDate.
@@ -1635,8 +1663,11 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
@@ -1646,17 +1677,19 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER iplSnapshotOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInSnapshot AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcSnapshotFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSkipUnscanned AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAllItemsOrProblems AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lChoosePost AS LOGICAL NO-UNDO.
         
     STATUS DEFAULT "Import Snapshot" .       
-    RUN pImportSnapshot (INPUT ipcSnapshotFile).
+    RUN pImportSnapshot (INPUT ipiSnapshotID).
     
     STATUS DEFAULT "Build Compare Table". 
-    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd, YES /* scans only */).
     gcOutputFile = ipcOutputFile.
-    
+    PROCESS EVENTS.
     STATUS DEFAULT "Exporting Report".
     RUN pExportTempTable(TEMP-TABLE ttCycleCountCompare:HANDLE, gcOutputFile, YES /* header */, iplComplete, 
         iplQtyChanged, iplSnapshotOnly, iplDupsInSnapshot, iplDupsInScan).
@@ -1668,7 +1701,7 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE lChoosePost.
         
     IF lChoosePost THEN 
-        RUN postRM (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+        RUN postRM (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
             ipcBinStart, ipcBinEnd). 
         
 END PROCEDURE.

@@ -92,7 +92,7 @@ item.min-lbs
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 RECT-5 RECT-6 ~
-RECT-7 fi_ect fi_cas-pal-w fi_reg-no 
+RECT-7 fi_ect RADIO-SET-2 fi_cas-pal-w fi_reg-no 
 &Scoped-Define DISPLAYED-FIELDS item.i-no item.i-code item.tax-rcpt ~
 item.i-name item.i-dscr item.cost-type item.est-dscr item.procat item.cal ~
 item.shrink item.case-l item.q-ptd item.basis-w item.s-wid item.case-w ~
@@ -107,8 +107,9 @@ item.press-type item.linin-lb item.yield item.min-lbs
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
-u-ytd procat_dscr u-lyr fi_ect fi_cas-pal-w fi_reg-no group1-text ~
-group4-text group3-text group2-text ink-type-label press-type-label 
+u-ytd procat_dscr u-lyr fi_ect RADIO-SET-2 fi_cas-pal-w fi_reg-no ~
+group1-text group4-text group3-text group2-text ink-type-label ~
+press-type-label 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -231,6 +232,13 @@ DEFINE VARIABLE u-ytd AS DECIMAL FORMAT "->>>,>>>,>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16.4 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
+
+DEFINE VARIABLE RADIO-SET-2 AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Active", "A",
+"Inactive", "I"
+     SIZE 23 BY 1.19 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -479,6 +487,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 FONT 4
+     RADIO-SET-2 AT ROW 12.91 COL 113 NO-LABEL WIDGET-ID 2
      fi_cas-pal-w AT ROW 14.1 COL 95 COLON-ALIGNED HELP
           "Enter weight of this RM in Lbs."
      item.sqin-lb AT ROW 15.05 COL 15 COLON-ALIGNED FORMAT ">>>,>>9"
