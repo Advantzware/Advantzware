@@ -42,21 +42,15 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-
+RUN spSetSessionParam ("ItemType", ipcInventoryType).
 
 DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
 
 DEFINE STREAM excel.
 DEFINE STREAM excel2 .
-DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
-IF ipcInventoryType EQ "FG" THEN 
-    fi_file = ".\custfiles\invSnapShotFG.csv".
-ELSE 
-    fi_file = "c:\tmp\r-rmPhys.csv".
-     
+    
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,13 +67,17 @@ DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 fiTransDate fiFromItem ~
-fiEndItem fiFromBin fiToBin fiWhseList tb_fullReport btChooseFile ~
-fiSnapshotID tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep ~
-tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiTransDate fiFromItem fiEndItem fiFromBin ~
-fiToBin fiWhseList tb_fullReport fiSnapshotID tb_show-fo tb_show-vo ~
-tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-25 RECT-26 RECT-27 RECT-28 ~
+fiSnapshotID btChooseFile fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm ~
+tgSkipUnscanned fiFromItem fiEndItem fiToBin fiFromBin fiFromCycleCode ~
+fiToCycleCode rsAllItemsOrProblems fiWhseList tb_fullReport tb_show-fo ~
+tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 ~
+btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiSnapshotID fiSnapshotDescription ~
+fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm tgSkipUnscanned fiFromItem ~
+fiEndItem fiToBin fiFromBin fiFromCycleCode fiToCycleCode ~
+rsAllItemsOrProblems fiWhseList tb_fullReport tb_show-fo tb_show-vo tb_prep ~
+tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -116,6 +114,12 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE cbAmPm AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "AM","PM" 
+     DROP-DOWN-LIST
+     SIZE 8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "To Item" 
      VIEW-AS FILL-IN 
@@ -126,18 +130,32 @@ DEFINE VARIABLE fiFromBin AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiFromCycleCode AS CHARACTER FORMAT "X(256)":U 
+     LABEL "From Cycle Code" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Item" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiSnapshotDescription AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 58 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiSnapshotID AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "Snapshot ID" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzz" 
      LABEL "To Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiToCycleCode AS CHARACTER FORMAT "X(256)":U 
+     LABEL "To Cycle Code" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -146,10 +164,18 @@ DEFINE VARIABLE fiTransDate AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Warehouse List" 
+DEFINE VARIABLE fiTransTimeHr AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Time" 
      VIEW-AS FILL-IN 
-     SIZE 72 BY 1 NO-UNDO.
+     SIZE 4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiTransTimeMin AS INTEGER FORMAT "99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 TOOLTIP "Minute" NO-UNDO.
+
+DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 113 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-fgPhys.csv" 
      LABEL "If Yes, File Name" 
@@ -157,18 +183,38 @@ DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-fgPhys.
      SIZE 69 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE rsAllItemsOrProblems AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Valid Only", "Valid",
+"Problems Only", "Problems",
+"All", "All"
+     SIZE 65 BY .91 TOOLTIP "Select items that are valid, problems, or all." NO-UNDO.
+
+DEFINE RECTANGLE RECT-25
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 108 BY 4.91.
+
+DEFINE RECTANGLE RECT-26
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 108 BY 3.81.
+
+DEFINE RECTANGLE RECT-27
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 108 BY 6.67.
+
+DEFINE RECTANGLE RECT-28
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 108 BY 3.57.
+
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 18.81.
-
-DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 7.38.
+     SIZE 117 BY 20.71.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Include location changed?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 32 BY 1 NO-UNDO.
+     SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_excel2 AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -179,17 +225,17 @@ DEFINE VARIABLE tb_excel2 AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_exclude_prep AS LOGICAL INITIAL no 
      LABEL "Include duplicates?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 32 BY 1 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_fullReport AS LOGICAL INITIAL yes 
      LABEL "Full Report?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 42 BY 1 NO-UNDO.
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_prep AS LOGICAL INITIAL no 
      LABEL "Include Qty Changed?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -207,49 +253,76 @@ DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tgSkipUnscanned AS LOGICAL INITIAL no 
+     LABEL "Skip unscanned tags? (Do not zero out)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43.6 BY .81 TOOLTIP "Check this to not zero out tags that are not scanned." NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiTransDate AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 42
-     fiFromItem AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fiEndItem AT ROW 4.86 COL 55 COLON-ALIGNED WIDGET-ID 28
-     fiFromBin AT ROW 5.76 COL 19 COLON-ALIGNED WIDGET-ID 18
-     fiToBin AT ROW 5.81 COL 55 COLON-ALIGNED WIDGET-ID 20
-     fiWhseList AT ROW 7.19 COL 19 COLON-ALIGNED WIDGET-ID 30
-     tb_fullReport AT ROW 9.57 COL 23 WIDGET-ID 2
-     btChooseFile AT ROW 11.71 COL 42 WIDGET-ID 34
-     fiSnapshotID AT ROW 11.76 COL 20 COLON-ALIGNED WIDGET-ID 38
-     tb_show-fo AT ROW 15.05 COL 22
-     tb_show-vo AT ROW 16 COL 22
-     tb_prep AT ROW 16.95 COL 22 WIDGET-ID 4
-     tb_excel AT ROW 17.86 COL 53 RIGHT-ALIGNED
-     tb_exclude_prep AT ROW 18.81 COL 22 WIDGET-ID 12
-     tb_excel2 AT ROW 23.62 COL 22.2
-     tb_runExcel AT ROW 23.62 COL 64 RIGHT-ALIGNED
-     fi_file2 AT ROW 24.71 COL 20 COLON-ALIGNED HELP
+     fiSnapshotID AT ROW 2.43 COL 26 COLON-ALIGNED WIDGET-ID 38
+     btChooseFile AT ROW 2.43 COL 41 WIDGET-ID 34
+     fiSnapshotDescription AT ROW 2.43 COL 54 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     fiTransDate AT ROW 5.05 COL 27 COLON-ALIGNED WIDGET-ID 42
+     fiTransTimeHr AT ROW 6 COL 27.2 COLON-ALIGNED WIDGET-ID 50
+     fiTransTimeMin AT ROW 6 COL 33.2 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     cbAmPm AT ROW 6 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     tgSkipUnscanned AT ROW 7.19 COL 29.4 WIDGET-ID 86
+     fiFromItem AT ROW 9.57 COL 27 COLON-ALIGNED WIDGET-ID 26
+     fiEndItem AT ROW 9.57 COL 65 COLON-ALIGNED WIDGET-ID 28
+     fiToBin AT ROW 10.52 COL 65 COLON-ALIGNED WIDGET-ID 20
+     fiFromBin AT ROW 10.57 COL 27 COLON-ALIGNED WIDGET-ID 18
+     fiFromCycleCode AT ROW 11.48 COL 27 COLON-ALIGNED WIDGET-ID 88
+     fiToCycleCode AT ROW 11.48 COL 65 COLON-ALIGNED WIDGET-ID 90
+     rsAllItemsOrProblems AT ROW 12.76 COL 29 HELP
+          "Select items that are valid, problems, or all." NO-LABEL WIDGET-ID 64
+     fiWhseList AT ROW 14.76 COL 5 NO-LABEL WIDGET-ID 30
+     tb_fullReport AT ROW 17 COL 33 WIDGET-ID 2
+     tb_show-fo AT ROW 18.43 COL 33
+     tb_show-vo AT ROW 19.24 COL 33
+     tb_prep AT ROW 20.1 COL 33 WIDGET-ID 4
+     tb_excel AT ROW 21 COL 62 RIGHT-ALIGNED
+     tb_exclude_prep AT ROW 21.91 COL 33 WIDGET-ID 12
+     tb_excel2 AT ROW 24.86 COL 27.2
+     tb_runExcel AT ROW 24.86 COL 69 RIGHT-ALIGNED
+     fi_file2 AT ROW 25.95 COL 25 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 26.95 COL 22
-     btn-cancel AT ROW 26.95 COL 54
-     "(Date on the history tab)" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 2.91 COL 40 WIDGET-ID 44
+     btn-ok AT ROW 28.29 COL 23
+     btn-cancel AT ROW 28.29 COL 55
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 23.91 COL 11
           FGCOLOR 9 
-     "(Comma separated List)" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 8.38 COL 22 WIDGET-ID 32
-     "Exceptions" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 13.86 COL 17 WIDGET-ID 22
+     "Choose Full report or Just Exceptions:" VIEW-AS TEXT
+          SIZE 37 BY .62 AT ROW 16.33 COL 10 WIDGET-ID 22
+          FGCOLOR 9 
+     "Warehouse List (comma separated):" VIEW-AS TEXT
+          SIZE 36 BY .62 AT ROW 14.05 COL 4 WIDGET-ID 46
+     ":" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 6.24 COL 33.2 WIDGET-ID 52
+          FONT 0
+     "Item Selections" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 8.71 COL 10 WIDGET-ID 84
+          FGCOLOR 9 
+     "Posting Options" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 4.33 COL 9 WIDGET-ID 82
           FGCOLOR 9 
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          SIZE 21 BY .71 AT ROW 1.24 COL 15
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 22.24 COL 4
-     RECT-7 AT ROW 1.24 COL 1
-     RECT-8 AT ROW 13.38 COL 1 WIDGET-ID 24
+     "(Date on the history tab)" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 5.29 COL 47.4 WIDGET-ID 44
+          FGCOLOR 9 
+     RECT-7 AT ROW 1.95 COL 2
+     RECT-25 AT ROW 8.95 COL 7 WIDGET-ID 70
+     RECT-26 AT ROW 4.57 COL 7 WIDGET-ID 72
+     RECT-27 AT ROW 16.52 COL 8 WIDGET-ID 74
+     RECT-28 AT ROW 24.14 COL 8 WIDGET-ID 78
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
-         SIZE 94.4 BY 27.67.
+         SIZE 119 BY 28.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -269,8 +342,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG Physical Analysis & Posting"
-         HEIGHT             = 27.95
-         WIDTH              = 95
+         HEIGHT             = 28.95
+         WIDTH              = 120
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -311,6 +384,10 @@ ASSIGN
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR FILL-IN fiSnapshotDescription IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiWhseList IN FRAME FRAME-A
+   ALIGN-L                                                              */
 ASSIGN 
        fi_file2:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -397,8 +474,8 @@ DO:
       DEFINE VARIABLE iSlashPos AS INTEGER NO-UNDO.
       DEFINE VARIABLE cFolderFullPath AS CHARACTER NO-UNDO.
    
-      file-info:file-name = cSnapshotFolder .
-      cFolderFullPath = file-info:full-pathname.
+      FILE-INFO:FILE-NAME = cSnapshotFolder .
+      cFolderFullPath = FILE-INFO:FULL-PATHNAME.
       IF cFolderFullPath = ? OR cFolderFullPath = "" THEN 
         cFolderFullPath = cSnapshotFolder.
       SYSTEM-DIALOG GET-FILE cFileName
@@ -453,18 +530,7 @@ DO:
                  tb_exclude_prep
                  fiTransDate
                  .
-  RUN validateSnapshotFolder (INPUT fiSnapshotFolder, OUTPUT lValidEntry).
-  IF NOT lValidEntry THEN DO:
-    MESSAGE "The snapshot folder specified is not valid, please correct NK1 value." 
-    VIEW-AS ALERT-BOX.
-    RETURN.
-  END.  
-  RUN validateSnapshotFile (INPUT fiSnapshotFolder + "\" + fiSnapshotID, OUTPUT lValidEntry).
-  IF NOT lValidEntry THEN DO:
-    MESSAGE "The snapshot file specified could not be found." 
-    VIEW-AS ALERT-BOX.
-    RETURN.
-  END.   
+  
   RUN validateWhseList (INPUT fiWhseList,  OUTPUT cInvalidValues, OUTPUT lValidEntry).
   IF NOT lValidEntry THEN DO:
     MESSAGE "Entry of warehouse list is not valid: " + cInvalidValues
@@ -486,7 +552,7 @@ END.
 ON HELP OF fiEndItem IN FRAME FRAME-A /* To Item */
 DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
-        DEFINE VARIABLE recid-val AS recid NO-UNDO.
+        DEFINE VARIABLE recid-val AS RECID NO-UNDO.
         IF ipcInventoryType EQ "FG" THEN DO:
             RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
             IF char-val <> "" THEN 
@@ -539,7 +605,7 @@ DO:
 ON HELP OF fiFromItem IN FRAME FRAME-A /* From Item */
 DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
-        DEFINE VARIABLE recid-val AS recid NO-UNDO.
+        DEFINE VARIABLE recid-val AS RECID NO-UNDO.
         IF ipcInventoryType EQ "FG" THEN DO:
             RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
             IF char-val <> "" THEN 
@@ -589,7 +655,7 @@ END.
 
 &Scoped-define SELF-NAME fiWhseList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiWhseList C-Win
-ON HELP OF fiWhseList IN FRAME FRAME-A /* Warehouse List */
+ON HELP OF fiWhseList IN FRAME FRAME-A
 DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
@@ -759,17 +825,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
   RUN enable_UI.
 
+   v-prgmname = IF ipcInventoryType EQ "RM" then "r-fgPhys." ELSE "r-rmPhys.".
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-    fiTransDate:SCREEN-VALUE = STRING(today, "99/99/9999").
-    APPLY "entry" TO tb_prep.
-    ASSIGN fiSnapshotFolder:SCREEN-VALUE = cSnapshotFolder
-           fi_file2:SCREEN-VALUE = (if ipcInventoryType eq "FG" then "c:\tmp\FGPhysCountAnalysis_" ELSE  "c:\tmp\RMPhysCountAnalysis_")
-                                   + STRING(YEAR(TODAY), "9999") + STRING(MONTH(today)) + STRING(DAY(TODAY)) 
-                                   + REPLACE(STRING(time, "hh:mm"), ":","") + ".csv"            
+    ASSIGN fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999")
+           fiTranstimeHr:SCREEN-VALUE  = SUBSTRING(STRING(TIME, "HH:MM"), 1, 2)
+           fiTransTimeMin:SCREEN-VALUE = SUBSTRING(STRING(TIME, "HH:MM"), 4, 2)
+           cbAmPm = IF TIME GE 12 * 60 * 60 THEN "PM" else "AM"
            .
+    APPLY "entry" TO tb_prep.
+
  
   END.
 
@@ -813,14 +881,18 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTransDate fiFromItem fiEndItem fiFromBin fiToBin fiWhseList 
-          tb_fullReport fiSnapshotID tb_show-fo tb_show-vo tb_prep tb_excel 
+  DISPLAY fiSnapshotID fiSnapshotDescription fiTransDate fiTransTimeHr 
+          fiTransTimeMin cbAmPm tgSkipUnscanned fiFromItem fiEndItem fiToBin 
+          fiFromBin fiFromCycleCode fiToCycleCode rsAllItemsOrProblems 
+          fiWhseList tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel 
           tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-8 fiTransDate fiFromItem fiEndItem fiFromBin fiToBin 
-         fiWhseList tb_fullReport btChooseFile fiSnapshotID tb_show-fo 
-         tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel 
-         fi_file2 btn-ok btn-cancel 
+  ENABLE RECT-7 RECT-25 RECT-26 RECT-27 RECT-28 fiSnapshotID btChooseFile 
+         fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm tgSkipUnscanned 
+         fiFromItem fiEndItem fiToBin fiFromBin fiFromCycleCode fiToCycleCode 
+         rsAllItemsOrProblems fiWhseList tb_fullReport tb_show-fo tb_show-vo 
+         tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -831,46 +903,10 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-/* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
-/* Job Summary Report                                                         */
-/* -------------------------------------------------------------------------- */
-
-
-
-DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader1 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader2 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader3 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader4 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDisplay AS cha NO-UNDO.
-DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
-DEFINE VARIABLE hField AS HANDLE NO-UNDO.
-DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
-DEFINE VARIABLE cVarValue AS cha NO-UNDO.
-DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
-DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
-DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE fg-str-tit AS cha FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-line AS cha FORM "x(170)" NO-UNDO.
-
-DEFINE VARIABLE mach-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE mach-str-line AS cha FORM "x(150)" NO-UNDO.
-
-DEFINE VARIABLE item-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE item-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE item-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE item-str-line AS cha FORM "x(150)" NO-UNDO.
-
-DEFINE VARIABLE misc-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE exelHeader AS CHARACTER NO-UNDO.
-DEFINE VARIABLE setFromHistory AS LOGICAL NO-UNDO.
+DEF VAR iTransTime AS INTEGER NO-UNDO.
+iTransTime = (INTEGER(fiTransTimeHr) * 60 * 60) + (INTEGER(fiTransTimeMin) * 60).
+IF cbAmPm = "PM" THEN 
+  iTransTime = iTransTime + (12 * 60 * 60).
 
 SESSION:SET-WAIT-STATE ("general").
     DEFINE VARIABLE h AS HANDLE.  
@@ -883,18 +919,23 @@ SESSION:SET-WAIT-STATE ("general").
         (INPUT fi_file2,
         INPUT cocode,
         INPUT fiTransDate,
+        INPUT iTransTime,
         INPUT fiFromItem,
         INPUT fiEndItem,
-        INPUT fAddSpaceToList(fiWhseList),        /* st whse */        
-        INPUT fiFromBin,        /* start bin */
-        INPUT fiToBin, /* end bin */
+        INPUT fiFromCycleCode,
+        INPUT fiToCycleCode,
+        INPUT fAddSpaceToList(fiWhseList),  /* st whse */        
+        INPUT fiFromBin,  /* start bin */
+        INPUT fiToBin,    /* end bin */
         INPUT YES,        /* scans only */
-        INPUT tb_show-vo,        /* complete only */
-        INPUT tb_prep,        /* qty changed */
-        INPUT tb_show-fo,        /* snapshot only */
-        INPUT tb_excel,        /* loc changed */
-        INPUT tb_exclude_prep,         /* dups in scan */
-        INPUT fiSnapshotID
+        INPUT tb_show-vo, /* complete only */
+        INPUT tb_prep,    /* qty changed */
+        INPUT tb_show-fo, /* snapshot only */
+        INPUT tb_excel,   /* loc changed */
+        INPUT tb_exclude_prep,  /* dups in scan */
+        INPUT fiSnapshotID,
+        INPUT tgSkipUnscanned,
+        INPUT rsAllItemsOrProblems        
         ).
 
     DELETE OBJECT h.  
@@ -1069,13 +1110,13 @@ FUNCTION fAddSpaceToList RETURNS CHARACTER
     DEFINE VARIABLE cList3 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIter AS INTEGER NO-UNDO.
     
-    DO iIter = 1 to NUM-ENTRIES(ipcList):
+    DO iIter = 1 TO NUM-ENTRIES(ipcList):
       cList2 = cList2 + TRIM(ENTRY(iIter, ipcList)) + ",".
       cList3 = cList3 + TRIM(ENTRY(iIter, ipcList)) + " " + ",".
     END.
     
-    cList2 = trim(cList2, ",").
-    cList3 = trim(cList3, ",").
+    cList2 = TRIM(cList2, ",").
+    cList3 = TRIM(cList3, ",").
     cResult = cList2 + "," + cList3.
     RETURN cResult.
 

@@ -24,8 +24,13 @@ CREATE WIDGET-POOL.
 DEFINE INPUT  PARAMETER ipcInitType AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS cha NO-UNDO.
-
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
+DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
+DEFINE STREAM excel.
+DEFINE STREAM excel2 .
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -41,15 +46,7 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-
-
-DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
-
-DEFINE STREAM excel.
-DEFINE STREAM excel2 .
-DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
+RUN spSetSessionParam ("ItemType", ipcInitType).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -66,9 +63,10 @@ DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiWhseList ~
-btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiWhseList 
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-24 fiFromItem fiEndItem ~
+fiToCycleCode fiFromCycleCode RADIO-SET-1 fiWhseList btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiToCycleCode ~
+fiFromCycleCode RADIO-SET-1 fiWhseList 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -98,7 +96,7 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
      SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
-     LABEL "&OK" 
+     LABEL "&Start Initialize" 
      SIZE 15 BY 1.14.
 
 DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzz" 
@@ -106,37 +104,68 @@ DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzz
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiFromCycleCode AS CHARACTER FORMAT "X(256)":U 
+     LABEL "From Cycle Code" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Item" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Whse LIst" 
+DEFINE VARIABLE fiToCycleCode AS CHARACTER FORMAT "X(256)":U 
+     LABEL "To Cycle Code" 
      VIEW-AS FILL-IN 
-     SIZE 90 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 121 BY 1 NO-UNDO.
+
+DEFINE VARIABLE RADIO-SET-1 AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Valid Only", "Valid",
+"Problems Only", "Problems",
+"All", "All"
+     SIZE 65 BY 1.43 TOOLTIP "Select items that are valid, problems, or all." NO-UNDO.
+
+DEFINE RECTANGLE RECT-24
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 82 BY 2.14.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 105 BY 8.05.
+     SIZE 124 BY 9.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiFromItem AT ROW 3.86 COL 13 COLON-ALIGNED WIDGET-ID 26
-     fiEndItem AT ROW 3.86 COL 53 COLON-ALIGNED WIDGET-ID 28
-     fiWhseList AT ROW 4.81 COL 13 COLON-ALIGNED WIDGET-ID 14
-     btn-ok AT ROW 11 COL 22
-     btn-cancel AT ROW 11 COL 54
+     fiFromItem AT ROW 1.95 COL 23 COLON-ALIGNED WIDGET-ID 26
+     fiEndItem AT ROW 1.95 COL 63 COLON-ALIGNED WIDGET-ID 28
+     fiToCycleCode AT ROW 2.91 COL 63 COLON-ALIGNED WIDGET-ID 42
+     fiFromCycleCode AT ROW 2.95 COL 23 COLON-ALIGNED WIDGET-ID 40
+     RADIO-SET-1 AT ROW 5.05 COL 25.4 HELP
+          "Select items that are valid, problems, or all." NO-LABEL WIDGET-ID 30
+     fiWhseList AT ROW 8.14 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     btn-ok AT ROW 11.24 COL 35
+     btn-cancel AT ROW 11.24 COL 67
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          SIZE 21 BY .71 AT ROW 1.24 COL 1
           BGCOLOR 2 
-     RECT-7 AT ROW 1.24 COL 1
+     "Select items that are:" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 4.33 COL 25 WIDGET-ID 34
+          FGCOLOR 9 
+     "Warehouse List (Comma separated):" VIEW-AS TEXT
+          SIZE 36 BY .62 AT ROW 7.19 COL 4 WIDGET-ID 38
+     RECT-7 AT ROW 1.24 COL 2
+     RECT-24 AT ROW 4.57 COL 22 WIDGET-ID 36
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
-         SIZE 105.6 BY 13.14.
+         SIZE 126.8 BY 12.62.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -156,8 +185,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG Physical Inventory Initialize"
-         HEIGHT             = 13.33
-         WIDTH              = 106.8
+         HEIGHT             = 13.1
+         WIDTH              = 128.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -249,7 +278,7 @@ END.
 
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
-ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
+ON CHOOSE OF btn-ok IN FRAME FRAME-A /* Start Initialize */
 DO:
   DEFINE VARIABLE lValidEntry AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cInvalidValues AS CHARACTER NO-UNDO.
@@ -333,7 +362,7 @@ DO:
 
 &Scoped-define SELF-NAME fiWhseList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiWhseList C-Win
-ON HELP OF fiWhseList IN FRAME FRAME-A /* Whse LIst */
+ON HELP OF fiWhseList IN FRAME FRAME-A
 DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
@@ -386,6 +415,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
+     v-prgmname = IF ipcInitType EQ "RM" then "r-fgInitPhys." ELSE "r-rmInitPhys.".
     {custom/usrprint.i}
   END.
     
@@ -435,9 +465,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fiEndItem fiWhseList 
+  DISPLAY fiFromItem fiEndItem fiToCycleCode fiFromCycleCode RADIO-SET-1 
+          fiWhseList 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 fiFromItem fiEndItem fiWhseList btn-ok btn-cancel 
+  ENABLE RECT-7 RECT-24 fiFromItem fiEndItem fiToCycleCode fiFromCycleCode 
+         RADIO-SET-1 fiWhseList btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -500,6 +532,8 @@ SESSION:SET-WAIT-STATE ("general").
      (input cocode,  
       input fiFromItem, 
       input fiEndItem,  
+      INPUT fiFromCycleCode,
+      INPUT fiToCycleCode,
       input fAddSpaceToList(fiWhseList),
       INPUT iSnapshotID
       ).  
