@@ -39,6 +39,13 @@ CREATE WIDGET-POOL.
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
 
+DEFINE TEMP-TABLE ttRunning NO-UNDO
+    FIELD procHandle AS CHARACTER 
+    FIELD procName   AS CHARACTER 
+    FIELD calledFrom AS CHARACTER 
+        INDEX ttRunning IS PRIMARY procHandle procName
+        .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -72,8 +79,8 @@ CREATE WIDGET-POOL.
     ~{&OPEN-QUERY-superProcsBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS procedureFile searchValue matchesValue ~
-superProcsBrowse 
+&Scoped-Define ENABLED-OBJECTS procedureFile btnRunning searchValue ~
+matchesValue superProcsBrowse 
 &Scoped-Define DISPLAYED-OBJECTS procedureFile searchValue matchesValue 
 
 /* Custom List Definitions                                              */
@@ -130,6 +137,10 @@ DEFINE VARIABLE showPrefix AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81 NO-UNDO.
 
+DEFINE BUTTON btnRunning 
+     LABEL "Running" 
+     SIZE 10 BY 1.1.
+
 DEFINE VARIABLE procedureFile AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
      LABEL "Procedure File" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -140,7 +151,7 @@ DEFINE VARIABLE procedureFile AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
 DEFINE VARIABLE searchValue AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 78 BY 1 NO-UNDO.
+     SIZE 68 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-TABLE
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -175,7 +186,8 @@ ttSuperProc.procParams
 
 DEFINE FRAME DEFAULT-FRAME
      procedureFile AT ROW 1.24 COL 15 COLON-ALIGNED WIDGET-ID 64
-     searchValue AT ROW 1.24 COL 62 WIDGET-ID 62
+     btnRunning AT ROW 1.24 COL 61 WIDGET-ID 66
+     searchValue AT ROW 1.24 COL 72 WIDGET-ID 62
      matchesValue AT ROW 1.24 COL 149 HELP
           "Select for Table Search Matches" WIDGET-ID 40
      superProcsBrowse AT ROW 2.43 COL 1 WIDGET-ID 200
@@ -394,6 +406,17 @@ END.
 
 
 &Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnRunning
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunning C-Win
+ON CHOOSE OF btnRunning IN FRAME DEFAULT-FRAME /* Running */
+DO:
+    RUN pRunning.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME matchesValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL matchesValue C-Win
 ON VALUE-CHANGED OF matchesValue IN FRAME DEFAULT-FRAME /* Matches */
@@ -579,7 +602,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY procedureFile searchValue matchesValue 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE procedureFile searchValue matchesValue superProcsBrowse 
+  ENABLE procedureFile btnRunning searchValue matchesValue superProcsBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   DISPLAY definePhrase codePhrase showPrefix showDataType 
@@ -611,23 +634,23 @@ PROCEDURE pCodeView :
         IF ttSuperProc.procType NE "Error" THEN DO:
         ASSIGN
             cDefinePhrase = ""
-            cCodePhrase   = (IF ttSuperProc.procType EQ "Procedure" THEN "RUN "
-                             ELSE "DYNAMIC-FUNCTION (~"")
+            cCodePhrase   = (IF ttSuperProc.procType EQ "Function" THEN "DYNAMIC-FUNCTION (~""
+                             ELSE "RUN ")
                           + ttSuperProc.internalProc
                           + (IF ttSuperProc.procType EQ "Function" THEN "~"" ELSE "")
                           .
         IF ttSuperProc.procParams NE "" THEN
         cCodePhrase = cCodePhrase
-                    + (IF ttSuperProc.procType EQ "Procedure" THEN " (" ELSE ",")
+                    + (IF ttSuperProc.procType EQ "Function" THEN "," ELSE " (")
                     + CHR(10)
                     + "    "
                     .            
         IF ttSuperProc.procParams NE "" THEN
         DO idx = 1 TO NUM-ENTRIES(ttSuperProc.procParams):
             ASSIGN
-                cProcField  = ENTRY(idx,ttSuperProc.procParams)
-                cDataType   = ENTRY(NUM-ENTRIES(cProcField," "),cProcField," ")
-                cProcField  = REPLACE(cProcField," " + cDataType,"")
+                cProcField = ENTRY(idx,ttSuperProc.procParams)
+                cDataType  = ENTRY(NUM-ENTRIES(cProcField," "),cProcField," ")
+                cProcField = REPLACE(cProcField," " + cDataType,"")
                 .
             IF showPrefix EQ NO THEN
                 IF cProcField BEGINS "ip" THEN
@@ -638,19 +661,21 @@ PROCEDURE pCodeView :
                 ELSE
                 IF cProcField BEGINS "OUTPUT op" THEN
                 cProcField = REPLACE(cProcField,"OUTPUT op","OUTPUT ").
-            ASSIGN
-                cDefinePhrase = cDefinePhrase
-                              + "DEFINE VARIABLE " + REPLACE(REPLACE(cProcField,"OUTPUT ",""),"INPUT-","")
-                              + " AS " + CAPS(cDataType) + " NO-UNDO."
-                              + CHR(10)
-                cCodePhrase   = cCodePhrase
-                              + cProcField
-                              + (IF idx NE NUM-ENTRIES(ttSuperProc.procParams) THEN ","
-                                 ELSE "")
-                              + (IF showDataType THEN " /* " + cDataType + " */" ELSE "")
-                              + CHR(10)
-                              + "    "
-                              .
+            IF INDEX(cProcField," TABLE") EQ 0 THEN
+            cDefinePhrase = cDefinePhrase
+                          + "DEFINE VARIABLE " + REPLACE(REPLACE(cProcField,"OUTPUT ",""),"INPUT-","")
+                          + " AS " + CAPS(cDataType) + " NO-UNDO."
+                          + CHR(10)
+                          .
+            cCodePhrase   = cCodePhrase
+                          + cProcField
+                          + (IF INDEX(cProcField," TABLE") NE 0 THEN " " + cDataType ELSE "")
+                          + (IF idx NE NUM-ENTRIES(ttSuperProc.procParams) THEN ","
+                             ELSE "")
+                          + (IF showDataType THEN " /* " + cDataType + " */" ELSE "")
+                          + CHR(10)
+                          + "    "
+                          .
         END. /* do idx */
         IF ttSuperProc.procType   EQ "Function" OR
            ttSuperProc.procParams NE "" THEN
@@ -690,6 +715,47 @@ PROCEDURE pReopenBrowse :
         RUN pByProcType.
     END CASE.
     SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunning C-Win 
+PROCEDURE pRunning :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSuperProcedure AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hCalledFrom     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hSuperProcedure AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttRunning.
+    DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
+        CREATE ttRunning.
+        ASSIGN
+            hSuperProcedure      = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES))
+            hCalledFrom          = hSuperProcedure:INSTANTIATING-PROCEDURE
+            ttRunning.procHandle = ENTRY(idx,SESSION:SUPER-PROCEDURES)
+            ttRunning.procName   = hSuperProcedure:NAME
+            ttRunning.calledFrom = IF VALID-HANDLE(hCalledFrom) THEN hCalledFrom:NAME
+                                   ELSE "?"
+            .
+    END. /* do idx */
+    FOR EACH ttRunning:
+        cSuperProcedure = cSuperProcedure
+                        + "[" + ttRunning.procHandle + "] "
+                        + "[" + ttRunning.calledFrom + "] => "
+                        + ttRunning.procName
+                        + CHR(10)
+                        .
+    END. /* each ttrunning */
+    cSuperProcedure = TRIM(cSuperProcedure,CHR(10)).
+    MESSAGE
+        cSuperProcedure
+    VIEW-AS ALERT-BOX TITLE "Running Super Procedures".
 
 END PROCEDURE.
 

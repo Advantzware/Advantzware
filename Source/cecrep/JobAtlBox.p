@@ -458,10 +458,18 @@ DO v-local-loop = 1 TO v-local-copies:
          v-vend-no    = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
          v-qty-or-sup = "Supplier: ".
 
-        IF AVAIL po-ord THEN
-            FIND FIRST po-ordl WHERE po-ordl.company EQ po-ord.company
-            AND po-ordl.po-no EQ po-ord.po-no
-            NO-LOCK NO-ERROR.
+        IF AVAIL po-ord THEN do:
+            FIND FIRST po-ordl NO-LOCK
+              WHERE po-ordl.company EQ po-ord.company
+                AND po-ordl.po-no EQ po-ord.po-no
+                AND po-ordl.job-no = job-hdr.job-no
+                AND po-ordl.job-no2 = job-hdr.job-no2 NO-ERROR.
+           IF NOT AVAIL po-ordl THEN
+               FIND FIRST po-ordl NO-LOCK
+                   WHERE po-ordl.company EQ po-ord.company
+                     AND po-ordl.po-no EQ po-ord.po-no
+                     AND po-ordl.i-no = v-form-code NO-ERROR.
+        END.
         IF AVAIL po-ordl THEN
             ASSIGN cPoDueDate   = po-ordl.due-date
                    dPricePerMsf = po-ordl.cost .

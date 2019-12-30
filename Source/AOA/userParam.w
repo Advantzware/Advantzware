@@ -607,7 +607,9 @@ PROCEDURE pGetDynParamValue :
     IF rRowID EQ ? THEN RETURN.
     FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
     ASSIGN
-        defaultOutputFormat:SCREEN-VALUE IN FRAME outputFrame = dynParamValue.outputFormat
+        defaultOutputFormat:SCREEN-VALUE IN FRAME outputFrame =
+            IF dynParamValue.outputFormat NE "View" THEN dynParamValue.outputFormat
+            ELSE "Grid"
         defaultOutputFormat
         .
     FIND FIRST dynSubject NO-LOCK

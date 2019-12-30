@@ -41,4 +41,5 @@ PROCEDURE pRunBusinessLogic:
         RUN pBusinessLogic.
     END. /* if avail */    
     ophTempTable = fGetTableHandle().
+    DELETE PROCEDURE hAppServerBin.
 END PROCEDURE.

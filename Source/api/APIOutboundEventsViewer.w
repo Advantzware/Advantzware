@@ -40,10 +40,11 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE lReTrigger    AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lReTrigger      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE hdOutputProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation       AS CHARACTER NO-UNDO.
 
 ASSIGN
     cCompany  = g_company
@@ -569,7 +570,10 @@ ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
     IF VALID-HANDLE(hdOutputProcs) THEN
         DELETE PROCEDURE hdOutputProcs.
-        
+
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+                
     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
@@ -716,12 +720,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRestart C-Win
 ON CHOOSE OF btRestart IN FRAME DEFAULT-FRAME /* Restart */
 DO: 
-    DEFINE VARIABLE lSuccess            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iTotalEvents        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSuccessEvents      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iFailureEvents      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iAPIOutboundEventID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTotalEvents         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSuccessEvents       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFailureEvents       AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER buf_ttAPIOutboundEvent FOR ttAPIOutboundEvent.
         
@@ -743,23 +746,13 @@ DO:
   
         IF buf_ttAPIOutboundEvent.success THEN
             NEXT.
-  
-        RUN api/PrepareAndCallOutboundRequest.p (
-            INPUT  buf_ttAPIOutboundEvent.company,
-            INPUT  g_loc,
-            INPUT  buf_ttAPIOutboundEvent.apiID,
-            INPUT  buf_ttAPIOutboundEvent.clientID,
-            INPUT  buf_ttAPIOutboundEvent.sourceTriggerID,
-            INPUT  "APIOutboundEvent",
-            INPUT  STRING(buf_ttAPIOutboundEvent.eventRowID),
-            INPUT  buf_ttAPIOutboundEvent.primaryID,
-            INPUT  buf_ttAPIOutboundEvent.eventDescription,
-            INPUT  TRUE, /* Re-trigger */
-            OUTPUT iAPIOutboundEventID,
+
+        RUN Outbound_ReTrigger IN hdOutboundProcs (
+            INPUT  buf_ttAPIOutboundEvent.apiOutboundEventID,
             OUTPUT lSuccess,
             OUTPUT cMessage
-            ).
-  
+            ) NO-ERROR.
+
         FIND FIRST APIOutboundEvent NO-LOCK
              WHERE ROWID(APIOutboundEvent) EQ buf_ttAPIOutboundEvent.eventRowID NO-ERROR.
         IF AVAILABLE APIOutboundEvent THEN
@@ -771,7 +764,7 @@ DO:
   
         iTotalEvents = iTotalEvents + 1.
   
-        IF lSuccess THEN
+        IF buf_ttAPIOutboundEvent.success THEN
             iSuccessEvents = iSuccessEvents + 1.
         ELSE
             iFailureEvents = iFailureEvents + 1.
@@ -956,6 +949,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "CHOOSE" TO btFilter.    
     
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.

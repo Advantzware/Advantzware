@@ -5,20 +5,14 @@ PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
 PUT "<C1><#2>"
     "<C2><P10><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
-    /*"<P10><=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-    "<P10><=2><R+5>"
-    space(3) v-comp-add1  SKIP
-    space(3) v-comp-add2 SKIP
-    space(3) v-comp-add3 SKIP
-    space(3) v-comp-add4 SKIP
-    space(3) v-comp-add5 SKIP
-    space(3) "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" lv-email FORMAT "X(48)" SKIP(1)*/
+    
     "<FCourier New>"
-    space(7) "Bill To:" SPACE(47) "Ship To:" SKIP
-    SPACE(7) inv-head.cust-name v-shipto-name AT 63 skip
-    SPACE(7) inv-head.addr[1]   v-shipto-addr[1] AT 63 SKIP
-    SPACE(7) inv-head.addr[2]  v-shipto-addr[2] AT 63 SKIP
-    SPACE(7) v-addr3   v-sold-addr3 AT 63 SKIP.
+    space(7) "Bill To:" SPACE(38) "Ship To:" SKIP
+    SPACE(7) inv-head.cust-name v-shipto-name AT 56 skip
+    SPACE(7) cust.addr[1] FORMAT "x(42)"    v-shipto-addr[1] AT 56 FORMAT "x(42)" SKIP
+    SPACE(7) cust.addr[2] FORMAT "x(42)"  v-shipto-addr[2] AT 56 FORMAT "x(42)" SKIP
+    SPACE(7) v-addr3 FORMAT "x(42)"   v-sold-addr3 AT 56 FORMAT "x(42)"  SKIP 
+    SPACE(7) cAddr4 FORMAT "x(42)"   cShipAddr4 AT 56 FORMAT "x(42)" SKIP .
 v-printline = v-printline + 18.
 /*IF lv-display-comp THEN
    PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"

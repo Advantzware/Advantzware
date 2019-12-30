@@ -94,12 +94,12 @@ DEFINE TEMP-TABLE tt-order NO-UNDO
 ASSIGN 
     cTextListToSelect  = "Sales Ord,Ord Date,Com Date,Item Description," + 
                             "PR CD,Order Qty,Made Qty,Shipped Qty,Bal/Run Qty,On-Hand Qty," +
-                            "Price Per,Total Value,Customer #"
+                            "Price Per,Total Value,Customer #,Customer Name"
     cFieldListToSelect = "sales-ord,ord-date,com-date,item-dscr," + 
                             "pr-cd,ord-qty,made-qty,ship-qty,bal-qty,onhnd-qty," + 
-                            "prc-per,tot-val,cust-no"
-    cFieldLength       = "9,10,10,30," + "5,12,12,12,12,12," + "17,14,10"
-    cFieldType         = "i,c,c,c," + "i,i,i,i,i,i," + "c,i,c" 
+                            "prc-per,tot-val,cust-no,cust-name"
+    cFieldLength       = "9,10,10,30," + "5,12,12,12,12,12," + "17,14,10,30"
+    cFieldType         = "i,c,c,c," + "i,i,i,i,i,i," + "c,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -962,6 +962,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
+        as-of-date  = TODAY .
+        as-of-date:SCREEN-VALUE  = string(TODAY) .
         RUN DisplaySelectionList2.
         APPLY "entry" TO begin_cust.
     END.
@@ -1440,8 +1442,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE cExcelVarValue    AS cha       NO-UNDO.
     DEFINE VARIABLE cSelectedList     AS cha       NO-UNDO.
     DEFINE VARIABLE cFieldName        AS cha       NO-UNDO.
-    DEFINE VARIABLE str-tit4          AS cha       FORM "x(200)" NO-UNDO.
-    DEFINE VARIABLE str-tit5          AS cha       FORM "x(200)" NO-UNDO.
+    DEFINE VARIABLE str-tit4          AS cha       FORM "x(250)" NO-UNDO.
+    DEFINE VARIABLE str-tit5          AS cha       FORM "x(250)" NO-UNDO.
     DEFINE VARIABLE str-line          AS cha       FORM "x(300)" NO-UNDO.
     DEFINE VARIABLE lSelected         AS LOGICAL   INIT YES NO-UNDO.
     DEFINE VARIABLE iLineCount        AS INTEGER   NO-UNDO .
@@ -1664,6 +1666,7 @@ PROCEDURE run-report :
                     WHEN "prc-per"   THEN cVarValue = STRING(cPricePer,"X(17)").
                     WHEN "tot-val"   THEN cVarValue = STRING(dOnHandvalue,"->>,>>>,>>9.99")  .
                     WHEN "cust-no"   THEN cVarValue = STRING(cust.cust-no).
+                    WHEN "cust-name"   THEN cVarValue = STRING(cust.NAME,"x(30)").
                                  
                 END CASE.
                 cExcelVarValue = cVarValue.
@@ -1741,6 +1744,7 @@ PROCEDURE run-report :
                 WHEN "prc-per"   THEN cVarValue = "".
                 WHEN "tot-val"   THEN cVarValue = STRING(dTotValQty,"->>,>>>,>>9.99")  .
                 WHEN "cust-no"   THEN cVarValue = "".
+                WHEN "cust-name" THEN cVarValue = "".
             END.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
@@ -1781,6 +1785,7 @@ DO i = 1 TO NUM-ENTRIES(cSelectedlist):
         WHEN "prc-per"   THEN cVarValue = "".
         WHEN "tot-val"   THEN cVarValue = STRING(dGrTotValQty,"->>,>>>,>>9.99")  .
         WHEN "cust-no"   THEN cVarValue = "".
+        WHEN "cust-name" THEN cVarValue = "".
     END.
     cExcelVarValue = cVarValue.
     cDisplay = cDisplay + cVarValue +
@@ -1792,7 +1797,7 @@ PUT UNFORMATTED
 IF tb_excel THEN 
 DO:
     PUT STREAM excel UNFORMATTED
-        " GRAND TOTALS: " + substring(cExcelDisplay,3,300) SKIP.
+        " GRAND TOTALS: " + substring(cExcelDisplay,3,300) SKIP(1).
 END.
 
 FIND FIRST period                   
@@ -1891,6 +1896,7 @@ PROCEDURE pPrintData :
     DEFINE INPUT PARAMETER dBegData AS DATE NO-UNDO .
     DEFINE INPUT PARAMETER dEndData AS DATE NO-UNDO .
     DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
+    DEFINE VARIABLE  excelheader AS CHARACTER NO-UNDO .
 
     PAGE .
     PUT 
@@ -1898,6 +1904,31 @@ PROCEDURE pPrintData :
         "                                                     BACK LOG     TOTAL VALUES " SKIP
         "       PR CD#      DESCRIPTION                       BAL TO RUN   DOLLARS       "  SKIP 
         "       ----------- ------------------------------ ------------- --------------" SKIP.
+       IF tb_excel THEN DO:
+
+           excelheader = "," + cPrintLabel .
+           PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+
+           excelheader = ",,,BACK LOG, TOTAL VALUES" .
+           PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+
+           excelheader = ",PR CD#,DESCRIPTION,BAL TO RUN,DOLLARS" .
+           PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+       END.
+
+           /*PUT STREAM excel UNFORMATTED
+
+               '"' cPrintLabel '",' SKIP
+
+               '"'  '",' 
+               '"' "PR CD#" '",'
+               '"' "DESCRIPTION" '",'
+               '"' "BAL TO RUN" '",'
+               '"' "DOLLARS" '",' 
+               '"' v-msf[2] '",'
+               '"' v-diff '",' 
+               '"' v-pct '",'  
+               SKIP. */
       
     FOR EACH tt-order NO-LOCK
         WHERE tt-order.dDate GE dBegData
@@ -1926,6 +1957,14 @@ PROCEDURE pPrintData :
                 "       PR CD#      DESCRIPTION                       BAL TO RUN   DOLLARS       "  SKIP 
                 "       ----------- ------------------------------ ------------- --------------" SKIP.
             iLineCount = 0 .
+            IF tb_excel THEN DO:
+                excelheader = "," + cPrintLabel .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+                excelheader = ",,,BACK LOG, TOTAL VALUES" .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+                excelheader = ",PR CD#,DESCRIPTION,BAL TO RUN,DOLLARS" .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+            END.
         END.
 
         IF FIRST-OF(tt-order.cProCat) THEN
@@ -1945,6 +1984,15 @@ PROCEDURE pPrintData :
                 iSubTot FORMAT "->,>>>,>>>,>>9"
                 dSubTot FORMAT "->>>,>>>,>>9.99" SKIP .
             iLineCount = iLineCount + 1 .
+            IF tb_excel THEN DO:
+                PUT STREAM excel UNFORMATTED
+                    '"'  '",' 
+                    '"' tt-order.cProCat '",'
+                    '"' tt-order.cProCatdscr '",'
+                    '"' iSubTot '",'
+                    '"' dSubTot '",' 
+                    SKIP.
+            END.
         END.
            
 
@@ -1954,7 +2002,20 @@ PROCEDURE pPrintData :
                 "       ----------- ------------------------------ ------------- --------------" SKIP
                 SPACE(20) "*** GRAND TOTAL ***" SPACE(10)
                 iGrandTot FORMAT "->,>>>,>>>,>>9"  dGrandTot FORMAT "->>>,>>>,>>9.99" SKIP .
-
+            IF tb_excel THEN DO:
+                PUT STREAM excel UNFORMATTED
+                    '"'  '",' 
+                    '"' "-----------" '",' 
+                    '"' "------------------------------" '",' 
+                    '"' "-------------" '",' 
+                    '"' "--------------" '",'  SKIP 
+                    '"'  '",' 
+                    '"' "*** GRAND TOTAL ***"  '",' 
+                    '"'  '",' 
+                    '"' iGrandTot '",'
+                    '"' dGrandTot '",'
+                    SKIP(1).
+            END.
 
         END.
 
@@ -1966,7 +2027,14 @@ PROCEDURE pPrintData :
         "                                                        ON HAND   TOTAL VALUES" SKIP
         "       PR CD#      DESCRIPTION                           BAANCE     DOLLARS   "  SKIP 
         "       ----------- ------------------------------ ------------- --------------" SKIP.
-
+        IF tb_excel THEN DO:
+                excelheader = "," + cPrintLabel .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+                excelheader = ",,,BACK LOG, TOTAL VALUES" .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+                excelheader = ",PR CD#,DESCRIPTION,BAL TO RUN,DOLLARS" .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+            END.
       
     FOR EACH tt-order NO-LOCK
         WHERE tt-order.dDate GE dBegData
@@ -1995,6 +2063,14 @@ PROCEDURE pPrintData :
                 "       PR CD#      DESCRIPTION                           BAANCE     DOLLARS   "  SKIP 
                 "       ----------- ------------------------------ ------------- --------------" SKIP.
             iLineCount = 0 .
+            IF tb_excel THEN DO:
+                excelheader = "," + cPrintLabel .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+                excelheader = ",,,BACK LOG, TOTAL VALUES" .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+                excelheader = ",PR CD#,DESCRIPTION,BAL TO RUN,DOLLARS" .
+                PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+            END.
         END.
            
         IF FIRST-OF(tt-order.cProCat) THEN
@@ -2014,6 +2090,15 @@ PROCEDURE pPrintData :
                 iSubTot FORMAT "->,>>>,>>>,>>9"
                 dSubTot FORMAT "->>>,>>>,>>9.99" SKIP .
             iLineCount = iLineCount + 1 .
+            IF tb_excel THEN DO:
+                PUT STREAM excel UNFORMATTED
+                    '"'  '",' 
+                    '"' tt-order.cProCat '",'
+                    '"' tt-order.cProCatdscr '",'
+                    '"' iSubTot '",'
+                    '"' dSubTot '",' 
+                    SKIP.
+            END.
         END.
           
         IF LAST (tt-order.cProCat) THEN 
@@ -2022,7 +2107,20 @@ PROCEDURE pPrintData :
                 "       ----------- ------------------------------ ------------- --------------" SKIP
                 SPACE(20) "*** GRAND TOTAL ***" SPACE(10)
                 iGrandTot FORMAT "->,>>>,>>>,>>9"  dGrandTot FORMAT "->>>,>>>,>>9.99" SKIP .
-
+              IF tb_excel THEN DO:
+                PUT STREAM excel UNFORMATTED
+                    '"'  '",' 
+                    '"' "-----------" '",' 
+                    '"' "------------------------------" '",' 
+                    '"' "-------------" '",' 
+                    '"' "--------------" '",'  SKIP 
+                    '"'  '",' 
+                    '"' "*** GRAND TOTAL ***"  '",' 
+                    '"'  '",' 
+                    '"' iGrandTot '",'
+                    '"' dGrandTot '",'
+                    SKIP(1).
+            END.
 
         END.
 

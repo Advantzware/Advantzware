@@ -2758,7 +2758,7 @@ PROCEDURE SetInvForm:
         WHEN "Nosco1" THEN
             ASSIGN
                 v-program      = "oe/rep/invknight1.p"
-                lines-per-page = 66
+                lines-per-page = 75
                 is-xprint-form = YES.
         WHEN "Central" THEN                                  /*task# 12041303*/
             ASSIGN
@@ -3352,7 +3352,7 @@ PROCEDURE SetInvPostForm:
         WHEN "Nosco1" THEN
             ASSIGN
                 v-program      = "ar/rep/invknight1.p"
-                lines-per-page = 66
+                lines-per-page = 75
                 is-xprint-form = YES.
         WHEN "Central" THEN                                  /*task# 12041303*/
             ASSIGN

@@ -944,7 +944,7 @@ PROCEDURE Init_Job :
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
-        v-completed:SCREEN-VALUE = "NO" 
+/*        v-completed:SCREEN-VALUE = "NO" - removed per #53810 */
         .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.

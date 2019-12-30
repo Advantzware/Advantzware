@@ -1038,6 +1038,26 @@ do v-local-loop = 1 to v-local-copies:
               PAGE.
            END.
         END.
+
+
+        FOR EACH attach 
+            WHERE attach.company EQ cocode
+            AND trim(attach.est-no) EQ trim(job.est-no)
+            AND  (attach.i-no EQ ( IF xest.est-type EQ 6 THEN b-itemfg.i-no ELSE itemfg.i-no) )
+            AND ATTACH.spare-int-1 EQ 1 NO-LOCK:
+
+               PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" v-qa-text SKIP
+                   "<=12><C30><FROM><R+4><C30><LINE><|3>"
+                   "<=12><C60><FROM><R+4><C60><LINE><|3>"
+                  "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" (IF xest.est-type EQ 6 THEN b-itemfg.i-no ELSE itemfg.i-no) FORMAT "x(15)"
+                  "<=12><R+2><C8>" v-job-prt  "<C35>"  v-est-no  
+                  "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
+                  "<=12><R+4><C1><FROM><C106><LINE><||3>"
+                  "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+           
+           PAGE.
+        END.
+
        end.  /* for each w-ef */   
         
        IF s-prt-set-header AND last-of(job.job-no2) /*AND est.est-type = 6*/ THEN DO: /* print set header */  
@@ -1497,6 +1517,25 @@ do v-local-loop = 1 to v-local-copies:
              PAGE.
              */
           END. /* i > 1*/
+
+          FOR EACH attach 
+            WHERE attach.company EQ cocode
+            AND trim(attach.est-no) EQ trim(job.est-no)
+            AND  attach.i-no EQ b-itemfg.i-no
+            AND ATTACH.spare-int-1 EQ 1 NO-LOCK BREAK BY attach.i-no :
+            IF FIRST(attach.i-no) THEN
+                PAGE.
+
+           PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" v-qa-text SKIP
+                   "<=12><C30><FROM><R+4><C30><LINE><|3>"
+                   "<=12><C60><FROM><R+4><C60><LINE><|3>"
+                  "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" b-itemfg.i-no
+                  "<=12><R+2><C8>" v-job-prt  "<C35>"  v-est-no  
+                  "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
+                  "<=12><R+4><C1><FROM><C106><LINE><||3>"
+                  "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+              PAGE.
+        END.
           
        END. /* set header printing  est.est-type = 6 */
        PAGE.

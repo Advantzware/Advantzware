@@ -533,6 +533,12 @@ PROCEDURE pJasperDetailBand :
         "                    <pen lineWidth=~"0.0~"/>" SKIP
         "                </graphicElement>" SKIP
         "            </rectangle>" SKIP
+        "            <textField isBlankWhenNull=~"true~">" SKIP
+        "                <reportElement x=~"1~" y=~"0~" width=~"350~" height=~"14~">" SKIP
+        "                    <property name=~"com.jaspersoft.studio.spreadsheet.connectionID~"/>" SKIP
+        "                </reportElement>" SKIP
+        "                <textFieldExpression><![CDATA[$F~{NoDataMessage}]]></textFieldExpression>" SKIP
+        "            </textField>" SKIP
         .
     FOR EACH ttColumn
         WHERE ttColumn.isActive EQ YES
@@ -1215,9 +1221,12 @@ PROCEDURE pJasperQueryString :
 ------------------------------------------------------------------------------*/
     PUT UNFORMATTED
         "    <queryString language=~"json~">" SKIP
-        "        <![CDATA[" REPLACE(aoaTitle," ","_")
-        "." REPLACE(aoaTitle," ","") "]]>" SKIP
+        "        <![CDATA[" REPLACE(aoaTitle," ","_") "." REPLACE(aoaTitle," ","") "]]>" SKIP
         "    </queryString>" SKIP
+        "    <field name=~"NoDataMessage~" class=~"java.lang.String~">" SKIP
+        "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"NoDataMessage~"/>" SKIP
+        "        <fieldDescription><![CDATA[NoDataMessage]]></fieldDescription>" SKIP
+        "    </field>" SKIP
         .
 
 END PROCEDURE.

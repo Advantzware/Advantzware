@@ -264,11 +264,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE NO-UNDO.
     DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportFG FOR ttImportFG.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
 
     oplValid = YES.
     
@@ -298,7 +296,7 @@ PROCEDURE pValidate PRIVATE:
     /*Determine if Add or Update*/
     IF oplValid THEN 
     DO:
-        RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportFG.FGItemID, YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+        RUN pIsValidFGItemID (ipbf-ttImportFG.FGItemID, YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
         IF oplValid THEN 
         DO: 
             IF NOT iplUpdateDuplicates THEN 
@@ -322,7 +320,7 @@ PROCEDURE pValidate PRIVATE:
 
     /*Validate Required Fields*/    
     IF oplValid THEN 
-        RUN pIsValidCustomerID IN hdValidator (ipbf-ttImportFG.CustomerID,
+        RUN pIsValidCustomerID (ipbf-ttImportFG.CustomerID,
             YES,
             ipbf-ttImportFG.Company,  
             OUTPUT oplValid, 
@@ -332,43 +330,43 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportFG.Style NE "" THEN 
-            RUN pIsValidStyle IN hdValidator (ipbf-ttImportFG.Style, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidStyle (ipbf-ttImportFG.Style, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportFG.SellPriceUOM NE "" THEN 
-            RUN pIsValidUOM IN hdValidator (ipbf-ttImportFG.SellPriceUOM, NO, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidUOM (ipbf-ttImportFG.SellPriceUOM, NO, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportFG.StdCostUOM NE "" THEN 
-            RUN pIsValidUOM IN hdValidator (ipbf-ttImportFG.StdCostUOM, NO, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidUOM (ipbf-ttImportFG.StdCostUOM, NO, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportFG.PurchasedQuantityUOM NE "" THEN 
-            RUN pIsValidUOM IN hdValidator (ipbf-ttImportFG.PurchasedQuantityUOM, NO, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidUOM (ipbf-ttImportFG.PurchasedQuantityUOM, NO, OUTPUT oplValid, OUTPUT cValidNote).
             
         IF oplValid AND ipbf-ttImportFG.Currency NE "" THEN 
-            RUN pIsValidCurrency IN hdValidator (ipbf-ttImportFG.Currency, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCurrency (ipbf-ttImportFG.Currency, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
                 
         IF oplValid AND ipbf-ttImportFG.Category NE "" THEN 
-            RUN pIsValidFGCategory IN hdValidator (ipbf-ttImportFG.Category, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGCategory (ipbf-ttImportFG.Category, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
            
         IF oplValid AND ipbf-ttImportFG.Warehouse NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportFG.Warehouse, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportFG.Warehouse, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportFG.Bin NE "" THEN 
-            RUN pIsValidFGBin IN hdValidator (ipbf-ttImportFG.Bin, "", NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGBin (ipbf-ttImportFG.Bin, "", NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportFG.Bin NE "" THEN 
-            RUN pIsValidFGBinForLoc IN hdValidator (ipbf-ttImportFG.Bin, ipbf-ttImportFG.Warehouse, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFGBinForLoc (ipbf-ttImportFG.Bin, ipbf-ttImportFG.Warehouse, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
             
         IF oplValid AND ipbf-ttImportFG.SalesRepID NE "" THEN 
-            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportFG.SalesRepID, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidSalesRep (ipbf-ttImportFG.SalesRepID, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportFG.ActiveStatus NE "" THEN   
-            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportFG.ActiveStatus, "A,I", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList ("Active", ipbf-ttImportFG.ActiveStatus, "A,I", OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportFG.StockItem NE "" THEN   
-            RUN pIsValidFromList IN hdValidator ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
+            RUN pIsValidFromList ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
 
         IF oplValid AND ipbf-ttImportFG.TrNo NE "" THEN   
-            RUN pIsValidItemForType IN hdValidator (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).            
+            RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).            
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     

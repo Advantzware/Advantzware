@@ -76,10 +76,11 @@ ASSIGN
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table stackPattern
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table stackPattern
 &Scoped-define SELF-NAME Browser-Table
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH stackPattern WHERE ~{&KEY-PHRASE}  NO-LOCK                     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH stackPattern WHERE ~{&KEY-PHRASE}    NO-LOCK      ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH stackPattern WHERE ~{&KEY-PHRASE}       NO-LOCK                     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH stackPattern WHERE ~{&KEY-PHRASE}       NO-LOCK                     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table stackPattern
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table stackPattern
+
 
 /* Definitions for FRAME F-Main                                         */
 
@@ -611,6 +612,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pen-book-image-proc B-table-Win 
+PROCEDURE pen-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR lSpec AS LOGICAL NO-UNDO.
+   DEF VAR char-hdl AS CHARACTER NO-UNDO.
+  
+  IF AVAIL stackPattern THEN
+      lSpec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = stackPattern.rec_key AND
+               notes.note_type <> "o").
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'note-link-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT lSpec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -624,6 +649,7 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "stackPattern"}
+
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
@@ -647,32 +673,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-stack-code B-table-Win 
-PROCEDURE valid-stack-code :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name} =
-        CAPS(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}).
-
-     IF LENGTH(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}) > 1 THEN DO:
-        MESSAGE " Multi character stacking code cannot be added to the flute's stacking matrix. The stack matrix only supports 1 character stacking pattern. " 
-            VIEW-AS ALERT-BOX INFO.
-    
-        APPLY "entry" TO stackPattern.stackCode IN BROWSE {&browse-name}.
-        RETURN ERROR.
-    END.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -763,26 +763,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pen-book-image-proc B-table-Win 
-PROCEDURE pen-book-image-proc :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-stack-code B-table-Win 
+PROCEDURE valid-stack-code :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lSpec AS LOGICAL NO-UNDO.
-   DEF VAR char-hdl AS CHARACTER NO-UNDO.
-  
-  IF AVAIL stackPattern THEN
-      lSpec = CAN-FIND(FIRST notes WHERE
-               notes.rec_key = stackPattern.rec_key AND
-               notes.note_type <> "o").
-   
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'note-link-target':U, OUTPUT char-hdl).
-  
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT lSpec).
+
+  DO WITH FRAME {&FRAME-NAME}:
+    stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name} =
+        CAPS(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}).
+
+     IF LENGTH(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}) > 1 THEN DO:
+        MESSAGE " Multi character stacking code cannot be added to the flute's stacking matrix. The stack matrix only supports 1 character stacking pattern. " 
+            VIEW-AS ALERT-BOX INFO.
+    
+        APPLY "entry" TO stackPattern.stackCode IN BROWSE {&browse-name}.
+        RETURN ERROR.
+    END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

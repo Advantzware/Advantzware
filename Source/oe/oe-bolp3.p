@@ -336,8 +336,8 @@ PROCEDURE ipCreateInvHead:
     DEFINE BUFFER bf-cust FOR cust.
     
     FIND FIRST bf-cust NO-LOCK 
-        WHERE bf-cust.company EQ oe-ord.company
-        AND bf-cust.cust-no EQ oe-ord.cust-no
+        WHERE bf-cust.company EQ bf-oe-bolh.company
+        AND bf-cust.cust-no EQ bf-oe-bolh.cust-no
         NO-ERROR. 
       
     CREATE inv-head.
@@ -383,15 +383,18 @@ PROCEDURE ipCreateInvHead:
         inv-head.posted       = NO
         inv-head.inv-date     = IF invdate-chr EQ "Current" THEN TODAY
                            ELSE bf-oe-bolh.bol-date
+        oprInvHeadRow         = ROWID(inv-head)  
+        .
+    IF AVAIL bf-cust THEN
+        ASSIGN
         inv-head.cust-name    = bf-cust.name
         inv-head.addr[1]      = bf-cust.addr[1]
         inv-head.addr[2]      = bf-cust.addr[2]
         inv-head.city         = bf-cust.city
         inv-head.state        = bf-cust.state
         inv-head.zip          = bf-cust.zip
-        inv-head.curr-code[1] = bf-cust.curr-code        
-        oprInvHeadRow         = ROWID(inv-head)  
-        .
+        inv-head.curr-code[1] = bf-cust.curr-code .
+
     RUN CopyShipNote IN hNotesProcs (bf-oe-bolh.rec_key, inv-head.rec_key).
     
     IF invStatus-log THEN
@@ -1294,14 +1297,50 @@ PROCEDURE ipStartLog:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    lUseLogs = TRUE. /* Use debug logging unless it's turned off */
-    IF SEARCH("custfiles\logs\" + "block-oe-bolp3-logging.txt") NE ? THEN 
-        lUseLogs = FALSE.
-    cDebugLog = "custfiles\logs\" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
-    IF lUseLogs THEN 
-        OUTPUT STREAM sDebug TO VALUE(cDebugLog).
-    IF ERROR-STATUS:ERROR THEN 
-        lUseLogs = FALSE.
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
+
+    
+    RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnValue, OUTPUT lRecFound).
+    lUseLogs = LOGICAL(cReturnValue ) NO-ERROR.
+    RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cLogFolder, OUTPUT lRecFound).    
+
+    IF lUseLogs THEN DO:
+        RUN system\FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+        cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").    
+        cDebugLog = clogFolder + "/oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
+    
+        RUN FileSys_ValidateDirectory IN hdFileSysProcs (
+            INPUT  cLogFolder,
+            OUTPUT lValid,
+            OUTPUT cMessage
+            ).    
+
+        IF NOT lValid THEN 
+            RUN FileSys_CreateDirectory IN hdFileSysProcs (
+                INPUT  cLogFolder,
+                OUTPUT lValid,
+                OUTPUT cMessage
+                ).      
+   
+        lUseLogs = lValid.
+               
+        IF lUseLogs THEN 
+            OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+        IF ERROR-STATUS:ERROR THEN 
+            lUseLogs = FALSE.
+        DELETE OBJECT hdFileSysProcs.            
+    END. /* If luseLogs */
 
     /* First part of the term value */
     cTermPrefix = STRING(YEAR(TODAY),"9999")      +

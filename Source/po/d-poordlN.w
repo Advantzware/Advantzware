@@ -5716,10 +5716,7 @@ PROCEDURE valid-b-num :
             IF AVAILABLE xpo-ordl THEN 
             DO:
                 ll-ans = NO.
-                MESSAGE "Purchase order " +
-                    TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +
-                    " already exists for Job/Item/Sheet/Blank, continue?"
-                    VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans.
+                RUN displayMessageQuestionLOG ("5", OUTPUT ll-ans).
               
                 IF ll-ans THEN ll-pojob-warned = ll-ans.
                 ELSE lv-msg          = "job-mat".

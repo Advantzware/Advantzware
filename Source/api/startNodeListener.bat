@@ -31,7 +31,17 @@ SET API_IP_ADDRESS=!apiIPAddress!
 SET API_PORT=!apiPort!
 
 ECHO Running node listeners...Ctrl-Break to exit
-CD !envProgramsDir!/api/node
+if exist ./programs/api/node/InboundAPIStart.js (
+    CD ./programs/api/node
+    ) else (
+    if exist ./api/node/InboundAPIStart.js (
+        CD ./api/node
+        ) else (
+            CD ./node
+            )
+        )
+    )
+        
 START /B node InboundAPIStart.js >> node.server.log 2>> node.server.error.log
 
 :QUIT

@@ -7,19 +7,16 @@
     Created     : 
     Notes       :
   ----------------------------------------------------------------------*/
+    /* Check for module licensing */
+    DEF VAR lAccess AS LOG NO-UNDO.
+    RUN util/CheckModule.p (INPUT "ASI", INPUT "AutoLogout", INPUT NO /*prompt if no access*/, OUTPUT lAccess).
+    IF NOT lAccess THEN RETURN.
 
-/* Check for module licensing */
-DEF VAR lAccess AS LOG NO-UNDO.
-RUN util/CheckModule.p (INPUT "ASI", INPUT "AutoLogout", INPUT NO /*prompt if no access*/, OUTPUT lAccess).
-IF NOT lAccess THEN RETURN.
-
-{custom/monitor.w "userControl" "userControl"}
+    {custom/monitor.w "userControl" "userControl"}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
-
-
 FUNCTION fnGetDLC RETURNS CHARACTER 
     (  ) FORWARD.
 
@@ -28,17 +25,14 @@ FUNCTION fnGetPhysicalDb RETURNS CHARACTER
 DEFINE VARIABLE lIsAnAdmin AS LOGICAL NO-UNDO.
 
 
-
 /* **********************  Internal Procedures  *********************** */
-
-
 PROCEDURE ipDisconnectUserLog:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprUserLogRow AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLogoutMessage AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprUserLogRow AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLogoutMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iLoginUserNum  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iAsiConnectPid AS INTEGER NO-UNDO.    
     
@@ -48,44 +42,39 @@ PROCEDURE ipDisconnectUserLog:
     IF NOT AVAILABLE userLog THEN 
         RETURN.
               
-    iLoginUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
-    IF NOT ERROR-STATUS:ERROR THEN 
-    DO:
-                                        
-        FIND FIRST asi._connect NO-LOCK WHERE asi._connect._connect-usr EQ iLoginUserNum  NO-ERROR.
-        IF AVAILABLE asi._connect AND asi._connect._connect-name EQ userLog.user_id THEN 
-        DO:
-            RUN monitorActivity (STRING(TODAY) + " " + STRING(mtime, "hh:mm") + " User  " + userLog.user_id + "(" + STRING(iLoginUserNum) + ")" +  ipcLogoutMessage,YES,'').
-
-            iAsiConnectPid= asi._connect._connect-pid.
+    FIND FIRST asi._connect NO-LOCK WHERE 
+        asi._connect._Connect-Usr EQ userLog.asiUsrNo AND 
+        asi._connect._Connect-Pid EQ userLog.asiPID          
+        NO-ERROR.
+    IF AVAILABLE asi._connect THEN DO:
+        RUN monitorActivity (" User  " + userLog.user_id + " (" + STRING(userLog.asiUserID) + ") " +  ipcLogoutMessage,YES,'').
+        ASSIGN 
             cDb = fnGetPhysicalDb("ASI").
-            RUN disconnectUser (INPUT cDb, INPUT iLoginUserNum).
-            
-            /* Try to find the same user connected to the audit database */
-            FIND FIRST audit._connect NO-LOCK 
-                WHERE audit._connect._connect-pid EQ iAsiConnectPid
-                NO-ERROR. 
-            IF AVAILABLE audit._connect AND LDBNAME(2) EQ "Audit" THEN 
-            DO:
-                cDb = fnGetPhysicalDb("Audit").
-                /* _connect id is one more than the actual database user number */
-                RUN disconnectUser (INPUT cDb, INPUT audit._connect._connect-usr).
-            END.  /* If audit _connect found */            
-            
-                           
-        END. /* If _connect found */                                                               
-    END. /* If deviceName contains a user number */
+        RUN disconnectUser (cDb, userLog.asiUsrNo, userLog.user_id).
+    END.
+        
+    FIND FIRST audit._connect NO-LOCK WHERE 
+        audit._connect._Connect-Usr EQ userLog.audUsrNo AND 
+        audit._connect._Connect-Pid EQ userLog.audPID          
+        NO-ERROR.
+    IF AVAILABLE audit._connect THEN DO:
+        RUN monitorActivity (" User  " + userLog.user_id + " (" + STRING(userLog.audUserID) + ") " +  ipcLogoutMessage,YES,'').
+        ASSIGN 
+            cDb = fnGetPhysicalDb("AUDIT").
+        RUN disconnectUser (cDb, userLog.audUsrNo, userlog.user_id).
+    END.
                                              
-    RUN ipLogUserOut (INPUT   ROWID(userLog)).
+    RUN ipLogUserOut (INPUT ROWID(userLog)).
                  
 END PROCEDURE.
 
 PROCEDURE postMonitor:
-    /*------------------------------------------------------------------------------
-      Purpose:     import montiored files, process files, post files
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     import montiored files, process files, post files
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
     DEFINE VARIABLE monitorFile               AS CHARACTER FORMAT 'X(50)' NO-UNDO.
     DEFINE VARIABLE attrList                  AS CHARACTER FORMAT 'X(4)' NO-UNDO.
     DEFINE VARIABLE errorStatus               AS INTEGER   NO-UNDO.
@@ -108,93 +97,126 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE PrePressHotFolderIn-char  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE PrePressHotFolderOut-char AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFullFilePath             AS CHARACTER NO-UNDO.    
-    
     DEFINE VARIABLE dtNextLogoutTime          AS DATETIME  NO-UNDO.
     DEFINE VARIABLE iLoginUserNum             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAsiConnectPid            AS INTEGER   NO-UNDO.  
 
-        
-    
-    FOR EACH userLog EXCLUSIVE-LOCK
-       WHERE userLog.dbDisconnect EQ TRUE:
-           
-        iLoginUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
-        RUN ipDisconnectUserLog (INPUT ROWID(userLog), INPUT " tagged for disconnect ").
-        userLog.dbDisconnect = FALSE.
-        
+    /* For users tagged for disconnect via login-choose-logout-other-sessions or via NK5 */
+    /* Note that securityLevel not tested here */
+    FOR EACH userLog EXCLUSIVE-LOCK WHERE 
+        userLog.dbDisconnect EQ TRUE:
+        RUN ipDisconnectUserLog (INPUT ROWID(userLog), 
+                                 INPUT " tagged for disconnect ").
+        ASSIGN 
+            userLog.dbDisconnect   = FALSE
+            userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+            userLog.userStatus     = "Logged Out".
     END.
-                       
-
-    /* Check for users logged in too long */
-    FIND FIRST userControl NO-LOCK.
     
-    /* Check this each time in case it changes */
-    iAutoLogoutHours = userControl.autoLogoutTime.
-    iUserCheckCountdown = iUserCheckCountdown - 1.
-    IF iAutoLogoutHours GT 0 AND iUserCheckCountdown LE 0 THEN 
+    ASSIGN 
+        iUserCheckCountdown = iUserCheckCountdown - 1.
+        
+    /* Run every sixty timer-click cycles */
+    IF iUserCheckCountdown LE 0 THEN 
     DO:
-        iUserCheckCountdown = 60. /* Minimum 60 seconds */
-        RUN monitorActivity ('Check for users logged in too long ' ,YES,'').
- 
-        cdb = fnGetPhysicalDb("ASI").
-        FOR EACH userLog NO-LOCK WHERE userLog.logoutDateTime EQ ? :
-            FIND FIRST users NO-LOCK WHERE users.user_id EQ  userLog.user_id NO-ERROR.
-            IF NOT AVAILABLE users THEN 
-                NEXT.
-            RUN epCanAccessUser IN hPgmSecurity ("browsers/userlog.w", "", userLog.user_id, OUTPUT lIsAnAdmin).               
-                      
-            /* Don't log someone out who is an admin */
-            IF lIsAnAdmin  THEN 
-                NEXT.
-               
-            /* Add logout hours to the users login time to get time when they should get logged out */ 
-            dtNextLogoutTime =  ADD-INTERVAL (userLog.loginDateTime,  iAutoLogoutHours , "Hours") .
-            IF DATETIME(TODAY, MTIME) GT dtNextLogoutTime THEN 
-            DO:
+        ASSIGN 
+            iUserCheckCountdown = 60.
+        /* NEW FUNCTIONALITY */
+        /* Purge userLog records if logged out and over 30 days old */
+        FOR EACH userLog WHERE 
+            userLog.logoutDateTime NE ? AND 
+            userLog.logoutDateTime LT ADD-INTERVAL(DATETIME(TODAY), -30, "Days"):
+            DELETE userLog.
+        END.
 
-                IF INDEX(userLog.deviceName, "-") GT 0 THEN 
-                DO:
-                    iLoginUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
+        /* Check for users logged in too long */
+        FIND FIRST userControl NO-LOCK.
+        ASSIGN 
+            iAutoLogoutHours = userControl.autoLogoutTime.
+        IF iAutoLogoutHours GT 0 THEN 
+        DO:
+            RUN monitorActivity ('Check for users logged in too long ' ,YES,'').
+            ASSIGN 
+                cdb = fnGetPhysicalDb("ASI").
+            FOR EACH userLog NO-LOCK WHERE 
+                userLog.userStatus EQ "Logged In":
+                FIND FIRST users NO-LOCK WHERE 
+                    users.user_id EQ  userLog.user_id 
+                    NO-ERROR.
+                IF NOT AVAILABLE users THEN /* This should never happen, but bypass if it does */ 
+                    NEXT.
+                /* Don't autoLogout admin-level users */
+                IF users.securityLevel GE 900 THEN NEXT.
+                /* Add logout hours to the users login time to get time when they should get logged out */ 
+                ASSIGN 
+                    dtNextLogoutTime =  ADD-INTERVAL (userLog.loginDateTime,  iAutoLogoutHours , "Hours") .
+                /* If NOW is later than the scheduled logout time, log him out */
+                IF DATETIME(TODAY, MTIME) GT dtNextLogoutTime THEN
                     RUN ipDisconnectUserLog (INPUT ROWID(userLog), INPUT " connected more than  " + STRING(iAutoLogoutHours) +  " hours ").
-
-                END. /* If deviceName contains a dash */             
-            END. /* If max login time reached */
-        END. /* Each userlog */
-    END. /* If logouttime gt 0 */
-
+            END. /* Each userlog */
+        END.
+        
+        /* NEW FUNCTIONALITY */
+        /* Read list of connections and compare to userLogins; if not present, log him out of DB */
+        RUN monitorActivity ('Check for DB users without userLogs ' ,YES,'').
+        testasi:
+        FOR EACH asi._connect NO-LOCK WHERE 
+            CAN-DO("REMC,SELF",asi._connect._connect-type):
+            IF CAN-FIND (FIRST userLog WHERE 
+                            userLog.asiUsrNo = asi._connect._Connect-Usr AND 
+                            userLog.asiPID   = asi._connect._Connect-Pid AND 
+                            userLog.userStatus = "Logged In") THEN NEXT testasi.
+            ASSIGN 
+                cdb = fnGetPhysicalDb("ASI").
+            RUN disconnectUser (cDb, asi._connect._Connect-Usr, asi._connect._connect-name).
+        END.
+        testaudit:
+        FOR EACH audit._connect NO-LOCK WHERE 
+            CAN-DO("REMC,SELF",audit._connect._connect-type): 
+            IF CAN-FIND (FIRST userLog WHERE 
+                            userLog.audUsrNo = audit._connect._Connect-Usr AND 
+                            userLog.audPID   = audit._connect._Connect-Pid AND 
+                            userLog.userStatus = "Logged In") THEN NEXT testaudit.
+            ASSIGN 
+                cdb = fnGetPhysicalDb("audit").
+            RUN disconnectUser (cDb, audit._connect._Connect-Usr, audit._connect._connect-name).
+        END.
+    END.
+    
 END PROCEDURE.
 
 &SCOPED-DEFINE monitorActivity
 PROCEDURE disconnectUser:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcDb AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcDb AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserNum AS INTEGER.
+    DEFINE INPUT PARAMETER ipcUserName AS CHAR NO-UNDO.
     DEFINE VARIABLE cDLC AS CHARACTER NO-UNDO.
-    cDLC = fnGetDLC().
     
-    RUN monitorActivity (STRING(TODAY) + " " + STRING(mtime, "hh:mm") + " Disconnect user # " + STRING(ipcUserNum) + " " + " from DB " + ipcDB + " ",YES,'').
+    ASSIGN 
+        cDLC = fnGetDLC().
+    RUN monitorActivity (" Disconnecting user # " + STRING(ipcUserNum) + " (" + STRING(ipcUserName) + ") from DB " + ipcDB + " ",YES,'').
     OS-COMMAND SILENT VALUE(cDLC + "\bin\proshut " + ipcDb + " -C disconnect " + TRIM(STRING(ipcUserNum,">>>9"))).
     RETURN.
 
 END PROCEDURE.
 
 PROCEDURE ipLogUserOut:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprUserlog AS ROWID NO-UNDO.
 
-    FIND bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userlog) EQ 
-        iprUserLog NO-ERROR.
-    IF AVAILABLE bf-UserLog THEN 
-        ASSIGN 
-            bf-userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-            bf-userLog.userStatus     = "User Logged Out"
-            .
+    FIND bf-userLog EXCLUSIVE-LOCK WHERE 
+        ROWID(bf-userlog) EQ iprUserLog 
+        NO-ERROR.
+    IF AVAILABLE bf-UserLog THEN ASSIGN 
+        bf-userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+        bf-userLog.userStatus     = "Logged Out".
     FIND CURRENT bf-userLog NO-LOCK NO-ERROR.
 
 END PROCEDURE.
@@ -204,10 +226,10 @@ END PROCEDURE.
 
 FUNCTION fnGetDLC RETURNS CHARACTER 
     (  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/	
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
 
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDLC    AS CHARACTER NO-UNDO.
@@ -220,10 +242,10 @@ END FUNCTION.
 
 FUNCTION fnGetPhysicalDb RETURNS CHARACTER 
     (ipcDbName AS CHARACTER ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/	
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
 
     DEFINE VARIABLE cPhysDb         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
@@ -232,10 +254,8 @@ FUNCTION fnGetPhysicalDb RETURNS CHARACTER
     DO iCount = 1 TO NUM-DBS:
         CREATE BUFFER hFileListBuffer FOR TABLE LDBNAME(iCount) + "._FileList".
         hFileListBuffer:FIND-FIRST("WHERE " + LDBNAME(iCount) + "._fileList._fileList-Name MATCHES '*.db'" , NO-LOCK).    
-        IF LDBNAME(iCount) EQ ipcDbName THEN 
+        IF LDBNAME(iCount) EQ ipcDbName THEN ASSIGN 
             cPhysDb = hFileListBuffer::_fileList-Name.
-
-   
         DELETE OBJECT hFileListBuffer.
     END.
     

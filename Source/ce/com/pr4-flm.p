@@ -75,9 +75,19 @@ for each est-flm
       and item.i-no    eq est-flm.i-no
     no-lock:
 
-  find first e-item of item no-lock no-error.
-  fuom = if avail e-item then e-item.std-uom else item.cons-uom.
-
+    IF lNewVendorItemCost THEN 
+    DO:
+        FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemid = ITEM.i-no
+            AND venditemcost.itemtype = "RM" NO-ERROR.
+        fuom = IF AVAIL venditemcost THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+    END.
+    ELSE 
+    DO:     
+        find first e-item of item no-lock no-error.
+        fuom = if avail e-item then e-item.std-uom else item.cons-uom.
+    END. 
+     
   find first bf-eb
       where bf-eb.company = est-flm.company
         AND bf-eb.est-no    eq est-flm.est-no

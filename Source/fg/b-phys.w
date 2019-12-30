@@ -2390,6 +2390,7 @@ PROCEDURE validate-tag :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipiTag AS INTEGER NO-UNDO .
+DEFINE VARIABLE oplClose AS LOGICAL NO-UNDO .
 DEFINE BUFFER bf-fg-rctd FOR fg-rctd .
 IF NOT lCheckTag THEN do:
     IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
@@ -2400,11 +2401,9 @@ IF NOT lCheckTag THEN do:
                AND bf-fg-rctd.tag EQ (fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) 
                AND ROWID(bf-fg-rctd) NE ROWID(fg-rctd)
             NO-ERROR .
-        IF AVAIL bf-fg-rctd THEN do:
-            MESSAGE "There is already a count entry for this tag in location '" + bf-fg-rctd.loc + "' with a quantity of '" 
-            + STRING(bf-fg-rctd.t-qty) +  "'. Are you sure you want to add another count entry for this tag? " 
-            VIEW-AS ALERT-BOX QUESTION BUTTON OK-CANCEL UPDATE ll-ans AS LOG .
-            IF NOT ll-ans  THEN do:
+        IF AVAIL bf-fg-rctd THEN do: 
+            RUN displayMessageQuestionLOG ("14", OUTPUT oplClose). 
+            IF NOT oplClose  THEN do:
               IF ipiTag EQ 0 THEN do:
                  APPLY "entry" TO fg-rctd.tag .
                  RETURN ERROR.  

@@ -156,12 +156,96 @@ DEFINE VARIABLE cCustpo-name AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cProdAceBarScan AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lProdAceBarScan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cShipto AS CHARACTER FORMAT "x(30)" EXTENT 4 NO-UNDO.
+DEFINE VARIABLE v-bar-no AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProdCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dtStartDate AS DATE NO-UNDO .
+DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrtSts AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cSize AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dJobQty AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dEstQty AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cStockNo AS CHARACTER NO-UNDO .
+DEFINE VARIABLE v-fill        AS CHARACTER FORMAT "x(100)".
+v-fill  = "<||3><C1><FROM><C100><LINE><||3>" .
 RUN sys/ref/nk1look.p (
     cocode,"ProdAceBarScan","L",NO,NO,"","",
      OUTPUT cProdAceBarScan,OUTPUT lProdAceBarScan
     ).
 lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES".
+
+
+
+FUNCTION display-i-name RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR cItemName LIKE job-mch.i-name NO-UNDO.
+  DEF VAR lv-frm LIKE job-mch.frm NO-UNDO.
+  DEF VAR lv-blk LIKE job-mch.blank-no NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  
+    IF AVAIL job-mch THEN
+      ASSIGN
+       cItemName = job-mch.i-no
+       lv-frm = job-mch.frm
+       lv-blk = job-mch.blank-no.
+    
+    IF cItemName EQ "" THEN DO:
+        FIND FIRST bf-eb NO-LOCK
+             WHERE bf-eb.company EQ job.company
+               AND bf-eb.est-no EQ job.est-no 
+               AND bf-eb.form-no EQ lv-frm
+               AND (bf-eb.blank-no EQ lv-blk OR lv-blk EQ 0) NO-ERROR .
+        IF AVAIL bf-eb THEN
+            ASSIGN cItemName = bf-eb.stock-no .
+
+        IF cItemName EQ "" THEN DO:
+            FIND job-hdr
+                WHERE job-hdr.company   EQ job.company
+                AND job-hdr.job       EQ job.job
+                AND job-hdr.job-no    EQ job.job-no
+                AND job-hdr.job-no2   EQ job.job-no2
+                AND job-hdr.frm       EQ lv-frm
+                AND (job-hdr.blank-no EQ lv-blk OR lv-blk EQ 0)
+              NO-LOCK NO-ERROR.
+
+            RELEASE itemfg.
+            IF AVAIL job-hdr THEN
+                cItemName = job-hdr.i-no .
+            
+        END.
+    END.   
+    IF cItemName EQ "" AND avail(job-mch) THEN DO:  
+      FIND FIRST itemfg
+          WHERE itemfg.company EQ job-mch.company
+            AND itemfg.i-no    EQ job-mch.i-no
+          NO-LOCK NO-ERROR.
+      IF AVAIL itemfg THEN DO:
+          cItemName = itemfg.i-no.
+          IF cItemName EQ "" THEN DO:
+
+             FOR EACH fg-set WHERE fg-set.company EQ itemfg.company
+                                 AND fg-set.set-no = itemfg.i-no
+                               NO-LOCK.
+                 IF fg-set.part-no GT "" THEN DO:
+                     cItemName = fg-set.part-no .
+                     LEAVE.
+                 END.
+             END.
+          END.
+      END.
+
+    END.
+  
+  RETURN cItemName.   /* Function return value. */
+
+END FUNCTION.
+
+
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
@@ -443,14 +527,14 @@ ASSIGN
        PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C37>" lv-est-type "</B>".
        PUT "<P12><B>".
 
-       IF lProdAceBarScan THEN PUT "<C1>DMI SCAN".
+       /*IF lProdAceBarScan THEN PUT "<C1>DMI SCAN".*/
 
        PUT "<C95>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/
 
-       IF lProdAceBarScan THEN DO:       
+       /*IF lProdAceBarScan THEN DO:       
            cJobMchID = "W99999-99.999999999".
            PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C38><FROM><c9.3><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" cJobMchID ">".
-       END. /* if lProdAceBarScan */
+       END. /* if lProdAceBarScan */    */
 
        PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C68><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               cJobNumber ">" SKIP "<r-1>".
@@ -1273,6 +1357,155 @@ ASSIGN
              PAGE.
           END. /* i > 1*/
        END. /* set header printing  est.est-type = 6 */
+     IF lPrintDMIPage THEN do:
+       FOR EACH bf-eb NO-LOCK
+           WHERE bf-eb.company EQ   job-hdr.company
+           AND bf-eb.est-no EQ job.est-no BREAK BY bf-eb.form-no :
+           
+           find first oe-ordl where oe-ordl.company eq job-hdr.company
+                                     and oe-ordl.ord-no  eq job-hdr.ord-no
+                                     and oe-ordl.job-no  eq job-hdr.job-no
+                                     and oe-ordl.job-no2 eq job-hdr.job-no2
+                                     and oe-ordl.i-no    eq bf-eb.stock-no /* job-hdr.i-no */
+                                   no-lock no-error.
+
+           cProdCode = ENTRY(INDEX("ONR",
+                                   IF AVAIL oe-ordl THEN oe-ordl.type-code
+                                       ELSE itemfg.type-code),
+                             "NEW,NEW,REPEAT") NO-ERROR.
+           IF ERROR-STATUS:ERROR THEN cProdCode = "".
+
+           IF FIRST( bf-eb.form-no) THEN do:
+               find first oe-ord NO-LOCK
+                   where oe-ord.company eq job-hdr.company
+                   and oe-ord.ord-no  eq job-hdr.ord-no 
+                   no-error.
+               
+               dtStartDate = IF AVAIL oe-ord 
+                   THEN oe-ord.ord-date 
+                   ELSE job-hdr.start-date.
+               cCustName = IF AVAIL oe-ord THEN oe-ord.cust-name 
+                   ELSE IF AVAIL cust THEN cust.name
+                       ELSE job-hdr.cust-no.
+               ASSIGN cPrtSts = IF NOT job-hdr.ftick-prnt THEN "ORIGINAL" ELSE "REVISED" .
+               find first shipto
+                   where shipto.company eq cocode
+                   and shipto.cust-no eq job-hdr.cust-no
+                   and shipto.ship-id eq v-shipto
+                   no-lock no-error.  
+             if avail shipto then
+                 ASSIGN cShipto[1] = shipto.ship-name
+                 cShipto[2] = shipto.ship-addr[1]
+                 cShipto[3] = shipto.ship-addr[2]
+                 cShipto[4] = trim(shipto.ship-city) + ", " +
+                              shipto.ship-state + "  " + shipto.ship-zip.
+
+             v-bar-no = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99"). 
+             
+                PUT  "<P10>" skip
+                          "JOB NUMBER:<B>" job-hdr.job-no space(0) "-" space(0) job-hdr.job-no2 format "99" "</B>"
+                                 "<B><P12>DMI BarCodes</B><P10>" at 52  "ORDER DATE:" at 100 dtStartDate SKIP
+                                  v-fill .
+                                  
+                  PUT "<#1><C91>Date/Time Generated:" SKIP
+                              "<B>CUSTOMER NAME:</B>" cCustName FORMAT "x(30)" "<B> DUE DATE:   ESTIMATE:  " TODAY  AT 119 SPACE(1) STRING(TIME,"hh:mm am") SKIP
+                              "SHIPTO:</B>" cShipto[1] /*v-req-date AT 49*/ v-due-date AT 49 trim(job-hdr.est-no) FORM "x(8)" AT 64 
+                              "<C91.7>Status" SKIP
+                              cShipto[2] AT 7 "<C91.7>" cPrtSts SKIP
+                              cShipto[4] AT 7  "<C80>" v-bar-no FORMAT "x(15)" SKIP
+                              v-fill SKIP.   
+                              
+                              PUT UNFORMATTED "<UNITS=INCHES><AT=.54,7><FROM><AT=+.4,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+                              /*PUT UNFORMATTED "<UNITS=INCHES><AT=.54,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="*/
+                              v-bar-no ">" SKIP(1).
+            
+                PUT "<P9><B>F/B   STATUS DESCRIPTION                  PART#             ORDER QTY #UP FG ITEM#        CAD#    STYLE  CARTON SIZE           COUNT CASE    " /*v-upc-lbl */ "</B>" SKIP.
+            END.
+            
+            cSize = string(bf-eb.len) + "x" + 
+                              string(bf-eb.wid) + "x" +
+                              string(bf-eb.dep) .
+                              
+              dJobQty = 0.
+                cStockNo = IF est.est-type = 2 
+                             THEN job-hdr.i-no 
+                             ELSE bf-eb.stock-no .
+
+                for each b-job-hdr where b-job-hdr.company eq cocode
+                                    and b-job-hdr.job     eq job-hdr.job
+                                    and b-job-hdr.job-no  eq job-hdr.job-no
+                                    and b-job-hdr.job-no2 eq job-hdr.job-no2
+                                    and b-job-hdr.i-no    eq cStockNo
+                                    and b-job-hdr.frm = bf-eb.form-no 
+                                  no-lock:  
+                    dJobQty = dJobQty + b-job-hdr.qty.
+                end.
+                
+                 if avail oe-ordl then do:
+                    dEstQty = oe-ordl.qty.                    
+                end.
+                else 
+                  dEstQty = dJobQty.
+            display 
+                    trim(string(bf-eb.form-no,">>9")) + "-" +
+                    trim(string(bf-eb.blank-no,">>9")) FORM "x(5)" 
+                    cProdCode FORM "x(6)"
+                    bf-eb.part-dscr1 FORM "x(28)" /* was 20*/
+                    bf-eb.part-no    
+                    dEstQty /** v-fac*/ format "->>,>>>,>>9"
+                    /*v-up   */ SPACE(5)
+                    bf-eb.stock-no @ job-hdr.i-no 
+                    bf-eb.cad-no FORM "x(7)"
+                    bf-eb.style /*v-stypart */
+                    cSize FORM "x(19)"
+                    oe-ordl.cas-cnt when avail oe-ordl FORM ">>>,>>9"
+                    bf-eb.cas-cnt when (not avail oe-ordl) or oe-ordl.cas-cnt eq 0 @ oe-ordl.cas-cnt 
+                    bf-eb.cas-no /*v-case-size*/  FORM "x(7)"  /*was 15*/
+                    skip
+                  with stream-io width 175 no-labels no-box frame line-det1.
+       END.
+
+       FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
+               AND job-mch.job = job-hdr.job 
+               AND job-mch.job-no = job-hdr.job-no 
+               AND job-mch.job-no2 = job-hdr.job-no2 
+               use-index line-idx NO-LOCK BREAK BY job-mch.frm :
+              
+               IF FIRST(job-mch.frm) THEN do:
+                                 
+                   PUT SKIP "<C3><P12><u><b>DMI Barcods</b></u>" .
+                   PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
+                       "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
+                       "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
+                       "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
+                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
+                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
+                    
+                   PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item # <C72> BarCode<R-0.5></b>" .
+               END.
+               
+
+               PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
+                       "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
+                       "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
+                       "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
+                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
+                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
+                    cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE "" .
+                     cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
+                        + STRING(job-mch.job-no2) + "."
+                        + STRING(job-mch.job-mchID,"999999999")
+                        .
+                   PUT "<R+0.5><C4>" job-mch.frm
+                        "<C10>" job-mch.blank-no FORMAT ">>>" 
+                        "<C18>" job-mch.pass
+                        "<C26>" job-mch.m-code FORMAT "x(12)"
+                        "<C46>"  cItemName FORMAT "x(25)"
+                        "<C70>" "<#32><UNITS=INCHES><C71><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                          cJobMchID FORMAT "x(19)" ">"   "<R-1.5>" .
+       END.
+       PAGE.
+     END.  /* lPrintDMIPage */
     END.  /* each job */
 /*    end.  /* end v-local-loop  */*/
 

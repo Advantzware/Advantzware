@@ -214,7 +214,7 @@ FOR EACH car
                 /*##BL: Compare total rate vs. rate min rate * all shipments*/
                 IF dFreightTemp LT carr-mtx.min-rate * rels[vmcl] THEN 
                     dFreightTemp = carr-mtx.min-rate  * rels[vmcl].
-                IF isUnitized THEN dFreightTemp = dFreightTemp / xest.form-qty.
+               
             
             END.
             IF vmclean2 THEN
@@ -228,16 +228,7 @@ FOR EACH car
     /*                          bf-eb.form-no = 0 NO-LOCK NO-ERROR.  */
     /*       isUnitized = AVAIL bf-eb AND bf-eb.pur-man.             */
     /*Note This condition was change with ticket 20329 since this appears to include form 0 (header) msf when it shouldn't*/
-    
-    IF NOT (xest.est-type EQ 6
-        AND avail(bf-eb) 
-        AND bf-eb.pur-man = YES 
-        AND bf-eb.set-is-assembled 
-        AND bf-eb.stock-no EQ xeb.stock-no
-        AND xeb.FORM-no NE 0) THEN      
-        ASSIGN
-            car.cost = car.cost + dFreightTemp
-            fr-tot   = fr-tot + dFreightTemp.           
+               
         
     FIND FIRST blk
         WHERE (blk.id = car.id AND blk.snum = car.snum AND blk.bnum = car.bnum)

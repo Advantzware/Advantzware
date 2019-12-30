@@ -63,6 +63,14 @@ DEF VAR cItemName AS CHAR NO-UNDO.
 &SCOPED-DEFINE sortby-phrase-desc BY ({&sortby-log}) DESC {&sortby}
 
 {sys/inc/rmissue.i}
+{sys/inc/venditemcost.i}
+DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-setup FOR reftable.
 
@@ -1323,15 +1331,16 @@ PROCEDURE new-rm-i-no PRIVATE :
       
      cItemName:SCREEN-VALUE IN BROWSE {&browse-name} = ITEM.i-name.
 
-      FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+      IF lNewVendorItemCost THEN FIND FIRST vendItemCost OF ITEM NO-LOCK WHERE vendItemCost.itemtype = "RM" NO-ERROR.
+      ELSE FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
 
       IF job-mat.qty-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
         job-mat.qty-uom:SCREEN-VALUE IN BROWSE {&browse-name} =
-          IF item.i-code EQ "E" AND AVAIL e-item THEN e-item.std-uom ELSE item.cons-uom.
+          IF item.i-code EQ "E" AND AVAIL e-item THEN e-item.std-uom ELSE IF ITEM.i-code EQ "E" AND AVAIL venditemcost THEN venditemcost.vendorUOM ELSE item.cons-uom.
                             
       IF job-mat.sc-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
         job-mat.sc-uom:SCREEN-VALUE IN BROWSE {&browse-name} =
-          IF item.i-code EQ "E" AND AVAIL e-item THEN e-item.std-uom ELSE item.cons-uom.
+          IF item.i-code EQ "E" AND AVAIL e-item THEN e-item.std-uom ELSE IF ITEM.i-code EQ "E" AND AVAIL venditemcost THEN venditemcost.vendorUOM ELSE item.cons-uom.
 
       IF adm-adding-record THEN DO:
         FOR EACH job-hdr
@@ -1420,7 +1429,33 @@ PROCEDURE new-rm-i-no PRIVATE :
                                   DEC(job-mat.len:SCREEN-VALUE IN BROWSE {&browse-name}),
                                   INPUT-OUTPUT v-cost).
         END.
-
+        ELSE IF AVAIL vendItemCost /*lNewVendorItemCost*/ THEN 
+            DO:
+                RUN GetVendorCost(vendItemCost.company, 
+                    vendItemCost.ItemID, 
+                    vendItemCost.itemType, 
+                    vendItemCost.vendorID, 
+                    vendItemCost.customerID, 
+                    "", 
+                    0, 
+                    0,
+                    v-qty, 
+                    vendItemCost.vendorUOM,
+                    item.s-len, 
+                    item.s-wid, 
+                    0, 
+                    "IN",                    
+                    item.basis-w / 100, 
+                    "LB/EA", 
+                    NO,
+                    OUTPUT v-uom, 
+                    OUTPUT dCostSetup, 
+                    OUTPUT cCostUOM,
+                    OUTPUT v-cost, 
+                    OUTPUT lError, 
+                    OUTPUT cMessage).  
+               
+        END.
         /* 02201203 */
         ASSIGN
            v-cost   = decimal(job-mat.std-cost:SCREEN-VALUE IN BROWSE {&browse-name})

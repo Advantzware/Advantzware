@@ -1,0 +1,5 @@
+"vendcostmtx." 1 49 64 "allItemID" "" "" "yes" "201911117061504358790"
+"vendcostmtx." 2 49 64 "endItemID" "vendItemCost" "itemID" "" "201911117047904358789"
+"vendcostmtx." 2 49 64 "allItemID" "" "" "no" "201911117043104358787"
+"vendcostmtx." 2 49 64 "startItemID" "vendItemCost" "itemID" "" "201911117044504358788"
+"vendcostmtx." 3 49 64 "allItemID" "" "" "yes" "201911064565804355837"

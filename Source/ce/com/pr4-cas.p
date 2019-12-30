@@ -20,6 +20,8 @@ DEFINE VARIABLE dPackCostM AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dPackCostTotal AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dPackCostSetup AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cPackCostUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
 
 def shared var v-summ as log NO-UNDO.
 
@@ -74,7 +76,7 @@ for each xef where xef.company = xest.company
                 (if v-corr then ((xeb.t-sqin - xeb.t-win) * .000007)
                            else ((xeb.t-sqin - xeb.t-win) / 144000))) /
                 (if xeb.cas-wt ne 0 then xeb.cas-wt else item.avg-w).
-
+      dCasesProRata = c-qty.
       {sys/inc/roundup.i c-qty} /* CTS end */
       
       /*02031503-set case qty based on multipliers for cost and material calculations*/
@@ -126,12 +128,11 @@ for each xef where xef.company = xest.company
       end.
 
        IF xeb.spare-char-3 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.lp-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.lp-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.lp-up. /*per case - DEFAULT*/.
+          li-qty = dCasesProrata * xeb.lp-up. /*per case - DEFAULT*/.
 
       {sys/inc/roundup.i li-qty} /* CTS end */
 
@@ -174,12 +175,11 @@ for each xef where xef.company = xest.company
       end.
 
        IF xeb.spare-char-4 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.div-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.div-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.div-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.div-up. /*per case - DEFAULT*/
 
       {sys/inc/roundup.i li-qty} /* CTS end */
 
@@ -212,12 +212,11 @@ for each xef where xef.company = xest.company
         dPackQty = 0.
         CASE estPacking.quantityPer:
             WHEN "P" THEN DO:
-                li-qty = c-qty / xeb.cas-pal.
-                {sys/inc/roundup.i li-qty}
-                dPackQty = li-qty * estPacking.quantity.  /*per pallet*/
+                dPalletsProRata = c-qty / xeb.cas-pal.
+                dPackQty = dPalletsProRata * estPacking.quantity.  /*per pallet*/
             END.
             WHEN "C" THEN 
-                dPackQty = estPacking.quantity * c-qty.
+                dPackQty = estPacking.quantity * dCasesProRata.
             OTHERWISE 
                 dPackQty = estPacking.quantity.
         END CASE. 

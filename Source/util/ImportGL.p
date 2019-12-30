@@ -21,6 +21,7 @@ DEFINE TEMP-TABLE ttImportGL
     FIELD AccountNo           AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Account #" HELP "Required - Size:30"
     FIELD AccountDesc         AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Description" HELP "Optional - Size:50"
     FIELD AccountType         AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Type" HELP "Required - Size:1"
+    FIELD Inactive            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or No(Blank no)" 
         .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -46,11 +47,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportGL FOR ttImportGL.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -107,9 +106,8 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     IF oplValid AND iplFieldValidation THEN 
-        RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
+        RUN pIsValidFromList ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
@@ -134,7 +132,8 @@ PROCEDURE pProcessRecord PRIVATE:
             account.type = "A". 
     END.
     RUN pAssignValueC (ipbf-ttImportGL.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT account.dscr).
-    RUN pAssignValueC (ipbf-ttImportGL.AccountType, YES, INPUT-OUTPUT account.type).    
+    RUN pAssignValueC (ipbf-ttImportGL.AccountType, YES, INPUT-OUTPUT account.type).   
+    RUN pAssignValueCToL (ipbf-ttImportGL.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT account.Inactive).
 
 END PROCEDURE.
 

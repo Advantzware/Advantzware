@@ -42,11 +42,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportBin FOR ttImportBin.
-
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -149,13 +146,12 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportBin.BinType NE "" THEN 
-           RUN pIsValidFromList IN hdValidator ("Type", ipbf-ttImportBin.BinType, "FG,RM,WIP", OUTPUT oplValid, OUTPUT cValidNote).
+           RUN pIsValidFromList ("Type", ipbf-ttImportBin.BinType, "FG,RM,WIP", OUTPUT oplValid, OUTPUT cValidNote).
 
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     IF ipbf-ttImportBin.BinAct EQ "" THEN
         ipbf-ttImportBin.BinAct = "Yes" .
-    
     
 END PROCEDURE.
 

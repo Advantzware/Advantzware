@@ -1458,9 +1458,9 @@ PROCEDURE ipChangePassword :
 
     IF AVAIL (_User) 
     AND cNewPassword NE _User._password THEN DO: /* IF displayed value is already encoded password, don't change */
-        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
-        ASSIGN 
-            tempUser._Password = ENCODE(cNewPassword).
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser
+            ASSIGN 
+                tempUser._Password = ENCODE(cNewPassword).
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -2076,7 +2076,7 @@ PROCEDURE local-update-record :
                 users.user_program[2]:SCREEN-VALUE = SUBSTRING(users.user_program[2]:SCREEN-VALUE,1,LENGTH(users.user_program[2]:SCREEN-VALUE) - 1).
         END.
 
-        FILE-INFO:FILE-NAME = users.USER_program[2].
+        FILE-INFO:FILE-NAME = users.user_program[2].
         IF FILE-INFO:FILE-type eq ? then do:
             MESSAGE 
                 "Document Path does not exist. Do you want to create it?" 
@@ -2195,9 +2195,9 @@ PROCEDURE local-update-record :
                     cust.cust-no EQ usercust.cust-no NO-LOCK  :
     
                 CREATE bf-usercust .
-                BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust.
-                ASSIGN
-                    bf-usercust.user_id = users.USER_id .
+                BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust
+                    ASSIGN
+                        bf-usercust.user_id = users.user_id:SCREEN-VALUE.
             END.
             FOR EACH usrx NO-LOCK WHERE 
                 usrx.uid = cOldUserID AND 
@@ -2206,9 +2206,9 @@ PROCEDURE local-update-record :
                 EACH loc OF usrx NO-LOCK:
     
                 CREATE bf-usrx .
-                BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx.
-                ASSIGN
-                    bf-usrx.uid = users.USER_id .
+                BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx
+                    ASSIGN
+                        bf-usrx.uid = users.user_id:SCREEN-VALUE.
             END.
 
             FOR EACH prgrms :
@@ -2311,6 +2311,7 @@ PROCEDURE local-update-record :
             .
     END.
     
+    IF NOT lCopy THEN
     CASE users.showCueCard:
         WHEN NO THEN
         RUN spInactivateCueCards ("System").

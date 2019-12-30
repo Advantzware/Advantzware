@@ -33,30 +33,33 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 {sys/inc/var.i "NEW SHARED"}
 
-ASSIGN
-  cocode = g_company
-  locode = g_loc
-  .
 DEFINE VARIABLE labelLine     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmSecurity  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lAuditMonitor AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hSession      AS HANDLE    NO-UNDO.
-
-RUN system/session.p PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
+DEFINE VARIABLE cResourceTypeASI          AS CHARACTER NO-UNDO INITIAL "ASI".
+DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
 
 DEFINE BUFFER bf-prgrms FOR prgrms.
 
 DEFINE STREAM monitorStrm.
 
-IF INDEX(PROPATH,".\custom") EQ 0 THEN
-PROPATH = ".\custom," + PROPATH.
+ASSIGN
+    cocode = g_company
+    locode = g_loc.
+
+RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
+
+RUN system/session.p PERSISTENT SET hSession.
+SESSION:ADD-SUPER-PROCEDURE (hSession).
+
+IF INDEX(PROPATH,".\custom") EQ 0 THEN ASSIGN 
+    PROPATH = ".\custom," + PROPATH.
 
 &IF '{1}' NE '' &THEN
 {{1}/{1}Defs.i}
@@ -165,8 +168,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "{1} Monitor"
-         HEIGHT             = 27.05
-         WIDTH              = 168.4
+         HEIGHT-P           = 768
+         WIDTH-p            = 1024
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -255,8 +258,8 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
-       RUN system/userLogOut.p (NO, 0).
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    RUN system/userLogOut.p (NO, 0).
+    IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,12 +269,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* {1} Monitor */
 DO:
-       RUN system/userLogOut.p (NO, 0).
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
- 
-  /* Must not go to the editor when started from the command line */
-  QUIT.
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+
+    RUN system/userLogOut.p (NO, 0).
+  
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    /* Must not go to the editor when started from the command line */
+    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -282,7 +288,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearLog C-Win
 ON CHOOSE OF btnClearLog IN FRAME DEFAULT-FRAME /* Clear/Archive Log */
 DO:
-  monitorActivity:SCREEN-VALUE = ''.
+    monitorActivity:SCREEN-VALUE = ''.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,10 +299,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
-  RUN system/userLogOut.p (NO, 0).
-  APPLY 'CLOSE' TO THIS-PROCEDURE.
-  /* Must not go to the editor when started from the command line */
-  QUIT.
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+
+    RUN system/userLogOut.p (NO, 0).
+    APPLY 'CLOSE' TO THIS-PROCEDURE.
+    /* Must not go to the editor when started from the command line */
+    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,10 +325,7 @@ DO:
         "|StartTransDate^" + STRING(TODAY) +
         "|EndTransDate^" + STRING(TODAY)
         ).
-/*  MESSAGE                                  */
-/*    "View in audit viewer under table {1}."*/
-/*  VIEW-AS ALERT-BOX.                       */
-  RETURN NO-APPLY.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,8 +340,16 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN postMonitor.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN postMonitor.
 
+    RUN AdvantzwareMonitor_UpdateResourceStatusTime IN hdAdvantzwareMonitorProcs (
+        INPUT  "{1}",
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,78 +368,88 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.    
-/* The CLOSE event can be used from inside or outside the procedure to  */
-/* terminate it.                                                        */
+/* The CLOSE event can be used from inside or outside the procedure to terminate it. */
 ON CLOSE OF THIS-PROCEDURE 
 DO:
-  RUN monitorActivity ('{1} Monitor Stopped',YES,'').
-  RUN system/userLogOut.p (NO, 0).
-  RUN disable_UI.
-  DELETE OBJECT hPgmSecurity.
+    RUN monitorActivity ('{1} Monitor Stopped',YES,'').
+    RUN system/userLogOut.p (NO, 0).
+    RUN disable_UI.
+    DELETE OBJECT hPgmSecurity.
 END.
 
 /* Best default for GUI applications is...                              */
-PAUSE 0 BEFORE-HIDE.
+    PAUSE 0 BEFORE-HIDE.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN enable_UI.
-  RUN winReSize.
+    RUN enable_UI.
+    RUN winReSize.
 
-  FIND bf-prgrms NO-LOCK WHERE bf-prgrms.prgmname = "{2}." NO-ERROR.
-  IF AVAIL bf-prgrms AND bf-prgrms.track_usage THEN  
-      lAuditMonitor = TRUE.
+    /* Turn on auditing if required */
+    FIND bf-prgrms NO-LOCK WHERE 
+        bf-prgrms.prgmname = "{2}." 
+        NO-ERROR.
+    IF AVAIL bf-prgrms 
+    AND bf-prgrms.track_usage THEN ASSIGN   
+        lAuditMonitor = TRUE.
 
-  &IF '{1}' NE 'cXML' &THEN
-    FIND FIRST sys-ctrl NO-LOCK
-         WHERE sys-ctrl.company EQ g_company
-           AND sys-ctrl.name EQ '{2}' NO-ERROR.
+/* All monitors EXCEPT cXML */  
+&IF '{1}' NE 'cXML' &THEN
+    FIND FIRST sys-ctrl NO-LOCK WHERE 
+        sys-ctrl.company EQ g_company AND 
+        sys-ctrl.name EQ '{2}' 
+        NO-ERROR.
     IF NOT AVAILABLE sys-ctrl THEN DO:
-      MESSAGE 'System Parameter {2} Does Not Exist' SKIP
-        'Create System Parameter?'
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        UPDATE monitorSysCtrl AS LOGICAL.
-      IF monitorSysCtrl THEN DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-          sys-ctrl.company = g_company
-          sys-ctrl.name = '{2}'
-          sys-ctrl.descrip = '{1} Location of Files to Import'
-          sys-ctrl.log-fld = NO.
-      END. /* monitorsysctrl */
-      ELSE DO:
-        RUN system/userLogOut.p (NO, 0).
-        QUIT.
-      END.
+        MESSAGE 
+            'System Parameter {2} Does Not Exist' SKIP
+            'Create System Parameter?'
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE monitorSysCtrl AS LOGICAL.
+        IF monitorSysCtrl THEN DO TRANSACTION:
+            CREATE sys-ctrl.
+            ASSIGN
+                sys-ctrl.company = g_company
+                sys-ctrl.name = '{2}'
+                sys-ctrl.descrip = '{1} Location of Files to Import'
+                sys-ctrl.log-fld = NO.
+        END. /* monitorsysctrl */
+        ELSE DO:
+            RUN system/userLogOut.p (NO, 0).
+            QUIT.
+        END.
     END. /* not avail sys-ctrl */
     IF NOT sys-ctrl.log-fld THEN DO:
-      MESSAGE '{1} Monitor Session Cannot Be Initiated' SKIP
-        'System Parameter {2} is set to NO' SKIP
-        VIEW-AS ALERT-BOX WARNING.
-       RUN system/userLogOut.p (NO, 0).
-      QUIT.
+        MESSAGE 
+            '{1} Monitor Session Cannot Be Initiated' SKIP
+            'System Parameter {2} is set to NO' SKIP
+            VIEW-AS ALERT-BOX WARNING.
+        RUN system/userLogOut.p (NO, 0).
+        QUIT.
     END. /* not log-fld */
     IF sys-ctrl.char-fld EQ '' THEN DO:
-      MESSAGE '{1} Monitor Session Cannot Be Initiated' SKIP
-        'System Parameter {2} File Location Is Blank' SKIP
-        VIEW-AS ALERT-BOX WARNING.
-       RUN system/userLogOut.p (NO, 0).
-      QUIT.
+        MESSAGE 
+            '{1} Monitor Session Cannot Be Initiated' SKIP
+            'System Parameter {2} File Location Is Blank' SKIP
+            VIEW-AS ALERT-BOX WARNING.
+        RUN system/userLogOut.p (NO, 0).
+        QUIT.
     END. /* char-fld eq '' */
+    
     ASSIGN
-      monitorImportDir:SCREEN-VALUE = sys-ctrl.char-fld
-      monitorImportDir.
-  &ENDIF
-  &IF DEFINED(TIMEINTERVAL) &THEN
+        monitorImportDir:SCREEN-VALUE = sys-ctrl.char-fld
+        monitorImportDir.
+&ENDIF
+  
+&IF DEFINED(TIMEINTERVAL) &THEN
   chCtrlFrame:PSTimer:Interval = {&TIMEINTERVAL} * 1000.
-  &ENDIF
-  RUN monitorActivity ('{1} Monitor Started',YES,'').
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
-END.
+&ENDIF
+    RUN monitorActivity ('{1} Monitor Started',YES,'').
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
+END. /* Main Block */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -520,44 +544,46 @@ PROCEDURE monitorActivity :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipActivity AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipDateTimeStamp AS LOGICAL NO-UNDO.
-  DEFINE INPUT PARAMETER ipmonitorFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipActivity AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipDateTimeStamp AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipmonitorFile AS CHARACTER NO-UNDO.
   
-  DEFINE VARIABLE cMsgStr1 AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cMsgStr2 AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iAuditID AS INTEGER   NO-UNDO.
-  DO WITH FRAME {&FRAME-NAME}:
-    IF ipDateTimeStamp THEN
-    cMsgStr1 = (STRING(TODAY,'99/99/9999') + ' ' + 
-                STRING(TIME,'HH:MM:SS am') + ' ').
-    ELSE cMsgStr1 = (FILL(' ',23)).
-    monitorActivity:INSERT-STRING(cMsgStr1).
+    DEFINE VARIABLE cMsgStr1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMsgStr2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iAuditID AS INTEGER   NO-UNDO.
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        IF ipDateTimeStamp THEN ASSIGN 
+            cMsgStr1 = (STRING(TODAY,'99/99/9999') + ' ' + STRING(TIME,'HH:MM:SS am') + ' ').
+        ELSE assign
+            cMsgStr1 = (FILL(' ',23)).
+        monitorActivity:INSERT-STRING(cMsgStr1).
     
-    cMsgStr2 = ipActivity +
-              (IF ipmonitorFile NE '' THEN ' [Audit: ' + ipmonitorFile + ']'
-               ELSE '').
-    monitorActivity:INSERT-STRING(cMsgStr2 + CHR(10)).
-    IF lAuditMonitor THEN DO:
-        RUN spCreateAuditHdr (
-            "LOG",  /* audit type */
-            "ASI",  /* audit db */
-            "{1}.", /* audit table */
-            "",
-            OUTPUT iAuditID
-            ).    
-        RUN spCreateAuditDtl (
-            iAuditID,
-            "{1}.",   /* audit field  - monitor type*/
-            0,        /* audit extent */
-            cMsgStr1 + cMsgStr2, /* Message shown on monitor screen */
-            "",       /* after value */
-            NO        /* is an idx field */
-            ).    
+        ASSIGN 
+            cMsgStr2 = ipActivity + (IF ipmonitorFile NE '' THEN ' [Audit: ' + ipmonitorFile + ']' ELSE '').
+        monitorActivity:INSERT-STRING(cMsgStr2 + CHR(10)).
+    
+        IF lAuditMonitor THEN DO:
+            RUN spCreateAuditHdr (
+                "LOG",  /* audit type */
+                "ASI",  /* audit db */
+                "{1}.", /* audit table */
+                "",
+                OUTPUT iAuditID
+                ).    
+            RUN spCreateAuditDtl (
+                iAuditID,
+                "{1}.",   /* audit field  - monitor type*/
+                0,        /* audit extent */
+                cMsgStr1 + cMsgStr2, /* Message shown on monitor screen */
+                "",       /* after value */
+                NO        /* is an idx field */
+                ).    
+        END.
+    
+        IF LENGTH(monitorActivity:SCREEN-VALUE) GT 20000 THEN
+            APPLY 'CHOOSE':U TO btnClearLog.
     END.
-    IF LENGTH(monitorActivity:SCREEN-VALUE) GT 20000 THEN
-    APPLY 'CHOOSE':U TO btnClearLog.
-  END.
 
 END PROCEDURE.
 
@@ -572,25 +598,26 @@ PROCEDURE winReSize :
   Notes:       
 ------------------------------------------------------------------------------*/
 &IF DEFINED(FWD-VERSION) EQ 0 &THEN
-  RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
 &ELSE
   ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
 &ENDIF
-  ASSIGN
-    {&WINDOW-NAME}:WINDOW-STATE = 1
-    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 30
-    {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
-    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
-    FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    monitorActivity:WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS - 2
-    monitorActivity:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 45.
-&IF DEFINED(FWD-VERSION) EQ 0 &THEN
-  RUN LockWindowUpdate (0,OUTPUT i).
-&ELSE
-  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
-&ENDIF
+    ASSIGN
+        /* Get rid of the full-screen */
+        /* {&WINDOW-NAME}:WINDOW-STATE = 1*/
+        {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 30
+        {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+        {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+        FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+        FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+        monitorActivity:WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS - 2
+        monitorActivity:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 45.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
+    RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+    ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

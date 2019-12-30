@@ -44,6 +44,10 @@ DEFINE VARIABLE output-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE spooled AS LOGICAL NO-UNDO.
 DEFINE VARIABLE quick-print AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -199,7 +203,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel F-Frame-Win
 ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* Cancel */
 DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "local-exit"}
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+        DELETE PROCEDURE hdFileSysProcs.    
+    {methods/run_link.i "CONTAINER-SOURCE" "local-exit"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -632,10 +638,29 @@ PROCEDURE Output-to-Screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lCreated  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+
   {methods/run_link.i "CONTAINER-SOURCE" "Output-Name" "(OUTPUT output-name)"}
   output-name = "users~/" + USERID("NOSWEAT") + "~/" + output-name.
   IF NOT VALID-HANDLE(adm-broker-hdl) THEN
   output-name = "users~/" + USERID("NOSWEAT") + "~/Program Master List.rpt".
+
+  cFilePath = "users~/" + USERID("NOSWEAT").
+  
+  /* Create output directory if not available */
+  RUN FileSys_CreateDirectory IN hdFileSysProcs (
+      INPUT  cFilePath,
+      OUTPUT lCreated,
+      OUTPUT cMessage
+      ) NO-ERROR.
+  IF NOT lCreated THEN DO:
+      MESSAGE "Unable to find report path '" + cFilePath + "' to export report file"
+          VIEW-AS ALERT-BOX ERROR.
+      RETURN.
+  END.
+    
   OUTPUT TO VALUE(output-name).
   OUTPUT CLOSE.
   RUN Process-Selections.

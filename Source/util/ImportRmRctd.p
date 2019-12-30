@@ -18,12 +18,12 @@
 DEFINE TEMP-TABLE ttImportRmRctd
     FIELD Company        AS CHARACTER 
     FIELD Location       AS CHARACTER 
-    FIELD loc            AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse" HELP "Optional - Size:5"
+    FIELD loc            AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse" HELP "Required - Size:5"
     FIELD locBin         AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Bin   " HELP "Optional - - Size:8"
     FIELD tag            AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tag   " HELP "Optional - Size:5"
     FIELD qty            AS DECIMAL FORMAT "->>>>>>9.9<<<<<" COLUMN-LABEL "Qty   " HELP "Optional - Decimal"
     FIELD cost           AS DECIMAL FORMAT "->>>,>>9.99<<<<" COLUMN-LABEL "Cost  " HELP "Optional - Decimal"
-    FIELD ritaCode       AS CHARACTER FORMAT "x" COLUMN-LABEL "Rita Code" HELP "Optional - Size:1"
+    FIELD ritaCode       AS CHARACTER FORMAT "x" COLUMN-LABEL "Rita Code" HELP "Required - Size:1"
     FIELD sNum           AS INTEGER FORMAT ">>9" COLUMN-LABEL "S-Num" HELP "Optional - Integer"
     FIELD bNum           AS INTEGER FORMAT ">>9" COLUMN-LABEL "B-Num" HELP "Optional - Integer"
     FIELD pass           AS INTEGER FORMAT ">9" COLUMN-LABEL "Pass" HELP "Optional - Integer"
@@ -31,7 +31,7 @@ DEFINE TEMP-TABLE ttImportRmRctd
     FIELD jobNo2         AS INTEGER FORMAT ">9" COLUMN-LABEL "Job2" HELP "Optional - Integer"
     FIELD poNo           AS CHARACTER FORMAT "x(9)" COLUMN-LABEL "PO #   " HELP "Optional - Size:9"
     FIELD poLine         AS INTEGER FORMAT ">9" COLUMN-LABEL "PO Line" HELP "Optional - Integer"
-    FIELD RmItem         AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Item#       " HELP "Optional - Size:10"
+    FIELD RmItem         AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Item#       " HELP "Required - Size:10"
     FIELD iName          AS CHARACTER   FORMAT "x(30)" COLUMN-LABEL "Item Name   " HELP "Optional - Size:30"
     FIELD purUom         AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Pur UOM" HELP "Optional - Size:3"
     FIELD costUom        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost UOM" HELP "Optional - Size:3"
@@ -101,6 +101,22 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportRmRctd.rollWt, iplIgnoreBlanks, INPUT-OUTPUT rm-rctd.roll-wt).                                 
     RUN pAssignValueC (ipbf-ttImportRmRctd.enteredBy, iplIgnoreBlanks, INPUT-OUTPUT rm-rctd.enteredBy).
 
+   IF rm-rctd.rct-date EQ ? THEN 
+     ASSIGN  rm-rctd.rct-date = TODAY . 
+   FIND FIRST ITEM NO-LOCK
+       WHERE ITEM.company EQ rm-rctd.company
+       AND ITEM.i-no EQ rm-rctd.i-no NO-ERROR.
+   IF AVAIL ITEM THEN DO:
+       IF rm-rctd.i-name EQ "" THEN
+           ASSIGN rm-rctd.i-name = item.i-name .
+       IF rm-rctd.cost-uom EQ "" THEN
+           rm-rctd.cost-uom = item.cons-uom .
+       IF rm-rctd.pur-uom EQ "" THEN
+           rm-rctd.pur-uom = item.cons-uom .
+   END.
+   IF rm-rctd.enteredBy EQ "" THEN
+           rm-rctd.enteredBy = USERID(LDBNAME(1)) .
+
     IF ipbf-ttImportRmRctd.tag NE "" THEN
             ASSIGN rm-rctd.tag = STRING(CAPS(rm-rctd.i-no),"x(15)") + string(ipbf-ttImportRmRctd.tag,"99999") .
     FIND FIRST loadtag NO-LOCK
@@ -140,13 +156,11 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE NO-UNDO.
     DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportRmRctd FOR ttImportRmRctd.
     DEFINE BUFFER bf-tmp FOR rm-rctd.  /* for tag validation */
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh. /* for tag validation */
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
 
     oplValid = YES.
     
@@ -202,23 +216,22 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportRmRctd.RmItem NE "" THEN 
-            RUN pIsValidRMITemID IN hdValidator (ipbf-ttImportRmRctd.RmItem, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMITemID (ipbf-ttImportRmRctd.RmItem, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.loc NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.locBin NE "" THEN 
-            RUN pIsValidRMBinForLoc IN hdValidator (ipbf-ttImportRmRctd.locBin,ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidRMBinForLoc (ipbf-ttImportRmRctd.locBin,ipbf-ttImportRmRctd.loc, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.jobNo NE "" THEN 
-            RUN pIsValidJob IN hdValidator (ipbf-ttImportRmRctd.jobNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidJob (ipbf-ttImportRmRctd.jobNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportRmRctd.poNo NE "0" AND ipbf-ttImportRmRctd.poNo NE "" THEN 
-            RUN pIsValidPoNo IN hdValidator (ipbf-ttImportRmRctd.poNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidPoNo (ipbf-ttImportRmRctd.poNo, NO, ipbf-ttImportRmRctd.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
 
 END PROCEDURE.
 

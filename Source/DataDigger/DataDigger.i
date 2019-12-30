@@ -10,18 +10,17 @@
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
-/* ***************************  Definitions  ************************** */
-
 &GLOBAL-DEFINE version {version.i}
 &GLOBAL-DEFINE edition Pure Gold
 &GLOBAL-DEFINE build {build.i}
 
 &GLOBAL-DEFINE QUERYSEP CHR(1, SESSION:CPINTERNAL, "UTF-8")
-&GLOBAL-DEFINE timerStart PUBLISH "DD:Timer" ("start", ENTRY(1,PROGRAM-NAME(1)," ")).
-&GLOBAL-DEFINE timerStop  FINALLY: ~
-                            PUBLISH "DD:Timer" ("stop", ENTRY(1,PROGRAM-NAME(1)," ")). ~
-                          END FINALLY.
-&GLOBAL-DEFINE timerStop2 PUBLISH "DD:Timer" ("stop", ENTRY(1,PROGRAM-NAME(1)," ")).
+
+/* FINALLY statement was introduced in 10.1C */
+&IF PROVERSION >= "10.1C" AND DEFINED(UIB_IS_RUNNING) = 0 &THEN
+  &GLOBAL-DEFINE timerStart ~{timerStart.i~}
+  &GLOBAL-DEFINE timerStop  ~{timerStop.i~}
+&ENDIF
 
 /* Constant values for update channels */
 &GLOBAL-DEFINE CHECK-MANUAL 0
@@ -52,6 +51,7 @@ DEFINE TEMP-TABLE ttLinkInfo NO-UNDO RCODE-INFORMATION
 
 /* TT for the tables of a db */
 DEFINE TEMP-TABLE ttTable NO-UNDO RCODE-INFORMATION
+  FIELD cSchemaHolder AS CHARACTER LABEL "SH"        FORMAT "X(12)"   
   FIELD cDatabase     AS CHARACTER LABEL "DB"        FORMAT "X(12)"
   FIELD cTableName    AS CHARACTER LABEL "Table"     FORMAT "X(32)"
   FIELD cCrc          AS CHARACTER LABEL "CRC"
@@ -197,6 +197,11 @@ DEFINE TEMP-TABLE ttFilter NO-UNDO RCODE-INFORMATION
   INDEX idxFilter hFilter
   .
 
+/* TT to save filter values */
+DEFINE TEMP-TABLE ttOldFilter NO-UNDO RCODE-INFORMATION
+  FIELD cFieldName AS CHARACTER
+  FIELD cValue     AS CHARACTER.
+
 /* TT for filter on database tables */
 DEFINE TEMP-TABLE ttTableFilter NO-UNDO RCODE-INFORMATION
   FIELD lModified       AS LOGICAL
@@ -271,6 +276,22 @@ DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
   INDEX iPrim IS PRIMARY cGroup
   .
 
+/* TT For support dataservers */
+DEFINE TEMP-TABLE ttDataserver NO-UNDO RCODE-INFORMATION
+  FIELD iServerNr           AS INTEGER    FORMAT ">>9"
+  FIELD cLDbNameSchema      AS CHARACTER  FORMAT "x(12)"
+  FIELD cLDbNameDataserver  AS CHARACTER  FORMAT "x(12)"
+  FIELD cPDbNameDataserver  AS CHARACTER  FORMAT "x(12)"
+  FIELD cDbType             AS CHARACTER  FORMAT "x(10)"
+  FIELD cConnectString      AS CHARACTER  FORMAT "x(100)"
+  FIELD lDontShowSchemaHr   AS LOGICAL
+  FIELD lConnected          AS LOGICAL
+  INDEX ttDataserverPrim IS PRIMARY UNIQUE iServerNr
+  INDEX ttDataserverRel1 IS         UNIQUE cLDbNameSchema cLDbNameDataserver
+  INDEX ttDataserverRel2                   cLDbNameSchema
+  INDEX ttDataserverRel3                   cLDbNameDataserver
+  .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -303,8 +324,8 @@ DEFINE TEMP-TABLE ttFavGroup NO-UNDO RCODE-INFORMATION
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Include ASSIGN
-         HEIGHT             = 6
-         WIDTH              = 35.8.
+         HEIGHT             = 9.57
+         WIDTH              = 73.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -341,6 +362,10 @@ FUNCTION formatQueryString RETURNS CHARACTER
 
 FUNCTION getDatabaseList RETURNS CHARACTER IN SUPER.
 
+FUNCTION getDataserverType RETURNS CHARACTER
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ) IN SUPER.
+
 FUNCTION getEscapedData RETURNS CHARACTER
   ( INPUT pcTarget AS CHARACTER
   , INPUT pcString AS CHARACTER ) IN SUPER.
@@ -348,6 +373,12 @@ FUNCTION getEscapedData RETURNS CHARACTER
 FUNCTION getColor RETURNS INTEGER
   ( INPUT pcName AS CHARACTER ) IN SUPER.
 
+FUNCTION getColorByRGB RETURNS INTEGER
+  ( piRed   AS INTEGER
+  , piGreen AS INTEGER
+  , piBlue  AS INTEGER
+  ) IN SUPER.
+  
 FUNCTION getColumnLabel RETURNS CHARACTER
   ( INPUT phFieldBuffer AS HANDLE ) IN SUPER.
 
@@ -397,6 +428,10 @@ FUNCTION getRegistry RETURNS CHARACTER
 FUNCTION getStackSize RETURNS INTEGER
   () IN SUPER.
 
+FUNCTION getSchemaHolder RETURNS CHARACTER
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ) IN SUPER.
+
 FUNCTION getTableDesc RETURNS CHARACTER
   ( INPUT  pcDatabase AS CHARACTER
   , INPUT  pcTable    AS CHARACTER
@@ -418,6 +453,10 @@ FUNCTION getWidgetUnderMouse RETURNS HANDLE
   ( INPUT phWidget AS HANDLE ) IN SUPER.
 
 FUNCTION getWorkFolder RETURNS CHARACTER IN SUPER.
+
+FUNCTION isDataserver RETURNS LOGICAL
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ) IN SUPER.
 
 FUNCTION isDefaultFontsChanged RETURNS LOGICAL IN SUPER.
 
@@ -489,3 +528,4 @@ END PROCEDURE. /* getProcHandle */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

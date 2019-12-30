@@ -52,12 +52,14 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+
 ASSIGN cTextListToSelect = "Account No,Acc Description,Curr Year Open Bal,Last Year Open,Type,Current YEAR(1),Current YEAR(2),Current YEAR(3),Current YEAR(4),Current YEAR(5),Current YEAR(6)," +
                             "Current YEAR(7),Current YEAR(8),Current YEAR(9),Current YEAR(10),Current YEAR(11),Current YEAR(12),Current YEAR(13),LAST YEAR(1),LAST YEAR(2),LAST YEAR(3),LAST YEAR(4)," +
                             "LAST YEAR(5),LAST YEAR(6),LAST YEAR(7),LAST YEAR(8),LAST YEAR(9),LAST YEAR(10),LAST YEAR(11),LAST YEAR(12),LAST YEAR(13),CURRENT YEAR Budget(1),CURRENT YEAR Budget(2),CURRENT YEAR Budget(3)," +
                             "CURRENT YEAR Budget(4),CURRENT YEAR Budget(5),CURRENT YEAR Budget(6),CURRENT YEAR Budget(7),CURRENT YEAR Budget(8),CURRENT YEAR Budget(9),CURRENT YEAR Budget(10),CURRENT YEAR Budget(11),CURRENT YEAR Budget(12)," +
                             "CURRENT YEAR Budget(13),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1)," +
-                            "LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),Terms Discount"
+                            "LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),Terms Discount,Inactive"
 
       cFieldListToSelect = "actnum,dscr,cyr-open,lyr-open,vTYPE,cyr[1],cyr[2]," +
                         "cyr[3],cyr[4],cyr[5],cyr[6],cyr[7],cyr[8],cyr[9],cyr[10]," +
@@ -65,10 +67,10 @@ ASSIGN cTextListToSelect = "Account No,Acc Description,Curr Year Open Bal,Last Y
                         "lyr[6],lyr[7],lyr[8],lyr[9],lyr[10],lyr[11],lyr[12],lyr[13],bud[1],"  +
                         "bud[2],bud[3],bud[4],bud[5],bud[6],bud[7],bud[8],bud[9],bud[10],bud[11]," +
                         "bud[12],bud[13],ly-bud[1],ly-bud[2],ly-bud[3],ly-bud[4],ly-bud[5],ly-bud[6],ly-bud[7],ly-bud[8]," +
-                        "ly-bud[9],ly-bud[10],ly-bud[11],ly-bud[12],ly-bud[13],term-disc"
-
-       .
+                        "ly-bud[9],ly-bud[10],ly-bud[11],ly-bud[12],ly-bud[13],term-disc,inactive"  .
 {sys/inc/ttRptSel.i}
+    ASSIGN 
+    cTextListToDefault = "Account No,Acc Description,Type,Inactive"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,7 +88,7 @@ ASSIGN cTextListToSelect = "Account No,Acc Description,Curr Year Open Bal,Last Y
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_acc begin_type end_acc ~
-end_type sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
+end_type Btn_Def sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_acc begin_type end_acc end_type  ~
  sl_avail ~
@@ -145,6 +147,10 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON btn_down 
@@ -230,13 +236,15 @@ DEFINE FRAME rd-fgexp
      end_type AT ROW 4.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Type #" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 12.24 COL 44 HELP
+     Btn_Def AT ROW 12.24 COL 44 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 13.43 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 13.43 COL 44 HELP
+     Btn_Remove AT ROW 14.62 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 14.62 COL 44 WIDGET-ID 136
-     btn_down AT ROW 15.81 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 15.81 COL 44 WIDGET-ID 136
+     btn_down AT ROW 17.00 COL 44 WIDGET-ID 132
      tb_excel AT ROW 18.91 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 18.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 19.86 COL 34 COLON-ALIGNED HELP
@@ -442,6 +450,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+        DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+
+        RUN DisplaySelectionDefault.  /* task 04041406 */ 
+        RUN DisplaySelectionList2 .
+  
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down rd-fgexp
@@ -634,6 +656,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS cha     NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+  
+    DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+        cListContents = cListContents +                   
+            (IF cListContents = "" THEN ""  ELSE ",") +
+            ENTRY(iCount,cTextListToDefault)   .
+    END.            
+    sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgexp 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -743,7 +788,7 @@ PROCEDURE enable_UI :
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_acc begin_type end_acc end_type sl_avail Btn_Add 
          sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         btn-cancel Btn_Def
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}

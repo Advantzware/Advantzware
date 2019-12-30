@@ -2,14 +2,15 @@
  
  put "<FArial>"  SKIP
           "<P14><C+46><B>Connaissement / Bill of Lading</B> " SKIP
-           "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP
+           "<C2><R2><#1><R+10><C+45><IMAGE#1=" ls-full-img1  SKIP
          
                "<FCourier New>"
-               "Vendu À:" SPACE(30) "Livrè À:"   SKIP
-               SPACE(5) v-comp-name v-ship-name AT 45 skip
-               SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
-             SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
-               SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP
+               "Vendu À:" SPACE(23) "Livrè À:<P10>"   SKIP
+               SPACE(5) v-comp-name v-ship-name AT 48 skip
+               SPACE(5) v-comp-addr[1] FORMAT "x(40)" v-ship-addr[1] AT 48 FORMAT "x(40)" SKIP
+             SPACE(5) v-comp-addr[2] FORMAT "x(40)" v-ship-addr[2]  AT 48 FORMAT "x(40)" SKIP
+               SPACE(5) v-comp-addr3 FORMAT "x(40)" v-ship-addr3 AT 48 FORMAT "x(40)" SKIP
+               SPACE(5) cCustContact  cShipContact  AT 48 SKIP
         "<R5><C50><#3>" SKIP
         "<FArial><P14><=#3>" /*<C-20><R-2> <B>Bill Of Lading</B> */ "<P10>" SKIP
                 "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP(1)

@@ -4127,6 +4127,7 @@ PROCEDURE create-w-ord :
             w-ord.linenum      = IF AVAIL oe-ordl THEN oe-ordl.e-num ELSE 0
             w-ord.lot          = loadtag.misc-char[2]
             w-ord.runShip      = IF AVAILABLE oe-ordl THEN oe-ordl.whsed ELSE NO 
+            w-ord.ipReturn     = tb_ret
             .
 
       IF AVAIL b-job-hdr THEN
@@ -4175,6 +4176,7 @@ PROCEDURE create-w-ord :
             USE-INDEX ship-id NO-LOCK NO-ERROR.
       IF AVAIL shipto THEN
          ASSIGN
+            w-ord.ship-code  = shipto.ship-id
             w-ord.ship-name  = shipto.ship-name
             w-ord.ship-add1  = shipto.ship-add[1]
             w-ord.ship-add2  = shipto.ship-add[2]
@@ -4255,7 +4257,8 @@ PROCEDURE create-w-ord :
             w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
                                    cust.int-field[1] else v-mult
             w-ord.lot          = loadtag.misc-char[2].
-            w-ord.job-qty      = job-hdr.qty   .
+            w-ord.job-qty      = job-hdr.qty .
+            w-ord.ipReturn     = tb_ret  .
 
           IF AVAIL itemfg THEN
              ASSIGN
@@ -4299,6 +4302,7 @@ PROCEDURE create-w-ord :
               USE-INDEX ship-id NO-LOCK NO-ERROR.
           IF AVAIL shipto THEN
           ASSIGN
+            w-ord.ship-code  = shipto.ship-id
             w-ord.ship-name  = shipto.ship-name
             w-ord.ship-add1  = shipto.ship-add[1]
             w-ord.ship-add2  = shipto.ship-add[2]
@@ -4376,7 +4380,8 @@ PROCEDURE create-w-ord :
             w-ord.tare-wt = 10
             w-ord.uom = 'EA'
             w-ord.vendor = IF AVAILABLE vend THEN vend.name ELSE ''
-            w-ord.lot    = loadtag.misc-char[2]. 
+            w-ord.lot    = loadtag.misc-char[2]
+            w-ord.ipReturn     = tb_ret . 
          IF AVAILABLE itemfg THEN
             ASSIGN w-ord.est-no = itemfg.est-no
                 w-ord.upc-no = itemfg.upc-no
@@ -4433,7 +4438,8 @@ PROCEDURE create-w-ord :
                                   AND shipto.ship-id EQ v-ship-id
                                 USE-INDEX ship-id NO-ERROR.
          IF AVAILABLE shipto THEN
-            ASSIGN w-ord.ship-name = shipto.ship-name
+            ASSIGN  w-ord.ship-code  = shipto.ship-id
+                    w-ord.ship-name = shipto.ship-name
                     w-ord.ship-add1 = shipto.ship-add[1]
                     w-ord.ship-add2 = shipto.ship-add[2]
                     w-ord.ship-city = shipto.ship-city
@@ -4486,7 +4492,8 @@ PROCEDURE create-w-ord :
                  w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial
                  w-ord.style        = itemfg.style
                  w-ord.lot          = loadtag.misc-char[2]
-                 w-ord.zone         = itemfg.spare-char-4.
+                 w-ord.zone         = itemfg.spare-char-4
+                 w-ord.ipReturn     = tb_ret .
 
           FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
@@ -4568,7 +4575,8 @@ PROCEDURE CreateWOrdFromItem :
       w-ord.pcs = itemfg.case-count
       w-ord.bundle = itemfg.case-pall
       w-ord.style   = itemfg.style
-      w-ord.zone    = itemfg.spare-char-4.
+      w-ord.zone    = itemfg.spare-char-4
+      w-ord.ipReturn = tb_ret.
      
       FOR EACH cust-part NO-LOCK 
           WHERE cust-part.company EQ cocode   
@@ -4908,7 +4916,8 @@ PROCEDURE from-job :
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
             w-ord.job-qty      = job-hdr.qty  .
-            w-ord.zone         = itemfg.spare-char-4 .
+            w-ord.zone         = itemfg.spare-char-4. 
+            w-ord.ipReturn     = tb_ret.
             FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
                AND cust-part.i-no EQ itemfg.i-no 
@@ -5214,7 +5223,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
             /* gdm - 08130804*/
             w-ord.linenum      = oe-ordl.e-num
-
+            w-ord.ipReturn     = tb_ret
             num-rec            = num-rec + 1.
 
           IF AVAIL b-job-hdr THEN do:
@@ -5464,7 +5473,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
           /* gdm - 08130804*/
           w-ord.linenum      = oe-ordl.e-num.
-
+          w-ord.ipReturn     = tb_ret.
           num-rec            = num-rec + 1.
 
 
@@ -5586,7 +5595,8 @@ PROCEDURE from-po :
         w-ord.tare-wt = 10
         w-ord.uom = 'EA'
         w-ord.vendor = IF AVAILABLE vend THEN vend.name ELSE ''
-        num-rec = num-rec + 1.
+        num-rec = num-rec + 1
+        w-ord.ipReturn = tb_ret.
 
     RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                        "EA" ,

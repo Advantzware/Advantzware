@@ -70,7 +70,7 @@ DEFINE VARIABLE useColors               AS CHAR NO-UNDO.
 DEFINE VARIABLE v-called-setCellColumns AS LOG  NO-UNDO.
 DEFINE VARIABLE v-col-move              AS LOG  INIT YES NO-UNDO.
 DEFINE VARIABLE cLevel                  AS CHARACTER EXTENT 10 NO-UNDO .
-DEFINE VARIABLE dtEffDate               AS DATE NO-UNDO .
+DEFINE VARIABLE dtEffDate               AS DATE FORMAT "99/99/9999" NO-UNDO .
 ASSIGN 
     cocode = g_company
     locode = g_loc.
@@ -87,10 +87,10 @@ IF AVAILABLE users THEN ASSIGN
     FOR EACH vendItemCost ~
         WHERE {&key-phrase} ~
           AND vendItemCost.company   EQ cocode ~
-          AND (vendItemCost.itemType BEGINS fi_hotkey OR fi_hotkey EQ "ALL") ~
+          AND (vendItemCost.itemType BEGINS cb_itemType OR cb_itemType EQ "ALL") ~
           AND vendItemCost.vendorID  BEGINS fi_vend-no ~
           AND (IF fi_i-no BEGINS '*' THEN vendItemCost.itemID MATCHES (fi_i-no + "*") ~
-               ELSE vendItemCost.itemID BEGINS fi_i-no) ~
+               ELSE vendItemCost.itemID BEGINS fi_i-no ) ~
           AND (IF TRIM(fi_est-no) BEGINS '*' THEN TRIM(vendItemCost.estimateNo) MATCHES (TRIM(fi_est-no) + "*") ~
                ELSE TRIM(vendItemCost.estimateNo) BEGINS TRIM(fi_est-no)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
@@ -105,6 +105,24 @@ IF AVAILABLE users THEN ASSIGN
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) ~
           AND {&key-phrase} 
 
+&SCOPED-DEFINE for-each-ExactMatch ~
+    FOR EACH vendItemCost ~
+        WHERE {&key-phrase} ~
+          AND vendItemCost.company   EQ cocode ~
+          AND (vendItemCost.itemType BEGINS cb_itemType OR cb_itemType EQ "ALL") ~
+          AND (vendItemCost.itemID eq fi_i-no ) ~
+          AND (vendItemCost.vendorID  eq fi_vend-no OR fi_vend-no = "") ~
+          AND (fi_est-no EQ "" OR TRIM(vendItemCost.estimateNo) eq TRIM(fi_est-no)) ~
+          AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
+          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY)
+/*
+&SCOPED-DEFINE for-each-ExactMatch ~
+    FOR EACH vendItemCost ~
+        WHERE {&key-phrase} ~
+          AND vendItemCost.company   EQ cocode ~
+          AND (vendItemCost.itemID eq fi_i-no )
+*/
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "itemType"       THEN vendItemCost.itemType ELSE ~
     IF lv-sort-by EQ "itemID"         THEN vendItemCost.itemID ELSE ~
@@ -168,10 +186,11 @@ fGetLevel(10) @ cLevel[10]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_in-est tb_in-exp fi_hotkey fi_i-no ~
-fi_vend-no fi_est-no tb_fut-eff btn_go btn_show Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS tb_in-est tb_in-exp fi_hotkey fi_i-no ~
-fi_vend-no fi_est-no tb_fut-eff fi_sort-by 
+&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff btn_go btn_show ~
+Browser-Table 
+&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff fi_sort-by 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -239,7 +258,6 @@ FUNCTION get-eff-date RETURNS DATE
 &ANALYZE-RESUME
 
 
-
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -254,7 +272,7 @@ DEFINE BUTTON btn_show
      SIZE 12 BY 1
      FONT 6.
 
-DEFINE VARIABLE fi_hotkey AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+DEFINE VARIABLE cb_itemType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All","FG","RM" 
@@ -283,6 +301,11 @@ DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(10)":U
      VIEW-AS FILL-IN 
      SIZE 13 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE tb_exactMatch AS LOGICAL INITIAL no 
+     LABEL "Exact Match" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_fut-eff AS LOGICAL INITIAL no 
      LABEL "Include Future Effective" 
@@ -316,7 +339,7 @@ DEFINE BROWSE Browser-Table
       vendItemCost.customerID FORMAT "x(10)":U WIDTH 13 LABEL-BGCOLOR 14
       vendItemCost.estimateNo COLUMN-LABEL "Est" FORMAT "x(8)":U
             WIDTH 13 LABEL-BGCOLOR 14
-      get-eff-date() @ dtEffDate COLUMN-LABEL "Effective" FORMAT "99/99/9999":U COLUMN-FONT 14
+      get-eff-date() @ dtEffDate COLUMN-LABEL "Effective" COLUMN-FONT 14
       vendItemCost.expirationDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(30)":U
       fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(30)":U
@@ -337,9 +360,10 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tb_exactMatch AT ROW 1.14 COL 25.4
      tb_in-est AT ROW 1.19 COL 75.4 WIDGET-ID 50
      tb_in-exp AT ROW 1.19 COL 106.6 WIDGET-ID 52
-     fi_hotkey AT ROW 2.24 COL 6.4 COLON-ALIGNED WIDGET-ID 40
+     cb_itemType AT ROW 2.24 COL 6.4 COLON-ALIGNED WIDGET-ID 40
      fi_i-no AT ROW 2.24 COL 23.4 COLON-ALIGNED WIDGET-ID 16
      fi_vend-no AT ROW 2.24 COL 50.4 COLON-ALIGNED WIDGET-ID 2
      fi_est-no AT ROW 2.24 COL 73.4 COLON-ALIGNED
@@ -422,6 +446,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
+       tb_exactMatch:PRIVATE-DATA IN FRAME F-Main     = 
+                "parm".
+
+ASSIGN 
        tb_fut-eff:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
 
@@ -445,19 +473,19 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "vendItemCost"
      _FldNameList[1]   > asi.vendItemCost.itemType
-"itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.vendItemCost.itemID
-"itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.vendItemCost.vendorID
-"vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.vendItemCost.customerID
-"customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.vendItemCost.estimateNo
-"estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "get-eff-date() @ dtEffDate" "Effective" ? ? ? ? 14 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.vendItemCost.expirationDate
-"expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "fGetLevel(1) @ cLevel[1]" "Level 1" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
@@ -567,7 +595,7 @@ DO:
         {src/adm/template/brschnge.i}
     {methods/template/local/setvalue.i}
 
-   RUN dept-pan-image-proc.  
+   RUN dept-pan-image-proc.
   
 END.
 
@@ -583,7 +611,7 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN
                 fi_vend-no                                               
-                fi_hotkey                                                 
+                cb_itemType                                                 
                 fi_i-no  
                 fi_est-no
                 ll-first = NO 
@@ -640,11 +668,11 @@ DO:
   DEFINE VARIABLE cAllFields  AS CHARACTER NO-UNDO.
   DEFINE VARIABLE recRecordID AS RECID     NO-UNDO.
 
-  IF fi_hotkey:SCREEN-VALUE EQ "FG" THEN do:
+  IF cb_itemType:SCREEN-VALUE EQ "FG" THEN do:
       RUN system/openlookup.p (g_company, "i-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
       IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
   END.
-  ELSE IF fi_hotkey:SCREEN-VALUE EQ "RM" THEN DO:
+  ELSE IF cb_itemType:SCREEN-VALUE EQ "RM" THEN DO:
       RUN system/openlookup.p (g_company, "item", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
       IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
   END.
@@ -652,7 +680,7 @@ DO:
       MESSAGE 
         "Please Select Item Type: FG/RM"
       VIEW-AS ALERT-BOX WARNING.
-      APPLY "ENTRY":U TO fi_hotkey.
+      APPLY "ENTRY":U TO cb_itemType.
   END.    
 END.
 
@@ -671,6 +699,17 @@ DO:
 
   RUN system/openlookup.p (g_company, "vend-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
           IF cMainField <> "" THEN fi_vend-no:SCREEN-VALUE = cMainField. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_exactMatch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exactMatch B-table-Win
+ON VALUE-CHANGED OF tb_exactMatch IN FRAME F-Main /* Exact Match */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -902,9 +941,10 @@ PROCEDURE local-display-fields :
     DO WITH FRAME {&FRAME-NAME}:
         fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+        cb_itemType:SCREEN-VALUE = cb_itemType .                   
     END.
-                    
- 
+   
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1007,7 +1047,7 @@ PROCEDURE local-initialize :
     RUN setCellColumns.
     /* Code placed here will execute AFTER standard behavior.    */
    
-    fi_hotkey:SCREEN-VALUE IN FRAME {&FRAME-NAME} = fi_hotkey:ENTRY(1) .
+    cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType:ENTRY(1) .
 
     APPLY 'ENTRY':U TO fi_i-no IN FRAME {&FRAME-NAME}.
 
@@ -1023,7 +1063,8 @@ PROCEDURE local-open-query :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE cVendItemCost AS CHAR NO-UNDO.
+    
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
@@ -1050,6 +1091,14 @@ PROCEDURE local-open-query :
 
     END.
     
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+    cVendItemCost = RETURN-VALUE.
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
+    IF (cVendItemCost NE "" AND cVendItemCost NE ?) or
+       (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:                  
+       RUN openqueryOne (cVendItemCost).                  
+    END.     
+     
     ll-show-all = NO .
   
     APPLY "value-changed" TO BROWSE {&browse-name}.
@@ -1128,6 +1177,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE openQueryOne B-table-Win 
+PROCEDURE openQueryOne :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcValue AS CHAR NO-UNDO.
+     
+    tb_exactMatch = YES.
+     
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostVendor').
+/*    fi_vend-no = IF RETURN-VALUE <> ? THEN RETURN-VALUE ELSE "".*/
+    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType').
+    cb_itemType = IF RETURN-VALUE = "RM" THEN cb_itemType:ENTRY(3) IN FRAME {&FRAME-NAME}  
+                ELSE IF RETURN-VALUE = "FG" THEN cb_itemType:ENTRY(2)
+                ELSE cb_itemType:ENTRY(1).                    
+    
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').
+    fi_est-no = IF RETURN-VALUE EQ ? THEN "" ELSE return-value.
+    IF fi_est-no NE "" THEN ASSIGN tb_in-est = YES.
+        
+    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue           .
+/*    DISPLAY fi_i-no fi_vend-no cb_itemType fi_est-no WITH FRAME {&frame-name}.*/
+                   
+/*    RUN query-go.*/
+
+    &SCOPED-DEFINE open-query                   ~
+          OPEN QUERY {&browse-name}               ~
+            {&for-each-ExactMatch}                          ~
+               NO-LOCK
+
+    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+                    
+    RUN dispatch ('display-fields').
+    
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-first B-table-Win 
 PROCEDURE query-first :
 /*------------------------------------------------------------------------------
@@ -1158,14 +1250,33 @@ PROCEDURE query-go :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
   
-     
+    DO WITH FRAME {&frame-name} :
+      ASSIGN fi_i-no tb_exactMatch tb_in-est. 
+    END.
+    
+    IF tb_exactMatch THEN DO:
+      &SCOPED-DEFINE open-query                   ~
+          OPEN QUERY {&browse-name}               ~
+            {&for-each-ExactMatch}                          ~
+               NO-LOCK        
+ 
+      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}. 
+    END.
+    ELSE DO: 
      &SCOPED-DEFINE open-query                   ~
           OPEN QUERY {&browse-name}               ~
             {&for-each1}                          ~
                NO-LOCK
-
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+    
+     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
+          
+    END.
+   
+/*    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.  */
+/*                    ELSE {&open-query} {&sortby-phrase-desc}.*/
+  
 
 END PROCEDURE.
 
@@ -1249,13 +1360,17 @@ PROCEDURE set-defaults :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             fi_vend-no:SCREEN-VALUE = ""
-            fi_hotkey:SCREEN-VALUE  = "ALL"
+            cb_itemType:SCREEN-VALUE  = "ALL"
             fi_i-no:SCREEN-VALUE    = ""
             fi_est-no:SCREEN-VALUE  = "" 
             fi_vend-no
-            fi_hotkey
+            cb_itemType
             fi_i-no
             fi_est-no
+            tb_exactMatch = no
+            tb_exactMatch:SCREEN-VALUE = "no"
+            tb_in-est = no
+            tb_in-est:SCREEN-VALUE = "no"
             .     
     END.
 

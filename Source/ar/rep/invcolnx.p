@@ -476,40 +476,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             put skip(1).
             v-printline = v-printline + 1.
         end. /* each ar-invl */
-        
-        if v-prntinst then do:
-        do i = 1 to 4:
-          if ar-inv.bill-i[i] ne "" then do:
-             put ar-inv.bill-i[i] at 10 skip.
-             assign v-printline = v-printline + 1.
-          end.
-        end. /* 1 to 4 */
-        END.
-
-        IF v-printline > 45 THEN do:           
-           PAGE.
-           {ar/rep/invcolnx.i}  /* xprint form */
-           v-printline = 21.
-        END.
-
-        ASSIGN v-notes = ""
-               v-notes-line = 0
-               lv-line-chars = 80.
-
-        {custom/notesprtA.i ar-inv v-notes 60}
-         DO i = 1 TO 60:
-             IF v-printline > 47 THEN do:           
-                 PAGE.
-                 {ar/rep/invcolnx.i}  /* xprint form */
-                 v-printline = 21.
-             END.
-             IF v-notes[i] NE "" THEN do:
-                 PUT "<C3>" v-notes[i] FORMAT "x(80)" SKIP .
-                 v-printline = v-printline + 1 .
-             END.
-         END.
-
-        
+      
         ASSIGN
            v-frt-tax = ar-inv.freight
            v-inv-freight = if ar-inv.f-bill THEN ar-inv.freight

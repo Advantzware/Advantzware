@@ -67,11 +67,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -156,34 +154,34 @@ PROCEDURE pValidate PRIVATE:
     DO:
 
         IF oplValid AND ipbf-ttImportQuote.CustPart NE "" THEN 
-            RUN pIsValidCustPartID IN hdValidator (ipbf-ttImportQuote.CustPart,ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustPartID (ipbf-ttImportQuote.CustPart,ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportQuote.CustNo NE "" THEN 
-            RUN pIsValidCustomerID IN hdValidator (ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustomerID (ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
          IF oplValid AND ipbf-ttImportQuote.uom NE "" THEN 
-            RUN pIsValidUOM IN hdValidator (ipbf-ttImportQuote.uom, NO, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidUOM (ipbf-ttImportQuote.uom, NO, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportQuote.SalesGroup NE "" THEN 
-            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportQuote.SalesGroup, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidSalesRep (ipbf-ttImportQuote.SalesGroup, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportQuote.TermsCode NE "" THEN 
-            RUN pIsValidTerms IN hdValidator (ipbf-ttImportQuote.Terms, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidTerms (ipbf-ttImportQuote.Terms, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportQuote.Carrier NE "" THEN 
-            RUN pIsValidCarrier IN hdValidator (ipbf-ttImportQuote.Carrier, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCarrier (ipbf-ttImportQuote.Carrier, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportQuote.Carrier NE "" AND ipbf-ttImportQuote.zone NE "" THEN 
-            RUN pIsValidDeliveryZone IN hdValidator (ipbf-ttImportQuote.Carrier, ipbf-ttImportQuote.zone, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidDeliveryZone (ipbf-ttImportQuote.Carrier, ipbf-ttImportQuote.zone, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportQuote.CustPart NE "" THEN 
-            RUN pIsValidShiptoID IN hdValidator (ipbf-ttImportQuote.CustNo,ipbf-ttImportQuote.ShipTo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidShiptoID (ipbf-ttImportQuote.CustNo,ipbf-ttImportQuote.ShipTo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportQuote.EstNo NE "" THEN 
-            RUN pIsValidEstID IN hdValidator (ipbf-ttImportQuote.EstNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidEstID (ipbf-ttImportQuote.EstNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportQuote.Style NE "" THEN 
-            RUN pIsValidStyle IN hdValidator (ipbf-ttImportQuote.Style, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidStyle (ipbf-ttImportQuote.Style, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
 
@@ -200,7 +198,6 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportQuote.DeliveryDate = TODAY .
     ipbf-ttImportQuote.EstNo = FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) +
                                                    TRIM(ipbf-ttImportQuote.EstNo).
-     
     
 END PROCEDURE.
 

@@ -11,105 +11,226 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-DEFINE INPUT PARAMETER ipcDLC             AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcAdminServerPort AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcAppServerName   AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcAppServerPort   AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNameServerName  AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNameServerPort  AS CHARACTER NO-UNDO.
-   
+DEFINE VARIABLE cDLC             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdminServerPort AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAppServerName   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAppServerPort   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNameServerName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNameServerPort  AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cResourceStatusRunning AS CHARACTER NO-UNDO INITIAL "Running".
+DEFINE VARIABLE cResourceStatusStopped AS CHARACTER NO-UNDO INITIAL "Stopped".
+
+DEFINE VARIABLE cResourceTypeNode        AS CHARACTER NO-UNDO INITIAL "Node".
+DEFINE VARIABLE cResourceTypeAppServer   AS CHARACTER NO-UNDO INITIAL "AppServer".
+DEFINE VARIABLE cResourceTypeNameServer  AS CHARACTER NO-UNDO INITIAL "NameServer".
+DEFINE VARIABLE cResourceTypeAdminServer AS CHARACTER NO-UNDO INITIAL "AdminServer".
+DEFINE VARIABLE cResourceTypeASI         AS CHARACTER NO-UNDO INITIAL "ASI".
+
+DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.   
 DEFINE VARIABLE cLine         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPathDataFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdSession     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdOSProcs     AS HANDLE    NO-UNDO.
 
+RUN system/OSProcs.p     PERSISTENT SET hdOSProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN system/Session.p     PERSISTENT SET hdSession.
-  
-/* This is to get path */
+
+/* This is to get temporary path */
 RUN GetBarDirFilePath IN hdOutputProcs (
-    INPUT ipcCompany,
+    INPUT cCompany,
     INPUT "temp", 
     OUTPUT cPathDataFile
     ).
- 
+
+PROCEDURE AdvantzwareMonitor_Initialize:
+    /*------------------------------------------------------------------------------
+     Purpose: Initialize the required configuration variables
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcDLC             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAdminServerPort AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAppServerName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAppServerPort   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNameServerName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNameServerPort  AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cDLC             = ipcDLC            
+        cCompany         = ipcCompany        
+        cAdminServerPort = ipcAdminServerPort
+        cAppServerName   = ipcAppServerName  
+        cAppServerPort   = ipcAppServerPort  
+        cNameServerName  = ipcNameServerName 
+        cNameServerPort  = ipcNameServerPort 
+        .
+END PROCEDURE.
+
+PROCEDURE AdvantzwareMonitor_UpdateResourceStatusTime:
+/*------------------------------------------------------------------------------
+     Purpose: Procedure to update status date time with current date and time
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcASIServerName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-serverResource FOR serverResource.
+    
+    FIND FIRST bf-serverResource EXCLUSIVE-LOCK
+         WHERE bf-serverResource.resourceType EQ cResourceTypeASI
+           AND bf-serverResource.name         EQ ipcASIServerName
+         NO-ERROR NO-WAIT.
+    IF LOCKED bf-serverResource THEN
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "serverResource record locked"
+            .
+    ELSE IF NOT AVAILABLE bf-serverResource THEN
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to find serverResource record"
+            .
+    ELSE IF AVAILABLE bf-serverResource THEN
+        ASSIGN
+            bf-serverResource.statusDateTime = NOW
+            bf-serverResource.statusRemarks  = "Last update time: " + STRING(bf-serverResource.statusDateTime)
+            oplSuccess                       = TRUE
+            opcMessage                       = "Success"
+            .
+    
+    RELEASE bf-serverResource.
+END PROCEDURE.
+
 /* Gets NodeServer status */ 
-PROCEDURE getNodeStatus:
+PROCEDURE pGetNodeStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch the Node server status
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcNodePort AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcStatus   AS CHARACTER NO-UNDO.
         
     DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO. 
-    
-    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS >" + cPathDataFile. 
-    OS-COMMAND SILENT VALUE(cCommand).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
-    
-    opcStatus ="Stopped". 
-    
+
+    opcStatus = cResourceStatusStopped. 
+
+    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS". 
+
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+
+    IF SEARCH(cPathDataFile) = ? THEN
+        RETURN.
+
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
         IMPORT UNFORMATTED cLine.
         IF cLine MATCHES "*node*" THEN
-           opcStatus ="Running".
+           opcStatus = cResourceStatusRunning.
     END.
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
 /* Monitors Advantzware Resources */
-PROCEDURE pMonitor:
-  
+PROCEDURE AdvantzwareMonitor_UpdateResourceStatus:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch and update the resource status
+     Notes:
+    ------------------------------------------------------------------------------*/ 
     FOR EACH serverResource 
-        WHERE serverResource.resourceType EQ "Node" AND 
+        WHERE serverResource.resourceType EQ cResourceTypeNode AND 
         serverResource.isActive NO-LOCK:
-        RUN updateStatus(
+        RUN pUpdateStatus(
             INPUT ROWID(serverResource)
             ).
     END.
     FOR EACH serverResource 
-        WHERE serverResource.resourceType EQ "AppServer" AND 
+        WHERE serverResource.resourceType EQ cResourceTypeAppServer AND 
         serverResource.isActive NO-LOCK:
-        RUN updateStatus(
+        RUN pUpdateStatus(
             INPUT ROWID(serverResource)
             ).
     END.
     FOR EACH serverResource 
-        WHERE serverResource.resourceType EQ "NameServer" AND 
+        WHERE serverResource.resourceType EQ cResourceTypeNameServer AND 
         serverResource.isActive NO-LOCK:
-        RUN updateStatus(
+        RUN pUpdateStatus(
             INPUT ROWID(serverResource)
             ).
     END.
     FOR EACH serverResource 
-        WHERE serverResource.resourceType EQ "AdminServer" AND 
+        WHERE serverResource.resourceType EQ cResourceTypeAdminServer AND 
         serverResource.isActive NO-LOCK:
-        RUN updateStatus(
+        RUN pUpdateStatus(
+            INPUT ROWID(serverResource)
+            ).
+    END.
+    FOR EACH serverResource 
+        WHERE serverResource.resourceType EQ cResourceTypeASI AND 
+        serverResource.isActive NO-LOCK:
+        RUN pUpdateStatus(
             INPUT ROWID(serverResource)
             ).
     END.
 END PROCEDURE.
 
 /* Gets AppServer Status */
-PROCEDURE getASBrokerStatus:
+PROCEDURE pGetASBrokerStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch the AppServer status
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcBrokerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBrokerStatus  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cFullFilePath    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCounter         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ibrokerLine      AS INTEGER   NO-UNDO. 
-       
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\asbman.bat") -NAME VALUE(ipcBrokerName) -PORT VALUE(ipcAdminServerPort) -QUERY > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+    DEFINE VARIABLE cCommand         AS CHARACTER NO-UNDO.
+    
+    opcBrokerStatus = cResourceStatusStopped.
+    
+    cCommand = cDLC + "\bin\asbman.bat -NAME " + ipcBrokerName + " -PORT " 
+             + STRING(cAdminServerPort) + " -QUERY".
+    
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+        
+    IF SEARCH(cPathDataFile) = ? THEN 
+        RETURN.
+
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
        IMPORT UNFORMATTED cLine.
                
        IF cLine MATCHES "Broker:*not running (8313)*"  OR 
           cLine MATCHES "Unable to find*" THEN 
-           opcBrokerStatus = "Stopped".
+           opcBrokerStatus = cResourceStatusStopped.
                
        IF cLine BEGINS "Broker Status" THEN
-           opcBrokerStatus = "Running".
+           opcBrokerStatus = cResourceStatusRunning.
        
     END.
      
@@ -117,50 +238,124 @@ PROCEDURE getASBrokerStatus:
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
-
 /* Gets NameServer Status */
-PROCEDURE getNameServerStatus:
-    DEFINE INPUT  PARAMETER ipcNameServerName    AS CHARACTER NO-UNDO.
+PROCEDURE pGetNameServerStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch the NameServer status
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER cNameServerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerStatus  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO.
+    
+    opcNameServerStatus = cResourceStatusStopped.
 
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\nsman.bat") -NAME VALUE(ipcNameServerName) -PORT VALUE(ipcAdminServerPort) -QUERY > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+    cCommand = cDLC + "\bin\nsman.bat -NAME " + cNameServerName + " -PORT " 
+             + STRING(cAdminServerPort) + " -QUERY".
+    
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+
+    IF SEARCH(cPathDataFile) = ? THEN
+        RETURN.
 
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
         IMPORT UNFORMATTED cLine.
 
         IF cLine MATCHES "NameServer: * not running (8313)" THEN 
-            opcNameServerStatus = "Stopped".
+            opcNameServerStatus = cResourceStatusStopped.
            
         IF cLine MATCHES "NameServer * running on Host*" OR 
            cLine MATCHES "Unable to find*" THEN
-             opcNameServerStatus = "Running".
+             opcNameServerStatus = cResourceStatusRunning.
     END.
     INPUT CLOSE.
     OS-DELETE VALUE(cPathDataFile). 
 END PROCEDURE.
 
 /* Gets AdminServer Status */
-PROCEDURE getAdminServerStatus:
+PROCEDURE pGetAdminServerStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch the AdminServer status
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcPort               AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcAdminServerStatus  AS CHARACTER NO-UNDO.
- 
-    OS-COMMAND SILENT VALUE(ipcDLC + "\bin\proadsv.bat") -QUERY -port VALUE(ipcPort) > VALUE(cPathDataFile).
-    IF SEARCH(cPathDataFile) = ? THEN RETURN.
+
+    DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO.
+
+    opcAdminServerStatus  = cResourceStatusStopped.
+
+    cCommand = cDLC + "\bin\proadsv.bat -QUERY -port "
+             + STRING(ipcPort).
+
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cPathDataFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+        RETURN.
+    
+    IF SEARCH(cPathDataFile) = ? THEN
+        RETURN.
     
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
         IMPORT UNFORMATTED cLine.
-        opcAdminServerStatus  = IF cLine MATCHES "AdminServer is alive*" THEN "Running" ELSE "Stopped".
+        opcAdminServerStatus  = IF cLine MATCHES "AdminServer is alive*" THEN 
+                                    cResourceStatusRunning 
+                                ELSE 
+                                    cResourceStatusStopped.
     END.
     INPUT CLOSE.
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
+/* Gets Monitor Status */
+PROCEDURE pGetASIServerStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch the ASI Monitor resource status
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdtLastStatusTime     AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER opiRefreshFrequency    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMonitorServerStatus AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iToleranceTimeInSeconds AS INTEGER NO-UNDO INITIAL 5.
+    
+    opcMonitorServerStatus = cResourceStatusStopped.
+
+    IF ipdtLastStatusTime EQ ? THEN        
+        RETURN.
+    
+    /* Verify if last status time on the resource, exceeds the max refresh frequency
+       plus tolerence time from current time */
+    IF INTERVAL(NOW, ipdtLastStatusTime, "seconds") GE opiRefreshFrequency + iToleranceTimeInSeconds THEN
+        RETURN.
+
+    opcMonitorServerStatus  = cResourceStatusRunning.
+END PROCEDURE.
 
 /* Sends Email notification when any resource is stopped */
-PROCEDURE sendEmail:
+PROCEDURE pSendEmail PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to send email notification
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER bufServerResource FOR serverResource.
     DEFINE OUTPUT PARAMETER oplSent           AS LOGICAL NO-UNDO.
     
@@ -171,12 +366,12 @@ PROCEDURE sendEmail:
     
     IF AVAILABLE bufServerResource THEN DO:
 	
-        RUN getEmailConfigBody (
+        RUN pGetEmailConfigBody (
             INPUT  bufServerResource.configID,
             OUTPUT cBody
             ).
                 
-        RUN getEmailConfigSubject (
+        RUN pGetEmailConfigSubject (
             INPUT  bufServerResource.configID,
             OUTPUT cSubject
             ).
@@ -203,7 +398,11 @@ PROCEDURE sendEmail:
 END PROCEDURE.
 
 /* Updates resouce status */
-PROCEDURE updateStatus:
+PROCEDURE pUpdateStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to update the serverResource table with resource's status
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprRowId AS ROWID NO-UNDO.
 
     DEFINE VARIABLE cStatus                AS CHARACTER NO-UNDO.
@@ -217,59 +416,68 @@ PROCEDURE updateStatus:
     
 	IF AVAILABLE serverResource THEN DO:
         
-		CASE serverResource.resourceType:
-            
-    	         WHEN "Node" THEN
-                    RUN getNodeStatus(
-                        INPUT serverResource.port,
-                        OUTPUT cStatus
-                        ).      
-                        
-                WHEN "AdminServer" THEN DO:
+		CASE serverResource.resourceType:            
+            WHEN cResourceTypeNode THEN
+                RUN pGetNodeStatus(
+                    INPUT serverResource.port,
+                    OUTPUT cStatus
+                    ).                    
+            WHEN cResourceTypeAdminServer THEN DO:                
+                IF serverResource.port NE cAdminServerPort THEN
+                    serverResource.port = cAdminServerPort.
                     
-                    IF serverResource.port NE ipcAdminServerPort THEN
-                        serverResource.port = ipcAdminServerPort.
-                        
-                    RUN getAdminServerStatus(
-                        INPUT  serverResource.port,
-                        OUTPUT cStatus
-                        ).  
-       
-                END.                              
-                WHEN "NameServer" THEN DO:
-                    
-                    IF serverResource.name NE ipcNameServerName THEN
-                        serverResource.name = ipcNameServerName.
-                    IF serverResource.port NE ipcNameServerport THEN
-                        serverResource.port = ipcNameServerPort.
-                    
-                    RUN getNameServerStatus (
-                        INPUT  serverResource.Name,
-                        OUTPUT cStatus
-                        ).
-                END.     
-                WHEN "AppServer" THEN DO:
+                RUN pGetAdminServerStatus(
+                    INPUT  serverResource.port,
+                    OUTPUT cStatus
+                    ).     
+            END.                              
+            WHEN cResourceTypeNameServer THEN DO:               
+                IF serverResource.name NE cNameServerName THEN
+                    serverResource.name = cNameServerName.
+                IF serverResource.port NE cNameServerPort THEN
+                    serverResource.port = cNameServerPort.
                 
-                    IF serverResource.name NE ipcAppServerName THEN
-                        serverResource.name = ipcAppServerName.
-                    IF serverResource.port NE ipcAppServerport THEN
-                        serverResource.port = ipcAppServerPort.
-                        
-                    RUN getASBrokerStatus(
-                        INPUT  serverResource.Name,
-                        OUTPUT cStatus
-                        ).
-                END.
+                RUN pGetNameServerStatus (
+                    INPUT  serverResource.Name,
+                    OUTPUT cStatus
+                    ).
+            END.     
+            WHEN cResourceTypeAppServer THEN DO:            
+                IF serverResource.name NE cAppServerName THEN
+                    serverResource.name = cAppServerName.
+                IF serverResource.port NE cAppServerPort THEN
+                    serverResource.port = cAppServerPort.
+                    
+                RUN pGetASBrokerStatus(
+                    INPUT  serverResource.Name,
+                    OUTPUT cStatus
+                    ).
+            END.
+            WHEN cResourceTypeASI THEN DO:                
+                RUN pGetASIServerStatus (
+                    INPUT  serverResource.statusDateTime,
+                    INPUT  serverResource.refreshFrequency,
+                    OUTPUT cStatus
+                    ).
+            END.
         END CASE.
             
-        ASSIGN serverResource.resourceStatus = cStatus
-               serverResource.notified       = (IF cStatus EQ "Running" THEN NO ELSE serverResource.notified)
-               serverResource.statusDateTime = NOW.
+        ASSIGN 
+            serverResource.resourceStatus = cStatus
+            serverResource.notified       = (IF cStatus EQ cResourceStatusRunning THEN 
+                                                 NO 
+                                             ELSE 
+                                                 serverResource.notified)
+            serverResource.statusDateTime = (IF serverResource.resourceType EQ cResourceTypeASI THEN
+                                                 serverResource.statusDateTime
+                                             ELSE
+                                                 NOW)
+            .
 
-        IF serverResource.resourceStatus = "Stopped" AND 
+        IF serverResource.resourceStatus = cResourceStatusStopped AND 
            NOT serverResource.notified THEN DO:
             
-            RUN sendEmail(
+            RUN pSendEmail(
                 BUFFER serverResource,
                 OUTPUT lEmailNotificationSent
                 ).
@@ -282,7 +490,11 @@ RELEASE serverResource.
 END PROCEDURE.
 
 /* gets Emailconfig Body */
-PROCEDURE getEmailConfigBody:
+PROCEDURE pGetEmailConfigBody PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch email body for a given configID
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcConfigID AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBody     AS CHARACTER NO-UNDO.
     
@@ -297,7 +509,11 @@ PROCEDURE getEmailConfigBody:
 END PROCEDURE.
 
 /* gets Emailconfig Subject */
-PROCEDURE getEmailConfigSubject:
+PROCEDURE pGetEmailConfigSubject PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch email subject for a given configID
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcConfigID AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcSubject  AS CHARACTER NO-UNDO.
     

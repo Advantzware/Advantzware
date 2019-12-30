@@ -225,6 +225,8 @@ IF lRecFound THEN
 /* transaction */
 {sys/inc/f16to32.i}
 
+{sys/inc/oecredit.i}
+
 /* transaction */
  {sys/inc/ceprepprice.i} 
 {sys/inc/funcToWorkDay.i}
@@ -270,15 +272,16 @@ IF lRecFound THEN
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.sold-id oe-ord.ship-id oe-ord.contact ~
-oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date ~
-oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
-oe-ord.over-pct oe-ord.under-pct oe-ord.terms oe-ord.tax-gr oe-ord.managed ~
-oe-ord.priceHold oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.s-pct[1] ~
-oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] ~
-oe-ord.sman[3] oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay ~
-oe-ord.carrier oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration ~
-oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2 
+oe-ord.job-no2 oe-ord.po-no oe-ord.cust-no oe-ord.sold-id oe-ord.ship-id ~
+oe-ord.contact oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate ~
+oe-ord.ord-date oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
+oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
+oe-ord.tax-gr oe-ord.managed oe-ord.priceHold oe-ord.priceHoldReason ~
+oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
+oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.s-pct[3] ~
+oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
+oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num ~
+oe-ord.cc-auth oe-ord.spare-char-2 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS fiStatDesc btnCalendar-1 btnCalendar-2 ~
@@ -827,7 +830,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.cust-name IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ord.cust-no IN FRAME F-Main
-   NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
+   1 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-ord.due-code IN FRAME F-Main
    4 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-ord.due-date IN FRAME F-Main
@@ -1245,7 +1248,36 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.cust-no V-table-Win
 ON ENTRY OF oe-ord.cust-no IN FRAME F-Main /* Bill To */
 DO:
-  lv-old-cust-no = {&self-name}:SCREEN-VALUE.
+    DEFINE VARIABLE lRelStatFound AS LOGICAL NO-UNDO.
+    
+    FOR EACH  oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ oe-ord.company
+          AND oe-ordl.ord-no  EQ oe-ord.ord-no:
+          
+        FOR EACH  oe-rel NO-LOCK
+            WHERE oe-rel.company EQ oe-ordl.company
+              AND oe-rel.ord-no  EQ oe-ordl.ord-no
+              AND oe-rel.i-no    EQ oe-ordl.i-no  
+              AND oe-rel.line    EQ oe-ordl.line:
+        
+            IF LOOKUP(oe-rel.stat, 'A,C,P,Z,B' ) NE 0 THEN DO:
+                lRelStatFound = TRUE.
+                LEAVE.
+            END.
+            
+        END.
+    END. 
+    
+    IF lRelStatFound THEN DO:
+        MESSAGE 
+             "This order has releases that are already posted,completed"   SKIP 
+             "Or invoiced such that the customer cannot be change " SKIP 
+             "Without deleting all releases back to a planned release status" VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO oe-ord.sold-id.
+        RETURN NO-APPLY.
+    END.
+    
+    lv-old-cust-no = {&self-name}:SCREEN-VALUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2429,6 +2461,7 @@ PROCEDURE create-job :
          job.job-no     = v-job-no
          job.job-no2    = v-job-no2
          job.stat       = "P"
+         job.ordertype  = oe-ord.type
          op-recid = RECID(job).
 
   FOR EACH oe-ordl WHERE oe-ordl.company EQ oe-ord.company
@@ -3363,8 +3396,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     END.
 
     FIND FIRST est-prep EXCLUSIVE-LOCK
-        WHERE est-prep.company EQ oe-ordl.company
-        AND est-prep.est-no EQ oe-ordl.est-no 
+        WHERE est-prep.company EQ oe-ord.company
+        AND est-prep.est-no EQ oe-ord.est-no 
         AND est-prep.CODE EQ oe-ordm.charge 
         AND est-prep.orderID EQ string(oe-ordm.ord-no)
         AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
@@ -3646,11 +3679,11 @@ PROCEDURE display-cust-detail :
                     view-as alert-box warning.
             oe-ord.stat:screen-value = "H".
        end.*/
-
+     
       IF AVAIL cust AND cust.active NE "X" AND fi_type:screen-value NE "T" THEN DO:
           RUN oe/creditck.p (ROWID(cust), NO).
           FIND CURRENT cust NO-LOCK NO-ERROR.
-          IF AVAIL cust AND cust.cr-hold THEN oe-ord.stat:SCREEN-VALUE = "H".  
+          IF AVAIL cust AND cust.cr-hold AND oecredit-log THEN oe-ord.stat:SCREEN-VALUE = "H".  
       END.
           
     END.   
@@ -5597,6 +5630,8 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* ===  don't go item page yet. -> move page to 2 */
+  IF adm-new-record THEN
+      RUN pAssignHoldReason .
 
   IF ll-is-new-rec THEN DO:
     IF oe-ord.est-no EQ "" AND AVAIL(oe-ord) THEN DO:
@@ -5923,6 +5958,42 @@ RUN oe/ordfrest.p
   RUN dispatch ('row-changed').    
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignHoldReason V-table-Win 
+PROCEDURE pAssignHoldReason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cHoldReason AS CHARACTER NO-UNDO .
+ DEFINE VARIABLE ld-ord-bal  LIKE cust.ord-bal NO-UNDO.
+  DO WITH FRAME {&FRAME-NAME}:
+      IF AVAIL oe-ord AND oecredit-log AND oe-ord.stat EQ "H" THEN DO:
+          FIND FIRST cust NO-LOCK
+              WHERE cust.company EQ cocode 
+               AND cust.cust-no EQ oe-ord.cust-no NO-ERROR .
+          IF AVAIL cust THEN do:
+              ld-ord-bal      = cust.ord-bal .
+
+              IF oecredit-cha EQ "" THEN
+                  RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+
+              IF ld-ord-bal + cust.acc-bal GT cust.cr-lim THEN cHoldReason = "credit".
+              ELSE
+                  IF ld-ord-bal GT cust.ord-lim THEN cHoldReason = "order".
+             
+             IF cHoldReason EQ "credit" THEN
+                 ASSIGN oe-ord.spare-char-2 = "Credit Limit Exceeded" .
+             ELSE IF cHoldReason EQ "Order" THEN
+                 ASSIGN oe-ord.spare-char-2 = "Order Limit Exceeded".
+          END. /* avail cust */
+      END.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

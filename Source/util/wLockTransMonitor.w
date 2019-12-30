@@ -139,7 +139,7 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bExit AUTO-END-KEY 
-     IMAGE-UP FILE "N:/Environments/Devel/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
      SIZE 8 BY 2.14 TOOLTIP "Exit".
 
@@ -782,7 +782,9 @@ PROCEDURE ipGetLockData :
                             ASSIGN 
                                 hTestName = hbRecKey:BUFFER-FIELD(jCtr)
                                 cTestName = hTestName:NAME.
-                            IF cTestName EQ _field._field-name THEN DO:
+                            IF cTestName EQ _field._field-name 
+                            /* Why there might be an extented field in an index, I don't know, but there it is */
+                            AND _field._extent LT 2 THEN DO:
                                 ASSIGN 
                                     hIdxFld[iIdxCt] = hbRecKey:BUFFER-FIELD(jCtr) 
                                     cFieldString = cFieldString + hIdxFld[iIdxCt]:LABEL + "|" 

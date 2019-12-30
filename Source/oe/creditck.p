@@ -15,17 +15,22 @@ DEF    VAR      lv-stat         LIKE oe-ord.stat NO-UNDO.
 DEF    VAR      v-lock-first    AS LOG     INIT TRUE NO-UNDO.
 DEF    VAR      v-final-cust-no AS CHAR    NO-UNDO.
 DEFINE VARIABLE lPutOnCreditHold AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ilockTries      AS INTEGER NO-UNDO.
+DEFINE VARIABLE ilockTries       AS INTEGER NO-UNDO.
+DEFINE VARIABLE lCheckOrderOnly  AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cHoldReason      AS CHARACTER NO-UNDO.
 
 DO TRANSACTION:
     {sys/inc/oecredit.i}
 END.
 
+IF PROGRAM-NAME(2) MATCHES ("*v-ord.*") THEN
+    ASSIGN lCheckOrderOnly = YES .
 FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ ip-rowid NO-ERROR.
 IF AVAIL oe-ord THEN
     ASSIGN
         lv-cust = oe-ord.cust-no
-        lv-stat = oe-ord.stat.
+        lv-stat = oe-ord.stat 
+        lCheckOrderOnly = YES .
 
 IF lv-cust EQ "" THEN
     FIND inv-head NO-LOCK WHERE ROWID(inv-head) EQ ip-rowid NO-ERROR.
@@ -78,7 +83,8 @@ DO:
                 IF ld-ord-bal GT cust.ord-lim THEN v-error = "order".
         END.
 
-        IF v-error NE "" THEN
+        IF v-error NE "" THEN 
+            ASSIGN cHoldReason = v-error
             v-error = "has exceeded their " + TRIM(v-error) + " limit.".
     END.
   
@@ -90,15 +96,28 @@ DO:
         /* gdm - 06020913 */
         IF oecredit-int EQ 1 THEN 
         DO:
+            IF AVAIL oe-ord AND lCheckOrderOnly THEN DO:
+               IF oecredit-log THEN DO:
+                 RUN displayMessage ("8") .
+               END. /* oecredit-log */
+            END.  /* avail ord */
+            ELSE DO: 
 
             MESSAGE 
                 "Customer has exceeded credit limit, " +
                 "order limit or invoice is past due"
                 VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            END. /* else do*/
 
         END.
         ELSE 
         DO:
+            IF AVAIL oe-ord OR lCheckOrderOnly THEN DO:
+               IF oecredit-log THEN DO:
+                   RUN displayMessage ("8") .
+               END. /* oecredit-log */
+            END.  /* avail ord */
+            ELSE DO:   
             /* gdm - 06020913 */
             MESSAGE 
                 "Customer:" TRIM(cust.name)
@@ -107,6 +126,7 @@ DO:
                 TRIM(STRING(NOT AVAIL inv-head AND NOT AVAIL ar-inv,"Order/Invoice")) +
                 " status will be set to HOLD."
                 VIEW-AS ALERT-BOX.
+            END. /* else do */
         END.
     END.
   
@@ -159,13 +179,20 @@ DO:
                     IF NOT cust.cr-hold THEN 
                     DO:  
          
-                        IF AVAIL oe-ord THEN 
+                        IF AVAIL oe-ord AND oecredit-log THEN 
                         DO:
            
                             FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.
                             ASSIGN 
                                 oe-ord.stat          = "H"
                                 oe-ord.approved-date = TODAY.
+                            IF cHoldReason EQ "credit" THEN
+                                ASSIGN oe-ord.spare-char-2 = "Credit Limit Exceeded" .
+                            ELSE IF cHoldReason EQ "Order" THEN
+                                ASSIGN oe-ord.spare-char-2 = "Order Limit Exceeded".
+                            ELSE IF cHoldReason EQ "invoice age" THEN
+                                ASSIGN oe-ord.spare-char-2 = "Past due invoices" .
+
                             FIND CURRENT oe-ord NO-LOCK NO-ERROR.
                             RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
                         END.

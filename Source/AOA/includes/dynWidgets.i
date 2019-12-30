@@ -237,6 +237,12 @@ PROCEDURE pCreateDynParameters :
            CAN-DO(hDynInitProc:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
             RUN VALUE(dynParamSetDtl.initializeProc) IN hDynInitProc.
             cInitItems = RETURN-VALUE.
+            IF INDEX(cInitItems,":DISABLE") NE 0 THEN
+            ASSIGN
+                lSensitive = NO
+                cInitItems = REPLACE(cInitItems,":DISABLE","")
+                .
+            cParamValue = cInitItems.
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
            dynParamSet.setRectangle THEN DO:

@@ -7,17 +7,12 @@
   Name: generate-Assign-Statement.w
   Desc: Generate assign statement for current file
 
-------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
-
-/* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_IS_RUNNING) = 0 &THEN
   DEFINE INPUT PARAMETER pcDatabase AS CHARACTER NO-UNDO.
@@ -32,7 +27,7 @@ CREATE WIDGET-POOL.
   RUN datadiggerlib.p PERSISTENT SET hLib.
   THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hLib,SEARCH-TARGET).
   
-  RUN fillTT.
+  RUN getDummyScheme.p(OUTPUT TABLE ttField, OUTPUT TABLE ttIndex).
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -379,26 +374,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fillTT C-Win 
-PROCEDURE fillTT :
-/* Fill tt for testing in UIB
-  */
-  DEFINE BUFFER bField FOR ttField.
-  DEFINE BUFFER bIndex FOR ttIndex.
-  
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-nr'      bField.lShow = TRUE bField.cDataType = 'INTEGER'   bField.cFormat = '>>>9'  bField.cLabel = 'Rep nr'.
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-name'    bField.lShow = TRUE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(30)' bField.cLabel = 'Rep name'.
-  CREATE bField. ASSIGN bField.cFieldName = 'region'      bField.lShow = FALSE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(8)'  bField.cLabel = 'Region'.
-  CREATE bField. ASSIGN bField.cFieldName = 'month-quota' bField.lShow = FALSE bField.cDataType = 'INTEGER'   bField.cFormat = '->,>>>,>>9' bField.cLabel = 'Rep name' bField.iExtent = 12.
-         
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iPrim'   bIndex.cIndexFlags = 'P U' bIndex.cFieldList  = 'rep-nr'.
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iRegion' bIndex.cIndexFlags = ''    bIndex.cFieldList  = 'region,rep-name'.   
-
-END PROCEDURE. /* fillTT */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE generateCode C-Win 
 PROCEDURE generateCode :
 /* generate the code
@@ -408,6 +383,8 @@ PROCEDURE generateCode :
   DEFINE VARIABLE cIndent   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iMaxName  AS INTEGER   NO-UNDO.
   DEFINE VARIABLE cTable    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iExt      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE cExt      AS CHARACTER NO-UNDO.
   
   DEFINE BUFFER bField FOR ttField.
 
@@ -441,7 +418,7 @@ PROCEDURE generateCode :
       WHERE bField.cFieldName <> 'RECID'
         AND bField.cFieldName <> 'ROWID'
         AND (NOT tgSelectedOnly:CHECKED OR bField.lShow):        
-      iMaxName = MAXIMUM(iMaxName, LENGTH(bField.cFieldName)).
+      iMaxName = MAXIMUM(iMaxName, LENGTH(bField.cFieldName) + (IF bField.iExtent = 0 THEN 0 ELSE LENGTH(STRING(bField.iExtent)) + 2)).
     END. 
 
     /* Add the fields */
@@ -450,13 +427,17 @@ PROCEDURE generateCode :
         AND bField.cFieldName <> 'ROWID'
         AND (NOT tgSelectedOnly:CHECKED OR bField.lShow):        
 
-      cMask = '&1~n&2&3.&4 = '.
-      cText = SUBSTITUTE(cMask
-                        , cText 
-                        , cIndent
-                        , cTable
-                        , STRING(bField.cFieldName, FILL('X',iMaxName))
-                        ).
+      DO iExt = (IF bField.iExtent = 0 THEN 0 ELSE 1) TO (IF bField.iExtent = 0 THEN 0 ELSE bField.iExtent):
+
+        cMask = '&1~n&2&3.&4 = '.
+        cExt  = (IF iExt = 0 THEN '' ELSE SUBSTITUTE('[&1]', iExt)).
+        cText = SUBSTITUTE(cMask
+                          , cText 
+                          , cIndent
+                          , cTable
+                          , STRING(bField.cFieldName + cExt, FILL('X',iMaxName))
+                          ).
+      END.
     END. 
 
     cMask = '&1~n&2.~n'.

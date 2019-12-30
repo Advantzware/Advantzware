@@ -252,7 +252,7 @@ DEF VAR vitemreckey   LIKE itemfg.rec_key NO-UNDO.
 DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
-
+DEFINE VARIABLE lPageBreak AS LOGICAL NO-UNDO .
 format HEADER 
        "<OLANDSCAPE><P10>" skip
         "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
@@ -373,15 +373,10 @@ FUNCTION display-i-name RETURNS CHARACTER
   
     IF AVAIL job-mch THEN
       ASSIGN
-       cItemName = job-mch.i-name
+       cItemName = job-mch.i-no
        lv-frm = job-mch.frm
        lv-blk = job-mch.blank-no.
-    ELSE
-      ASSIGN
-       cItemName = job-mch.i-name
-       lv-frm = INT(job-mch.frm)
-       lv-blk = INT(job-mch.blank-no).
-
+    
     IF cItemName EQ "" THEN DO:
         FIND FIRST bf-eb NO-LOCK
              WHERE bf-eb.company EQ job.company
@@ -389,7 +384,7 @@ FUNCTION display-i-name RETURNS CHARACTER
                AND bf-eb.form-no EQ lv-frm
                AND (bf-eb.blank-no EQ lv-blk OR lv-blk EQ 0) NO-ERROR .
         IF AVAIL bf-eb THEN
-            ASSIGN cItemName = bf-eb.part-dscr1 .
+            ASSIGN cItemName = bf-eb.stock-no .
 
         IF cItemName EQ "" THEN DO:
             FIND job-hdr
@@ -403,13 +398,8 @@ FUNCTION display-i-name RETURNS CHARACTER
 
             RELEASE itemfg.
             IF AVAIL job-hdr THEN
-                FIND FIRST itemfg
-                WHERE itemfg.company EQ job-hdr.company
-                AND itemfg.i-no    EQ job-hdr.i-no
-                NO-LOCK NO-ERROR.
-            IF AVAIL itemfg THEN do:
-                cItemName = itemfg.i-name.
-            END.
+                cItemName = job-hdr.i-no .
+            
         END.
     END.   
     IF cItemName EQ "" AND avail(job-mch) THEN DO:  
@@ -418,17 +408,14 @@ FUNCTION display-i-name RETURNS CHARACTER
             AND itemfg.i-no    EQ job-mch.i-no
           NO-LOCK NO-ERROR.
       IF AVAIL itemfg THEN DO:
-          cItemName = itemfg.i-name.
+          cItemName = itemfg.i-no.
           IF cItemName EQ "" THEN DO:
 
              FOR EACH fg-set WHERE fg-set.company EQ itemfg.company
                                  AND fg-set.set-no = itemfg.i-no
                                NO-LOCK.
-                              
-                 FIND FIRST itemfg WHERE itemfg.i-no = fg-set.part-no
-                                   NO-LOCK NO-ERROR.
-                 IF AVAIL itemfg AND itemfg.i-name GT "" THEN DO:
-                     cItemName = itemfg.i-name.
+                 IF fg-set.part-no GT "" THEN DO:
+                     cItemName = fg-set.part-no .
                      LEAVE.
                  END.
              END.
@@ -2298,14 +2285,19 @@ END FUNCTION.
                   "<AT=,8.2>" chrBarcode[3].             
 
           END. /* i <= 3 */
-
+           intLnCount = 12 .
            FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
                AND job-mch.job = job-hdr.job 
                AND job-mch.job-no = job-hdr.job-no 
                AND job-mch.job-no2 = job-hdr.job-no2 
                AND job-mch.frm = job-hdr.frm 
                use-index line-idx NO-LOCK BREAK BY job-mch.frm :
-               IF FIRST(job-mch.frm) THEN do:
+               intLnCount = intLnCount + 1 .
+               IF LINE-COUNTER + intLnCount >= PAGE-SIZE THEN
+                   ASSIGN lPageBreak = TRUE .
+               RUN PRpage (intLnCount).
+              
+               IF FIRST(job-mch.frm) OR lPageBreak THEN do:
                    PUT SKIP "<C3><P12><u><b>DMI Barcods</b></u>" .
                    PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
                        "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
@@ -2314,11 +2306,10 @@ END FUNCTION.
                        "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
                        "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
                     
-                   PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item Description <C72> BarCode<R-0.5></b>" .
-
+                   PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item # <C72> BarCode<R-0.5></b>" .
+                    lPageBreak = FALSE .
                END.
-
-               IF LINE-COUNTER GE 45 THEN PAGE.
+               
 
                PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
                        "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 

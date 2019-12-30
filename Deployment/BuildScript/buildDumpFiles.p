@@ -182,3 +182,25 @@ FOR EACH dynPrgrmsPage NO-LOCK :
     EXPORT dynPrgrmsPage.
 END. /* each dynParamValue */
 OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostCategory
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostGroup
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostGroupLevel
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+

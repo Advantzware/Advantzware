@@ -41,6 +41,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
+def var lv-current-page as int INIT 1 no-undo.
+def var li-prev-page as int INIT 1 no-undo.
+DEF VAR li-pageb4VendCost AS INT NO-UNDO.
 
 /*  if item-spec notes window need un-comment preprocedure */
 &scoped-define item_spec RMItem
@@ -92,6 +95,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_item AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_item-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_item-3 AS HANDLE NO-UNDO.
@@ -112,12 +116,7 @@ DEFINE VARIABLE h_v-itmbom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
-<<<<<<< HEAD
-DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
-=======
 
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -127,31 +126,25 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME FRAME-D
+DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-<<<<<<< HEAD
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1.24
-         SIZE 50 BY 1.91
-=======
-         THREE-D 
-         AT COL 132 ROW 3.14
-         SIZE 19 BY 1.19
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
+         SIZE 60 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 62 ROW 1
-         SIZE 89 BY 1.91
+         SIZE 88 BY 1.91
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
+DEFINE FRAME FRAME-D
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1.24
-         SIZE 60 BY 1.91
+         THREE-D 
+         AT COL 132 ROW 3.14
+         SIZE 19 BY 1.19
          BGCOLOR 15 .
 
 
@@ -162,7 +155,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.item
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -307,6 +300,12 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
+
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 
@@ -337,20 +336,9 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.48 , 1.00 ) NO-ERROR.
-       /* Size in UIB:   ( 1.14 , 32.00 )*/
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-<<<<<<< HEAD
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 24.50 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-=======
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Brws Items|View Item|Bom|Inventory|Vend Cost|POs|Jobs|Bins|History|New VendC' + ',
@@ -372,7 +360,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 32.40 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 25.40 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -402,7 +390,6 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-<<<<<<< HEAD
              INPUT  'viewers/import.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -410,15 +397,12 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_import ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
-       RUN init-object IN THIS-PROCEDURE (                  
-             INPUT  'viewers/movecol.w':U ,                     /*Task# 01071407*/
-=======
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol2 ).
-       RUN set-position IN h_movecol2 ( 1.00 , 8.90 ) NO-ERROR.
+       RUN set-position IN h_movecol2 ( 1.00 , 1.80 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -426,7 +410,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 16.80 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 9.60 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -440,14 +424,10 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-<<<<<<< HEAD
-         /* Links to SmartViewer h_import. */
+       /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
-       /* Links to SmartViewer h_movecol2. */
-=======
        /* Links to SmartObject h_movecol2. */
->>>>>>> feature/50569_Request_-_Vendor_Cost_Matrix_-_Yoosun
        RUN add-link IN adm-broker-hdl ( h_item , 'move-columns':U , h_movecol2 ).
 
        /* Links to SmartObject h_export. */
@@ -458,6 +438,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_item , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol2 ,
+             h_import , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
              h_movecol2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_item ,
@@ -467,10 +449,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/item.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_item-2 ).
-       /* Position in AB:  ( 4.81 , 4.00 ) */
-       /* Size in UIB:  ( 16.67 , 139.00 ) */
+             INPUT  'Layout = ':U ,
+             OUTPUT h_item-2 ). 
+       RUN set-position IN h_item-2 ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_item-2 ( 18.86 , 139.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -495,14 +477,16 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to  h_item-2. */
+       /* Links to SmartViewer h_item-2. */
        RUN add-link IN adm-broker-hdl ( h_item , 'Record':U , h_item-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-rmview , 'TableIO':U , h_item-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_item-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_item-2 ,
              FRAME FRAME-D:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_item-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-rmview ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
@@ -760,9 +744,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'rminq/b-rmiinq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_b-rmiinq ).
        RUN set-position IN h_b-rmiinq ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_b-rmiinq ( 19.76 , 148.00 ) NO-ERROR.
+       /* Position in AB:  ( 4.57 , 3.00 ) */
        /* Size in UIB:  ( 19.76 , 148.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -771,12 +757,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_movecolH. */
        RUN add-link IN adm-broker-hdl ( h_b-rmiinq , 'move-columns':U , h_movecolH ).
 
-       /* Links to SmartNavBrowser h_b-rmiinq. */
+       /* Links to  h_b-rmiinq. */
        RUN add-link IN adm-broker-hdl ( h_item , 'history':U , h_b-rmiinq ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-rmiinq ,
-             FRAME FRAME-D:HANDLE , 'AFTER':U ).
     END. /* Page 9 */
 
   END CASE.
@@ -864,21 +848,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
-PROCEDURE import-file :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
 
- RUN util/dev/impItem.p .
- RUN local-open-query IN h_item .
+  RUN select-page (li-pageb4VendCost).
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
@@ -888,7 +873,24 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-DEF VAR lv-current-page AS INT NO-UNDO.
+  li-prev-page = lv-current-page.
+   
+  RUN get-attribute ('Current-Page':U).
+  ASSIGN lv-current-page = int(return-value).
+  
+  if lv-current-page = 5 AND lNewVendorItemCost then 
+  do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" '  ).
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).    
+        li-pageb4VendCost = li-prev-page.              
+            
+        RUN select-page (10).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
+        RETURN.
+  END.
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -903,16 +905,7 @@ DEF VAR lv-current-page AS INT NO-UNDO.
             RUN ipShowBtn IN h_vp-rmov (FALSE).
     END.
 
-  if lv-current-page = 5 then 
-    do:
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ' + item.mat-type ).
-        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).          
-        RUN select-page (10).
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').  
-        RETURN.
-    END.
+  
   
   {methods/winReSizePgChg.i}
 
@@ -923,7 +916,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
 PROCEDURE local-create-objects :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -964,7 +957,7 @@ PROCEDURE local-create-objects :
     
     /* Links to SmartWindow */
     /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
-    /*    RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_vendcostmtx ).*/
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
     
     /* Adjust the tab order of the smart objects. */
     END. /* Page 10 */

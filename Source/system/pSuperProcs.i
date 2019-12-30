@@ -2,16 +2,33 @@
 
 DEFINE VARIABLE cSuperProcs AS CHARACTER NO-UNDO.
 
+/* ********************************************************* */
+/* shared tables and or variables reside here                */
+
+/* fg/FgBinBuild.p */
+{fg/ttFGBins.i "NEW SHARED"}
+/* Inventory/InventoryProcs.p */
+{Inventory/ttInventory.i "NEW SHARED"}
+/* oe/OrderProcs.p */
+{sys/inc/var.i NEW SHARED}
+/* oerep/LoadtagProcs.p */
+{oerep/r-loadtg.i NEW}
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER.
 /* util/ImportProcs.p */
 {util/ttImport.i NEW SHARED}
 
+/* ********************************************************* */
+
 PROCEDURE pSuperProcs:
     DEFINE VARIABLE cInternalProcs AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProcFile      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSignature     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hSuperProc     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     
+    /* alphabetical list of persistent procedures */
     cSuperProcs = "api/InboundProcs.p,"
                 + "api/JSONProcs.p,"
                 + "AOA/spDynCalcField.p,"
@@ -40,7 +57,6 @@ PROCEDURE pSuperProcs:
                 + "system/CreditProcs.p,"
                 + "system/FreightProcs.p,"
                 + "system/ftpProcs.p,"
-                + "system/MessageProcs.p,"
                 + "system/oeValidate.p,"
                 + "system/OutputProcs.p,"
                 + "system/PgmMstrSecur.p,"
@@ -54,13 +70,26 @@ PROCEDURE pSuperProcs:
                 + "util/Validate.p"
                 .
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):
+        cProcFile = ENTRY(idx,cSuperProcs).
+        IF SEARCH(cProcFile) EQ ? THEN
+        cProcFile = REPLACE(cProcFile,".p",".r").
+        IF SEARCH(cProcFile) EQ ? THEN DO:
+            CREATE ttSuperProc.
+            ASSIGN
+                ttSuperProc.procName     = ENTRY(idx,cSuperProcs)
+                ttSuperProc.internalProc = "Error Message"
+                ttSuperProc.procType     = "ERROR"
+                ttSuperProc.procParams   = "Procedure File Not Found"
+                .
+            NEXT.
+        END. /* if search */
         RUN VALUE(ENTRY(idx,cSuperProcs)) PERSISTENT SET hSuperProc NO-ERROR.
         IF ERROR-STATUS:ERROR THEN DO:
             DO jdx = 1 TO ERROR-STATUS:NUM-MESSAGES:
                 CREATE ttSuperProc.
                 ASSIGN
                     ttSuperProc.procName     = ENTRY(idx,cSuperProcs)
-                    ttSuperProc.internalProc = "Message: " + STRING(jdx)
+                    ttSuperProc.internalProc = "Erro Message"
                     ttSuperProc.procType     = "ERROR"
                     ttSuperProc.procParams   = ERROR-STATUS:GET-MESSAGE(jdx)
                     .
@@ -82,6 +111,7 @@ PROCEDURE pSuperProcs:
                 cSignature               = REPLACE(cSignature,"input ","")
                 cSignature               = REPLACE(cSignature,"input-","INPUT-")
                 cSignature               = REPLACE(cSignature,"output","OUTPUT")
+                cSignature               = REPLACE(cSignature," table "," TABLE ")
                 ttSuperProc.procParams   = cSignature
                 .
         END. /* do jdx */

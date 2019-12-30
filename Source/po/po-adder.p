@@ -6,7 +6,7 @@ def input parameter v-recid  as recid.
 def input parameter v-recid1 as recid.
 
 {sys/inc/var.i shared}
-
+{sys/inc/venditemcost.i}
 def var v-tot-cost as dec no-undo.
 def var v-cost     as dec no-undo.
 def var v-add-cost as dec no-undo.
@@ -62,17 +62,24 @@ do with frame po-ordlf:
         and item.i-no     eq job-mat.i-no
         and item.mat-type eq "A":
 
-    find first e-item no-lock
-        where e-item.company eq po-ordl.company
-          and e-item.i-no    eq po-ordl.i-no
-        no-error.
-    
-    find first e-item-vend no-lock
-        where e-item-vend.company eq item.company
-          and e-item-vend.i-no    eq item.i-no
-          and e-item-vend.vend-no eq po-ord.vend-no
-        no-error.
-
+    IF lNewVendorItemCost THEN DO:
+       FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemID = ITEM.i-no
+            AND venditemcost.itemtype = "RM"
+            AND vendItemCost.vendorID = po-ord.vend-no NO-ERROR. 
+    END.
+    ELSE DO:
+        find first e-item no-lock
+            where e-item.company eq po-ordl.company
+              and e-item.i-no    eq po-ordl.i-no
+            no-error.
+        
+        find first e-item-vend no-lock
+            where e-item-vend.company eq item.company
+              and e-item-vend.i-no    eq item.i-no
+              and e-item-vend.vend-no eq po-ord.vend-no
+            no-error.
+    END.   
     if avail e-item and avail e-item-vend AND po-ord.vend-no NE "" then do:
       if po-ordl.pr-qty-uom eq e-item.std-uom then
          v-qty-comp = po-ordl.ord-qty.
@@ -91,8 +98,6 @@ do with frame po-ordlf:
             tt-eiv.run-cost[i] = e-item-vend.run-cost[i]
             tt-eiv.setups[i] = e-item-vend.setups[i].
       END.
-
-
       
       IF AVAIL e-item-vend THEN
       DO:
@@ -121,7 +126,51 @@ do with frame po-ordlf:
                                job-mat.len, job-mat.wid, item.s-dep,
                                v-cost, OUTPUT v-cost).
     END.
+    ELSE IF AVAIL vendItemCost AND po-ord.vend-no NE "" then 
+    do:
+        DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
+        DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
 
+        DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+        
+        RUN GetVendorCost(vendItemCost.company, 
+            vendItemCost.ItemID, 
+            vendItemCost.itemType, 
+            vendItemCost.vendorID, 
+            vendItemCost.customerID, 
+            "", 
+            0, 
+            0,
+            po-ordl.ord-qty, 
+            vendItemCost.vendorUOM,
+            item.s-len, 
+            item.s-wid, 
+            0, 
+            "IN", 
+            item.basis-w, 
+            "LB/EA", 
+            NO,
+            OUTPUT dCostPerUOM, 
+            OUTPUT dCostSetup, 
+            OUTPUT cCostUOM,
+            OUTPUT dCostTotal, 
+            OUTPUT lError, 
+            OUTPUT cMessage).  
+        
+/*        MESSAGE                              */
+/*            "Total Cost: " dCostTotal SKIP   */
+/*            "Cost Per UOM: " dCostPerUOM SKIP*/
+/*            "Cost UOM: " cCostUOM SKIP       */
+/*            "Cost Setup: " dCostSetup SKIP   */
+/*            "Error: " lError SKIP            */
+/*            "Message: " cMessage SKIP        */
+/*            VIEW-AS ALERT-BOX.               */
+
+        v-cost = dCostTotal.         
+    END.
     ELSE DO:
       v-cost = job-mat.std-cost.
       

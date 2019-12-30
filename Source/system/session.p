@@ -24,9 +24,12 @@ DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
@@ -36,11 +39,34 @@ DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
+/* zMessage Typed return variables */
+DEFINE VARIABLE chrMsgRtn           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE logMsgRtn           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE intMsgRtn           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE decMsgRtn           AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE recMsgRtn           AS RECID     NO-UNDO.
+DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
+DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
+DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
+/* alphabetical list of super-procedures comma delimited */
+ASSIGN 
+    cSuperProcedure = "system/CommonProcs.p,"
+                    + "system/CreditProcs.p,"
+                    + "system/PurgeProcs.p,"
+                    + "system/TagProcs.p,"
+                    + "system/VendorCostProcs.p,"
+    cSuperProcedure = TRIM(cSuperProcedure,",")
+    .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionParam AS CHARACTER
     FIELD sessionValue AS CHARACTER
         INDEX sessionParam IS PRIMARY UNIQUE sessionParam
+        .
+DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
+    FIELD superProcedure AS CHARACTER 
+    FIELD isRunning      AS LOGICAL
+        INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
 {system/ttPermissions.i}
 {system/ttSysCtrlUsage.i}
@@ -72,6 +98,32 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
+FUNCTION fMessageText RETURNS CHARACTER 
+  (ipcMessageID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageTitle Procedure
+FUNCTION fMessageTitle RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 
@@ -242,14 +294,163 @@ FIND FIRST users NO-LOCK
      NO-ERROR.
 IF AVAILABLE users THEN 
 ASSIGN 
-    lUserAMPM   = users.AMPM
-    lSuperAdmin = users.securityLevel GE 1000
+    lUserAMPM       = users.AMPM
+    lSuperAdmin     = users.securityLevel GE 1000
     .
+/* build temp-table of super-procedures */
+DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
+    CREATE ttSuperProcedure.
+    ttSuperProcedure.superProcedure = ENTRY(idx,cSuperProcedure).
+END. /* do idx */
+/* find if super-procedure is running */
+DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
+    hSuperProcedure = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES)).
+    FIND FIRST ttSuperProcedure
+         WHERE ttSuperProcedure.superProcedure EQ hSuperProcedure:NAME
+         NO-ERROR.
+    IF AVAILABLE ttSuperProcedure THEN
+    ttSuperProcedure.isRunning = YES.
+END. /* do idx */
+/* run any super-procedures not running */
+FOR EACH ttSuperProcedure
+    WHERE ttSuperProcedure.isRunning EQ NO
+    :
+    RUN VALUE(ttSuperProcedure.superProcedure) PERSISTENT SET hSuperProcedure.
+    SESSION:ADD-SUPER-PROCEDURE (hSuperProcedure).
+END. /* each ttSuperProcedure */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-displayMessage) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessage Procedure
+PROCEDURE displayMessage:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message in standard format
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+
+    FIND FIRST zMessage NO-LOCK
+         WHERE zMessage.msgID EQ ipcMessageID
+         NO-ERROR.    
+    IF NOT AVAILABLE zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress EQ TRUE THEN 
+        RETURN.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "Error" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX ERROR 
+                TITLE fMessageTitle().
+            WHEN "Info" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX INFO
+                TITLE fMessageTitle().
+            WHEN "Message" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX MESSAGE 
+                TITLE fMessageTitle().
+            WHEN "Warning" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX WARNING 
+                TITLE fMessageTitle().
+            OTHERWISE
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
+                    "NOTE: Message type for this record is not correct." SKIP 
+                    "Please correct using NZ@ or contact ASI Support."
+                VIEW-AS ALERT-BOX WARNING 
+                TITLE fMessageTitle().
+        END CASE.
+    END.
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF
+
+&IF DEFINED(EXCLUDE-displayMessageQuestion) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestion Procedure
+PROCEDURE displayMessageQuestion:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message and returns a character-based answer as output
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcOutput    AS CHARACTER NO-UNDO.
+
+    FIND FIRST zMessage NO-LOCK
+         WHERE zMessage.msgID EQ ipcMessageID       
+         NO-ERROR.    
+    IF NOT AVAIL zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress THEN
+         opcOutput = zMessage.rtnValue.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "QUESTION-YN" THEN DO:
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage AS LOGICAL.
+                opcOutput = STRING(lMessage).
+            END.
+            /* Deal with these options in next phase */
+            WHEN "QUESTION-CHAR" THEN DO:
+            END.
+            WHEN "QUESTION-INT" THEN DO:
+            END.
+            WHEN "QUESTION-DECI" THEN DO:
+            END.
+            WHEN "QUESTION-DATE" THEN DO:
+            END.
+        END CASE.
+    END.
+
+END PROCEDURE.
+&ANALYZE-RESUME
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-displayMessageQuestionLOG) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestionLOG Procedure
+PROCEDURE displayMessageQuestionLOG:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOutput    AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cRtnValue AS CHARACTER NO-UNDO.
+    
+    RUN displayMessageQuestion (INPUT ipcMessageID, OUTPUT cRtnValue).
+    
+    oplOutput = LOGICAL(cRtnValue).
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
@@ -1560,6 +1761,8 @@ END PROCEDURE.
 
 &ENDIF
 
+
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
@@ -1579,6 +1782,48 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMessageText Procedure
+FUNCTION fMessageText RETURNS CHARACTER 
+  (ipcMessageID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF zMessage.currMessage  NE "" THEN zMessage.currMessage
+           ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMessageTitle Procedure
+FUNCTION fMessageTitle RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN IF zMessage.currentTitle NE "" THEN zMessage.currentTitle
+	       ELSE zMessage.defaultTitle.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 

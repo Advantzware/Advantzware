@@ -7,17 +7,12 @@
   Name: generate-TempTable-Include.w
   Desc: Generate include file with TT definition for current file
 
-------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
-
-/* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_IS_RUNNING) = 0 &THEN
   DEFINE INPUT PARAMETER pcDatabase AS CHARACTER NO-UNDO.
@@ -32,7 +27,7 @@ CREATE WIDGET-POOL.
   RUN datadiggerlib.p PERSISTENT SET hLib.
   THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hLib,SEARCH-TARGET).
   
-  RUN fillTT.
+  RUN getDummyScheme.p(OUTPUT TABLE ttField, OUTPUT TABLE ttIndex).
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,12 +246,12 @@ DEFINE FRAME frMain
      btnSave AT Y 487 X 15 WIDGET-ID 36
      "Indent:" VIEW-AS TEXT
           SIZE-PIXELS 40 BY 20 AT Y 56 X 25 WIDGET-ID 68
-     "Field Options" VIEW-AS TEXT
-          SIZE-PIXELS 90 BY 13 AT Y 180 X 25 WIDGET-ID 26
-     "Indexes" VIEW-AS TEXT
-          SIZE-PIXELS 50 BY 13 AT Y 394 X 25 WIDGET-ID 40
      "Field Prefix" VIEW-AS TEXT
           SIZE-PIXELS 75 BY 13 AT Y 261 X 25 WIDGET-ID 48
+     "Indexes" VIEW-AS TEXT
+          SIZE-PIXELS 50 BY 13 AT Y 394 X 25 WIDGET-ID 40
+     "Field Options" VIEW-AS TEXT
+          SIZE-PIXELS 90 BY 13 AT Y 180 X 25 WIDGET-ID 26
      RECT-2 AT Y 187 X 15 WIDGET-ID 24
      RECT-3 AT Y 400 X 15 WIDGET-ID 38
      RECT-4 AT Y 266 X 15 WIDGET-ID 46
@@ -534,26 +529,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fillTT C-Win 
-PROCEDURE fillTT :
-/* Fill tt for testing in UIB
-  */
-  DEFINE BUFFER bField FOR ttField.
-  DEFINE BUFFER bIndex FOR ttIndex.
-  
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-nr'      bField.lShow = TRUE bField.cDataType = 'INTEGER'   bField.cFormat = '>>>9'  bField.cLabel = 'Rep nr'.
-  CREATE bField. ASSIGN bField.cFieldName = 'rep-name'    bField.lShow = TRUE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(30)' bField.cLabel = 'Rep name'.
-  CREATE bField. ASSIGN bField.cFieldName = 'region'      bField.lShow = FALSE bField.cDataType = 'CHARACTER' bField.cFormat = 'x(8)'  bField.cLabel = 'Region'.
-  CREATE bField. ASSIGN bField.cFieldName = 'month-quota' bField.lShow = FALSE bField.cDataType = 'INTEGER'   bField.cFormat = '->,>>>,>>9' bField.cLabel = 'Rep name' bField.iExtent = 12.
-         
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iPrim'   bIndex.cIndexFlags = 'P U' bIndex.cFieldList  = 'rep-nr'.
-  CREATE bIndex. ASSIGN bIndex.cIndexName  = 'iRegion' bIndex.cIndexFlags = ''    bIndex.cFieldList  = 'region,rep-name'.   
-
-END PROCEDURE. /* fillTT */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE generateCode C-Win 
 PROCEDURE generateCode :
 /* Generate the code for the include
@@ -666,8 +641,10 @@ PROCEDURE generateCode :
           
         IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
 
-        cUnique = STRING(bIndex.cIndexFlags MATCHES '*u*','UNIQUE/').
-        cUnique = TRIM(cUnique).
+        IF bIndex.cIndexFlags MATCHES '*u*' THEN 
+          cUnique = (IF NOT bIndex.cIndexFlags MATCHES '*P*' THEN 'IS UNIQUE' ELSE 'UNIQUE').
+        ELSE 
+          cUnique = ''.
         IF tgLowerCase:CHECKED THEN cUnique = LC(cUnique).
 
         cText = SUBSTITUTE(cMask

@@ -58,9 +58,9 @@ DEF VAR cTestAud AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btSuperProcs btDataDigger rsDB1 btEditor ~
-rsDB2 btLockMon btMonitorUsers btProTools btSwitchMode 
-&Scoped-Define DISPLAYED-OBJECTS fiMode rsDB1 rsDB2 
+&Scoped-Define ENABLED-OBJECTS rsDB1 rsDB2 btQueryBuilder btSuperProcs ~
+btDataDigger btEditor btLockMon btMonitorUsers btProTools btSwitchMode 
+&Scoped-Define DISPLAYED-OBJECTS rsDB1 rsDB2 fiMode 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,6 +101,11 @@ DEFINE BUTTON btProTools
      LABEL "Run ProTools" 
      SIZE 8 BY 1.91 TOOLTIP "Pro Tools".
 
+DEFINE BUTTON btQueryBuilder 
+     IMAGE-UP FILE "adeicon/rbuild%.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Query Builder" 
+     SIZE 8 BY 1.91 TOOLTIP "Query Builder".
+
 DEFINE BUTTON btSuperProcs 
      IMAGE-UP FILE "Graphics/32x32/elements_tree.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Super Procedures" 
@@ -122,44 +127,40 @@ DEFINE VARIABLE rsDB1 AS CHARACTER
      RADIO-BUTTONS 
           "PROD", "PROD",
 "TEST", "TEST"
-     SIZE 22 BY .95 NO-UNDO.
+     SIZE 20 BY .95 NO-UNDO.
 
 DEFINE VARIABLE rsDB2 AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "ASI", "ASI",
 "AUD", "AUD"
-     SIZE 22 BY .95 NO-UNDO.
+     SIZE 17 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 64 BY 2.38
+     SIZE 73 BY 2.38
      BGCOLOR 15 .
-
-DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 66 BY 5.24.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btSuperProcs AT ROW 2.67 COL 48 WIDGET-ID 26
-     btDataDigger AT ROW 2.67 COL 3 WIDGET-ID 20
-     fiMode AT ROW 1.24 COL 56 COLON-ALIGNED
-     rsDB1 AT ROW 5.05 COL 5 NO-LABEL
-     btEditor AT ROW 2.67 COL 21
-     rsDB2 AT ROW 5.05 COL 41 NO-LABEL
-     btLockMon AT ROW 2.67 COL 12 WIDGET-ID 18
-     btMonitorUsers AT ROW 2.67 COL 39
-     btProTools AT ROW 2.67 COL 30 WIDGET-ID 2
-     btSwitchMode AT ROW 2.67 COL 57
-     RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 22
-     RECT-2 AT ROW 1 COL 1 WIDGET-ID 24
+     rsDB1 AT ROW 3.86 COL 2 NO-LABEL
+     rsDB2 AT ROW 3.86 COL 30 NO-LABEL
+     btQueryBuilder AT ROW 1.48 COL 12
+     fiMode AT ROW 3.86 COL 65 COLON-ALIGNED
+     btSuperProcs AT ROW 1.48 COL 57 WIDGET-ID 26
+     btDataDigger AT ROW 1.48 COL 3 WIDGET-ID 20
+     btEditor AT ROW 1.48 COL 30
+     btLockMon AT ROW 1.48 COL 21 WIDGET-ID 18
+     btMonitorUsers AT ROW 1.48 COL 48
+     btProTools AT ROW 1.48 COL 39 WIDGET-ID 2
+     btSwitchMode AT ROW 1.48 COL 66
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 66 BY 5.24.
+         SIZE 75 BY 4.05.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -179,12 +180,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Programmer's Toolbox"
-         HEIGHT             = 5.24
-         WIDTH              = 66
-         MAX-HEIGHT         = 5.24
-         MAX-WIDTH          = 66
-         VIRTUAL-HEIGHT     = 5.24
-         VIRTUAL-WIDTH      = 66
+         HEIGHT             = 4.05
+         WIDTH              = 75
+         MAX-HEIGHT         = 4.05
+         MAX-WIDTH          = 75
+         VIRTUAL-HEIGHT     = 4.05
+         VIRTUAL-WIDTH      = 75
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -210,8 +211,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiMode IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -254,6 +253,7 @@ END.
 &Scoped-define SELF-NAME btDataDigger
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDataDigger C-Win
 ON CHOOSE OF btDataDigger IN FRAME DEFAULT-FRAME /* Run DataDigger */
+OR CHOOSE OF btQueryBuilder
 OR CHOOSE OF btLockMon
 OR CHOOSE OF btProTools
 OR CHOOSE OF btMonitorUsers
@@ -265,8 +265,10 @@ DO:
     CASE SELF:NAME:
         WHEN "btDataDigger" THEN
             RUN datadigger/datadigger.p.
+        WHEN "btQueryBuilder" THEN 
+            RUN queryBuilder/wMyQueries.w.
         WHEN "btLockMon" THEN
-            RUN util/wlockmon.w.
+            RUN util/wLockTransMonitor.w.
         WHEN "btProTools" THEN
             RUN protools/_protool.r.
         WHEN "btMonitorUsers" THEN DO:
@@ -455,6 +457,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT lResult THEN ASSIGN btDataDigger:VISIBLE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "QueryBuilder", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btQueryBuilder:VISIBLE = FALSE.
+    ELSE ASSIGN iNumOK = iNumOK + 1.
+
     RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "SwitchMode", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN 
         btSwitchMode:VISIBLE = FALSE
@@ -514,10 +520,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiMode rsDB1 rsDB2 
+  DISPLAY rsDB1 rsDB2 fiMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btSuperProcs btDataDigger rsDB1 btEditor rsDB2 btLockMon 
-         btMonitorUsers btProTools btSwitchMode 
+  ENABLE rsDB1 rsDB2 btQueryBuilder btSuperProcs btDataDigger btEditor 
+         btLockMon btMonitorUsers btProTools btSwitchMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

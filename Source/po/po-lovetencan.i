@@ -15,6 +15,13 @@ ASSIGN
  v-t-freight[v-bottom] = po-ord.t-freight
  v-tax[3] = 0.
 
+FIND FIRST stax WHERE stax.company = cocode AND
+    stax.tax-group = po-ord.tax-gr NO-LOCK NO-ERROR.
+
+if not avail stax then
+        find first stax where stax.tax-group eq po-ord.tax-gr
+            no-lock no-error.
+
 FOR EACH po-ordl FIELDS(t-cost) NO-LOCK
     WHERE po-ordl.company EQ po-ord.company
       AND po-ordl.po-no   EQ po-ord.po-no
@@ -323,6 +330,20 @@ FOR EACH po-ordl
           v-cost FORMAT "->,>>>,>>9.99<<<" TO 80
           po-ordl.dscr[2] format "x(28)" at 8.
 
+  if po-ordl.tax and avail stax then
+      do i = 1 to 5:
+      if stax.tax-code1[i] ne "" then do:
+          create w-tax.
+          assign
+              w-dsc      = stax.tax-dscr1[i]
+              
+              w-tax      = round((po-ordl.t-cost) *
+                                 stax.tax-rate1[i] / 100,2)
+              dTax[i] = /*dTax[i] +*/ w-tax
+              v-lines    = v-lines + 1.
+      END.
+  END.
+
           
   DO v-count = 3 TO 6:
      IF v-adder[v-count] <> "" THEN
@@ -480,30 +501,42 @@ end.
   v-username = IF AVAIL users THEN users.USER_name
                ELSE IF AVAIL buyer THEN buyer.buyer-n
                ELSE po-ord.buyer.
+
+  do i = 1 to 5:
+       cBotLab[i] = if dTax[i] ne 0 then
+                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(3)") 
+                           ELSE FILL(" ",3) ) +  ":" +
+                       string(dTax[i],"->>,>>>,>>9.99")) else "".
+    end.
          
   PUT {1}
       "Transport:"             to 66 
      v-t-freight[2]         to 80   format ">,>>>,>>9.999"
      skip (1) .
   IF lPrintGrandTotMsf THEN
-  PUT 
+  PUT {1}
      "MSF:"                 to 66
      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP .
      
    PUT {1}
-      "TVS:"                 to 66
-      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"
+      /*"TVS:"                 to 66
+      v-tax[1]          to 80 */ cBotLab[1] TO 84 format "x(22)"
       SKIP.
 
    PUT {1}
      "Authorised by ________________________________"       at 2
-     "TVQ:"                 to 66   
-     v-tax[2]               to 80   format ">>,>>>,>>9.99"
+     /*"TVQ:"                 to 66   
+     v-tax[2]               to 80 */ cBotLab[2] TO 84  format "x(22)"
      v-username FORM "x(30)" at 2
-     "GRAND TOTAL:"         to 66  
-     v-po-tot[2]            to 80   format ">>,>>>,>>9.99".
-   PUT {1} SKIP(1)
-     "Verified by _________________________________"       at 2.
+     cBotLab[3] TO 84  format "x(22)" SKIP
+       "GRAND TOTAL:"         to 66  
+     v-po-tot[2]            to 80   format ">>,>>>,>>9.99"
+
+     .
+   PUT {1} 
+     "Verified by _________________________________"       at 2
+       
+        .
 
    /*PUT {1}*/
    /*  "<B>FUNDS payable in " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .*/

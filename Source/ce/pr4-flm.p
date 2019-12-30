@@ -24,6 +24,8 @@ DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
+{sys/inc/venditemcost.i}
+
 /* films */
 {ce/pr4-flm.i}
 

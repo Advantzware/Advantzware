@@ -2228,19 +2228,11 @@ PROCEDURE import-price :
   
   DEFINE BUFFER bff-probe FOR probe .
 
-  DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-  RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-
   {est/checkuse.i}
 
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
-  IF lMultiRecords THEN do:
-      RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-    IF NOT lSuppressMessage THEN
-        MESSAGE cCurrentMessage
-        VIEW-AS ALERT-BOX QUESTION 
-        BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
-  END.
+  IF lMultiRecords THEN 
+      RUN displayMessageQuestionLOG (INPUT "7", OUTPUT lCheckFlg).
 
  FOR EACH bff-probe NO-LOCK
      WHERE bff-probe.company = eb.company 

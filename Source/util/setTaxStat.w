@@ -37,8 +37,17 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {custom/gcompany.i}
+{custom/gloc.i}
+{custom/getloc.i}
 {custom/getcmpny.i}
-DEFINE VARIABLE hTaxProcs AS HANDLE NO-UNDO.
+{sys/inc/var.i new shared}
+
+ASSIGN
+    cocode = gcompany
+    locode = gloc
+    .
+DEFINE VARIABLE hTaxProcs     AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lOrderChanged AS LOGICAL NO-UNDO.
 
 RUN system/TaxProcs.p PERSISTENT SET hTaxProcs.
 
@@ -137,7 +146,7 @@ DEFINE VARIABLE cStartCustNo AS CHARACTER FORMAT "X(8)":U
      SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cTaxGroup AS CHARACTER FORMAT "X(3)":U 
-     LABEL "Tax Group" 
+     LABEL "Force Tax Group for All Records" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
@@ -151,7 +160,7 @@ DEFINE VARIABLE lCustTaxable AS LOGICAL INITIAL no
      SIZE 43 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lFGItemTaxable AS LOGICAL INITIAL no 
-     LABEL "Set All FG items Taxable" 
+     LABEL "Set All FG Items Taxable" 
      VIEW-AS TOGGLE-BOX
      SIZE 43 BY 1 NO-UNDO.
 
@@ -179,39 +188,41 @@ DEFINE VARIABLE lShipToTaxable AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnCancel AT ROW 14.57 COL 70 HELP
+     btnCancel AT ROW 12.19 COL 70 HELP
           "Cancel" WIDGET-ID 66
-     cStartCustNo AT ROW 2.43 COL 28 COLON-ALIGNED HELP
+     cStartCustNo AT ROW 1.24 COL 33 COLON-ALIGNED HELP
           "Enter Start Customer Number" WIDGET-ID 2
-     cEndCustNo AT ROW 3.62 COL 28 COLON-ALIGNED HELP
+     cEndCustNo AT ROW 2.43 COL 33 COLON-ALIGNED HELP
           "Enter End Customer Number" WIDGET-ID 4
-     cTaxGroup AT ROW 4.81 COL 28 COLON-ALIGNED HELP
+     cTaxGroup AT ROW 3.62 COL 33 COLON-ALIGNED HELP
           "Enter Tax Group" WIDGET-ID 84
-     btnOK AT ROW 14.57 COL 61 HELP
+     cFGItem AT ROW 4.81 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 78
+     btnOK AT ROW 12.19 COL 61 HELP
           "Set Selections Taxable" WIDGET-ID 68
-     cFGItem AT ROW 6 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 78
-     lFGItemTaxable AT ROW 6 COL 30 HELP
+     lFGItemTaxable AT ROW 4.81 COL 35 HELP
           "Toggle to Set FG items Taxable" WIDGET-ID 12
-     cPrepDie AT ROW 7.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     lPrepDieTaxable AT ROW 7.19 COL 30 HELP
+     cPrepDie AT ROW 6 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     lPrepDieTaxable AT ROW 6 COL 35 HELP
           "Toggle to Set Prep and Die Taxable" WIDGET-ID 14
-     cCust AT ROW 8.38 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 82
-     lCustTaxable AT ROW 8.38 COL 30 HELP
+     cCust AT ROW 7.19 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+     lCustTaxable AT ROW 7.19 COL 35 HELP
           "Toggle to Set Customers Taxable" WIDGET-ID 8
-     cShipTo AT ROW 9.57 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 80
-     lShipToTaxable AT ROW 9.57 COL 30 HELP
+     cShipTo AT ROW 8.38 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     lShipToTaxable AT ROW 8.38 COL 35 HELP
           "Toggle to Set Customer Ship Tos Taxable" WIDGET-ID 10
-     cOrder AT ROW 10.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     lOrderTaxable AT ROW 10.76 COL 30 HELP
+     cOrder AT ROW 9.57 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     lOrderTaxable AT ROW 9.57 COL 35 HELP
           "Toggle to Set All Orders Taxable" WIDGET-ID 16
-     cInvoice AT ROW 11.95 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     lInvoiceTaxable AT ROW 11.95 COL 30 HELP
+     cInvoice AT ROW 10.76 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     lInvoiceTaxable AT ROW 10.76 COL 35 HELP
           "Toggle to Set All Unposted Invoices Taxable" WIDGET-ID 18
-     RECT-18 AT ROW 14.33 COL 60 WIDGET-ID 64
+     "(Blank = No Change)" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 3.86 COL 43 WIDGET-ID 86
+     RECT-18 AT ROW 11.95 COL 60 WIDGET-ID 64
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 80 BY 16
+         SIZE 80 BY 13.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -232,11 +243,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Set Taxable Status Globally"
-         HEIGHT             = 16
+         HEIGHT             = 13.57
          WIDTH              = 80
-         MAX-HEIGHT         = 16
+         MAX-HEIGHT         = 13.57
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16
+         VIRTUAL-HEIGHT     = 13.57
          VIRTUAL-WIDTH      = 80
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -356,7 +367,7 @@ END.
 
 &Scoped-define SELF-NAME cTaxGroup
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cTaxGroup C-Win
-ON LEAVE OF cTaxGroup IN FRAME DEFAULT-FRAME /* Tax Group */
+ON LEAVE OF cTaxGroup IN FRAME DEFAULT-FRAME /* Force Tax Group for All Records */
 DO:
     IF NOT CAN-FIND(FIRST stax-group
                     WHERE stax-group.company   EQ g_company
@@ -465,7 +476,8 @@ PROCEDURE pSetTaxable :
 
     DISABLE TRIGGERS FOR LOAD OF cust.
     DISABLE TRIGGERS FOR LOAD OF inv-head.
-    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    // inv-line trigger recalcs in the inv-head totals
+    // DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF itemfg.
     DISABLE TRIGGERS FOR LOAD OF oe-ord.
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
@@ -551,12 +563,16 @@ PROCEDURE pSetTaxable :
                             WHERE oe-ord.company EQ shipto.company
                               AND oe-ord.cust-no EQ shipto.cust-no
                               AND oe-ord.ship-id EQ shipto.ship-id
+                              AND oe-ord.stat NE "C"
                             :
-                            IF cTaxGroup NE "" THEN
-                            ASSIGN
-                                cOrder:SCREEN-VALUE = STRING(oe-ord.ord-no)
-                                oe-ord.tax-gr = cTaxGroup
-                                .
+                            lOrderChanged = NO.
+                            IF cTaxGroup NE "" AND oe-ord.tax-gr NE cTaxGroup THEN DO:
+                                lOrderChanged = YES.
+                                ASSIGN
+                                    cOrder:SCREEN-VALUE = STRING(oe-ord.ord-no)
+                                    oe-ord.tax-gr = cTaxGroup
+                                    .
+                            END.
                             FOR EACH oe-ordl EXCLUSIVE-LOCK
                                 WHERE oe-ordl.company EQ oe-ord.company
                                   AND oe-ordl.ord-no  EQ oe-ord.ord-no
@@ -570,7 +586,11 @@ PROCEDURE pSetTaxable :
                                         oe-ordl.i-no,
                                         OUTPUT lTaxable
                                         ).
-                                    oe-ordl.tax = lTaxable.
+                                    IF oe-ordl.tax NE lTaxable THEN 
+                                        ASSIGN
+                                            lOrderChanged = YES 
+                                            oe-ordl.tax = lTaxable
+                                            .
                                 END. /* if order taxable */
                             END. /* each oe-ordl */
                             FOR EACH oe-ordm EXCLUSIVE-LOCK
@@ -588,9 +608,15 @@ PROCEDURE pSetTaxable :
                                         oe-ordm.charge,
                                         OUTPUT lTaxable
                                         ).
-                                    oe-ordm.tax = lTaxable.   
+                                    IF oe-ordm.tax NE lTaxable THEN 
+                                        ASSIGN
+                                            oe-ordm.tax = lTaxable
+                                            lOrderChanged = YES.
+                                            .   
                                 END. /* if order taxable */             
                             END. /* each oe-ordm */
+                            IF lOrderChanged THEN 
+                                RUN oe/calcordt.p (ROWID(oe-ord)).
                         END. /* each oe-ord */
                         fSetDone (cOrder:HANDLE).
                     END. /* if lordertaxable */
@@ -609,8 +635,7 @@ PROCEDURE pSetTaxable :
                                 .
                             IF lInvoiceTaxable THEN
                             FOR EACH inv-line EXCLUSIVE-LOCK
-                                WHERE inv-line.company EQ inv-head.company
-                                  AND inv-line.ord-no  EQ inv-head.inv-no
+                                WHERE inv-line.r-no EQ inv-head.r-no
                                 :
                                 cInvoice:SCREEN-VALUE = STRING(inv-line.ord-no) + " - " + STRING(inv-line.line).
                                 RUN GetTaxableAR IN hTaxProcs (

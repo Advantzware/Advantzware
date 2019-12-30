@@ -50,12 +50,64 @@ PROCEDURE dynInitCompanyList:
     RETURN cCompanyList.
 END PROCEDURE.
 
+PROCEDURE dynInitItemType:
+    RUN spGetSessionParam ("ItemType", OUTPUT cSessionValue).
+    IF cSessionValue EQ "" THEN
+    cSessionValue = "All,FG,RM,WP".
+    RETURN cSessionValue.
+END PROCEDURE.
+
 PROCEDURE dynInitLocation:
     RUN spGetSessionParam ("Location", OUTPUT cSessionValue).
     RETURN cSessionValue.
 END PROCEDURE.
 
+PROCEDURE dynInitNO:
+    RETURN "NO".
+END PROCEDURE.
+
 PROCEDURE dynInitSecure:
     RUN spSetSessionParam ("Secure", "NO").
     RETURN "NO".
+END PROCEDURE.
+
+PROCEDURE dynInitUser:
+    RETURN USERID("ASI").
+END PROCEDURE.
+
+PROCEDURE dynInitYES:
+    RETURN "YES".
+END PROCEDURE.
+
+PROCEDURE dynNK1APSecureAllUsers:
+    DEFINE VARIABLE cAPSecure AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDisable  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAPSecure AS LOGICAL   NO-UNDO.
+
+    RUN pNK1APSecure (OUTPUT cAPSecure, OUTPUT lAPSecure).
+    IF cAPSecure EQ "YES" THEN
+    cDisable =  ":DISABLE".
+    RETURN STRING(cAPSecure EQ "NO") + cDisable.
+END PROCEDURE.
+
+PROCEDURE dynNK1APSecureUserID:
+    DEFINE VARIABLE cAPSecure AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAPSecure AS LOGICAL   NO-UNDO.
+
+    RUN pNK1APSecure (OUTPUT cAPSecure, OUTPUT lAPSecure).
+    IF lAPSecure AND cAPSecure EQ "YES" THEN
+    RETURN USERID("ASI") + ":DISABLE".
+    ELSE
+    RETURN "".
+END PROCEDURE.
+
+PROCEDURE pNK1APSecure PRIVATE:
+    DEFINE OUTPUT PARAMETER opcAPSecure AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAPSecure AS LOGICAL   NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cSessionValue).
+    RUN sys/ref/nk1look.p (
+        cSessionValue,"APSecure","L",NO,NO,"","",
+        OUTPUT opcAPSecure, OUTPUT oplAPSecure
+        ).
 END PROCEDURE.

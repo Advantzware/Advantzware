@@ -455,16 +455,38 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
+
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Tasks".
     RUN pTasks.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Emails".
     RUN pTaskEmails.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Idle".
     {&OPEN-QUERY-AuditBrowse}
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN sys/ref/nk1look.p (
+        cCompany,"TaskerNotRunning","I",NO,NO,"","",
+        OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+        ).
+    iConfigID = INTEGER(cTaskerNotRunning).
     DO TRANSACTION:
         FIND FIRST config EXCLUSIVE-LOCK.
         config.taskerLastExecuted = NOW.
         FIND FIRST config NO-LOCK.
+        IF CAN-FIND(FIRST emailConfig
+                    WHERE emailConfig.configID EQ iConfigID
+                      AND emailConfig.isActive EQ YES
+                      AND emailConfig.notified EQ YES) THEN DO:
+            FIND FIRST emailConfig EXCLUSIVE-LOCK
+                 WHERE emailConfig.configID EQ iConfigID
+                 NO-ERROR.
+            IF AVAILABLE emailConfig THEN
+            emailConfig.notified = NO.
+        END. /* if can-find */
+        RELEASE emailConfig.
     END. /* do trans */
 
 END PROCEDURE.

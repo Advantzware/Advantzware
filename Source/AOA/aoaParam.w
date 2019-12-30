@@ -52,9 +52,9 @@ DEFINE VARIABLE lSecure          AS LOGICAL   NO-UNDO.
 
 {AOA/includes/ttColumn.i}
 
-RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
 SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
-RUN AOA\spJasper.p PERSISTENT SET hJasper.
+RUN AOA/spJasper.p PERSISTENT SET hJasper.
 SESSION:ADD-SUPER-PROCEDURE (hJasper).
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
@@ -239,6 +239,7 @@ ON WINDOW-CLOSE OF W-Win /* AdvantzwareOA */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  RUN pDeleteProcedure.
   IF VALID-HANDLE(hTasks) THEN
   RUN disable_UI IN hTasks.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -441,6 +442,22 @@ PROCEDURE local-enable :
   
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure W-Win
+PROCEDURE pDeleteProcedure:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   IF VALID-HANDLE(hAppSrvBin) THEN
+   DELETE PROCEDURE hAppSrvBin.
+   IF VALID-HANDLE(hJasper) THEN
+   DELETE PROCEDURE hJasper.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

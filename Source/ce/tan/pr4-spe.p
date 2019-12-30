@@ -18,6 +18,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
     display xef.spec-dscr[i] s-qty[i]  to 46 space(1)
 	    e-item.std-uom when available e-item
+        venditemcost.vendorUom WHEN AVAIL vendItemCost @ e-item.std-uom
 	    item.cons-uom when not available e-item @ e-item.std-uom
 	    s-cost[i] / (qty / 1000) to 69
         s-cost[i] format ">>>>,>>9.99" to 80 SKIP  WITH STREAM-IO.

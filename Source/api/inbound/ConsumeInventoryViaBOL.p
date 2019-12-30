@@ -205,7 +205,7 @@
     
     /* Validate BOLDate */
     IF lRecFound AND cBOLDate NE "" THEN DO:
-        RUN Common_ValidateValueByDataType (
+        RUN spCommon_ValidateValueByDataType (
             INPUT  cBOLDate,
             INPUT  "DATE",
             OUTPUT lValidValue
@@ -270,7 +270,7 @@
         ) NO-ERROR.
     /* Validate Freight Cost */
     IF lRecFound AND cFreightCost NE "" THEN DO:
-        RUN Common_ValidateValueByDataType (
+        RUN spCommon_ValidateValueByDataType (
             INPUT  cFreightCost,
             INPUT  "DECIMAL",
             OUTPUT lValidValue
@@ -342,7 +342,7 @@
         /* Validate Quantity of units */
         IF lRecFound AND
             cQuantityOfUnits NE "" THEN DO:
-            RUN Common_ValidateValueByDataType (
+            RUN spCommon_ValidateValueByDataType (
                 INPUT  cQuantityOfUnits,
                 INPUT  "DECIMAL",
                 OUTPUT lValidValue
@@ -368,7 +368,7 @@
         /* Validate QuantityPerUnit */
         IF lRecFound AND
             cQuantityPerUnit NE "" THEN DO:
-            RUN Common_ValidateValueByDataType (
+            RUN spCommon_ValidateValueByDataType (
                 INPUT  cQuantityPerUnit,
                 INPUT  "DECIMAL",
                 OUTPUT lValidValue
@@ -394,7 +394,7 @@
         /* Validate Quantity Partial */
         IF lRecFound AND
             cQuantityPartial NE "" THEN DO:
-            RUN Common_ValidateValueByDataType (
+            RUN spCommon_ValidateValueByDataType (
                 INPUT  cQuantityPartial,
                 INPUT  "DECIMAL",
                 OUTPUT lValidValue

@@ -141,6 +141,7 @@ PROCEDURE pBusinessLogic:
             .
         GET NEXT qMachTran.
     END. /* do while */
+    DELETE PROCEDURE hDynCalcField.
 END PROCEDURE.
 
 {aoa/BL/pGetCustInfo.i}

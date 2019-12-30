@@ -76,17 +76,17 @@ DO idx = 1 TO NUM-ENTRIES(cSuperProcedures):
     hHandle = WIDGET-HANDLE(ENTRY(idx,cSuperProcedures)).
     IF INDEX(hHandle:NAME,"aoaBin") NE 0 THEN
     hAppSrvBin = hHandle.
-    IF INDEX(hHandle:NAME,"aoaJasper") NE 0 THEN
+    IF INDEX(hHandle:NAME,"spJasper") NE 0 THEN
     hJasper = hHandle.
 END. /* do idx */
 
 IF NOT VALID-HANDLE(hAppSrvBin) THEN DO:
-    RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+    RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
     SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 END. /* if valid-handle */
 
 IF NOT VALID-HANDLE(hJasper) THEN DO:
-    RUN AOA\spJasper.p PERSISTENT SET hJasper.
+    RUN AOA/spJasper.p PERSISTENT SET hJasper.
     SESSION:ADD-SUPER-PROCEDURE (hJasper).
 END. /* if valid-handle */
 
@@ -559,7 +559,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      Task.module AT ROW 3.62 COL 124 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
-          LIST-ITEMS "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?" 
+          LIST-ITEMS "AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","SS","TS" 
           DROP-DOWN-LIST
           SIZE 8.2 BY 1
           BGCOLOR 15 
@@ -1182,6 +1182,7 @@ ON WINDOW-CLOSE OF C-Win /* Dynamic Task Scheduler */
 DO:
   /* This event will close the window and terminate the procedure.  */
   RUN pSaveSettings (USERID("ASI")).
+  RUN pDeleteProcedure.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -2140,6 +2141,22 @@ PROCEDURE pCRUD :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure C-Win
+PROCEDURE pDeleteProcedure:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   IF VALID-HANDLE(hAppSrvBin) THEN
+   DELETE PROCEDURE hAppSrvBin.
+   IF VALID-HANDLE(hJasper) THEN
+   DELETE PROCEDURE hJasper.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -113,6 +113,8 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cShipAddr4 AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cAddr4 AS CHARACTER NO-UNDO .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -179,8 +181,9 @@ ELSE lv-comp-color = "BLACK".
                    v-shipto-city = shipto.ship-city
                    v-shipto-state = shipto.ship-state
                    v-shipto-zip = shipto.ship-zip
-                   v-addr3 = ar-inv.city + ", " + ar-inv.state + "  " + ar-inv.zip
-                   .
+                   cShipAddr4 = shipto.contact .
+         v-addr3 = cust.city + ", " + cust.state + "  " + cust.zip .
+         cAddr4 = cust.contact .
          v-sold-addr3 = v-shipto-city + ", " + v-shipto-state +
               "  " + v-shipto-zip .
 

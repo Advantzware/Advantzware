@@ -258,7 +258,8 @@ DO:
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    /* task 11121308 */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"is-delete-target", OUTPUT char-hdl).
-  RUN is-delete IN WIDGET-HANDLE(char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN is-delete IN WIDGET-HANDLE(char-hdl).
 
   
   APPLY "CLOSE":U TO THIS-PROCEDURE.

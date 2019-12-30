@@ -10,17 +10,14 @@
   Name: dNewGroup.w
   Desc: Ask name for new group of favourites
 
-------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
-/* ***************************  Definitions  ************************** */
 { DataDigger.i }
 
-/* Parameters Definitions --- */
-
 &IF DEFINED(UIB_IS_RUNNING) = 0 &THEN
-  DEFINE INPUT-OUTPUT PARAMETER pcGroup AS CHARACTER.
+  DEFINE INPUT-OUTPUT PARAMETER pcGroup AS CHARACTER NO-UNDO.
   DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttTable.
   DEFINE INPUT PARAMETER pcGroupList AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER plOk       AS LOGICAL NO-UNDO.
