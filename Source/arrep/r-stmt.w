@@ -108,6 +108,11 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
@@ -482,6 +487,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Statements */
 DO:
+   IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1691,6 +1698,27 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 
+IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN DO:
+    IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+     IF NOT lValid THEN DO:
+         MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+             VIEW-AS ALERT-BOX ERROR.
+     END.
+    END.
+END.
+
 find first company where company.company eq cocode no-lock no-error.
 
 ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
@@ -2467,6 +2495,27 @@ end.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN DO:
+    IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+     IF NOT lValid THEN DO:
+         MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+             VIEW-AS ALERT-BOX ERROR.
+     END.
+    END.
+END.
 
 form
   ws_letterhead[1]    skip
@@ -3297,6 +3346,27 @@ v-asi-excel = v-stmt-char EQ "ASIExcel".
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF v-stmt-char EQ "StdStatement10" OR v-stmt-char EQ "StdStatement2" OR v-stmt-char EQ "ARStmt3C" THEN DO:
+    IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+     IF NOT lValid THEN DO:
+         MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+             VIEW-AS ALERT-BOX ERROR.
+     END.
+    END.
+END.
 
 form
   tt-inv.trans-date COLUMN-LABEL "Date"
