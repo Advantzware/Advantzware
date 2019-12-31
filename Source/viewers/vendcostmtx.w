@@ -55,6 +55,15 @@ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
  RUN util/Validate.p PERSISTENT SET hdValidator.
      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdValidator).
 
+DEFINE VARIABLE cVendItemCostSourceFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostItem# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostItemType AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostEst# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostForm# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostBlank# AS CHAR NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -297,6 +306,7 @@ END.
 
 {src/adm/method/viewer.i}
 {methods/template/viewer4.i}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -560,7 +570,7 @@ END.
 &Scoped-define SELF-NAME vendItemCost.itemID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemID V-table-Win
 ON LEAVE OF vendItemCost.itemID IN FRAME F-Main /* Item ID */
-DO:
+DO:      
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
    IF LASTKEY <> -1 THEN DO:
        RUN valid-i-no( OUTPUT lCheckError) NO-ERROR.
@@ -591,7 +601,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemType V-table-Win
 ON VALUE-CHANGED OF vendItemCost.itemType IN FRAME F-Main /* Item Type */
-DO:
+DO:      
     IF LENGTH(vendItemCost.itemType:SCREEN-VALUE) GE 2 THEN DO:
         IF LOOKUP(vendItemCost.itemType:SCREEN-VALUE,"RM,FG") EQ 0  THEN DO:
              MESSAGE "Item Type must be RM or FG" VIEW-AS ALERT-BOX ERROR .
@@ -800,6 +810,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getSourceAttributes V-table-Win
+PROCEDURE getSourceAttributes:
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+    -------------------------------------------------------------------------------*/
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostSourceFrom' ).
+    cVendItemCostSourceFrom = RETURN-VALUE. 
+   
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+    cVendItemCostItem# = RETURN-VALUE.
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').    
+    cVendItemCostEst# = RETURN-VALUE.       
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType' ).
+    cVendItemCostItemType = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor' ).
+    cVendItemCostVendor = RETURN-VALUE .
+    IF cVendItemCostVendor = ? THEN cVendItemCostVendor = "".
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostCustomer' ).  
+    cVendItemCostCustomer = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostForm#' ).  
+    cVendItemCostForm# = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostBlank#' ).  
+    cVendItemCostBlank# = RETURN-VALUE.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -875,19 +918,30 @@ PROCEDURE local-create-record :
   IF adm-adding-record THEN
   DO WITH FRAME {&FRAME-NAME}:
     /*eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").*/
-    vendItemCost.effectiveDate:SCREEN-VALUE =  "12/31/2099"  .
-    vendItemCost.effectiveDate = 12/31/2099 .
+    vendItemCost.effectiveDate:SCREEN-VALUE =  string(today) /*"12/31/2099" */ .
+    vendItemCost.effectiveDate = TODAY /*12/31/2099 */ .
     vendItemCost.dimWidthMaximum = 99999.99.
     vendItemCost.dimLengthMaximum = 99999.99.
     vendItemCost.dimWidthOver = 99999.99.
     vendItemCost.dimLengthOver = 99999.99.
     vendItemCost.quantityMaximumOrder = 99999.99.
-    vendItemCost.itemType = "FG" .
+    vendItemCost.itemType = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG"
+    .
+        
+    IF cVendItemCostSourceFrom NE ""THEN 
+          ASSIGN vendItemCost.itemID = cVendItemCostItem#
+              vendItemCost.vendorID = cVendItemCostVendor
+              vendItemCost.customer = cVendItemCostCustomer
+              vendItemCost.Estimate = cVendItemCostEst#
+              vendItemCost.FormNo = int(cVendItemCostForm#)
+              vendItemCost.BlankNo = int(cVendItemCostBlank#)
+              .    
   END.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
+
 
 END PROCEDURE.
 
@@ -941,11 +995,11 @@ PROCEDURE local-display-fields :
 
  DO WITH FRAME {&FRAME-NAME}:
      IF vendItemCost.effectiveDate:SCREEN-VALUE LT  "01/01/1900" 
-         THEN vendItemCost.effectiveDate:SCREEN-VALUE =  "01/01/1900"  .
+         THEN vendItemCost.effectiveDate:SCREEN-VALUE =  "01/01/1900"  .             
+         
  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
-
 
 END PROCEDURE.
 
@@ -992,6 +1046,10 @@ PROCEDURE local-update-record :
 
     RUN valid-expdate ( OUTPUT lCheckError) NO-ERROR.
     IF lCheckError THEN RETURN NO-APPLY.
+    
+    RUN valid-duplicateRecord ( OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+    
   END.
  
   DISABLE ALL WITH FRAME {&frame-name}.
@@ -1106,15 +1164,24 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
 ------------------------------------------------------------------------------*/
 
-     DO WITH FRAME {&FRAME-NAME}:
-         ENABLE btnCalendar-1 btnCalendar-2 .
+     RUN getSourceAttributes.
+                
+     IF cVendItemCostSourceFrom = "EST" THEN DO WITH FRAME {&frame-name}:
+        DISABLE /*vendItemCost.ItemType*/ vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+                venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
+           
      END.
-  
+     ELSE IF cVendItemCostSourceFrom NE "" THEN DO WITH FRAME {&frame-name}:
+         DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+             venditemCost.blankNo 
+                /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+     END.  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1134,8 +1201,8 @@ PROCEDURE valid-cust-no :
   THEN DO:
       MESSAGE "Invalid Customer#. Try Help." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
-  END.
-
+  END.         
+  
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1166,6 +1233,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-duplicateRecord V-table-Win
+PROCEDURE valid-duplicateRecord:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opcReturnError AS LOGICAL NO-UNDO .
+  
+  opcReturnError = 
+      can-find(FIRST bf-venditemcost WHERE bf-vendItemCost.company = venditemcost.company
+                                   AND bf-vendItemCost.itemID = vendItemCost.ItemID:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND bf-vendItemCost.ItemType = vendItemCost.ItemType:screen-value
+                                   AND bf-vendItemCost.vendorID = vendItemCost.vendorID:screen-value
+                                   AND bf-vendItemCost.customerID = vendItemCost.customerID:screen-value
+                                   AND bf-vendItemCost.EstimateNo = vendItemCost.EstimateNo:screen-value
+                                   AND bf-vendItemCost.vendItemCostID <> venditemcost.venditemcostID                                    
+             )    
+      .
+      
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entry V-table-Win 
 PROCEDURE valid-entry :
