@@ -130,7 +130,11 @@ DEF VAR lv-print-bsf AS LOG INIT NO NO-UNDO.  /* controls the switch between Loy
 DEF VAR lv-print-bsf-item AS LOG INIT NO NO-UNDO. /*controls BSF printing per item*/
 DEF VAR ld-bsf LIKE eb.t-sqin INIT 1 NO-UNDO. /* store bsf for price/bsf calculation */
 DEF VAR ld-price-per-m AS DEC INIT 1 NO-UNDO. /*for calculating BSF*/
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "INVPRINT" NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "LoylangBSF" THEN lv-print-bsf = YES.
@@ -139,6 +143,24 @@ IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "LoylangBSF" THEN lv-print-bsf = YES.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -835,7 +857,9 @@ FOR each report
  
     end. /* each ar-inv */
 
-
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
+    
 PROCEDURE compute-ext-price.
     DEFINE INPUT PARAM in-recid AS RECID.
     DEFINE INPUT PARAM in-qty AS INTE NO-UNDO.

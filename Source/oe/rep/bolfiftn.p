@@ -85,6 +85,11 @@ DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 FIND FIRST tt-bolx NO-ERROR.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 IF AVAILABLE tt-bolx AND tt-bolx.print-logo THEN
    ls-full-img1 = tt-bolx.logo-file + ">".
@@ -97,6 +102,25 @@ ELSE IF NOT AVAILABLE tt-bolx THEN
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -435,6 +459,9 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
   oe-bolh.printed = YES.
 END. /* for each oe-bolh */
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 RETURN.
 

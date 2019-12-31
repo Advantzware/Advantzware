@@ -52,7 +52,11 @@ DEFINE SHARED VARIABLE v-depts          AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE v-last-page      AS INTEGER  NO-UNDO.
 DEFINE        VARIABLE v-page-tot       AS INTEGER  NO-UNDO.
 DEFINE        VARIABLE v-sort-name      AS LOG  NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /* rstark 05291402 */
 
 /* rstark 05291402 */
@@ -480,6 +484,24 @@ ELSE IF company.company EQ '006' THEN
 RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.    
 
 IF cRtnChar NE "" THEN 
 DO:
@@ -1856,6 +1878,9 @@ DO:
     OS-RENAME VALUE(XMLTemp) VALUE(cXMLOutput + XMLFile).
     
 END. /* if lxmloutput */
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
   /* rstark 05181205 */
 

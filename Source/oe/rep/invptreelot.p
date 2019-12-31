@@ -95,7 +95,11 @@ DEF BUFFER ref-sell-price FOR reftable.
 DEF VAR v-qty  AS CHAR  NO-UNDO.
 DEF VAR v-qty2 AS CHAR  NO-UNDO.
 DEF VAR v-rel  AS CHAR FORMAT "x(1)" NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 DEF TEMP-TABLE w-sman NO-UNDO
   FIELD sman AS CHAR FORMAT "x(4)".
@@ -109,6 +113,24 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -835,6 +857,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     IF v-printline <= 66 THEN PAGE. 
 
 END. /* each xinv-head */
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 
 /*PROCEDURE compute-ext-price:

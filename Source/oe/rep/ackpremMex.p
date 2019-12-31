@@ -81,9 +81,33 @@ DEF SHARED VAR v-UntCnt AS LOG NO-UNDO.
 DEF SHARED VAR v-Shpnot AS LOG NO-UNDO.
 DEF SHARED VAR v-print-tot AS LOG NO-UNDO.
 DEFINE BUFFER bf-shipto FOR shipto .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -777,5 +801,7 @@ for each oe-ordl
           /* rstark 05291402 */
         END.
     end. /* each oe-ord */
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 /* end ---------------------------------- copr. 2001  Advanced Software, Inc. */
