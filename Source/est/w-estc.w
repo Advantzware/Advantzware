@@ -1389,16 +1389,22 @@ PROCEDURE local-change-page :
   end.*/ /* ticket - 23023 */
   IF li-page[1] = 11 AND lNewVendorItemCost THEN 
   DO: /* farm */
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
-        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).  */        
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ). 
-        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
-        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
-      li-pageb4VendCost = li-page[2].
-      RUN select-page (13).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').     
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+      DEF VAR opEbRowid AS ROWID NO-UNDO.
+      DEF BUFFER bf-eb FOR eb.
       
+      RUN get-eb-rowid IN h_b-estitm (OUTPUT opEbRowID).
+      FIND bf-eb NO-LOCK WHERE rowid(bf-eb) = opEbRowID NO-ERROR.
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + (IF AVAIL bf-eb THEN bf-eb.stock-no ELSE "") ).         
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
+      /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ' + ( IF AVAIL bf-eb THEN bf-eb.cust-no ELSE "" ) ).  
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.form-no) ELSE "" ) ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.blank-no) ELSE "" ) ).
+      li-pageb4VendCost = li-page[2].  
+      RUN select-page (13).      
+            
       RETURN.           
   END. 
    
@@ -1518,10 +1524,20 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
-  Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
-  Parameters:  <none>
-  Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+      Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+      Parameters:  <none>
+      Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.

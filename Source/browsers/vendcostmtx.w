@@ -75,6 +75,12 @@ ASSIGN
     cocode = g_company
     locode = g_loc.
 
+DEFINE VARIABLE cVendItemCostItem# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostItemType AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostEst# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
+
 FIND FIRST users NO-LOCK WHERE 
     users.user_id EQ USERID(LDBNAME(1)) 
     NO-ERROR.
@@ -910,6 +916,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getSourceAttributes B-table-Win
+PROCEDURE getSourceAttributes:
+/*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+------------------------------------------------------------------------------*/
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+    cVendItemCostItem# = RETURN-VALUE.
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').    
+    cVendItemCostEst# = RETURN-VALUE.       
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType' ).
+    cVendItemCostItemType = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor' ).
+    cVendItemCostVendor = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostCustomer' ).  
+    cVendItemCostCustomer = RETURN-VALUE.
+      
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-excel B-table-Win 
 PROCEDURE import-excel :
 /*------------------------------------------------------------------------------
@@ -1062,8 +1094,7 @@ PROCEDURE local-open-query :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cVendItemCost AS CHAR NO-UNDO.
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.    
     
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1092,11 +1123,12 @@ PROCEDURE local-open-query :
     END.
     
     RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
-    cVendItemCost = RETURN-VALUE.
+    cVendItemCostItem# = RETURN-VALUE.
     RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
-    IF (cVendItemCost NE "" AND cVendItemCost NE ?) or
-       (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:                  
-       RUN openqueryOne (cVendItemCost).                  
+    IF (cVendItemCostItem# NE "" AND cVendItemCostItem# NE ?) or
+       (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:    
+                         
+       RUN openqueryOne (cVendItemCostItem#).                  
     END.     
      
     ll-show-all = NO .
