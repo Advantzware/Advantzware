@@ -477,8 +477,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
         trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
         trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
-        "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
-        "<=Printed><B>" TODAY  "</B>"
+        "<=CAD><P10><B>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
+        "</B><P8><=Printed><B>" TODAY  "</B>"
         "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
         "<=OrderCsr>" SPACE(1) IF AVAILABLE xoe-ord THEN STRING(xoe-ord.csrUser_id) ELSE job.csrUser_id FORMAT "x(10)"
         "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
