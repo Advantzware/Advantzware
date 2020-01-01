@@ -28,12 +28,12 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
 ,Current Date +9~
 ,Current Date -10~
 ,Current Date +10~
-,Start of this Month~
-,End of this Month~
+,Start of This Month~
+,End of This Month~
 ,First Day of Last Month~
 ,Last Day of Last Month~
-,Start of this Year~
-,End of this Year~
+,Start of This Year~
+,End of This Year~
 ,First Day of Last Year~
 ,Last Day of Last Year~
 ,Last Sunday~

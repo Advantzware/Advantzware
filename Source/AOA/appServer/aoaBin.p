@@ -270,23 +270,23 @@ FUNCTION fDateOptionDate RETURNS DATE
             dtDate = TODAY - 10.
         WHEN "Current Date +10" THEN
             dtDate = TODAY + 10.
-        WHEN "Start of this Month" THEN
+        WHEN "Start of This Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)).
-        WHEN "End of this Month" THEN
+        WHEN "End of This Month" THEN
             IF MONTH(TODAY) EQ 12 THEN
             dtDate = DATE(12,31,YEAR(TODAY)).
             ELSE
             dtDate = DATE(MONTH(TODAY) + 1,1,YEAR(TODAY)) - 1.
-        WHEN "First Day of last Month" THEN
+        WHEN "First Day of Last Month" THEN
             IF MONTH(TODAY) EQ 1 THEN
             dtDate = DATE(12,1,YEAR(TODAY) - 1).
             ELSE
             dtDate = DATE(MONTH(TODAY) - 1,1,YEAR(TODAY)).
-        WHEN "Last Day of last Month" THEN
+        WHEN "Last Day of Last Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)) - 1.
-        WHEN "Start of this Year" THEN
+        WHEN "Start of This Year" THEN
             dtDate = DATE(1,1,YEAR(TODAY)).
-        WHEN "End of this Year" THEN
+        WHEN "End of This Year" THEN
             dtDate = DATE(12,31,YEAR(TODAY)).
         WHEN "First Day of Last Year" THEN
             dtDate = DATE(1,1,YEAR(TODAY) - 1).
@@ -320,6 +320,26 @@ FUNCTION fDateOptionDate RETURNS DATE
             dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 6 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 6.
         WHEN "Next Saturday" THEN
             dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 7 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 7.
+        WHEN "Date Prior Month" THEN DO:
+            dtDate = ipdtDate - 28.
+            DO WHILE TRUE:
+                IF (YEAR(dtDate)  LT YEAR(ipdtDate)   OR
+                    MONTH(dtDate) LT MONTH(ipdtDate)) AND
+                    DAY(dtDate)   LE DAY(ipdtDate)    THEN
+                LEAVE.
+                dtDate = dtDate - 1.
+            END. /* do while */
+        END. /* date prior month */
+        WHEN "Date Prior Year" THEN DO:
+            dtDate = ipdtDate - 365.
+            DO WHILE TRUE:
+                IF YEAR(dtDate)  LT YEAR(ipdtDate)  AND
+                   MONTH(dtDate) EQ MONTH(ipdtDate) AND
+                   DAY(dtDate)   LE DAY(ipdtDate)   THEN
+                LEAVE.
+                dtDate = dtDate - 1.
+            END. /* do while */
+        END. /* date prior year */
     END CASE.
         
     RETURN dtDate.

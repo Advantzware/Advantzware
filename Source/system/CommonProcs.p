@@ -38,6 +38,20 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+&IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_DateOptionDate Procedure
+FUNCTION sfCommon_DateOptionDate RETURNS DATE 
+  (ipcDateOption AS CHARACTER,
+   ipdtDate AS DATE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetNumberOfDaysInMonth Procedure
@@ -79,6 +93,19 @@ FUNCTION sfCommon_HourMax RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HourMin Procedure
 FUNCTION sfCommon_HourMin RETURNS INTEGER 
   (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_SetDateOptions Procedure
+FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL 
+  (iphDateOption AS HANDLE) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -256,6 +283,148 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+&IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_DateOptionDate Procedure
+FUNCTION sfCommon_DateOptionDate RETURNS DATE
+  ( ipcDateOption AS CHARACTER,
+    ipdtDate AS DATE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  convert date option into date based on input date
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dtDate AS DATE    NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDay   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMonth AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iYear  AS INTEGER NO-UNDO.
+
+    CASE ipcDateOption:
+        WHEN "Fixed Date" THEN
+            dtDate = ipdtDate.
+        WHEN "Current Date" THEN
+            dtDate = TODAY.
+        WHEN "Current Date -1" THEN
+            dtDate = TODAY - 1.
+        WHEN "Current Date +1" THEN
+            dtDate = TODAY + 1.
+        WHEN "Current Date -2" THEN
+            dtDate = TODAY - 2.
+        WHEN "Current Date +2" THEN
+            dtDate = TODAY + 2.
+        WHEN "Current Date -3" THEN
+            dtDate = TODAY - 3.
+        WHEN "Current Date +3" THEN
+            dtDate = TODAY + 3.
+        WHEN "Current Date -4" THEN
+            dtDate = TODAY - 4.
+        WHEN "Current Date +4" THEN
+            dtDate = TODAY + 4.
+        WHEN "Current Date -5" THEN
+            dtDate = TODAY - 5.
+        WHEN "Current Date +5" THEN
+            dtDate = TODAY + 5.
+        WHEN "Current Date -6" THEN
+            dtDate = TODAY - 6.
+        WHEN "Current Date +6" THEN
+            dtDate = TODAY + 6.
+        WHEN "Current Date -7" THEN
+            dtDate = TODAY - 7.
+        WHEN "Current Date +7" THEN
+            dtDate = TODAY + 7.
+        WHEN "Current Date -8" THEN
+            dtDate = TODAY - 8.
+        WHEN "Current Date +8" THEN
+            dtDate = TODAY + 8.
+        WHEN "Current Date -9" THEN
+            dtDate = TODAY - 9.
+        WHEN "Current Date +9" THEN
+            dtDate = TODAY + 9.
+        WHEN "Current Date -10" THEN
+            dtDate = TODAY - 10.
+        WHEN "Current Date +10" THEN
+            dtDate = TODAY + 10.
+        WHEN "Start of This Month" THEN
+            dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)).
+        WHEN "End of This Month" THEN
+            IF MONTH(TODAY) EQ 12 THEN
+            dtDate = DATE(12,31,YEAR(TODAY)).
+            ELSE
+            dtDate = DATE(MONTH(TODAY) + 1,1,YEAR(TODAY)) - 1.
+        WHEN "First Day of Last Month" THEN
+            IF MONTH(TODAY) EQ 1 THEN
+            dtDate = DATE(12,1,YEAR(TODAY) - 1).
+            ELSE
+            dtDate = DATE(MONTH(TODAY) - 1,1,YEAR(TODAY)).
+        WHEN "Last Day of Last Month" THEN
+            dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)) - 1.
+        WHEN "Start of This Year" THEN
+            dtDate = DATE(1,1,YEAR(TODAY)).
+        WHEN "End of This Year" THEN
+            dtDate = DATE(12,31,YEAR(TODAY)).
+        WHEN "First Day of Last Year" THEN
+            dtDate = DATE(1,1,YEAR(TODAY) - 1).
+        WHEN "Last Day of Last Year" THEN
+            dtDate = DATE(12,31,YEAR(TODAY) - 1).
+        WHEN "Last Sunday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 1 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 1.
+        WHEN "Last Monday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 2 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 2.
+        WHEN "Last Tuesday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 3 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 3.
+        WHEN "Last Wednesday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 4 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 4.
+        WHEN "Last Thursday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 5 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 5.
+        WHEN "Last Friday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 6 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 6.
+        WHEN "Last Saturday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 7 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 7.
+        WHEN "Next Sunday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 1 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 1.
+        WHEN "Next Monday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 2 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 2.
+        WHEN "Next Tuesday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 3 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 3.
+        WHEN "Next Wednesday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 4 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 4.
+        WHEN "Next Thursday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 5 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 5.
+        WHEN "Next Friday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 6 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 6.
+        WHEN "Next Saturday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 7 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 7.
+        WHEN "Date Prior Month" THEN DO:
+            dtDate = ipdtDate - 28.
+            DO WHILE TRUE:
+                IF (YEAR(dtDate)  LT YEAR(ipdtDate)   OR
+                    MONTH(dtDate) LT MONTH(ipdtDate)) AND
+                    DAY(dtDate)   LE DAY(ipdtDate)    THEN
+                LEAVE.
+                dtDate = dtDate - 1.
+            END. /* do while */
+        END. /* date prior month */
+        WHEN "Date Prior Year" THEN DO:
+            dtDate = ipdtDate - 365.
+            DO WHILE TRUE:
+                IF YEAR(dtDate)  LT YEAR(ipdtDate)  AND
+                   MONTH(dtDate) EQ MONTH(ipdtDate) AND
+                   DAY(dtDate)   LE DAY(ipdtDate)   THEN
+                LEAVE.
+                dtDate = dtDate - 1.
+            END. /* do while */
+        END. /* date prior year */
+    END CASE.
+        
+    RETURN dtDate.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetNumberOfDaysInMonth Procedure
@@ -327,6 +496,75 @@ FUNCTION sfCommon_HourMin RETURNS INTEGER
  Notes:
 ------------------------------------------------------------------------------*/
 	RETURN IF lUserAMPM THEN 1 ELSE 0.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_SetDateOptions Procedure
+FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL 
+  ( iphDateOption AS HANDLE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDateOptions AS CHARACTER NO-UNDO INITIAL
+"Fixed Date~
+,Current Date~
+,Current Date -1~
+,Current Date +1~
+,Current Date -2~
+,Current Date +2~
+,Current Date -3~
+,Current Date +3~
+,Current Date -4~
+,Current Date +4~
+,Current Date -5~
+,Current Date +5~
+,Current Date -6~
+,Current Date +6~
+,Current Date -7~
+,Current Date +7~
+,Current Date -8~
+,Current Date +8~
+,Current Date -9~
+,Current Date +9~
+,Current Date -10~
+,Current Date +10~
+,Start of This Month~
+,End of This Month~
+,First Day of Last Month~
+,Last Day of Last Month~
+,Start of This Year~
+,End of This Year~
+,First Day of Last Year~
+,Last Day of Last Year~
+,Last Sunday~
+,Last Monday~
+,Last Tuesday~
+,Last Wednesday~
+,Last Thursday~
+,Last Friday~
+,Last Saturday~
+,Next Sunday~
+,Next Monday~
+,Next Tuesday~
+,Next Wednesday~
+,Next Thursday~
+,Next Friday~
+,Next Saturday~
+".
+    ASSIGN
+        iphDateOption:LIST-ITEMS   = cDateOptions
+        iphDateOption:INNER-LINES  = NUM-ENTRIES(cDateOptions)
+        iphDateOption:SCREEN-VALUE = iphDateOption:ENTRY(1)
+        .
+    RETURN TRUE.
 
 END FUNCTION.
 	
