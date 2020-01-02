@@ -49,7 +49,7 @@ DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
 &Scoped-define List-buttons btn_onh btn_ono btn_all
 &Scoped-define List-nonreord itemfg.i-no itemfg.i-name itemfg.i-dscr itemfg.vend-no ~
      itemfg.vend-item itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy ~
-     itemfg.stocked itemfg.alloc itemfg.pur-uom ~
+     itemfg.stocked itemfg.repeatItem itemfg.alloc itemfg.pur-uom ~
      itemfg.beg-date
 
 /* _UIB-CODE-BLOCK-END */
@@ -78,14 +78,14 @@ DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.pur-uom itemfg.beg-date ~
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
-itemfg.ord-policy itemfg.stocked itemfg.alloc ~
+itemfg.ord-policy itemfg.stocked itemfg.repeatItem itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.pur-uom itemfg.lead-days
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1
 &Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom ~
 itemfg.i-dscr itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
-itemfg.ord-policy itemfg.stocked itemfg.alloc ~
+itemfg.ord-policy itemfg.stocked itemfg.repeatItem itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days itemfg.beg-date
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
@@ -188,6 +188,10 @@ DEFINE FRAME F-Main
           LABEL "Stocked?"
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .95
+    itemfg.repeatItem AT ROW 3.86 COL 68
+          LABEL "Repeat Item"
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY .95
      itemfg.alloc AT ROW 3.86 COL 106 NO-LABEL
           VIEW-AS RADIO-SET VERTICAL
           RADIO-BUTTONS 
@@ -323,6 +327,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX itemfg.stocked IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX itemfg.repeatItem IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.vend-item IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.vend-no IN FRAME F-Main
@@ -393,6 +399,16 @@ END.
 &Scoped-define SELF-NAME itemfg.stocked
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.stocked V-table-Win
 ON return OF itemfg.stocked IN FRAME F-Main /* Stocked? */
+DO:
+     apply "tab" to self.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME itemfg.repeatItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.repeatItem V-table-Win
+ON return OF itemfg.repeatItem IN FRAME F-Main /* repeat item */
 DO:
      apply "tab" to self.
 END.

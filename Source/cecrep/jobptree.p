@@ -30,6 +30,7 @@ DEFINE VARIABLE lv-under-run AS cha NO-UNDO.
 DEFINE VARIABLE lv-over-run AS cha NO-UNDO.
 DEFINE VARIABLE lv-part-name AS cha FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE lv-fg-name AS cha NO-UNDO.
+DEFINE VARIABLE cRepeatItem AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lv-status AS cha FORM "x(20)" NO-UNDO.
 DEFINE VARIABLE lv-sts-code AS cha INIT "O,R,C,T,N,X,Q" NO-UNDO.
 DEFINE VARIABLE lv-sts-desc AS cha INIT "O-Original,R-Repeat,C-Change,T-Transfer,N-New Customers,X-Complete Re-run,Q-Quality/Re-work" NO-UNDO.
@@ -628,8 +629,10 @@ ASSIGN
                              AND notes.note_code = "LOC" NO-LOCK NO-ERROR.
 
         IF AVAILABLE notes THEN v-die-loc = REPLACE(SUBSTRING(notes.note_text,1,10),CHR(10),"").
-
-        IF AVAILABLE b-itemfg THEN ASSIGN lv-fg-name = b-itemfg.i-name.
+        cRepeatItem = "" .
+        IF AVAILABLE b-itemfg THEN ASSIGN lv-fg-name = b-itemfg.i-name
+                                          cRepeatItem = IF  b-itemfg.repeatItem THEN "Run All Sheets" ELSE "" .
+        
 
         v-ord-qty = (IF AVAILABLE xoe-ordl AND xoe-ordl.i-no EQ job-hdr.i-no THEN xoe-ordl.qty ELSE job-hdr.qty) *
                     (IF est.form-qty LE 1 THEN 1 ELSE v-pqty).
@@ -755,7 +758,7 @@ ASSIGN
            SKIP
            v-shp[2] AT 2  "Description 1:" AT 90 SUBSTRING(lv-part-name,1,22) FORM "x(25)" SKIP
            v-shp[3] AT 2  SKIP
-           v-shp[4] AT 2  "<U>Board:</U>" AT 106 "<U>Adders:</U>" AT 125  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
+           v-shp[4] AT 2 "<B>" cRepeatItem AT 93 FORMAT "x(14)" "</B><U>Board:</U>" AT 109 "<U>Adders:</U>" AT 128  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            SKIP
            "Cust. PO #:" AT 2 cCustpo-name FORMAT "x(15)" /*xoe-ordl.po-no when avail xoe-ordl*/
            "Shts Req'd:" AT 90 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
