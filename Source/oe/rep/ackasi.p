@@ -86,7 +86,7 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
       else
         v-fob = "Destination".
 
-      find carrier
+      FIND FIRST carrier
           where carrier.company eq oe-ord.company
             and carrier.carrier eq oe-ord.carrier
           no-lock no-error.
