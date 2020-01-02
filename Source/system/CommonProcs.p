@@ -293,11 +293,7 @@ FUNCTION sfCommon_DateOptionDate RETURNS DATE
   Purpose:  convert date option into date based on input date
     Notes:  
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dtDate AS DATE    NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDay   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iMonth AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iYear  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dtDate AS DATE NO-UNDO.
 
     CASE ipcDateOption:
         WHEN "Fixed Date" THEN
