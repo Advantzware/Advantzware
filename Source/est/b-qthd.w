@@ -103,7 +103,8 @@ AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
-AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire))  ~
+AND ((quotehd.expireDate LE TODAY AND tb_expire) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND tb_active-quote) ~
+ OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND tb_active-quote) ) OR (tb_all))  ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd OUTER-JOIN  ~
       WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
@@ -121,7 +122,8 @@ AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
-AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) ~
+AND ((quotehd.expireDate LE TODAY AND tb_expire) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND tb_active-quote) ~
+ OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND tb_active-quote) ) OR (tb_all))  ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd OUTER-JOIN ~
       WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
@@ -138,14 +140,15 @@ AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_q-no fi_quo-date fi_cust-no fi_contact ~
 fi_est-no fi_part-no fi_item-decr tb_expire btnGO btnShowPrevious btnShowNext ~
-Browser-Table 
+Browser-Table tb_active-quote tb_all
 &Scoped-Define DISPLAYED-OBJECTS fi_q-no fi_quo-date fi_cust-no fi_contact ~
-fi_est-no fi_part-no fi_item-decr tb_expire fi_sortby browse-order auto_find 
+fi_est-no fi_part-no fi_item-decr tb_expire fi_sortby browse-order auto_find ~
+tb_active-quote tb_all
 
 /* Custom List Definitions                                              */
 /* filterFields,List-2,List-3,List-4,List-5,List-6                      */
 &Scoped-define filterFields fi_q-no fi_quo-date fi_cust-no fi_contact ~
-fi_est-no fi_part-no fi_item-decr tb_expire
+fi_est-no fi_part-no fi_item-decr tb_expire tb_active-quote tb_all
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -221,6 +224,16 @@ DEFINE VARIABLE tb_expire AS LOGICAL INITIAL NO
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .86 NO-UNDO.
 
+DEFINE VARIABLE tb_active-quote AS LOGICAL INITIAL YES 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY .86 NO-UNDO.
+
+DEFINE VARIABLE tb_all AS LOGICAL INITIAL NO
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY .86 NO-UNDO.
+
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sorted By" 
      VIEW-AS FILL-IN 
@@ -292,7 +305,9 @@ DEFINE FRAME F-Main
      btnGO AT ROW 2.91 COL 2
      btnShowPrevious AT ROW 2.91 COL 14
      btnShowNext AT ROW 2.91 COL 35
-     fi_sortby AT ROW 2.91 COL 89 COLON-ALIGNED
+     fi_sortby AT ROW 2.91 COL 66 COLON-ALIGNED
+     tb_active-quote AT ROW 2.91 COL 115.1 NO-LABEL
+     tb_all AT ROW 2.91 COL 129.1 NO-LABEL
      Browser-Table AT ROW 4.1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
@@ -323,7 +338,13 @@ DEFINE FRAME F-Main
           SIZE 7.6 BY .62 AT ROW 1 COL 1.4
           FGCOLOR 9 FONT 6
      "Expired" VIEW-AS TEXT
-          SIZE 17.5 BY .62 AT ROW 1 COL 125
+          SIZE 10.5 BY .62 AT ROW 1 COL 125
+          FGCOLOR 9 FONT 6
+     "Active" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3 COL 119
+          FGCOLOR 9 FONT 6
+     "All" VIEW-AS TEXT
+          SIZE 3.80 BY .62 AT ROW 3 COL 133
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -425,6 +446,10 @@ ASSIGN
    ALIGN-L 1                                                            */
 /* SETTINGS FOR FILL-IN tb_expire IN FRAME F-Main
    ALIGN-L 1                                                            */
+/* SETTINGS FOR FILL-IN tb_active-quote IN FRAME F-Main
+   ALIGN-L 1                                                            */
+/* SETTINGS FOR FILL-IN tb_all IN FRAME F-Main
+   ALIGN-L 1                                                            */
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -454,7 +479,8 @@ AND (quotehd.quo-date GE fi_quo-date
 OR fi_quo-date EQ ?)
 AND (quotehd.est-no EQ fi_est-no
 OR fi_est-no EQ "")
-AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (not tb_expire))
+AND ((quotehd.expireDate LE TODAY AND tb_expire) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND tb_active-quote) ~
+ OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND tb_active-quote) ) OR (tb_all))  ~
 ~{&useIndexPhrase}"
      _Where[2]         = "(IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no
 ELSE quoteitm.part-no BEGINS fi_part-no)
@@ -637,7 +663,7 @@ END.
 &Scoped-define SELF-NAME fi_q-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_q-no B-table-Win
 ON RETURN OF fi_q-no IN FRAME F-Main
-,fi_quo-date,fi_cust-no,fi_contact,fi_est-no,tb_expire,fi_part-no,fi_item-decr
+,fi_quo-date,fi_cust-no,fi_contact,fi_est-no,tb_expire,tb_active-quote,tb_all,fi_part-no,fi_item-decr
 DO:
   ASSIGN {&filterFields}
     q-noValue[1] = IF fi_q-no NE 0 THEN fi_q-no ELSE 0
@@ -807,12 +833,15 @@ PROCEDURE getValueFields :
     fi_contact = ''
     fi_est-no = ''
     tb_expire = NO
+    tb_active-quote = YES
+    tb_active-quote:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES"
+    tb_all = NO
     fi_part-no = ''
-    fi_item-decr = ''.
+    fi_item-decr = ''.  
   DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
   
   RUN openQuery.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -899,7 +928,7 @@ IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date),"9999") + ~
 IF sortColumn EQ 'Cust'             THEN quotehd.cust-no    ELSE ~
 IF sortColumn EQ 'Contact'          THEN quotehd.contact    ELSE ~
 IF sortColumn EQ 'Estimate'         THEN quotehd.est-no     ELSE ~
-IF sortColumn EQ 'Expiration Date'  THEN STRING(YEAR(quotehd.expireDate),"9999") + STRING(MONTH(quotehd.expireDate),"99") + STRING(DAY(quotehd.expireDate),"99")       ELSE ~
+IF sortColumn EQ 'Expire Date'  THEN STRING(YEAR(quotehd.expireDate),"9999") + STRING(MONTH(quotehd.expireDate),"99") + STRING(DAY(quotehd.expireDate),"99")       ELSE ~
 IF sortColumn EQ 'Cust Part'        THEN quoteitm.part-no   ELSE ~
 IF sortColumn EQ 'Item Description' THEN quoteitm.part-dscr1 ELSE ~
 IF sortColumn EQ 'Updated Date'     THEN STRING(YEAR(quotehd.upd-date),"9999") + STRING(MONTH(quotehd.upd-date),"99") + STRING(DAY(quotehd.upd-date),"99")   ELSE ~
@@ -919,7 +948,8 @@ STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
               ELSE quotehd.contact MATCHES fi_contact ) ~
           AND (quotehd.quo-date GE fi_quo-date OR fi_quo-date EQ ?) ~
           AND (quotehd.est-no EQ fi_est-no OR fi_est-no EQ '') ~
-          AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) ~{&useIndexPhrase}, ~
+          AND ((quotehd.expireDate LE TODAY AND tb_expire) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND tb_active-quote) ~
+         OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND tb_active-quote)) OR (tb_all)) ~{&useIndexPhrase}, ~
         EACH quoteitm OF quotehd NO-LOCK ~
         WHERE (IF fi_part-no BEGINS '*' THEN quoteitm.part-no MATCHES fi_part-no ~
             ELSE quoteitm.part-no BEGINS fi_part-no) ~
@@ -965,7 +995,8 @@ STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
                  AND (bf-quotehd.q-no = fi_q-no OR fi_q-no = 0)
                  AND (bf-quotehd.contact BEGINS fi_contact OR fi_contact = "")
                  AND (bf-quotehd.est-no BEGINS fi_est-no OR fi_est-no = "") 
-                 AND ((bf-quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) NO-LOCK NO-ERROR. 
+                 AND ((bf-quotehd.expireDate LE TODAY AND tb_expire) OR ((quotehd.quo-Date LE TODAY AND quotehd.expireDate GT TODAY AND tb_active-quote) 
+                 OR (quotehd.quo-Date LE TODAY AND quotehd.expireDate EQ ? AND tb_active-quote)) OR (tb_all)) NO-LOCK NO-ERROR. 
             IF AVAIL bf-quotehd THEN
                 v-cust-no = bf-quotehd.cust-no .
             ELSE v-cust-no = "".
