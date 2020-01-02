@@ -818,23 +818,28 @@ PROCEDURE getSourceAttributes:
          Notes:
     -------------------------------------------------------------------------------*/
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostSourceFrom' ).
-    cVendItemCostSourceFrom = RETURN-VALUE. 
+    cVendItemCostSourceFrom = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE. 
    
     RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
-    cVendItemCostItem# = RETURN-VALUE.
+    cVendItemCostItem# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
     RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').    
-    cVendItemCostEst# = RETURN-VALUE.       
+    cVendItemCostEst# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType' ).
-    cVendItemCostItemType = RETURN-VALUE.
+    cVendItemCostItemType = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor' ).
-    cVendItemCostVendor = RETURN-VALUE .
-    IF cVendItemCostVendor = ? THEN cVendItemCostVendor = "".
+    cVendItemCostVendor = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostCustomer' ).  
-    cVendItemCostCustomer = RETURN-VALUE.
+    cVendItemCostCustomer = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostForm#' ).  
-    cVendItemCostForm# = RETURN-VALUE.
+    cVendItemCostForm# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostBlank#' ).  
-    cVendItemCostBlank# = RETURN-VALUE.
+    cVendItemCostBlank# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
     
 END PROCEDURE.
 	
@@ -941,7 +946,6 @@ PROCEDURE local-create-record :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
-
 
 END PROCEDURE.
 
@@ -1176,10 +1180,14 @@ PROCEDURE proc-enable :
                 venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
            
      END.
+     ELSE IF cVendItemCostSourceFrom = "OF" THEN DO WITH FRAME {&frame-name}:
+        DISABLE /*vendItemCost.ItemType*/ vendItemCost.customerID vendItemCost.ItemID 
+            /*vendItemCost.estimateNo vendItemCost.formNo venditemCost.blankNo vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.           
+     END.
      ELSE IF cVendItemCostSourceFrom NE "" THEN DO WITH FRAME {&frame-name}:
          DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
              venditemCost.blankNo 
-                /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+                    /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
      END.  
 
 END PROCEDURE.
