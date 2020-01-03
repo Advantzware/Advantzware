@@ -1022,8 +1022,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DYNAMIC-FUNCTION("sfCommon_SetDateOptions", asOfDateOption:HANDLE).
         {custom/usrprint.i}
         ASSIGN
+            as-of-date = TODAY
             as-of-date:SCREEN-VALUE = STRING(TODAY)
-            as-of-date
             .
         RUN DisplaySelectionList2.
         APPLY "entry" TO begin_cust.
