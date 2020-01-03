@@ -1587,6 +1587,9 @@ PROCEDURE spJasper :
     /* create jasper files in local user folder */
     /* create xml data file */
     RUN pJasperJSON.
+    /* ensure user folder exists */
+    OS-CREATE-DIR "users".
+    OS-CREATE-DIR VALUE("users\" + aoaUserID).
     /* create jasper jrxml file */
     cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
     OUTPUT TO VALUE(cJasperFile).    
