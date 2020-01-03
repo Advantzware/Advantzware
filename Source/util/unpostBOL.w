@@ -38,6 +38,17 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
+{oe/rep/oe-lad.i NEW}
+
+  DEFINE  NEW SHARED VARIABLE ccXMLOutput AS CHARACTER NO-UNDO.
+  DEFINE  NEW SHARED VARIABLE clXMLOutput AS LOGICAL NO-UNDO.
+  DEFINE  NEW SHARED VARIABLE ciXMLOutput AS INTEGER NO-UNDO.
+  
+  DEFINE  NEW SHARED STREAM cXMLOutput.
+assign
+ clXMLOutput = true
+ .
+cocode = "001".
 DEFINE VARIABLE v-process AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -55,8 +66,9 @@ DEFINE VARIABLE v-process AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fiBOL# btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiBOL# 
+&Scoped-Define ENABLED-OBJECTS RECT-17 fiCustPO fiBOL# fiOrder btn-process ~
+btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiCustPO fiBOL# fiOrder 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -69,7 +81,7 @@ DEFINE VARIABLE v-process AS LOG NO-UNDO.
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
@@ -77,13 +89,23 @@ DEFINE BUTTON btn-cancel
      SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
+     LABEL "&Send ASN" 
      SIZE 18 BY 1.14.
 
 DEFINE VARIABLE fiBOL# AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "BOL#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Enter BOL # to unpost" NO-UNDO.
+
+DEFINE VARIABLE fiCustPO AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Customer PO#" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiOrder AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -93,8 +115,10 @@ DEFINE RECTANGLE RECT-17
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiBOL# AT ROW 2.67 COL 28 COLON-ALIGNED HELP
+     fiCustPO AT ROW 2.67 COL 28 COLON-ALIGNED WIDGET-ID 2
+     fiBOL# AT ROW 3.71 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Estimate Number"
+     fiOrder AT ROW 4.76 COL 28 COLON-ALIGNED WIDGET-ID 4
      btn-process AT ROW 7.19 COL 18
      btn-cancel AT ROW 7.19 COL 50
      "Selection Parameters" VIEW-AS TEXT
@@ -129,15 +153,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 98.2
          VIRTUAL-HEIGHT     = 19.76
          VIRTUAL-WIDTH      = 98.2
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -166,7 +190,7 @@ ASSIGN
                 "ribbon-button".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -179,7 +203,7 @@ THEN C-Win:HIDDEN = NO.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Archive/Delete Estimates */
+ON END-ERROR OF C-Win /* Mark BOL as unposted */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -192,7 +216,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Archive/Delete Estimates */
+ON WINDOW-CLOSE OF C-Win /* Mark BOL as unposted */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -216,7 +240,7 @@ END.
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
+ON CHOOSE OF btn-process IN FRAME FRAME-A /* Send ASN */
 DO:
    RUN run-process.
 END.
@@ -314,9 +338,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiBOL# 
+  DISPLAY fiCustPO fiBOL# fiOrder 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fiBOL# btn-process btn-cancel 
+  ENABLE RECT-17 fiCustPO fiBOL# fiOrder btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -328,11 +352,32 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
 DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
+DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
+DEFINE VARIABLE cPONum AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lInvoicefound AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN fiBOL#.
+    ASSIGN fiBOL# fiCustPO fiOrder.
   END.
   iBolNo = INTEGER(fiBOL#).
+  cPoNum = fiCustPo.
+  iOrder = INTEGER(fiOrder).
+  IF fiCustPO NE "" THEN DO:
+      FIND FIRST oe-boll NO-LOCK 
+        WHERE oe-boll.company EQ cocode
+          AND oe-boll.po-no EQ cPoNum
+          NO-ERROR.
+      IF NOT AVAILABLE oe-bolh THEN DO:
+          MESSAGE "BOL does not exist for PO# entered"
+          VIEW-AS ALERT-BOX.
+          RETURN NO-APPLY.
+      END.     
+      ELSE
+        ASSIGN fiBOL#:SCREEN-VALUE = STRING(oe-boll.bol-no)
+               fiOrder:SCREEN-VALUE = STRING(oe-boll.ord-no)
+               iBOLNo = oe-boll.bol-no
+               iOrder = oe-boll.ord-no
+               .
+  END.
   FIND FIRST oe-bolh NO-LOCK 
     WHERE oe-bolh.company EQ cocode
       AND oe-bolh.bol-no EQ iBolNo
@@ -342,51 +387,23 @@ DEFINE VARIABLE lInvoicefound AS LOGICAL NO-UNDO.
       VIEW-AS ALERT-BOX.
       RETURN NO-APPLY.
   END.
-  FIND FIRST oe-boll NO-LOCK 
-    WHERE  oe-boll.b-no EQ oe-bolh.b-no 
-      AND  oe-boll.posted = TRUE
+  FIND FIRST oe-ord NO-LOCK 
+    WHERE  oe-ord.ord-no EQ iOrder 
+      AND  oe-ord.company EQ cocode
     NO-ERROR.
-  IF oe-bolh.posted = FALSE AND NOT AVAILABLE oe-boll THEN DO:
-      MESSAGE "BOL already unposted!"
+  IF NOT AVAIL oe-ord THEN DO:
+      MESSAGE "Order does not exist"
           VIEW-AS ALERT-BOX.
       RETURN NO-APPLY.
 
   END. 
-  lInvoiceFound = FALSE.
-  FOR EACH inv-line NO-LOCK 
-    WHERE inv-line.b-no EQ oe-bolh.b-no
-      AND CAN-FIND(FIRST inv-head OF inv-line):
-      lInvoiceFound = TRUE.
-      LEAVE.   
-  END.
-  IF lInvoiceFound THEN DO:
-      MESSAGE "Error - invoice already exists!"
-      VIEW-AS ALERT-BOX.
-      RETURN NO-APPLY.
-  END.
-  
-  FIND FIRST ar-invl NO-LOCK 
-    WHERE ar-invl.company EQ cocode 
-     AND ar-invl.bol-no EQ oe-bolh.bol-no
-     NO-ERROR.
-  IF AVAILABLE ar-invl THEN DO:
-      MESSAGE "Posted Invoice already exists for BOL!"
-      VIEW-AS ALERT-BOX.
-      RETURN NO-APPLY.
-  END. 
-  FOR EACH oe-bolh WHERE oe-bolh.bol-no EQ iBolNo:
-  
-    oe-bolh.posted = NO.
-  
-    FOR EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company
-                       AND oe-boll.b-no    EQ oe-bolh.b-no:
-    
-      oe-boll.posted = oe-bolh.posted.
-    END.
-  
-  END.
-  SESSION:SET-WAIT-STATE("").
 
+ output stream cXMLOutput to value("c:\temp\testasn" + string(ibolNo) + ".xml").
+ RUN cxml/cxmlbol.p (INPUT cocode, INPUT iBolNo, INPUT iOrder).
+  SESSION:SET-WAIT-STATE("").
+        ASSIGN fiBOL#:SCREEN-VALUE = ""
+               fiOrder:SCREEN-VALUE = ""
+               .
   MESSAGE "Process Is Completed." VIEW-AS ALERT-BOX.
   APPLY "close" TO THIS-PROCEDURE.
 

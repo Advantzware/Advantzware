@@ -105,7 +105,8 @@ DEFINE TEMP-TABLE ttDupTags
     FIELD transTypes AS CHARACTER.
 
 DEF TEMP-TABLE ttToPost
-  FIELD rRmRctd AS ROWID 
+  FIELD rRmRctd AS ROWID
+  FIELD r-no    LIKE rm-rctd.r-no 
   .
       
 DEFINE STREAM sOutput.
@@ -143,6 +144,8 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipiSnapShotID AS INTEGER NO-UNDO.
         
@@ -173,6 +176,8 @@ PROCEDURE exportSnapshot:
         FIRST ITEM NO-LOCK 
         WHERE ITEM.company EQ rm-bin.company
         AND ITEM.i-no      EQ rm-bin.i-no
+        AND itemfg.cc-code GE ipcFromCycleCode
+        AND itemfg.cc-code LE ipcToCycleCode
         :
 
             /* ttSnapShot.cCostUom   = rm-bin.costUom */ /* not  on rm-bin */
@@ -882,7 +887,9 @@ PROCEDURE pCreateTransferCounts:
              IF ipdtTransDate NE ? THEN
                 bf-rm-rctd.rct-date = ipdtTransDate.
             CREATE ttToPost.                
-             ttToPost.rRmRctd = ROWID(bf-rm-rctd). 
+            ASSIGN ttToPost.rRmRctd = ROWID(bf-rm-rctd)
+                   ttToPost.r-no    = bf-rm-rctd.r-no
+                   . 
         END.
         FIND CURRENT bf-rm-rctd NO-LOCK NO-ERROR. 
         /* ttCycleCountCompare.cSysLoc/bin is the original location of the tag, so 0 that out */
@@ -907,7 +914,9 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.cost       = (IF AVAIL bf-rm-rctd THEN bf-rm-rctd.cost ELSE 0)
             .
         CREATE ttToPost.
-        ttToPost.rRmRctd = ROWID(rm-rctd). 
+        ASSIGN ttToPost.rRmRctd = ROWID(rm-rctd)
+               ttToPost.r-no    = rm-rctd.r-no
+               . 
 
         IF rm-rctd.pur-uom = "" THEN
             rm-rctd.pur-uom = rm-rctd.cost-uom.
@@ -1008,6 +1017,7 @@ PROCEDURE pCreateZeroCount:
             rm-rctd.i-name     = item.i-name
             rm-rctd.tag        = rm-bin.tag
             cTag               = rm-bin.tag
+            rm-rctd.enteredBy  = "Not Scanned"
             .
         
         IF rm-rctd.cost     EQ ? THEN rm-rctd.cost = 0.
@@ -1019,7 +1029,9 @@ PROCEDURE pCreateZeroCount:
             rm-rctd.upd-time = TIME.
             
         CREATE ttToPost.
-        ttToPost.rRmRctd = ROWID(rm-rctd).
+        ASSIGN ttToPost.rRmRctd = ROWID(rm-rctd)
+               ttToPost.r-no    = rm-rctd.r-no
+               .
 
       
         IF AVAILABLE ITEM THEN 
@@ -1367,6 +1379,7 @@ PROCEDURE postRM:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
@@ -1395,7 +1408,7 @@ PROCEDURE postRM:
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
-    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd,  ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd,  ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
     MESSAGE "Posting Complete"
@@ -1409,6 +1422,7 @@ PROCEDURE pPostCounts:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
@@ -1460,7 +1474,9 @@ PROCEDURE pPostCounts:
                 NO-ERROR.
             IF NOT AVAIL ttToPost THEN DO:
               CREATE ttToPost.
-              ttToPost.rRmRctd = ROWID(rm-rctd).
+              ASSIGN ttToPost.rRmRctd = ROWID(rm-rctd)
+                     ttToPost.r-no    = rm-rctd.r-no
+                     .
             END. 
         END.
         
@@ -1577,7 +1593,14 @@ PROCEDURE pPostCounts:
              */
             DELETE rm-rctd.
         END. /* for each rm-rctd */
-
+        IF ipiTransTime NE 0 AND ipiTransTime NE ? THEN DO:
+            FOR EACH ttToPost, 
+                EACH rm-rdtlh EXCLUSIVE-LOCK 
+                    WHERE rm-rdtlh.r-no EQ ttToPost.r-no
+                :
+                rm-rdtlh.trans-time = ipiTransTime.
+            END.
+        END.
         v-dunne = TRUE.
     END. /* postit */
 
@@ -1701,7 +1724,7 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE lChoosePost.
         
     IF lChoosePost THEN 
-        RUN postRM (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
+        RUN postRM (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
             ipcBinStart, ipcBinEnd). 
         
 END PROCEDURE.

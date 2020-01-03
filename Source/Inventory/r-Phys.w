@@ -497,6 +497,27 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiSnapshotID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSnapshotID C-Win
+ON VALUE-CHANGED OF fiSnapshotID IN FRAME FRAME-A /* Cancel */
+DO:
+    DEFINE VARIABLE cSavePgmName AS CHARACTER NO-UNDO.
+    
+    /* On new snapshot id, try to find user-print from r-initPhys.w */
+    cSavePgmName = v-prgmname.
+    v-prgmname = "SnapShot" + STRING(INTEGER(fiSnapshotID)).
+    {custom/usrprint.i}
+    ASSIGN fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999")
+           fiTranstimeHr:SCREEN-VALUE  = SUBSTRING(STRING(TIME, "HH:MM"), 1, 2)
+           fiTransTimeMin:SCREEN-VALUE = SUBSTRING(STRING(TIME, "HH:MM"), 4, 2)
+           cbAmPm = IF TIME GE 12 * 60 * 60 THEN "PM" else "AM"
+           .
+    v-prgmname = cSavePgmName.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+           
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
