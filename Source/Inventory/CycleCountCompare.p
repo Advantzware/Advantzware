@@ -108,6 +108,7 @@ DEFINE TEMP-TABLE ttDupTags
     
 DEF TEMP-TABLE ttToPost
     FIELD rFgRctd AS ROWID 
+    FIELD r-no LIKE fg-rctd.r-no
     .    
 DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd.
 {fg/fullset.i NEW}   
@@ -919,7 +920,9 @@ PROCEDURE pCreateTransferCounts:
                 dtmEnteredDate = bf-fg-rctd.enteredDT       
                 .
             CREATE ttToPost.
-            ttToPost.rFgRctd = ROWID(bf-fg-rctd). 
+            ASSIGN ttToPost.rFgRctd = ROWID(bf-fg-rctd)
+                   ttToPost.r-no    = bf-fg-rctd.r-no
+            . 
         END.
         FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
         
@@ -979,7 +982,9 @@ PROCEDURE pCreateTransferCounts:
         END.  
         
         CREATE ttToPost.
-        ttToPost.rFgRctd = ROWID(fg-rctd). 
+        ASSIGN ttToPost.rFgRctd = ROWID(fg-rctd)
+               ttToPost.r-no    = fg-rctd.r-no
+               . 
                 
     /* fg-rctd job, PO must match the fg-bin to post */
     /*
@@ -1093,9 +1098,12 @@ PROCEDURE pCreateZeroCount:
             fg-rctd.t-qty        = 0
             fg-rctd.units-pallet = 1 /* normal default */
             fg-rctd.cost-uom     = fg-bin.pur-uom
+            fg-rctd.enteredBy    = "Not Scanned"
             .
         CREATE ttToPost.
-        ttToPost.rFgRctd = ROWID(fg-rctd).             
+        ASSIGN ttToPost.rFgRctd = ROWID(fg-rctd)
+               ttToPost.r-no    = fg-rctd.r-no
+               .             
         FIND FIRST fg-rdtlh NO-LOCK WHERE 
             fg-rdtlh.company   = fg-bin.company AND
             fg-rdtlh.tag       = ttCycleCountCompare.cTag AND
@@ -1368,6 +1376,7 @@ PROCEDURE postFG:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
@@ -1375,7 +1384,8 @@ PROCEDURE postFG:
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
-        
+    DEFINE INPUT  PARAMETER iplSkipUnscanned AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE lDupsExist    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lRemoveZero   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPostWithDups AS LOGICAL NO-UNDO.
@@ -1395,14 +1405,14 @@ PROCEDURE postFG:
         IF NOT lPostWithDups THEN 
             RETURN.
     END.
-
-    RUN pCreateZeroCount (ipdtTransDate ).
+    IF NOT iplSkipUnscanned THEN 
+      RUN pCreateZeroCount (ipdtTransDate ).
     RUN pCreateTransferCounts (ipdtTransDate).
 
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
 
-    RUN pPostCounts (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFromCycleCode, ipcToCycleCode, ipcFGItemEnd, ipcWhseList, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFromCycleCode, ipcToCycleCode, ipcFGItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
     MESSAGE "Posting Complete"
         VIEW-AS ALERT-BOX.
@@ -1415,6 +1425,7 @@ PROCEDURE pPostCounts:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate   AS DATE NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTransTime    AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemStart  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemEnd    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
@@ -1485,7 +1496,9 @@ PROCEDURE pPostCounts:
             IF NOT AVAIL ttToPost THEN 
             DO:
                 CREATE ttToPost.
-                ttToPost.rFgRctd = ROWID(fg-rctd).
+                ASSIGN ttToPost.rFgRctd = ROWID(fg-rctd)
+                       ttToPost.r-no    = fg-rctd.r-no
+                       .
             END.
         END.      
         
@@ -1561,7 +1574,7 @@ PROCEDURE pPostCounts:
                 ASSIGN 
                     w-fg-rctd.t-qty = (fg-rctd.t-qty * tt-fg-set.part-qty-dec) + v-adj-qty.
             END. /* each tt-set */
-        END. /* each fg-rctd */
+        END. /* each tt-topost, fg-rctd */
   
         {fg/fg-cpost.i w-}
 
@@ -1718,8 +1731,8 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE setFromHistory.
         
     IF setFromHistory THEN 
-        RUN postFG (ipcCompany, ipdtTransDate, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
-            ipcBinStart, ipcBinEnd). 
+        RUN postFG (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
+            ipcBinStart, ipcBinEnd, iplSkipUnscanned). 
         
 END PROCEDURE.
 

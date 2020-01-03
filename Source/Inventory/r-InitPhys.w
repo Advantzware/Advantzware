@@ -480,42 +480,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader1 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader2 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader3 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader4 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDisplay AS cha NO-UNDO.
-DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
-DEFINE VARIABLE hField AS HANDLE NO-UNDO.
-DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
-DEFINE VARIABLE cVarValue AS cha NO-UNDO.
-DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
-DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
-DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE fg-str-tit AS cha FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-line AS cha FORM "x(170)" NO-UNDO.
-
-DEFINE VARIABLE mach-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE mach-str-line AS cha FORM "x(150)" NO-UNDO.
-
-DEFINE VARIABLE item-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE item-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE item-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE item-str-line AS cha FORM "x(150)" NO-UNDO.
-
-DEFINE VARIABLE misc-str-tit AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE cUserPrintCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE exelHeader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iSnapshotID AS INTEGER NO-UNDO.
+DEFINE VARIABLE h AS handle.
 SESSION:SET-WAIT-STATE ("general").
-    def var h as handle.  
+      
     IF ipcInitType EQ "FG" THEN 
       RUN inventory/cyclecountcompare.p persistent set h.
     ELSE 
@@ -541,8 +511,16 @@ SESSION:SET-WAIT-STATE ("general").
     delete object h.  
     
 
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    
+    /* User print created here should be deleted when inventoryStockSnapshot is deleted */
+    FIND FIRST inventoryStockSnapshot NO-LOCK 
+        WHERE inventoryStockSnapshot.inventorySnapshotID EQ iSnapshotID
+        NO-ERROR.
+    IF AVAIL inventoryStockSnapshot THEN DO:
+        cUserPrintCode = "Snapshot" + STRING(iSnapshotID).
+        RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).        
+    END.
 SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

@@ -50,6 +50,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEF VAR ect-label AS CHAR NO-UNDO.
 DEF VAR ect-help AS CHAR NO-UNDO.
 DEF VAR ect-format AS CHAR NO-UNDO.
+DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 
 DEF BUFFER b-vendItemCost FOR vendItemCost.
 DEF BUFFER b-vendItemCostLevel FOR vendItemCostLevel.
@@ -86,13 +87,13 @@ item.dept-name[2] item.dept-name[3] item.dept-name[4] item.dept-name[5] ~
 item.dept-name[6] item.dept-name[7] item.dept-name[8] item.dept-name[9] ~
 item.dept-name[10] item.box-case item.speed%[1] item.speed%[2] ~
 item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] item.speed%[7] ~
-item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall item.sqin-lb ~
-item.ink-type item.flute item.press-type item.linin-lb item.yield ~
-item.min-lbs 
+item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall item.stat ~
+item.sqin-lb item.ink-type item.flute item.press-type item.yield ~
+item.min-lbs item.linin-lb 
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 RECT-5 RECT-6 ~
-RECT-7 fi_ect RADIO-SET-2 fi_cas-pal-w fi_reg-no 
+RECT-7 fi_ect fi_cas-pal-w fi_reg-no 
 &Scoped-Define DISPLAYED-FIELDS item.i-no item.i-code item.tax-rcpt ~
 item.i-name item.i-dscr item.cost-type item.est-dscr item.procat item.cal ~
 item.shrink item.case-l item.q-ptd item.basis-w item.s-wid item.case-w ~
@@ -102,14 +103,13 @@ item.dept-name[3] item.dept-name[4] item.dept-name[5] item.dept-name[6] ~
 item.dept-name[7] item.dept-name[8] item.dept-name[9] item.dept-name[10] ~
 item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
-item.speed%[10] item.case-pall item.sqin-lb item.ink-type item.flute ~
-item.press-type item.linin-lb item.yield item.min-lbs 
+item.speed%[10] item.case-pall item.stat item.sqin-lb item.ink-type ~
+item.flute item.press-type item.yield item.min-lbs item.linin-lb 
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
-u-ytd procat_dscr u-lyr fi_ect RADIO-SET-2 fi_cas-pal-w fi_reg-no ~
-group1-text group4-text group3-text group2-text ink-type-label ~
-press-type-label 
+u-ytd procat_dscr u-lyr fi_ect fi_cas-pal-w fi_reg-no group1-text ~
+group4-text group3-text group2-text ink-type-label press-type-label 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -233,13 +233,6 @@ DEFINE VARIABLE u-ytd AS DECIMAL FORMAT "->>>,>>>,>>9":U INITIAL 0
      SIZE 16.4 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE RADIO-SET-2 AS CHARACTER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Active", "A",
-"Inactive", "I"
-     SIZE 23 BY 1.19 NO-UNDO.
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 79 BY 7.62.
@@ -250,7 +243,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 34 BY 5.5.
+     SIZE 34 BY 5.52.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -487,7 +480,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 FONT 4
-     RADIO-SET-2 AT ROW 12.91 COL 113 NO-LABEL WIDGET-ID 2
+     item.stat AT ROW 13 COL 114 NO-LABEL WIDGET-ID 6
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Active", "A":U,
+"InActive", "I":U
+          SIZE 27 BY .81
      fi_cas-pal-w AT ROW 14.1 COL 95 COLON-ALIGNED HELP
           "Enter weight of this RM in Lbs."
      item.sqin-lb AT ROW 15.05 COL 15 COLON-ALIGNED FORMAT ">>>,>>9"
@@ -516,11 +514,6 @@ DEFINE FRAME F-Main
 "Offset", "O":U,
 "Silkscreen", "S":U
           SIZE 76 BY .62
-     item.linin-lb AT ROW 17.24 COL 17 COLON-ALIGNED
-          LABEL "Lin In/UOM"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 FONT 4
      item.yield AT ROW 16.48 COL 43 COLON-ALIGNED
           LABEL "SI/Lb" FORMAT ">,>>>,>>9"
           VIEW-AS FILL-IN 
@@ -532,21 +525,33 @@ DEFINE FRAME F-Main
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
      fi_reg-no AT ROW 16.48 COL 95 COLON-ALIGNED
+     item.linin-lb AT ROW 17.24 COL 17 COLON-ALIGNED
+          LABEL "Lin In/UOM"
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 FONT 4
      group1-text AT ROW 6.24 COL 2 COLON-ALIGNED NO-LABEL
      group4-text AT ROW 6.24 COL 81 COLON-ALIGNED NO-LABEL
      group3-text AT ROW 14.1 COL 1 COLON-ALIGNED NO-LABEL
      group2-text AT ROW 14.1 COL 29 COLON-ALIGNED NO-LABEL
      ink-type-label AT ROW 15.05 COL 31 COLON-ALIGNED NO-LABEL
      press-type-label AT ROW 15.76 COL 28 COLON-ALIGNED NO-LABEL
-     "Consumption Qty" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 6.24 COL 116
      "Consumption Cost" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 1.95 COL 116
+     "Consumption Qty" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 6.24 COL 116
      "Totals" VIEW-AS TEXT
           SIZE 9 BY .71 AT ROW 1 COL 117
           FONT 6
      RECT-1 AT ROW 6.48 COL 1
      RECT-2 AT ROW 14.33 COL 29
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      RECT-3 AT ROW 14.33 COL 1
      RECT-4 AT ROW 6.48 COL 81
      RECT-5 AT ROW 1.24 COL 1
@@ -1026,6 +1031,22 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME itemfg.stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.stat V-table-Win
+ON VALUE-CHANGED OF item.stat IN FRAME F-Main /* Status */
+DO:
+    IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+        lCheckMessage = YES .
+        RUN pCheckOnHandQty. 
+        lCheckMessage = NO .
+    END.
+    ELSE DO:
+        lCheckMessage = NO .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_mat-type V-table-Win
 ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
@@ -1231,10 +1252,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyVendItemCost V-table-Win
-PROCEDURE CopyVendItemCost:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyVendItemCost V-table-Win 
+PROCEDURE CopyVendItemCost :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1270,11 +1290,9 @@ PROCEDURE CopyVendItemCost:
                                 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-item V-table-Win 
 PROCEDURE disable-item :
@@ -1940,6 +1958,10 @@ PROCEDURE local-update-record :
                return no-apply.
         end. 
    end.
+   
+   RUN pCheckOnHandQty NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
+   
   /* ======== end validation =================== */
   {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
@@ -1984,6 +2006,75 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
+PROCEDURE pCheckOnHandQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO .
+DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+            FOR EACH fg-bin FIELDS(qty )
+               WHERE fg-bin.company EQ cocode
+                 AND fg-bin.i-no    EQ item.i-no:SCREEN-VALUE
+                 NO-LOCK:
+             ASSIGN
+                iQtyOnHand = iQtyOnHand + fg-bin.qty.
+            END.
+            
+            IF iQtyOnHand GT 0 THEN DO:
+               MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO item.stat.
+               RETURN ERROR.
+            END.
+        END.
+
+      IF lCheckMessage EQ YES THEN do:
+       FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+           WHERE po-ordl.company EQ cocode
+           AND po-ordl.i-no EQ  item.i-no:SCREEN-VALUE
+           AND po-ordl.opened  :
+           cMessage = " Po# " + string(po-ordl.po-no ) .
+           LEAVE.
+       END.
+
+       IF cMessage EQ "" THEN
+       FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+           WHERE oe-ordl.company EQ cocode
+           AND oe-ordl.i-no EQ item.i-no:SCREEN-VALUE
+           AND oe-ordl.opened  :
+           cMessage = " Order# " + string(oe-ordl.ord-no ) .
+           LEAVE.
+       END.
+       IF cMessage EQ "" THEN
+       FOR EACH job-mat NO-LOCK
+          WHERE  job-mat.company EQ cocode
+            AND job-mat.rm-i-no EQ item.i-no:SCREEN-VALUE, 
+           FIRST job-hdr FIELD(job-no)  NO-LOCK
+            WHERE  job-hdr.company EQ cocode
+              AND job-hdr.job-no EQ job-mat.job-no
+              AND job-hdr.job-no2 EQ job-mat.job-no2
+              AND job-hdr.opened EQ YES :
+            cMessage = " Job# " + string(job-hdr.job-no ) .
+       END.
+
+       IF  cMessage NE "" THEN 
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
+
+      END.  /* lCheckMessage */
+          
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
