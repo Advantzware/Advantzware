@@ -1316,12 +1316,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DYNAMIC-FUNCTION("sfSetMainMenuHandle", THIS-PROCEDURE).
     RUN spSetSessionParam ("Company", g_company).
     RUN pGetUserSettings.
-    RUN sys/ref/nk1look.p (
-        g_company,"BitMap","DS",NO,NO,"","",
-        OUTPUT cBitMap,OUTPUT lFound
-        ).
-    IF lFound AND cBitMap NE "" THEN
-    boxes:LOAD-IMAGE(cBitMap).
     ASSIGN
         {&WINDOW-NAME}:COL = 1
         {&WINDOW-NAME}:ROW = 1
@@ -1552,128 +1546,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserSettings MAINMENU 
-PROCEDURE pGetUserSettings :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMenuSettings MAINMENU
+PROCEDURE pGetMenuSettings:
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cList      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLanguage  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iWinHeight AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iWinWidth  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE i          AS INTEGER   NO-UNDO.
-    
-    ASSIGN
-        iLanguage = 1 /* english */
-        iMenuSize = 1 /* small menu */
-        lMenuImage  = YES
-        iFGColor[1] = 15
-        iFGColor[2] = 15
-        iFGColor[3] = 15
-        iBGColor[1] = 1
-        iBGColor[2] = 3
-        iBGColor[3] = 1
-        .
-    DO i = 1 TO NUM-ENTRIES(cLanguageList):
-        cList = cList + ENTRY(i,cLanguageList) + ","
-                      + STRING(i) + ","
-                      .
-    END. /* do idx */
-    cList = TRIM(cList,",").
-
-    FIND FIRST users NO-LOCK
-         WHERE users.user_id EQ USERID("ASI")
-         NO-ERROR.
-    IF AVAILABLE users THEN DO:
-        ASSIGN
-            iMenuSize         = LOOKUP(users.menuSize,"Small,Medium,Large")
-            cShowMnemonic     = users.showMnemonic
-            cPositionMnemonic = users.positionMnemonic
-            lMenuImage        = users.showMenuImages
-            iFGColor[1]       = users.menuFGColor[1]
-            iFGColor[2]       = users.menuFGColor[2]
-            iFGColor[3]       = users.menuFGColor[3]
-            iBGColor[1]       = users.menuBGColor[1]
-            iBGColor[2]       = users.menuBGColor[2]
-            iBGColor[3]       = users.menuBGColor[3]
-            .
-        IF users.use_fonts THEN
-        iEditorFont = users.widget_font[5].
-        IF users.use_colors THEN
-        ASSIGN
-            iEditorBGColor    = users.widget_bgc[5]
-            iEditorFGColor    = users.widget_fgc[5]
-            iFrameBGColor     = users.widget_bgc[7]
-            iFrameFGColor     = users.widget_fgc[7]
-            iRectangleBGColor = users.widget_bgc[11]
-            iRectangleFGColor = users.widget_fgc[11]
-            .
-        FIND FIRST userLanguage NO-LOCK
-             WHERE userLanguage.userLanguage EQ users.userLanguage
-             NO-ERROR.
-        IF AVAILABLE userLanguage THEN
-        iLanguage = userLanguage.languageIdx.
-    END. /* avail users */
-    
-    FIND FIRST user-print NO-LOCK
-         WHERE user-print.company    EQ g_company
-           AND user-print.program-id EQ "MainMenu"
-           AND user-print.user-id    EQ USERID("ASI")
-         NO-ERROR.
-    IF AVAILABLE user-print THEN
-    ASSIGN 
-        iWinHeight = DECIMAL(user-print.field-value[1])
-        iWinWidth  = DECIMAL(user-print.field-value[2])
-        .
-    
-    IF iLanguage LT 1 THEN iLanguage = 1.
-    IF iMenuSize LT 1 THEN iMenuSize = 1.
-    cLabelLanguage = ENTRY(iLanguage,cLanguageList).
-
-    IF iWinHeight LT 28.57 THEN
-    iWinHeight = 28.57.
-    IF iWinWidth  LT 160 THEN
-    iWinWidth  = 160.
-    ASSIGN
-        {&WINDOW-NAME}:HEIGHT = iWinHeight
-        {&WINDOW-NAME}:WIDTH  = iWinWidth
-        FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-        FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-        .
-    
-    FIND FIRST prgrms NO-LOCK
-         WHERE prgrms.prgmname EQ "mainmenu2."
-         NO-ERROR.
-    IF AVAILABLE prgrms THEN DO:
-        IF prgrms.use_fonts THEN
-        iEditorFont           = prgrms.widget_font[5].
-        IF prgrms.use_colors THEN
-        ASSIGN
-            iEditorBGColor    = prgrms.widget_bgc[5]
-            iEditorFGColor    = prgrms.widget_fgc[5]
-            iFrameBGColor     = prgrms.widget_bgc[7]
-            iFrameFGColor     = prgrms.widget_fgc[7]
-            iRectangleBGColor = prgrms.widget_bgc[11]
-            iRectangleFGColor = prgrms.widget_fgc[11]
-            .
-    END. /* avail prgrms */
-    
-    RUN pWinReSize.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit MAINMENU 
-PROCEDURE pInit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cNK1Value     AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
@@ -1693,10 +1570,46 @@ PROCEDURE pInit :
         g_company,"CEMenu","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lFound
         ).
-
-    RUN pMenuSize.
-    
     DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            menuLinkASI:HIDDEN     = YES
+            menuLinkASI:SENSITIVE  = NO
+            menuLinkZoHo:HIDDEN    = YES
+            menuLinkZoHo:SENSITIVE = NO
+            menuLinkZoHo:HIDDEN    = YES
+            menuLinkZoHo:SENSITIVE = NO
+            menuLink-1:HIDDEN      = YES
+            menuLink-1:HIDDEN      = NO
+            menuLink-2:HIDDEN      = YES
+            menuLink-2:HIDDEN      = NO
+            menuLink-3:HIDDEN      = YES
+            menuLink-3:HIDDEN      = NO
+            menuLink-4:HIDDEN      = YES
+            menuLink-4:HIDDEN      = NO
+            menuLink-5:HIDDEN      = YES
+            menuLink-5:HIDDEN      = NO
+            menuLink-6:HIDDEN      = YES
+            menuLink-6:HIDDEN      = NO
+            menuLink-7:HIDDEN      = YES
+            menuLink-7:HIDDEN      = NO
+            menuLink-8:HIDDEN      = YES
+            menuLink-8:HIDDEN      = NO
+            .
+        menuLink-1:LOAD-IMAGE(?).
+        menuLink-2:LOAD-IMAGE(?).
+        menuLink-3:LOAD-IMAGE(?).
+        menuLink-4:LOAD-IMAGE(?).
+        menuLink-5:LOAD-IMAGE(?).
+        menuLink-6:LOAD-IMAGE(?).
+        menuLink-7:LOAD-IMAGE(?).
+        menuLink-8:LOAD-IMAGE(?).
+        boxes:LOAD-IMAGE(?).
+        RUN sys/ref/nk1look.p (
+            g_company,"BitMap","DS",NO,NO,"","",
+            OUTPUT cBitMap,OUTPUT lFound
+            ).
+        IF lFound AND cBitMap NE ? THEN
+        boxes:LOAD-IMAGE(cBitMap) NO-ERROR.
         RUN sys/ref/nk1look.p (
             g_company,"MENULINKASI","C",NO,NO,"","",
             OUTPUT cNK1Value[1],OUTPUT lFound
@@ -1831,7 +1744,7 @@ PROCEDURE pInit :
             MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.             
         IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
             RUN sys/ref/nk1look.p (
-                g_company,"AsiHelpService","C",NO,NO,"","",
+                g_company,"ASIHelpService","C",NO,NO,"","",
                 OUTPUT cHelpService,OUTPUT lFound
                 ).
             CREATE SERVER hWebService.
@@ -1878,6 +1791,138 @@ PROCEDURE pInit :
             END. /* if connected */
         END. /* if user admin */
     END. /* with frame */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserSettings MAINMENU 
+PROCEDURE pGetUserSettings :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cList      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLanguage  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iWinHeight AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iWinWidth  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE i          AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        iLanguage = 1 /* english */
+        iMenuSize = 1 /* small menu */
+        lMenuImage  = YES
+        iFGColor[1] = 15
+        iFGColor[2] = 15
+        iFGColor[3] = 15
+        iBGColor[1] = 1
+        iBGColor[2] = 3
+        iBGColor[3] = 1
+        .
+    DO i = 1 TO NUM-ENTRIES(cLanguageList):
+        cList = cList + ENTRY(i,cLanguageList) + ","
+                      + STRING(i) + ","
+                      .
+    END. /* do idx */
+    cList = TRIM(cList,",").
+
+    FIND FIRST users NO-LOCK
+         WHERE users.user_id EQ USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE users THEN DO:
+        ASSIGN
+            iMenuSize         = LOOKUP(users.menuSize,"Small,Medium,Large")
+            cShowMnemonic     = users.showMnemonic
+            cPositionMnemonic = users.positionMnemonic
+            lMenuImage        = users.showMenuImages
+            iFGColor[1]       = users.menuFGColor[1]
+            iFGColor[2]       = users.menuFGColor[2]
+            iFGColor[3]       = users.menuFGColor[3]
+            iBGColor[1]       = users.menuBGColor[1]
+            iBGColor[2]       = users.menuBGColor[2]
+            iBGColor[3]       = users.menuBGColor[3]
+            .
+        IF users.use_fonts THEN
+        iEditorFont = users.widget_font[5].
+        IF users.use_colors THEN
+        ASSIGN
+            iEditorBGColor    = users.widget_bgc[5]
+            iEditorFGColor    = users.widget_fgc[5]
+            iFrameBGColor     = users.widget_bgc[7]
+            iFrameFGColor     = users.widget_fgc[7]
+            iRectangleBGColor = users.widget_bgc[11]
+            iRectangleFGColor = users.widget_fgc[11]
+            .
+        FIND FIRST userLanguage NO-LOCK
+             WHERE userLanguage.userLanguage EQ users.userLanguage
+             NO-ERROR.
+        IF AVAILABLE userLanguage THEN
+        iLanguage = userLanguage.languageIdx.
+    END. /* avail users */
+    
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "MainMenu"
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE user-print THEN
+    ASSIGN 
+        iWinHeight = DECIMAL(user-print.field-value[1])
+        iWinWidth  = DECIMAL(user-print.field-value[2])
+        .
+    
+    IF iLanguage LT 1 THEN iLanguage = 1.
+    IF iMenuSize LT 1 THEN iMenuSize = 1.
+    cLabelLanguage = ENTRY(iLanguage,cLanguageList).
+
+    IF iWinHeight LT 28.57 THEN
+    iWinHeight = 28.57.
+    IF iWinWidth  LT 160 THEN
+    iWinWidth  = 160.
+    ASSIGN
+        {&WINDOW-NAME}:HEIGHT = iWinHeight
+        {&WINDOW-NAME}:WIDTH  = iWinWidth
+        FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+        FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+        .
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgmname EQ "mainmenu2."
+         NO-ERROR.
+    IF AVAILABLE prgrms THEN DO:
+        IF prgrms.use_fonts THEN
+        iEditorFont           = prgrms.widget_font[5].
+        IF prgrms.use_colors THEN
+        ASSIGN
+            iEditorBGColor    = prgrms.widget_bgc[5]
+            iEditorFGColor    = prgrms.widget_fgc[5]
+            iFrameBGColor     = prgrms.widget_bgc[7]
+            iFrameFGColor     = prgrms.widget_fgc[7]
+            iRectangleBGColor = prgrms.widget_bgc[11]
+            iRectangleFGColor = prgrms.widget_fgc[11]
+            .
+    END. /* avail prgrms */
+    
+    RUN pWinReSize.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit MAINMENU 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN pMenuSize.
+    
+    RUN pGetMenuSettings.
     
 END PROCEDURE.
 
@@ -2488,11 +2533,14 @@ PROCEDURE Set-Comp_Loc :
             g_loc                     = ipcLoc
             .
     END.
-    RUN sys/ref/nk1look.p (
-        g_company,"BitMap","DS",NO,NO,"","",
-        OUTPUT cBitMap,OUTPUT lFound
-        ).
-    IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
+    DYNAMIC-FUNCTION("sfClearUsage").
+    RUN pGetMenuSettings.
+/*    RUN sys/ref/nk1look.p (                 */
+/*        g_company,"BitMap","DS",NO,NO,"","",*/
+/*        OUTPUT cBitMap,OUTPUT lFound        */
+/*        ).                                  */
+/*    IF lFound AND cBitMap NE "" THEN        */
+/*    boxes:LOAD-IMAGE(cBitMap).              */
 
 END PROCEDURE.
 
