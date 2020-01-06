@@ -60,6 +60,7 @@ RUN methods/prgsecur.p
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 DEF VAR li-pageb4VendCost AS INT NO-UNDO.
+&SCOPED-DEFINE SetUserExit SetUserExit
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -309,6 +310,8 @@ ON WINDOW-CLOSE OF W-Win /* Estimate - Folding */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  RUN setUserExit.
+  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1481,11 +1484,13 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
-  Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
-  Parameters:  <none>
-  Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+      Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+      Parameters:  <none>
+      Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
 
+    MESSAGE "local-exit"
+        VIEW-AS ALERT-BOX.
    /* reset VendItemCost Attributes */
    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
@@ -1600,6 +1605,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetUserExit W-Win
+PROCEDURE SetUserExit:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+ 
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
