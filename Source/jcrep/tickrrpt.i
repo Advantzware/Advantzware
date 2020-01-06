@@ -30,7 +30,7 @@ IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Coloni
 ELSE IF tb_fold AND CAN-DO("FibreFC,HPB,METRO,Dee",lv-format-f) THEN 
   lines-per-page = 70 /* 58 lines-per-page*/.
 ELSE IF tb_fold AND CAN-DO("Ruffino",lv-format-f) THEN 
-  lines-per-page = 80 /* 58 lines-per-page*/.
+  lines-per-page = 85 /* 58 lines-per-page*/.
 ELSE IF NOT tb_fold AND (lv-format-c = "Adapt" OR lv-format-c = "PFS" OR lv-format-c = "CSC") THEN
     lines-per-page = 0.  /*Xprint controls paging*/
 ELSE
@@ -405,7 +405,7 @@ END.
 /* FOLDING */
 IF ip-industry EQ "Fold" THEN DO:
     /* Colonial */
-   IF NOT CAN-DO('ASI,CentBox,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,McLean,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
+   IF NOT CAN-DO('ASI,CentBox,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,McLean,Carded2,Coburn,Knight***,ruffino',lv-format-f) THEN spec-list = "".
    
    if  lv-format-f = 'Indiana-XL'      and 
        (logical (tb_RS:screen-value in frame {&frame-name}) = true or
