@@ -529,7 +529,7 @@ DO v-local-loop = 1 TO v-local-copies:
              /* "<B>"
               "<=Board>" v-form-dscr FORMAT "x(20)" 
               "</B>"*/
-              "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
+              "<=SheetsRequired>" TRIM(string(dJobQty / ((xef.n-out-l * xef.n-out ) + (v-upw * v-upl)),">>>>>>9.99")) /*STRING(v-sht-qty)*/   FORMAT "x(9)"
 /*              "<=SheetsReceived>"*/
               /*"<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))  format "x(30)"*/
@@ -990,7 +990,7 @@ DO v-local-loop = 1 TO v-local-copies:
              END. /* i 1 to 12*/
 
 
-             PUT "<R37><C70><b> Strapper Qc   ________________" .
+             PUT "<R36><C70><b> Strapper Qc   ________________" .
              PUT "<R38><C70><b> Shipper Qc    ________________" .
              PUT "<FArial><=51><R40><C68><FROM><R+1><C78><RECT> ". 
                    PUT "<FArial><=51><R40><C78><FROM><R+1><C88><RECT> " .
