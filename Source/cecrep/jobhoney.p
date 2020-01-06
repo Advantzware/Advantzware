@@ -990,15 +990,15 @@ DO v-local-loop = 1 TO v-local-copies:
              END. /* i 1 to 12*/
 
 
-             PUT "<R37><C70><b> Strapper Qc   ________________" .
-             PUT "<R39><C70><b> Shipper Qc    ________________" .
-             PUT "<FArial><=51><R41><C68><FROM><R+1><C78><RECT> ". 
-                   PUT "<FArial><=51><R41><C78><FROM><R+1><C88><RECT> " .
-                   PUT "<FArial><=51><R41><C88><FROM><R+1><C98><RECT> " .
-                   PUT "<FArial><=51><R41><C98><FROM><R+1><C107><RECT> " SKIP .
-                   PUT "<R41><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
+             PUT "<R36><C70><b> Strapper Qc   ________________" .
+             PUT "<R38><C70><b> Shipper Qc    ________________" .
+             PUT "<FArial><=51><R40><C68><FROM><R+1><C78><RECT> ". 
+                   PUT "<FArial><=51><R40><C78><FROM><R+1><C88><RECT> " .
+                   PUT "<FArial><=51><R40><C88><FROM><R+1><C98><RECT> " .
+                   PUT "<FArial><=51><R40><C98><FROM><R+1><C107><RECT> " SKIP .
+                   PUT "<R40><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
 
-               dLineHeight = 40.5 .
+               dLineHeight = 39.5 .
                DO i = 1 TO 4:
                    dLineHeight = dLineHeight + 1.5 . 
                    PUT "<FArial><=5><R" STRING(dLineHeight) "><C68><FROM><R+1.5><C78><RECT> ". 
