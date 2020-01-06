@@ -61,6 +61,7 @@ RUN methods/prgsecur.p
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 DEF VAR li-pageb4VendCost AS INT INIT 1 NO-UNDO.
+&SCOPED-DEFINE SetUserExit SetUserExit
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -322,6 +323,9 @@ ON WINDOW-CLOSE OF W-Win /* Estimate - Corrugated Box */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+     
+  RUN setUserExit.
+     
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1632,6 +1636,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetUserExit W-Win
+PROCEDURE SetUserExit:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+    
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

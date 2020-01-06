@@ -63,6 +63,7 @@ DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostForm# AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostBlank# AS CHAR NO-UNDO.
+&Scoped-define VendItemCostCreateAfter procCreateAfter
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -305,8 +306,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer4.i}
-
+{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -952,38 +952,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
-PROCEDURE local-delete-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-    END.
-
-    FOR EACH vendItemCostLevel EXCLUSIVE-LOCK
-            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-            BY vendItemCostLevel.vendItemCostLevelID :
-        DELETE vendItemCostLevel .
-    END.
-
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-    /* Code placed here will execute AFTER standard behavior.    */
-    
-    /* task 10301314  */
-        FIND CURRENT vendItemCost NO-LOCK NO-ERROR .
-        IF NOT AVAILABLE vendItemCost THEN
-            FIND FIRST vendItemCost WHERE vendItemCost.company = cocode NO-LOCK NO-ERROR.
-        RUN local-display-fields.
-        {methods/template/local/deleteAfter.i}       /* task 10301314  */
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1079,6 +1047,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE procCreateAfter V-table-Win
+PROCEDURE procCreateAfter:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+    IF cVendItemCostSourceFrom = "EST" THEN     
+    DO WITH FRAME {&frame-name}:
+        DISABLE /*vendItemCost.ItemType*/ vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+            venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
+           
+    END.
+    ELSE IF cVendItemCostSourceFrom NE "" THEN 
+    DO WITH FRAME {&frame-name}:
+            DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+                venditemCost.blankNo 
+                /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+    END.  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :

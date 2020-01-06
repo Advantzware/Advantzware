@@ -192,10 +192,10 @@ fGetLevel(10) @ cLevel[10]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-exp tb_in-est ~
 cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff btn_go btn_show ~
 Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-exp tb_in-est ~
 cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff fi_sort-by 
 
 /* Custom List Definitions                                              */
@@ -294,7 +294,7 @@ DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Item" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1
+     SIZE 21.6 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
@@ -367,12 +367,12 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
      tb_exactMatch AT ROW 1.14 COL 25.4
-     tb_in-est AT ROW 1.19 COL 75.4 WIDGET-ID 50
      tb_in-exp AT ROW 1.19 COL 106.6 WIDGET-ID 52
+     tb_in-est AT ROW 1.24 COL 81.6 WIDGET-ID 50
      cb_itemType AT ROW 2.24 COL 6.4 COLON-ALIGNED WIDGET-ID 40
      fi_i-no AT ROW 2.24 COL 23.4 COLON-ALIGNED WIDGET-ID 16
-     fi_vend-no AT ROW 2.24 COL 50.4 COLON-ALIGNED WIDGET-ID 2
-     fi_est-no AT ROW 2.24 COL 73.4 COLON-ALIGNED
+     fi_vend-no AT ROW 2.24 COL 55.2 COLON-ALIGNED WIDGET-ID 2
+     fi_est-no AT ROW 2.29 COL 79.6 COLON-ALIGNED
      tb_fut-eff AT ROW 2.38 COL 106.6 WIDGET-ID 54
      btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
      btn_show AT ROW 3.62 COL 15.2 WIDGET-ID 10
@@ -916,9 +916,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getSourceAttributes B-table-Win
-PROCEDURE getSourceAttributes:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getSourceAttributes B-table-Win 
+PROCEDURE getSourceAttributes :
 /*------------------------------------------------------------------------------
          Purpose:
          Notes:
@@ -936,11 +935,9 @@ PROCEDURE getSourceAttributes:
       
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-excel B-table-Win 
 PROCEDURE import-excel :
