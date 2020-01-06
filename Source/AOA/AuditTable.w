@@ -38,9 +38,10 @@ DEFINE OUTPUT PARAMETER ophTable AS HANDLE    NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cTable AS CHARACTER NO-UNDO EXTENT 20.
-DEFINE VARIABLE hTable AS HANDLE    NO-UNDO EXTENT 20.
-DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cTable      AS CHARACTER NO-UNDO EXTENT 20.
+DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO EXTENT 20.
+DEFINE VARIABLE iTableCount AS INTEGER   NO-UNDO.
+DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -261,14 +262,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FIND FIRST ASI._file NO-LOCK
          WHERE ASI._file._file-name EQ cTable[idx]
          NO-ERROR.
-    iAuditTables:ADD-LAST(STRING(idx) + ")  " + cTable[idx] + " - " + ASI._file._Desc,idx).
+    IF AVAILABLE ASI._file THEN DO:
+        iAuditTables:ADD-LAST(STRING(idx) + ")  " + cTable[idx] + " - " + ASI._file._Desc,idx).
+        iTableCount = iTableCount + 1.
+    END. /* if avail */
   END. /* do idx */
   iAuditTables:DELETE("None").
   RUN enable_UI.
-  IF iphQuery:NUM-BUFFERS EQ 1 THEN DO:
+  IF iTableCount EQ 1 THEN DO:
       APPLY "CHOOSE":U TO btnOK IN FRAME {&FRAME-NAME}.
       RETURN NO-APPLY.
-  END.
+  END. /* if itablecount */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
