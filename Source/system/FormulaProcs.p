@@ -33,6 +33,10 @@ DEFINE VARIABLE gcValidNumbers   AS CHARACTER NO-UNDO INITIAL "0123456789.".
 DEFINE VARIABLE gcValidOperators AS CHARACTER NO-UNDO INITIAL "+-/*".
 DEFINE VARIABLE gcValidVariables AS CHARACTER NO-UNDO INITIAL "LWDTFJBOSI".
 DEFINE VARIABLE gdDecimalFactor  AS DECIMAL   NO-UNDO INITIAL 6.25. 
+
+DEFINE VARIABLE gcPanelLinkTypePO       AS CHARACTER NO-UNDO INITIAL "P".
+DEFINE VARIABLE gcPanelLinkTypeEstimate AS CHARACTER NO-UNDO INITIAL "E".
+DEFINE VARIABLE gcPanelLinkTypeStyle    AS CHARACTER NO-UNDO INITIAL "S".
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -94,9 +98,94 @@ PROCEDURE CalculatePanels:
                                  bf-eb.fpanel, //B
                                  bf-eb.lock, //O
                                  IF AVAILABLE bf-style THEN bf-style.dim-fit ELSE 0, //I
-                                 OUTPUT ttPanel.dPanelSize).
-        ttPanel.dPanelSize = ttPanel.dPanelSize + ttPanel.dScoringAllowance.
+                                 OUTPUT ttPanel.dPanelSizeFromFormula).
+        ttPanel.dPanelSize = ttPanel.dPanelSizeFromFormula + ttPanel.dScoringAllowance.
     END.
+END PROCEDURE.
+
+PROCEDURE GetPanelDetailsForEstimate:
+/*------------------------------------------------------------------------------
+ Purpose: Fetches panelDetail records for a given Estimate
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company    EQ ipcCompany
+           AND bf-panelHeader.linkType   EQ gcPanelLinkTypeEstimate
+           AND bf-panelHeader.estimateID EQ ipcEstimateID
+           AND bf-panelHeader.formNo     EQ ipiFormNo
+           AND bf-panelHeader.blankNo    EQ ipiBlankNo
+         NO-ERROR.
+    IF AVAILABLE bf-panelHeader THEN
+        RUN pBuildttPanel (
+            INPUT  bf-panelHeader.panelHeaderID,
+            OUTPUT TABLE ttPanel
+            ).
+
+    RELEASE bf-panelHeader.                       
+END PROCEDURE.
+
+PROCEDURE GetPanelDetailsForPO:
+/*------------------------------------------------------------------------------
+ Purpose: Fetches panelDetail records for a given Purchase Order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE      FOR ttPanel.
+        
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company  EQ ipcCompany
+           AND bf-panelHeader.linkType EQ gcPanelLinkTypePO
+           AND bf-panelHeader.poID     EQ ipiPoID
+           AND bf-panelHeader.poLine   EQ ipiPoLine
+         NO-ERROR.
+    IF AVAILABLE bf-panelHeader THEN
+        RUN pBuildttPanel (
+            INPUT  bf-panelHeader.panelHeaderID,
+            OUTPUT TABLE ttPanel
+            ).
+            
+    RELEASE bf-panelHeader.            
+END PROCEDURE.
+
+PROCEDURE GetPanelDetailsForStyle:
+/*------------------------------------------------------------------------------
+ Purpose: Fetches panelDetail records for a given Style
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSetType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE           FOR ttPanel.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company      EQ ipcCompany
+           AND bf-panelHeader.linkType     EQ gcPanelLinkTypeStyle
+           AND bf-panelHeader.styleID      EQ ipcStyleID
+           AND bf-panelHeader.fluteID      EQ ipcFluteID
+           AND bf-panelHeader.scoreSetType EQ ipcScoreSetType
+         NO-ERROR.
+    IF AVAILABLE bf-panelHeader THEN
+        RUN pBuildttPanel (
+            INPUT  bf-panelHeader.panelHeaderID,
+            OUTPUT TABLE ttPanel
+            ).
+            
+    RELEASE bf-panelHeader.  
 END PROCEDURE.
 
 PROCEDURE ParsePanels:
@@ -197,6 +286,121 @@ PROCEDURE ParsePanels:
         END.
     END.
 
+END PROCEDURE.
+
+PROCEDURE pBuildttPanel PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Builds ttPanel temp-table for a given panel header id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiPanelHeaderID AS INT64 NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE            FOR ttPanel.
+    
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    
+    EMPTY TEMP-TABLE ttPanel.
+    
+    FOR EACH bf-panelDetail NO-LOCK
+        WHERE bf-panelDetail.panelHeaderID EQ ipiPanelHeaderID:
+        CREATE ttPanel.
+        ASSIGN
+            ttPanel.cPanelType            = bf-panelDetail.panelType
+            ttPanel.iPanelNum             = bf-panelDetail.panelNo
+            ttPanel.cPanelFormula         = bf-panelDetail.panelFormula
+            ttPanel.dScoringAllowance     = bf-panelDetail.scoringAllowance
+            ttPanel.cScoreType            = bf-panelDetail.scoreType
+            ttPanel.dPanelSize            = bf-panelDetail.panelSize
+            ttPanel.dPanelSizeFromFormula = bf-panelDetail.panelSizeFromFormula
+            .            
+    END.    
+    
+    RELEASE bf-panelDetail.
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetail PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Update/Create panelDetail record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPanelHeaderID        AS INT64     NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelType            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPanelNo              AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelFormula         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdScoringAllowance     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScoreType            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdPanelSize            AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdPanelSizeFromFormula AS DECIMAL   NO-UNDO.
+
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    
+    FIND FIRST bf-panelDetail EXCLUSIVE-LOCK
+         WHERE bf-panelDetail.company       EQ ipcCompany
+           AND bf-panelDetail.panelHeaderID EQ ipiPanelHeaderID
+           AND bf-panelDetail.panelType     EQ ipcPanelType
+           AND bf-panelDetail.panelNo       EQ ipiPanelNo
+         NO-ERROR.
+    IF NOT AVAILABLE bf-panelDetail THEN
+        RUN pCreatePanelDetail (
+            INPUT ipcCompany,
+            INPUT ipiPanelHeaderID,
+            INPUT ipcPanelType,
+            INPUT ipiPanelNo,
+            INPUT ipcPanelFormula,
+            INPUT ipdScoringAllowance,
+            INPUT ipcScoreType,
+            INPUT ipdPanelSize,
+            INPUT ipdPanelSizeFromFormula            
+            ).
+    ELSE DO:
+        ASSIGN
+            bf-panelDetail.panelFormula         = ipcPanelFormula
+            bf-panelDetail.scoringAllowance     = ipdScoringAllowance
+            bf-panelDetail.scoreType            = ipcScoreType
+            bf-panelDetail.panelSize            = ipdPanelSize
+            bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
+            .        
+    END.
+    
+    RELEASE bf-panelDetail.
+END PROCEDURE.
+
+PROCEDURE pCreatePanelHeader PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Creates a panelHeader record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLinkType      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoID          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoLine        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSetType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiPanelHeaderID AS INT64     NO-UNDO.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    CREATE bf-panelHeader.
+    ASSIGN
+        bf-panelHeader.company      = ipcCompany
+        bf-panelHeader.linkType     = ipcLinkType
+        bf-panelHeader.poID         = ipiPoID
+        bf-panelHeader.poLine       = ipiPoLine
+        bf-panelHeader.estimateID   = ipcEstimateID
+        bf-panelHeader.formNo       = ipiFormNo
+        bf-panelHeader.blankNo      = ipiBlankNo
+        bf-panelHeader.styleID      = ipcStyleID
+        bf-panelHeader.fluteID      = ipcFluteID
+        bf-panelHeader.scoreSetType = ipcScoreSetType
+        .
+
+    opiPanelHeaderID = bf-panelHeader.panelHeaderID.
+    
+    RELEASE bf-panelHeader. 
 END PROCEDURE.
 
 PROCEDURE pGetScoring PRIVATE:
@@ -388,16 +592,16 @@ PROCEDURE ProcessStyleFormula:
             END.
     END.
     /*Does 16th and 32nd */
-    /*    DO iCalc = 1 TO EXTENT(dCalculations):                              */
-    /*        dCalculations[iCalc] = dCalculations[iCalc] * li-16-32.         */
-    /*        IF lRound THEN                                                  */
-    /*        DO:                                                             */
-    /*        {sys/inc/roundup.i dCalculations[iCalc]}                        */
-    /*        END.                                                            */
-    /*        ELSE IF v-cecscrn-char NE "Decimal" THEN                        */
-    /*                dCalculations[iCalc] = TRUNCATE(dCalculations[iCalc],0).*/
-    /*        dCalculations[iCalc] = dCalculations[iCalc] / li-16-32.         */
-    /*    END.                                                                */
+/*        DO iCalc = 1 TO EXTENT(dCalculations):                              */
+/*            dCalculations[iCalc] = dCalculations[iCalc] * li-16-32.         */
+/*            IF lRound THEN                                                  */
+/*            DO:                                                             */
+/*            {sys/inc/roundup.i dCalculations[iCalc]}                        */
+/*            END.                                                            */
+/*            ELSE IF v-cecscrn-char NE "Decimal" THEN                        */
+/*                    dCalculations[iCalc] = TRUNCATE(dCalculations[iCalc],0).*/
+/*            dCalculations[iCalc] = dCalculations[iCalc] / li-16-32.         */
+/*        END.                                                                */
 
     opdCalculation = dCalculations[1].
     DO iOp = 2 TO EXTENT(cOperations):
@@ -406,5 +610,222 @@ PROCEDURE ProcessStyleFormula:
     END.
 
 
+END PROCEDURE.
+
+PROCEDURE pCreatePanelDetail PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Create panelDetail record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPanelHeaderID        AS INT64     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPanelNo              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelFormula         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdScoringAllowance     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreType            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPanelSize            AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPanelSizeFromFormula AS DECIMAL   NO-UNDO.
+
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+
+    CREATE bf-panelDetail.
+    ASSIGN
+        bf-panelDetail.company              = ipcCompany
+        bf-panelDetail.panelHeaderID        = ipiPanelHeaderID
+        bf-panelDetail.panelType            = ipcPanelType
+        bf-panelDetail.panelNo              = ipiPanelNo
+        bf-panelDetail.panelFormula         = ipcPanelFormula
+        bf-panelDetail.scoringAllowance     = ipdScoringAllowance
+        bf-panelDetail.scoreType            = ipcScoreType
+        bf-panelDetail.panelSize            = ipdPanelSize
+        bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
+        .
+
+    RELEASE bf-panelDetail.
+END PROCEDURE.
+
+PROCEDURE UpdatePanelDetailsForEstimate:
+/*------------------------------------------------------------------------------
+ Purpose: Updates/Creates panelHeader and panelDetail records for a given Estimate
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE         FOR ttPanel.
+    
+    DEFINE VARIABLE iPanelHeaderID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company    EQ ipcCompany
+           AND bf-panelHeader.linkType   EQ gcPanelLinkTypeEstimate
+           AND bf-panelHeader.estimateID EQ ipcEstimateID
+           AND bf-panelHeader.formNo     EQ ipiFormNo
+           AND bf-panelHeader.blankNo    EQ ipiBlankNo
+         NO-ERROR.
+    IF NOT AVAILABLE bf-panelHeader THEN DO:        
+        RUN pCreatePanelHeader (
+            INPUT  ipcCompany,
+            INPUT  gcPanelLinkTypeEstimate, /* "E" */
+            INPUT  0,                       /* Purchase Order */
+            INPUT  0,                       /* Purchase Order Line */
+            INPUT  ipcEstimateID,           /* Estimate ID */
+            INPUT  ipiFormNo,               /* Form No */
+            INPUT  ipiBlankNo,              /* Blank No */
+            INPUT  "",                      /* Style ID */
+            INPUT  "",                      /* Flute ID */
+            INPUT  "",                      /* Score set Type */
+            OUTPUT iPanelHeaderID        
+            ).
+            
+        FIND FIRST bf-panelHeader NO-LOCK
+             WHERE bf-panelHeader.panelHeaderID EQ iPanelHeaderID
+             NO-ERROR.
+    END.
+
+    IF AVAILABLE bf-panelHeader THEN DO:
+        FOR EACH ttPanel
+            BY ttPanel.iPanelNum:
+            RUN pUpdatePanelDetail (
+                INPUT  bf-panelHeader.company,
+                INPUT  bf-panelHeader.panelHeaderID,
+                INPUT  ttPanel.cPanelType,
+                INPUT  ttPanel.iPanelNum,
+                INPUT  ttPanel.cPanelFormula,
+                INPUT  ttPanel.dScoringAllowance,
+                INPUT  ttPanel.cScoreType,
+                INPUT  ttPanel.dPanelSize,
+                INPUT  ttPanel.dPanelSizeFromFormula
+                ).                        
+        END.  
+    END.
+            
+    RELEASE bf-panelHeader. 
+END PROCEDURE.
+
+PROCEDURE UpdatePanelDetailsForPO:
+/*------------------------------------------------------------------------------
+ Purpose: Updates/Creates panelHeader and panelDetail records for a given PO
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    
+    DEFINE VARIABLE iPanelHeaderID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company  EQ ipcCompany
+           AND bf-panelHeader.linkType EQ gcPanelLinkTypePO
+           AND bf-panelHeader.poID     EQ ipiPoID
+           AND bf-panelHeader.poLine   EQ ipiPoLine
+         NO-ERROR.
+    IF NOT AVAILABLE bf-panelHeader THEN DO:        
+        RUN pCreatePanelHeader (
+            INPUT  ipcCompany,
+            INPUT  gcPanelLinkTypePO, /* "P" */
+            INPUT  ipiPoID,           /* Purchase Order */
+            INPUT  ipiPoLine,         /* Purchase Order Line */
+            INPUT  "",                /* Estimate ID */
+            INPUT  0,                 /* Form No */
+            INPUT  0,                 /* Blank No */
+            INPUT  "",                /* Style ID */
+            INPUT  "",                /* Flute ID */
+            INPUT  "",                /* Score set Type */
+            OUTPUT iPanelHeaderID        
+            ).
+            
+        FIND FIRST bf-panelHeader NO-LOCK
+             WHERE bf-panelHeader.panelHeaderID EQ iPanelHeaderID
+             NO-ERROR.
+    END.
+
+    IF AVAILABLE bf-panelHeader THEN DO:
+        FOR EACH ttPanel
+            BY ttPanel.iPanelNum:
+            RUN pUpdatePanelHeader (
+                INPUT  bf-panelHeader.company,
+                INPUT  bf-panelHeader.panelHeaderID,
+                INPUT  ttPanel.cPanelType,
+                INPUT  ttPanel.iPanelNum,
+                INPUT  ttPanel.cPanelFormula,
+                INPUT  ttPanel.dScoringAllowance,
+                INPUT  ttPanel.cScoreType,
+                INPUT  ttPanel.dPanelSize,
+                INPUT  ttPanel.dPanelSizeFromFormula
+                ).                        
+        END.  
+    END.
+            
+    RELEASE bf-panelHeader. 
+END PROCEDURE.
+
+PROCEDURE UpdatePanelDetailsForStyle:
+/*------------------------------------------------------------------------------
+ Purpose: Updates/Creates panelHeader and panelDetail records for a given Style
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScoreSetType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE           FOR ttPanel.
+    
+    DEFINE VARIABLE iPanelHeaderID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company      EQ ipcCompany
+           AND bf-panelHeader.linkType     EQ gcPanelLinkTypeStyle
+           AND bf-panelHeader.styleID      EQ ipcStyleID
+           AND bf-panelHeader.fluteID      EQ ipcFluteID
+           AND bf-panelHeader.scoreSetType EQ ipcScoreSetType
+         NO-ERROR.
+    IF NOT AVAILABLE bf-panelHeader THEN DO:        
+        RUN pCreatePanelHeader (
+            INPUT  ipcCompany,
+            INPUT  gcPanelLinkTypeStyle, /* "S" */
+            INPUT  0,                    /* Purchase Order */
+            INPUT  0,                    /* Purchase Order Line */
+            INPUT  "",                   /* Estimate ID */
+            INPUT  0,                    /* Form No */
+            INPUT  0,                    /* Blank No */
+            INPUT  ipcStyleID,           /* Style ID */
+            INPUT  ipcFluteID,           /* Flute ID */
+            INPUT  ipcScoreSetType,      /* Score set Type */
+            OUTPUT iPanelHeaderID        
+            ).
+            
+        FIND FIRST bf-panelHeader NO-LOCK
+             WHERE bf-panelHeader.panelHeaderID EQ iPanelHeaderID
+             NO-ERROR.
+    END.
+
+    IF AVAILABLE bf-panelHeader THEN DO:
+        FOR EACH ttPanel
+            BY ttPanel.iPanelNum:
+            RUN pUpdatePanelHeader (
+                INPUT  bf-panelHeader.company,
+                INPUT  bf-panelHeader.panelHeaderID,
+                INPUT  ttPanel.cPanelType,
+                INPUT  ttPanel.iPanelNum,
+                INPUT  ttPanel.cPanelFormula,
+                INPUT  ttPanel.dScoringAllowance,
+                INPUT  ttPanel.cScoreType,
+                INPUT  ttPanel.dPanelSize,
+                INPUT  ttPanel.dPanelSizeFromFormula
+                ).                        
+        END.  
+    END.
+            
+    RELEASE bf-panelHeader. 
 END PROCEDURE.
 
