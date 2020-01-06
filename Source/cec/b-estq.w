@@ -69,6 +69,7 @@ DEF VAR lv-last-show-est-no AS cha NO-UNDO.
 DEF VAR lv-first-show-est-no AS cha NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
+DEFINE VARIABLE cEstType AS CHARACTER NO-UNDO .
 {sys/inc/f16to32.i}
 
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
@@ -347,6 +348,13 @@ FUNCTION display-yld-qty RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-type B-table-Win 
+FUNCTION get-type RETURNS CHARACTER
+    ()  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -549,10 +557,13 @@ DEFINE BROWSE Browser-Table
       est.updated-id COLUMN-LABEL "Modified By" FORMAT "X(8)":U
             WIDTH 15 LABEL-BGCOLOR 14
       eb.rec_key FORMAT "X(20)":U
-      eb.pur-man FORMAT "P/M":U
+      eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "Purchased/Manufacture":U
       eb.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
       est.entered-id COLUMN-LABEL "Created By" FORMAT "X(8)":U
             WIDTH 15 LABEL-BGCOLOR 14
+      get-type() @ cEstType COLUMN-LABEL "Est Type" FORMAT "x(21)":U
+            WIDTH 29.4
+
   ENABLE
       est.est-no
       eb.cust-no
@@ -717,8 +728,8 @@ ASSIGN
                 "2".
 
 ASSIGN 
-       eb.rec_key:VISIBLE IN BROWSE Browser-Table = FALSE
-       eb.pur-man:VISIBLE IN BROWSE Browser-Table = FALSE.
+       eb.rec_key:VISIBLE IN BROWSE Browser-Table = FALSE.
+       /*eb.pur-man:VISIBLE IN BROWSE Browser-Table = FALSE.*/
 
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -799,11 +810,13 @@ and est-qty.eqty = eb.eqty
      _FldNameList[23]   > ASI.eb.rec_key
 "eb.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.eb.pur-man
-"eb.pur-man" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.eb.ship-id
 "eb.ship-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.est.entered-id
 "est.entered-id" "Created By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[27]   > "_<CALC>"
+"get-type() @ cEstType" "Est Type" "x(21)" "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2740,3 +2753,53 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-type B-table-Win 
+FUNCTION get-type RETURNS CHARACTER
+    () :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cReturnType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCount AS INTEGER NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb .
+  
+  IF AVAIL est AND est.est-type EQ 5 THEN
+        cReturnType = "Single" .
+  ELSE IF AVAIL est AND est.est-type EQ 6 THEN do:
+      cReturnType = "Set " .
+      FIND FIRST bf-eb NO-LOCK
+          WHERE bf-eb.company EQ eb.company
+            AND bf-eb.est-no EQ eb.est-no 
+            AND bf-eb.form-no EQ 0 NO-ERROR .
+      IF AVAIL bf-eb  THEN do: 
+         IF bf-eb.set-is-assembled EQ YES THEN
+             cReturnType = cReturnType + " Assembled" .
+         ELSE IF bf-eb.set-is-assembled EQ NO THEN
+             cReturnType = cReturnType + " Unassembled" .
+         ELSE IF bf-eb.set-is-assembled EQ ? THEN
+             cReturnType = cReturnType + " Assembled w/Part Receipts" .
+      END.
+  END.
+  ELSE IF AVAIL est AND est.est-type EQ 8 THEN do:
+      cCount = 0 .
+      MAIN-LOOP-EB:
+      FOR EACH bf-eb NO-LOCK
+          WHERE bf-eb.company EQ eb.company
+            AND bf-eb.est-no EQ eb.est-no :
+          cCount = cCount + 1 .
+          IF cCount GE 2 THEN LEAVE MAIN-LOOP-EB .
+      END.
+      IF cCount GE 2 THEN
+          cReturnType = "Tandem" .
+      ELSE 
+          cReturnType = "Combo" .
+  END.
+
+  RETURN cReturnType .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
