@@ -529,7 +529,7 @@ DO v-local-loop = 1 TO v-local-copies:
              /* "<B>"
               "<=Board>" v-form-dscr FORMAT "x(20)" 
               "</B>"*/
-              "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
+              "<=SheetsRequired>" TRIM(string(dJobQty / ((xef.n-out-l * xef.n-out ) + (v-upw * v-upl)),">>>>>>9.99")) /*STRING(v-sht-qty)*/   FORMAT "x(9)"
 /*              "<=SheetsReceived>"*/
               /*"<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))  format "x(30)"*/
@@ -991,14 +991,14 @@ DO v-local-loop = 1 TO v-local-copies:
 
 
              PUT "<R37><C70><b> Strapper Qc   ________________" .
-             PUT "<R38><C70><b> Shipper Qc    ________________" .
-             PUT "<FArial><=51><R40><C68><FROM><R+1><C78><RECT> ". 
-                   PUT "<FArial><=51><R40><C78><FROM><R+1><C88><RECT> " .
-                   PUT "<FArial><=51><R40><C88><FROM><R+1><C98><RECT> " .
-                   PUT "<FArial><=51><R40><C98><FROM><R+1><C107><RECT> " SKIP .
-                   PUT "<R40><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
+             PUT "<R39><C70><b> Shipper Qc    ________________" .
+             PUT "<FArial><=51><R41><C68><FROM><R+1><C78><RECT> ". 
+                   PUT "<FArial><=51><R41><C78><FROM><R+1><C88><RECT> " .
+                   PUT "<FArial><=51><R41><C88><FROM><R+1><C98><RECT> " .
+                   PUT "<FArial><=51><R41><C98><FROM><R+1><C107><RECT> " SKIP .
+                   PUT "<R41><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
 
-               dLineHeight = 39.5 .
+               dLineHeight = 40.5 .
                DO i = 1 TO 4:
                    dLineHeight = dLineHeight + 1.5 . 
                    PUT "<FArial><=5><R" STRING(dLineHeight) "><C68><FROM><R+1.5><C78><RECT> ". 
