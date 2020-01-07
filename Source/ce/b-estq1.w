@@ -2635,9 +2635,7 @@ FUNCTION get-type RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cReturnType AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cCount AS INTEGER NO-UNDO.
-  DEFINE BUFFER bf-eb FOR eb .
-  
+ 
    IF AVAIL est THEN DO:
       RUN est/GetEstimateTypeDesc.p(est.company,est.est-type,
                                   est.est-no,OUTPUT cReturnType) .
