@@ -142,8 +142,8 @@ FORM HEADER
     WITH NO-BOX NO-ATTR-SPACE FRAME bott PAGE-BOTTOM STREAM-IO WIDTH 132.
      
 {custom/notesdef.i}
-DEFINE VARIABLE v-inst2          AS cha     EXTENT 20 NO-UNDO.    
-DEFINE VARIABLE v-dept-inst      AS cha     FORM "x(80)" EXTENT 20 NO-UNDO.
+DEFINE VARIABLE v-inst2          AS cha     EXTENT 40 NO-UNDO.    
+DEFINE VARIABLE v-dept-inst      AS cha     FORM "x(80)" EXTENT 40 NO-UNDO.
 DEFINE VARIABLE v-spec-inst      AS cha     FORM "x(80)" EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-note-length    AS INTEGER INIT 80 NO-UNDO.
 
@@ -1029,8 +1029,8 @@ FOR EACH ef
          
             lv-line-chars = 80.
             FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
-            {custom/notespr5.i job v-inst2 20 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
-            DO i = 1 TO 20:
+            {custom/notespr5.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
+            DO i = 1 TO 40:
                 v-dept-inst[i] = v-inst2[i].
             END.
        
@@ -1039,25 +1039,23 @@ FOR EACH ef
             "  " v-dept-inst[1] FORM "x(80)"  SKIP
             "  " v-dept-inst[2] FORM "x(80)"  SKIP
             "  " v-dept-inst[3] FORM "x(80)"  SKIP
-            "  " v-dept-inst[4] FORM "x(80)"  SKIP
-            "  " v-dept-inst[5] FORM "x(80)"  SKIP
-            "  " v-dept-inst[6] FORM "x(80)"  SKIP
-            v-fill  SKIP.  
-        PUT "<R+2><C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<C1><FROM><C82><LINE><||6>" SKIP
-            "<R-13>" 
-            "<C53><From><R+12><C53><Line><||6><R-13>" SKIP
-            "<C68><From><R+12><C68><Line><||6><R-12>" SKIP.
+            "  " v-dept-inst[4] FORM "x(80)"  SKIP.
+           DO i = 5 TO 40:
+                IF v-dept-inst[i] NE "" THEN 
+                    PUT "  "  v-dept-inst[i] FORM "x(80)"  SKIP.
+                IF PAGE-SIZE - LINE-COUNTER LE 5 THEN do:
+                     PAGE.
+                     RUN pPrintHeader(1) .
+                END.
+           END.
 
-        PUT "<FGCOLOR=GREEN>MACHINE           MR WASTE  MR HRS   RUN SPEED  SPOLL    INPUT  GOOD SHEETS/PCS   OPER INIT/DATE  <FGCOLOR=BLACK>" SKIP(1) .
+          PUT SKIP(1) v-fill  SKIP.  
+
+        PUT "<R+2><C1><FROM><C82><LINE><||6><R-4>" SKIP 
+            "<C53><From><R+3><C53><Line><||6><R-4>" SKIP
+            "<C68><From><R+3><C68><Line><||6><R-2>" .
+
+        PUT "<C1><FGCOLOR=GREEN>MACHINE           MR WASTE  MR HRS   RUN SPEED  SPOLL    INPUT  GOOD SHEETS/PCS   OPER INIT/DATE  <FGCOLOR=BLACK>" SKIP(1) .
         j = 0 .
         MAIN:
         FOR EACH wrk-op WHERE wrk-op.s-num = job-hdr.frm BREAK by wrk-op.d-seq by wrk-op.b-num:
@@ -1098,6 +1096,11 @@ FOR EACH ef
              v-spoil = ROUND( ((wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm])
                        * wrk-op.spoil[job-hdr.frm] / 100),0).
              v-output = wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm] - v-spoil.
+
+              PUT "<R+1><C1><FROM><C82><LINE><||6><R-1>"  
+                  "<C53><From><R+1><C53><Line><||6><R-1>" 
+                  "<C68><From><R+1><C68><Line><||6><R-1><C1>" .
+
              IF s-prt-mstandard THEN DO:                
                 /*IF s-run-speed THEN*/
                    PUT wrk-op.m-dscr   SPACE(2)
@@ -1111,13 +1114,12 @@ FOR EACH ef
              END.
              ELSE PUT wrk-op.m-dscr   SPACE(5)
                       SKIP.
-             j = j + 1 .
-             IF j GT 8 THEN LEAVE MAIN.
-                     
+             IF PAGE-SIZE - LINE-COUNTER LE 5 THEN do:
+                     PAGE.
+                     RUN pPrintHeader(1) .
+             END.
         end. /* each wrk-op*/
-         PUT SKIP(9 - j) .
-        PUT "<R+1><C1><FGCOLOR=GREEN>Notes:" SKIP(2)
-            "<R+1><C1><FGCOLOR=GREEN>Notes:" SKIP(3) .
+         
     END.  /* first-of eb */
           
     /*IF LAST-OF(eb.form-no) THEN 
@@ -1127,6 +1129,7 @@ FOR EACH ef
 
      v-inst2 = "".
      v-spec-cnt = 0 .
+     v-spec-inst = "" .
      FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
          AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
      {custom/notespr2.i itemfg v-inst2 4
