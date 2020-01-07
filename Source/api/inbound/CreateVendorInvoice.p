@@ -33,7 +33,7 @@ DEFINE INPUT  PARAMETER ipcVendorInvoiceLineDescription             AS CHARACTER
 DEFINE OUTPUT PARAMETER oplSuccess                                  AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                                  AS CHARACTER NO-UNDO.
 
-{api\inbound\ttRctd.i}
+{api/inbound/ttRctd.i}
 
 /* This will eventually move to setsession - START >>>*/
 &SCOPED-DEFINE NEW NEW
@@ -87,7 +87,6 @@ ASSIGN
     .
 
 RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
 
 /* Validates all required fields */
 RUN pValidations (
@@ -105,23 +104,23 @@ RUN pValidations (
     
 IF NOT oplSuccess THEN
     RETURN.
-	
+    
 /* Validates PO number and line for non-zero values */
 IF ipiVendorInvoiceLinePurchaseOrderNumber NE 0 THEN
-	RUN pValidatePODetails (
-		INPUT  ipcCompany,
-		INPUT  ipiVendorInvoiceLinePurchaseOrderNumber,
-		INPUT  ipiVendorInvoiceLinePurchaseOrderLineNumber,
-		OUTPUT cPOActNum,
-		OUTPUT lItemType,
-		OUTPUT oplSuccess,
-		OUTPUT opcMessage
-		).
+    RUN pValidatePODetails (
+        INPUT  ipcCompany,
+        INPUT  ipiVendorInvoiceLinePurchaseOrderNumber,
+        INPUT  ipiVendorInvoiceLinePurchaseOrderLineNumber,
+        OUTPUT cPOActNum,
+        OUTPUT lItemType,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
 
 IF NOT oplSuccess THEN
     RETURN.
 
-/* checks whether invoice exists or not */	
+/* checks whether invoice exists or not */  
 FIND FIRST ap-inv NO-LOCK
      WHERE ap-inv.company EQ ipcCompany
        AND ap-inv.inv-no  EQ ipcVendorInvoiceNumber
@@ -138,49 +137,49 @@ IF NOT AVAILABLE ap-inv THEN /* create a new invoice*/
      
 /* if po value is zero then account number comes from vendor */
 IF ipiVendorInvoiceLinePurchaseOrderNumber EQ 0 THEN DO:
-	FIND FIRST vend NO-LOCK 
-		 WHERE vend.company EQ ipcCompany
-		   AND vend.vend-no EQ ipcVendorID
-		 NO-ERROR. 
-	cVendActNum = vend.actnum.
+    FIND FIRST vend NO-LOCK 
+         WHERE vend.company EQ ipcCompany
+           AND vend.vend-no EQ ipcVendorID
+         NO-ERROR. 
+    IF AVAILABLE vend THEN 
+        cVendActNum = vend.actnum.
 END.
          
 /* VendorInvoiceLineAccountNumber gets value from purchase order line if it is available else from vendor */     
 IF ipcVendorInvoiceLineAccountNumber EQ "" THEN
-	ipcVendorInvoiceLineAccountNumber = IF ipiVendorInvoiceLinePurchaseOrderNumber NE 0 THEN
-											cPOActNum
-										ELSE 
-											cVendActNum
-                                        . 
-										
+    ipcVendorInvoiceLineAccountNumber = IF ipiVendorInvoiceLinePurchaseOrderNumber NE 0 THEN
+                                            cPOActNum
+                                        ELSE 
+                                            cVendActNum. 
+                                        
 /* Checks whether invoice created or not */                                         
 FIND FIRST ap-inv NO-LOCK
-	 WHERE ap-inv.company EQ ipcCompany
-	   AND ap-inv.inv-no  EQ ipcVendorInvoiceNumber
-	   AND ap-inv.vend-no EQ ipcVendorID
-	 NO-ERROR.
+     WHERE ap-inv.company EQ ipcCompany
+       AND ap-inv.inv-no  EQ ipcVendorInvoiceNumber
+       AND ap-inv.vend-no EQ ipcVendorID
+     NO-ERROR.
           
 IF AVAILABLE ap-inv THEN DO:
-	IF ipiVendorInvoiceLinePurchaseOrderNumber EQ 0 THEN DO:
-		FIND LAST  ap-invl NO-LOCK 
-			 WHERE ap-invl.company EQ ap-inv.company
-			   AND ap-invl.i-no    EQ ap-inv.i-no
-			   AND ap-invl.po-no   EQ ipiVendorInvoiceLinePurchaseOrderNumber
-			 NO-ERROR.
-			ipiVendorInvoiceLinePurchaseOrderLineNumber = IF AVAILABLE ap-invl THEN 
-															  ap-invl.line + 1
-														  ELSE
-															  ipiVendorInvoiceLinePurchaseOrderLineNumber + 1  
-														  .             
-	END. 
-	/* Checks whether invoice line exists or not */         
-	FIND FIRST ap-invl NO-LOCK 
-		 WHERE ap-invl.company EQ ap-inv.company
-		   AND ap-invl.i-no    EQ ap-inv.i-no
-		   AND ap-invl.po-no   EQ ipiVendorInvoiceLinePurchaseOrderNumber
-		   AND ap-invl.po-line EQ ipiVendorInvoiceLinePurchaseOrderLineNumber
-		 NO-ERROR.
-	IF NOT AVAILABLE ap-invl THEN DO:
+    IF ipiVendorInvoiceLinePurchaseOrderNumber EQ 0 THEN DO:
+        FIND LAST  ap-invl NO-LOCK 
+             WHERE ap-invl.company EQ ap-inv.company
+               AND ap-invl.i-no    EQ ap-inv.i-no
+               AND ap-invl.po-no   EQ ipiVendorInvoiceLinePurchaseOrderNumber
+             NO-ERROR.
+        ipiVendorInvoiceLinePurchaseOrderLineNumber = IF AVAILABLE ap-invl THEN 
+                                                          ap-invl.line + 1
+                                                      ELSE
+                                                          ipiVendorInvoiceLinePurchaseOrderLineNumber + 1  
+                                                      .             
+    END. 
+    /* Checks whether invoice line exists or not */         
+    FIND FIRST ap-invl NO-LOCK 
+         WHERE ap-invl.company EQ ap-inv.company
+           AND ap-invl.i-no    EQ ap-inv.i-no
+           AND ap-invl.po-no   EQ ipiVendorInvoiceLinePurchaseOrderNumber
+           AND ap-invl.po-line EQ ipiVendorInvoiceLinePurchaseOrderLineNumber
+         NO-ERROR.
+    IF NOT AVAILABLE ap-invl THEN DO:
         RUN pCreateNewInvoiceLine (
             INPUT  ROWID(ap-inv), 
             INPUT  ipiVendorInvoiceLinePurchaseOrderNumber,
@@ -193,57 +192,57 @@ IF AVAILABLE ap-inv THEN DO:
             INPUT  ipcVendorInvoiceLineQuantityUOM,
             INPUT  ipcVendorInvoiceLinePriceUOM,
             OUTPUT riAPInvl
-            ).
+            ) NO-ERROR.
 
-		IF NOT ERROR-STATUS:ERROR THEN DO:
-			IF NOT lItemType THEN
-				RUN pValidateFGItemReceiptQtyPrice (
-					INPUT        riapinvl,
-					INPUT        ipcCompany,
-					INPUT        ipiVendorInvoiceLinePurchaseOrderNumber,
-					INPUT        ipiVendorInvoiceLinePurchaseOrderLineNumber,
-					INPUT        ipdVendorInvoiceLineQuantity,
-					INPUT        ipdVendorInvoiceLinePrice,
-					INPUT-OUTPUT lHold,
-					INPUT-OUTPUT cHoldMessage
-					).
-			ELSE
-				RUN pValidateRMItemReceiptQtyPrice (
-					INPUT        riapinvl,
-					INPUT        ipcCompany,
-					INPUT        ipiVendorInvoiceLinePurchaseOrderNumber,
-					INPUT        ipiVendorInvoiceLinePurchaseOrderLineNumber,
-					INPUT        ipdVendorInvoiceLineQuantity,
-					INPUT        ipdVendorInvoiceLinePrice,
-					INPUT-OUTPUT lHold,
-					INPUT-OUTPUT cHoldMessage
-					). 
-		END.
-	END.
+        IF NOT ERROR-STATUS:ERROR THEN DO:
+            IF NOT lItemType THEN
+                RUN pValidateFGItemReceiptQtyPrice (
+                    INPUT        riapinvl,
+                    INPUT        ipcCompany,
+                    INPUT        ipiVendorInvoiceLinePurchaseOrderNumber,
+                    INPUT        ipiVendorInvoiceLinePurchaseOrderLineNumber,
+                    INPUT        ipdVendorInvoiceLineQuantity,
+                    INPUT        ipdVendorInvoiceLinePrice,
+                    INPUT-OUTPUT lHold,
+                    INPUT-OUTPUT cHoldMessage
+                    ).
+            ELSE
+                RUN pValidateRMItemReceiptQtyPrice (
+                    INPUT        riapinvl,
+                    INPUT        ipcCompany,
+                    INPUT        ipiVendorInvoiceLinePurchaseOrderNumber,
+                    INPUT        ipiVendorInvoiceLinePurchaseOrderLineNumber,
+                    INPUT        ipdVendorInvoiceLineQuantity,
+                    INPUT        ipdVendorInvoiceLinePrice,
+                    INPUT-OUTPUT lHold,
+                    INPUT-OUTPUT cHoldMessage
+                    ). 
+        END.
+    END.
 
-	IF lHold THEN DO:
-		FIND FIRST bf-ap-inv EXCLUSIVE-LOCK
-			 WHERE bf-ap-inv.company EQ ipcCompany
-			   AND bf-ap-inv.inv-no  EQ ipcVendorInvoiceNumber
-			   AND bf-ap-inv.vend-no EQ ipcVendorID
-			 NO-ERROR.
-		IF AVAILABLE bf-ap-inv THEN
-			bf-ap-inv.stat = "H". /* Hold */
-		DO iIndex = 1 TO NUM-ENTRIES(cHoldMessage,"|"): 
-			IF VALID-HANDLE(hdTagProcs) AND ENTRY(iIndex, cHoldMessage, "|") NE "" THEN DO:
-				RUN AddTagHold IN hdTagProcs (
-					INPUT ap-inv.REC_KEY,
-					INPUT "ap-inv",
-					INPUT ENTRY(iIndex, cHoldMessage, "|")
-					).
-			END.
-		END.
-		RELEASE bf-ap-inv.
-	END.
-	RUN pRecalculateInvoiceHeader (
-		INPUT ROWID(ap-inv), 
-		INPUT NO
-		).  
+    IF lHold THEN DO:
+        FIND FIRST bf-ap-inv EXCLUSIVE-LOCK
+             WHERE bf-ap-inv.company EQ ipcCompany
+               AND bf-ap-inv.inv-no  EQ ipcVendorInvoiceNumber
+               AND bf-ap-inv.vend-no EQ ipcVendorID
+             NO-ERROR.
+        IF AVAILABLE bf-ap-inv THEN
+            bf-ap-inv.stat = "H". /* Hold */
+        DO iIndex = 1 TO NUM-ENTRIES(cHoldMessage,"|"): 
+            IF VALID-HANDLE(hdTagProcs) AND ENTRY(iIndex, cHoldMessage, "|") NE "" THEN DO:
+                RUN AddTagHold IN hdTagProcs (
+                    INPUT ap-inv.REC_KEY,
+                    INPUT "ap-inv",
+                    INPUT ENTRY(iIndex, cHoldMessage, "|")
+                    ).
+            END.
+        END.
+        RELEASE bf-ap-inv.
+    END.
+    RUN pRecalculateInvoiceHeader (
+        INPUT ROWID(ap-inv), 
+        INPUT NO
+        ).  
 END.
 
 /* Validates required fields */
@@ -287,7 +286,7 @@ PROCEDURE pValidations:
             opcMessage = "Invalid Company (" + ipcCompany + ") entered for Invoice (" + ipcVendorInvoiceNumber + ")"
             oplSuccess = NO
             .
-    		
+            
         RETURN.
     END.
     
@@ -388,8 +387,7 @@ PROCEDURE pCreateNewInvoice:
          WHERE vend.company EQ ipcCompany
            AND vend.vend-no EQ ipcVendorID
          NO-ERROR.
-    IF AVAILABLE vend THEN 
-    DO:
+    IF AVAILABLE vend THEN DO:
         ASSIGN
             ap-inv.disc-%    = IF ipdVendorInvoiceDiscountPercentage EQ 0 THEN
                                    vend.disc-%
@@ -455,16 +453,16 @@ PROCEDURE pCreateNewInvoiceLine:
     DEFINE INPUT  PARAMETER ipdPrice                        AS DECIMAL   NO-UNDO. 
     DEFINE INPUT  PARAMETER ipdTotalAmount                  AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdSquareFeet                   AS DECIMAL   NO-UNDO.
-	DEFINE INPUT  PARAMETER ipcVendorInvoiceLineQuantityUOM AS CHARACTER NO-UNDO.
-	DEFINE INPUT  PARAMETER ipcVendorInvoiceLinePriceUOM    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorInvoiceLineQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorInvoiceLinePriceUOM    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriapinvl                      AS ROWID     NO-UNDO.
     
     FIND FIRST ap-inv NO-LOCK 
          WHERE ROWID(ap-inv) EQ ipriAPInv
          NO-ERROR.
-		
+        
     IF NOT AVAILABLE ap-inv THEN 
-		RETURN.
+        RETURN.
                       
     CREATE ap-invl.
     ASSIGN
@@ -478,7 +476,7 @@ PROCEDURE pCreateNewInvoiceLine:
         ap-invl.cons-uom   = ipcVendorInvoiceLineQuantityUOM
         ap-invl.pr-qty-uom = ipcVendorInvoiceLinePriceUOM
         ap-invl.tax        = ap-inv.tax-gr NE ""
-		ap-invl.amt        = ipdTotalAmount 
+        ap-invl.amt        = ipdTotalAmount 
         ap-invl.qty        = ipdQuantity
         ap-invl.unit-pr    = ipdPrice
         ap-invl.po-no      = ipiPoNo       
@@ -492,6 +490,10 @@ PROCEDURE pCreateNewInvoiceLine:
 END PROCEDURE.
 
 PROCEDURE pValidatePODetails:
+    /*------------------------------------------------------------------------------
+        Purpose: Validates PO details
+        Notes:
+       ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany                                  AS CHARACTER NO-UNDO. 
     DEFINE INPUT  PARAMETER ipiVendorInvoiceLinePurchaseOrderNumber     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiVendorInvoiceLinePurchaseOrderLineNumber AS INTEGER   NO-UNDO.
@@ -499,8 +501,8 @@ PROCEDURE pValidatePODetails:
     DEFINE OUTPUT PARAMETER oplItemType                                 AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess                                  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage                                  AS CHARACTER NO-UNDO. 
-	
-	oplSuccess = YES.
+    
+    oplSuccess = YES.
     
     IF NOT CAN-FIND(FIRST po-ord NO-LOCK
                     WHERE po-ord.company EQ ipcCompany
@@ -511,26 +513,26 @@ PROCEDURE pValidatePODetails:
             .
         
         RETURN.    
-   END.
+    END.
    
     FIND FIRST po-ordl NO-LOCK
          WHERE po-ordl.company EQ ipcCompany
            AND po-ordl.po-no   EQ ipiVendorInvoiceLinePurchaseOrderNumber
            AND po-ordl.line    EQ ipiVendorInvoiceLinePurchaseOrderLineNumber
           NO-ERROR.
-        IF NOT AVAILABLE po-ordl THEN DO:
-            ASSIGN
-                oplSuccess = NO
-                opcMessage = "Invalid PO Line (" + STRING(ipiVendorInvoiceLinePurchaseOrderLineNumber) + ") entered for Invoice (" + ipcVendorInvoiceNumber + ")"
-                .
-                
-            RETURN.    
-        END.
-        
-        ASSIGN 
-            opcPOActNum = po-ordl.actnum
-            oplItemType = po-ordl.item-type
+    IF NOT AVAILABLE po-ordl THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "Invalid PO Line (" + STRING(ipiVendorInvoiceLinePurchaseOrderLineNumber) + ") entered for Invoice (" + ipcVendorInvoiceNumber + ")"
             .
+            
+        RETURN.    
+    END.
+        
+    ASSIGN 
+        opcPOActNum = po-ordl.actnum
+        oplItemType = po-ordl.item-type
+        .
             
 END PROCEDURE.
 
@@ -549,43 +551,49 @@ PROCEDURE pRecalculateInvoiceHeader:
     DEFINE BUFFER bf-ap-inv  FOR ap-inv.
     DEFINE BUFFER bf-ap-invl FOR ap-invl.
 
-    FIND bf-ap-inv EXCLUSIVE-LOCK  
-    WHERE ROWID(bf-ap-inv) EQ ipriAPInv 
-    NO-ERROR.
+    FIND FIRST bf-ap-inv EXCLUSIVE-LOCK  
+         WHERE ROWID(bf-ap-inv) EQ ipriAPInv 
+         NO-ERROR.
 
-    IF AVAILABLE bf-ap-inv THEN 
-    DO:
-
+    IF AVAILABLE bf-ap-inv THEN DO: 
         IF NOT iplOverwriteTax THEN
             bf-ap-inv.tax-amt = 0.
 
         ASSIGN
             bf-ap-inv.net     = 0
-            bf-ap-inv.freight = 0.
+            bf-ap-inv.freight = 0
+            .
 
         IF bf-ap-inv.tax-gr NE "" THEN
-            RUN ar/cctaxrt.p (bf-ap-inv.company, bf-ap-inv.tax-gr,
-                OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
+            RUN ar/cctaxrt.p (
+                INPUT  bf-ap-inv.company, 
+                INPUT  bf-ap-inv.tax-gr,
+                OUTPUT dTaxRate, 
+                OUTPUT dTaxRateFreight
+                ).
 
-        FOR EACH bf-ap-invl WHERE bf-ap-invl.i-no EQ bf-ap-inv.i-no NO-LOCK:
+        FOR EACH bf-ap-invl NO-LOCK 
+            WHERE bf-ap-invl.i-no EQ bf-ap-inv.i-no:
             bf-ap-inv.net = bf-ap-inv.net + bf-ap-invl.amt.
 
             IF bf-ap-invl.tax AND NOT iplOverwriteTax THEN
                 bf-ap-inv.tax-amt = bf-ap-inv.tax-amt +
-                    ROUND((bf-ap-invl.amt * dTaxRate / 100),2).
+                                    ROUND((bf-ap-invl.amt * dTaxRate / 100),2).
 
-            IF bf-ap-invl.po-no NE 0 THEN 
-            DO:
+            IF bf-ap-invl.po-no NE 0 THEN DO: 
                 FIND FIRST po-ordl NO-LOCK 
-                    WHERE po-ordl.company EQ  bf-ap-invl.company
-                    AND po-ordl.po-no   EQ (IF bf-ap-invl.po-no EQ 0 THEN bf-ap-inv.po-no
-                    ELSE bf-ap-invl.po-no)
-                    AND po-ordl.line    EQ (bf-ap-invl.line + (bf-ap-invl.po-no * 1000 * -1)) 
-                    USE-INDEX po-no NO-ERROR.
+                     WHERE po-ordl.company EQ  bf-ap-invl.company
+                       AND po-ordl.po-no   EQ (IF bf-ap-invl.po-no EQ 0 THEN bf-ap-inv.po-no
+                     ELSE bf-ap-invl.po-no)
+                      AND po-ordl.line     EQ (bf-ap-invl.line + (bf-ap-invl.po-no * 1000 * -1)) 
+                     USE-INDEX po-no NO-ERROR.
 
-                IF AVAILABLE po-ordl THEN 
-                DO:
-                    RUN po/getfrtcs.p (ROWID(po-ordl), bf-ap-invl.qty, OUTPUT dFreight).
+                IF AVAILABLE po-ordl THEN DO: 
+                    RUN po/getfrtcs.p (
+                        INPUT ROWID(po-ordl), 
+                        INPUT bf-ap-invl.qty, 
+                        OUTPUT dFreight
+                        ).
                     bf-ap-inv.freight = bf-ap-inv.freight + dFreight.
                 END.
             END.
@@ -593,10 +601,11 @@ PROCEDURE pRecalculateInvoiceHeader:
 
         ASSIGN
             bf-ap-inv.tax-amt = bf-ap-inv.tax-amt +
-                        ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
+                                ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
             bf-ap-inv.net     = bf-ap-inv.net + bf-ap-inv.tax-amt
             bf-ap-inv.due     = bf-ap-inv.net - bf-ap-inv.disc-taken -
-                        bf-ap-inv.paid + bf-ap-inv.freight.
+                                bf-ap-inv.paid + bf-ap-inv.freight
+            .
     END.
 
     FIND CURRENT bf-ap-inv NO-LOCK.
@@ -671,18 +680,18 @@ PROCEDURE pValidateFGItemReceiptQtyPrice:
         ELSE
             lPriceMatch = FALSE.
             
-        ASSIGN
-            lQtyMatch            = TRUE.
+        lQtyMatch = TRUE.
+        
         FOR EACH fg-rcpth NO-LOCK
             WHERE fg-rcpth.company   EQ ipcCompany
-             AND fg-rcpth.i-no      EQ po-ordl.i-no
-             AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
-             AND fg-rcpth.rita-code EQ "R"
-           USE-INDEX item-po,
-           EACH fg-rdtlh EXCLUSIVE-LOCK
-           WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-             AND NOT CAN-FIND(
+              AND fg-rcpth.i-no      EQ po-ordl.i-no
+              AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+              AND fg-rcpth.rita-code EQ "R"
+            USE-INDEX item-po,
+            EACH fg-rdtlh EXCLUSIVE-LOCK
+            WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+              AND NOT CAN-FIND(
                           FIRST ap-invl 
                           WHERE ap-invl.i-no EQ INT(SUBSTR(fg-rdtlh.receiver-no,1,10))
                             AND ap-invl.line EQ (po-ordl.po-no * 1000) + po-ordl.line
@@ -699,9 +708,9 @@ PROCEDURE pValidateFGItemReceiptQtyPrice:
                           "-" + STRING(po-ordl.line) + " Quantity (" + STRING(ipdQuantity) + 
                           ") does not match"
             iopcHoldNote = IF iopcHoldNote EQ '' THEN
-                              cMessage
-                          ELSE
-                              iopcHoldNote + "|" + cMessage
+                               cMessage
+                           ELSE
+                               iopcHoldNote + "|" + cMessage
             .
         
     IF NOT lPriceMatch THEN
@@ -794,9 +803,9 @@ PROCEDURE pValidateRMItemReceiptQtyPrice:
                           "-" + STRING(po-ordl.line,"999") + ", Quantity " + STRING(ipdQuantity) + 
                           " does not match"
             iopcHoldNote = IF iopcHoldNote EQ '' THEN
-                              cMessage
-                          ELSE
-                             iopcHoldNote + "|" + cMessage
+                               cMessage
+                           ELSE
+                               iopcHoldNote + "|" + cMessage
             .
         
     IF NOT lPriceMatch THEN

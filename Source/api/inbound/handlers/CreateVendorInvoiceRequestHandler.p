@@ -43,7 +43,6 @@ DEFINE VARIABLE dVendorInvoiceLineSqFt                    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dVendorInvoiceLineAmount                  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cVendorInvoiceLineDescription             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRequesterNotes                           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lcNewQuantity                             AS LONGCHAR  NO-UNDO.
 
 {api/inbound/ttRequest.i}
 
@@ -215,7 +214,7 @@ PROCEDURE pProcessInputs:
                 OUTPUT dVendorInvoiceTotalAmount
                 ) NO-ERROR.
             
-            /* Get the count of Receipt records */
+            /* Get the count of invoice lines records */
             RUN JSON_GetRecordCountByNameAndParent (
                 INPUT  "InvoiceLines", 
                 INPUT  iInvoicesFieldOrder, 
