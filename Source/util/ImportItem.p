@@ -25,9 +25,9 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD est-dscr             AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Est.DESC" HELP "Optional - Size:30"
     FIELD i-code               AS CHARACTER FORMAT "x(14)" COLUMN-LABEL "Item Code" HELP "Optional - Size: RM Stocked or Estimated Mat'1"
     FIELD tax-rcpt             AS CHARACTER FORMAT "x" COLUMN-LABEL "Taxable" HELP "Optional - Y or N (blank=N)"
-    FIELD mat-type             AS CHARACTER FORMAT "x" COLUMN-LABEL "Mat'l Type" HELP "Optional - Size:1"
-    FIELD cost-type            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost Type" HELP "Optional - Size:3"
-    FIELD procat               AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Category" HELP "Optional - Size:20"
+    FIELD mat-type             AS CHARACTER FORMAT "x" COLUMN-LABEL "Mat'l Type" HELP "Required - Size:1"
+    FIELD cost-type            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost Type" HELP "Required - Size:3"
+    FIELD procat               AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Category" HELP "Required - Size:20"
     FIELD q-ptd                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "QTY Usage PTD" HELP "Optional - Decimal"
     FIELD q-ytd                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Usage YTD" HELP "Optional - Decimal"
     FIELD q-lyr                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Usage Last YR" HELP "Optional - Decimal"
@@ -225,7 +225,22 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Mat'l Type is Blank".
+    END.  
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.cost-type EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Cost Type is Blank".
+    END.  
+     IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.procat EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Category is Blank".
     END. 
+    
      IF oplValid THEN 
     DO:
         IF ipbf-ttImportItem.ind-type EQ '' THEN 
