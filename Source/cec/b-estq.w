@@ -2765,39 +2765,12 @@ FUNCTION get-type RETURNS CHARACTER
   DEFINE VARIABLE cCount AS INTEGER NO-UNDO.
   DEFINE BUFFER bf-eb FOR eb .
   
-  IF AVAIL est AND est.est-type EQ 5 THEN
-        cReturnType = "Single" .
-  ELSE IF AVAIL est AND est.est-type EQ 6 THEN do:
-      cReturnType = "Set " .
-      FIND FIRST bf-eb NO-LOCK
-          WHERE bf-eb.company EQ eb.company
-            AND bf-eb.est-no EQ eb.est-no 
-            AND bf-eb.form-no EQ 0 NO-ERROR .
-      IF AVAIL bf-eb  THEN do: 
-         IF bf-eb.set-is-assembled EQ YES THEN
-             cReturnType = cReturnType + " Assembled" .
-         ELSE IF bf-eb.set-is-assembled EQ NO THEN
-             cReturnType = cReturnType + " Unassembled" .
-         ELSE IF bf-eb.set-is-assembled EQ ? THEN
-             cReturnType = cReturnType + " Assembled w/Part Receipts" .
-      END.
-  END.
-  ELSE IF AVAIL est AND est.est-type EQ 8 THEN do:
-      cCount = 0 .
-      MAIN-LOOP-EB:
-      FOR EACH bf-eb NO-LOCK
-          WHERE bf-eb.company EQ eb.company
-            AND bf-eb.est-no EQ eb.est-no :
-          cCount = cCount + 1 .
-          IF cCount GE 2 THEN LEAVE MAIN-LOOP-EB .
-      END.
-      IF cCount GE 2 THEN
-          cReturnType = "Tandem" .
-      ELSE 
-          cReturnType = "Combo" .
-  END.
+   IF AVAIL est THEN DO:
+      RUN est/GetEstimateTypeDesc.p(est.company,est.est-type,
+                                  est.est-no,OUTPUT cReturnType) .
+   END.
 
-  RETURN cReturnType .
+   RETURN cReturnType .
 
 END FUNCTION.
 
