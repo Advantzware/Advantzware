@@ -36,7 +36,7 @@ DEFINE VARIABLE glUseQtyFrom        AS LOGICAL   NO-UNDO.
 /* ************************  Function Prototypes ********************** */
 
 FUNCTION GetValidScopes RETURNS CHARACTER 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 
 
@@ -128,14 +128,14 @@ PROCEDURE BuildVendItemCosts:
         CREATE ttVendItemCost.
         BUFFER-COPY bf-vendItemCost TO ttVendItemCost.
         ASSIGN 
-            ttVendItemCost.isExpired = bf-vendItemCost.expirationDate LT TODAY AND bf-vendItemCost.expirationDate NE ? AND bf-vendItemCost.expirationDate NE 01/01/0001
-            ttVendItemCost.isNotEffective = bf-vendItemCost.effectiveDate GT TODAY
-            ttVendItemCost.quantityTarget = ipdQuantity
+            ttVendItemCost.isExpired                 = bf-vendItemCost.expirationDate LT TODAY AND bf-vendItemCost.expirationDate NE ? AND bf-vendItemCost.expirationDate NE 01/01/0001
+            ttVendItemCost.isNotEffective            = bf-vendItemCost.effectiveDate GT TODAY
+            ttVendItemCost.quantityTarget            = ipdQuantity
             ttVendItemCost.quantityTargetInVendorUOM = ipdQuantity
-            ttVendItemCost.quantityTargetUOM = ipcQuantityUOM
-            ttVendItemCost.dimLengthInVendorDimUOM = ipdDimLength
-            ttVendItemCost.dimWidthInVendorDimUOM = ipdDimWidth
-            ttVendItemCost.dimDepthInVendorDimUOM = ipdDimDepth
+            ttVendItemCost.quantityTargetUOM         = ipcQuantityUOM
+            ttVendItemCost.dimLengthInVendorDimUOM   = ipdDimLength
+            ttVendItemCost.dimWidthInVendorDimUOM    = ipdDimWidth
+            ttVendItemCost.dimDepthInVendorDimUOM    = ipdDimDepth
             .
         IF ttVendItemCost.isExpired  THEN 
             ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + "Expired,".
@@ -191,16 +191,17 @@ PROCEDURE BuildVendItemCosts:
         ttVendItemCost.reasonNotValid = TRIM(TRIM(ttVendItemCost.reasonNotValid,",")).
         IF ttVendItemCost.reasonNotValid EQ "" THEN 
             ttVendItemCost.isValid = YES.
-        IF ttVendItemCost.isValid THEN DO:
+        IF ttVendItemCost.isValid THEN 
+        DO:
             RUN pGetVendorCosts(BUFFER bf-vendItemCost, ttVendItemCost.quantityTargetInVendorUOM, 
-            ttVendItemCost.dimLengthInVendorDimUOM, ttVendItemCost.dimWidthInVendorDimUOM, ttVendItemCost.dimUOM, 
-            OUTPUT ttVendItemCost.costPerVendorUOM, OUTPUT ttVendItemCost.costSetup, OUTPUT ttVendItemCost.costPerVendorUOMUpcharge, OUTPUT ttVendItemCost.costTotal,
-            OUTPUT oplError, INPUT-OUTPUT opcMessage).
+                ttVendItemCost.dimLengthInVendorDimUOM, ttVendItemCost.dimWidthInVendorDimUOM, ttVendItemCost.dimUOM, 
+                OUTPUT ttVendItemCost.costPerVendorUOM, OUTPUT ttVendItemCost.costSetup, OUTPUT ttVendItemCost.costPerVendorUOMUpcharge, OUTPUT ttVendItemCost.costTotal,
+                OUTPUT oplError, INPUT-OUTPUT opcMessage).
             IF oplError THEN 
                 ASSIGN 
-                ttVendItemCost.isValid = NO 
-                ttVendItemCost.reasonNotValid = opcMessage
-                .
+                    ttVendItemCost.isValid        = NO 
+                    ttVendItemCost.reasonNotValid = opcMessage
+                    .
         END.
     END.   
 
@@ -500,10 +501,11 @@ PROCEDURE GetDimCharge:
     DEFINE BUFFER bf-vendItemCost FOR VendItemCost.
     
     FIND FIRST bf-vendItemCost NO-LOCK 
-         WHERE ROWID(bf-vendItemCost) EQ ipriID
-         NO-ERROR.
+        WHERE ROWID(bf-vendItemCost) EQ ipriID
+        NO-ERROR.
          
-    IF NOT AVAILABLE bf-vendItemCost THEN DO:
+    IF NOT AVAILABLE bf-vendItemCost THEN 
+    DO:
         ASSIGN 
             oplError   = TRUE
             opcMessage = "Invalid vendItemCost record"
@@ -542,14 +544,14 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cUom      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dQty      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCalcCost AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dSetup    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lIsABoard AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cFGItem   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendID   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cUom        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQty        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCalcCost   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSetup      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lIsABoard   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFGItem     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
 
     DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
@@ -558,8 +560,8 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
       
-    DEFINE VARIABLE cRtnChar   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnChar    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
     
     /* Empty temp-table for every build so that, when running persistently
        doesn't populate unwanted records */       
@@ -581,8 +583,8 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
     DEFINE BUFFER bf-itemfg            FOR itemfg.
     
     FIND FIRST bf-job-mat NO-LOCK
-         WHERE RECID(bf-job-mat) EQ ipriJobMat
-         NO-ERROR.
+        WHERE RECID(bf-job-mat) EQ ipriJobMat
+        NO-ERROR.
                  
     FOR EACH bf-report NO-LOCK 
         WHERE bf-report.term-id EQ ipcTerm:
@@ -592,24 +594,25 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
             NEXT.
             
         FIND FIRST bf-vendItemCostLevel NO-LOCK 
-             WHERE RECID(bf-vendItemCostLevel) EQ bf-unique-report.rec-id
-             NO-ERROR.
+            WHERE RECID(bf-vendItemCostLevel) EQ bf-unique-report.rec-id
+            NO-ERROR.
         
         IF AVAILABLE bf-vendItemCostLevel THEN     
             FIND FIRST bf-vendItemCost NO-LOCK   
-                 WHERE bf-vendItemCost.vendItemCostID EQ bf-vendItemCostLevel.vendItemCostID 
-                 NO-ERROR.
+                WHERE bf-vendItemCost.vendItemCostID EQ bf-vendItemCostLevel.vendItemCostID 
+                NO-ERROR.
         
         IF AVAILABLE bf-vendItemCost THEN
             cUom = bf-vendItemCost.vendorUOM.                                   
 
         dCalcCost = DECIMAL(bf-unique-report.key-01).
                
-        IF bf-unique-report.key-08 EQ "RECALC" AND AVAILABLE(bf-vendItemCost) AND ipdQty GT 0 THEN DO:      
+        IF bf-unique-report.key-08 EQ "RECALC" AND AVAILABLE(bf-vendItemCost) AND ipdQty GT 0 THEN 
+        DO:      
             FIND FIRST bf-itemfg NO-LOCK
-                 WHERE bf-itemfg.company EQ ipcCompany
-                   AND bf-itemfg.i-no    EQ bf-vendItemCost.itemID 
-                 NO-ERROR.
+                WHERE bf-itemfg.company EQ ipcCompany
+                AND bf-itemfg.i-no    EQ bf-vendItemCost.itemID 
+                NO-ERROR.
 
             RUN GetVendorCost(
                 INPUT  bf-vendItemCost.company, 
@@ -646,30 +649,31 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
         END.
       
         FIND FIRST bf-vend NO-LOCK
-             WHERE bf-vend.company EQ ipcCompany
-               AND bf-vend.vend-no EQ cVendID
-             NO-ERROR.
+            WHERE bf-vend.company EQ ipcCompany
+            AND bf-vend.vend-no EQ cVendID
+            NO-ERROR.
        
         CREATE tt-report.
-        ASSIGN tt-report.key-02      = IF bf-unique-report.key-08 EQ "RECALC" THEN 
+        ASSIGN 
+            tt-report.key-02      = IF bf-unique-report.key-08 EQ "RECALC" THEN 
                                            STRING(ipdQty) 
                                        ELSE 
                                            bf-unique-report.key-02
-               tt-report.key-03      = bf-unique-report.key-03
-               tt-report.key-04      = bf-unique-report.key-04
-               tt-report.vend-name   = IF AVAILABLE bf-vend THEN 
+            tt-report.key-03      = bf-unique-report.key-03
+            tt-report.key-04      = bf-unique-report.key-04
+            tt-report.vend-name   = IF AVAILABLE bf-vend THEN 
                                            bf-vend.name 
                                        ELSE 
                                            ""
-               tt-report.report-cost = dCalcCost
-               tt-report.disc-days   = IF AVAILABLE bf-vend THEN 
+            tt-report.report-cost = dCalcCost
+            tt-report.disc-days   = IF AVAILABLE bf-vend THEN 
                                            bf-vend.disc-days 
                                        ELSE
                                            0 
-               tt-report.ext-price   = DECIMAL(bf-unique-report.key-02) * tt-report.report-cost
-               tt-report.rec-id      = RECID(bf-unique-report)
-               tt-report.cost-uom    = cUom
-               .
+            tt-report.ext-price   = DECIMAL(bf-unique-report.key-02) * tt-report.report-cost
+            tt-report.rec-id      = RECID(bf-unique-report)
+            tt-report.cost-uom    = cUom
+            .
 
         IF AVAILABLE bf-vendItemCost THEN
             ASSIGN
@@ -682,10 +686,10 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
        
         IF AVAILABLE bf-job-mat THEN
             FIND FIRST bf-job-hdr NO-LOCK 
-                 WHERE bf-job-hdr.company EQ bf-job-mat.company
-                   AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
-                   AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
-                 NO-ERROR.
+                WHERE bf-job-hdr.company EQ bf-job-mat.company
+                AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
+                AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
+                NO-ERROR.
       
         IF AVAILABLE bf-job-hdr THEN
             cFGItem  = bf-job-hdr.i-no.
@@ -694,19 +698,19 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
 
         FOR EACH bf-fg-rcpth FIELDS(r-no rita-code po-no) NO-LOCK
             WHERE bf-fg-rcpth.company EQ ipcCompany 
-              AND bf-fg-rcpth.i-no    EQ cFGItem
-              AND bf-fg-rcpth.po-no   NE "" 
-              AND bf-fg-rcpth.rita-code EQ "R",
+            AND bf-fg-rcpth.i-no    EQ cFGItem
+            AND bf-fg-rcpth.po-no   NE "" 
+            AND bf-fg-rcpth.rita-code EQ "R",
             FIRST bf-fg-rdtlh NO-LOCK 
             WHERE bf-fg-rdtlh.r-no      EQ bf-fg-rcpth.r-no 
-              AND bf-fg-rdtlh.rita-code EQ bf-fg-rcpth.rita-code             
-               BY bf-fg-rcpth.trans-date DESCENDING
-               BY bf-fg-rdtlh.trans-time DESCENDING:
+            AND bf-fg-rdtlh.rita-code EQ bf-fg-rcpth.rita-code             
+            BY bf-fg-rcpth.trans-date DESCENDING
+            BY bf-fg-rdtlh.trans-time DESCENDING:
         
             FIND FIRST bf-po-ord NO-LOCK 
-                 WHERE bf-po-ord.company EQ ipcCompany 
-                   AND bf-po-ord.po-no   EQ INTEGER(bf-fg-rcpth.po-no)
-                 NO-ERROR.
+                WHERE bf-po-ord.company EQ ipcCompany 
+                AND bf-po-ord.po-no   EQ INTEGER(bf-fg-rcpth.po-no)
+                NO-ERROR.
             IF AVAILABLE bf-po-ord AND tt-report.key-03 EQ bf-po-ord.vend-no THEN
                 cVendID = bf-po-ord.vend-no.
                                  
@@ -719,40 +723,43 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
   
     lIsABoard = TRUE.
 
-    IF AVAILABLE bf-job-mat THEN DO:  
+    IF AVAILABLE bf-job-mat THEN 
+    DO:  
         FIND FIRST bf-job-hdr NO-LOCK 
-             WHERE bf-job-hdr.company EQ bf-job-mat.company
-               AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
-               AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
-             NO-ERROR.
+            WHERE bf-job-hdr.company EQ bf-job-mat.company
+            AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
+            AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
+            NO-ERROR.
       
         FIND FIRST bf-item NO-LOCK 
-             WHERE bf-item.company EQ bf-job-mat.company
-               AND bf-item.i-no    EQ bf-job-mat.i-no
-             NO-ERROR.
+            WHERE bf-item.company EQ bf-job-mat.company
+            AND bf-item.i-no    EQ bf-job-mat.i-no
+            NO-ERROR.
         IF AVAILABLE bf-item AND bf-item.mat-type NE "B" THEN
             lIsABoard = FALSE.
     END.
     
     IF AVAILABLE bf-job-hdr AND bf-job-hdr.est-no GT "" THEN
         FIND FIRST bf-est NO-LOCK 
-             WHERE bf-est.company EQ bf-job-hdr.company
-               AND bf-est.est-no  EQ bf-job-hdr.est-no
-             NO-ERROR.
+            WHERE bf-est.company EQ bf-job-hdr.company
+            AND bf-est.est-no  EQ bf-job-hdr.est-no
+            NO-ERROR.
 
-    IF AVAILABLE bf-est AND lIsABoard THEN DO:
+    IF AVAILABLE bf-est AND lIsABoard THEN 
+    DO:
         ADDER-BLOCK:
         FOR EACH tt-report.   
             FOR EACH bf-ef NO-LOCK
                 WHERE bf-ef.company EQ bf-est.company
-                  AND bf-ef.est-no  EQ bf-est.est-no
-                  AND CAN-FIND(FIRST eb OF bf-ef WHERE NOT eb.pur-man):
+                AND bf-ef.est-no  EQ bf-est.est-no
+                AND CAN-FIND(FIRST eb OF bf-ef WHERE NOT eb.pur-man):
                 DO iIndex = 1 TO 6:
                     IF bf-ef.adder[iIndex] NE "" AND
                         NOT CAN-FIND(FIRST vendItemCost 
-                                     WHERE vendItemCost.company = ipcCompany
-                                       AND vendItemCost.itemID  = bf-ef.adder[iIndex]
-                                       AND vendItemCost.vendorID = tt-report.key-03) THEN DO:
+                        WHERE vendItemCost.company = ipcCompany
+                        AND vendItemCost.itemID  = bf-ef.adder[iIndex]
+                        AND vendItemCost.vendorID = tt-report.key-03) THEN 
+                    DO:
                         DELETE tt-report.
                         NEXT ADDER-BLOCK.
                     END.
@@ -799,14 +806,14 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cUom      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dQty      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCalcCost AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dSetup    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lIsABoard AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cFGItem   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendID   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cUom       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQty       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCalcCost  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSetup     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lIsABoard  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFGItem    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendID    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
 
     DEFINE VARIABLE dWid       AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dLen       AS DECIMAL   NO-UNDO.
@@ -839,8 +846,8 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
     DEFINE BUFFER bf-itemfg        FOR itemfg.
     
     FIND FIRST bf-job-mat NO-LOCK
-         WHERE RECID(bf-job-mat) EQ ipriJobMat
-         NO-ERROR.
+        WHERE RECID(bf-job-mat) EQ ipriJobMat
+        NO-ERROR.
 
     /* Code to fetch sys-ctrl configuration "MSFCALC" log field */
     RUN sys/ref/nk1look.p (
@@ -866,12 +873,12 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
             NEXT.
             
         FIND FIRST bf-e-item-vend NO-LOCK 
-             WHERE RECID(bf-e-item-vend) EQ bf-unique-report.rec-id
-             NO-ERROR.
+            WHERE RECID(bf-e-item-vend) EQ bf-unique-report.rec-id
+            NO-ERROR.
         IF NOT AVAILABLE bf-e-item-vend THEN
             FIND FIRST bf-e-itemfg-vend NO-LOCK
-                 WHERE RECID(bf-e-itemfg-vend) EQ bf-unique-report.rec-id
-                 NO-ERROR.
+                WHERE RECID(bf-e-itemfg-vend) EQ bf-unique-report.rec-id
+                NO-ERROR.
         
         ASSIGN
             cUom    = ""
@@ -884,34 +891,36 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
                 cVendID = bf-e-item-vend.vend-no
                 .
         ELSE IF AVAILABLE bf-e-itemfg-vend THEN
-            ASSIGN
-                cUom    = bf-e-itemfg-vend.std-uom
-                cVendID = bf-e-itemfg-vend.vend-no
-                .
+                ASSIGN
+                    cUom    = bf-e-itemfg-vend.std-uom
+                    cVendID = bf-e-itemfg-vend.vend-no
+                    .
                                    
         dCalcCost = DECIMAL(bf-unique-report.key-01).
 
-        IF cUom EQ "" THEN DO:
+        IF cUom EQ "" THEN 
+        DO:
             FIND FIRST bf-e-itemfg NO-LOCK 
-                 WHERE bf-e-itemfg.company EQ ipcCompany
-                   AND bf-e-itemfg.i-no    EQ bf-unique-report.key-08
-                 NO-ERROR.
+                WHERE bf-e-itemfg.company EQ ipcCompany
+                AND bf-e-itemfg.i-no    EQ bf-unique-report.key-08
+                NO-ERROR.
             IF AVAILABLE bf-e-itemfg THEN
                 cUom = bf-e-itemfg.std-uom.
         END.
                
-        IF bf-unique-report.key-08 EQ "RECALC" AND AVAILABLE(bf-e-itemfg-vend) AND ipdQty GT 0 THEN DO:      
+        IF bf-unique-report.key-08 EQ "RECALC" AND AVAILABLE(bf-e-itemfg-vend) AND ipdQty GT 0 THEN 
+        DO:      
             FIND FIRST bf-itemfg NO-LOCK
-                 WHERE bf-itemfg.company EQ ipcCompany
-                   AND bf-itemfg.i-no    EQ bf-e-itemfg-vend.i-no 
-                 NO-ERROR.
+                WHERE bf-itemfg.company EQ ipcCompany
+                AND bf-itemfg.i-no    EQ bf-e-itemfg-vend.i-no 
+                NO-ERROR.
             IF AVAILABLE bf-itemfg THEN 
                 ASSIGN
-                     dWid    = bf-itemfg.t-wid
-                     dLen    = bf-itemfg.t-len
-                     dDep    = 0
-                     dBasisW = bf-itemfg.t-wid * bf-itemfg.t-len * 100
-                     dBasisW = bf-itemfg.weight-100 /
+                    dWid    = bf-itemfg.t-wid
+                    dLen    = bf-itemfg.t-len
+                    dDep    = 0
+                    dBasisW = bf-itemfg.t-wid * bf-itemfg.t-len * 100
+                    dBasisW = bf-itemfg.weight-100 /
                                (IF lCorr THEN 
                                     (dBasisW * .007)
                                 ELSE 
@@ -948,30 +957,31 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
         END.
       
         FIND FIRST bf-vend NO-LOCK
-             WHERE bf-vend.company EQ ipcCompany
-               AND bf-vend.vend-no EQ cVendID
-             NO-ERROR.
+            WHERE bf-vend.company EQ ipcCompany
+            AND bf-vend.vend-no EQ cVendID
+            NO-ERROR.
        
         CREATE tt-report.
-        ASSIGN tt-report.key-02      = IF bf-unique-report.key-08 EQ "RECALC" THEN 
+        ASSIGN 
+            tt-report.key-02      = IF bf-unique-report.key-08 EQ "RECALC" THEN 
                                            STRING(ipdQty) 
                                        ELSE 
                                            bf-unique-report.key-02
-               tt-report.key-03      = bf-unique-report.key-03
-               tt-report.key-04      = bf-unique-report.key-04
-               tt-report.vend-name   = IF AVAILABLE bf-vend THEN 
+            tt-report.key-03      = bf-unique-report.key-03
+            tt-report.key-04      = bf-unique-report.key-04
+            tt-report.vend-name   = IF AVAILABLE bf-vend THEN 
                                            bf-vend.name 
                                        ELSE 
                                            ""
-               tt-report.report-cost = dCalcCost
-               tt-report.disc-days   = IF AVAILABLE bf-vend THEN 
+            tt-report.report-cost = dCalcCost
+            tt-report.disc-days   = IF AVAILABLE bf-vend THEN 
                                            bf-vend.disc-days 
                                        ELSE
                                            0 
-               tt-report.ext-price   = DECIMAL(bf-unique-report.key-02) * tt-report.report-cost
-               tt-report.rec-id      = RECID(bf-unique-report)
-               tt-report.cost-uom    = cUom
-               .
+            tt-report.ext-price   = DECIMAL(bf-unique-report.key-02) * tt-report.report-cost
+            tt-report.rec-id      = RECID(bf-unique-report)
+            tt-report.cost-uom    = cUom
+            .
 
         IF AVAILABLE bf-e-itemfg-vend THEN
             ASSIGN
@@ -984,10 +994,10 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
        
         IF AVAILABLE bf-job-mat THEN
             FIND FIRST bf-job-hdr NO-LOCK 
-                 WHERE bf-job-hdr.company EQ bf-job-mat.company
-                   AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
-                   AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
-                 NO-ERROR.
+                WHERE bf-job-hdr.company EQ bf-job-mat.company
+                AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
+                AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
+                NO-ERROR.
       
         IF AVAILABLE bf-job-hdr THEN
             cFGItem  = bf-job-hdr.i-no.
@@ -996,19 +1006,19 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
 
         FOR EACH bf-fg-rcpth FIELDS(r-no rita-code po-no) NO-LOCK
             WHERE bf-fg-rcpth.company EQ ipcCompany 
-              AND bf-fg-rcpth.i-no    EQ cFGItem
-              AND bf-fg-rcpth.po-no   NE "" 
-              AND bf-fg-rcpth.rita-code EQ "R",
+            AND bf-fg-rcpth.i-no    EQ cFGItem
+            AND bf-fg-rcpth.po-no   NE "" 
+            AND bf-fg-rcpth.rita-code EQ "R",
             FIRST bf-fg-rdtlh NO-LOCK 
             WHERE bf-fg-rdtlh.r-no      EQ bf-fg-rcpth.r-no 
-              AND bf-fg-rdtlh.rita-code EQ bf-fg-rcpth.rita-code             
-               BY bf-fg-rcpth.trans-date DESCENDING
-               BY bf-fg-rdtlh.trans-time DESCENDING:
+            AND bf-fg-rdtlh.rita-code EQ bf-fg-rcpth.rita-code             
+            BY bf-fg-rcpth.trans-date DESCENDING
+            BY bf-fg-rdtlh.trans-time DESCENDING:
         
             FIND FIRST bf-po-ord NO-LOCK 
-                 WHERE bf-po-ord.company EQ ipcCompany 
-                   AND bf-po-ord.po-no   EQ INTEGER(bf-fg-rcpth.po-no)
-                 NO-ERROR.
+                WHERE bf-po-ord.company EQ ipcCompany 
+                AND bf-po-ord.po-no   EQ INTEGER(bf-fg-rcpth.po-no)
+                NO-ERROR.
             IF AVAILABLE bf-po-ord AND tt-report.key-03 EQ bf-po-ord.vend-no THEN
                 cVendID = bf-po-ord.vend-no.
                                  
@@ -1021,40 +1031,43 @@ PROCEDURE pBuildVendorCostFromReportUsingOldTables PRIVATE:
   
     lIsABoard = TRUE.
 
-    IF AVAILABLE bf-job-mat THEN DO:  
+    IF AVAILABLE bf-job-mat THEN 
+    DO:  
         FIND FIRST bf-job-hdr NO-LOCK 
-             WHERE bf-job-hdr.company EQ bf-job-mat.company
-               AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
-               AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
-             NO-ERROR.
+            WHERE bf-job-hdr.company EQ bf-job-mat.company
+            AND bf-job-hdr.job-no  EQ bf-job-mat.job-no
+            AND bf-job-hdr.job-no2 EQ bf-job-mat.job-no2
+            NO-ERROR.
       
         FIND FIRST bf-item NO-LOCK 
-             WHERE bf-item.company EQ bf-job-mat.company
-               AND bf-item.i-no    EQ bf-job-mat.i-no
-             NO-ERROR.
+            WHERE bf-item.company EQ bf-job-mat.company
+            AND bf-item.i-no    EQ bf-job-mat.i-no
+            NO-ERROR.
         IF AVAILABLE bf-item AND bf-item.mat-type NE "B" THEN
             lIsABoard = FALSE.
     END.
     
     IF AVAILABLE bf-job-hdr AND bf-job-hdr.est-no GT "" THEN
         FIND FIRST bf-est NO-LOCK 
-             WHERE bf-est.company EQ bf-job-hdr.company
-               AND bf-est.est-no  EQ bf-job-hdr.est-no
-             NO-ERROR.
+            WHERE bf-est.company EQ bf-job-hdr.company
+            AND bf-est.est-no  EQ bf-job-hdr.est-no
+            NO-ERROR.
 
-    IF AVAILABLE bf-est AND lIsABoard THEN DO:
+    IF AVAILABLE bf-est AND lIsABoard THEN 
+    DO:
         ADDER-BLOCK:
         FOR EACH tt-report.   
             FOR EACH bf-ef NO-LOCK
                 WHERE bf-ef.company EQ bf-est.company
-                  AND bf-ef.est-no  EQ bf-est.est-no
-                  AND CAN-FIND(FIRST eb OF bf-ef WHERE NOT eb.pur-man):
+                AND bf-ef.est-no  EQ bf-est.est-no
+                AND CAN-FIND(FIRST eb OF bf-ef WHERE NOT eb.pur-man):
                 DO iIndex = 1 TO 6:
                     IF bf-ef.adder[iIndex] NE "" AND
                         NOT CAN-FIND(FIRST e-item-vend
-                                     WHERE e-item-vend.company EQ ipcCompany
-                                       AND e-item-vend.i-no    EQ bf-ef.adder[iIndex]
-                                       AND e-item-vend.vend-no EQ tt-report.key-03) THEN DO:
+                        WHERE e-item-vend.company EQ ipcCompany
+                        AND e-item-vend.i-no    EQ bf-ef.adder[iIndex]
+                        AND e-item-vend.vend-no EQ tt-report.key-03) THEN 
+                    DO:
                         DELETE tt-report.
                         NEXT ADDER-BLOCK.
                     END.
@@ -1391,7 +1404,10 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
     DEFINE VARIABLE cMsgRMInputs    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgFGInputs    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgUsing       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstNoFromItem  AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+        
     &SCOPED-DEFINE RequiredCriteria WHERE opbf-vendItemCost.company EQ ipcCompany ~
                                 AND opbf-vendItemCost.itemID EQ ipcItemID ~
                                 AND opbf-vendItemCost.itemType EQ ipcItemType ~
@@ -1482,10 +1498,43 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                         AND opbf-vendItemCost.vendorID EQ ""
                         AND opbf-vendItemCost.customerID EQ ""
                         NO-ERROR.
-                    ASSIGN 
-                        cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID)
-                        cMsgUsing = cMsgUsing + cMsgConstCust + (IF opbf-vendItemCost.customerID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.customerID)
-                        .
+                    IF NOT AVAILABLE opbf-vendItemCost THEN 
+                    DO: /*Match based on estimate for FG Item #*/
+                        FIND FIRST bf-itemfg NO-LOCK 
+                            WH  ERE bf-itemfg.company EQ ipcCompany
+                            AND bf-itemfg.i-no EQ ipcItemID
+                            NO-ERROR.
+                        IF AVAILABLE bf-itemfg AND TRIM(bf-itemfg.est-no) NE "" THEN 
+                        DO:
+                            cEstNoFromItem = bf-itemfg.est-no.
+                            FIND FIRST opbf-vendItemCost NO-LOCK /*Match with estimate from FG Item and customer*/
+                                {&RequiredCriteria}
+                                AND opbf-vendItemCost.estimateNo EQ cEstNoFromItem
+                                AND opbf-vendItemCost.vendorID EQ ipcVendorID
+                                AND opbf-vendItemCost.customerID EQ ipcCustomerID
+                                NO-ERROR.
+                            IF NOT AVAILABLE opbf-vendItemCost THEN
+                                FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank customer*/
+                                {&RequiredCriteria}
+                                AND opbf-vendItemCost.estimateNo EQ cEstNoFromItem
+                                AND opbf-vendItemCost.vendorID EQ ipcVendorID
+                                AND opbf-vendItemCost.customerID EQ ""
+                                NO-ERROR.
+                            IF NOT AVAILABLE opbf-vendItemCost THEN 
+                                FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
+                                {&RequiredCriteria}
+                                AND opbf-vendItemCost.estimateNo EQ cEstNoFromItem
+                                AND opbf-vendItemCost.vendorID EQ ""
+                                AND opbf-vendItemCost.customerID EQ ""
+                                NO-ERROR.
+                        END.
+                    END.
+                    IF AVAILABLE opbf-vendItemCost THEN 
+                        ASSIGN 
+                            cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID)
+                            cMsgUsing = cMsgUsing + cMsgConstCust + (IF opbf-vendItemCost.customerID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.customerID)
+                            cMsgUsing = cMsgUsing + cMsgConstEst + (IF opbf-vendItemCost.EstimateNo EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.estimateNo + " from FG Item")
+                            .
                 END.    
             END.
             IF AVAILABLE opbf-vendItemCost THEN 
@@ -1634,12 +1683,12 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION GetValidScopes RETURNS CHARACTER 
-	(  ):
-/*------------------------------------------------------------------------------
- Purpose: returns the global property of valid scopes
- Notes:
-------------------------------------------------------------------------------*/	
-	RETURN gcScopeList.
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose: returns the global property of valid scopes
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN gcScopeList.
 		
 END FUNCTION.
 
