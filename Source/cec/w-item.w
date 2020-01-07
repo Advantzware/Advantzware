@@ -45,6 +45,7 @@ CREATE WIDGET-POOL.
 
 /* to have item spec note window instead regular specnote window */
 &scoped-define item_spec RMItem  
+&scoped-define setUserExit setUserExit
 
 def var li-current-page as int INIT 1 no-undo.
 def var li-prev-page as int INIT 1 no-undo.
@@ -975,7 +976,7 @@ PROCEDURE local-change-page :
         ASSIGN 
             li-page-b4VendCost = li-prev-page.        
         RUN select-page (11).
-                
+
         RETURN.
     END. 
     
@@ -1060,14 +1061,17 @@ PROCEDURE local-exit :
       Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
 
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
-    
+
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    /*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').*/
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).    
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = "" ' ).   
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).    */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).       */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).      */
+
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
@@ -1116,6 +1120,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win
+PROCEDURE setUserExit:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+ ------------------------------------------------------------------------------*/
+
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    /*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').*/
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).    
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = "" ' ).   
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).    */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).       */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).      */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
