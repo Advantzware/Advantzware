@@ -867,7 +867,7 @@ PROCEDURE buildRptRecs :
     /*****************************************/
     /* Create report records                 */
     /*****************************************/    
-    FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.         
+    FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.            
     IF AVAILABLE tt-ei THEN 
     DO:        
         FOR EACH tt-eiv
@@ -3270,15 +3270,18 @@ PROCEDURE processJobMat :
             ELSE RUN createTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
         END.
         ELSE 
-        DO:
+        DO:            
+            FIND itemfg NO-LOCK WHERE itemfg.company = cocode
+                                  AND itemfg.i-no = w-job-mat.rm-i-no NO-ERROR.
+            IF NOT AVAIL itemfg THEN RETURN.
             /* Create tt-eiv for a w-job-mat and itemfg */
-            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT  cocode, INPUT  ROWID(w-job-mat)).
+            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT rowid(itemfg), INPUT  ROWID(w-job-mat)).
             ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).
         END.
-  
-        /* Just a prompt to create a line */
-        RUN promptCreatePoLine.
 
+        /* Just a prompt to create a line */
+        RUN promptCreatePoLine.        
+        
         /* User choose not to create, so don't continue with this item */
         IF NOT gvlChoice THEN
             NEXT outers.
@@ -3797,7 +3800,7 @@ PROCEDURE RevCreateTtEiv:
         WHERE vendItemCost.company EQ itemfg.company
         AND vendItemCost.ItemID    EQ itemfg.i-no
         AND vendItemCost.ItemType EQ "FG"
-        NO-ERROR.
+        NO-ERROR.        
     IF AVAIL vendItemCost THEN DO:    
        CREATE tt-ei.
        ASSIGN tt-ei.company = itemfg.company
@@ -3859,7 +3862,7 @@ PROCEDURE RevCreateTtEiv:
     v-index = 0.
     IF NOT CAN-FIND(FIRST tt-eiv) THEN
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
-/*        AND vendItemCost.estimateNo EQ bf-w-job-mat.est-no*/
+        AND vendItemCost.estimateNo EQ ""
 /*        AND vendItemCost.formNo EQ bf-w-job-mat.frm       */
 /*        AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no */
           AND vendItemCost.ItemID    EQ itemfg.i-no
