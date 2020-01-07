@@ -41,6 +41,9 @@ DEF INPUT PARAMETER ip-eb AS RECID NO-UNDO .
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
+def var li-current-page as int INIT 1 no-undo.
+def var li-prev-page as int INIT 1 no-undo.
+DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 {methods/defines/hndldefs.i}
 /*{methods/prgsecur.i}*/
@@ -121,6 +124,8 @@ DEFINE VARIABLE h_p-locw AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-itemfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_itemfg-5 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-fg-bj-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -236,6 +241,12 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{custom/globdefs.i}
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -1023,6 +1034,65 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+    RUN SELECT-page (li-page-b4VendCost).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win
+PROCEDURE local-change-page:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    li-prev-page = li-current-page.
+    run get-attribute ("current-page").
+    assign 
+        li-current-page = int(return-value).         
+
+    if li-current-page = 7 AND lNewVendorItemCost then 
+    do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "IF"' ).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(eb.stock-no) ).      
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
+        li-page-b4VendCost = li-prev-page.     
+        RUN select-page (13).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).
+        
+        RETURN.     
+    END.
+    
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
 PROCEDURE local-create-objects :
 /*------------------------------------------------------------------------------
@@ -1072,6 +1142,25 @@ PROCEDURE local-create-objects :
       RUN view-page (3).
   END.
 
+  IF v-current-page = 13 THEN 
+  DO:
+        RUN init-object IN THIS-PROCEDURE (
+            INPUT  'windows/vendcostmtx.w':U ,
+            INPUT  {&WINDOW-NAME} ,
+            INPUT  'Layout = ':U ,
+            OUTPUT h_vendcostmtx ).
+        /* Position in AB:  ( 5.91 , 7.60 ) */
+        /* Size in UIB:  ( 1.86 , 10.80 ) */
+    
+        /* Initialize other pages that this page requires. */
+        RUN init-pages IN THIS-PROCEDURE ('14':U) NO-ERROR.
+    
+        /* Links to SmartWindow */
+        /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
+    
+    /* Adjust the tab order of the smart objects. */
+  END. /* Page 13 */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
