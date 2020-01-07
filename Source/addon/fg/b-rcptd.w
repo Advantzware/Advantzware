@@ -2600,7 +2600,14 @@ PROCEDURE post-finish-goods :
   FOR EACH w-fg-rctd:
       DELETE w-fg-rctd.
   END.
- 
+
+  FOR EACH work-gl:
+    DELETE work-gl.
+  END.
+
+  FOR EACH work-job:
+    DELETE work-job.
+  END.
   /* Create  workfile records for the finished goods being posted */
   RUN fg/fgRecsByUser.p (INPUT cocode, INPUT "R", INPUT USERID("ASI"), INPUT TABLE w-fg-rctd BY-reference).
         

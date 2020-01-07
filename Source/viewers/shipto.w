@@ -1129,19 +1129,24 @@ PROCEDURE enable_notes :
  Notes:
 ------------------------------------------------------------------------------*/
   
-  IF glShipNotesExpanded EQ YES THEN DO:
-      ASSIGN 
-         shipto.notes[1]:HIDDEN IN FRAME F-Main           = TRUE
-         shipto.notes[2]:HIDDEN IN FRAME F-Main           = TRUE
-         shipto.notes[3]:HIDDEN IN FRAME F-Main           = TRUE
-         shipto.notes[4]:HIDDEN IN FRAME F-Main           = TRUE
-         .      
-  END.
-  ELSE DO:
-      ASSIGN 
-         ship_note:HIDDEN IN FRAME F-Main           = TRUE
-         .      
-  END.
+    IF glShipNotesExpanded EQ YES THEN DO:
+        ASSIGN 
+            shipto.notes[1]:HIDDEN IN FRAME F-Main  = TRUE
+            shipto.notes[2]:HIDDEN IN FRAME F-Main  = TRUE
+            shipto.notes[3]:HIDDEN IN FRAME F-Main  = TRUE
+            shipto.notes[4]:HIDDEN IN FRAME F-Main  = TRUE
+            ship_note:HIDDEN IN FRAME F-Main        = FALSE
+            .      
+    END.
+    ELSE DO:
+        ASSIGN 
+            shipto.notes[1]:HIDDEN IN FRAME F-Main  = FALSE
+            shipto.notes[2]:HIDDEN IN FRAME F-Main  = FALSE
+            shipto.notes[3]:HIDDEN IN FRAME F-Main  = FALSE
+            shipto.notes[4]:HIDDEN IN FRAME F-Main  = FALSE
+            ship_note:HIDDEN IN FRAME F-Main        = TRUE
+            .      
+    END.
   
 END PROCEDURE.
 

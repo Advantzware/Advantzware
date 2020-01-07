@@ -163,6 +163,18 @@ END.
 ON CHOOSE OF btn-recalc IN FRAME Dialog-Frame /* Recalculate Qtys */
 DO:
   session:set-wait-state('general').
+  DEFINE VARIABLE lProcess AS LOGICAL NO-UNDO .
+
+  lProcess = YES.
+    FOR EACH fg-rctd WHERE fg-rctd.company eq cocode 
+        AND fg-rctd.i-no EQ itemfg.i-no 
+        AND (fg-rctd.rita-code eq "R")
+        NO-LOCK:
+         RUN displayMessageQuestionLOG ("15", OUTPUT lProcess).
+        LEAVE.
+    END.
+    
+    IF NOT lProcess THEN RETURN NO-APPLY .
   
   /* Task 01191320 */
   RUN fg/fg-calcbcst.p (INPUT ROWID(itemfg)).
