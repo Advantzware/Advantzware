@@ -279,6 +279,7 @@ DEFINE VARIABLE iEbTotalUpQty AS INTEGER NO-UNDO .
 DEFINE SHARED VARIABLE s-prt-fgimage     AS LOG       NO-UNDO.
 DEFINE BUFFER bf-ttSoule FOR ttSoule .
 DEFINE VARIABLE lv-pg-num AS INT NO-UNDO.
+DEFINE VARIABLE lAssembled AS LOGICAL NO-UNDO . 
 IF reprint EQ NO THEN
     cNewOrderValue = CAPS("NEW ORDER") .
 ELSE "" .
@@ -1143,6 +1144,8 @@ FOR EACH job-hdr NO-LOCK
                                     AND bff-eb.form-no EQ 0
                                     AND bff-eb.est-type EQ 2 :
 
+                                    lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
+
                                     IF LINE-COUNTER > 70 THEN DO: 
                                         PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                         PAGE.
@@ -1181,8 +1184,8 @@ FOR EACH job-hdr NO-LOCK
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  SKIP  .
                                          RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
                                         PUT v-fill SKIP .
+                                        PUT "<R-1>" .
                                 END.
-                                PUT "<R-1>" .
                             END.
 
                             IF FIRST-OF(eb.form-no) THEN 
@@ -1359,6 +1362,7 @@ FOR EACH job-hdr NO-LOCK
                                         PAGE.
                                         RUN pPrintHeader .
                                     END.
+                              IF NOT lAssembled THEN do:
                                PUT   
                                   "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                   "<P10><C20><b>Packing: </B>" eb.cas-no FORMAT "x(15)"  
@@ -1371,6 +1375,7 @@ FOR EACH job-hdr NO-LOCK
                                   /*"<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
 
                                    RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no).
+                              END.
 
                                 PUT v-fill SKIP .
 
@@ -1409,6 +1414,7 @@ FOR EACH job-hdr NO-LOCK
                                             PAGE.
                                             RUN pPrintHeader .
                                         END.
+                                      IF NOT lAssembled THEN do:
                                        PUT  
                                          "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                          "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
@@ -1420,6 +1426,7 @@ FOR EACH job-hdr NO-LOCK
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  
                                          /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
                                          RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                      END.
                                         PUT v-fill SKIP .
                                 END.
                                 PUT "<R-1>" .
