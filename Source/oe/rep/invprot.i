@@ -91,7 +91,7 @@ PUT
    "<C1><R25><FROM><R25><C80.75><LINE>"             SKIP /*Main Data Header*/
        /*Main Data Column Lines*/
     "<R22><C12><FROM><R59><C12><LINE>"           SKIP /*LINE*/
-    "<R22><C16><FROM><R59><C16><LINE>"           SKIP /*DESCRIPTION*/
+    "<R22><C17><FROM><R59><C17><LINE>"           SKIP /*DESCRIPTION*/
     "<R22><C50><FROM><R59><C50><LINE>"           SKIP /*QUANTITIES*/
     "<R22><C57.5><FROM><R59><C57.5><LINE>"           SKIP /*PRICE*/
     "<R22><C67><FROM><R59><C67><LINE>"           SKIP /*AMOUNT*/
@@ -100,12 +100,12 @@ PUT
 
 /* Main Data Column Labels*/
 PUT "<FArial><=5><B><C2>CUST PO#"
-    "<C17>CUSTOMER PART #"
+    "<C18>CUSTOMER PART #"
     "<C50.5>INVOICED"
     "<C60.5>PRICE" SKIP
     "<C2>ORDER#"
     "<C12.5>LINE"
-    "<C17>DESCRIPTION"
+    "<C18>DESCRIPTION"
     "<C50.5>SHIPPED"
     "<C61>UOM"
     "<C69>AMOUNT" 
