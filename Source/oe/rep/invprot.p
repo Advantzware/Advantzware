@@ -748,27 +748,27 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         END.  /* each inv-line */
         FOR EACH tt-inv-line:
             PUT             
-                "<C2>" tt-inv-line.po-no            FORMAT "x(15)".
+                "<C2>" tt-inv-line.po-no             FORMAT "x(15)".
             IF tt-inv-line.line-no NE 0 THEN
                 PUT
-                "<C13>" tt-inv-line.line-no           FORMAT ">>9" .
+                "<C13>" tt-inv-line.line-no           FORMAT ">>>>9" .
             PUT
-                "<C17>" tt-inv-line.part-no  FORMAT "x(30)"
+                "<C18>" tt-inv-line.part-no  FORMAT "x(30)"
                 "<C51>" tt-inv-line.inv-qty         FORMAT "->>>>>9"                
                 "<C57>" tt-inv-line.price           FORMAT "->,>>>,>>9.99"
                 "<C67>" tt-inv-line.total-price  FORMAT "->,>>>,>>9.99"
                 "<C79>" tt-inv-line.taxable        FORMAT "X"
                 SKIP
                 "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>")
-                "<C17>" tt-inv-line.dscr1 FORMAT "x(30)"
+                "<C18>" tt-inv-line.dscr1 FORMAT "x(30)"
                 "<C51>" tt-inv-line.ship-qty        FORMAT "->>>>>9"              
                 "<C63>" tt-inv-line.price-head 
                SKIP
                 "<C2>" trim(string(tt-inv-line.bol-no,">>>>>>>9"))
-                "<C17>" tt-inv-line.dscr2 FORMAT "x(30)" 
+                "<C18>" tt-inv-line.dscr2 FORMAT "x(30)" 
                 "<C51>" tt-inv-line.qty FORMAT "->>>>>9"
                SKIP
-                "<C17>" tt-inv-line.dscr3 FORMAT "x(30)" 
+                "<C18>" tt-inv-line.dscr3 FORMAT "x(30)" 
                SKIP.
     
               v-printline = v-printline + 5.
@@ -811,9 +811,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             IF AVAIL oe-ordm AND oe-ordm.spare-int-1 NE 0 THEN                   /*10011302*/
                 PUT "<C13>" oe-ordm.spare-int-1 FORMAT ">>9".
             IF inv-misc.dscr NE "" THEN
-               PUT "<C17>" inv-misc.dscr   FORMAT "x(30)".
+               PUT "<C18>" inv-misc.dscr   FORMAT "x(30)".
             ELSE
-               PUT "<C17>" inv-misc.charge   FORMAT "x(30)".
+               PUT "<C18>" inv-misc.charge   FORMAT "x(30)".
 
             PUT  "<C67>" inv-misc.amt FORMAT "->,>>>,>>9.99"
                  "<C79>" inv-misc.tax FORMAT "Y/N" SKIP
@@ -1039,7 +1039,7 @@ PROCEDURE printNotes:
                 {oe/rep/invprot.i}                
                 v-printline = 29.
             END.
-            PUT "<C17>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
+            PUT "<C18>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
             v-printline = v-printline + 1.
         END.
         DELETE tt-formtext.

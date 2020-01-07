@@ -677,9 +677,9 @@ DEFINE FRAME d-oeitem
           SIZE 31 BY 1
      oe-ordl.e-num AT ROW 9.33 COL 55 COLON-ALIGNED HELP
           "Customer PO Line Number"
-          LABEL "Ln#" FORMAT ">>>"
+          LABEL "Ln#" FORMAT ">>>>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
+          SIZE 9 BY 1
      oe-ordl.po-no-po AT ROW 10.52 COL 15.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
