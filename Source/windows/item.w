@@ -885,7 +885,6 @@ PROCEDURE local-change-page :
         /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).    
         li-pageb4VendCost = li-prev-page.              
-            
         RUN select-page (10).
        
         RETURN.
@@ -974,6 +973,7 @@ PROCEDURE local-exit :
       Parameters:  <none>
       Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+
    
    /* reset VendItemCost Attributes */
    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).

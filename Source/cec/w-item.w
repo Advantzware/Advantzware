@@ -976,9 +976,7 @@ PROCEDURE local-change-page :
         ASSIGN 
             li-page-b4VendCost = li-prev-page.        
         RUN select-page (11).
-        
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
-        
+
         RETURN.
     END. 
     
@@ -1062,6 +1060,7 @@ PROCEDURE local-exit :
       Parameters:  <none>
       Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+
 
     /* reset VendItemCost Attributes */
     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).

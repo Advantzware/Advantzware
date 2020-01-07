@@ -75,7 +75,7 @@ DEFINE        VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-fgimage AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
-DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
+DEFINE        VARIABLE cBarCodeVal   AS CHARACTER FORM "x(20)" NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 DEFINE        VARIABLE lv-text       AS CHARACTER NO-UNDO.
@@ -266,7 +266,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=PartLabel><R+1><#Part>"
         "<=HeaderStart><C+22><R+0.6><#CustomerName>"
            
-        "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
+        "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" + cBarCodeVal + ">" FORMAT "x(150)"
         "<P14>                  "
         "<=JobLabel>Job #:"
         "<FGColor=Blue><B>   "
@@ -953,8 +953,8 @@ PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"
            END.
            PUT UNFORMATTED 
                "<UNITS=INCHES> <C3><R44.5><FROM><C25><R46.8><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-               cBarCodeVal + ">" "<R46.9><C7>" 
-                   cBarCodeVal  
+               cBarCodeVal + ">" FORMAT "x(150)" "<R46.9><C7>" 
+                   cBarCodeVal  FORMAT "x(20)"
                "<R44><C1><FROM><C105><LINE><|3>" skip
                "<R44><C26><FROM><R48><C26><LINE><|3>"
                "<R44><C26.5><B>BN Notes:</B><C36>" v-dept-note[1] SKIP
