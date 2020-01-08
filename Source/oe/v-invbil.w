@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -60,12 +60,12 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR inv-head.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS inv-head.bill-i[1] inv-head.bill-i[2] ~
-inv-head.bill-i[3] inv-head.bill-i[4] 
+inv-head.bill-i[3] inv-head.bill-i[4] inv-head.spare-char-5 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
-&Scoped-Define ENABLED-OBJECTS RECT-42 
+&Scoped-Define ENABLED-OBJECTS RECT-42 RECT-43 
 &Scoped-Define DISPLAYED-FIELDS inv-head.bill-i[1] inv-head.bill-i[2] ~
-inv-head.bill-i[3] inv-head.bill-i[4] 
+inv-head.bill-i[3] inv-head.bill-i[4] inv-head.spare-char-5 
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
 
@@ -104,8 +104,12 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-42
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 109 BY 5.
+
+DEFINE RECTANGLE RECT-43
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 109 BY 2.19.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -123,9 +127,15 @@ DEFINE FRAME F-Main
      inv-head.bill-i[4] AT ROW 4.95 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 99 BY 1
-     RECT-42 AT ROW 1.48 COL 1
+     inv-head.spare-char-5 AT ROW 7.14 COL 7.6 NO-LABEL WIDGET-ID 4 FORMAT "x(60)"
+          VIEW-AS FILL-IN 
+          SIZE 99 BY 1
+     "Invoice Comments" VIEW-AS TEXT
+          SIZE 18.8 BY .62 AT ROW 6.05 COL 3 WIDGET-ID 8
      "Bill Instructions" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 1.24 COL 3
+     RECT-42 AT ROW 1.48 COL 1
+     RECT-43 AT ROW 6.43 COL 1 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -181,11 +191,13 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN inv-head.spare-char-5 IN FRAME F-Main
+   ALIGN-L EXP-FORMAT                                                   */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
