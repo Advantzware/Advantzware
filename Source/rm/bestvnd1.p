@@ -261,7 +261,7 @@ PROCEDURE createTempFromVendItemCost:
                         tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
                         tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */
-                        tt-eiv.SELECTED[li] = vendItemCost.useQuantityFromBase
+                        tt-eiv.SELECTED[v-index] = vendItemCost.useQuantityFromBase
                         .
                 IF v-index GT 10 AND v-index LE 30 THEN           
                     assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   

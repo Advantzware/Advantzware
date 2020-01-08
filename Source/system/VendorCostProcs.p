@@ -1479,6 +1479,13 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                         AND opbf-vendItemCost.blankNo EQ ipiBlankNo
                         AND opbf-vendItemCost.vendorID EQ ""
                         NO-ERROR.
+                     IF NOT AVAILABLE opbf-vendItemCost THEN 
+                        FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
+                        {&RequiredCriteria}
+                        AND opbf-vendItemCost.estimateNo EQ ipcEstimateNo
+                        AND opbf-vendItemCost.formNo EQ ipiFormNo
+                        AND opbf-vendItemCost.blankNo EQ ipiBlankNo
+                        NO-ERROR.
                     IF AVAILABLE opbf-vendItemCost THEN 
                         cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID).
                 END.
