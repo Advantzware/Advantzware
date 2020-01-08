@@ -280,6 +280,8 @@ DEFINE SHARED VARIABLE s-prt-fgimage     AS LOG       NO-UNDO.
 DEFINE BUFFER bf-ttSoule FOR ttSoule .
 DEFINE VARIABLE lv-pg-num AS INT NO-UNDO.
 DEFINE VARIABLE lAssembled AS LOGICAL NO-UNDO . 
+DEFINE VARIABLE cSetFGItem AS CHARACTER NO-UNDO . 
+DEFINE VARIABLE dPerSetQty AS DECIMAL NO-UNDO .
 IF reprint EQ NO THEN
     cNewOrderValue = CAPS("NEW ORDER") .
 ELSE "" .
@@ -1140,11 +1142,13 @@ FOR EACH job-hdr NO-LOCK
 
                             IF FIRST(tt-reftable.val[12]) THEN DO: 
                                 FOR EACH bff-eb NO-LOCK
-                                    WHERE bff-eb.est-no EQ eb.est-no
+                                    WHERE bff-eb.company EQ eb.company
+                                    AND bff-eb.est-no EQ eb.est-no
                                     AND bff-eb.form-no EQ 0
                                     AND bff-eb.est-type EQ 2 :
 
                                     lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
+                                    cSetFGItem = bff-eb.stock-no  .
 
                                     IF LINE-COUNTER > 70 THEN DO: 
                                         PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
@@ -1195,16 +1199,28 @@ FOR EACH job-hdr NO-LOCK
                                        iEbTotalUpQty  = 0 .
 
                                 FOR EACH bff-eb NO-LOCK
-                                    WHERE bff-eb.est-no EQ eb.est-no
+                                    WHERE bff-eb.company EQ eb.company
+                                      AND bff-eb.est-no EQ eb.est-no
                                       AND bff-eb.form-no EQ eb.form-no ,
                                     FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
                                      AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
                                     AND  bf-ttSoule.runForm EQ YES NO-LOCK :
+                                    dPerSetQty = 1 .
+                                    IF cSetFGItem NE "" THEN do:
+                                         FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                             AND fg-set.set-no = cSetFGItem
+                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
+                                         IF AVAIL fg-set THEN
+                                            dPerSetQty = fg-set.qtyPerSet .
+                                     END.
+
                                     ASSIGN
-                                        iEbTotalYldQty = iEbTotalYldQty + (IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty)
-                                        iEbTotalblQty  = iEbTotalblQty + bff-eb.bl-qty
+                                        iEbTotalYldQty = iEbTotalYldQty + ((IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty) * dPerSetQty )
+                                        iEbTotalblQty  = iEbTotalblQty + ( bff-eb.bl-qty * dPerSetQty )
                                         iEbTotalUpQty  = iEbTotalUpQty + bff-eb.num-up  .
                                 END.
+
+                                
 
 
                                 k = 1 .
@@ -1339,15 +1355,26 @@ FOR EACH job-hdr NO-LOCK
                                 END. /* each wrk-op*/
                                 
                               PUT v-fill SKIP  .
+                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .
+                              iEbTotalblQty  = eb.bl-qty  .
+                              IF cSetFGItem NE "" THEN do:
+                                  FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                      AND fg-set.set-no = cSetFGItem
+                                      AND fg-set.part-no = eb.stock-no NO-ERROR.
+                                  IF AVAIL fg-set THEN
+                                      ASSIGN
+                                      iEbTotalYldQty = iEbTotalYldQty * fg-set.qtyPerSet 
+                                      iEbTotalblQty  = iEbTotalblQty  * fg-set.qtyPerSet .
+                              END.
                                
                               PUT 
                                   "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
                                   "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)"     
-                                  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty))   skip 
+                                  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty))   skip 
 
                                   "<P10><C20><b>Descr.: </B>" eb.part-dscr1 FORMAT "x(30)"  
                                   "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(12)"
-                                  "<C70><B><P10>Req Qty: </B>" TRIM(STRING(eb.bl-qty))  skip
+                                  "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty))  skip
 
                                   "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
                                   "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(12)"
@@ -1392,15 +1419,27 @@ FOR EACH job-hdr NO-LOCK
                                          RUN pPrintHeader .
                                      END.
                                      k = K + 1 .
+                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .
+                                     iEbTotalblQty  = bff-eb.bl-qty  .
+                                      
+                                     IF cSetFGItem NE "" THEN do:
+                                         FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                             AND fg-set.set-no = cSetFGItem
+                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
+                                         IF AVAIL fg-set THEN
+                                             ASSIGN
+                                             iEbTotalYldQty = iEbTotalYldQty * fg-set.qtyPerSet 
+                                             iEbTotalblQty  = iEbTotalblQty * fg-set.qtyPerSet .
+                                     END.
 
                                      PUT 
                                          "<R-1><P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
                                          "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    
-                                         "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty))   skip 
+                                         "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty))   skip 
                                          
                                          "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
                                          "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(12)"
-                                         "<C70><B><P10>Req Qty: </B>" TRIM(STRING(bff-eb.bl-qty))   skip
+                                         "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty))   skip
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
                                          "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)"
@@ -1827,6 +1866,8 @@ END.
 v-first = NO.
 
 END. /* each job-hdr */
+
+PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
 
 
 
