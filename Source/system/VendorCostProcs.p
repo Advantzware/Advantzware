@@ -1501,7 +1501,7 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                     IF NOT AVAILABLE opbf-vendItemCost THEN 
                     DO: /*Match based on estimate for FG Item #*/
                         FIND FIRST bf-itemfg NO-LOCK 
-                            WH  ERE bf-itemfg.company EQ ipcCompany
+                            WHERE bf-itemfg.company EQ ipcCompany
                             AND bf-itemfg.i-no EQ ipcItemID
                             NO-ERROR.
                         IF AVAILABLE bf-itemfg AND TRIM(bf-itemfg.est-no) NE "" THEN 
