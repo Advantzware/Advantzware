@@ -25,9 +25,9 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD est-dscr             AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Est.DESC" HELP "Optional - Size:30"
     FIELD i-code               AS CHARACTER FORMAT "x(14)" COLUMN-LABEL "Item Code" HELP "Optional - Size: RM Stocked or Estimated Mat'1"
     FIELD tax-rcpt             AS CHARACTER FORMAT "x" COLUMN-LABEL "Taxable" HELP "Optional - Y or N (blank=N)"
-    FIELD mat-type             AS CHARACTER FORMAT "x" COLUMN-LABEL "Mat'l Type" HELP "Optional - Size:1"
-    FIELD cost-type            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost Type" HELP "Optional - Size:3"
-    FIELD procat               AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Category" HELP "Optional - Size:20"
+    FIELD mat-type             AS CHARACTER FORMAT "x" COLUMN-LABEL "Mat'l Type" HELP "Required - Size:1"
+    FIELD cost-type            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost Type" HELP "Required - Size:3"
+    FIELD procat               AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Category" HELP "Required - Size:20"
     FIELD q-ptd                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "QTY Usage PTD" HELP "Optional - Decimal"
     FIELD q-ytd                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Usage YTD" HELP "Optional - Decimal"
     FIELD q-lyr                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Usage Last YR" HELP "Optional - Decimal"
@@ -225,7 +225,22 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Mat'l Type is Blank".
+    END.  
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.cost-type EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Cost Type is Blank".
+    END.  
+     IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.procat EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Category is Blank".
     END. 
+    
      IF oplValid THEN 
     DO:
         IF ipbf-ttImportItem.ind-type EQ '' THEN 
@@ -323,7 +338,110 @@ PROCEDURE pValidate PRIVATE:
            RUN pIsValidDept IN hdValidator (ipbf-ttImportItem.dept-name9, NO, OUTPUT oplValid, OUTPUT cValidNote).
         IF oplValid AND ipbf-ttImportItem.dept-name10 NE "" THEN 
            RUN pIsValidDept IN hdValidator (ipbf-ttImportItem.dept-name10, NO, OUTPUT oplValid, OUTPUT cValidNote).
-        
+
+        IF ipbf-ttImportItem.i-code = "RM Stocked" AND
+            CAN-DO('A,B,P',ipbf-ttImportItem.mat-type) THEN DO:
+
+            IF ipbf-ttImportItem.r-wid EQ 0 AND ipbf-ttImportItem.s-wid EQ 0 THEN DO:
+                opcNote = 'Both Roll Width and Sheet Width cannot be Zero' .
+                oplValid = NO .
+            END.
+            ELSE IF ipbf-ttImportItem.r-wid NE 0 AND ipbf-ttImportItem.s-wid NE 0 THEN DO:
+                opcNote = 'Both Roll Width and Sheet Width cannot be Greater Than Zero' .
+                oplValid = NO .
+            END.
+            ELSE IF ipbf-ttImportItem.s-wid NE 0 AND ipbf-ttImportItem.s-len EQ 0 THEN DO:
+                opcNote =  'Sheet Length cannot be Zero' .
+                oplValid = NO .
+            END.
+        END.
+        IF ipbf-ttImportItem.mat-type EQ "C" AND ipbf-ttImportItem.flute NE ""
+            AND ipbf-ttImportItem.reg-no EQ ""     THEN DO:
+            opcNote = "Test may not be blank..." .
+            oplValid = NO .
+        END.
+
+        IF ipbf-ttImportItem.ind-type EQ "Folding" THEN DO:
+            if index("BAPR1234",ipbf-ttImportItem.mat-type) > 0 then do:
+                if dec(ipbf-ttImportItem.cal) = 0 then do:
+                    opcNote = "Caliper is mandatory" .
+                    oplValid = NO .
+                END.
+                if dec(ipbf-ttImportItem.basis-w) = 0 then do:
+                    opcNote = "Basis Weight is mandatory" .
+                    oplValid = NO .
+                END.
+                if dec(ipbf-ttImportItem.r-wid) = 0 and ipbf-ttImportItem.i-code = "RM Stocked" and
+                    (dec(ipbf-ttImportItem.s-len) = 0 or dec(ipbf-ttImportItem.s-wid) = 0 )
+                    then do:
+                    opcNote = "Dimensions are mandatory for Real Items!" .
+                    oplValid = NO .
+                END.
+            END. /* "BAP" */
+            else if index("W",ipbf-ttImportItem.mat-type) > 0 then do:
+                if dec(ipbf-ttImportItem.sqin-lb) = 0 then do:
+                    opcNote = "Sq In/Lb is mandatory!" .
+                    oplValid = NO .
+                END.
+            END. /* "W"  */
+            else if index("GTS",ipbf-ttImportItem.mat-type) > 0 then do:
+                if dec(ipbf-ttImportItem.linin-lb) eq 0 AND dec(ipbf-ttImportItem.sqin-lb) eq 0 then do:
+                    opcNote = "For " + (if ipbf-ttImportItem.mat-type eq "S" then "Stitch" 
+                              else if ipbf-ttImportItem.mat-type eq "T" then "Tape" 
+                                  else "Glue") +
+                              ", " + "Sq In/Lb OR Lin In/UOM  must be entered...".
+                    oplValid = NO .
+                END.
+            END. /* "GTS"  */ 
+            else if index("DC",ipbf-ttImportItem.mat-type) > 0 then do:
+                if dec(ipbf-ttImportItem.box-case) <> 0 AND dec(ipbf-ttImportItem.avg-w) <> 0 then do:
+                    opcNote =  "You can enter either Case Weight or Number of blanks per Case! Only one field can be entered.".
+                    oplValid = NO .
+                END.
+            END.
+        END.    /*ipbf-ttImportItem.ind-type EQ "Folding"*/
+        ELSE IF ipbf-ttImportItem.ind-type EQ "Corrugated" THEN DO:
+
+            IF INDEX("BAP",ipbf-ttImportItem.mat-type) > 0 THEN DO:
+                IF dec(ipbf-ttImportItem.cal) = 0 THEN DO:
+                    opcNote = "Caliper is mandatory" .
+                    oplValid = NO .
+                END.
+                IF dec(ipbf-ttImportItem.basis-w) = 0 THEN DO:
+                    opcNote = "Basis Weight is mandatory" .
+                    oplValid = NO .
+                END.
+                IF dec(ipbf-ttImportItem.r-wid) = 0 AND ipbf-ttImportItem.i-code = "RM Stocked" AND
+                    (dec(ipbf-ttImportItem.s-len) = 0 OR dec(ipbf-ttImportItem.s-wid) = 0 )
+                    THEN DO:
+                    opcNote = "Dimensions are mandatory for Real Items!" .
+                    oplValid = NO .
+                END.
+            END. /* "BAP" */
+            ELSE IF INDEX("W",ipbf-ttImportItem.mat-type) > 0 THEN DO:
+                IF dec(ipbf-ttImportItem.shrink) = 0 THEN DO:
+                    opcNote = "Pickup% is mandatory!" .
+                    oplValid = NO .
+                END.
+            END.  /* "W"  */ 
+            ELSE IF INDEX("GTS",ipbf-ttImportItem.mat-type) > 0 THEN DO:
+                IF dec(ipbf-ttImportItem.linin-lb) EQ 0 AND
+                    dec(ipbf-ttImportItem.sqin-lb) EQ 0 THEN DO:
+                    opcNote = "For " + (IF ipbf-ttImportItem.mat-type EQ "S" THEN "Stitch" 
+                        ELSE IF ipbf-ttImportItem.mat-type EQ "T" THEN "Tape" 
+                            ELSE "Glue") +
+                        ", " + " Sq In/Lb OR Lin In/UOM not be blank..." .
+                      oplValid = NO .
+                END.
+            END.  /* "GTS"  */ 
+            ELSE IF INDEX("DC",ipbf-ttImportItem.mat-type) > 0 THEN DO:
+                IF dec(ipbf-ttImportItem.box-case) <> 0 AND
+                    dec(ipbf-ttImportItem.avg-w) <> 0 THEN DO:
+                    opcNote = "You can enter either Case Weight or Number of blanks per Case! Only one field can be entered." .
+                    oplValid = NO .
+                END.
+            END.
+        END.  /* ipbf-ttImportItem.ind-type EQ "Corrugated" */
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
 
