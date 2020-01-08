@@ -90,7 +90,7 @@ DEFINE NEW SHARED WORKFILE wrk-ink
     FIELD i-code AS CHARACTER FORMAT "x(10)"
     FIELD form-no LIKE eb.form-no
     FIELD blank-no LIKE eb.blank-no
-    FIELD i-dscr AS CHARACTER FORMAT "x(20)"
+    FIELD i-dscr AS CHARACTER FORMAT "x(30)"
     FIELD i-qty AS DECIMAL FORMAT ">,>>9.9<"
     FIELD i-pass AS DECIMAL
     FIELD i-unit AS INTEGER
@@ -603,7 +603,7 @@ END. /* JOB-MAT */
 j = 0 . 
 FOR EACH wrk-ink NO-LOCK:
     j = j + 1   .
-    v-ink-1 =  STRING(wrk-ink.i-dscr,"x(25)") .
+    v-ink-1 =  STRING(wrk-ink.i-dscr,"x(28)") .
     v-ink-2 = (IF wrk-ink.i-qty <> 0 THEN STRING(wrk-ink.i-qty,">>>,>>9.99") ELSE "" ) +
         (IF wrk-ink.i-dscr <> "" THEN "  LBS" ELSE "") .
     v-ink-3 = "Pass: " +  STRING(wrk-ink.i-pass) + " " + STRING("F") .
