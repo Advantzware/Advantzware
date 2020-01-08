@@ -6799,7 +6799,7 @@ PROCEDURE vend-cost :
                         tt-eiv.rec_key = vendItemCostLevel.rec_key.
                     END.  
                     IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/ v-index GT 20 THEN LEAVE.
-                    ASSIGN v-index = vendItemCostLevel.vendItemCostLevelID
+                    ASSIGN v-index = v-index + 1
                         tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                         tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-item-vend.setups[v-index] */
