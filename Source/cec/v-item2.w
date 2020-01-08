@@ -1072,9 +1072,6 @@ PROCEDURE local-enable-fields :
           item.q-back = 0 )
      then do: end. 
      else disable item.cons-uom.
-     if (item.pur-uom = "" or (item.last-cost = 0 and item.avg-cost = 0 ) )
-     then do:      end.
-     else disable item.pur-uom.
   end.
 
 END PROCEDURE.
