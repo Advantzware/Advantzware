@@ -1853,7 +1853,7 @@ DO:
         APPLY "VALUE-CHANGED":U TO svEndRecKeyDateOption.
     END. /* if */
     ELSE DO:
-        DISABLE {&recKeyFields} {&recKeyObjects} WITH FRAME AuditSearch.
+        HIDE {&recKeyFields} {&recKeyObjects} IN FRAME AuditSearch.
         ENABLE {&searchObjects} WITH FRAME AuditSearch.
         APPLY "VALUE-CHANGED":U TO svStartDateOption.
         APPLY "VALUE-CHANGED":U TO svEndDateOption.
