@@ -41,7 +41,6 @@ DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -63,15 +62,16 @@ DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-Dialog-Frame estRelease.estimateNo ~
 estRelease.quantity estRelease.formNo estRelease.blankNo ~
 estRelease.shipFromLocationID estRelease.customerID estRelease.shipToID ~
-estRelease.carrierID estRelease.carrierZone estRelease.quantityRelease ~
-estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit ~
-estRelease.quantityOfUnits estRelease.palletMultiplier ~
-estRelease.monthsAtShipFrom estRelease.stackHeight estRelease.storageCost ~
-estRelease.handlingCost estRelease.freightCost estRelease.handlingCostTotal ~
-estRelease.storageCostTotal estRelease.createRelease 
+estRelease.carrierID estRelease.carrierZone estRelease.stackHeight ~
+estRelease.quantityRelease estRelease.quantityPerSubUnit ~
+estRelease.quantitySubUnitsPerUnit estRelease.quantityOfUnits ~
+estRelease.palletMultiplier estRelease.monthsAtShipFrom ~
+estRelease.storageCost estRelease.handlingCost estRelease.freightCost ~
+estRelease.handlingCostTotal estRelease.storageCostTotal ~
+estRelease.createRelease 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estRelease.quantity ~
 estRelease.shipFromLocationID estRelease.shipToID estRelease.carrierID ~
-estRelease.carrierZone estRelease.quantityRelease ~
+estRelease.carrierZone estRelease.stackHeight estRelease.quantityRelease ~
 estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit ~
 estRelease.palletMultiplier estRelease.monthsAtShipFrom ~
 estRelease.createRelease 
@@ -84,7 +84,7 @@ estRelease.createRelease
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS estRelease.quantity ~
 estRelease.shipFromLocationID estRelease.shipToID estRelease.carrierID ~
-estRelease.carrierZone estRelease.quantityRelease ~
+estRelease.carrierZone estRelease.stackHeight estRelease.quantityRelease ~
 estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit ~
 estRelease.palletMultiplier estRelease.monthsAtShipFrom ~
 estRelease.createRelease 
@@ -95,15 +95,15 @@ RECT-39 RECT-40
 &Scoped-Define DISPLAYED-FIELDS estRelease.estimateNo estRelease.quantity ~
 estRelease.formNo estRelease.blankNo estRelease.shipFromLocationID ~
 estRelease.customerID estRelease.shipToID estRelease.carrierID ~
-estRelease.carrierZone estRelease.quantityRelease ~
+estRelease.carrierZone estRelease.stackHeight estRelease.quantityRelease ~
 estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit ~
 estRelease.quantityOfUnits estRelease.palletMultiplier ~
-estRelease.monthsAtShipFrom estRelease.stackHeight estRelease.storageCost ~
-estRelease.handlingCost estRelease.freightCost estRelease.handlingCostTotal ~
+estRelease.monthsAtShipFrom estRelease.storageCost estRelease.handlingCost ~
+estRelease.freightCost estRelease.handlingCostTotal ~
 estRelease.storageCostTotal estRelease.createRelease 
 &Scoped-define DISPLAYED-TABLES estRelease
 &Scoped-define FIRST-DISPLAYED-TABLE estRelease
-&Scoped-Define DISPLAYED-OBJECTS fi_Pallet-count cShipToLoc cCarrMethod
+&Scoped-Define DISPLAYED-OBJECTS cCarrMethod fi_Pallet-count 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -135,20 +135,15 @@ DEFINE BUTTON Btn_OK
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
+DEFINE VARIABLE cCarrMethod AS CHARACTER FORMAT "X(50)":U 
+     VIEW-AS FILL-IN 
+     SIZE 55 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
 DEFINE VARIABLE fi_Pallet-count AS CHARACTER FORMAT "X(15)":U 
      LABEL "Pallet Count" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cShipToLoc AS CHARACTER FORMAT "X(8)":U 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cCarrMethod AS CHARACTER FORMAT "X(50)":U 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
@@ -186,7 +181,6 @@ DEFINE FRAME Dialog-Frame
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
      estRelease.quantity AT ROW 1.29 COL 52 COLON-ALIGNED
-          LABEL "Master Quantity" FORMAT "->>>>>>9"
           VIEW-AS COMBO-BOX INNER-LINES 5
           DROP-DOWN-LIST
           SIZE 13 BY 1
@@ -214,7 +208,6 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     cShipToLoc AT ROW 5.52 COL 40 COLON-ALIGNED NO-LABEL
      cCarrMethod AT ROW 13 COL 2 NO-LABEL
      estRelease.carrierID AT ROW 6.67 COL 21.8 COLON-ALIGNED
           LABEL "Carrier" FORMAT "x(10)"
@@ -226,14 +219,12 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-    estRelease.stackHeight AT ROW 8.86 COL 21.8 COLON-ALIGNED
-          LABEL "Stack Height" FORMAT ">>9" 
+     estRelease.stackHeight AT ROW 8.86 COL 21.8 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS 
-                     "1","1",
-                     "2","2",
-                     "3","3",
-                     "4","4"
+          LIST-ITEM-PAIRS "1",1,
+                     "2",2,
+                     "3",3,
+                     "4",4
           DROP-DOWN-LIST
           SIZE 8 BY 1
           BGCOLOR 15 FONT 1
@@ -253,17 +244,17 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.quantityOfUnits AT ROW 7.50 COL 80 COLON-ALIGNED
+     estRelease.quantityOfUnits AT ROW 7.52 COL 80 COLON-ALIGNED
           LABEL "Pallets" FORMAT "->>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.palletMultiplier AT ROW 8.50 COL 80 COLON-ALIGNED
+     estRelease.palletMultiplier AT ROW 8.52 COL 80 COLON-ALIGNED
           LABEL "Pallet Multiplier" FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.monthsAtShipFrom AT ROW 9.56 COL 80 COLON-ALIGNED
+     estRelease.monthsAtShipFrom AT ROW 9.57 COL 80 COLON-ALIGNED
           LABEL "Months at Ship From" FORMAT "->>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -284,7 +275,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.freightCost AT ROW 10.55 COL 80 COLON-ALIGNED
+     estRelease.freightCost AT ROW 10.57 COL 80 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -311,9 +302,7 @@ DEFINE FRAME Dialog-Frame
      RECT-38 AT ROW 1.14 COL 1.2
      RECT-39 AT ROW 2.81 COL 1.2 WIDGET-ID 2
      RECT-40 AT ROW 2.81 COL 54 WIDGET-ID 4
-     "To Loc" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 4.43 COL 42 
-     SPACE(1.19) SKIP(3.09)
+     SPACE(0.20) SKIP(3.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -356,6 +345,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.carrierZone IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN cCarrMethod IN FRAME Dialog-Frame
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN estRelease.createRelease IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.customerID IN FRAME Dialog-Frame
@@ -364,10 +355,6 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fi_Pallet-count IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN cShipToLoc IN FRAME Dialog-Frame
-   NO-ENABLE  EXP-FORMAT                                                */ 
-/* SETTINGS FOR FILL-IN cCarrMethod IN FRAME Dialog-Frame
-   NO-ENABLE  EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.formNo IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estRelease.freightCost IN FRAME Dialog-Frame
@@ -379,8 +366,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN estRelease.monthsAtShipFrom IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.palletMultiplier IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN estRelease.quantity IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.quantityOfUnits IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
@@ -394,8 +379,6 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.shipToID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN estRelease.stackHeight IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                */
 /* SETTINGS FOR FILL-IN estRelease.storageCost IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN estRelease.storageCostTotal IN FRAME Dialog-Frame
@@ -459,9 +442,6 @@ DO:
 //                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                     IF char-val <> "" THEN do: 
                         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
-                        RUN pDisplayShipLoc(estRelease.customerID:SCREEN-VALUE,estRelease.shipToID:SCREEN-VALUE, OUTPUT cShipToLoc ) .
-                        IF cShipToLoc NE "" THEN
-                            ASSIGN cShipToLoc:SCREEN-VALUE = cShipToLoc .
                     END.
                 END.
             
@@ -613,17 +593,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME estRelease.quantity
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.quantity Dialog-Frame
-ON VALUE-CHANGED OF estRelease.quantity IN FRAME Dialog-Frame /* Master Qty */
-DO:
-        ASSIGN estRelease.quantityRelease:SCREEN-VALUE = estRelease.quantity:SCREEN-VALUE .
-        RUN pCalAllUnit .
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME estRelease.carrierID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.carrierID Dialog-Frame
@@ -646,7 +615,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    
+
 
 &Scoped-define SELF-NAME estRelease.monthsAtShipFrom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.monthsAtShipFrom Dialog-Frame
@@ -663,6 +632,18 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.palletMultiplier Dialog-Frame
 ON VALUE-CHANGED OF estRelease.palletMultiplier IN FRAME Dialog-Frame /* Pallet Multiplier */
 DO:       
+        RUN pCalAllUnit .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME estRelease.quantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.quantity Dialog-Frame
+ON VALUE-CHANGED OF estRelease.quantity IN FRAME Dialog-Frame /* Master Quantity */
+DO:
+        ASSIGN estRelease.quantityRelease:SCREEN-VALUE = estRelease.quantity:SCREEN-VALUE .
         RUN pCalAllUnit .
     END.
 
@@ -731,9 +712,6 @@ DO:
             RUN valid-shipto(OUTPUT lValidateResult) NO-ERROR.
             IF lValidateResult THEN RETURN NO-APPLY.
 
-            RUN pDisplayShipLoc(estRelease.customerID:SCREEN-VALUE,estRelease.shipToID:SCREEN-VALUE, OUTPUT cShipToLoc ) .
-            IF cShipToLoc NE "" THEN
-                ASSIGN cShipToLoc:SCREEN-VALUE = cShipToLoc .
         END.
     END.
 
@@ -812,34 +790,6 @@ RUN disable_UI.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecalcUnit Dialog-Frame
-PROCEDURE pRecalcUnit PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Wrapper for recalculation of Units
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipdQuantityTotal AS DECIMAL NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopdQuantityPerSubUnit AS DECIMAL NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopiQuantitySubUnitsPerUnit AS INTEGER NO-UNDO. 
-    DEFINE OUTPUT PARAMETER opiQuantityOfSubUnits AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiQuantityOfUnits AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE dPartial AS DECIMAL NO-UNDO.
-    
-    RUN inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-    RUN RecalcQuantityUnits IN hdInventoryProcs (ipdQuantityTotal, INPUT-OUTPUT iopdQuantityPerSubUnit, INPUT-OUTPUT iopiQuantitySubUnitsPerUnit, 
-            OUTPUT opiQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dPartial).
-    
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
@@ -934,7 +884,7 @@ PROCEDURE display-item :
                 estRelease.stackHeight:SCREEN-VALUE = STRING(estRelease.stackHeight) .
             ELSE estRelease.stackHeight:SCREEN-VALUE = "1" .
           
-         RUN pDisplayShipLoc(estRelease.customerID,estRelease.shipToID, OUTPUT cShipToLoc ) .  
+   
          RUN pDisplayCarrMethod(estRelease.carrierID,estRelease.shipFromLocationID, OUTPUT cCarrMethod ) .
 
         DISPLAY estRelease.quantity estRelease.quantityRelease 
@@ -942,7 +892,7 @@ PROCEDURE display-item :
             estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit estRelease.quantityOfUnits estRelease.palletMultiplier 
             estRelease.monthsAtShipFrom estRelease.stackHeight estRelease.storageCost estRelease.handlingCost 
             estRelease.freightCost estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.createRelease 
-            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cShipToLoc cCarrMethod
+            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cCarrMethod
             WITH FRAME Dialog-Frame.
     END.
 
@@ -971,25 +921,26 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_Pallet-count cShipToLoc cCarrMethod
+  DISPLAY cCarrMethod fi_Pallet-count 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estRelease THEN 
     DISPLAY estRelease.estimateNo estRelease.quantity estRelease.formNo 
           estRelease.blankNo estRelease.shipFromLocationID estRelease.customerID 
           estRelease.shipToID estRelease.carrierID estRelease.carrierZone 
-          estRelease.quantityRelease estRelease.quantityPerSubUnit 
-          estRelease.quantitySubUnitsPerUnit estRelease.quantityOfUnits 
-          estRelease.palletMultiplier estRelease.monthsAtShipFrom 
-          estRelease.stackHeight estRelease.storageCost estRelease.handlingCost 
-          estRelease.freightCost estRelease.handlingCostTotal 
-          estRelease.storageCostTotal estRelease.createRelease 
+          estRelease.stackHeight estRelease.quantityRelease 
+          estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit 
+          estRelease.quantityOfUnits estRelease.palletMultiplier 
+          estRelease.monthsAtShipFrom estRelease.storageCost 
+          estRelease.handlingCost estRelease.freightCost 
+          estRelease.handlingCostTotal estRelease.storageCostTotal 
+          estRelease.createRelease 
       WITH FRAME Dialog-Frame.
   ENABLE estRelease.quantity estRelease.shipFromLocationID estRelease.shipToID 
-         estRelease.carrierID estRelease.carrierZone estRelease.quantityRelease 
-         estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit 
-         estRelease.palletMultiplier estRelease.monthsAtShipFrom estRelease.stackHeight
-         estRelease.createRelease Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
-         RECT-39 RECT-40 
+         estRelease.carrierID estRelease.carrierZone estRelease.stackHeight 
+         estRelease.quantityRelease estRelease.quantityPerSubUnit 
+         estRelease.quantitySubUnitsPerUnit estRelease.palletMultiplier 
+         estRelease.monthsAtShipFrom estRelease.createRelease Btn_OK Btn_Done 
+         Btn_Cancel RECT-21 RECT-38 RECT-39 RECT-40 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1049,6 +1000,95 @@ PROCEDURE pCalAllUnit :
             fi_Pallet-count:SCREEN-VALUE = STRING(dCaseCount * iCasesPerPallet)
             .
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayCarrMethod Dialog-Frame 
+PROCEDURE pDisplayCarrMethod :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCarrier AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcShipFormLocId AS CHARACTER NO-UNDO .
+    DEFINE OUTPUT PARAMETER opcMethod AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FIND FIRST carrier NO-LOCK
+            WHERE carrier.company EQ cocode
+            AND carrier.loc    EQ ipcShipFormLocId
+            AND carrier.carrier    EQ ipcCarrier
+            NO-ERROR.
+        IF AVAILABLE carrier THEN DO:
+            IF carrier.chg-method EQ "M" THEN
+                opcMethod =  "Msf: (Bol Qty * Total Sq Feet) * Freight Rate" .
+            ELSE IF carrier.chg-method EQ "P" THEN
+                opcMethod = "Pallet: Bol Tot Pallet * Freight Rate" . 
+            ELSE IF carrier.chg-method EQ "W" THEN
+                opcMethod = "Weight: (Bol Qty / 100 )  * Lbs/100 * Freight Rate" .
+            ELSE
+                opcMethod = "" .
+        END.
+        
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayShipLoc Dialog-Frame 
+PROCEDURE pDisplayShipLoc :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcShipto AS CHARACTER NO-UNDO .
+    DEFINE OUTPUT PARAMETER opcLoc AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cocode
+            AND cust.ACTIVE EQ "X" NO-ERROR .
+        
+        FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ cocode 
+        AND (shipto.cust-no EQ ipcCustomer OR  shipto.cust-no EQ cust.cust-no)
+        AND TRIM(shipto.ship-id) = ipcShipto
+        NO-ERROR.
+        IF AVAILABLE shipto THEN 
+        ASSIGN opcLoc =  shipto.loc .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecalcUnit Dialog-Frame 
+PROCEDURE pRecalcUnit PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper for recalculation of Units
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdQuantityTotal AS DECIMAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdQuantityPerSubUnit AS DECIMAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiQuantitySubUnitsPerUnit AS INTEGER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opiQuantityOfSubUnits AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQuantityOfUnits AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE dPartial AS DECIMAL NO-UNDO.
+    
+    RUN inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    RUN RecalcQuantityUnits IN hdInventoryProcs (ipdQuantityTotal, INPUT-OUTPUT iopdQuantityPerSubUnit, INPUT-OUTPUT iopiQuantitySubUnitsPerUnit, 
+            OUTPUT opiQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dPartial).
+    
 
 END PROCEDURE.
 
@@ -1167,68 +1207,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayShipLoc Dialog-Frame 
-PROCEDURE pDisplayShipLoc :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO .
-    DEFINE INPUT PARAMETER ipcShipto AS CHARACTER NO-UNDO .
-    DEFINE OUTPUT PARAMETER opcLoc AS CHARACTER NO-UNDO .
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ cocode
-            AND cust.ACTIVE EQ "X" NO-ERROR .
-        
-        FIND FIRST shipto NO-LOCK 
-        WHERE shipto.company EQ cocode 
-        AND (shipto.cust-no EQ ipcCustomer OR  shipto.cust-no EQ cust.cust-no)
-        AND TRIM(shipto.ship-id) = ipcShipto
-        NO-ERROR.
-        IF AVAILABLE shipto THEN 
-        ASSIGN opcLoc =  shipto.loc .
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayCarrMethod Dialog-Frame 
-PROCEDURE pDisplayCarrMethod :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCarrier AS CHARACTER NO-UNDO .
-    DEFINE INPUT PARAMETER ipcShipFormLocId AS CHARACTER NO-UNDO .
-    DEFINE OUTPUT PARAMETER opcMethod AS CHARACTER NO-UNDO .
-    DO WITH FRAME {&FRAME-NAME}:
-
-        FIND FIRST carrier NO-LOCK
-            WHERE carrier.company EQ cocode
-            AND carrier.loc    EQ ipcShipFormLocId
-            AND carrier.carrier    EQ ipcCarrier
-            NO-ERROR.
-        IF AVAILABLE carrier THEN DO:
-            IF carrier.chg-method EQ "M" THEN
-                opcMethod =  "Msf: (Bol Qty * Total Sq Feet) * Freight Rate" .
-            ELSE IF carrier.chg-method EQ "P" THEN
-                opcMethod = "Pallet: Bol Tot Pallet * Freight Rate" . 
-            ELSE IF carrier.chg-method EQ "W" THEN
-                opcMethod = "Weight: (Bol Qty / 100 )  * Lbs/100 * Freight Rate" .
-            ELSE
-                opcMethod = "" .
-        END.
-        
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
