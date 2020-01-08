@@ -16,11 +16,27 @@ PROCEDURE UpdateExpireDate:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprRowID AS ROWID NO-UNDO.
-    FIND FIRST quotehd EXCLUSIVE-LOCK
-        WHERE ROWID(quotehd) EQ iprRowID NO-ERROR .
+    DEFINE VARIABLE lCheckPartNo AS LOGICAL NO-UNDO .
+    DEFINE BUFFER bf-quoteitm FOR quoteitm .
 
-    IF AVAILABLE quotehd THEN
-        ASSIGN quotehd.expireDate = TODAY .
+
+    FIND FIRST quoteitm NO-LOCK
+        WHERE ROWID(quoteitm) EQ iprRowID NO-ERROR .
+    FIND FIRST quotehd EXCLUSIVE-LOCK
+            WHERE quotehd.company EQ quoteitm.company
+            AND quotehd.q-no EQ quoteitm.q-no NO-ERROR .
+    IF AVAILABLE quotehd THEN do:
+        lCheckPartNo = NO .
+        FOR EACH bf-quoteitm NO-LOCK
+            WHERE bf-quoteitm.company EQ quotehd.company
+              AND bf-quoteitm.q-no EQ  quotehd.q-no
+              AND bf-quoteitm.part-no NE quoteitm.part-no
+              AND bf-quoteitm.cust-no EQ quoteitm.cust-no :
+            lCheckPartNo = YES .
+        END.
+        IF NOT lCheckPartNo THEN
+            ASSIGN quotehd.expireDate = TODAY .
+    END.
     FIND CURRENT quotehd NO-LOCK NO-ERROR .
 
 END PROCEDURE.
@@ -75,7 +91,7 @@ PROCEDURE UpdateExpireDate_allQuote:
         FIND FIRST quotehd NO-LOCK
             WHERE quotehd.company EQ quoteitm.company
             AND quotehd.q-no EQ quoteitm.q-no NO-ERROR .
-        FOR EACH bf-quotehd EXCLUSIVE-LOCK
+        FOR EACH bf-quotehd NO-LOCK
             WHERE bf-quotehd.company EQ quoteitm.company
             AND bf-quotehd.loc EQ quoteitm.loc
             AND bf-quotehd.cust-no EQ quotehd.cust-no,
@@ -85,9 +101,8 @@ PROCEDURE UpdateExpireDate_allQuote:
             BY bf-quoteitm.part-no
             BY bf-quotehd.quo-date:
             IF NOT LAST(bf-quotehd.quo-date) AND (bf-quotehd.expireDate GT TODAY OR bf-quotehd.expireDate EQ ?) THEN 
-            DO:
-                ASSIGN 
-                    bf-quotehd.expireDate = TODAY .
+            DO: 
+                RUN UpdateExpireDate(rowid(quoteitm)) .
             END.
             ELSE IF LAST(bf-quotehd.quo-date) THEN 
                 DO:

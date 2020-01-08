@@ -398,7 +398,7 @@ PROCEDURE run-process :
 
         IF NOT LAST(quotehd.quo-date) AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ? ) THEN 
         DO:
-            RUN UpdateExpireDate IN hdupdQuoteProcs(ROWID(quotehd)) .
+            RUN UpdateExpireDate IN hdupdQuoteProcs(ROWID(quoteitm)) .
         END.
         ELSE IF LAST(quotehd.quo-date) THEN 
             DO:
