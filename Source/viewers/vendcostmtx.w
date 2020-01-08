@@ -856,7 +856,8 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF VAR liFromVendItemCostID LIKE vendItemCost.vendItemCostID NO-UNDO.
   DEF BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
-  
+  DEF BUFFER bf-vendItemCost FOR vendItemCost.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   liFromVendItemCostID = vendItemCost.vendItemCostID.
   
@@ -866,6 +867,23 @@ PROCEDURE local-assign-record :
     /* Code placed here will execute AFTER standard behavior.    */
     
   IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
+     FIND bf-venditemcost NO-LOCK WHERE bf-venditemcost.venditemcostID = liFromVendItemCostID NO-ERROR.
+     IF AVAIL bf-venditemcost THEN DO:  /* copy restriction values */
+        ASSIGN vendItemCost.dimLengthMaximum = bf-vendItemCost.dimLengthMaximum
+               vendItemCost.dimLengthMinimum = bf-vendItemCost.dimLengthMinimum 
+/*               vendItemCost.dimLengthOver      */
+/*               vendItemCost.dimLengthOverCharge*/
+               vendItemCost.dimLengthUnder = bf-vendItemCost.dimLengthUnder
+               vendItemCost.dimLengthUnderCharge = bf-vendItemCost.dimLengthUnderCharge
+               vendItemCost.dimWidthUnder = bf-vendItemCost.dimWidthUnder
+               vendItemCost.dimWidthUnderCharge = bf-vendItemCost.dimWidthUnderCharge
+               vendItemCost.validWidth = bf-vendItemCost.validWidth
+               vendItemCost.validLength = bf-vendItemCost.validLength
+               vendItemCost.quantityMinimumOrder = bf-vendItemCost.quantityMinimumOrder
+               vendItemCost.quantityMaximumOrder = bf-vendItemCost.quantityMaximumOrder
+               .
+               
+     END.
      FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = liFromVendItemCostID NO-LOCK: 
        CREATE bf-vendItemCostLevel.
        BUFFER-COPY vendItemCostLevel except vendItemCostLevel.vendItemCostID vendItemCostLevel.vendItemCostLevelID vendItemCostLevel.rec_key TO bf-vendItemCostLevel.      
