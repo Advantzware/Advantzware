@@ -250,6 +250,8 @@ ON WINDOW-CLOSE OF W-Win /* Price Matrix */
 DO:
     /* This ADM code must be left here in order for the SmartWindow
        and its descendents to terminate properly on exit. */
+  RUN setUserExit.
+       
   def var char-hdl as cha no-undo.
   run get-link-handle in adm-broker-hdl(this-procedure,"VendCost-source", output char-hdl).
   IF valid-handle(widget-handle(char-hdl)) THEN 
@@ -658,6 +660,9 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+
+   RUN setUserExit.
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
@@ -716,6 +721,15 @@ PROCEDURE setUserExit:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+  
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+    
   APPLY "window-close" TO CURRENT-WINDOW.
   
 

@@ -1348,6 +1348,8 @@ PROCEDURE local-change-page :
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "IF"' ).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(itemfg.i-no) ).      
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
+        IF itemfg.est-no NE "" THEN 
+           RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + quoter(itemfg.est-no)).
         li-page-b4VendCost = li-prev-page.     
         RUN select-page (14).        
         
@@ -1468,14 +1470,7 @@ PROCEDURE local-exit :
       Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    
-   /* reset VendItemCost Attributes */
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
-/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').*/
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
-   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).    
-/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).    */
-/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).       */
-/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).      */
+   RUN setUserExit.
     
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
@@ -1584,7 +1579,7 @@ PROCEDURE SetUserExit:
 
     /* reset VendItemCost Attributes */
     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
-    /*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').*/
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).    
 /*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).    */

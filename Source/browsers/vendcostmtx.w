@@ -1118,16 +1118,16 @@ PROCEDURE local-open-query :
         RUN dispatch ("row-changed").
 
     END.
-    
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
-    cVendItemCostItem# = RETURN-VALUE.
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
-    IF (cVendItemCostItem# NE "" AND cVendItemCostItem# NE ?) or
-       (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:    
-                         
-       RUN openqueryOne (cVendItemCostItem#).                  
+    IF ll-first THEN DO:
+        RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+        cVendItemCostItem# = RETURN-VALUE.
+        RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
+        IF (cVendItemCostItem# NE "" AND cVendItemCostItem# NE ?) or
+           (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:    
+                             
+           RUN openqueryOne (cVendItemCostItem#).                  
+        END.     
     END.     
-     
     ll-show-all = NO .
   
     APPLY "value-changed" TO BROWSE {&browse-name}.
