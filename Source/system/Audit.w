@@ -59,6 +59,16 @@ DEFINE VARIABLE hPgmMstrSecur      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lAdmin             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dtRecKeyDate       AS DATE      NO-UNDO LABEL "RecKeyDate" FORMAT "99/99/9999".
 DEFINE VARIABLE cRecKeyTime        AS CHARACTER NO-UNDO LABEL "RecKeyTime".
+DEFINE VARIABLE cStartType         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndType           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartUser         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndUser           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartDB           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndDB             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartTable        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndTable          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartField        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndField          AS CHARACTER NO-UNDO.
 
 {AOA/tempTable/ttAudit.i}
 
@@ -111,15 +121,15 @@ OR cAfterValueFilter EQ "") NO-LOCK.
 
 
 /* Definitions for BROWSE AuditHeader                                   */
-&Scoped-define FIELDS-IN-QUERY-AuditHeader AuditHdr.AuditID AuditHdr.AuditType AuditHdr.AuditDateTime AuditHdr.AuditDB AuditHdr.AuditTable AuditHdr.AuditUser fRecKeyDate(AuditHdr.AuditRecKey) @ dtRecKeyDate fRecKeyTime(AuditHdr.AuditRecKey) @ cRecKeyTime AuditHdr.AuditRecKey AuditHdr.AuditKey AuditHdr.AuditStackID   
+&Scoped-define FIELDS-IN-QUERY-AuditHeader AuditHdr.AuditID AuditHdr.AuditType AuditHdr.AuditDateTime AuditHdr.AuditDB AuditHdr.AuditTable AuditHdr.AuditUser AuditHdr.AuditKey fRecKeyDate(AuditHdr.AuditRecKey) @ dtRecKeyDate fRecKeyTime(AuditHdr.AuditRecKey) @ cRecKeyTime AuditHdr.AuditRecKey AuditHdr.AuditStackID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-AuditHeader   
 &Scoped-define SELF-NAME AuditHeader
-&Scoped-define QUERY-STRING-AuditHeader FOR EACH ttAuditDBTable WHERE (ttAuditDBTable.AuditDB EQ svDB OR svDB EQ "ALL") AND (ttAuditDBTable.AuditTable EQ svTable OR svTable EQ "ALL"), ~
-       EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditRecKey GE svStartAuditRecKey AND AuditHdr.AuditRecKey LE svEndAuditRecKey AND (AuditHdr.AuditType EQ svType OR svType EQ "ALL") AND (AuditHdr.AuditUser EQ svUser OR svUser EQ "ALL") AND (AuditHdr.AuditKey EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE), ~
-       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE (AuditDtl.AuditField EQ svField OR svField EQ "ALL") AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ ") AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter OR cAfterValueFilter EQ ")  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-AuditHeader OPEN QUERY {&SELF-NAME} FOR EACH ttAuditDBTable WHERE (ttAuditDBTable.AuditDB EQ svDB OR svDB EQ "ALL") AND (ttAuditDBTable.AuditTable EQ svTable OR svTable EQ "ALL"), ~
-       EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditRecKey GE svStartAuditRecKey AND AuditHdr.AuditRecKey LE svEndAuditRecKey AND (AuditHdr.AuditType EQ svType OR svType EQ "ALL") AND (AuditHdr.AuditUser EQ svUser OR svUser EQ "ALL") AND (AuditHdr.AuditKey EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE), ~
-       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE (AuditDtl.AuditField EQ svField OR svField EQ "ALL") AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ ") AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter OR cAfterValueFilter EQ ")  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-AuditHeader FOR EACH ttAuditDBTable WHERE ttAuditDBTable.AuditDB GE cStartDB AND ttAuditDBTable.AuditDB LE cEndDB AND ttAuditDBTable.AuditTable GE cStartTable AND ttAuditDBTable.AuditTable LE cEndTable, ~
+       EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditType GE cStartType AND AuditHdr.AuditType LE cEndType AND AuditHdr.AuditUser GE cStartUser AND AuditHdr.AuditUser LE cEndUser AND (AuditHdr.AuditKey EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE), ~
+       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE AuditDtl.AuditField GE cStartField AND AuditDtl.AuditField LE cEndField AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ "") AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter OR cAfterValueFilter EQ "")  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-AuditHeader OPEN QUERY {&SELF-NAME} FOR EACH ttAuditDBTable WHERE ttAuditDBTable.AuditDB GE cStartDB AND ttAuditDBTable.AuditDB LE cEndDB AND ttAuditDBTable.AuditTable GE cStartTable AND ttAuditDBTable.AuditTable LE cEndTable, ~
+       EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditType GE cStartType AND AuditHdr.AuditType LE cEndType AND AuditHdr.AuditUser GE cStartUser AND AuditHdr.AuditUser LE cEndUser AND (AuditHdr.AuditKey EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE), ~
+       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE AuditDtl.AuditField GE cStartField AND AuditDtl.AuditField LE cEndField AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ "") AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter OR cAfterValueFilter EQ "")  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-AuditHeader ttAuditDBTable AuditHdr AuditDtl
 &Scoped-define FIRST-TABLE-IN-QUERY-AuditHeader ttAuditDBTable
 &Scoped-define SECOND-TABLE-IN-QUERY-AuditHeader AuditHdr
@@ -156,17 +166,24 @@ svSortByDtl
 &Scoped-Define DISPLAYED-OBJECTS svSortByHdr svSortByDtl 
 
 /* Custom List Definitions                                              */
-/* userPrintFields,recKeyFields,List-3,List-4,List-5,List-6             */
-&Scoped-define userPrintFields svType svStartDate svStartDateOption svDB ~
-maxRows svUser svEndDate svEndDateOption svTable svField svStartRecKeyDate ~
-svStartRecKeyDateOption svStartRecKeyHour svStartRecKeyMin svStartRecKeySec ~
-svStartAuditRecKey svEndRecKeyDate svEndRecKeyDateOption svEndRecKeyHour ~
-svEndRecKeyMin svEndRecKeySec svEndAuditRecKey 
-&Scoped-define recKeyFields svStartRecKeyDate svStartRecKeyHour ~
-svStartRecKeyMin svStartRecKeySec svEndRecKeyDate svEndRecKeyHour ~
-svEndRecKeyMin svEndRecKeySec 
-&Scoped-define List-3 btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-btnCalendar-4 
+/* userPrintFields,recKeyFields,recKeyObjects,auditDateFields,searchObjects,List-6 */
+&Scoped-define userPrintFields svType svUser svStartDate svStartDateOption ~
+svStartDateHour svStartDateMin svEndDate svEndDateOption svEndDateHour ~
+svEndDateMin svDB svTable svField maxRows svStartAuditRecKey ~
+svEndAuditRecKey svStartRecKeyDate svStartRecKeyDateOption ~
+svStartRecKeyHour svStartRecKeyMin svStartRecKeySec svEndRecKeyDate ~
+svEndRecKeyDateOption svEndRecKeyHour svEndRecKeyMin svEndRecKeySec 
+&Scoped-define recKeyFields svStartAuditRecKey svEndAuditRecKey ~
+svStartRecKeyDate svStartRecKeyDateOption svStartRecKeyHour ~
+svStartRecKeyMin svStartRecKeySec svEndRecKeyDate svEndRecKeyDateOption ~
+svEndRecKeyHour svEndRecKeyMin svEndRecKeySec 
+&Scoped-define recKeyObjects btnCalendar-3 btnCalendar-4 
+&Scoped-define auditDateFields svStartDate svStartDateHour svEndDate ~
+svEndDateHour svEndDateMin 
+&Scoped-define searchObjects svType svUser svField AuditHdr.AuditKey ~
+svBeforeValueFilter svAfterValueFilter btnAfterValueFilterClear ~
+btnBeforeValueFilterClear btnFilterAfterValue btnFilterAuditKey ~
+btnFilterBeforeValue btnHistory 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -184,6 +201,13 @@ FUNCTION fRecKeyDate RETURNS DATE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fRecKeyTime C-Win 
 FUNCTION fRecKeyTime RETURNS CHARACTER
   ( ipcAuditRecKey AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetAuditDate C-Win 
+FUNCTION fSetAuditDate RETURNS CHARACTER
+  ( ipcType AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -291,7 +315,7 @@ DEFINE VARIABLE svDB AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 26 BY 1 TOOLTIP "Select Audit DB Filter" NO-UNDO.
+     SIZE 25 BY 1 TOOLTIP "Select Audit DB Filter" NO-UNDO.
 
 DEFINE VARIABLE svEndDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -310,7 +334,7 @@ DEFINE VARIABLE svField AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEM-PAIRS "All","All"
      DROP-DOWN-LIST
-     SIZE 56 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
+     SIZE 50 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
 
 DEFINE VARIABLE svStartDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -329,7 +353,7 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEM-PAIRS "All","All"
      DROP-DOWN-LIST
-     SIZE 56 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
+     SIZE 50 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
@@ -348,39 +372,48 @@ DEFINE VARIABLE svUser AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 DEFINE VARIABLE initTime AS DECIMAL FORMAT "->>,>>9.999":U INITIAL 0 
      LABEL "Initialize Time" 
      VIEW-AS FILL-IN 
-     SIZE 15.8 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE maxRows AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 1500 
      LABEL "Max Rows" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE searchTime AS DECIMAL FORMAT "->>,>>9.999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAfterValueFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "After Value" 
      VIEW-AS FILL-IN 
-     SIZE 60.4 BY 1 NO-UNDO.
+     SIZE 56.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svBeforeValueFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Before Value" 
      VIEW-AS FILL-IN 
-     SIZE 60.4 BY 1 NO-UNDO.
+     SIZE 56.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svEndAuditRecKey AS CHARACTER FORMAT "X(256)":U 
      LABEL "End Rec Key" 
      VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svEndDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/49 
      LABEL "To Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Enter To Date" NO-UNDO.
 
+DEFINE VARIABLE svEndDateHour AS INTEGER FORMAT "99":U INITIAL 24 
+     LABEL "Time" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svEndDateMin AS INTEGER FORMAT "99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svEndRecKeyDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/49 
-     LABEL "To Rec Key  Date" 
+     LABEL "To RecKey  Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Enter To Date" NO-UNDO.
 
@@ -400,15 +433,24 @@ DEFINE VARIABLE svEndRecKeySec AS INTEGER FORMAT "99":U INITIAL 0
 DEFINE VARIABLE svStartAuditRecKey AS CHARACTER FORMAT "X(256)":U 
      LABEL "Start Rec Key" 
      VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svStartDate AS DATE FORMAT "99/99/9999":U 
      LABEL "From Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Enter From Date" NO-UNDO.
 
+DEFINE VARIABLE svStartDateHour AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "Time" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartDateMin AS INTEGER FORMAT "99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svStartRecKeyDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
-     LABEL "From Rec Key Date" 
+     LABEL "From RecKey Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Enter From Date" NO-UNDO.
 
@@ -424,6 +466,11 @@ DEFINE VARIABLE svStartRecKeyMin AS INTEGER FORMAT "99":U INITIAL 0
 DEFINE VARIABLE svStartRecKeySec AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svUseRecKeySearch AS LOGICAL INITIAL no 
+     LABEL "Use Rec Key Search" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 27 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSortByDtl AS CHARACTER FORMAT "X(256)":U 
      LABEL " Sorted By" 
@@ -479,10 +526,10 @@ AuditHdr.AuditDB COLUMN-LABEL "DB" FORMAT "x(6)":U LABEL-BGCOLOR 14
 AuditHdr.AuditTable COLUMN-LABEL "Table / Prgm" FORMAT "x(16)":U
       LABEL-BGCOLOR 14
 AuditHdr.AuditUser FORMAT "x(16)":U LABEL-BGCOLOR 14
+AuditHdr.AuditKey FORMAT "x(40)":U LABEL-BGCOLOR 14
 fRecKeyDate(AuditHdr.AuditRecKey) @ dtRecKeyDate
 fRecKeyTime(AuditHdr.AuditRecKey) @ cRecKeyTime
 AuditHdr.AuditRecKey FORMAT "x(25)":U LABEL-BGCOLOR 14
-AuditHdr.AuditKey FORMAT "x(40)":U LABEL-BGCOLOR 14
 AuditHdr.AuditStackID FORMAT "->,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -566,70 +613,69 @@ DEFINE FRAME AuditView
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
 
 DEFINE FRAME AuditSearch
-     btnRestore AT ROW 5.05 COL 7 HELP
-          "Print" WIDGET-ID 320
      svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 1.24 COL 37 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 55 WIDGET-ID 272
-     svStartDateOption AT ROW 1.24 COL 60 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svDB AT ROW 1.24 COL 96 COLON-ALIGNED HELP
-          "Select Audit DB Filter" WIDGET-ID 14
-     maxRows AT ROW 1.24 COL 138 COLON-ALIGNED WIDGET-ID 290
-     btnPrint AT ROW 5.05 COL 195 HELP
-          "Print" WIDGET-ID 280
-     AuditHdr.AuditKey AT ROW 1.24 COL 167 COLON-ALIGNED WIDGET-ID 26
-          LABEL "Audit Key" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 60.4 BY 1
-          BGCOLOR 15 
      svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
-     svEndDate AT ROW 2.43 COL 37 COLON-ALIGNED HELP
+     btnRestore AT ROW 5.05 COL 2 HELP
+          "Print" WIDGET-ID 320
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 20
+     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     svStartDateOption AT ROW 1.24 COL 59 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svStartDateHour AT ROW 1.24 COL 89 COLON-ALIGNED HELP
+          "Enter Start Date Hour" WIDGET-ID 338
+     svStartDateMin AT ROW 1.24 COL 94 COLON-ALIGNED HELP
+          "Enter Start Date Minute" NO-LABEL WIDGET-ID 340
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
           "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 55 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 60 HELP
+     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
+     svEndDateOption AT ROW 2.43 COL 59 HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svTable AT ROW 2.43 COL 96 COLON-ALIGNED HELP
+     svEndDateHour AT ROW 2.43 COL 89 COLON-ALIGNED HELP
+          "Enter End Date Hour" WIDGET-ID 334
+     svEndDateMin AT ROW 2.43 COL 94 COLON-ALIGNED HELP
+          "Enter End Date Minute" NO-LABEL WIDGET-ID 336
+     svDB AT ROW 1.24 COL 106 COLON-ALIGNED HELP
+          "Select Audit DB Filter" WIDGET-ID 14
+     svTable AT ROW 2.43 COL 106 COLON-ALIGNED HELP
           "Select Audit Table Filter" WIDGET-ID 16
-     svBeforeValueFilter AT ROW 2.43 COL 167 COLON-ALIGNED HELP
-          "Enter Before Value to Filter" WIDGET-ID 36
-     initTime AT ROW 3.62 COL 37 COLON-ALIGNED WIDGET-ID 322
-     svField AT ROW 3.62 COL 96 COLON-ALIGNED HELP
+     svField AT ROW 3.62 COL 106 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
-     svAfterValueFilter AT ROW 3.62 COL 167 COLON-ALIGNED HELP
+     maxRows AT ROW 1.24 COL 143 COLON-ALIGNED WIDGET-ID 290
+     btnPrint AT ROW 5.05 COL 197 HELP
+          "Print" WIDGET-ID 280
+     AuditHdr.AuditKey AT ROW 1.24 COL 171 COLON-ALIGNED WIDGET-ID 26
+          LABEL "Audit Key" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 56.4 BY 1
+          BGCOLOR 15 
+     svBeforeValueFilter AT ROW 2.43 COL 171 COLON-ALIGNED HELP
+          "Enter Before Value to Filter" WIDGET-ID 36
+     svAfterValueFilter AT ROW 3.62 COL 171 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
-     svStartRecKeyDate AT ROW 4.81 COL 37 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 300
-     btnCalendar-3 AT ROW 4.81 COL 55 WIDGET-ID 304
-     svStartRecKeyDateOption AT ROW 4.81 COL 60 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 310
-     svStartRecKeyHour AT ROW 4.81 COL 96 COLON-ALIGNED HELP
-          "Enter Start Rec Key Hour" WIDGET-ID 312
-     svStartRecKeyMin AT ROW 4.81 COL 101 COLON-ALIGNED HELP
-          "Enter Start Rec Key Minute" NO-LABEL WIDGET-ID 314
-     svStartRecKeySec AT ROW 4.81 COL 106 COLON-ALIGNED HELP
-          "Enter Start Rec Key Second" NO-LABEL WIDGET-ID 328
-     svStartAuditRecKey AT ROW 4.81 COL 126 COLON-ALIGNED HELP
+     svUseRecKeySearch AT ROW 3.62 COL 10 WIDGET-ID 342
+     svStartAuditRecKey AT ROW 4.81 COL 36 COLON-ALIGNED HELP
           "Enter Start Audit Table Rec Key Value" WIDGET-ID 298
-     svEndRecKeyDate AT ROW 6 COL 37 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 302
-     btnCalendar-4 AT ROW 6 COL 55 WIDGET-ID 306
-     svEndRecKeyDateOption AT ROW 6 COL 60 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 308
-     svEndRecKeyHour AT ROW 6 COL 96 COLON-ALIGNED HELP
-          "Enter End Rec Key Hour" WIDGET-ID 316
-     svEndRecKeyMin AT ROW 6 COL 101 COLON-ALIGNED HELP
-          "Enter End Rec Key Minute" NO-LABEL WIDGET-ID 318
-     svEndRecKeySec AT ROW 6 COL 106 COLON-ALIGNED HELP
-          "Enter End Rec Key Second" NO-LABEL WIDGET-ID 330
-     svEndAuditRecKey AT ROW 6 COL 126 COLON-ALIGNED HELP
+     svEndAuditRecKey AT ROW 6 COL 36 COLON-ALIGNED HELP
           "Enter End Audit Table Rec Key Value" WIDGET-ID 326
-     searchTime AT ROW 6 COL 153 COLON-ALIGNED NO-LABEL WIDGET-ID 324
-     btnStack AT ROW 5.05 COL 208 HELP
-          "Click to View Program Stack Trace" WIDGET-ID 282
+     svStartRecKeyDate AT ROW 4.81 COL 85 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 300
+     btnCalendar-3 AT ROW 4.81 COL 103 WIDGET-ID 304
+     svStartRecKeyDateOption AT ROW 4.81 COL 108 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 310
+     svStartRecKeyHour AT ROW 4.81 COL 142 COLON-ALIGNED HELP
+          "Enter Start Rec Key Hour" WIDGET-ID 312
+     svStartRecKeyMin AT ROW 4.81 COL 147 COLON-ALIGNED HELP
+          "Enter Start Rec Key Minute" NO-LABEL WIDGET-ID 314
+     svStartRecKeySec AT ROW 4.81 COL 152 COLON-ALIGNED HELP
+          "Enter Start Rec Key Second" NO-LABEL WIDGET-ID 328
+     svEndRecKeyDate AT ROW 6 COL 85 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 302
+     btnCalendar-4 AT ROW 6 COL 103 WIDGET-ID 306
+     svEndRecKeyDateOption AT ROW 6 COL 108 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 308
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -638,15 +684,25 @@ DEFINE FRAME AuditSearch
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME AuditSearch
+     svEndRecKeyHour AT ROW 6 COL 142 COLON-ALIGNED HELP
+          "Enter End Rec Key Hour" WIDGET-ID 316
+     svEndRecKeyMin AT ROW 6 COL 147 COLON-ALIGNED HELP
+          "Enter End Rec Key Minute" NO-LABEL WIDGET-ID 318
+     svEndRecKeySec AT ROW 6 COL 152 COLON-ALIGNED HELP
+          "Enter End Rec Key Second" NO-LABEL WIDGET-ID 330
+     searchTime AT ROW 6 COL 158 COLON-ALIGNED NO-LABEL WIDGET-ID 324
+     initTime AT ROW 3.62 COL 85 COLON-ALIGNED WIDGET-ID 322
+     btnStack AT ROW 5.05 COL 209 HELP
+          "Click to View Program Stack Trace" WIDGET-ID 282
      btnAuditTables AT ROW 5.05 COL 221 HELP
           "Click to Access Tables to Audit" WIDGET-ID 288
      btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
           "Click to Clear After Value Filter" WIDGET-ID 42
      btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
           "Click to Clear Before Value Filter" WIDGET-ID 40
-     btnClear AT ROW 5.05 COL 182 HELP
+     btnClear AT ROW 5.05 COL 185 HELP
           "Click to Clear Filters" WIDGET-ID 284
-     btnSearch AT ROW 5.05 COL 169 HELP
+     btnSearch AT ROW 5.05 COL 173 HELP
           "Click to Apply Filter Selections" WIDGET-ID 286
      btnFilterAfterValue AT ROW 3.62 COL 230 HELP
           "Select to Filter by After Value" WIDGET-ID 34
@@ -657,7 +713,7 @@ DEFINE FRAME AuditSearch
      btnHistory AT ROW 1.24 COL 234 HELP
           "Click to View History" WIDGET-ID 30
      "Search Time" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 5.29 COL 155 WIDGET-ID 332
+          SIZE 12 BY .62 AT ROW 5.29 COL 160 WIDGET-ID 332
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -714,20 +770,28 @@ ASSIGN FRAME AuditSearch:FRAME = FRAME DEFAULT-FRAME:HANDLE
        FRAME AuditView:FRAME = FRAME DEFAULT-FRAME:HANDLE.
 
 /* SETTINGS FOR FRAME AuditSearch
-                                                                        */
+   Custom                                                               */
 /* SETTINGS FOR FILL-IN AuditHdr.AuditKey IN FRAME AuditSearch
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   NO-ENABLE 5 EXP-LABEL EXP-FORMAT                                     */
 ASSIGN 
        AuditHdr.AuditKey:READ-ONLY IN FRAME AuditSearch        = TRUE.
 
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME AuditSearch
-   3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME AuditSearch
-   3                                                                    */
+/* SETTINGS FOR BUTTON btnAfterValueFilterClear IN FRAME AuditSearch
+   5                                                                    */
+/* SETTINGS FOR BUTTON btnBeforeValueFilterClear IN FRAME AuditSearch
+   5                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME AuditSearch
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-4 IN FRAME AuditSearch
    3                                                                    */
+/* SETTINGS FOR BUTTON btnFilterAfterValue IN FRAME AuditSearch
+   5                                                                    */
+/* SETTINGS FOR BUTTON btnFilterAuditKey IN FRAME AuditSearch
+   5                                                                    */
+/* SETTINGS FOR BUTTON btnFilterBeforeValue IN FRAME AuditSearch
+   5                                                                    */
+/* SETTINGS FOR BUTTON btnHistory IN FRAME AuditSearch
+   5                                                                    */
 /* SETTINGS FOR BUTTON btnRestore IN FRAME AuditSearch
    NO-ENABLE                                                            */
 ASSIGN 
@@ -743,10 +807,14 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN searchTime IN FRAME AuditSearch
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN svAfterValueFilter IN FRAME AuditSearch
+   5                                                                    */
 ASSIGN 
        svAfterValueFilter:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
 
+/* SETTINGS FOR FILL-IN svBeforeValueFilter IN FRAME AuditSearch
+   5                                                                    */
 ASSIGN 
        svBeforeValueFilter:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
@@ -758,13 +826,17 @@ ASSIGN
                 "parameter".
 
 /* SETTINGS FOR FILL-IN svEndAuditRecKey IN FRAME AuditSearch
-   1                                                                    */
+   1 2                                                                  */
 /* SETTINGS FOR FILL-IN svEndDate IN FRAME AuditSearch
-   1                                                                    */
+   1 4                                                                  */
 ASSIGN 
        svEndDate:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
 
+/* SETTINGS FOR FILL-IN svEndDateHour IN FRAME AuditSearch
+   1 4                                                                  */
+/* SETTINGS FOR FILL-IN svEndDateMin IN FRAME AuditSearch
+   1 4                                                                  */
 /* SETTINGS FOR COMBO-BOX svEndDateOption IN FRAME AuditSearch
    ALIGN-L 1                                                            */
 ASSIGN 
@@ -778,7 +850,7 @@ ASSIGN
                 "parameter".
 
 /* SETTINGS FOR COMBO-BOX svEndRecKeyDateOption IN FRAME AuditSearch
-   ALIGN-L 1                                                            */
+   ALIGN-L 1 2                                                          */
 ASSIGN 
        svEndRecKeyDateOption:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
@@ -790,19 +862,23 @@ ASSIGN
 /* SETTINGS FOR FILL-IN svEndRecKeySec IN FRAME AuditSearch
    1 2                                                                  */
 /* SETTINGS FOR COMBO-BOX svField IN FRAME AuditSearch
-   1                                                                    */
+   1 5                                                                  */
 ASSIGN 
        svField:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
 
 /* SETTINGS FOR FILL-IN svStartAuditRecKey IN FRAME AuditSearch
-   1                                                                    */
+   1 2                                                                  */
 /* SETTINGS FOR FILL-IN svStartDate IN FRAME AuditSearch
-   1                                                                    */
+   1 4                                                                  */
 ASSIGN 
        svStartDate:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
 
+/* SETTINGS FOR FILL-IN svStartDateHour IN FRAME AuditSearch
+   1 4                                                                  */
+/* SETTINGS FOR FILL-IN svStartDateMin IN FRAME AuditSearch
+   1                                                                    */
 /* SETTINGS FOR COMBO-BOX svStartDateOption IN FRAME AuditSearch
    ALIGN-L 1                                                            */
 ASSIGN 
@@ -816,7 +892,7 @@ ASSIGN
                 "parameter".
 
 /* SETTINGS FOR COMBO-BOX svStartRecKeyDateOption IN FRAME AuditSearch
-   ALIGN-L 1                                                            */
+   ALIGN-L 1 2                                                          */
 ASSIGN 
        svStartRecKeyDateOption:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
@@ -834,13 +910,13 @@ ASSIGN
                 "parameter".
 
 /* SETTINGS FOR COMBO-BOX svType IN FRAME AuditSearch
-   1                                                                    */
+   1 5                                                                  */
 ASSIGN 
        svType:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
 
 /* SETTINGS FOR COMBO-BOX svUser IN FRAME AuditSearch
-   1                                                                    */
+   1 5                                                                  */
 ASSIGN 
        svUser:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "parameter".
@@ -932,25 +1008,28 @@ OR cAfterValueFilter EQ """")"
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME}
 FOR EACH ttAuditDBTable
-WHERE (ttAuditDBTable.AuditDB EQ svDB OR svDB EQ "ALL")
-AND (ttAuditDBTable.AuditTable EQ svTable OR svTable EQ "ALL"),
+WHERE ttAuditDBTable.AuditDB GE cStartDB
+AND ttAuditDBTable.AuditDB LE cEndDB
+AND ttAuditDBTable.AuditTable GE cStartTable
+AND ttAuditDBTable.AuditTable LE cEndTable,
 EACH AuditHdr NO-LOCK
 WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB
 AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable
 AND AuditHdr.AuditDateTime GE dtStartDateTime
 AND AuditHdr.AuditDateTime LE dtEndDateTime
-AND AuditHdr.AuditRecKey GE svStartAuditRecKey
-AND AuditHdr.AuditRecKey LE svEndAuditRecKey
-AND (AuditHdr.AuditType EQ svType OR svType EQ "ALL")
-AND (AuditHdr.AuditUser EQ svUser OR svUser EQ "ALL")
+AND AuditHdr.AuditType GE cStartType
+AND AuditHdr.AuditType LE cEndType
+AND AuditHdr.AuditUser GE cStartUser
+AND AuditHdr.AuditUser LE cEndUser
 AND (AuditHdr.AuditKey EQ cAuditKeyFilter
 OR lAuditKeyFilter EQ FALSE),
 FIRST AuditDtl OF AuditHdr NO-LOCK
-WHERE (AuditDtl.AuditField EQ svField OR svField EQ "ALL")
+WHERE AuditDtl.AuditField GE cStartField
+AND AuditDtl.AuditField LE cEndField
 AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter
-OR cBeforeValueFilter EQ ")
+OR cBeforeValueFilter EQ "")
 AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter
-OR cAfterValueFilter EQ ")
+OR cAfterValueFilter EQ "")
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK SORTBY-PHRASE"
@@ -1126,7 +1205,7 @@ DO:
         btnRestore:SENSITIVE = AuditHdr.AuditType EQ "DELETE"
         .
     {&OPEN-QUERY-AuditDetail}
-    APPLY 'VALUE-CHANGED':U TO BROWSE AuditDetail.
+    APPLY "VALUE-CHANGED":U TO BROWSE AuditDetail.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1145,7 +1224,7 @@ DO:
         cAfterValueFilter = ""
         svAfterValueFilter:BGCOLOR = 15
         .
-    APPLY 'CHOOSE':U TO btnSearch.
+    APPLY "CHOOSE":U TO btnSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1174,7 +1253,7 @@ DO:
         cBeforeValueFilter = ""
         svBeforeValueFilter:BGCOLOR = 15
         .
-    APPLY 'CHOOSE':U TO btnSearch.
+    APPLY "CHOOSE":U TO btnSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1258,8 +1337,8 @@ DO:
     RUN pGetFilterValues ("ALL").
     RUN pGetFilterValues ("TABLE").
     RUN pGetFilterValues ("FIELD").
-    APPLY 'VALUE-CHANGED':U TO svStartDateOption.
-    APPLY 'VALUE-CHANGED':U TO svEndDateOption.
+    APPLY "VALUE-CHANGED":U TO svStartDateOption.
+    APPLY "VALUE-CHANGED":U TO svEndDateOption.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1276,7 +1355,7 @@ DO:
         cAfterValueFilter = IF lAfterValueFilter THEN svAfterValueFilter ELSE ""
         svAfterValueFilter:BGCOLOR = IF lAfterValueFilter THEN 14 ELSE 15
         .
-    APPLY 'CHOOSE':U TO btnSearch.
+    APPLY "CHOOSE":U TO btnSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1292,7 +1371,7 @@ DO:
         cAuditKeyFilter = IF lAuditKeyFilter THEN AuditHdr.AuditKey ELSE ""
         AuditHdr.AuditKey:BGCOLOR = IF lAuditKeyFilter THEN 14 ELSE 15
         .
-    APPLY 'CHOOSE':U TO btnSearch.
+    APPLY "CHOOSE":U TO btnSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1309,7 +1388,7 @@ DO:
         cBeforeValueFilter = IF lBeforeValueFilter THEN svBeforeValueFilter ELSE ""
         svBeforeValueFilter:BGCOLOR = IF lBeforeValueFilter THEN 14 ELSE 15
         .
-    APPLY 'CHOOSE':U TO btnSearch.
+    APPLY "CHOOSE":U TO btnSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1426,6 +1505,7 @@ END.
 ON VALUE-CHANGED OF svDB IN FRAME AuditSearch /* DB */
 DO:
     ASSIGN {&SELF-NAME}.
+    RUN pSetStartEndRange (SELF).
     RUN pGetFilterValues ("TABLE").
     RUN pGetFilterValues ("FIELD").
 END.
@@ -1448,10 +1528,38 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDate C-Win
 ON LEAVE OF svEndDate IN FRAME AuditSearch /* To Date */
 DO:
+    fSetAuditDate ("Start").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndDateHour
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDateHour C-Win
+ON LEAVE OF svEndDateHour IN FRAME AuditSearch /* Time */
+DO:
+    IF {&SELF-NAME}:SCREEN-VALUE GT "24" THEN
     ASSIGN
-        {&SELF-NAME}
-        dtEndDateTime = DATETIME(STRING({&SELF-NAME},"99/99/9999") + " 23:59:59")
+        {&SELF-NAME}:SCREEN-VALUE = "24"
+        svEndDateMin:SCREEN-VALUE = "00"
         .
+    fSetAuditDate ("Start").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndDateMin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDateMin C-Win
+ON LEAVE OF svEndDateMin IN FRAME AuditSearch
+DO:
+    IF svEndDateHour:SCREEN-VALUE EQ "24" THEN
+    {&SELF-NAME}:SCREEN-VALUE = "00".
+    IF {&SELF-NAME}:SCREEN-VALUE GT "59" THEN
+    {&SELF-NAME}:SCREEN-VALUE = "59".
+    fSetAuditDate ("Start").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1463,7 +1571,7 @@ END.
 ON VALUE-CHANGED OF svEndDateOption IN FRAME AuditSearch
 DO:
     {aoa/includes/tDateOption.i &dateObject=svEndDate &btnCalendar=2}
-    APPLY 'LEAVE':U TO svEndDate.
+    APPLY "LEAVE":U TO svEndDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1472,7 +1580,7 @@ END.
 
 &Scoped-define SELF-NAME svEndRecKeyDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndRecKeyDate C-Win
-ON HELP OF svEndRecKeyDate IN FRAME AuditSearch /* To Rec Key  Date */
+ON HELP OF svEndRecKeyDate IN FRAME AuditSearch /* To RecKey  Date */
 DO:
     {methods/calendar.i}
 END.
@@ -1482,7 +1590,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndRecKeyDate C-Win
-ON LEAVE OF svEndRecKeyDate IN FRAME AuditSearch /* To Rec Key  Date */
+ON LEAVE OF svEndRecKeyDate IN FRAME AuditSearch /* To RecKey  Date */
 DO:
     fSetAuditRecKey ("End").
 END.
@@ -1496,7 +1604,7 @@ END.
 ON VALUE-CHANGED OF svEndRecKeyDateOption IN FRAME AuditSearch
 DO:
     {aoa/includes/tDateOption.i &dateObject=svEndRecKeyDate &btnCalendar=4}
-    APPLY 'LEAVE':U TO svEndRecKeyDate.
+    APPLY "LEAVE":U TO svEndRecKeyDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1554,7 +1662,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svField C-Win
 ON VALUE-CHANGED OF svField IN FRAME AuditSearch /* Field */
 DO:
-  ASSIGN {&SELF-NAME}.
+    ASSIGN {&SELF-NAME}.
+    RUN pSetStartEndRange (SELF).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1575,10 +1684,38 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDate C-Win
 ON LEAVE OF svStartDate IN FRAME AuditSearch /* From Date */
 DO:
+    fSetAuditDate ("Start").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartDateHour
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDateHour C-Win
+ON LEAVE OF svStartDateHour IN FRAME AuditSearch /* Time */
+DO:
+    IF {&SELF-NAME}:SCREEN-VALUE GT "24" THEN
     ASSIGN
-        {&SELF-NAME}
-        dtStartDateTime = DATETIME(STRING({&SELF-NAME},"99/99/9999") + " 00:00:00")
+        {&SELF-NAME}:SCREEN-VALUE = "24"
+        svStartDateMin:SCREEN-VALUE = "00"
         .
+    fSetAuditDate ("Start").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartDateMin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDateMin C-Win
+ON LEAVE OF svStartDateMin IN FRAME AuditSearch
+DO:
+    IF svStartDateHour:SCREEN-VALUE EQ "24" THEN
+    {&SELF-NAME}:SCREEN-VALUE = "00".
+    IF {&SELF-NAME}:SCREEN-VALUE GT "59" THEN
+    {&SELF-NAME}:SCREEN-VALUE = "59".
+    fSetAuditDate ("Start").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1590,7 +1727,7 @@ END.
 ON VALUE-CHANGED OF svStartDateOption IN FRAME AuditSearch
 DO:
     {AOA/includes/tDateOption.i &dateObject=svStartDate &btnCalendar=1}
-    APPLY 'LEAVE':U TO svStartDate.
+    APPLY "LEAVE":U TO svStartDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1599,7 +1736,7 @@ END.
 
 &Scoped-define SELF-NAME svStartRecKeyDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartRecKeyDate C-Win
-ON HELP OF svStartRecKeyDate IN FRAME AuditSearch /* From Rec Key Date */
+ON HELP OF svStartRecKeyDate IN FRAME AuditSearch /* From RecKey Date */
 DO:
     {methods/calendar.i}
 END.
@@ -1609,7 +1746,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartRecKeyDate C-Win
-ON LEAVE OF svStartRecKeyDate IN FRAME AuditSearch /* From Rec Key Date */
+ON LEAVE OF svStartRecKeyDate IN FRAME AuditSearch /* From RecKey Date */
 DO:
     fSetAuditRecKey ("Start").
 END.
@@ -1623,7 +1760,7 @@ END.
 ON VALUE-CHANGED OF svStartRecKeyDateOption IN FRAME AuditSearch
 DO:
     {AOA/includes/tDateOption.i &dateObject=svStartRecKeyDate &btnCalendar=3}
-    APPLY 'LEAVE':U TO svStartRecKeyDate.
+    APPLY "LEAVE":U TO svStartRecKeyDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1682,6 +1819,7 @@ END.
 ON VALUE-CHANGED OF svTable IN FRAME AuditSearch /* Table */
 DO:
     ASSIGN {&SELF-NAME}.
+    RUN pSetStartEndRange (SELF).
     RUN pGetFilterValues ("FIELD").
 END.
 
@@ -1693,9 +1831,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svType C-Win
 ON VALUE-CHANGED OF svType IN FRAME AuditSearch /* Type */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pGetFilterValues ("TABLE").
-  RUN pGetFilterValues ("FIELD").
+    ASSIGN {&SELF-NAME}.
+    RUN pSetStartEndRange (SELF).
+    RUN pGetFilterValues ("TABLE").
+    RUN pGetFilterValues ("FIELD").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1706,7 +1845,31 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUser C-Win
 ON VALUE-CHANGED OF svUser IN FRAME AuditSearch /* User ID */
 DO:
-  ASSIGN {&SELF-NAME}.
+    ASSIGN {&SELF-NAME}.
+    RUN pSetStartEndRange (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svUseRecKeySearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUseRecKeySearch C-Win
+ON VALUE-CHANGED OF svUseRecKeySearch IN FRAME AuditSearch /* Use Rec Key Search */
+DO:
+    ASSIGN {&SELF-NAME}.
+    IF {&SELF-NAME} THEN DO:
+        DISABLE {&searchObjects} WITH FRAME AuditSearch.
+        ENABLE {&recKeyFields} {&recKeyObjects} WITH FRAME AuditSearch.
+        APPLY "VALUE-CHANGED":U TO svStartRecKeyDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndRecKeyDateOption.
+    END. /* if */
+    ELSE DO:
+        DISABLE {&recKeyFields} {&recKeyObjects} WITH FRAME AuditSearch.
+        ENABLE {&searchObjects} WITH FRAME AuditSearch.
+        APPLY "VALUE-CHANGED":U TO svStartDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndDateOption.
+    END. /* else */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1786,15 +1949,26 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     &ELSE
     RUN pGetSettings.
     &ENDIF
-    APPLY 'VALUE-CHANGED':U TO svStartDateOption.
-    APPLY 'VALUE-CHANGED':U TO svEndDateOption.
-    APPLY 'VALUE-CHANGED':U TO svStartRecKeyDateOption.
-    APPLY 'VALUE-CHANGED':U TO svEndRecKeyDateOption.
+    ASSIGN
+        svUseRecKeySearch = NO
+        svUseRecKeySearch:SCREEN-VALUE = STRING(svUseRecKeySearch)
+        svUseRecKeySearch:SENSITIVE = lAdmin
+        .
+    RUN pSetStartEndRange (svType:HANDLE).
+    RUN pSetStartEndRange (svUser:HANDLE).
+    RUN pSetStartEndRange (svDB:HANDLE).
+    RUN pSetStartEndRange (svTable:HANDLE).
+    RUN pSetStartEndRange (svField:HANDLE).
+    APPLY "VALUE-CHANGED":U TO svStartDateOption.
+    APPLY "VALUE-CHANGED":U TO svEndDateOption.
+    APPLY "VALUE-CHANGED":U TO svStartRecKeyDateOption.
+    APPLY "VALUE-CHANGED":U TO svEndRecKeyDateOption.
+    APPLY "VALUE-CHANGED":U TO svUseRecKeySearch.
     initTime:SCREEN-VALUE = STRING(ETIME / 1000).
     SESSION:SET-WAIT-STATE("General").
     ETIME(YES).
     RUN pByAuditID.
-    APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
+    APPLY "VALUE-CHANGED":U TO BROWSE AuditHeader.
     searchTime:SCREEN-VALUE IN FRAME AuditSearch = STRING(ETIME / 1000).
     SESSION:SET-WAIT-STATE("").
   END. /* if lcontinue */
@@ -1860,23 +2034,26 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svType svStartDate svStartDateOption svDB maxRows svUser svEndDate 
-          svEndDateOption svTable svBeforeValueFilter initTime svField 
-          svAfterValueFilter svStartRecKeyDate svStartRecKeyDateOption 
-          svStartRecKeyHour svStartRecKeyMin svStartRecKeySec svStartAuditRecKey 
-          svEndRecKeyDate svEndRecKeyDateOption svEndRecKeyHour svEndRecKeyMin 
-          svEndRecKeySec svEndAuditRecKey searchTime 
+  DISPLAY svType svUser svStartDate svStartDateOption svStartDateHour 
+          svStartDateMin svEndDate svEndDateOption svEndDateHour svEndDateMin 
+          svDB svTable svField maxRows svBeforeValueFilter svAfterValueFilter 
+          svUseRecKeySearch svStartAuditRecKey svEndAuditRecKey 
+          svStartRecKeyDate svStartRecKeyDateOption svStartRecKeyHour 
+          svStartRecKeyMin svStartRecKeySec svEndRecKeyDate 
+          svEndRecKeyDateOption svEndRecKeyHour svEndRecKeyMin svEndRecKeySec 
+          searchTime initTime 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   IF AVAILABLE AuditHdr THEN 
     DISPLAY AuditHdr.AuditKey 
       WITH FRAME AuditSearch IN WINDOW C-Win.
-  ENABLE svType svStartDate btnCalendar-1 svStartDateOption svDB maxRows 
-         btnPrint svUser svEndDate btnCalendar-2 svEndDateOption svTable 
-         svBeforeValueFilter svField svAfterValueFilter svStartRecKeyDate 
-         btnCalendar-3 svStartRecKeyDateOption svStartRecKeyHour 
-         svStartRecKeyMin svStartRecKeySec svStartAuditRecKey svEndRecKeyDate 
-         btnCalendar-4 svEndRecKeyDateOption svEndRecKeyHour svEndRecKeyMin 
-         svEndRecKeySec svEndAuditRecKey btnStack btnAuditTables 
+  ENABLE svType svUser svStartDate btnCalendar-1 svStartDateOption 
+         svStartDateHour svStartDateMin svEndDate btnCalendar-2 svEndDateOption 
+         svEndDateHour svEndDateMin svDB svTable svField maxRows btnPrint 
+         svBeforeValueFilter svAfterValueFilter svUseRecKeySearch 
+         svStartAuditRecKey svEndAuditRecKey svStartRecKeyDate btnCalendar-3 
+         svStartRecKeyDateOption svStartRecKeyHour svStartRecKeyMin 
+         svStartRecKeySec svEndRecKeyDate btnCalendar-4 svEndRecKeyDateOption 
+         svEndRecKeyHour svEndRecKeyMin svEndRecKeySec btnStack btnAuditTables 
          btnAfterValueFilterClear btnBeforeValueFilterClear btnClear btnSearch 
          btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
       WITH FRAME AuditSearch IN WINDOW C-Win.
@@ -1911,24 +2088,29 @@ PROCEDURE pAuditKeyFilter :
 ------------------------------------------------------------------------------*/
     OPEN QUERY AuditHeader
         FOR EACH ttAuditDBTable
-            WHERE (ttAuditDBTable.AuditDB    EQ svDB    OR svDB    EQ "ALL")
-              AND (ttAuditDBTable.AuditTable EQ svTable OR svTable EQ "ALL"),
+            WHERE ttAuditDBTable.AuditDB    GE cStartDB
+              AND ttAuditDBTable.AuditDB    LE cEndDB
+              AND ttAuditDBTable.AuditTable GE cStartTable
+              AND ttAuditDBTable.AuditTable LE cEndTable,
              EACH AuditHdr NO-LOCK
             WHERE AuditHdr.AuditDB       EQ ttAuditDBTable.AuditDB
               AND AuditHdr.AuditTable    EQ ttAuditDBTable.AuditTable
               AND AuditHdr.AuditDateTime GE dtStartDateTime
               AND AuditHdr.AuditDateTime LE dtEndDateTime
-              AND (AuditHdr.AuditType    EQ svType OR svType EQ "ALL")
-              AND (AuditHdr.AuditUser    EQ svUser OR svUser EQ "ALL")
-              AND (AuditHdr.AuditKey     EQ cAuditKeyFilter  OR lAuditKeyFilter EQ FALSE),
+              AND AuditHdr.AuditType     GE cStartType
+              AND AuditHdr.AuditType     LE cEndType
+              AND AuditHdr.AuditUser     GE cStartUser
+              AND AuditHdr.AuditUser     LE cEndUser
+              AND (AuditHdr.AuditKey     EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE),
             FIRST AuditDtl OF AuditHdr NO-LOCK
-            WHERE (AuditDtl.AuditField           EQ svField            OR svField EQ "ALL")
+            WHERE AuditDtl.AuditField GE cStartField
+              AND AuditDtl.AuditField LE cEndField
               AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ "")
               AND (AuditDtl.AuditAfterValue  BEGINS cAfterValueFilter  OR cAfterValueFilter  EQ "")
             INDEXED-REPOSITION
             {&MAX-ROWS}
             .
-    APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
+    APPLY "VALUE-CHANGED":U TO BROWSE AuditHeader.
     
 END PROCEDURE.
 
@@ -2103,6 +2285,7 @@ PROCEDURE pReopenBrowse :
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
     ETIME(YES).
+    IF svUseRecKeySearch EQ NO THEN
     CASE cColumnLabel:
         WHEN "AuditType" THEN
         RUN pByAuditType.
@@ -2131,9 +2314,27 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         RUN pByAuditID.
     END CASE.
+    ELSE DO:
+        OPEN QUERY AuditHeader
+        FOR EACH ttAuditDBTable
+            WHERE ttAuditDBTable.AuditDB    GE cStartDB
+              AND ttAuditDBTable.AuditDB    LE cEndDB
+              AND ttAuditDBTable.AuditTable GE cStartTable
+              AND ttAuditDBTable.AuditTable LE cEndTable,
+            EACH AuditHdr NO-LOCK
+            WHERE AuditHdr.AuditDB       EQ ttAuditDBTable.AuditDB
+              AND AuditHdr.AuditTable    EQ ttAuditDBTable.AuditTable
+              AND AuditHdr.AuditDateTime GE dtStartDateTime
+              AND AuditHdr.AuditDateTime LE dtEndDateTime
+              AND AuditHdr.AuditRecKey   GE svStartAuditRecKey
+              AND AuditHdr.AuditRecKey   LE svEndAuditRecKey,
+            FIRST AuditDtl OF AuditHdr NO-LOCK
+            INDEXED-REPOSITION
+            {&MAX-ROWS}.
+    END. /* else */
     SESSION:SET-WAIT-STATE("").
     IF lHeaderSorting THEN
-    APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
+    APPLY "VALUE-CHANGED":U TO BROWSE AuditHeader.
     searchTime:SCREEN-VALUE IN FRAME AuditSearch = STRING(ETIME / 1000).
 
 END PROCEDURE.
@@ -2232,6 +2433,57 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "Height"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetStartEndRange C-Win 
+PROCEDURE pSetStartEndRange :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphSelf AS HANDLE NO-UNDO.
+    
+    CASE iphSelf:NAME:
+        WHEN "svDB" THEN
+        ASSIGN
+            cStartDB = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                       ELSE CHR(32)
+            cEndDB   = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                       ELSE CHR(254)
+            .
+        WHEN "svField" THEN
+        ASSIGN
+            cStartField = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                          ELSE CHR(32)
+            cEndField   = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                          ELSE CHR(254)
+            .
+        WHEN "svTable" THEN
+        ASSIGN
+            cStartTable = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                          ELSE CHR(32)
+            cEndTable   = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                          ELSE CHR(254)
+            .
+        WHEN "svType" THEN
+        ASSIGN
+            cStartType = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                         ELSE CHR(32)
+            cEndType   = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                         ELSE CHR(254)
+            .
+        WHEN "svUser" THEN
+        ASSIGN
+            cStartUser = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                         ELSE CHR(32)
+            cEndUser   = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
+                         ELSE CHR(254)
+            .
+    END CASE.
 
 END PROCEDURE.
 
@@ -2372,6 +2624,35 @@ FUNCTION fRecKeyTime RETURNS CHARACTER
     iTime = INTEGER(SUBSTRING(ipcAuditRecKey,9,5)).
     
     RETURN STRING(iTime,"HH:MM:SS").
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetAuditDate C-Win 
+FUNCTION fSetAuditDate RETURNS CHARACTER
+  ( ipcType AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME AuditSearch:
+        ASSIGN {&auditDateFields}.
+        CASE ipcType:
+            WHEN "Start" THEN
+            dtStartDateTime = DATETIME(STRING(svStartDate,"99/99/9999") + " "
+                            + STRING(svStartDateHour) + ":"
+                            + STRING(svStartDateMin) + ":00")
+                            .
+            WHEN "End" THEN
+            dtEndDateTime = DATETIME(STRING(svEndDate,"99/99/9999") + " "
+                          + STRING(svEndDateHour) + ":"
+                          + STRING(svEndDateMin) + ":00")
+                          .
+        END CASE.
+    END.
+    RETURN "".
 
 END FUNCTION.
 
