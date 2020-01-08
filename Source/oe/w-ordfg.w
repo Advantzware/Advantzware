@@ -1014,6 +1014,8 @@ PROCEDURE local-change-page:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(oe-ordl.i-no) ).      
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ' + quoter(oe-ordl.cust-no)  ).
+        IF oe-ordl.est-no NE "" THEN 
+            RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + quoter(oe-ordl.est-no)).       
         li-page-b4VendCost = li-prev-page.     
         RUN select-page (15).               
         RETURN.     
@@ -1108,20 +1110,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
-    /* -----------------------------------------------------------
-      Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
-      Parameters:  <none>
-      Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
-    -------------------------------------------------------------*/
+/* -----------------------------------------------------------
+          Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+          Parameters:  <none>
+          Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+-------------------------------------------------------------*/
 
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
-    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
-    
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ). 
+       
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
