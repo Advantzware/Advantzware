@@ -892,26 +892,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-   DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
-
   
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
-
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
-  APPLY "choose" TO btn_go.
+  IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
+      ASSIGN
+          lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+          lv-column-nam = lh-column:NAME
+          lv-column-lab = lh-column:LABEL
+          .    
+      IF lv-sort-by EQ lv-column-nam THEN
+      ll-sort-asc = NOT ll-sort-asc.    
+      ELSE
+      ASSIGN
+         lv-sort-by     = lv-column-nam
+         lv-sort-by-lab = lv-column-lab
+         .    
+      APPLY "END-SEARCH":U TO {&BROWSE-NAME}.    
+      APPLY "CHOOSE":U TO btn_go.
+  END. /* if sortable column */
 END.
 
 /* _UIB-CODE-BLOCK-END */
