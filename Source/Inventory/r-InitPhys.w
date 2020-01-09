@@ -26,7 +26,6 @@ DEFINE INPUT  PARAMETER ipcInitType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
-DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
 DEFINE STREAM excel.
@@ -64,9 +63,10 @@ RUN spSetSessionParam ("ItemType", ipcInitType).
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-24 fiFromItem fiEndItem ~
-fiToCycleCode fiFromCycleCode RADIO-SET-1 fiWhseList btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiToCycleCode ~
-fiFromCycleCode RADIO-SET-1 fiWhseList 
+fiFromCycleCode fiToCycleCode rscValidItemSelect fiWhseList ficSnapshotDesc ~
+btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromCycleCode ~
+fiToCycleCode rscValidItemSelect fiWhseList ficSnapshotDesc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -99,6 +99,10 @@ DEFINE BUTTON btn-ok
      LABEL "&Start Initialize" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE ficSnapshotDesc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 121 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "To Item" 
      VIEW-AS FILL-IN 
@@ -123,7 +127,7 @@ DEFINE VARIABLE fiWhseList AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 121 BY 1 NO-UNDO.
 
-DEFINE VARIABLE RADIO-SET-1 AS CHARACTER 
+DEFINE VARIABLE rscValidItemSelect AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Valid Only", "Valid",
@@ -137,31 +141,34 @@ DEFINE RECTANGLE RECT-24
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 124 BY 9.05.
+     SIZE 124 BY 10.38.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiFromItem AT ROW 1.95 COL 23 COLON-ALIGNED WIDGET-ID 26
-     fiEndItem AT ROW 1.95 COL 63 COLON-ALIGNED WIDGET-ID 28
-     fiToCycleCode AT ROW 2.91 COL 63 COLON-ALIGNED WIDGET-ID 42
-     fiFromCycleCode AT ROW 2.95 COL 23 COLON-ALIGNED WIDGET-ID 40
-     RADIO-SET-1 AT ROW 5.05 COL 25.4 HELP
+     fiFromItem AT ROW 1.86 COL 22 COLON-ALIGNED WIDGET-ID 26
+     fiEndItem AT ROW 1.86 COL 62 COLON-ALIGNED WIDGET-ID 28
+     fiFromCycleCode AT ROW 2.86 COL 22 COLON-ALIGNED WIDGET-ID 40
+     fiToCycleCode AT ROW 2.86 COL 62 COLON-ALIGNED WIDGET-ID 42
+     rscValidItemSelect AT ROW 4.95 COL 24.4 HELP
           "Select items that are valid, problems, or all." NO-LABEL WIDGET-ID 30
-     fiWhseList AT ROW 8.14 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     btn-ok AT ROW 11.24 COL 35
-     btn-cancel AT ROW 11.24 COL 67
+     fiWhseList AT ROW 8.05 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     ficSnapshotDesc AT ROW 10.52 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     btn-ok AT ROW 12.19 COL 36
+     btn-cancel AT ROW 12.19 COL 68
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 1
+          SIZE 21 BY .71 AT ROW 1.24 COL 1.8
           BGCOLOR 2 
+     "Snapshot Description" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 9.57 COL 3 WIDGET-ID 48
      "Select items that are:" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 4.33 COL 25 WIDGET-ID 34
+          SIZE 21 BY .62 AT ROW 4.24 COL 24 WIDGET-ID 34
           FGCOLOR 9 
      "Warehouse List (Comma separated):" VIEW-AS TEXT
-          SIZE 36 BY .62 AT ROW 7.19 COL 4 WIDGET-ID 38
-     RECT-7 AT ROW 1.24 COL 2
-     RECT-24 AT ROW 4.57 COL 22 WIDGET-ID 36
+          SIZE 36 BY .62 AT ROW 7.1 COL 3 WIDGET-ID 38
+     RECT-7 AT ROW 1.57 COL 2
+     RECT-24 AT ROW 4.48 COL 21 WIDGET-ID 36
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
@@ -293,8 +300,7 @@ DO:
     RETURN.
   END.
   RUN run-report. 
-  MESSAGE "Initialize Complete"
-  VIEW-AS ALERT-BOX.  
+ 
   APPLY 'Close' TO THIS-PROCEDURE.
 END.
 
@@ -465,11 +471,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fiEndItem fiToCycleCode fiFromCycleCode RADIO-SET-1 
-          fiWhseList 
+  DISPLAY fiFromItem fiEndItem fiFromCycleCode fiToCycleCode rscValidItemSelect 
+          fiWhseList ficSnapshotDesc 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-24 fiFromItem fiEndItem fiToCycleCode fiFromCycleCode 
-         RADIO-SET-1 fiWhseList btn-ok btn-cancel 
+  ENABLE RECT-7 RECT-24 fiFromItem fiEndItem fiFromCycleCode fiToCycleCode 
+         rscValidItemSelect fiWhseList ficSnapshotDesc btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -484,6 +490,7 @@ DEFINE VARIABLE cUserPrintCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE exelHeader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iSnapshotID AS INTEGER NO-UNDO.
 DEFINE VARIABLE h AS handle.
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
 SESSION:SET-WAIT-STATE ("general").
       
     IF ipcInitType EQ "FG" THEN 
@@ -502,15 +509,22 @@ SESSION:SET-WAIT-STATE ("general").
      (input cocode,  
       input fiFromItem, 
       input fiEndItem,  
+      INPUT rscValidItemSelect,
       INPUT fiFromCycleCode,
       INPUT fiToCycleCode,
       input fAddSpaceToList(fiWhseList),
-      INPUT iSnapshotID
+      INPUT iSnapshotID,
+      INPUT ficSnapshotDesc,
+      OUTPUT lSuccess
       ).  
       
     delete object h.  
-    
-
+    IF lSuccess THEN 
+        MESSAGE "Initialize Complete - Snapshot number " + STRING(iSnapshotID) + " was created"
+        VIEW-AS ALERT-BOX. 
+    ELSE 
+        MESSAGE "Initialize Did NOT Complete - snapshot was not created"
+        VIEW-AS ALERT-BOX.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     
     /* User print created here should be deleted when inventoryStockSnapshot is deleted */
@@ -519,6 +533,7 @@ SESSION:SET-WAIT-STATE ("general").
         NO-ERROR.
     IF AVAIL inventoryStockSnapshot THEN DO:
         cUserPrintCode = "Snapshot" + STRING(iSnapshotID).
+        v-prgmname = "SnapShot" + STRING(iSnapshotID).
         RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).        
     END.
 SESSION:SET-WAIT-STATE ("").
