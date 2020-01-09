@@ -7829,7 +7829,7 @@ IF AVAIL itemfg THEN DO:
                       v-cost-updated = YES.                 
               END.
               ELSE IF b-eb2.stock-no NE "" THEN  do: /*update costs*/
-                  BUFFER-COPY vendItemCost EXCEPT itemID rec_key estimateNo formNo blankNo
+                  BUFFER-COPY vendItemCost EXCEPT venditemcostID itemID rec_key estimateNo formNo blankNo
                           TO b-vendItemCost.
                   ASSIGN v-cost-updated = YES.
               END.
