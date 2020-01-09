@@ -74,7 +74,7 @@ FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ cocode
         END.  
         IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
             v-index GT 0 AND v-index LE 20 THEN 
-            ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
+            ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
                 tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                 tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                 tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
