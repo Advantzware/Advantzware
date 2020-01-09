@@ -68,6 +68,7 @@ DEFINE VARIABLE iIndex                    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hdTagProcs                AS HANDLE    NO-UNDO. 
 DEFINE VARIABLE lHold                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cHoldMessage              AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cAPInvLineDescr           AS CHARACTER NO-UNDO. 
 
 DEFINE BUFFER bf-ap-inv FOR ap-inv. 
 
@@ -112,6 +113,7 @@ IF ipiVendorInvoiceLinePurchaseOrderNumber NE 0 THEN
         INPUT  ipiVendorInvoiceLinePurchaseOrderNumber,
         INPUT  ipiVendorInvoiceLinePurchaseOrderLineNumber,
         OUTPUT cPOActNum,
+        OUTPUT cAPInvLineDescr,
         OUTPUT lItemType,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
@@ -151,6 +153,10 @@ IF ipcVendorInvoiceLineAccountNumber EQ "" THEN
                                             cPOActNum
                                         ELSE 
                                             cVendActNum. 
+
+/* ipcVendorInvoiceLineDescription gets value from purchase order line if it is not provided */ 
+IF ipcVendorInvoiceLineDescription EQ "" THEN
+    ipcVendorInvoiceLineDescription = cAPInvLineDescr.
                                         
 /* Checks whether invoice created or not */                                         
 FIND FIRST ap-inv NO-LOCK
@@ -191,6 +197,7 @@ IF AVAILABLE ap-inv THEN DO:
             INPUT  ipdVendorInvoiceLineSqFt,
             INPUT  ipcVendorInvoiceLineQuantityUOM,
             INPUT  ipcVendorInvoiceLinePriceUOM,
+            INPUT  ipcVendorInvoiceLineDescription,
             OUTPUT riAPInvl
             ) NO-ERROR.
 
@@ -455,6 +462,7 @@ PROCEDURE pCreateNewInvoiceLine:
     DEFINE INPUT  PARAMETER ipdSquareFeet                   AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcVendorInvoiceLineQuantityUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcVendorInvoiceLinePriceUOM    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorInvoiceLineDescription AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriapinvl                      AS ROWID     NO-UNDO.
     
     FIND FIRST ap-inv NO-LOCK 
@@ -481,6 +489,7 @@ PROCEDURE pCreateNewInvoiceLine:
         ap-invl.unit-pr    = ipdPrice
         ap-invl.po-no      = ipiPoNo       
         ap-invl.po-line    = ipiPOLine
+        ap-invl.dscr       = ipcVendorInvoiceLineDescription
         ap-invl.actnum     = ipcLineAccount
         ap-invl.sf-sht     = ipdSquareFeet
         .
@@ -498,6 +507,7 @@ PROCEDURE pValidatePODetails:
     DEFINE INPUT  PARAMETER ipiVendorInvoiceLinePurchaseOrderNumber     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiVendorInvoiceLinePurchaseOrderLineNumber AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPOActNum                                 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDescr                              AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplItemType                                 AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess                                  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage                                  AS CHARACTER NO-UNDO. 
@@ -530,8 +540,9 @@ PROCEDURE pValidatePODetails:
     END.
         
     ASSIGN 
-        opcPOActNum = po-ordl.actnum
-        oplItemType = po-ordl.item-type
+        opcPOActNum    = po-ordl.actnum
+        oplItemType    = po-ordl.item-type
+        opcPOLineDescr = po-ordl.i-name
         .
             
 END PROCEDURE.
