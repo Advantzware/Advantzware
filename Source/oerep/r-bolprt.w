@@ -645,8 +645,8 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME FRAME-A
-   FRAME-NAME                                                           */
+/* SETTINGS FOR FRAME FRAME-A                                           */
+
 ASSIGN 
        begin_bol#:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -1643,8 +1643,6 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
-
 &Scoped-define SELF-NAME run_format
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
@@ -1734,6 +1732,8 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 /* ***************************  Main Block  *************************** */
 PROCEDURE mail EXTERNAL "xpMail.dll" :
