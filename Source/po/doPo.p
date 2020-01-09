@@ -3846,7 +3846,7 @@ PROCEDURE RevCreateTtEiv:
             END.  
             IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
                v-index GT 0 AND v-index LE 20 THEN 
-                ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
+                ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
                        tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                        tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
@@ -3972,14 +3972,14 @@ PROCEDURE RevCreateTtEivVend:
             tt-ei.std-uom = vendItemCost.VendorUOM
             .        
     END.
-        
+    v-index = 0.    
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" ,
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
         BY vendItemCostLevel.vendItemCostLevelID:
-                 
+        v-index = v-index + 1.         
         FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
         IF NOT AVAIL tt-eiv THEN 
         DO:       
@@ -3998,7 +3998,7 @@ PROCEDURE RevCreateTtEivVend:
                        .
             END.  
             IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 THEN 
-                ASSIGN v-index                  = vendItemCostLevel.vendItemCostLevelID
+                ASSIGN /*v-index                  = (vendItemCostLevel.vendItemCostLevelID*/
                        tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                        tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
