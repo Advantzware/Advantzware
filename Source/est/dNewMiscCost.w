@@ -1392,21 +1392,21 @@ PROCEDURE pAssignValuestToNewVendorCost:
             AND venditemcost.itemID = eb.stock-no
             AND venditemcost.itemType = "FG"
             AND venditemcost.vendorID eq ""
-            NO-ERROR.
+            NO-ERROR.            
     IF AVAIL venditemcost THEN 
     do:                                    
        ASSIGN venditemcost.vendorID = cVendor
               venditemcost.vendorItemID = cVendorItem
               venditemcost.vendorUOM = cCostUOM
-              .
+              .                            
        FIND FIRST venditemcostLevel exclusive-lock 
-            WHERE vendItemCost.vendItemCostID = venditemcost.venditemcostID
-            NO-ERROR.
+            WHERE vendItemCostLevel.vendItemCostID = venditemcost.venditemcostID
+            NO-ERROR.            
        IF AVAILABLE venditemcostLevel then
           ASSIGN vendItemCostLevel.quantityBase = 9999999
                  vendItemCostLevel.costPerUOM   = ipdCalValueCost
                  vendItemCostLevel.costSetup    = ipdCalValueSetup
-                 .                        
+                 .                                        
     END.
     ELSE DO:
       CREATE venditemcost.
