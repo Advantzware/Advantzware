@@ -1680,7 +1680,9 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
                              AND misc-act.job     EQ job.job
                              AND misc-act.job-no  EQ job.job-no
                              AND misc-act.job-no2 EQ job.job-no2))          AND
-                 v-fin-qty + li-t-qty GE v-underrun-qty                     AND
+                             
+                 /* #52841 The li-t-qty of the current w-fg-rctd is already in v-fin-qty at this point */
+                 v-fin-qty /* + li-t-qty */ GE v-underrun-qty                     AND
                  w-fg-rctd.rita-code EQ "R" THEN DO:
         
                 choice = YES.
