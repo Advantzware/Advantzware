@@ -634,14 +634,7 @@ PROCEDURE pAddEstFarm PRIVATE:
     FIND FIRST bf-estCostItem NO-LOCK 
         WHERE bf-estCostItem.estCostItemID EQ ipbf-estCostBlank.estCostItemID
         NO-ERROR.
-    FIND FIRST bf-e-itemfg-vend NO-LOCK 
-        WHERE bf-e-itemfg-vend.company EQ ipbf-estCostBlank.company
-        AND bf-e-itemfg-vend.est-no EQ ipbf-estCostBlank.estimateNo
-        AND bf-e-itemfg-vend.form-no EQ ipbf-estCostBlank.formNo
-        AND bf-e-itemfg-vend.blank-no EQ ipbf-estCostBlank.blankNo
-        //AND bf-e-itemfg-vend.vend-no EQ ""  /*REFACTOR - vendor selection?*/
-        NO-ERROR.    
-    IF AVAILABLE bf-estCostItem AND AVAILABLE bf-e-itemfg-vend THEN 
+    IF AVAILABLE bf-estCostItem THEN 
     DO:
         CREATE opbf-estCostMaterial.
         ASSIGN 
