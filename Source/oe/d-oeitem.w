@@ -7818,7 +7818,7 @@ IF AVAIL itemfg THEN DO:
               IF NOT AVAIL b-vendItemCost THEN
               DO:
                   CREATE b-vendItemCost.
-                  BUFFER-COPY vendItemCost EXCEPT itemID rec_key estimateNo formNo blankNo
+                  BUFFER-COPY vendItemCost EXCEPT venditemcostID itemID rec_key estimateNo formNo blankNo
                       TO b-vendItemCost
                       ASSIGN 
                       b-vendItemCost.estimateNo = ""
