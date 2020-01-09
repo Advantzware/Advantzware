@@ -1398,8 +1398,8 @@ PROCEDURE set-defaults :
             fi_est-no
             tb_exactMatch = no
             tb_exactMatch:SCREEN-VALUE = "no"
-            tb_in-est = no
-            tb_in-est:SCREEN-VALUE = "no"
+            tb_in-est = yes
+            tb_in-est:SCREEN-VALUE = "Yes"
             .     
     END.
 
