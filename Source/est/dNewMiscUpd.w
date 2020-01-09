@@ -180,10 +180,11 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.quantity AT ROW 1.29 COL 52 COLON-ALIGNED
+     estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED
+          FORMAT "->,>>>,>>>" 
           VIEW-AS COMBO-BOX INNER-LINES 5
           DROP-DOWN-LIST
-          SIZE 13 BY 1
+          SIZE 20 BY 1
           BGCOLOR 15 FONT 1
      estRelease.formNo AT ROW 1.29 COL 75.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -641,7 +642,7 @@ DO:
 
 &Scoped-define SELF-NAME estRelease.quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.quantity Dialog-Frame
-ON VALUE-CHANGED OF estRelease.quantity IN FRAME Dialog-Frame /* Master Quantity */
+ON VALUE-CHANGED OF estRelease.quantity IN FRAME Dialog-Frame /* Quantity */
 DO:
         ASSIGN estRelease.quantityRelease:SCREEN-VALUE = estRelease.quantity:SCREEN-VALUE .
         RUN pCalAllUnit .
