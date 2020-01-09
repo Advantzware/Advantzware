@@ -256,6 +256,12 @@ DEFINE TEMP-TABLE tt-eiv NO-UNDO
     INDEX i-no    company item-type i-no    vend-no
     INDEX vend-no company i-no      vend-no.
 
+DEF VAR cScope AS CHAR NO-UNDO.
+DEF VAR lIncludeBlankVendor AS LOG NO-UNDO.
+DEF VAR cMessage AS CHAR NO-UNDO.
+{system/VendorCostProcs.i}
+   
+    
 IF INDEX(PROGRAM-NAME(2),"add-po-best") GT 0 THEN
     v-po-best = YES.
 
@@ -866,10 +872,10 @@ PROCEDURE buildRptRecs :
 
     /*****************************************/
     /* Create report records                 */
-    /*****************************************/    
+    /*****************************************/        
     FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.            
     IF AVAILABLE tt-ei THEN 
-    DO:        
+    DO:                         
         FOR EACH tt-eiv
             WHERE tt-eiv.company    EQ cocode
             AND tt-eiv.i-no       EQ tt-ei.i-no
@@ -915,7 +921,7 @@ PROCEDURE buildRptRecs :
                 report.key-07  = tt-eiv.vend-i-no
                 report.key-08  = tt-eiv.i-no
                 report.rec-id  = tt-eiv.rec-id.
-
+  
         END. /* for each tt-eiv */
         
         RELEASE report.
@@ -940,7 +946,7 @@ PROCEDURE buildRptRecs :
                     OUTPUT lSuccess,
                     OUTPUT cMessage
                     ) NO-ERROR.
-            ELSE DO:
+            ELSE DO:  
                 IF lNewVendorItemCost THEN 
                     RUN po/d-vndcstN.w (
                         INPUT v-term, 
@@ -3261,7 +3267,7 @@ PROCEDURE processJobMat :
 
         llFirstOfJobFrm = FIRST-OF(w-job-mat.frm).
         llFirstJobFrm = FIRST(w-job-mat.frm).
-  
+
         IF w-job-mat.this-is-a-rm THEN 
         DO:
   
@@ -3271,6 +3277,7 @@ PROCEDURE processJobMat :
         END.
         ELSE 
         DO:            
+      
             FIND itemfg NO-LOCK WHERE itemfg.company = cocode
                                   AND itemfg.i-no = w-job-mat.rm-i-no NO-ERROR.
             IF NOT AVAIL itemfg THEN RETURN.
@@ -3281,7 +3288,7 @@ PROCEDURE processJobMat :
 
         /* Just a prompt to create a line */
         RUN promptCreatePoLine.        
-        
+
         /* User choose not to create, so don't continue with this item */
         IF NOT gvlChoice THEN
             NEXT outers.
@@ -3301,6 +3308,7 @@ PROCEDURE processJobMat :
             OUTPUT gvrTT-ei) .
   
         /* Creates a report record for each tt-eiv, sets fil_id */
+   
         RUN buildRptRecs (INPUT cocode, 
             INPUT llFirstJobFrm,
             INPUT ROWID(w-job-mat),
@@ -3842,8 +3850,9 @@ PROCEDURE RevCreateTtEiv:
                        tt-eiv.vend-no   = vendItemCost.vendorID.
                        tt-eiv.vend-i-no = vendItemCost.vendorItemID.
                        tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no.
-                       .
+                       .                       
             END.  
+            
             IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
                v-index GT 0 AND v-index LE 20 THEN 
                 ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
@@ -3888,8 +3897,7 @@ PROCEDURE RevCreateTtEiv:
                        tt-eiv.vend-no   = vendItemCost.vendorID.
                        tt-eiv.vend-i-no = vendItemCost.vendorItemID.
                        tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no
-                       .
-                
+                       .                
                 gvrTT-eiv = ROWID(tt-eiv).
                 
                 IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
@@ -3926,7 +3934,7 @@ PROCEDURE RevCreateTtEivVend:
     DEFINE INPUT  PARAMETER iprJobMat AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iplPoBest AS LOGICAL     NO-UNDO.
     DEFINE OUTPUT PARAMETER oprItem AS ROWID         NO-UNDO.
-  
+ 
     DEFINE BUFFER bf-w-job-mat FOR w-job-mat.
     FIND bf-w-job-mat NO-LOCK WHERE ROWID(bf-w-job-mat) EQ iprJobMat
         NO-ERROR.
@@ -3956,7 +3964,25 @@ PROCEDURE RevCreateTtEivVend:
             AND item.i-no     EQ bf-w-job-mat.rm-i-no
             NO-ERROR.
 
+    
     IF NOT AVAILABLE item THEN RETURN.
+    
+    /*===    
+    cScope = "Effective and Not Expired" /* DYNAMIC-FUNCTION("GetValidScopes")*/ .
+    lIncludeBlankVendor = NO.
+    
+    RUN BuildVendItemCosts(ipcCocode, ITEM.i-no, "RM", cScope, lIncludeBlankVendor,
+        10000, "EA", 
+        v-len, v-wid, 0, "IN",
+        item.basis-w, "LBS/MSF", 
+        OUTPUT TABLE ttVendItemCost,
+        OUTPUT lError, OUTPUT cMessage).
+        
+    FOR EACH ttVendItemCost NO-LOCK    BY ttVendItemCost.costTotal: 
+        DISPLAY ttVendItemCost.quantityTargetInVendorUOM ttVendItemCost.isValid ttVendItemCost.vendorID ttVendItemCost.costTotal ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM.                
+    END.    
+    
+   ===*/
     
     FIND FIRST vendItemCost no-lock    
         WHERE vendItemCost.company EQ item.company
@@ -3975,14 +4001,18 @@ PROCEDURE RevCreateTtEivVend:
     v-index = 0.    
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
                     AND vendItemCost.ItemID    EQ item.i-no
-                    AND vendItemCost.ItemType EQ "RM" ,
+                    AND vendItemCost.ItemType EQ "RM" 
+                    AND v-wid GE venditemCost.dimWidthMinimum AND v-wid LE venditemCost.dimWidthMaximum
+                    AND v-len GE venditemCost.dimlengthMinimum AND v-len LE venditemCost.dimlengthMinimum,
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
+                                       AND vendItemCostLevel.quantityTo >= bf-w-job-mat.qty 
         BY vendItemCostLevel.vendItemCostLevelID:
+            
         v-index = v-index + 1.         
         FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
         IF NOT AVAIL tt-eiv THEN 
-        DO:       
+        DO:                   
             CREATE tt-eiv.
             ASSIGN 
                 tt-eiv.rec_key = vendItemCostLevel.rec_key.
@@ -3994,21 +4024,27 @@ PROCEDURE RevCreateTtEivVend:
                        tt-eiv.company   = vendItemCost.company.
                        tt-eiv.vend-no   = vendItemCost.vendorID.
                        tt-eiv.vend-i-no = vendItemCost.vendorItemID.
-                       tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no.
+                       tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no
                        .
-            END.  
-            IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 THEN 
+            assign     tt-eiv.roll-w[27] = venditemCost.dimWidthMinimum
+                       tt-eiv.roll-w[28] = venditemCost.dimWidthMaximum
+                       tt-eiv.roll-w[29] = venditemCost.dimlengthMinimum
+                       tt-eiv.roll-w[30] = venditemCost.dimlengthMaximum
+                       .        
+        END.  
+        if /* vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
+               v-index GT 0 AND v-index LE 20 THEN 
                 ASSIGN /*v-index                  = (vendItemCostLevel.vendItemCostLevelID*/
                        tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                        tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
                        .
-            IF vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30 THEN           
+        IF v-index GT 0 AND v-index LE 26 THEN           
                 assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                        .
-        END.
+    END.
         
-        oprItem = ROWID(ITEM).
+    oprItem = ROWID(ITEM).
 
 END PROCEDURE.
 	
