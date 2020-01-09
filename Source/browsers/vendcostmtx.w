@@ -100,14 +100,14 @@ IF AVAILABLE users THEN ASSIGN
           AND (IF TRIM(fi_est-no) BEGINS '*' THEN TRIM(vendItemCost.estimateNo) MATCHES (TRIM(fi_est-no) + "*") ~
                ELSE TRIM(vendItemCost.estimateNo) BEGINS TRIM(fi_est-no)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
-          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) 
 
 &SCOPED-DEFINE for-eachblank ~
     FOR EACH vendItemCost ~
         WHERE vendItemCost.company EQ cocode ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
-          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) ~
           AND {&key-phrase} 
 
@@ -120,7 +120,7 @@ IF AVAILABLE users THEN ASSIGN
           AND (vendItemCost.vendorID  eq fi_vend-no OR fi_vend-no = "") ~
           AND (fi_est-no EQ "" OR TRIM(vendItemCost.estimateNo) eq TRIM(fi_est-no)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
-          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY)
 /*
 &SCOPED-DEFINE for-each-ExactMatch ~
@@ -318,7 +318,7 @@ DEFINE VARIABLE tb_fut-eff AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL yes 
      LABEL "Include Estimate" 
      VIEW-AS TOGGLE-BOX
      SIZE 22.6 BY 1 NO-UNDO.
