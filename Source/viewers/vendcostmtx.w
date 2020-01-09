@@ -536,6 +536,10 @@ DO:
        RUN valid-estimate(OUTPUT lCheckError)  NO-ERROR.
        IF lCheckError THEN RETURN NO-APPLY.
    END.
+   
+   IF length(SELF:screen-value) < 8 then
+      SELF:SCREEN-VALUE = fill(" ", 8 - length(SELF:screen-value)) + trim(SELF:screen-value).
+      
 END.
 
 /* _UIB-CODE-BLOCK-END */
