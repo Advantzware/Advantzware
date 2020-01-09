@@ -75,7 +75,7 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
           AND inv-head.cust-name BEGINS fiCustName   ~
           AND (inv-head.inv-no   EQ     fiInvoice  OR fiInvoice EQ 0) ~
           AND (inv-head.bol-no   EQ     fiBol      OR fiBol EQ 0)     ~
-          AND (IF cbStatus  = "A"   THEN YES ELSE inv-head.stat = cbStatus)~
+          AND (IF cbStatus = "A" THEN YES ELSE IF cbStatus = '' THEN inv-head.stat = cbStatus or inv-head.stat = "X" ELSE IF cbStatus = "H" THEN inv-head.stat = "H" ELSE inv-head.stat = "W")~
           AND (IF cbPrinted = "All" THEN YES ELSE inv-head.printed = LOGICAL(cbPrinted)) ~
           AND inv-head.multi-invoice = NO
  
@@ -233,9 +233,9 @@ DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "A"
      LABEL "Status" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "All","A",
-                     "New","X",
                      "Released","",
-                     "Hold","H"
+                     "Hold","H",
+                     "Wait/App","W"
      DROP-DOWN-LIST
      SIZE 16 BY 1 NO-UNDO.
 
@@ -1110,7 +1110,7 @@ DEF VAR cReturn AS CHAR NO-UNDO.
 CASE inv-head.stat:
     WHEN "H" THEN
         cReturn = "On Hold".
-    WHEN ""  THEN
+    WHEN "" OR WHEN "X" THEN
         cReturn = "Released".
     WHEN "W" THEN
         cReturn = "Wait/App".
