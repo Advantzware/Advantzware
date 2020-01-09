@@ -9,5 +9,15 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 ASSIGN 
     {&TABLENAME}.createdID = USERID('ASI')
     {&TABLENAME}.createdDate = DATE(TODAY)
-    {&TABLENAME}.dimUOM = "IN"
+    {&TABLENAME}.dimUOM = "IN" 
+    {&TABLENAME}.effectiveDate = DATE(TODAY) 
+    {&TABLENAME}.expirationDate = 12/31/2099 
+    {&TABLENAME}.dimWidthMaximum = 99999.99
+    {&TABLENAME}.dimLengthMaximum = 99999.99
+    {&TABLENAME}.dimWidthOver = 99999.99
+    {&TABLENAME}.dimLengthOver = 99999.99
+    {&TABLENAME}.quantityMaximumOrder = 99999.99
+    {&TABLENAME}.itemType = "FG" 
     .
+ 
+  
