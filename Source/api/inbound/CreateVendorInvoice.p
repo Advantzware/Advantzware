@@ -153,6 +153,10 @@ IF ipcVendorInvoiceLineAccountNumber EQ "" THEN
                                             cPOActNum
                                         ELSE 
                                             cVendActNum. 
+
+/* ipcVendorInvoiceLineDescription gets value from purchase order line if it is not provided */ 
+IF ipcVendorInvoiceLineDescription EQ "" THEN
+    ipcVendorInvoiceLineDescription = cAPInvLineDescr.
                                         
 /* Checks whether invoice created or not */                                         
 FIND FIRST ap-inv NO-LOCK
@@ -193,7 +197,7 @@ IF AVAILABLE ap-inv THEN DO:
             INPUT  ipdVendorInvoiceLineSqFt,
             INPUT  ipcVendorInvoiceLineQuantityUOM,
             INPUT  ipcVendorInvoiceLinePriceUOM,
-            INPUT  cAPInvLineDescr,
+            INPUT  ipcVendorInvoiceLineDescription,
             OUTPUT riAPInvl
             ) NO-ERROR.
 
@@ -458,7 +462,7 @@ PROCEDURE pCreateNewInvoiceLine:
     DEFINE INPUT  PARAMETER ipdSquareFeet                   AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcVendorInvoiceLineQuantityUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcVendorInvoiceLinePriceUOM    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcAPInvLineDescr               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorInvoiceLineDescription AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriapinvl                      AS ROWID     NO-UNDO.
     
     FIND FIRST ap-inv NO-LOCK 
@@ -485,7 +489,7 @@ PROCEDURE pCreateNewInvoiceLine:
         ap-invl.unit-pr    = ipdPrice
         ap-invl.po-no      = ipiPoNo       
         ap-invl.po-line    = ipiPOLine
-        ap-invl.dscr       = ipcAPInvLineDescr
+        ap-invl.dscr       = ipcVendorInvoiceLineDescription
         ap-invl.actnum     = ipcLineAccount
         ap-invl.sf-sht     = ipdSquareFeet
         .
