@@ -1348,8 +1348,10 @@ PROCEDURE local-change-page :
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "IF"' ).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(itemfg.i-no) ).      
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
-        IF itemfg.est-no NE "" THEN 
-           RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + quoter(itemfg.est-no)).
+/*        IF itemfg.est-no NE "" THEN                                                                    */
+/*           RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + quoter(itemfg.est-no)).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ""').
+        
         li-page-b4VendCost = li-prev-page.     
         RUN select-page (14).        
         
