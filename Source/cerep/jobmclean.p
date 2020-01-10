@@ -1329,6 +1329,14 @@ FOR EACH job-hdr NO-LOCK
                                             IF AVAIL bff-eb THEN
                                                 iDisYieldQty = INTEGER(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
                                              ELSE iDisYieldQty = INTEGER(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
+                                             IF cSetFGItem NE "" THEN do:
+                                                 FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                                     AND fg-set.set-no = cSetFGItem
+                                                     AND fg-set.part-no = eb.stock-no NO-ERROR.
+                                                 IF AVAIL fg-set THEN
+                                                     ASSIGN
+                                                     iDisYieldQty = iDisYieldQty * fg-set.qtyPerSet.      
+                                             END.
                                         END.
                                         ELSE iDisYieldQty = INTEGER(wrk-op.num-sh[wrk-op.s-num] - dRunWaste - wrk-op.mr-waste[wrk-op.s-num]) .
                                         {sys/inc/roundup.i dRunWaste}
