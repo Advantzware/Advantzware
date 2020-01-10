@@ -83,7 +83,7 @@ ASSIGN
                 "Frankstn,Pacific,STCLaser,Woodland,Hamilton,PrePkgLS,FibreLsr," +
                 "Action,CAPLasAL,ACPI,Carded,Adaptls,Soule,MidYork,ASSILaser,Laser," +
                 "Protagon,AllLaserHP1536DN,ASIX,CustCorr,chkfmt 1,chkfmt 2,Lovepac,APChkFmt1,APChkFmt2," +
-                "Valley,Delta"
+                "Valley,Delta,Onducorr"
  str-init[12] = "ASI,Bin/Tag,No Tags".
 ASSIGN
  str-init[13] = "ASI,WesInd,ILWalker,HOP,Brick,Gulf,Pacific,Xprint,SouthPak,"   +
