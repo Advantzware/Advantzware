@@ -38,8 +38,17 @@ PROCEDURE epCanAccessUser:
         ELSE DO: 
             /* First group - programs/functions ONLY available to ASI user */
             /* Note: logic is 'if secLevel less than 1000, then disable' */
+            /* new entries should be added alphabetically */
             IF users.securityLevel LT 1000 AND (                
+                (ipProgName EQ "AOA/dynSubjct.w" AND ipFunction EQ "SuperAdmin") OR /* Check security for Admin */
+                (ipProgName EQ "arrep/r-stmt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab  allow edit only super  admin */
+                (ipProgName EQ "est/r-quoprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "oerep/r-bolprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "oerep/r-invprtoe.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "oerep/r-relprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "porep/r-poprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "methods/template/viewer4.i" AND ipFunction EQ "") OR  /*NK2 Help Editor - No Password*/
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableHelpUpdate") OR  /*Update Help Button*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access2") OR /*Update Help Button*/
@@ -63,26 +72,20 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/company.w" AND ipFunction EQ "") OR /*GF1 Add/Copy Company*/
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "delete") OR /*NZ4 (NZ3) Departments - Delete button*/
                 (ipProgName EQ "windows/file.w" AND ipFunction EQ "") OR  /*NZ1 System Reference Files*/
+                (ipProgName EQ "windows/ftpConfig.w" AND ipFunction EQ "") OR /* Ftp Config*/
                 (ipProgName EQ "windows/job-cat.w" AND ipFunction EQ "") OR  /*NZ2 (NZ1) Job Categories: MR, Run, DT,NC */
                 (ipProgName EQ "windows/mat.w" AND ipFunction EQ "") OR  /*NZ3 (NZ2) Material Types*/
                 (ipProgName EQ "windows/matprep.w" AND ipFunction EQ "") OR /*NZ5 (NZ4) Preparation Material Types*/
+                (ipProgName EQ "windows/message.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "windows/std-code.w" AND ipFunction EQ "") OR /*NZ7 (NZ6) Standards Matrix*/
                 (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
-                (ipProgName EQ "windows/ftpConfig.w" AND ipFunction EQ "") OR /* Ftp Config*/
                 (ipProgName EQ "ap/r-prnchk.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "arrep/r-stmt.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "oerep/r-bolprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "porep/r-poprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "oerep/r-relprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "est/r-quoprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "oerep/r-invprtoe.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "windows/message.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
             /* Note: logic is 'if secLevel less than 900, then disable' */
+            /* new entries should be added alphabetically */
             ELSE IF users.securityLevel LT 900 AND (
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access2") OR /*IF1 Bon/Job tab allow edit 'Total Weight" to admin*/
                 (ipProgName EQ "browsers/rm-ibin.w" AND ipFunction EQ "") OR  /*MF1/MF2 Bins Tab - Update Cost/Unit/Count - No Password*/
@@ -90,6 +93,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "cec/v-item2.w" AND ipFunction EQ "") OR /*MF2 inventory tab overright button */
                 (ipProgName EQ "jcinq/b-updmac.w" AND ipFunction EQ "") OR /* JQ1 Mach hrs Tab  */
                 (ipProgName EQ "jcinq/b-updmat.w" AND ipFunction EQ "") OR /*IF1 History Tab - Enable Edit Buttons*/
+                (ipProgName EQ "oe/d-ordrel.w" AND ipFunction EQ "") OR /*OU1 Order release tab Program Master*/
                 (ipProgName EQ "oeinq/b-ordfgi.w" AND ipFunction EQ "") OR /*JQ1 Materials Tab - Edit Issues*/
                 (ipProgName EQ "rminq/b-rmiinq.w" AND ipFunction EQ "") OR /*MF1 or MF2 Hostory tab   */
                 (ipProgName EQ "sys/help/w-head.w" AND ipFunction EQ "") OR /*NK2 Help Editor - Password*/
@@ -107,7 +111,6 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
-                (ipProgName EQ "oe/d-ordrel.w" AND ipFunction EQ "") OR /*OU1 Order release tab Program Master*/
                 (ipProgName EQ "" AND ipFunction = "")
                 ) THEN ASSIGN opCanAccess = FALSE.
         END. /* list-based exclusions */       
