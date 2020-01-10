@@ -452,6 +452,10 @@ DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
 DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE rwRowidLevel AS ROWID NO-UNDO .
 
+  IF NOT adm-new-record THEN DO:
+    {custom/askdel.i}
+  END.
+
      RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
   /* Code placed here will execute PRIOR to standard behavior. */
   

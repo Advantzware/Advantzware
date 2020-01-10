@@ -70,6 +70,15 @@ DO:
 END.
 
 DEFINE VARIABLE uom-list         AS CHARACTER     INIT "C,CS,EA,L,M," NO-UNDO.
+DEFINE VARIABLE lSuppressDeviation AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT g_company, "SuppressDeviation", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lSuppressDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -276,6 +285,9 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
+
+        RUN valid-qty ( OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
          
         SESSION:SET-WAIT-STATE("general").
   
@@ -289,6 +301,24 @@ DO:
     
     APPLY "close" TO THIS-PROCEDURE.
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME dToQty1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dToQty1 D-Dialog
+ON LEAVE OF dToQty1 IN FRAME D-Dialog
+DO: 
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+             RUN valid-qty ( OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY.
+           
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -558,6 +588,8 @@ PROCEDURE pDisplayValue :
         IF ipcType EQ "Copy" THEN
             dToQty1:SCREEN-VALUE  = "0" .
       DISABLE dFrom1 dFrom-2 .
+      IF lSuppressDeviation THEN
+          DISABLE dDev1 .
       IF ipcType EQ "View" THEN
           DISABLE dFrom1 dFrom-2 dToQty1 dEaCost1 dSetup1 dDev1 .
         
@@ -586,3 +618,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-qty D-Dialog 
+PROCEDURE valid-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
+  {methods/lValidateError.i YES}
+      DO WITH FRAME {&FRAME-NAME}:
+          
+          IF DECIMAL(dToQty1:SCREEN-VALUE) EQ 0  THEN DO:
+              MESSAGE "Please enter Qty...." VIEW-AS ALERT-BOX ERROR.
+              APPLY "entry" TO dToQty1.
+              oplReturnError = YES .
+           END.
+           ELSE DO:
+               FIND FIRST bf-vendItemCostLevel NO-LOCK
+                   WHERE bf-vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
+                     AND bf-vendItemCostLevel.quantityTo  EQ  DECIMAL(dToQty1:SCREEN-VALUE)
+                     AND ROWID(bf-vendItemCostLevel) NE iprRowid2 NO-ERROR .
+               IF AVAIL bf-vendItemCostLevel THEN DO:
+                MESSAGE "Duplicate Entry for  Quantity To(" STRING(dToQty1) ")...." VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO dToQty1.
+                oplReturnError = YES .
+               END.
+
+           END.
+      END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

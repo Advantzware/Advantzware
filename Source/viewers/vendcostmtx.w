@@ -921,7 +921,8 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (1).
-
+  adm-adding-record = NO .
+  adm-new-record = NO .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -952,22 +953,15 @@ PROCEDURE local-create-record :
     vendItemCost.dimWidthOver = 99999.99.
     vendItemCost.dimLengthOver = 99999.99.
     vendItemCost.quantityMaximumOrder = 99999.99.
-    vendItemCost.itemType = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG"
-    .
-        
-    IF cVendItemCostSourceFrom NE ""THEN 
-          ASSIGN vendItemCost.itemID = cVendItemCostItem#
-              vendItemCost.vendorID = cVendItemCostVendor
-              vendItemCost.customer = cVendItemCostCustomer
-              vendItemCost.Estimate = cVendItemCostEst#
-              vendItemCost.FormNo = int(cVendItemCostForm#)
-              vendItemCost.BlankNo = int(cVendItemCostBlank#)
-              .    
+    vendItemCost.itemType = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG" .
+    vendItemCost.vendorUOM = "EA" .
   END.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
+  
+  
 
 END PROCEDURE.
 
@@ -1063,7 +1057,7 @@ PROCEDURE local-update-record :
             RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
   END.
   adm-adding-record = NO .
-  
+  adm-new-record = NO .
 
 END PROCEDURE.
 
@@ -1080,9 +1074,18 @@ PROCEDURE procCreateAfter:
 
     IF cVendItemCostSourceFrom = "EST" THEN     
     DO WITH FRAME {&frame-name}:
-        DISABLE /*vendItemCost.ItemType*/ vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+        DISABLE vendItemCost.ItemType vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
             venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
-           
+
+      IF adm-new-record THEN do: 
+          ASSIGN vendItemCost.itemID:SCREEN-VALUE = cVendItemCostItem#
+              vendItemCost.vendorID:SCREEN-VALUE = cVendItemCostVendor
+              vendItemCost.customer:SCREEN-VALUE = cVendItemCostCustomer
+              vendItemCost.Estimate:SCREEN-VALUE = cVendItemCostEst#
+              vendItemCost.FormNo:SCREEN-VALUE = STRING(cVendItemCostForm#)
+              vendItemCost.BlankNo:SCREEN-VALUE = STRING(cVendItemCostBlank#)
+              .     
+      END.
     END.
     ELSE IF cVendItemCostSourceFrom NE "" THEN 
     DO WITH FRAME {&frame-name}:
@@ -1194,7 +1197,7 @@ PROCEDURE proc-enable :
      RUN getSourceAttributes.
                 
      IF cVendItemCostSourceFrom = "EST" THEN DO WITH FRAME {&frame-name}:
-        DISABLE /*vendItemCost.ItemType*/ vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+        DISABLE vendItemCost.ItemType vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
                 venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
            
      END.
@@ -1268,17 +1271,23 @@ PROCEDURE valid-duplicateRecord:
      Notes:
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER opcReturnError AS LOGICAL NO-UNDO .
-  
+ 
   opcReturnError = 
       can-find(FIRST bf-venditemcost WHERE bf-vendItemCost.company = venditemcost.company
                                    AND bf-vendItemCost.itemID = vendItemCost.ItemID:SCREEN-VALUE IN FRAME {&frame-name}
-                                   AND bf-vendItemCost.ItemType = vendItemCost.ItemType:screen-value
-                                   AND bf-vendItemCost.vendorID = vendItemCost.vendorID:screen-value
-                                   AND bf-vendItemCost.customerID = vendItemCost.customerID:screen-value
-                                   AND bf-vendItemCost.EstimateNo = vendItemCost.EstimateNo:screen-value
+                                   AND bf-vendItemCost.ItemType = vendItemCost.ItemType:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND bf-vendItemCost.vendorID = vendItemCost.vendorID:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND bf-vendItemCost.customerID = vendItemCost.customerID:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND trim(bf-vendItemCost.EstimateNo) = trim(vendItemCost.EstimateNo:SCREEN-VALUE IN FRAME {&frame-name})
+                                   AND bf-vendItemCost.effectiveDate EQ DATE(vendItemCost.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME})
                                    AND bf-vendItemCost.vendItemCostID <> venditemcost.venditemcostID                                    
              )    
-      .
+      .  
+      
+  IF opcReturnError THEN do:
+       MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR. 
+       APPLY "entry" TO vendItemCost.vendorID.
+  END.
       
 END PROCEDURE.
 	
