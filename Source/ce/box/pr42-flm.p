@@ -20,6 +20,7 @@ def var fup like eb.num-up.
 def var vup like fup.
 DEF VAR ld-rm AS DEC NO-UNDO.
 DEF VAR ld-hp AS DEC NO-UNDO.
+DEF VAR lNewVendorItemCost AS LOG NO-UNDO. /* to support vendItemCosts in folding */
 
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.
