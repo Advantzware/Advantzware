@@ -70,6 +70,15 @@ DO:
 END.
 
 DEFINE VARIABLE uom-list         AS CHARACTER     INIT "C,CS,EA,L,M," NO-UNDO.
+DEFINE VARIABLE lSuppressDeviation AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT g_company, "SuppressDeviation", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lSuppressDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -999,7 +1008,9 @@ DO:
         END.
 
         SESSION:SET-WAIT-STATE("general").
-  
+
+        RUN valid-qty ( OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
         
         RUN pAssignValues .
         
@@ -2771,6 +2782,10 @@ PROCEDURE pDisplayValue :
             dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 dFrom-19 dFrom-20
             dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 
             dFromTo-11 dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 dFromTo-18 dFromTo-19 dFromTO-20 .
+        IF lSuppressDeviation THEN 
+            DISABLE dDev1 dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 dDev-11 dDev-12 dDev-13 dDev-14
+             dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20  .
+
     END.
 
 END PROCEDURE.
@@ -2795,3 +2810,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-qty D-Dialog 
+PROCEDURE valid-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+
+  {methods/lValidateError.i YES}
+      DO WITH FRAME {&FRAME-NAME}:
+         
+      END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
