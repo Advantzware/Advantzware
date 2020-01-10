@@ -1321,6 +1321,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         {&WINDOW-NAME}:ROW = 1
         .
     RUN enable_UI.
+    RUN system/checkExpiredLicense.p.
     RUN sys/ref/nk1look.p (
         g_company,"DynTaskTicker","L",NO,NO,"","",
         OUTPUT cFound,OUTPUT lFound
