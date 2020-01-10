@@ -43,14 +43,20 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 
+DEFINE VARIABLE cEndUser    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFolderFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartUser  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserFolder AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAdmin      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
 
 DEFINE BUFFER bTaskResult FOR taskResult.
 
-lAdmin = CAN-DO("ASI,NoSweat",USERID("ASI")).
+ASSIGN
+    lAdmin     = CAN-DO("ASI,NoSweat",USERID("ASI"))
+    cStartUser = IF lAdmin THEN CHR(32)  ELSE USERID("ASI")
+    cEndUser   = IF lAdmin THEN CHR(254) ELSE USERID("ASI")
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,14 +82,12 @@ taskResult.fileType taskResult.user-id taskResult.viewed ~
 taskResult.archived taskResult.folderFile 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-taskResultBrowse 
 &Scoped-define QUERY-STRING-taskResultBrowse FOR EACH taskResult ~
-      WHERE lAdmin EQ YES ~
-OR (lAdmin EQ NO ~
-AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
+      WHERE TaskResult.user-id GE cStartUser ~
+AND TaskResult.user-id LE cEndUser NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-taskResultBrowse OPEN QUERY taskResultBrowse FOR EACH taskResult ~
-      WHERE lAdmin EQ YES ~
-OR (lAdmin EQ NO ~
-AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
+      WHERE TaskResult.user-id GE cStartUser ~
+AND TaskResult.user-id LE cEndUser NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-taskResultBrowse taskResult
 &Scoped-define FIRST-TABLE-IN-QUERY-taskResultBrowse taskResult
@@ -241,9 +245,8 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE taskResultBrowse
      _TblList          = "ASI.taskResult"
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
-     _Where[1]         = "lAdmin EQ YES
-OR (lAdmin EQ NO
-AND TaskResult.user-id EQ USERID(""ASI""))"
+     _Where[1]         = "TaskResult.user-id GE cStartUser
+AND TaskResult.user-id LE cEndUser"
      _FldNameList[1]   > ASI.taskResult.fileDateTime
 "taskResult.fileDateTime" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.taskResult.fileType

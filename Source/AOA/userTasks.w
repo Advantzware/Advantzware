@@ -40,23 +40,23 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cExternalForm AS CHARACTER NO-UNDO.
-DEFINE VARIABLE char-hdl      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cModule       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cOutputFormat AS CHARACTER NO-UNDO INITIAL
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExternalForm  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModule        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputFormat  AS CHARACTER NO-UNDO INITIAL
     "Grid,CSV,XLS,DOCX,PDF,HTML,Print -d,View".
-DEFINE VARIABLE cOutputImage  AS CHARACTER NO-UNDO INITIAL
-
+DEFINE VARIABLE cOutputImage   AS CHARACTER NO-UNDO INITIAL
     "table.ico,CSV.jpg,XLS.jpg,DOCX.jpg,PDF.jpg,html_tag.ico,printer.ico,table.ico".
-DEFINE VARIABLE cPrgmName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParamDescrip AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserID       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iRecordLimit  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lSortMove     AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE pHandle       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cPrgmName      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamDescrip  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iRecordLimit   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iSecurityLevel AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lOK            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSortMove      AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
 
 {methods/defines/sortByDefs.i}
 
@@ -76,9 +76,10 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
-        INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID user-id
+        INDEX mnemonic IS PRIMARY paramTitle paramValueID USER-ID mnemonic
         INDEX paramValueRowID paramValueRowID
         .
+iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -102,8 +103,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
-&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseParamValue ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseParamValue ttDynParamValue
 
@@ -387,7 +388,8 @@ ASSIGN
 /* Query rebuild information for BROWSE browseParamValue
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue
-WHERE ttDynParamValue.prgmName BEGINS cPrgmName
+WHERE ttDynParamValue.securityLevel LE iSecurityLevel
+  AND ttDynParamValue.prgmName BEGINS cPrgmName
   AND ttDynParamValue.paramDescription BEGINS cParamDescrip
   AND ttDynParamValue.module BEGINS cModule
   AND ttDynParamValue.user-id BEGINS cUserID
