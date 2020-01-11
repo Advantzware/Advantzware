@@ -76,7 +76,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
-        INDEX mnemonic IS PRIMARY paramTitle paramValueID USER-ID mnemonic
+        INDEX ttDynParamValue IS PRIMARY paramTitle user-id paramValueID
         INDEX paramValueRowID paramValueRowID
         .
 iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
@@ -103,8 +103,8 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
-&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseParamValue ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseParamValue ttDynParamValue
 
@@ -114,7 +114,7 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRunTask searchBar btnSubjctAttr ~
+&Scoped-Define ENABLED-OBJECTS searchBar btnRunTask btnSubjctAttr ~
 browseParamValue btnOutputFormat btnScheduleTask btnCopyTask btnDeleteTask ~
 btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
@@ -239,10 +239,10 @@ ttDynParamValue.externalForm
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRunTask AT ROW 13.86 COL 27 HELP
-          "Run Task" WIDGET-ID 250
      searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
+     btnRunTask AT ROW 13.86 COL 27 HELP
+          "Run Task" WIDGET-ID 250
      btnSubjctAttr AT ROW 21.48 COL 27 HELP
           "Set Subject Attributes" WIDGET-ID 286
      browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
@@ -341,7 +341,7 @@ ASSIGN FRAME filterFrame:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB browseParamValue filterFrame F-Main */
+/* BROWSE-TAB browseParamValue btnSubjctAttr F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 26.95
@@ -678,6 +678,7 @@ ON VALUE-CHANGED OF searchBar IN FRAME F-Main /* Search */
 DO:
     ASSIGN {&SELF-NAME}.
     {&OPEN-QUERY-{&BROWSE-NAME}}
+    APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
