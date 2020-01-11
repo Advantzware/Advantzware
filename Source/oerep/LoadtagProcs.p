@@ -114,6 +114,12 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
            ELSE IF ipcCasLabel EQ "loadtag13.xpr" THEN DO:
                {oe/rep/lodxprnt13.i}
            END.
+           ELSE IF ipcCasLabel EQ "Logo.xpr" THEN DO:
+               {oe/rep/lodxprntLogo.i} 
+           END.
+           ELSE IF ipcCasLabel EQ "NoLogo.xpr" THEN DO:
+               {oe/rep/lodxprntNoLogo.i} 
+           END.
     
          IF NOT LAST(tt-word-print.i-no) THEN PAGE .
         END.
