@@ -57,6 +57,7 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD Billable            AS CHARACTER FORMAT "X" COLUMN-LABEL "Billable" HELP "Optional - Y or N"
     FIELD cManTax            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Mandatory Tax" HELP "Optional - Yes or N0"
     FIELD cInactive          AS CHARACTER FORMAT "X(1)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or N0"
+    FIELD siteID             AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Site ID" HELP "A unique ship to id site identifier"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -275,7 +276,7 @@ PROCEDURE pProcessRecord PRIVATE:
      RUN ClearTagsInactive(shipto.rec_key).
      shipto.statusCode = "".
     END.
-    
+    RUN pAssignValueC (ipbf-ttImportShipTo.siteID, YES, INPUT-OUTPUT shipto.siteID).
     RELEASE shipto.
 END PROCEDURE.
 
