@@ -1570,11 +1570,11 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 WHERE itemfg.company EQ cocode
                 AND itemfg.i-no EQ ipb-oe-boll.i-no
               NO-ERROR. 
-            IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb AND ipb-oe-boll.posted THEN do:
+            IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb THEN do:
               lc-return = STRING((IF v-corr THEN (eb.t-sqin * .007)
                           ELSE (eb.t-sqin / 144)) * ipb-oe-boll.qty )    .
             END.
-            ELSE IF AVAIL itemfg AND ipb-oe-boll.posted THEN do:
+            ELSE IF AVAIL itemfg THEN do:
                 RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
                 ASSIGN 
                lc-return = STRING(dTotalSqft * ipb-oe-boll.qty )    .
