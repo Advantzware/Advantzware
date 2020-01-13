@@ -155,7 +155,7 @@ shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
 shipto.exportCustID shipto.dock-loc shipto.dock-hour shipto.del-chg ~
 shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
 shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill ~
-shipto.spare-char-3 
+shipto.spare-char-3 shipto.siteID 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
 &Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
@@ -168,7 +168,7 @@ shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
 shipto.spare-char-5 shipto.exportCustID shipto.dock-loc shipto.dock-hour ~
 shipto.del-chg shipto.del-time shipto.spare-int-1 shipto.spare-int-2 ~
 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
-shipto.bill shipto.spare-char-3 
+shipto.bill shipto.spare-char-3 shipto.siteID 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
 &Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber ~
@@ -432,6 +432,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 43.4 BY 1
           FONT 4
+     shipto.siteID AT ROW 15 COL 71 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 21.2 BY 1
      "N" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 16.24 COL 2
      "O" VIEW-AS TEXT
@@ -440,10 +443,6 @@ DEFINE FRAME F-Main
           SIZE 3 BY .48 AT ROW 17.67 COL 2
      "E" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 18.38 COL 2
-     "S" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 19.14 COL 2
-     "Shp Meth.:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 17.95 COL 112.4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -451,6 +450,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     "S" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 19.14 COL 2
+     "Shp Meth.:" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 17.95 COL 112.4
      RECT-1 AT ROW 9.81 COL 1
      RECT-2 AT ROW 1.24 COL 110 WIDGET-ID 4
      RECT-3 AT ROW 12.57 COL 111 WIDGET-ID 6
