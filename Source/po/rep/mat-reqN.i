@@ -127,7 +127,6 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           
           {1}report.key-05 = len-score.
         end.
-      end.
 
       ll-no-po = tb_show.
 
@@ -185,7 +184,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           END.
         end.
       end.
-
+     END. /* first-of(job-mat.rm-i-no) */
       if avail {1}report and (ll-no-po AND tb_show) then delete {1}report.
     end.
 
