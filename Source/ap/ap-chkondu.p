@@ -11,7 +11,7 @@ DEF VAR lc-booktemp AS CHAR FORMAT "X(30)" NO-UNDO.
 
 /*font control*/
 DEF VAR lc-font AS CHAR FORMAT "X(10)" INIT "<FArial>" NO-UNDO.
-DEF VAR lc-font-size AS CHAR FORMAT "X(5)" INIT "<P8>" NO-UNDO.
+DEF VAR lc-font-size AS CHAR FORMAT "X(5)" INIT "<P10>" NO-UNDO.
 
 /*column markers*/
 DEF VAR li-col-inv AS INT INIT 0 FORMAT ">9" NO-UNDO.
@@ -19,11 +19,12 @@ DEF VAR li-col-date AS INT INIT 10 FORMAT ">9" NO-UNDO.
 DEF VAR li-col-po AS INT INIT 20 FORMAT ">9" NO-UNDO.
 DEF VAR li-col-amount AS INT INIT 30 FORMAT ">9" NO-UNDO.
 DEF VAR li-col-invamt AS INT INIT 30 FORMAT ">9" NO-UNDO.
-DEF VAR li-col-discount AS INT INIT 22 FORMAT ">9" NO-UNDO.
-DEF VAR li-col-net AS INT INIT 30 FORMAT ">9" NO-UNDO.
+DEF VAR li-col-discount AS INT INIT 21 FORMAT ">9" NO-UNDO.
+DEF VAR li-col-net AS INT INIT 29 FORMAT ">9" NO-UNDO.
 DEFINE VARIABLE v-comp-add1 AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE v-comp-add2 AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE v-comp-add3 AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cCountry AS CHARACTER NO-UNDO .
 
 
 /*Function forwards*/
@@ -79,6 +80,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
             add1   = vend.r-add1
             add2   = vend.r-add2
             csz    = vend.r-city + ", " + vend.r-state
+            cCountry = vend.r-country  
             lv-zip = vend.r-zip
             lv-postal = vend.r-postal
             v-comp-add1 = company.addr[1]
@@ -126,6 +128,10 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
             ASSIGN
                 add2 = csz
                 csz  = "".
+        IF csz EQ "" THEN
+            ASSIGN
+                csz = cCountry 
+                cCountry = "" .
 
         ll = 0.
         FOR EACH ap-sel
@@ -224,7 +230,8 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                                     add2,
                                     csz,
 /*                                     lv-postal, */
-                                    stnum).
+                                    stnum,
+                                    cCountry).
                 END. /* if last(ap-sel.inv-no)*/
                
                 RUN writeRegisterHeader(YES,stnum,ap-chk.check-date,ctot,
@@ -283,7 +290,8 @@ PROCEDURE writeCheck:
     DEF INPUT PARAMETER ipc-payto-add2 AS CHAR FORMAT "X(50)" NO-UNDO.
     DEF INPUT PARAMETER ipc-payto-add3 AS CHAR FORMAT "X(50)" NO-UNDO.
 /*     DEF INPUT PARAMETER ipc-payto-postalcode AS CHAR FORMAT "X(50)" NO-UNDO. */
-    DEF INPUT PARAMETER ip-check-no LIKE ap-chk.check-no NO-UNDO.
+    DEF INPUT PARAMETER ip-check-no AS INTEGER FORMAT ">>>>>>>>>>>>" NO-UNDO.
+    DEF INPUT PARAMETER ipcCountry AS CHARACTER FORMAT "x(15)" NO-UNDO.
 
     /*DEF VAR lc-date AS CHAR FORMAT "X(20)" NO-UNDO.
 
@@ -291,18 +299,20 @@ PROCEDURE writeCheck:
         lc-date = "".
     ELSE
         lc-date = formatDate(ipdt-date).*/
-    PUT "<C8><R2>" company.NAME  FORMAT "x(30)" SKIP
+    PUT "<C8><R2><P14><B>" company.NAME  FORMAT "x(30)" SKIP "</B>" lc-font-size
         "<C8>" v-comp-add1 FORMAT "x(30)" SKIP
         "<C8>" v-comp-add2 FORMAT "x(30)" SKIP
-        "<C8>" v-comp-add3 FORMAT "x(30)" "<C50>NO CHÈQUE<C70>" ip-check-no SKIP(1)
-        "<C50>DATE  <C70>" string(string(day(ipdt-date),"99") + "   " + string(MONTH(ipdt-date),"99") + "   " + string(YEAR(ipdt-date),"9999")) FORMAT "X(15)" SKIP
-        "<C70> JJ  MM AAAA " SKIP(1)
-        "<C8>" ipc-amount-desc  "<C70><B><P10>" ipd-amount "</B>" lc-font-size SKIP 
+        "<C8>" v-comp-add3 FORMAT "x(30)" "<C50>NO CHÈQUE<C72>" ip-check-no SKIP(1)
+        "<C50>DATE  <C67>" SUBSTRING(STRING(DAY(ipdt-date),"99"),1,1) + "  " + SUBSTRING(STRING(DAY(ipdt-date),"99"),2,1) + "  " + SUBSTRING(STRING(MONTH(ipdt-date),"99"),1,1) + "   " + SUBSTRING(STRING(MONTH(ipdt-date),"99"),2,1) +
+                          "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),1,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),2,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),3,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),4,1) FORMAT "x(25)"    SKIP
+        "<C67>J  J  M  M  A  A  A  A " SKIP(1)
+        "<C8><B>" ipc-amount-desc  "<C70><P10>" ipd-amount "</B>" lc-font-size SKIP 
         "<C8>Montant en Dollar canadien" skip(1)
         "<C14>" ipc-payto SKIP
         "<C14>" ipc-payto-add1 SKIP
         "<C14>" ipc-payto-add2 SKIP
-        "<C14>" ipc-payto-add3 SKIP .
+        "<C14>" ipc-payto-add3 SKIP 
+        "<C14>" ipcCountry SKIP.
 
    
 END PROCEDURE.
@@ -312,7 +322,7 @@ PROCEDURE writeVoidedCheck:
     DEF INPUT PARAMETER ip-check-no LIKE ap-chk.check-no NO-UNDO.
 
     PUT "<P50><C32><R4><B>VOID</B>" lc-font-size.
-    RUN writeCheck ("*** NO DOLLARS AND NO CENTS ***",0,?,ipc-payto,"","","",ip-check-no).
+    RUN writeCheck ("*** NO DOLLARS AND NO CENTS ***",0,?,ipc-payto,"","","",ip-check-no,"").
 
 
 END PROCEDURE.
@@ -375,8 +385,8 @@ PROCEDURE writeRegisterHeader:
         opc-bookmark "<R+2><C4" "><FROM>" opc-bookmark "<R+2><C82" "><LINE>" 
         opc-bookmark "<R+2><C42" "><FROM>" opc-bookmark "<R+17><C42" "><LINE>" 
         opc-bookmark "<R-1><C+1><B>Les Emballages OnduCorr Inc.</B> <C65> Montant en Dollar canadien "
-        opc-bookmark "<R+1><C+1>Advantzware <C40> " lc-date    "<C60>"  ip-check-no 
-        opc-bookmark "<R+2><C28>Escompte <C34> Montant Payé "     "<C67>Escompte <C74> Montant Payé" 
+        opc-bookmark "<R+1><C+1>Advantzware <C38> " lc-date    "<C60>"  ip-check-no 
+        opc-bookmark "<R+2><C26>Escompte <C33> Montant Payé "     "<C66>Escompte <C73> Montant Payé" 
         opc-bookmark "<R+17><C60>Total<C72>" ipd-amount
         SKIP. 
    
