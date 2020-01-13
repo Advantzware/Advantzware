@@ -68,6 +68,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   DEFINE VARIABLE hOrderProcs      AS HANDLE    NO-UNDO.
   DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cSiteID          AS CHARACTER NO-UNDO.
   
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no  NO-UNDO.
   DEFINE VARIABLE iNextShipNo      LIKE shipto.ship-no NO-UNDO.
@@ -106,14 +107,16 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           orderDate    = getNodeValue('OrderRequestHeader','orderDate')
           orderID      = getNodeValue('OrderRequestHeader','orderID')
           shipToID     = getNodeValue('shipTo','AddressID')
+          cSiteID      = getNodeValue('shipTo','SiteID')
           NO-ERROR.
-    
+
       /* This procedure validates company code,shipToID and location code, 
          and returns valid company code,location code,shipToID and customer number.
          and additionally it returns the shipto table buffer to access any other data 
          from shipto table */ 
       RUN cXML/getCustDetails.p (
           INPUT        fromIdentity,
+          INPUT        cSiteID,
           INPUT-OUTPUT shipToID,
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
@@ -318,6 +321,11 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
    if the validation fails.
    procedure genTempOrderLinesLocal is exact copy of existing internal procedure (genTempOrderLines)
    without the validation on supplierid */
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE genTempOrderLinesLocal:
     DEFINE INPUT  PARAMETER iprOeOrd AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
@@ -458,15 +466,23 @@ PROCEDURE genOrderLinesLocal:
                                      ,INT(SUBSTR(cRequestedDeliveryDate,1,4)))        
             NO-ERROR.
             
-    /* This procedure takes Company code,Customer number,SupplierPartID,ManufacturerPartID values as inputs.
+    /* This procedure takes Company code,Customer number,SupplierPartID values as inputs.
        Then it validates SupplierPartID against cust-part and itemfg tables 
-       And then returns valid SupplierPartID and ManufacturerPartID */
-     RUN GetItemAndPart (
+       And then returns valid SupplierPartID */
+     RUN GetPart (
          INPUT  ipcCompany,
          INPUT  ttOrdLines.ttItemSupplierPartID,
-         INPUT  ttOrdLines.ttItemManufacturerPartID,
          INPUT  oe-ord.cust-no,
-         OUTPUT itemSupplierPartID,
+         OUTPUT itemSupplierPartID
+         ).
+         
+    /* This procedure takes Company code,Location code,SupplierPartID values as inputs.
+       Then it validates SupplierPartID against itemfg table
+       And then returns valid ManufacturerPartID */     
+     RUN GetItem (
+         INPUT  ipcCompany,
+         INPUT  ipcWarehouseID,
+         INPUT  ttOrdLines.ttItemSupplierPartID,
          OUTPUT itemManufacturerPartID
          ).
          
@@ -590,14 +606,97 @@ PROCEDURE genOrderLinesLocal:
   RELEASE oe-ordl.
 END PROCEDURE.
 
-/*Gets Part number and Item number for the order */
+PROCEDURE GetItem:
+/*------------------------------------------------------------------------------
+ Purpose: Gets Item number for the order
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID    AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcSupplierPartID AS CHARACTER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcItemID         AS CHARACTER NO-UNDO.
+ 
+/* Checking itemfg part number */   
+    FIND FIRST itemfg NO-LOCK 
+         WHERE itemfg.company EQ ipcCompany
+           AND itemfg.def-loc EQ ipcWarehouseID
+           AND itemfg.part-no EQ ipcSupplierPartID
+         NO-ERROR.
+    IF AVAILABLE itemfg THEN DO:
+         opcItemID = itemfg.i-no.
+         
+         RETURN.
+    END.
+
+/* Checking itemfg if part number is not available */  
+    FIND FIRST itemfg NO-LOCK 
+         WHERE itemfg.company EQ ipcCompany 
+           AND itemfg.def-loc EQ ipcWarehouseID
+         NO-ERROR.
+    IF AVAILABLE itemfg THEN DO:
+         opcItemID = itemfg.i-no.
+ 
+         RETURN.
+    END.
+END PROCEDURE.
+
+PROCEDURE GetPart:
+/*------------------------------------------------------------------------------
+ Purpose: Gets Part number for the order
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSupplierPartID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPartID         AS CHARACTER NO-UNDO.
+ 
+/* Checking customer partID */
+    FIND FIRST cust-part NO-LOCK
+         WHERE cust-part.company EQ ipcCompany
+           AND cust-part.cust-no EQ ipcCustNo
+           AND cust-part.part-no EQ ipcSupplierPartID
+           NO-ERROR.      
+    IF AVAILABLE cust-part THEN DO:
+        opcPartID = cust-part.part-no.
+        
+        RETURN.
+    END. 
+
+/* Checking itemfg part number */   
+    FIND FIRST itemfg NO-LOCK 
+         WHERE itemfg.company EQ ipcCompany
+           AND itemfg.part-no EQ ipcSupplierPartID
+         NO-ERROR.
+    IF AVAILABLE itemfg THEN DO:
+         opcPartID = itemfg.part-no.
+         
+         RETURN.
+    END.
+
+/* Checking itemfg if part number is not available */  
+    FIND FIRST itemfg NO-LOCK 
+         WHERE itemfg.company EQ ipcCompany 
+         NO-ERROR.
+    IF AVAILABLE itemfg THEN DO:
+         opcPartID = itemfg.part-no.
+ 
+         RETURN.
+    END.
+END PROCEDURE.
+
 PROCEDURE GetItemAndPart:
-    DEFINE INPUT        PARAMETER ipcCompany                AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcSupplierPartID         AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcManufactureID          AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcCustNo                 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcPartID                 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcItemID                 AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose: Gets Part number and Item number for the order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcSupplierPartID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcManufactureID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcPartID         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcItemID         AS CHARACTER NO-UNDO.
  
 /* Checking customer partID */
     FIND FIRST cust-part NO-LOCK
