@@ -460,9 +460,11 @@ PROCEDURE spActivateCueCards:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    
     DO TRANSACTION:
         FOR EACH xCueCard EXCLUSIVE-LOCK
-            WHERE xCueCard.user_id EQ USERID("ASI")
+            WHERE xCueCard.user_id EQ ipcUserID
             :
             DELETE xCueCard.
         END. /* each xcuecard */
@@ -689,9 +691,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCueCardClose) = 0 &THEN
 
@@ -711,7 +711,7 @@ PROCEDURE spCueCardClose:
         FIND CURRENT users EXCLUSIVE-LOCK.
         users.showCueCard = NO.
         FIND CURRENT users NO-LOCK.
-        RUN spInactivateCueCards (cueCard.cueType).
+        RUN spInactivateCueCards (cueCard.cueType, users.user_id).
     END. /* if inactivate cue cards */
     IF lInactivateCueCards EQ ? THEN
     RETURN NO-APPLY.
@@ -992,6 +992,7 @@ PROCEDURE spInactivateCueCards:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCueType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bCueCard     FOR cueCard.
     DEFINE BUFFER bCueCardText FOR cueCardText.
@@ -1001,13 +1002,13 @@ PROCEDURE spInactivateCueCards:
         WHERE bCueCard.cueType EQ ipcCueType
         :
         IF CAN-FIND(FIRST xCueCard
-                    WHERE xCueCard.user_id   EQ USERID("ASI")
+                    WHERE xCueCard.user_id   EQ ipcUserID
                       AND xCueCard.cueType   EQ bCueCard.cueType
                       AND xCueCard.cueTextID EQ bCueCardText.cueTextID) THEN
         NEXT.
         CREATE xCueCard.
         ASSIGN
-            xCueCard.user_id   = USERID("ASI")
+            xCueCard.user_id   = ipcUserID
             xCueCard.cueType   = bCueCard.cueType
             xCueCard.cueTextID = bCueCardText.cueTextID
             .
