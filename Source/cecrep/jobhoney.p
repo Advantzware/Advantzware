@@ -338,7 +338,7 @@ DO v-local-loop = 1 TO v-local-copies:
                   cImagePath = box-design-hdr.box-image.
                   PUT UNFORMATTED "<=BoxImageStart>".
                   PUT "<R22><P10><C43>MACHINE DIRECTION<-------  <P8>" .
-                  PUT UNFORMATTED "<C+.5><R+.5><#BoxImage><R50><C62><IMAGE#BoxImage=" cImagePath "><=BoxImage>".
+                  PUT UNFORMATTED "<C2><R24><#BoxImage><R50><C62><IMAGE#BoxImage=" cImagePath "><=BoxImage>".
               END.
               PUT "<P8>" .
           END. 
