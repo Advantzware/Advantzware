@@ -17,7 +17,6 @@
 ----------------------------------------------------------------------*/
 
 DEFINE INPUT        PARAMETER ipcIdentity     AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcSiteID       AS CHARACTER NO-UNDO. 
 DEFINE INPUT-OUTPUT PARAMETER iopcShipToID    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCompany     AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcWarehouseID AS CHARACTER NO-UNDO.  
@@ -113,6 +112,21 @@ IF AVAILABLE sys-ctrl-shipto THEN DO:
     
     RETURN.
 END.
+*/
+
+/* Finding shipto based on SiteID */
+FIND FIRST obf-shipto NO-LOCK
+     WHERE obf-shipto.siteID EQ iopcShipToID NO-ERROR.
+IF AVAILABLE obf-shipto THEN DO:
+    ASSIGN
+        opcCustomerID   = obf-shipto.cust
+        iopcCompany     = obf-shipto.company
+        iopcWarehouseID = obf-shipto.loc
+        iopcShipToID    = obf-shipto.ship-id
+        .
+        
+    RETURN.
+END.
 
 
 /* Finding shipto based on ShipToID */
@@ -123,21 +137,6 @@ IF AVAILABLE obf-shipto THEN DO:
         opcCustomerID   = obf-shipto.cust
         iopcCompany     = obf-shipto.company
         iopcWarehouseID = obf-shipto.loc
-        .
-        
-    RETURN.
-END.
-*/
-
-/* Finding shipto based on SiteID */
-FIND FIRST obf-shipto NO-LOCK
-     WHERE obf-shipto.siteID EQ ipcSiteID NO-ERROR.
-IF AVAILABLE obf-shipto THEN DO:
-    ASSIGN
-        opcCustomerID   = obf-shipto.cust
-        iopcCompany     = obf-shipto.company
-        iopcWarehouseID = obf-shipto.loc
-        iopcShipToID    = obf-shipto.ship-id
         .
         
     RETURN.
