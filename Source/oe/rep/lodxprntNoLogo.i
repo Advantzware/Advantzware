@@ -19,12 +19,12 @@
         
         PUT "<FArial><=4><R-1.6><C8><B><p15> CUSTOMER NAME </B>" SKIP.
         
-        PUT "<FArial><=4><R22.3><C8><B><P20>  " tt-word-print.cust-name FORMAT "x(30)" "</B>" SKIP.
+        PUT "<FArial><=4><R22.6><C8><B><P28>  " tt-word-print.cust-name FORMAT "x(30)" "</B>" SKIP.
 
         PUT "<||><R28><C8><#5><FROM><R32><C78><RECT>" SKIP.            
         
         PUT "<FArial><=5><R-1.6><C8><B><p15> DESCRIPTION </B>" SKIP.
-        PUT "<FArial><=5><R28.3><C8><B><P17>  " tt-word-print.i-name FORMAT "x(30)" "</B>" SKIP.
+        PUT "<FArial><=5><R28.6><C8><B><P28>  " tt-word-print.i-name FORMAT "x(30)" "</B>" SKIP.
 
         PUT "<||><R34><C8><#7><FROM><R37><C40><RECT>" SKIP.            
         
