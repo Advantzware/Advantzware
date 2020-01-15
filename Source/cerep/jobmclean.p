@@ -1187,7 +1187,7 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Ctn/Bdl.Per: </b>" STRING(bff-eb.cas-pal) SKIP
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  SKIP  .
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                         PUT v-fill SKIP .
                                         PUT "<R-1>" .
                                 END.
@@ -1411,9 +1411,11 @@ FOR EACH job-hdr NO-LOCK
 
                                   "<P10><C20><b>Count: </B>" STRING(eb.cas-cnt)  
                                   /*"<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
-
-                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no).
+                             
+                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no,"5,6,M").
                               END.
+                              ELSE 
+                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no,"M").
 
                                 PUT v-fill SKIP .
 
@@ -1476,8 +1478,10 @@ FOR EACH job-hdr NO-LOCK
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  
                                          /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                       END.
+                                      ELSE 
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"M").
                                         PUT v-fill SKIP .
                                 END.
                                 PUT "<R-1>" .
@@ -1915,11 +1919,13 @@ PROCEDURE pPrintMRItem :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcEstimateas AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO .
     DEFINE INPUT PARAMETER ipiForm AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO .
-
-    
+    DEFINE INPUT PARAMETER ipcMatTypes AS CHARACTER NO-UNDO.
+   
+    DEFINE BUFFER bf-eb FOR eb.
+   
     FOR EACH xjob-mat NO-LOCK
         WHERE xjob-mat.company EQ job-hdr.company
         AND xjob-mat.job     EQ job-hdr.job
@@ -1930,7 +1936,7 @@ PROCEDURE pPrintMRItem :
         FIRST item NO-LOCK
         WHERE item.company EQ xjob-mat.company
         AND item.i-no    EQ xjob-mat.rm-i-no  
-        AND CAN-DO("5,6,M",item.mat-type)
+        AND CAN-DO(ipcMatTypes, item.mat-type)
         BREAK BY item.i-no :
         
         IF LAST-OF(item.i-no) THEN do:
@@ -1941,30 +1947,53 @@ PROCEDURE pPrintMRItem :
         END.
     END.
 
-/*    FOR EACH estPacking NO-LOCK                                                   */
-/*        WHERE estPacking.company  EQ cocode                                       */
-/*        AND estPacking.estimateNo EQ ipcEstimateas                                */
-/*        AND estPacking.FormNo     EQ ipiForm                                      */
-/*        AND estPacking.BlankNo    EQ ipiBlank,                                    */
-/*        EACH xjob-mat NO-LOCK                                                     */
-/*        WHERE xjob-mat.company EQ job-hdr.company                                 */
-/*        AND xjob-mat.job     EQ job-hdr.job                                       */
-/*        AND xjob-mat.job-no  EQ job-hdr.job-no                                    */
-/*        AND xjob-mat.job-no2 EQ job-hdr.job-no2                                   */
-/*        AND xjob-mat.frm     EQ ipiForm                                           */
-/*        AND xjob-mat.rm-i-no EQ estPacking.rmItemID BREAK BY estPacking.rmItemID :*/
-/*                                                                                  */
-/*        FIND FIRST ITEM NO-LOCK                                                   */
-/*            WHERE item.company  EQ cocode                                         */
-/*            AND item.i-no     EQ estPacking.rmItemID                              */
-/*            NO-ERROR.                                                             */
-/*        IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:                   */
-/*            PUT                                                                   */
-/*                "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)                       */
-/*                "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.             */
-/*                                                                                  */
-/*        END.                                                                      */
-/*    END.                                                                          */
+    IF ipiForm EQ 0 THEN DO:  /*To work around defect that doesn't include 0 form layers, pad, and enhanced packing in job-mat*/
+        FOR EACH estPacking NO-LOCK
+            WHERE estPacking.company  EQ cocode
+            AND estPacking.estimateNo EQ ipcEstimate
+            AND estPacking.FormNo     EQ ipiForm
+            AND estPacking.BlankNo    EQ ipiBlank
+            BREAK BY estPacking.rmItemID:
+    
+            FIND FIRST ITEM NO-LOCK
+                WHERE item.company  EQ cocode
+                AND item.i-no     EQ estPacking.rmItemID
+                NO-ERROR.
+            IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:
+                PUT
+                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
+                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+    
+            END.
+        END.
+        
+        FIND FIRST bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ cocode
+            AND bf-eb.est-no EQ ipcEstimate
+            AND bf-eb.form-no EQ 0
+            AND bf-eb.blank-no EQ 0
+            NO-ERROR.
+        IF AVAILABLE bf-eb AND bf-eb.divider NE "" THEN DO:
+            FIND FIRST ITEM NO-LOCK
+                WHERE item.company  EQ bf-eb.company
+                AND item.i-no     EQ bf-eb.divider
+                NO-ERROR.
+            IF AVAILABLE ITEM THEN 
+                PUT
+                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
+                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+        END.
+        IF AVAILABLE bf-eb AND bf-eb.layer-pad NE "" THEN DO:
+            FIND FIRST ITEM NO-LOCK
+                WHERE item.company  EQ bf-eb.company
+                AND item.i-no     EQ bf-eb.layer-pad
+                NO-ERROR.
+            IF AVAILABLE ITEM THEN 
+                PUT
+                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
+                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+        END.
+    END.
                                  
 /*    IF ipiBlank EQ 1  THEN do:                                                                         */
 /*        DO i = 1 TO 5: /*no room for all 6*/                                                           */
