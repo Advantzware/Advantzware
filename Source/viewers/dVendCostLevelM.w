@@ -70,15 +70,15 @@ DO:
 END.
 
 DEFINE VARIABLE uom-list         AS CHARACTER     INIT "C,CS,EA,L,M," NO-UNDO.
-DEFINE VARIABLE lSuppressDeviation AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 
-RUN sys/ref/nk1look.p (INPUT g_company, "SuppressDeviation", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lSuppressDeviation = LOGICAL(cRtnChar) NO-ERROR.
+    lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -128,7 +128,7 @@ dSetup5 dSetup6 dSetup7 dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 ~
 dSetup-13 dSetup-14 dSetup-15 dSetup-16 dSetup-17 dSetup-18 dSetup-19 ~
 dSetup-20 dDev1 dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 ~
 dDev-11 dDev-12 dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 ~
-dDev-20 
+dDev-20 cDevLabel
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -764,6 +764,11 @@ DEFINE RECTANGLE RECT-5
      SIZE 108 BY 22.38
      BGCOLOR 15 .
 
+DEFINE VARIABLE cDevLabel AS CHARACTER FORMAT "x(9)":U INITIAL "Deviation" 
+     VIEW-AS FILL-IN 
+     SIZE 12.6 BY 1 
+     FONT 6 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -910,8 +915,7 @@ DEFINE FRAME D-Dialog
           SIZE 12 BY 1 AT ROW 1.48 COL 59 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 1.48 COL 77 WIDGET-ID 278
-     "Deviation" VIEW-AS TEXT
-          SIZE 12.8 BY 1 AT ROW 1.48 COL 94.6 WIDGET-ID 288
+      cDevLabel AT ROW 1.48 COL 94.6 NO-LABEL WIDGET-ID 288
      "Quantity To" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 1.48 COL 3 WIDGET-ID 252
      RECT-5 AT ROW 1.24 COL 2 WIDGET-ID 312
@@ -2363,7 +2367,7 @@ PROCEDURE enable_UI :
           dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 dSetup-13 dSetup-14 
           dSetup-15 dSetup-16 dSetup-17 dSetup-18 dSetup-19 dSetup-20 dDev1 
           dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 dDev-11 dDev-12 
-          dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20 
+          dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20 cDevLabel
       WITH FRAME D-Dialog.
   ENABLE RECT-5 RECT-21 dToQty1 dToQty2 dToQty3 dToQty4 dToQty5 dToQty6 dToQty7 
          dToQty8 dToQty9 dToQty10 dToQty11 dToQty12 dToQty13 dToQty14 dToQty15 
@@ -2782,9 +2786,29 @@ PROCEDURE pDisplayValue :
             dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 dFrom-19 dFrom-20
             dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 
             dFromTo-11 dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 dFromTo-18 dFromTo-19 dFromTO-20 .
-        IF lSuppressDeviation THEN 
-            DISABLE dDev1 dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 dDev-11 dDev-12 dDev-13 dDev-14
-             dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20  .
+        IF NOT lVendItemUseDeviation THEN 
+            ASSIGN
+            dDev1:HIDDEN = YES
+            dDev2:HIDDEN = YES 
+            dDev3:HIDDEN = YES 
+            dDev4:HIDDEN = YES 
+            dDev5:HIDDEN = YES 
+            dDev6:HIDDEN = YES 
+            dDev7:HIDDEN = YES 
+            dDev8:HIDDEN = YES 
+            dDev9:HIDDEN = YES 
+            dDev10:HIDDEN = YES 
+            dDev-11:HIDDEN = YES 
+            dDev-12:HIDDEN = YES 
+            dDev-13:HIDDEN = YES 
+            dDev-14:HIDDEN = YES 
+            dDev-15:HIDDEN = YES 
+            dDev-16:HIDDEN = YES 
+            dDev-17:HIDDEN = YES 
+            dDev-18:HIDDEN = YES 
+            dDev-19:HIDDEN = YES 
+            dDev-20:HIDDEN = YES 
+            cDevLabel:HIDDEN = YES   .
 
     END.
 

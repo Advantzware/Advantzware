@@ -117,7 +117,7 @@ vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
 vendItemCost.createdDate vendItemCost.createdID ~
 vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
 vendItemCost.validWidth[19] vendItemCost.updatedID vendItemCost.updatedDate ~
-vendItemCost.validWidth[10] vendItemCost.validWidth[20] 
+vendItemCost.validWidth[10] vendItemCost.validWidth[20] vendItemCost.vendorUOM
 &Scoped-define DISPLAYED-TABLES vendItemCost
 &Scoped-define FIRST-DISPLAYED-TABLE vendItemCost
 
@@ -131,7 +131,7 @@ vendItemCost.customerID vendItemCost.estimateNo vendItemCost.formNo ~
 vendItemCost.blankNo vendItemCost.vendorItemID vendItemCost.effectiveDate ~
 vendItemCost.expirationDate vendItemCost.createdDate vendItemCost.createdID ~
 vendItemCost.quantityMaximumOrder vendItemCost.updatedID ~
-vendItemCost.updatedDate 
+vendItemCost.updatedDate vendItemCost.vendorUOM
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,6 +186,11 @@ DEFINE FRAME F-Main
                      "RM","RM"
           DROP-DOWN-LIST
           SIZE 9 BY 1
+     vendItemCost.vendorUOM AT ROW 2.22 COL 95.2 COLON-ALIGNED
+          LABEL "Cost and Quantity UOM"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+          BGCOLOR 15 
      vendItemCost.itemID AT ROW 3.43 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -606,6 +611,8 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[10] IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.vendorUOM IN FRAME F-Main
+ NO-ENABLE 2 EXP-LABEL                                                  */
 ASSIGN 
        vendItemCost.validLength[10]:HIDDEN IN FRAME F-Main           = TRUE.
 

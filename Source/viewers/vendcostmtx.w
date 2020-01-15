@@ -481,7 +481,7 @@ END.
 ON CHOOSE OF Btn_multi IN FRAME F-Main /* Update Add Multiple */
 DO:
    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
-    IF AVAILABLE vendItemCost THEN DO:
+    IF AVAILABLE vendItemCost AND NOT adm-new-record THEN DO:
         RUN viewers/dVendCostLevelM.w (ROWID(vendItemCost),"update") .
         RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
         IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
@@ -934,7 +934,12 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
+  DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
+    
+  RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -955,6 +960,14 @@ PROCEDURE local-create-record :
     vendItemCost.quantityMaximumOrder = 99999.99.
     vendItemCost.itemType = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG" .
     vendItemCost.vendorUOM = "EA" .
+
+    CREATE bf-vendItemCostLevel .
+        ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID 
+               bf-vendItemCostLevel.quantityBase    = 99999999 .
+        FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .
+
+     RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+
   END.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
@@ -1537,3 +1550,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE vendcost-newitem V-table-Win 
+PROCEDURE vendcost-newitem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+
+ASSIGN oplExists = adm-new-record .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

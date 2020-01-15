@@ -70,15 +70,15 @@ DO:
 END.
 
 DEFINE VARIABLE uom-list         AS CHARACTER     INIT "C,CS,EA,L,M," NO-UNDO.
-DEFINE VARIABLE lSuppressDeviation AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 
-RUN sys/ref/nk1look.p (INPUT g_company, "SuppressDeviation", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lSuppressDeviation = LOGICAL(cRtnChar) NO-ERROR.
+    lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -98,9 +98,9 @@ IF lRecFound THEN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 ~
-Btn_Cancel dFrom-2 RECT-21 
+Btn_Cancel dFrom-2 cDevLabel RECT-21 
 &Scoped-Define DISPLAYED-OBJECTS dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 ~
-dFrom-2 
+dFrom-2 cDevLabel cPriceUom 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -126,6 +126,17 @@ DEFINE BUTTON Btn_OK AUTO-GO
      LABEL "&Ok" 
      SIZE 10 BY 1.91
      BGCOLOR 8 .
+
+DEFINE VARIABLE cDevLabel AS CHARACTER FORMAT "x(9)":U INITIAL "Deviation" 
+     VIEW-AS FILL-IN 
+     SIZE 12.6 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE cPriceUom AS CHARACTER FORMAT "x(3)":U 
+     LABEL "Cost and Quantity UOM" 
+     VIEW-AS FILL-IN 
+     SIZE 12.6 BY 1
+     BGCOLOR 15 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE dDev1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -159,7 +170,7 @@ DEFINE VARIABLE dToQty1 AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 5.48
+     SIZE 58 BY 6.67
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-21
@@ -170,27 +181,27 @@ DEFINE RECTANGLE RECT-21
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     Btn_OK AT ROW 7.19 COL 39
-     dFrom1 AT ROW 2.48 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 218
-     dToQty1 AT ROW 2.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
-     dEaCost1 AT ROW 5.33 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 266
-     dSetup1 AT ROW 5.33 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 276
-     dDev1 AT ROW 5.33 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 360
-     Btn_Cancel AT ROW 7.19 COL 49
-     dFrom-2 AT ROW 2.48 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 380
+     Btn_OK AT ROW 8.38 COL 39
+     dFrom1 AT ROW 3.76 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     dToQty1 AT ROW 3.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
+     dEaCost1 AT ROW 6.62 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 266
+     dSetup1 AT ROW 6.62 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 276
+     dDev1 AT ROW 6.62 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 360
+     Btn_Cancel AT ROW 8.38 COL 49
+     dFrom-2 AT ROW 3.76 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 380
+     cDevLabel AT ROW 5.62 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     cPriceUom AT ROW 1.48 COL 40.6 COLON-ALIGNED
      "Quantity Range" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 1.48 COL 31.6 WIDGET-ID 242
+          SIZE 18 BY 1 AT ROW 2.76 COL 31.6 WIDGET-ID 242
      "Quantity To" VIEW-AS TEXT
-          SIZE 14.2 BY 1 AT ROW 1.48 COL 3 WIDGET-ID 252
+          SIZE 14.2 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
      "Cost Per" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 4.33 COL 3 WIDGET-ID 264
+          SIZE 12 BY 1 AT ROW 5.62 COL 3 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 4.33 COL 22.2 WIDGET-ID 278
-     "Deviation" VIEW-AS TEXT
-          SIZE 12.8 BY 1 AT ROW 4.33 COL 42.6 WIDGET-ID 288
+          SIZE 12 BY 1 AT ROW 5.62 COL 22.2 WIDGET-ID 278
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 82
-     RECT-21 AT ROW 6.95 COL 38
-     SPACE(0.20) SKIP(0.00)
+     RECT-21 AT ROW 8.14 COL 38
+     SPACE(0.19) SKIP(0.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -228,6 +239,8 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cPriceUom IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -306,24 +319,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME dToQty1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dToQty1 D-Dialog
-ON LEAVE OF dToQty1 IN FRAME D-Dialog
-DO: 
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-             RUN valid-qty ( OUTPUT lError) NO-ERROR.
-            IF lError THEN RETURN NO-APPLY.
-           
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME dDev1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dDev1 D-Dialog
 ON LEAVE OF dDev1 IN FRAME D-Dialog
@@ -377,6 +372,24 @@ DO:
         DO:
             ASSIGN {&self-name}.
             
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME dToQty1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dToQty1 D-Dialog
+ON LEAVE OF dToQty1 IN FRAME D-Dialog
+DO: 
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+             RUN valid-qty ( OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY.
+           
         END.
     END.
 
@@ -475,10 +488,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 dFrom-2 
+  DISPLAY dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 dFrom-2 cDevLabel cPriceUom 
       WITH FRAME D-Dialog.
   ENABLE Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 Btn_Cancel dFrom-2 
-         RECT-21 
+         cDevLabel RECT-21 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -584,12 +597,15 @@ PROCEDURE pDisplayValue :
                 dToQty1:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)
                 dEaCost1:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)
                 dSetup1:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)
-                dDev1:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation) .
+                dDev1:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
+                cPriceUom:SCREEN-VALUE = vendItemCost.vendorUOM .
         IF ipcType EQ "Copy" THEN
             dToQty1:SCREEN-VALUE  = "0" .
-      DISABLE dFrom1 dFrom-2 .
-      IF lSuppressDeviation THEN
-          DISABLE dDev1 .
+      DISABLE dFrom1 dFrom-2 cDevLabel.
+      IF NOT lVendItemUseDeviation THEN
+          ASSIGN
+              dDev1:HIDDEN = TRUE
+              cDevLabel:HIDDEN = TRUE .
       IF ipcType EQ "View" THEN
           DISABLE dFrom1 dFrom-2 dToQty1 dEaCost1 dSetup1 dDev1 .
         
@@ -654,3 +670,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
