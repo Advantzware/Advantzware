@@ -435,6 +435,22 @@ RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+&IF DEFINED(EXCLUDE-getVendCostQty) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getVendCostQty Procedure
+FUNCTION fGetVendCostQty RETURNS DECIMAL 
+  (ipdQty AS dec, ipcFromUom AS char, ipcToUom AS char  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 
 
 /* *********************** Procedure Settings ************************ */
@@ -920,8 +936,7 @@ PROCEDURE buildRptRecs :
                 report.key-06  = STRING(v-setup,"9999999999.9999")
                 report.key-07  = tt-eiv.vend-i-no
                 report.key-08  = tt-eiv.i-no
-                report.rec-id  = tt-eiv.rec-id.
-  
+                report.rec-id  = tt-eiv.rec-id.         
         END. /* for each tt-eiv */
         
         RELEASE report.
@@ -946,7 +961,7 @@ PROCEDURE buildRptRecs :
                     OUTPUT lSuccess,
                     OUTPUT cMessage
                     ) NO-ERROR.
-            ELSE DO:  
+            ELSE DO:                  
                 IF lNewVendorItemCost THEN 
                     RUN po/d-vndcstN.w (
                         INPUT v-term, 
@@ -3266,7 +3281,7 @@ PROCEDURE processJobMat :
         gvrWJobMat = ROWID(w-job-mat).
 
         llFirstOfJobFrm = FIRST-OF(w-job-mat.frm).
-        llFirstJobFrm = FIRST(w-job-mat.frm).
+        llFirstJobFrm = FIRST(w-job-mat.frm).        
 
         IF w-job-mat.this-is-a-rm THEN 
         DO:
@@ -3306,6 +3321,9 @@ PROCEDURE processJobMat :
         RUN initRptRecs (INPUT cocode,
             INPUT ROWID(w-job-mat),
             OUTPUT gvrTT-ei) .
+  
+
+  
   
         /* Creates a report record for each tt-eiv, sets fil_id */
    
@@ -3816,7 +3834,6 @@ PROCEDURE RevCreateTtEiv:
               tt-ei.std-uom = vendItemCost.VendorUOM
               .        
     END.
-    
     IF bf-w-job-mat.est-no NE "" THEN 
     DO:
       v-index = 0.      
@@ -3826,15 +3843,24 @@ PROCEDURE RevCreateTtEiv:
                                      AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no
                                      AND vendItemCost.ItemID    EQ itemfg.i-no
                                      AND vendItemCost.ItemType EQ "FG"  ,
-                                                     
+          
           EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-            BY vendItemCostLevel.vendItemCostLevelID:
+            /* AND venditemcostlevel.quantityfrom <= fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)
+             AND venditemcostlevel.quantityto >= fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)             
+             */
+             BY vendItemCostLevel.vendItemCostLevelID:
          
-            /*IF NOT CAN-FIND(FIRST tt-eiv
-                WHERE tt-eiv.company   EQ e-itemfg-vend.company
-                AND tt-eiv.i-no      EQ bf-w-job-mat.i-no
-                AND tt-eiv.vend-no   EQ e-itemfg-vend.vend-no) THEN 
-            */
+          /*IF NOT CAN-FIND(FIRST tt-eiv
+              WHERE tt-eiv.company   EQ e-itemfg-vend.company
+              AND tt-eiv.i-no      EQ bf-w-job-mat.i-no
+              AND tt-eiv.vend-no   EQ e-itemfg-vend.vend-no) THEN 
+          */                   
+               
+            IF  venditemcostlevel.quantityfrom <= fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)
+                AND venditemcostlevel.quantityto >= fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)
+            THEN .
+            ELSE NEXT.                          
+             
             v-index = v-index + 1.    
             FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
             IF NOT AVAIL tt-eiv THEN 
@@ -3850,9 +3876,16 @@ PROCEDURE RevCreateTtEiv:
                        tt-eiv.vend-no   = vendItemCost.vendorID.
                        tt-eiv.vend-i-no = vendItemCost.vendorItemID.
                        tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no.
-                       .                       
-            END.  
-            
+            END.                                
+            assign tt-eiv.roll-w[27] = venditemCost.dimWidthMinimum
+                   tt-eiv.roll-w[28] = venditemCost.dimWidthMaximum
+                   tt-eiv.roll-w[29] = venditemCost.dimlengthMinimum
+                   tt-eiv.roll-w[30] = venditemCost.dimlengthMaximum                                
+              .
+/*              MESSAGE "create tt-eiv"  tt-eiv.i-no tt-eiv.vend-no skip                       */
+/*              fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)*/
+/*              venditemcostlevel.quantityFrom venditemcostlevel.quantityTo                    */
+/*              VIEW-AS ALERT-BOX.                                                             */
             IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
                v-index GT 0 AND v-index LE 20 THEN 
                 ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
@@ -3861,11 +3894,10 @@ PROCEDURE RevCreateTtEiv:
                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
                        .
             IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30*/
-                v-index GT 0 AND v-index LE 30 THEN           
+                v-index GT 0 AND v-index LE 26 THEN           
                 assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                        .
-                    
-        
+                            
       END. /* each vendcostitem */
     END. /* if est-no <> "" */ 
     v-index = 0.
@@ -3899,8 +3931,13 @@ PROCEDURE RevCreateTtEiv:
                        tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE no
                        .                
                 gvrTT-eiv = ROWID(tt-eiv).
-                
-                IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
+             END.
+             assign tt-eiv.roll-w[27] = venditemCost.dimWidthMinimum
+                    tt-eiv.roll-w[28] = venditemCost.dimWidthMaximum
+                    tt-eiv.roll-w[29] = venditemCost.dimlengthMinimum
+                    tt-eiv.roll-w[30] = venditemCost.dimlengthMaximum                                
+                    .   
+             IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
                   v-index GT 0 AND v-index LE 20 THEN 
                     ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
                         tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
@@ -3908,11 +3945,10 @@ PROCEDURE RevCreateTtEiv:
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
                         .
                 IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30 */
-                   v-index GT 0 AND v-index LE 30 THEN           
+                   v-index GT 0 AND v-index LE 26 THEN           
                     assign tt-eiv.roll-w[v-index] = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                         .                        
-                
-            END. /* not can-find .. */
+                            
       END.
 END PROCEDURE.
 	
@@ -5126,6 +5162,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ENDIF
+
+
+
+/* ************************  Function Implementations ***************** */
+&IF DEFINED(EXCLUDE-getVendCostQty) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getVendCostQty Procedure
+FUNCTION fGetVendCostQty RETURNS DECIMAL 
+  (ipdQty AS dec, ipcFromUom AS char, ipcToUom AS char  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  	DEFINE VARIABLE ReturnQty AS DECIMAL NO-UNDO.
+       
+    IF ipcToUom = ipcFromUom THEN ReturnQty = ipdQty.
+    ELSE DO:
+                                  
+           RUN sys/ref/convquom.p(ipcFromUom, ipcToUom,
+               w-job-mat.basis-w, w-job-mat.len, w-job-mat.wid, w-job-mat.dep,
+               ipdQty, OUTPUT ReturnQty) .
+               
+               
+                   
+    END. 
+       
+	RETURN ReturnQty.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ENDIF
 
