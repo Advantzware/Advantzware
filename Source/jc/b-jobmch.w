@@ -1067,14 +1067,39 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ DEFINE BUFFER bf-job-mch FOR job-mch .
+ DEFINE VARIABLE lMultiRecord AS LOGICAL NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-  END.
+ i = 0 .
+ MAIN-JOB-MCH:
+ FOR EACH bf-job-mch NO-LOCK
+     WHERE bf-job-mch.company = job.company 
+       AND bf-job-mch.job = job.job
+       AND bf-job-mch.job-no = job.job-no 
+       AND bf-job-mch.job-no2 = job.job-no2 
+     use-index line-idx :
+     i = i + 1 .
+     IF i GE 2 THEN do:
+       lMultiRecord = YES .
+       LEAVE MAIN-JOB-MCH .
+     END.
+ END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+ IF lMultiRecord THEN do:
+     IF AVAIL job-mch THEN
+         RUN jc/MassJobRout.w(job.job-no,job.job-no2,RECID(job-mch) ) .
+
+     RUN dispatch ("open-query").
+     APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+ END.
+ ELSE do:
+     IF NOT adm-new-record THEN DO:
+      {custom/askdel.i}
+     END.
+
+      /* Dispatch standard ADM method.                             */
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+ END.
 
   /* Code placed here will execute AFTER standard behavior.    */
 
