@@ -173,12 +173,12 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
 
             IF LAST(ap-sel.inv-no) THEN DO:
                 REPEAT WHILE ll > 12 AND CAN-FIND(FIRST wrk-chk WHERE wrk-chk.vend-no EQ v-vend-no):
-                    RUN writeVoidedCheck(vend.remit,stnum).
+                    RUN writeVoidedCheck(vend.remit,stnum,ap-chk.check-date).
                     ASSIGN
                         ll-void = YES
                         ll = ll - 12.
                     
-                    RUN writeRegisterHeader(YES,stnum,ap-chk.check-date,ctot,
+                    RUN writeRegisterHeader(YES,stnum,ap-chk.check-date,ctot,vend.vend-no,vend.name,
                                             OUTPUT lc-booktemp).
                     lv-line-cnt = 0.
                     FOR EACH wrk-chk WHERE wrk-chk.vend-no EQ v-vend-no:
@@ -195,7 +195,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                         IF lv-line-cnt = 12 THEN LEAVE.
                     END. /*each wrk-chk (top)*/
                     
-                    RUN writeRegisterHeader(NO,stnum,ap-chk.check-date,ctot,
+                    RUN writeRegisterHeader(NO,stnum,ap-chk.check-date,ctot,vend.vend-no,vend.name,
                                             OUTPUT lc-booktemp).
                     lv-line-cnt = 0.
                     FOR each wrk-chk WHERE wrk-chk.vend-no EQ v-vend-no:
@@ -234,7 +234,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                                     cCountry).
                 END. /* if last(ap-sel.inv-no)*/
                
-                RUN writeRegisterHeader(YES,stnum,ap-chk.check-date,ctot,
+                RUN writeRegisterHeader(YES,stnum,ap-chk.check-date,ctot,vend.vend-no,vend.name,
                                         OUTPUT lc-booktemp).
                 lv-line-cnt = 0.
                 FOR EACH wrk-chk WHERE wrk-chk.vend-no EQ v-vend-no:
@@ -251,7 +251,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                     IF lv-line-cnt = 12 THEN LEAVE.
                 END. /*each wrk-chk (top)*/
                 
-                RUN writeRegisterHeader(NO,stnum,ap-chk.check-date,ctot,OUTPUT lc-booktemp).
+                RUN writeRegisterHeader(NO,stnum,ap-chk.check-date,ctot,vend.vend-no,vend.name,OUTPUT lc-booktemp).
                 lv-line-cnt = 0.
                 FOR EACH wrk-chk WHERE wrk-chk.vend-no EQ v-vend-no:
                     lv-line-cnt = lv-line-cnt + 1.
@@ -299,20 +299,20 @@ PROCEDURE writeCheck:
         lc-date = "".
     ELSE
         lc-date = formatDate(ipdt-date).*/
-    PUT "<C8><R2><P14><B>" company.NAME  FORMAT "x(30)" SKIP "</B>" lc-font-size
+    PUT "<C8><R2><P14><B>" company.NAME  FORMAT "x(30)" SKIP  lc-font-size
         "<C8>" v-comp-add1 FORMAT "x(30)" SKIP
         "<C8>" v-comp-add2 FORMAT "x(30)" SKIP
-        "<C8>" v-comp-add3 FORMAT "x(30)" "<C50>NO CHÈQUE<C72>" ip-check-no SKIP(1)
+        "<C8>" v-comp-add3 FORMAT "x(30)" "</B>" SKIP(2) "<C50>NO CHÈQUE<C72>" ip-check-no SKIP(1)
         "<C50>DATE  <C67>" SUBSTRING(STRING(DAY(ipdt-date),"99"),1,1) + "  " + SUBSTRING(STRING(DAY(ipdt-date),"99"),2,1) + "  " + SUBSTRING(STRING(MONTH(ipdt-date),"99"),1,1) + "   " + SUBSTRING(STRING(MONTH(ipdt-date),"99"),2,1) +
                           "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),1,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),2,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),3,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),4,1) FORMAT "x(25)"    SKIP
         "<C67>J  J  M  M  A  A  A  A " SKIP(1)
         "<C8><B>" ipc-amount-desc  "<C70><P10>" ipd-amount "</B>" lc-font-size SKIP 
         "<C8>Montant en Dollar canadien" skip(1)
-        "<C14>" ipc-payto SKIP
-        "<C14>" ipc-payto-add1 SKIP
-        "<C14>" ipc-payto-add2 SKIP
-        "<C14>" ipc-payto-add3 SKIP 
-        "<C14>" ipcCountry SKIP.
+        "<C17>" ipc-payto SKIP
+        "<C17>" ipc-payto-add1 SKIP
+        "<C17>" ipc-payto-add2 SKIP
+        "<C17>" ipc-payto-add3 SKIP 
+        "<C17>" ipcCountry  SKIP.
 
    
 END PROCEDURE.
@@ -320,9 +320,10 @@ END PROCEDURE.
 PROCEDURE writeVoidedCheck:
     DEF INPUT PARAMETER ipc-payto AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ip-check-no LIKE ap-chk.check-no NO-UNDO.
+    DEF INPUT PARAMETER ip-date         LIKE ap-inv.inv-date FORMAT "99/99/99"   NO-UNDO.
 
     PUT "<P50><C32><R4><B>VOID</B>" lc-font-size.
-    RUN writeCheck ("*** NO DOLLARS AND NO CENTS ***",0,?,ipc-payto,"","","",ip-check-no,"").
+    RUN writeCheck ("*** NO DOLLARS AND NO CENTS ***",0,ip-date,ipc-payto,"","","",ip-check-no,"").
 
 
 END PROCEDURE.
@@ -333,16 +334,20 @@ PROCEDURE writeRegisterLine:
     DEF INPUT PARAMETER ip-inv-no       LIKE ap-sel.inv-no   FORMAT "X(12)"      NO-UNDO.
     DEF INPUT PARAMETER ip-po-no        LIKE ap-inv.po-no    FORMAT ">>>>>9"      NO-UNDO.
     DEF INPUT PARAMETER ip-date         LIKE ap-inv.inv-date FORMAT "99/99/99"   NO-UNDO.
-    DEF INPUT PARAMETER ip-invamt       LIKE ap-inv.net  FORMAT "$->>>,>>9.99"   NO-UNDO.
-    DEF INPUT PARAMETER ip-amount       LIKE ap-sel.amt-paid FORMAT "$->>>,>>9.99" NO-UNDO.
-    DEF INPUT PARAMETER ip-discount     LIKE ap-sel.disc-amt FORMAT "->>>>,>>9.99" NO-UNDO.
+    DEF INPUT PARAMETER ip-invamt       LIKE ap-inv.net  FORMAT "->,>>>,>>9.99"   NO-UNDO.
+    DEF INPUT PARAMETER ip-amount       LIKE ap-sel.amt-paid FORMAT "->,>>>,>>9.99" NO-UNDO.
+    DEF INPUT PARAMETER ip-discount     LIKE ap-sel.disc-amt FORMAT "->,>>>,>>9.99" NO-UNDO.
     DEF INPUT PARAMETER ip-net          AS DEC               FORMAT "->,>>>,>>9.99".
     
     PUT 
-        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 2)) "><C+2>" ip-inv-no
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C6>" ip-inv-no 
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C16>" ip-po-no
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C27>" ip-date
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C36>" ip-invamt
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C48>" ip-amount
         
-        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 2)) "><C+" li-col-discount ">" ip-discount
-        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 2)) "><C+" li-col-net ">" ip-net SKIP.
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C59>" ip-discount
+        ipc-bookmark "<R+" TRIM(STRING(ipi-line + 3)) "><C70>" ip-net SKIP.
 
 
 END PROCEDURE.
@@ -352,6 +357,8 @@ PROCEDURE writeRegisterHeader:
     DEF INPUT PARAMETER ip-check-no LIKE ap-chk.check-no NO-UNDO.
     DEF INPUT PARAMETER ipdt-date AS DATE NO-UNDO.
     DEF INPUT PARAMETER ipd-amount AS DECIMAL FORMAT ">>>,>>>,>>9.99" NO-UNDO.
+    DEF INPUT PARAMETER ipc-vend-no AS CHARACTER FORMAT "x(10)" NO-UNDO.
+    DEF INPUT PARAMETER ipc-vend-name AS CHARACTER FORMAT "x(30)" NO-UNDO.
     DEF OUTPUT PARAMETER opc-bookmark   AS CHAR FORMAT "X(5)"   NO-UNDO.
 
     DEF VAR lc-start    AS CHAR FORMAT "X(20)" NO-UNDO.
@@ -378,16 +385,15 @@ PROCEDURE writeRegisterHeader:
             lc-start = lc-start + "<#5>"
             opc-bookmark = "<=#5>".
 
-    lc-rect = lc-rect + "<C4><FROM><C+78><R+17><RECT>".
-    PUT lc-rect SKIP
+    
+    PUT 
         lc-start SKIP
-      
-        opc-bookmark "<R+2><C4" "><FROM>" opc-bookmark "<R+2><C82" "><LINE>" 
-        opc-bookmark "<R+2><C42" "><FROM>" opc-bookmark "<R+17><C42" "><LINE>" 
-        opc-bookmark "<R-1><C+1><B>Les Emballages OnduCorr Inc.</B> <C65> Montant en Dollar canadien "
-        opc-bookmark "<R+1><C+1>Advantzware <C38> " lc-date    "<C60>"  ip-check-no 
-        opc-bookmark "<R+2><C26>Escompte <C33> Montant Payé "     "<C66>Escompte <C73> Montant Payé" 
-        opc-bookmark "<R+17><C60>Total<C72>" ipd-amount
+        
+        opc-bookmark "<R-1><C+1><B> <C62> CHÈQUE NO    " ip-check-no "</B>"
+        opc-bookmark "<R+0><C+1> Vendor Id: "  ipc-vend-no   "<C30> Vendor Name: "  ipc-vend-name 
+        opc-bookmark "<R+2><C+1> Invoice NO <C16>Reference <C26> Date <C33> Inv Amt <C45>Amt Paid <C56>Escompte <C67> Montant Payé "      
+        opc-bookmark "<R+3><C+1> ============ <C16>============ <C26> ======== <C33> ============= <C45>============= <C56>============= <C67> ============= "      
+        
         SKIP. 
    
 
