@@ -1640,7 +1640,7 @@ END.
 ON ENTRY OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
 DO:
     ll-ok-i-no = NO.
-    IF (INDEX("ON",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
+    IF (INDEX("ONT",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
        (oe-ordl.est-no:SCREEN-VALUE = "" OR ls-stock = "") THEN DO:
     END.
     ELSE DO:
