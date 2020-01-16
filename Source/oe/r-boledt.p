@@ -1372,7 +1372,10 @@ do TRANSACTION.
     delete w-fg-bin.
   end.
   
-  run oe/oe-bolp3.p (v-term).
+  run oe/oe-bolp3.p(
+         INPUT v-term,
+         INPUT tran-date
+         ).
   
   hide frame post no-pause.
 end. /* post-blok*/

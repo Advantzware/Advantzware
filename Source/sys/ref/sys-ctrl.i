@@ -148,7 +148,7 @@ ASSIGN
  str-init[57] = "Matrix,LastPric"
  str-init[58] = ""
  str-init[59] = "Complete,OnHand=0"
- str-init[60] = "BOL,Current"    
+ str-init[60] = "BOL,Current,User Date"    
  str-init[61] = "Current,Release"
  str-init[62] = "NonStock,LotCntrl,Avail<0,Any"
  str-init[63] = "SouthPak,Xprint,APC,StClair"  /* quosheet */
