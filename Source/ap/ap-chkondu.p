@@ -217,7 +217,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
     
                 IF LAST(ap-sel.inv-no) THEN DO:
                     checks-avail = YES.
-                    RUN ap/apchks.p (INPUT ctot, 
+                    RUN ap/apcanlang.p (INPUT ctot, 
                                      INPUT 70, 
                                      OUTPUT dol).
         
@@ -302,10 +302,9 @@ PROCEDURE writeCheck:
     PUT "<C8><R2><P14><B>" company.NAME  FORMAT "x(30)" SKIP  lc-font-size
         "<C8>" v-comp-add1 FORMAT "x(30)" SKIP
         "<C8>" v-comp-add2 FORMAT "x(30)" SKIP
-        "<C8>" v-comp-add3 FORMAT "x(30)" "</B>" SKIP(2) "<C50>NO CHÈQUE<C72>" ip-check-no SKIP(1)
-        "<C50>DATE  <C67>" SUBSTRING(STRING(DAY(ipdt-date),"99"),1,1) + "  " + SUBSTRING(STRING(DAY(ipdt-date),"99"),2,1) + "  " + SUBSTRING(STRING(MONTH(ipdt-date),"99"),1,1) + "   " + SUBSTRING(STRING(MONTH(ipdt-date),"99"),2,1) +
-                          "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),1,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),2,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),3,1) + "  " +  SUBSTRING(STRING(YEAR(ipdt-date),"9999"),4,1) FORMAT "x(25)"    SKIP
-        "<C67>J  J  M  M  A  A  A  A " SKIP(1)
+        "<C8>" v-comp-add3 FORMAT "x(30)" "</B>" SKIP(5)  
+        "<C52>DATE  <C72>" STRING(DAY(ipdt-date),"99") + "/" + STRING(MONTH(ipdt-date),"99") + "/" + STRING(YEAR(ipdt-date),"9999") FORMAT "x(12)"    SKIP
+        SKIP(1)
         "<C8><B>" ipc-amount-desc  "<C70><P10>" ipd-amount "</B>" lc-font-size SKIP 
         "<C8>Montant en Dollar canadien" skip(1)
         "<C17>" ipc-payto SKIP
@@ -323,7 +322,7 @@ PROCEDURE writeVoidedCheck:
     DEF INPUT PARAMETER ip-date         LIKE ap-inv.inv-date FORMAT "99/99/99"   NO-UNDO.
 
     PUT "<P50><C32><R4><B>VOID</B>" lc-font-size.
-    RUN writeCheck ("*** NO DOLLARS AND NO CENTS ***",0,ip-date,ipc-payto,"","","",ip-check-no,"").
+    RUN writeCheck ("*** NO DOLLARS ET NO CENTS ***",0,ip-date,ipc-payto,"","","",ip-check-no,"").
 
 
 END PROCEDURE.
@@ -389,7 +388,6 @@ PROCEDURE writeRegisterHeader:
     PUT 
         lc-start SKIP
         
-        opc-bookmark "<R-1><C+1><B> <C62> CHÈQUE NO    " ip-check-no "</B>"
         opc-bookmark "<R+0><C+1> Vendor Id: "  ipc-vend-no   "<C30> Vendor Name: "  ipc-vend-name 
         opc-bookmark "<R+2><C+1> Invoice NO <C16>Reference <C26> Date <C33> Inv Amt <C45>Amt Paid <C56>Escompte <C67> Montant Payé "      
         opc-bookmark "<R+3><C+1> ============ <C16>============ <C26> ======== <C33> ============= <C45>============= <C56>============= <C67> ============= "      
