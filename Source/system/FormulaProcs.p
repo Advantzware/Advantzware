@@ -188,6 +188,89 @@ PROCEDURE GetPanelDetailsForStyle:
     RELEASE bf-panelHeader.  
 END PROCEDURE.
 
+PROCEDURE GetPanelScoreAndTypeForEstimate:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch panel size and score type from estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdScores     AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE OUTPUT PARAMETER opcScoreTypes AS CHARACTER NO-UNDO EXTENT 20.
+
+    RUN GetPanelDetailsForEstimate (
+        INPUT  ipcCompany,
+        INPUT  ipcEstimateID,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
+        OUTPUT TABLE ttPanel
+        ).
+
+    RUN pGetScoreAndTypes (
+        INPUT  ipcPanelType,
+        OUTPUT opdScores,
+        OUTPUT opcScoreTypes
+        ).
+END PROCEDURE.
+
+PROCEDURE GetPanelScoreAndTypeForPO:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch panel size and score type from PO
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoID       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoLine     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdScores     AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE OUTPUT PARAMETER opcScoreTypes AS CHARACTER NO-UNDO EXTENT 20.
+
+    RUN GetPanelDetailsForPO (
+        INPUT  ipcCompany,
+        INPUT  ipiPoID,
+        INPUT  ipiPoLine,
+        OUTPUT TABLE ttPanel
+        ).
+    
+    RUN pGetScoreAndTypes (
+        INPUT  ipcPanelType,
+        OUTPUT opdScores,
+        OUTPUT opcScoreTypes
+        ).
+END PROCEDURE.
+
+PROCEDURE GetPanelScoreAndTypeForStyle:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch panel size and score type from Style
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSetType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdScores       AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE OUTPUT PARAMETER opcScoreTypes   AS CHARACTER NO-UNDO EXTENT 20.
+
+    RUN GetPanelDetailsForStyle (
+        INPUT  ipcCompany,
+        INPUT  ipcStyleID,
+        INPUT  ipcFluteID,
+        INPUT  ipcScoreSetType,
+        OUTPUT TABLE ttPanel
+        ).
+    
+    RUN pGetScoreAndTypes (
+        INPUT  ipcPanelType,
+        OUTPUT opdScores,
+        OUTPUT opcScoreTypes
+        ).
+
+END PROCEDURE.
+
 PROCEDURE ParsePanels:
     /*------------------------------------------------------------------------------
      Purpose: Given a Style Formula, this will produce a simple temp table for each panel in the forumula
@@ -315,6 +398,27 @@ PROCEDURE pBuildttPanel PRIVATE:
     END.    
     
     RELEASE bf-panelDetail.
+END PROCEDURE.
+
+PROCEDURE pGetScoreAndTypes PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to retreive score and score type from ttPanel to arrays
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcPanelType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdScores     AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE OUTPUT PARAMETER opcScoreTypes AS CHARACTER NO-UNDO EXTENT 20.
+
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+
+    FOR EACH ttPanel
+        WHERE ttPanel.cPanelType EQ ipcPanelType:
+        iIndex = iIndex + 1.
+        ASSIGN
+            opdScores[iIndex]     = ttPanel.dPanelSize
+            opcScoreTypes[iIndex] = ttPanel.cScoreType
+            .
+    END.
 END PROCEDURE.
 
 PROCEDURE pUpdatePanelDetail PRIVATE:
