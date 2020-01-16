@@ -161,7 +161,8 @@ PROCEDURE postMonitor:
         RUN monitorActivity ('Check for DB users without userLogs ' ,YES,'').
         testasi:
         FOR EACH asi._connect NO-LOCK WHERE 
-            CAN-DO("REMC,SELF",asi._connect._connect-type):
+            CAN-DO("REMC,SELF",asi._connect._connect-type) AND
+            asi._connect._connect-clienttype NE "SQLC":
             IF CAN-FIND (FIRST userLog WHERE 
                             userLog.asiUsrNo = asi._connect._Connect-Usr AND 
                             userLog.asiPID   = asi._connect._Connect-Pid AND 
@@ -172,7 +173,8 @@ PROCEDURE postMonitor:
         END.
         testaudit:
         FOR EACH audit._connect NO-LOCK WHERE 
-            CAN-DO("REMC,SELF",audit._connect._connect-type): 
+            CAN-DO("REMC,SELF",audit._connect._connect-type) AND
+            audit._connect._connect-clienttype NE "SQLC": 
             IF CAN-FIND (FIRST userLog WHERE 
                             userLog.audUsrNo = audit._connect._Connect-Usr AND 
                             userLog.audPID   = audit._connect._Connect-Pid AND 
