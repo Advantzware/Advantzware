@@ -1242,6 +1242,7 @@ FOR EACH job-hdr NO-LOCK
 
                                 IF LINE-COUNTER > 70 THEN 
                                     DO:
+                                        PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                         PAGE.
                                         RUN pPrintHeader .
                                     END.
