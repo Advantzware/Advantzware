@@ -1218,7 +1218,7 @@ PROCEDURE openQueryOne :
 /*    fi_vend-no = IF RETURN-VALUE <> ? THEN RETURN-VALUE ELSE "".*/
     
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType').
-    IF RETURN-VALUE EQ ? THEN
+    IF RETURN-VALUE NE ? THEN
     ASSIGN
         cb_itemType = RETURN-VALUE  
         cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType
