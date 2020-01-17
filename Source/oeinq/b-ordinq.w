@@ -2438,8 +2438,7 @@ PROCEDURE query-go :
        fi_part-no EQ "" AND fi_po-no1 EQ "" AND
        fi_est-no EQ "" AND fi_job-no EQ ""  THEN
     DO:
-       {&for-eachblank}
-         USE-INDEX opened NO-LOCK,
+       {&for-eachblank} NO-LOCK,
          {&for-each2}
          BREAK BY oe-ordl.ord-no DESC:
 
@@ -2451,9 +2450,11 @@ PROCEDURE query-go :
        &SCOPED-DEFINE open-query          ~
            OPEN QUERY {&browse-name}         ~
                {&for-eachblank}              ~
-               AND oe-ordl.ord-no GE lv-ord-no   ~
-                   USE-INDEX opened NO-LOCK, ~
+               AND oe-ordl.ord-no GE lv-ord-no NO-LOCK, ~
                    {&for-each2}
+                   
+       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                      ELSE {&open-query} {&sortby-phrase-desc}.
     END.
     ELSE
     DO:
@@ -2473,10 +2474,10 @@ PROCEDURE query-go :
                AND oe-ordl.ord-no GE lv-ord-no   ~
                    USE-INDEX opened NO-LOCK, ~
                    {&for-each2}
+                   
+       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                      ELSE {&open-query} {&sortby-phrase-desc}.
     END.
-
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
   END.
 
 END PROCEDURE.
@@ -2945,8 +2946,7 @@ PROCEDURE show-prev-next :
          fi_est-no EQ "" AND fi_job-no EQ "" THEN
          DO:
             {&for-eachblank}
-            AND oe-ordl.ord-no LE lv-last-show-ord-no
-            USE-INDEX opened NO-LOCK,
+            AND oe-ordl.ord-no LE lv-last-show-ord-no NO-LOCK,
             {&for-each2}
             BREAK BY oe-ordl.ord-no DESC:
               IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
@@ -2958,9 +2958,11 @@ PROCEDURE show-prev-next :
             OPEN QUERY {&browse-name}               ~
               {&for-eachblank}                      ~
                     AND oe-ordl.ord-no GE lv-ord-no ~
-                    AND oe-ordl.ord-no LE lv-last-show-ord-no ~
-                    USE-INDEX opened NO-LOCK,         ~
+                    AND oe-ordl.ord-no LE lv-last-show-ord-no NO-LOCK, ~
                   {&for-each2}
+                  
+             IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                            ELSE {&open-query} {&sortby-phrase-desc}.
          END.
       ELSE
       DO:
@@ -2981,11 +2983,10 @@ PROCEDURE show-prev-next :
                  AND oe-ordl.ord-no LE lv-last-show-ord-no ~
                  USE-INDEX opened NO-LOCK,         ~
                {&for-each2}
+               
+         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}.
       END.
-
-
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
     END.
 
   END. /*lv-show-prev*/
@@ -3168,8 +3169,7 @@ PROCEDURE show-prev-next :
          fi_est-no EQ "" AND fi_job-no EQ "" THEN
       DO:
          {&for-eachblank}
-         AND oe-ordl.ord-no GE lv-first-show-ord-no
-         USE-INDEX opened NO-LOCK,
+         AND oe-ordl.ord-no GE lv-first-show-ord-no NO-LOCK,
          {&for-each2}
          BREAK BY oe-ordl.ord-no:
            IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
@@ -3181,9 +3181,11 @@ PROCEDURE show-prev-next :
          OPEN QUERY {&browse-name}               ~
            {&for-eachblank}                      ~
                  AND oe-ordl.ord-no LE lv-ord-no ~
-                 AND oe-ordl.ord-no GE lv-first-show-ord-no ~
-                 USE-INDEX opened NO-LOCK,         ~
+                 AND oe-ordl.ord-no GE lv-first-show-ord-no NO-LOCK, ~
                {&for-each2}
+               
+         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}.
       END.
       ELSE
       DO:
@@ -3204,10 +3206,10 @@ PROCEDURE show-prev-next :
                  AND oe-ordl.ord-no GE lv-first-show-ord-no ~
                  USE-INDEX opened NO-LOCK,         ~
                {&for-each2}
+               
+         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}.
       END.
-
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
     END.
   END. /*lv-show-next*/
 
