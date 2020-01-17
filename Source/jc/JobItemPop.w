@@ -30,19 +30,21 @@
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO .
 DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO .
-DEFINE INPUT PARAMETER ipRecId AS RECID NO-UNDO .
+DEFINE INPUT PARAMETER ipRowId AS ROWID NO-UNDO .
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
-DEFINE TEMP-TABLE tt-job-mat 
-    FIELD tt-recid    AS RECID
+DEFINE SHARED TEMP-TABLE tt-job-item 
+    FIELD tt-rowid    AS ROWID
     FIELD frm         LIKE job-mat.frm
     FIELD blank-no    LIKE job-mat.blank-no
-    FIELD rm-i-no     AS CHARACTER 
+    FIELD rm-i-no     AS CHARACTER  COLUMN-LABEL " Item#" 
     FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
     .
 DEFINE VARIABLE ll-secure AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO .
 ASSIGN 
     cocode = g_company
     locode = g_loc.
@@ -63,17 +65,17 @@ ASSIGN
 &Scoped-define BROWSE-NAME BROWSE-3
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES tt-job-mat
+&Scoped-define INTERNAL-TABLES tt-job-item
 
 /* Definitions for BROWSE BROWSE-3                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-3 tt-job-mat.IS-SELECTED tt-job-mat.frm tt-job-mat.blank-no tt-job-mat.rm-i-no 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 tt-job-mat.IS-SELECTED  
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tt-job-mat
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tt-job-mat
-&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tt-job-mat NO-LOCK tt-job-mat.frm
-&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY BROWSE-3 FOR EACH tt-job-mat NO-LOCK tt-job-mat.frm .
-&Scoped-define TABLES-IN-QUERY-BROWSE-3 tt-job-mat
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 tt-job-mat
+&Scoped-define FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED tt-job-item.frm tt-job-item.blank-no tt-job-item.rm-i-no 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED  
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tt-job-item
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tt-job-item
+&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tt-job-item NO-LOCK tt-job-item.frm
+&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY BROWSE-3 FOR EACH tt-job-item NO-LOCK tt-job-item.frm .
+&Scoped-define TABLES-IN-QUERY-BROWSE-3 tt-job-item
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 tt-job-item
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -114,19 +116,19 @@ DEFINE RECTANGLE RECT-17
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-3 FOR 
-    tt-job-mat SCROLLING.
+    tt-job-item SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
     QUERY BROWSE-3 NO-LOCK DISPLAY
-    tt-job-mat.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-job-mat.frm FORMAT ">>>" COLUMN-LABEL "S" WIDTH 12
-    tt-job-mat.blank-no FORMAT ">>>" COLUMN-LABEL "B" 
-    tt-job-mat.rm-i-no FORMAT "X(20)" COLUMN-LABEL "RM Item#"  
+    tt-job-item.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
+    tt-job-item.frm FORMAT ">>>" COLUMN-LABEL "S" WIDTH 12
+    tt-job-item.blank-no FORMAT ">>>" COLUMN-LABEL "B" 
+    tt-job-item.rm-i-no FORMAT "X(20)" 
     
-      ENABLE tt-job-mat.IS-SELECTED
+      ENABLE tt-job-item.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 68 BY 10.05
@@ -168,6 +170,8 @@ ASSIGN
     FRAME Dialog-Frame:SCROLLABLE = FALSE
     FRAME Dialog-Frame:HIDDEN     = TRUE.
 
+   /*tt-job-item.rm-i-no:COLUMN-LABEL = "Machine".*/
+
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -181,14 +185,14 @@ ASSIGN
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "asi.oe-ord.company = g_company
 and oe-ord.stat = ""D"""
-     _FldNameList[1]   >  tt-job-mat.IS-SELECTED
-" tt-job-mat.IS-SELECTED" ? ? "logical" ? ? ? ? ? ? no ? no no "7.6" yes no no "U" "" ""
-     _FldNameList[2]   > tt-job-mat.frm
-"tt-job-mat.frm" ? ? "Integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
-     _FldNameList[3]   > tt-job-mat.blank-no
-"tt-job-mat.blank-no" ? ? "integer" ? ? ? ? ? ? no ? no no "33" yes no no "U" "" ""
-     _FldNameList[4]   > tt-job-mat.rm-i-no
-"tt-job-mat.rm-i-no" ? ? "Character" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
+     _FldNameList[1]   >  tt-job-item.IS-SELECTED
+" tt-job-item.IS-SELECTED" ? ? "logical" ? ? ? ? ? ? no ? no no "7.6" yes no no "U" "" ""
+     _FldNameList[2]   > tt-job-item.frm
+"tt-job-item.frm" ? ? "Integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
+     _FldNameList[3]   > tt-job-item.blank-no
+"tt-job-item.blank-no" ? ? "integer" ? ? ? ? ? ? no ? no no "33" yes no no "U" "" ""
+     _FldNameList[4]   > tt-job-item.rm-i-no
+"tt-job-item.rm-i-no" ? ? "Character" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
@@ -203,7 +207,11 @@ and oe-ord.stat = ""D"""
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Utility: Restore deleted orders */
     DO:
-        APPLY "END-ERROR":U TO SELF.
+       FOR EACH tt-job-item:
+        tt-job-item.IS-SELECTED = FALSE.
+       END.
+
+       APPLY "END-ERROR":U TO SELF.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +251,7 @@ ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
   
         
         i = 0 .
-        FOR EACH tt-job-mat WHERE tt-job-mat.IS-SELECTED:
+        FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
             i = i + 1.
         END.
 
@@ -255,11 +263,23 @@ ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
         END.
 
 
-        MESSAGE "Are you sure you want to delete Materials" 
+        MESSAGE "Are you sure you want to " FRAME {&FRAME-NAME}:TITLE 
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
         IF NOT v-process THEN RETURN NO-APPLY .
-        IF v-process THEN RUN run-process.
+        
         APPLY 'GO' TO FRAME {&FRAME-NAME}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btn-cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
+ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Delete */
+    DO:
+       FOR EACH tt-job-item:
+        tt-job-item.IS-SELECTED = FALSE.
+       END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,13 +308,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     CLOSE QUERY BROWSE-3.
     RUN build-table. 
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST tt-job-mat
-            WHERE  tt-job-mat.tt-recid EQ ipRecId NO-ERROR .
-        IF AVAILABLE tt-job-mat THEN
-            tt-job-mat.IS-SELECTED = TRUE .
+        FIND FIRST tt-job-item
+            WHERE  tt-job-item.tt-rowid EQ ipRowId NO-ERROR .
+        IF AVAILABLE tt-job-item THEN
+            tt-job-item.IS-SELECTED = TRUE .
          
-        OPEN QUERY BROWSE-3 FOR EACH tt-job-mat
-            NO-LOCK BY tt-job-mat.frm.
+        OPEN QUERY BROWSE-3 FOR EACH tt-job-item
+            NO-LOCK BY tt-job-item.frm.
+      IF ipcType EQ "job-mch" THEN DO:
+       FRAME {&FRAME-NAME}:TITLE = "Delete Routing" .
+      END.
     END. 
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -352,53 +375,54 @@ PROCEDURE build-table :
           Notes:       
         ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        EMPTY TEMP-TABLE tt-job-mat .   
+      EMPTY TEMP-TABLE tt-job-item . 
+      IF ipcType EQ "job-mat" THEN do:
         FOR EACH job-mat NO-LOCK
             WHERE job-mat.company = cocode
             AND job-mat.job-no = ipcJobNo 
             AND job-mat.job-no2 = ipiJobNo2 USE-INDEX seq-idx
             BY job-mat.frm BY job-mat.blank-no :
        
-            FIND FIRST tt-job-mat WHERE tt-job-mat.tt-recid = RECID(job-mat)
+            FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mat)
                 NO-ERROR.
-            IF NOT AVAILABLE tt-job-mat THEN 
+            IF NOT AVAILABLE tt-job-item THEN 
             DO:
-                CREATE tt-job-mat.
+                CREATE tt-job-item.
                 ASSIGN 
-                    tt-job-mat.tt-recid = RECID(job-mat)
-                    tt-job-mat.frm      = job-mat.frm  
-                    tt-job-mat.blank-no = job-mat.blank-no
-                    tt-job-mat.rm-i-no  = job-mat.rm-i-no .
+                    tt-job-item.tt-rowid = ROWID(job-mat)
+                    tt-job-item.frm      = job-mat.frm  
+                    tt-job-item.blank-no = job-mat.blank-no
+                    tt-job-item.rm-i-no  = job-mat.rm-i-no .
             END.
         END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process Dialog-Frame 
-PROCEDURE run-process :
-    /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    
-    FOR EACH tt-job-mat WHERE tt-job-mat.IS-SELECTED:
-        FOR EACH job-mat EXCLUSIVE-LOCK 
-            WHERE job-mat.company EQ cocode AND 
-            recid(job-mat) EQ tt-job-mat.tt-recid :
-               
-            DELETE job-mat .
+      END. /* Job-mat*/
+      ELSE IF ipcType EQ "job-mch" THEN DO:
+        FOR EACH job-mch NO-LOCK
+            WHERE job-mch.company = cocode
+            AND job-mch.job-no = ipcJobNo 
+            AND job-mch.job-no2 = ipiJobNo2 USE-INDEX line-idx
+            BY job-mch.frm BY job-mch.blank-no :
+       
+            FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mch)
+                NO-ERROR.
+            IF NOT AVAILABLE tt-job-item THEN 
+            DO:
+                CREATE tt-job-item.
+                ASSIGN 
+                    tt-job-item.tt-rowid = ROWID(job-mch)
+                    tt-job-item.frm      = job-mch.frm  
+                    tt-job-item.blank-no = job-mch.blank-no
+                    tt-job-item.rm-i-no   = job-mch.m-code .
+            END.
         END.
+      END. /* ipcType EQ "job-mch"*/
     END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

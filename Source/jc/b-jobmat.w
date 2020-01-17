@@ -82,6 +82,14 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
+DEFINE NEW SHARED TEMP-TABLE tt-job-item 
+    FIELD tt-rowid    AS ROWID
+    FIELD frm         LIKE job-mat.frm
+    FIELD blank-no    LIKE job-mat.blank-no
+    FIELD rm-i-no     AS CHARACTER 
+    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+    .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1068,7 +1076,7 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll AS LOG NO-UNDO.
-  
+  DEFINE BUFFER bf-job-mat FOR job-mat.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN DO:
     RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).
@@ -1093,7 +1101,15 @@ PROCEDURE local-delete-record :
   FIND CURRENT job NO-LOCK.
 
   IF AVAIL job-mat THEN
-      RUN jc/MassJobMat.w(job.job-no,job.job-no2,RECID(job-mat) ) .
+      RUN jc/JobItemPop.w(job.job-no,job.job-no2,ROWID(job-mat),"Job-mat") .
+
+  FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
+      FOR EACH bf-job-mat EXCLUSIVE-LOCK 
+          WHERE bf-job-mat.company EQ cocode AND 
+          ROWID(bf-job-mat) EQ tt-job-item.tt-rowid :
+            DELETE bf-job-mat .
+      END.
+  END.
 
   RUN dispatch ("open-query").
  
