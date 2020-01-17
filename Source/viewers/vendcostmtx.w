@@ -875,8 +875,10 @@ PROCEDURE local-assign-record :
      IF AVAIL bf-venditemcost THEN DO:  /* copy restriction values */
         ASSIGN vendItemCost.dimLengthMaximum = bf-vendItemCost.dimLengthMaximum
                vendItemCost.dimLengthMinimum = bf-vendItemCost.dimLengthMinimum 
-/*               vendItemCost.dimLengthOver      */
-/*               vendItemCost.dimLengthOverCharge*/
+               vendItemCost.dimWidthMinimum = bf-vendItemCost.dimWidthMinimum 
+               vendItemCost.dimWidthMaximum = bf-vendItemCost.dimWidthMaximum 
+               vendItemCost.dimWidthOver = bf-vendItemCost.dimWidthOver
+               vendItemCost.dimLengthOver = bf-vendItemCost.dimLengthOver
                vendItemCost.dimLengthUnder = bf-vendItemCost.dimLengthUnder
                vendItemCost.dimLengthUnderCharge = bf-vendItemCost.dimLengthUnderCharge
                vendItemCost.dimWidthUnder = bf-vendItemCost.dimWidthUnder
