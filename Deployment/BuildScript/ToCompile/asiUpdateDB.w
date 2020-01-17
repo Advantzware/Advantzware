@@ -552,7 +552,8 @@ PROCEDURE ipBackupDBs :
     ASSIGN 
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3).
         
-    IF cPrefix = "asi" THEN ASSIGN 
+    IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
+    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi" AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList).
     ELSE ASSIGN 
@@ -902,7 +903,7 @@ PROCEDURE ipProcessRequest :
     RUN ipStatus ("Beginning Database Schema Update").
         RUN ipReadAdminSvcProps.    
 
-    /* Process "regular" database (asixxxx.db) */
+    /* Process "regular" database (asixxxx.db OR XXXXXXd.db) */
     RUN ipBackupDBs.
     IF NOT lSuccess THEN 
     DO:
@@ -924,8 +925,8 @@ PROCEDURE ipProcessRequest :
     /* Process "audit" database (audxxxx.db) */
     ASSIGN 
         iLookup = ipiEntry
-        fiDbName:{&SV} = REPLACE(fiDbName:{&SV},"asi","aud")
-        fiDbDir:{&SV} = "audit"
+        fiDbName:{&SV} = ENTRY(iLookup,cAudDbList)
+        fiDbDir:{&SV} = ENTRY(iLookup,cAudDirList)
         fiPortNo:{&SV} = ENTRY(iLookup,cAudPortList). 
     
     RUN ipBackupDBs.
@@ -1094,6 +1095,7 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR cReplEntry AS CHAR NO-UNDO.
     DEF VAR cDelta AS CHAR NO-UNDO.
     DEF VAR cPrefix AS CHAR NO-UNDO.
+    DEF VAR cPrefix2 AS CHAR NO-UNDO.
     DEF VAR cThisDb AS CHAR NO-UNDO. 
     DEF VAR cThisDir AS CHAR NO-UNDO.
     DEF VAR iWaitCount AS INT NO-UNDO.
@@ -1106,6 +1108,9 @@ PROCEDURE ipUpgradeDBs :
 
     ASSIGN 
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3)
+        cPrefix2 = SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1).
+    ASSIGN 
+        cPrefix = IF cPrefix EQ "asi" OR (cPrefix NE "asi" AND cPrefix2 EQ "d") THEN "asi" ELSE "aud"            
         iDbCtr = iDbCtr + 1
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
@@ -1114,7 +1119,8 @@ PROCEDURE ipUpgradeDBs :
         cMissingFilesDelta = REPLACE(cFullDelta,cDelta,"addlfiles.df")
         .
 
-    IF cPrefix = "asi" THEN ASSIGN 
+    IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
+    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi" AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList)
         cThisPort = ENTRY(iListEntry,cDbPortList).

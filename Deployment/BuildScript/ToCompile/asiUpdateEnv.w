@@ -4167,6 +4167,7 @@ PROCEDURE ipLoadEstCostData :
     IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
         INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
         REPEAT:
+            CREATE {&tablename}.
             IMPORT {&tablename}.
         END.
         INPUT CLOSE.
@@ -4177,6 +4178,7 @@ PROCEDURE ipLoadEstCostData :
     IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
         INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
         REPEAT:
+            CREATE {&tablename}.
             IMPORT {&tablename}.
         END.
         INPUT CLOSE.
@@ -4187,6 +4189,7 @@ PROCEDURE ipLoadEstCostData :
     IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
         INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
         REPEAT:
+            CREATE {&tablename}.
             IMPORT {&tablename}.
         END.
         INPUT CLOSE.
