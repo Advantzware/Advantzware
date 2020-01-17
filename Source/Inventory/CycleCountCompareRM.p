@@ -843,7 +843,7 @@ PROCEDURE pCheckInvalidItems:
     DEFINE VARIABLE dShtWid AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dMsf AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO FORMAT "x(40)".
     
     ASSIGN 
         lNoCost = NO 
@@ -890,8 +890,8 @@ PROCEDURE pCheckInvalidItems:
                                 .        
         IF lNoCost OR lNoMSF THEN 
             DISPLAY STREAM sOutput  
-                fg-bin.i-no COLUMN-LABEL "Item #" FORMAT 'X(22)'
-                fg-bin.tag COLUMN-LABEL "Tag" FORMAT "X(30)"
+                rm-bin.i-no COLUMN-LABEL "Item #" FORMAT 'X(22)'
+                rm-bin.tag COLUMN-LABEL "Tag" FORMAT "X(30)"
                 cProblemList COLUMN-LABEL "Problem Description" FORMAT "X(32)" 
               WITH WIDTH 250 STREAM-IO.
     END.
