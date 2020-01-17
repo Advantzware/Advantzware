@@ -931,8 +931,7 @@ PROCEDURE getSourceAttributes :
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor' ).
     cVendItemCostVendor = RETURN-VALUE.
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostCustomer' ).  
-    cVendItemCostCustomer = RETURN-VALUE.
-      
+    cVendItemCostCustomer = RETURN-VALUE.      
 
 END PROCEDURE.
 
@@ -971,8 +970,7 @@ PROCEDURE local-display-fields :
         fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
         cb_itemType:SCREEN-VALUE = cb_itemType .                   
-    END.
-   
+    END.   
     
 END PROCEDURE.
 
@@ -1076,7 +1074,7 @@ PROCEDURE local-initialize :
     RUN setCellColumns.
     /* Code placed here will execute AFTER standard behavior.    */
    
-    cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType:ENTRY(1) .
+/*    cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType:ENTRY(1) .*/
 
     APPLY 'ENTRY':U TO fi_i-no IN FRAME {&FRAME-NAME}.
 
@@ -1212,37 +1210,36 @@ PROCEDURE openQueryOne :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcValue AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue AS CHARACTER NO-UNDO.
      
     tb_exactMatch = YES.
      
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostVendor').
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor').
 /*    fi_vend-no = IF RETURN-VALUE <> ? THEN RETURN-VALUE ELSE "".*/
     
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType').
-    cb_itemType = IF RETURN-VALUE = "RM" THEN cb_itemType:ENTRY(3) IN FRAME {&FRAME-NAME}  
-                ELSE IF RETURN-VALUE = "FG" THEN cb_itemType:ENTRY(2)
-                ELSE cb_itemType:ENTRY(1).                    
-    
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').
+    IF RETURN-VALUE NE ? THEN
+    ASSIGN
+        cb_itemType = RETURN-VALUE  
+        cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType
+        .                    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostEst#').
     fi_est-no = IF RETURN-VALUE EQ ? THEN "" ELSE return-value.
     IF fi_est-no NE "" THEN ASSIGN tb_in-est = YES.
         
-    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue           .
+    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue.
 /*    DISPLAY fi_i-no fi_vend-no cb_itemType fi_est-no WITH FRAME {&frame-name}.*/
-                   
 /*    RUN query-go.*/
 
-    &SCOPED-DEFINE open-query                   ~
-          OPEN QUERY {&browse-name}               ~
-            {&for-each-ExactMatch}                          ~
+    &SCOPED-DEFINE open-query ~
+          OPEN QUERY {&browse-name} ~
+            {&for-each-ExactMatch} ~
                NO-LOCK
 
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+                   ELSE {&open-query} {&sortby-phrase-desc}.
                     
-    RUN dispatch ('display-fields').
-    
+    RUN dispatch ('display-fields').    
    
 END PROCEDURE.
 
@@ -1388,17 +1385,17 @@ PROCEDURE set-defaults :
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fi_vend-no:SCREEN-VALUE = ""
-            cb_itemType:SCREEN-VALUE  = "ALL"
-            fi_i-no:SCREEN-VALUE    = ""
-            fi_est-no:SCREEN-VALUE  = "" 
+            fi_vend-no:SCREEN-VALUE  = ""
+            cb_itemType:SCREEN-VALUE = "ALL"
+            fi_i-no:SCREEN-VALUE     = ""
+            fi_est-no:SCREEN-VALUE   = "" 
             fi_vend-no
             cb_itemType
             fi_i-no
             fi_est-no
-            tb_exactMatch = no
+            tb_exactMatch = NO
             tb_exactMatch:SCREEN-VALUE = "no"
-            tb_in-est = yes
+            tb_in-est = YES
             tb_in-est:SCREEN-VALUE = "Yes"
             .     
     END.
