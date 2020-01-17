@@ -4,18 +4,23 @@ PUT "<FArial>".
      PUT "" SKIP. /* pacific package */ 
            
 PUT "<=1>" SKIP.
-/*PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
+IF AVAIL bf-shipto AND bf-shipto.broker THEN do:
+PUT "<C1><#2>" 
     "<=2><R+1>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"     
-   "<P10><=2><R+2>"
+   "<P12><=2><R+2>"
      v-comp-add1 AT 8 SKIP
      v-comp-add2  AT 8  SKIP
      v-comp-add3  AT 8 SKIP
      v-comp-add4  AT 8 skip
      v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-     lv-email AT 8 SKIP(1)*/
-    PUT "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP
+     lv-email AT 8 SKIP(3).
+END.
+ELSE do: 
+    PUT "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP .
+END.
+   PUT
    "<FCourier New>"
-   "<R-1>Facturè À:" SPACE(30) "Vendu À:"  SKIP
+   "<R-1>Facturé à:" SPACE(30) "Vendu à:"  SKIP
    SPACE(5) oe-ord.cust-name 
     ( IF oe-ord.sold-name = "" THEN oe-ord.cust-name ELSE oe-ord.sold-name) AT 45 FORM "x(30)" skip
    SPACE(5) oe-ord.addr[1] 
@@ -26,10 +31,10 @@ PUT "<=1>" SKIP.
    SPACE(5) (IF oe-ord.addr[2] NE "" THEN v-addr3 ELSE "") FORMAT "x(30)"
        (IF oe-ord.sold-addr[2] NE "" OR oe-ord.addr[2] NE "" THEN v-sold-addr3 ELSE "") AT 45 FORMAT "x(30)" SKIP.
 
- /*IF lv-display-comp THEN
+ IF AVAIL bf-shipto AND bf-shipto.broker THEN
         PUT "<=2><C3><FGCOLOR=" trim(lv-comp-color) + ">"
             "<=2><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
-            "<P10>".*/
+            "<P10>".
 
 v-printline = v-printline + 14.
 PUT "<|10><R4><C50><#3><FROM><R10><C80><RECT>" SKIP.
@@ -42,7 +47,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE>" SKIP
 
 PUT "<FArial><P12><=#3><R-2> <B>Reconnaissance/Acknowledgment</B> " "<P10>" SKIP
     "<=#3> Client                   Contact"
-    "<=#3><R+2> Telephone                      Tèlècopieur" 
+    "<=#3><R+2> Telephone                      Télécopieur" 
     "<=#3><R+4> Bon De Commande       Date De La Commande <FCourier New>"
     "<=3><R+1> " oe-ord.cust-no  space(5) oe-ord.contact
     "<=3><R+3> " v-cust-phone  space(5) cust.fax
@@ -71,7 +76,7 @@ PUT "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C66.8><FROM><R23><C66.8><LINE>" SKIP
 "<R19><C74.5><FROM><R23><C74.5><LINE>" SKIP
 .
-PUT "<FArial><=4><C23>Expediteur <C39>Termes <C53>Reprèsentant <C67>Commande     " SKIP
+PUT "<FArial><=4><C23>Expediteur <C39>Termes <C53>Représentant <C67>Commande     " SKIP
     "<FArial><=4><R+1><C2>Date Req. <C12>Destination <C23>Ship Via <C39>Terms <C53>Sales Person <C67>Order# <C75>Quote#" SKIP
 "<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
@@ -88,7 +93,7 @@ PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP
        "<R24><C72><FROM><R26><C72><LINE>" SKIP
        .
 PUT "<FArial><=5><C2>Ligne <C50>Commande <C62>Prix <C73>UM" SKIP(1) 
-    "<FArial><=5><R+1><C2>Line <C7>Rèfèrence# <C21>Description <C50>Order <C62>Price <C73>UOM" SKIP(1).
+    "<FArial><=5><R+1><C2>Line <C7>Référence# <C21>Description <C50>Order <C62>Price <C73>UOM" SKIP(1).
 PUT "<FCourier New>"          .
 v-printline = v-printline + 6.
 

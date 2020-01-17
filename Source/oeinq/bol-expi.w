@@ -53,6 +53,8 @@ assign
  cocode = g_company
  locode = g_loc.
 
+{ce/msfcalc.i}
+
 DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
@@ -64,13 +66,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
                             "FG Item#,FG Item Name,Ship To,Bol Date,Release,Bol Status,carrier,Trailer#,Freight Terms,Seal#," +
                             "Freight Cost,Rate/100 Wt,Total Weight,Total Pallets,Added/Updated By,Upd Date,Cust Addr1,Cust Addr2,Cust city,Cust State,Cust Zip," +
                             "Ship Name,Ship Addr1,Ship Addr2,Ship City,Ship State,Ship Zip,Tag,Whse,Bin,Job NO,Job no2,Units,Qty/Unit,Partial,Qty Shipped,Weight,Freight,P/C,Customer Lot#," +
-                            "Unts/Pallet"
+                            "Unts/Pallet,Total Shipped Sq Ft,Estimate No,Est RM item No"
                             
         cFieldListToSelect = "bol-no,ord-no,po-no,cust-no,cust-name,cust-part," +
                             "i-no,i-name,ship-id,bol-date,rel-no,stat,carrier,trailer,frt-pay,airway-bill," +
                             "freight,cwt,tot-wt,tot-pallets,user-id,upd-date,cust-addr1,cust-addr2,cust-city,cust-state,cust-zip," +
                             "ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,tag,loc,loc-bin,job-no,job-no2,cases,qty-case,partial,qty,weight,freight,p-c,lot-no," +
-                            "unit-pallet"
+                            "unit-pallet,tot-sqft,est-no,est-rm-item"
                              .
 
 {sys/inc/ttRptSel.i}
@@ -1367,6 +1369,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     DEF VAR li-extent AS INT NO-UNDO.
     DEF VAR lc-return AS CHAR FORMAT "x(100)" NO-UNDO.
     DEF VAR test AS INT FORMAT "->>>,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE dTotalSqft AS DECIMAL NO-UNDO .
 
     CASE ipc-field :
         WHEN "i-no"  THEN 
@@ -1552,6 +1555,60 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             ELSE lc-return = "" .
         END.
 
+       WHEN "tot-sqft" THEN DO:
+           FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode
+                AND oe-ord.ord-no EQ ipb-oe-boll.ord-no
+                NO-ERROR.
+            IF AVAIL oe-ord AND oe-ord.est-no NE "" THEN 
+                FIND FIRST eb NO-LOCK
+                    WHERE eb.company EQ cocode 
+                      AND eb.est-no EQ oe-ord.est-no
+                      AND eb.stock-no EQ ipb-oe-boll.i-no NO-ERROR .
+
+            FIND FIRST itemfg NO-LOCK
+                WHERE itemfg.company EQ cocode
+                AND itemfg.i-no EQ ipb-oe-boll.i-no
+              NO-ERROR. 
+            IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb THEN do:
+              lc-return = STRING((IF v-corr THEN (eb.t-sqin * .007)
+                          ELSE (eb.t-sqin / 144)) * ipb-oe-boll.qty )    .
+            END.
+            ELSE IF AVAIL itemfg THEN do:
+                RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
+                ASSIGN 
+               lc-return = STRING(dTotalSqft * ipb-oe-boll.qty )    .
+            END.
+            ELSE lc-return = "" .
+        END.
+        WHEN "est-no" THEN DO: 
+            FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode
+                AND oe-ord.ord-no EQ ipb-oe-boll.ord-no
+                NO-ERROR.
+            IF AVAIL oe-ord THEN do:
+                ASSIGN 
+               lc-return = STRING(oe-ord.est-no)    .
+            END.
+            ELSE lc-return = "" .
+        END.
+        WHEN "est-rm-item" THEN DO:
+            FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode
+                AND oe-ord.ord-no EQ ipb-oe-boll.ord-no
+                NO-ERROR.
+            IF AVAIL oe-ord AND oe-ord.est-no NE "" THEN do:
+                FIND FIRST ef NO-LOCK
+                    WHERE ef.company EQ cocode 
+                      AND ef.est-no EQ oe-ord.est-no NO-ERROR .
+                IF AVAIL ef THEN 
+                    ASSIGN 
+                    lc-return = STRING(ef.board)    .
+                ELSE 
+                    lc-return = "" .
+            END.
+            ELSE lc-return = "No Estimate" .
+        END.
        
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

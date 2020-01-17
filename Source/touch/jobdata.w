@@ -517,7 +517,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
             &minute="time-minute"
             &ampm="btn_ampm"
         }
-        Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO.
+        Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO.
     END.
   
 END PROCEDURE.
@@ -921,27 +921,35 @@ PROCEDURE Init_Job :
         &ampm="btn_ampm"
     }
     ASSIGN
-      Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+      Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
       run-qty:HIDDEN = FALSE
       run-qty:SCREEN-VALUE = ''
       waste-qty:SCREEN-VALUE = ''
       waste-qty:HIDDEN = FALSE
       v-completed:HIDDEN = FALSE
-      v-completed:SCREEN-VALUE =  IF (v-tsfinish-char-val = "Last Machine" AND AVAILABLE jobseq AND jobseq.charge_code <> charge_code) OR
-         v-tsfinish-char-val = "NO" OR (tsendwash-log EQ YES AND job_sequence BEGINS "END WASH UP") THEN "NO" ELSE "YES".
+      v-completed:SCREEN-VALUE = IF  v-tsfinish-char-val EQ "All Machines" THEN "YES"
+                            ELSE IF  v-tsfinish-char-val EQ "YES"          THEN "YES"
+                            ELSE IF (v-tsfinish-char-val EQ "Last Machine"
+                                 AND AVAILABLE jobseq
+                                 AND jobseq.charge_code  NE charge_code)
+                                  OR v-tsfinish-char-val EQ "NO"
+                                  OR (tsendwash-log      EQ YES
+                                 AND job_sequence    BEGINS "END WASH UP") THEN "NO"
+                            ELSE "YES"
+                            .
 
     IF job_sequence BEGINS 'START' OR
-       NOT CAN-FIND(jobseq WHERE jobseq.charge_code = charge_code) THEN
+       NOT CAN-FIND(jobseq WHERE jobseq.charge_code EQ charge_code) THEN
     DO: 
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
-        v-completed:SCREEN-VALUE = "No" 
+/*        v-completed:SCREEN-VALUE = "NO" - removed per #53810 */
         .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.
     ELSE
-    IF AVAILABLE job-code AND job-code.cat = 'MR' THEN
+    IF AVAILABLE job-code AND job-code.cat EQ 'MR' THEN
     DO:
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
@@ -956,11 +964,11 @@ PROCEDURE Init_Job :
     v-time-clock-off = NO
     timerStatus:SCREEN-VALUE = setTimerStatus(NO).
 
-  IF NOT v-can-update AND tstimeb-log = NO THEN DO:
+  IF NOT v-can-update AND tstimeb-log EQ NO THEN DO:
       ASSIGN btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
              btn_minute:SENSITIVE = NO
              btn_ampm:SENSITIVE = NO
-             Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+             Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
              .              
       RUN pSetSensitive ("ResetTime",NO).
       RUN pSetSensitive ("SetTime",NO).
@@ -1833,7 +1841,7 @@ PROCEDURE local-view :
   ASSIGN
     v-time-clock-off = NO
     timerStatus:SCREEN-VALUE = setTimerStatus(NO)
-    Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+    Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
     .
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
 
@@ -1863,6 +1871,7 @@ PROCEDURE pClick :
     DEFINE VARIABLE v-valid AS LOG INIT TRUE NO-UNDO.
     DEFINE VARIABLE iHourMax AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHourMin AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lRunComplete AS LOGICAL NO-UNDO.
   
     DEF BUFFER bf-machtran FOR machtran.
     DEF BUFFER bf2-machtran FOR machtran.
@@ -1881,7 +1890,7 @@ PROCEDURE pClick :
                 &minute="time-minute"
                 &ampm="btn_ampm"
             }
-            Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO.
+            Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO.
         END.
         WHEN "SetTime" THEN DO:
             {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
@@ -1910,7 +1919,7 @@ PROCEDURE pClick :
                   &ampm="btn_ampm"
               }
               ASSIGN
-                  Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfUserAMPM") EQ NO
+                  Btn_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_UserAMPM") EQ NO
                   ampm = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
                   lv-timer = INT(time-hour:SCREEN-VALUE) * 3600
                            + INT(time-minute:SCREEN-VALUE) * 60
@@ -1922,8 +1931,8 @@ PROCEDURE pClick :
         END.
         WHEN "AcceptEntry" THEN DO:          
             ASSIGN
-               iHourMax = DYNAMIC-FUNCTION("sfHourMax")
-               iHourMin = DYNAMIC-FUNCTION("sfHourMin")
+               iHourMax = DYNAMIC-FUNCTION("sfCommon_HourMax")
+               iHourMin = DYNAMIC-FUNCTION("sfCommon_HourMin")
                time-hour time-minute run-qty waste-qty
                v-time-hour = time-hour
                v-today = TODAY
@@ -1941,6 +1950,14 @@ PROCEDURE pClick :
             IF job_sequence BEGINS 'END' THEN DO: /* task 10050516*/
                RUN check-tsqty NO-ERROR.
                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+               IF v-tsfinish THEN DO:
+                   lRunComplete = v-tsfinish-char-val EQ "YES".
+                   MESSAGE
+                       "Run Complete this Operation?"
+                   VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                   UPDATE lRunComplete.
+                   v-completed:SCREEN-VALUE = STRING(lRunComplete).
+               END. /* if char yes */
             END.
           
             ASSIGN

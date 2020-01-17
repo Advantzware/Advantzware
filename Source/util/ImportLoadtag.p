@@ -75,11 +75,9 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportLoadtag FOR ttImportLoadtag.
 
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -133,17 +131,16 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid 
         AND ipbf-ttImportLoadtag.i-no NE "" THEN DO: 
             IF ipbf-ttImportLoadtag.item-type EQ "FG" THEN 
-                RUN pIsValidFgItemID IN hdValidator (ipbf-ttImportLoadtag.i-no,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
+                RUN pIsValidFgItemID (ipbf-ttImportLoadtag.i-no,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
             ELSE IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN 
-                RUN pIsValidRmItemID IN hdValidator (ipbf-ttImportLoadtag.i-no,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
+                RUN pIsValidRmItemID (ipbf-ttImportLoadtag.i-no,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
         END.
         IF oplValid 
         AND ipbf-ttImportLoadtag.location NE "" THEN 
-            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportLoadtag.location,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
+            RUN pIsValidWarehouse (ipbf-ttImportLoadtag.location,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
     END.
     
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    
     
 END PROCEDURE.
 

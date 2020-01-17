@@ -447,3 +447,49 @@ PROCEDURE pIsValidPoNo:
     
 
 END PROCEDURE.
+PROCEDURE pIsValidFlute:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates FG Item ID 
+     Notes: Input 1 = FG Item Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "flute" 
+        &ValidateField = "code" 
+        &ValidateMessage = "Flute"}
+
+END PROCEDURE.
+PROCEDURE pIsValidDept:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates FG Item ID 
+     Notes: Input 1 = FG Item Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWithNoCompany.i 
+        &ValidateTable = "dept" 
+        &ValidateField = "code" 
+        &ValidateMessage = "Department"}
+
+END PROCEDURE.
+
+PROCEDURE pIsValidMaterialType:
+    /*------------------------------------------------------------------------------
+    Purpose:  Validates Mat Type
+    Notes: Input 1 = Mat Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWithNoCompany.i
+        &ValidateTable = "mat" 
+        &ValidateField = "mat"        
+        &ValidateMessage = "Mat Type"}
+        
+END PROCEDURE.
+
+PROCEDURE pIsValidProcat:
+    /*------------------------------------------------------------------------------
+    Purpose:  Validates Mat Type
+    Notes: Input 1 = Mat Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i
+        &ValidateTable = "procat" 
+        &ValidateField = "procat"        
+        &ValidateMessage = "Product Category"}
+        
+END PROCEDURE.

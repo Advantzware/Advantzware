@@ -185,16 +185,7 @@ FOR each report
     IF AVAIL currency THEN
         lv-currency = currency.c-desc.
 
-    IF ar-inv.sold-name <> "" 
-      THEN
-        ASSIGN  
-         v-shipto-name = ar-inv.sold-name
-         v-shipto-addr[1] = ar-inv.sold-addr[1]
-         v-shipto-addr[2] = ar-inv.sold-addr[2]
-         v-shipto-city = ar-inv.sold-city
-         v-shipto-state = ar-inv.sold-state
-         v-shipto-zip = ar-inv.sold-zip.
-      ELSE DO:
+    
        FIND FIRST shipto WHERE shipto.company = ar-inv.company
                            AND shipto.cust-no = ar-inv.cust-no
                            AND shipto.ship-id = ar-inv.ship-id NO-LOCK NO-ERROR.
@@ -212,7 +203,6 @@ FOR each report
             ELSE
                 lv-taxable = "Y".
          END.
-     END.
 
      FIND FIRST oe-ord 
          WHERE oe-ord.company EQ cocode
@@ -637,24 +627,24 @@ FOR each report
         PUT             
             "<C2>" tt-inv-line.po-no            FORMAT "x(15)" .
         IF tt-inv-line.line-no NE 0 THEN                                /*Task# 10011302*/
-            PUT "<C13>" tt-inv-line.line-no           FORMAT ">>9" .
+            PUT "<C13>" tt-inv-line.line-no           FORMAT ">>>>9" .
         PUT
-            "<C17>" tt-inv-line.part-no  FORMAT "x(30)"
+            "<C18>" tt-inv-line.part-no  FORMAT "x(30)"
             "<C51>" tt-inv-line.inv-qty         FORMAT "->>>>>9"                
             "<C57>" tt-inv-line.price           FORMAT "->,>>>,>>9.99"
             "<C67>" tt-inv-line.total-price  FORMAT "->,>>>,>>9.99"
             "<C79>" tt-inv-line.taxable        FORMAT "X"
             SKIP
             "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>")
-            "<C17>" tt-inv-line.dscr1 FORMAT "x(30)"
+            "<C18>" tt-inv-line.dscr1 FORMAT "x(30)"
             "<C51>" tt-inv-line.ship-qty        FORMAT "->>>>>9"              
             "<C63>" tt-inv-line.price-head 
            SKIP
             "<C2>" trim(string(tt-inv-line.bol-no,">>>>>>>9"))
-            "<C17>" tt-inv-line.dscr2 FORMAT "x(30)" 
+            "<C18>" tt-inv-line.dscr2 FORMAT "x(30)" 
             "<C51>" tt-inv-line.qty FORMAT "->>>>>9"
            SKIP
-            "<C17>" tt-inv-line.dscr3 FORMAT "x(30)" 
+            "<C18>" tt-inv-line.dscr3 FORMAT "x(30)" 
            SKIP.
            
          ASSIGN v-printline = v-printline + 4.
@@ -666,16 +656,16 @@ FOR each report
          END.
    END.
     IF CAN-FIND(FIRST tt-inv-line WHERE tt-inv-line.misc) THEN
-        PUT "<C17> ** Miscellaneous Items **" SKIP.
+        PUT "<C18> ** Miscellaneous Items **" SKIP.
     FOR EACH tt-inv-line WHERE tt-inv-line.misc:
            PUT 
            "<C2>" tt-inv-line.po-no            FORMAT "x(15)" .
            IF tt-inv-line.line-no NE 0 THEN                                 /*10011302*/
-               PUT "<C13>" tt-inv-line.line-no           FORMAT ">>9" .
+               PUT "<C13>" tt-inv-line.line-no           FORMAT ">>>>9" .
            PUT
 /*                "<C13>" lv-line           FORMAT ">>9" */
 /*                "<C17>" ar-invl.part-no   FORMAT "x(30)" */
-           "<C17>" tt-inv-line.dscr1 FORMAT "x(30)"
+           "<C18>" tt-inv-line.dscr1 FORMAT "x(30)"
 /*                "<C51>" v-inv-qty         FORMAT "->>>>>9" */
 /*                "<C58>" v-price           FORMAT "->>,>>9.99" */
            "<C67>" tt-inv-line.total-price       FORMAT "->,>>>,>>9.99"
@@ -835,7 +825,7 @@ PROCEDURE printNotes:
                 {ar/rep/invprot.i}
                 v-printline = 29.
             END.
-            PUT "<C17>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
+            PUT "<C18>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
             v-printline = v-printline + 1.
         END.
         DELETE tt-formtext.

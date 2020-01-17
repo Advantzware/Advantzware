@@ -115,12 +115,34 @@ DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 DEFINE SHARED VARIABLE lPrintQtyAll  as LOGICAL no-undo .
 DEF BUFFER bf-cust FOR cust .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -677,9 +699,9 @@ ELSE lv-comp-color = "BLACK".
        v-bot-lab[i] = if v-t-tax[i] ne 0 then
                     /*  ((if avail stax then string(stax.tax-dscr[i],"x(5)")
                         else fill(" ",5))*/ 
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
-                           ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
+                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i] + " TAX"),"x(7)") 
+                           ELSE FILL(" ",7) ) +
+                       fill(" ",4) + ":" +
                        string(v-t-tax[i],"->>>>,>>9.99")) else "".
     end.
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
@@ -733,6 +755,9 @@ ELSE
     END. /* DO TRANSACTION avail ar-inv */ 
  
 end. /* each report, ar-inv */
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 PROCEDURE pNotes:
 

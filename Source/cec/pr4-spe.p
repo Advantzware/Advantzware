@@ -17,7 +17,7 @@ DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 {cec/msfcalc.i}
 
 {cec/rollfac.i}
@@ -32,6 +32,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 	 display xef.spec-dscr[i]
 		 s-qty[i]  to 48 space(1)
 		 e-item.std-uom when available e-item
+         venditemcost.vendorUom WHEN AVAIL vendItemCost @ e-item.std-uom
 		 item.cons-uom when not available e-item @ e-item.std-uom
 		 lv-setup-spe when lv-setup-spe ne 0 format ">>>9.99" to 59
          s-cost[i] / (qty / 1000) / v-sqft-fac format ">>>>9.99" to 68

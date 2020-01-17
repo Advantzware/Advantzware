@@ -406,7 +406,7 @@ ON HELP OF begin_est IN FRAME FRAME-A /* Beginning Estimate# */
 
         IF char-val <> "" THEN 
         DO:                 
-            FIND FIRST eb WHERE STRING(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+            FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAILABLE eb THEN ASSIGN FOCUS:SCREEN-VALUE     = eb.est-no
                     lv-eb-tmpid            = RECID(eb)    
                     begin_est:SCREEN-VALUE = eb.est-no.
@@ -512,7 +512,7 @@ ON HELP OF end_est IN FRAME FRAME-A /* Ending Estimate# */
 
         IF char-val <> "" THEN 
         DO:                 
-            FIND FIRST eb WHERE STRING(RECID(eb)) = (char-val) NO-LOCK NO-ERROR.
+            FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAILABLE eb THEN ASSIGN FOCUS:SCREEN-VALUE   = eb.est-no
                     lv-eb-tmpid          = RECID(eb)    
                     end_est:SCREEN-VALUE = eb.est-no.

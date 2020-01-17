@@ -114,10 +114,23 @@ DEFINE VARIABLE giFGRecpt           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glAverageCost       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcPoBeforeChange    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Settings*/
 
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
+RUN methods/prgsecur.p
+            (INPUT "FGUnOvAllow",
+             INPUT "ACCESS", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -234,17 +247,17 @@ DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 50 BY 3.81
+     SIZE 51 BY 3.81
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 50 BY 5
+     SIZE 51 BY 5
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 50 BY 6.19
+     SIZE 51 BY 6.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-4
@@ -276,95 +289,95 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     Btn_Cancel AT ROW 17.43 COL 94
-     cTransTime AT ROW 1.48 COL 37 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     Btn_Done AT ROW 17.43 COL 85
-     fg-rctd.rct-date AT ROW 1.48 COL 18 COLON-ALIGNED
+     Btn_Cancel AT ROW 17.19 COL 95
+     cTransTime AT ROW 1.48 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     Btn_Done AT ROW 17.19 COL 86
+     fg-rctd.rct-date AT ROW 1.48 COL 19 COLON-ALIGNED
           LABEL "Receipt Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 1
-     btnCalendar-1 AT ROW 1.48 COL 34
-     fg-rctd.tag AT ROW 2.67 COL 18 COLON-ALIGNED
+     btnCalendar-1 AT ROW 1.48 COL 35
+     fg-rctd.tag AT ROW 2.67 COL 19 COLON-ALIGNED
           LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.stack-code AT ROW 3.86 COL 18 COLON-ALIGNED
+     fg-rctd.stack-code AT ROW 3.86 COL 19 COLON-ALIGNED
           LABEL "FG Lot#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.po-no AT ROW 1.48 COL 72 COLON-ALIGNED
+     fg-rctd.po-no AT ROW 1.48 COL 73 COLON-ALIGNED
           LABEL "PO #" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.po-line AT ROW 2.67 COL 72 COLON-ALIGNED
+     fg-rctd.po-line AT ROW 2.67 COL 73 COLON-ALIGNED
           LABEL "PO Ln#" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.job-no AT ROW 3.86 COL 72 COLON-ALIGNED
+     fg-rctd.job-no AT ROW 3.86 COL 73 COLON-ALIGNED
           LABEL "Job#" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.job-no2 AT ROW 3.86 COL 91.2 COLON-ALIGNED NO-LABEL FORMAT "99"
+     fg-rctd.job-no2 AT ROW 3.86 COL 92.2 COLON-ALIGNED NO-LABEL FORMAT "99"
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.i-no AT ROW 5.52 COL 18 COLON-ALIGNED
+     fg-rctd.i-no AT ROW 5.52 COL 19 COLON-ALIGNED
           LABEL "Item No" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.i-name AT ROW 6.71 COL 18 COLON-ALIGNED
+     fg-rctd.i-name AT ROW 6.71 COL 19 COLON-ALIGNED
           LABEL "Name/Desc" FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.loc AT ROW 7.91 COL 18 COLON-ALIGNED
+     fg-rctd.loc AT ROW 7.91 COL 19 COLON-ALIGNED
           LABEL "Warehouse" FORMAT "x(5)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.loc-bin AT ROW 9.1 COL 18 COLON-ALIGNED
+     fg-rctd.loc-bin AT ROW 9.1 COL 19 COLON-ALIGNED
           LABEL "Bin" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cases AT ROW 5.52 COL 72 COLON-ALIGNED
+     fg-rctd.cases AT ROW 5.52 COL 73 COLON-ALIGNED
           LABEL "Units" FORMAT "->>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.qty-case AT ROW 6.71 COL 72 COLON-ALIGNED
+     fg-rctd.qty-case AT ROW 6.71 COL 73 COLON-ALIGNED
           LABEL "Unit Count" FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cases-unit AT ROW 7.91 COL 72 COLON-ALIGNED
+     fg-rctd.cases-unit AT ROW 7.91 COL 73 COLON-ALIGNED
           LABEL "Units/Skid" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.partial AT ROW 9.1 COL 72 COLON-ALIGNED
+     fg-rctd.partial AT ROW 9.1 COL 73 COLON-ALIGNED
           LABEL "Partial" FORMAT "->>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.t-qty AT ROW 10.29 COL 72 COLON-ALIGNED
+     fg-rctd.t-qty AT ROW 10.29 COL 73 COLON-ALIGNED
           LABEL "Total Qty" FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.tot-wt AT ROW 15.52 COL 18 COLON-ALIGNED
+     fg-rctd.tot-wt AT ROW 15.52 COL 19 COLON-ALIGNED
           LABEL "Total Weight" FORMAT ">>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.std-cost AT ROW 10.76 COL 18 COLON-ALIGNED
+     fg-rctd.std-cost AT ROW 10.76 COL 19 COLON-ALIGNED
           LABEL "Cost/UOM" FORMAT ">,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -375,46 +388,46 @@ DEFINE FRAME Dialog-Frame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-     fg-rctd.cost-uom AT ROW 11.95 COL 18 COLON-ALIGNED
+     fg-rctd.cost-uom AT ROW 11.95 COL 19 COLON-ALIGNED
           LABEL "UOM" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 17.2 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.frt-cost AT ROW 13.14 COL 18 COLON-ALIGNED
+     fg-rctd.frt-cost AT ROW 13.14 COL 19 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT ">>>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.ext-cost AT ROW 14.33 COL 18 COLON-ALIGNED
+     fg-rctd.ext-cost AT ROW 14.33 COL 19 COLON-ALIGNED
           LABEL "Extended Cost" FORMAT "->,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fi_tr-time AT ROW 11.95 COL 72 COLON-ALIGNED NO-TAB-STOP 
-     fg-rctd.created-by AT ROW 13.14 COL 72 COLON-ALIGNED
+     fi_tr-time AT ROW 11.95 COL 73 COLON-ALIGNED NO-TAB-STOP 
+     fg-rctd.created-by AT ROW 13.14 COL 73 COLON-ALIGNED
           LABEL "Created By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1 NO-TAB-STOP 
-     fg-rctd.updated-by AT ROW 14.33 COL 72 COLON-ALIGNED
+     fg-rctd.updated-by AT ROW 14.33 COL 73 COLON-ALIGNED
           LABEL "Last Updated By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1 NO-TAB-STOP 
-     fg-rctd.r-no AT ROW 15.52 COL 72 COLON-ALIGNED
+     fg-rctd.r-no AT ROW 15.52 COL 73 COLON-ALIGNED
           LABEL "Seq#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1 NO-TAB-STOP 
-     Btn_OK AT ROW 17.43 COL 85
-     RECT-7 AT ROW 17.19 COL 84
+     Btn_OK AT ROW 17.19 COL 86
+     RECT-7 AT ROW 16.95 COL 85
      RECT-2 AT ROW 5.29 COL 2
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 2
-     RECT-4 AT ROW 1.24 COL 53 WIDGET-ID 4
+     RECT-4 AT ROW 1.24 COL 54 WIDGET-ID 4
      RECT-3 AT ROW 10.52 COL 2 WIDGET-ID 6
-     RECT-5 AT ROW 5.29 COL 53 WIDGET-ID 8
-     RECT-6 AT ROW 11.71 COL 53 WIDGET-ID 10
-     SPACE(0.00) SKIP(3.19)
+     RECT-5 AT ROW 5.29 COL 54 WIDGET-ID 8
+     RECT-6 AT ROW 11.71 COL 54 WIDGET-ID 10
+     SPACE(0.00) SKIP(2.61)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -635,14 +648,14 @@ DO:
                 WHEN "job-no" /*or when "job-no2" */ THEN 
                     DO:
                         RUN windows/l-jobno.w (fg-rctd.company, FOCUS:SCREEN-VALUE,OUTPUT char-val, OUTPUT rec-val).
-                        IF char-val <> "" THEN
-                            ASSIGN /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
-                       */ 
+                        IF char-val <> "" THEN do:
+                            ASSIGN 
                                 fg-rctd.job-no:screen-value  = ENTRY(1,char-val)
                                 fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
-                        RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
+                            RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
+                        END.
                         IF rec-val <> ? THEN 
                         DO:
                             FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -1300,7 +1313,7 @@ DO:
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
         /*IF SELF:MODIFIED THEN*/ 
-        IF adm-new-record OR adm-adding-record THEN
+        IF (adm-new-record OR adm-adding-record) AND fg-rctd.job-no:SCREEN-VALUE EQ "" THEN
             RUN get-def-values.
         IF fg-rctd.partial:SCREEN-VALUE  EQ ? 
             OR fg-rctd.partial:SCREEN-VALUE  EQ "?" THEN
@@ -1976,6 +1989,12 @@ PROCEDURE create-from-po :
                 fg-rctd.ext-cost = dCostExtended
                 fg-rctd.frt-cost = dCostExtendedFreight
                 .
+            DISPLAY
+                fg-rctd.cost-uom
+                fg-rctd.std-cost
+                fg-rctd.ext-cost
+                fg-rctd.frt-cost
+                . 
             IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
             DO:
                 RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
@@ -3146,35 +3165,35 @@ PROCEDURE new-job-no :
               Parameters:  <none>
               Notes:       
             ------------------------------------------------------------------------------*/
-
+DEFINE BUFFER bf-job-hdr FOR job-hdr .
     DO WITH FRAME {&FRAME-NAME}:
         lv-closed-checked = NO.
         lv-new-job-ran = YES.
 
         IF fg-rctd.job-no:SCREEN-VALUE  NE "" THEN
-            FOR EACH job-hdr NO-LOCK
-                WHERE job-hdr.company EQ cocode
-                AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
-                AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
-                BREAK BY job-hdr.frm      DESCENDING
-                BY job-hdr.blank-no DESCENDING:
+            FOR EACH bf-job-hdr NO-LOCK
+                WHERE bf-job-hdr.company EQ cocode
+                AND bf-job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
+                AND bf-job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
+                BREAK BY bf-job-hdr.frm      DESCENDING
+                BY bf-job-hdr.blank-no DESCENDING:
 
-                IF LAST(job-hdr.frm)                                                  OR
-                    job-hdr.i-no EQ fg-rctd.i-no:SCREEN-VALUE  THEN 
+                IF LAST(bf-job-hdr.frm)                                                  OR
+                    bf-job-hdr.i-no EQ fg-rctd.i-no:SCREEN-VALUE  THEN 
                 DO:
                     ASSIGN
                         lv-job-no                     = fg-rctd.job-no:SCREEN-VALUE
                         lv-job-no2                    = fg-rctd.job-no2:SCREEN-VALUE
-                        fg-rctd.i-no:SCREEN-VALUE     = job-hdr.i-no
-                        fg-rctd.std-cost:SCREEN-VALUE = STRING(job-hdr.std-mat-cost +
-                                                job-hdr.std-lab-cost +
-                                                job-hdr.std-fix-cost +
-                                                job-hdr.std-var-cost).
-                      RUN  pGetUnassembledItem(cocode , job-hdr.i-no) .
+                        fg-rctd.i-no:SCREEN-VALUE     = bf-job-hdr.i-no
+                        fg-rctd.std-cost:SCREEN-VALUE = STRING(bf-job-hdr.std-mat-cost +
+                                                bf-job-hdr.std-lab-cost +
+                                                bf-job-hdr.std-fix-cost +
+                                                bf-job-hdr.std-var-cost).
+                      RUN  pGetUnassembledItem(cocode , bf-job-hdr.i-no) .
 
                     RUN get-def-values.
                     IF NOT lUpdateRecords THEN
-                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE) .
+                        RUN pGetUnitCountFromJob(bf-job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,bf-job-hdr.job-no,bf-job-hdr.job-no2) .
                       
                     LEAVE.
                 END.
@@ -3523,7 +3542,8 @@ PROCEDURE pGetUnitCountFromJob :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
-    
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO .
     DEFINE BUFFER bf-itemfg FOR itemfg .
 
       DO WITH FRAME {&FRAME-NAME}: 
@@ -3531,7 +3551,9 @@ PROCEDURE pGetUnitCountFromJob :
           FIND FIRST oe-ordl NO-LOCK
               WHERE oe-ordl.company EQ cocode
               AND oe-ordl.ord-no  EQ ipiOrder
-              AND oe-ordl.i-no    EQ ipcFGItem NO-ERROR.
+              AND oe-ordl.i-no    EQ ipcFGItem
+              AND oe-ordl.job-no  EQ ipcJobNo
+              AND oe-ordl.job-no2 EQ ipiJobNo2 NO-ERROR.
           IF AVAIL oe-ordl THEN
               fg-rctd.qty-case:SCREEN-VALUE = string(oe-ordl.cas-cnt) .
           ELSE do:
@@ -4208,7 +4230,7 @@ PROCEDURE valid-porec-qty :
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
-
+    IF lAllowUserOverRun THEN ASSIGN giFGUnderOver = 0 .
     IF glFGUnderOver 
     AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
     AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  

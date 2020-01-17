@@ -48,6 +48,16 @@ DEF INPUT PARAMETER ip-board AS RECID NO-UNDO .
 &scoped-define item_spec RMItem  
 
 def var li-current-page as int no-undo.
+def var li-prev-page as int no-undo.
+DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
+DEF VAR li-pageb4VendCost AS INT INIT 1 NO-UNDO.
+{custom/globdefs.i}
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
+&SCOPED-DEFINE SetUserExit SetUserExit
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -224,7 +234,7 @@ ASSIGN FRAME FRAME-C:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME FRAME-C
    UNDERLINE                                                            */
@@ -290,6 +300,8 @@ ON WINDOW-CLOSE OF W-Win /* Raw Materials (Corrugated) */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  RUN setUserExit.
+  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -924,6 +936,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN select-page (li-pageb4VendCost).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
@@ -932,26 +960,44 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
   def var lv-current-page as int no-undo.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  /* ===
-   not for corrugated item 
-  RUN get-attribute /*IN widget-handle(char-hdl)*/  ('Current-Page':U).
-  lv-current-page = int(return-value).
+  run get-attribute ("current-page").
+  ASSIGN li-prev-page = li-current-page 
+         li-current-page = int(return-value).  
+        
+    /* Code placed here will execute PRIOR to standard behavior. */
+    /* ===
+     not for corrugated item 
+    RUN get-attribute /*IN widget-handle(char-hdl)*/  ('Current-Page':U).
+    lv-current-page = int(return-value).
+  
+    if lv-current-page = 5 and avail item and item.i-code = "E" then do:
+          run select-page (6).
+          return no-apply.
+  
+    end.   
+    ==== */
+    
+  if li-current-page = 4 AND lNewVendorItemCost then 
+  do:
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
+      /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
+      ASSIGN li-pageb4VendCost = li-prev-page.
+              
+      RUN select-page (10).
 
-  if lv-current-page = 5 and avail item and item.i-code = "E" then do:
-        run select-page (6).
-        return no-apply.
-
-  end.   
-  ==== */
+      RETURN.
+  END. 
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  /*{methods/winReSizePgChg.i}*/
+    /* Code placed here will execute AFTER standard behavior.    */
+    /*{methods/winReSizePgChg.i}*/
 
-  
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -970,16 +1016,38 @@ PROCEDURE local-create-objects :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-/* not for corrugated item
-  if avail item and item.i-code = "E" then do:
-     run get-link-handle in adm-broker-hdl(this-procedure, "page-source", output char-hdl).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 5).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 7).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 8).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 9).
-  end.  
-*/  
+    /* Code placed here will execute AFTER standard behavior.    */
+    /* not for corrugated item
+      if avail item and item.i-code = "E" then do:
+         run get-link-handle in adm-broker-hdl(this-procedure, "page-source", output char-hdl).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 5).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 7).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 8).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 9).
+      end.  
+    */  
+
+    IF li-current-page = 10 THEN /* new vendor cost tab */
+    DO:
+        RUN init-object IN THIS-PROCEDURE (
+            INPUT  'windows/vendcostmtx.w':U ,
+            INPUT  {&WINDOW-NAME} ,
+            INPUT  'Layout = ':U ,
+            OUTPUT h_vendcostmtx ).
+        /* Position in AB:  ( 5.91 , 7.60 ) */
+        /* Size in UIB:  ( 1.86 , 10.80 ) */
+    
+        /* Initialize other pages that this page requires. */
+        RUN init-pages IN THIS-PROCEDURE ('10':U) NO-ERROR.
+    
+        /* Links to SmartWindow */
+        /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
+    
+    /* Adjust the tab order of the smart objects. */
+    END. /* Page 10 */
+    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -992,6 +1060,7 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+   RUN setUserExit.
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
@@ -1100,6 +1169,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win
+PROCEDURE setUserExit:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

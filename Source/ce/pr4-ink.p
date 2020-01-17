@@ -39,6 +39,13 @@ def var v-num-up like xeb.num-up NO-UNDO.
 def var v-col-p as int NO-UNDO.
 DEF VAR v-first-pass AS LOG NO-UNDO.
 
+/*DEF VAR vic-log AS LOG  NO-UNDO.                                                                   */
+/*DEF VAR cReturn AS CHAR NO-UNDO.                                                                   */
+/*DEF VAR lFound  AS LOG  NO-UNDO.                                                                   */
+/*RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).*/
+/*IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.                                      */
+{sys/inc/venditemcost.i}
+
 DEF TEMP-TABLE tt-ink NO-UNDO FIELD i-code LIKE ink.i-code
                               FIELD i-dscr LIKE ink.i-dscr
                               FIELD pass AS INT.

@@ -27,7 +27,7 @@ ASSIGN
      */
     iSystemEmailConfigID = 1 
     .
-RUN system\session.p PERSISTENT SET hSession.
+RUN system/session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 RUN spSendEmail (
@@ -47,5 +47,7 @@ RUN spCreateAuditDtl (iAuditID, "Subject",    0, cSubject,    "", NO).
 RUN spCreateAuditDtl (iAuditID, "Body",       0, cBody,       "", NO).
 RUN spCreateAuditDtl (iAuditID, "Attachment", 0, cAttachment, "", NO).
 RUN spCreateAuditDtl (iAuditID, "Recipients", 0, cRecipients, "", NO).
-    
+
+DELETE PROCEDURE hSession.
+
 QUIT.

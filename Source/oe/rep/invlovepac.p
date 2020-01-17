@@ -14,7 +14,7 @@ def var v-shipvia like carrier.dscr NO-UNDO.
 def var v-addr3 as char format "x(30)" NO-UNDO.
 def var v-sold-addr3 as char format "x(30)" NO-UNDO.
 def var v-shipto-name as char format "x(30)" NO-UNDO.
-def var v-shipto-addr as char format "x(30)" extent 2 NO-UNDO.
+def var v-shipto-addr as char format "x(45)" extent 2 NO-UNDO.
 def var v-shipto-city as char format "x(15)" NO-UNDO.
 def var v-shipto-state as char format "x(2)" NO-UNDO.
 def var v-shipto-zip as char format "x(10)" NO-UNDO.
@@ -117,10 +117,35 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
+DEFINE VARIABLE cShipAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -173,7 +198,7 @@ find first company where company.company eq cocode NO-LOCK.
           lv-currency = currency.c-desc.
 
       v-del-no = 0.
-
+      cAddr4 = IF AVAIL cust THEN cust.contact ELSE "" .
       find first oe-bolh where oe-bolh.company = xinv-head.company and
           oe-bolh.bol-no = xinv-head.bol-no use-index bol-no no-lock no-error.
       if avail oe-bolh then do:
@@ -189,7 +214,8 @@ find first company where company.company eq cocode NO-LOCK.
                 v-shipto-addr[2] = shipto.ship-addr[2]
                 v-shipto-city = shipto.ship-city
                 v-shipto-state = shipto.ship-state
-                v-shipto-zip = shipto.ship-zip.
+                v-shipto-zip = shipto.ship-zip
+                cShipAddr4   = shipto.contact.
 
       end. /* avail oe-bolh */
 
@@ -243,7 +269,7 @@ find first company where company.company eq cocode NO-LOCK.
          else
            assign v-shipvia = "".
         assign
-          v-addr3 = inv-head.city + ", " + inv-head.state + "  " + inv-head.zip
+          v-addr3 = cust.city + ", " + cust.state + "  " + cust.zip
           v-sold-addr3 = v-shipto-city + ", " + v-shipto-state +
               "  " + v-shipto-zip
           v-line = 1
@@ -774,5 +800,8 @@ ELSE
     page.
  
     end. /* each xinv-head */
+    
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

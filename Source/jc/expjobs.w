@@ -26,7 +26,10 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
-
+{sys/inc/VAR.i NEW SHARED}
+assign
+ cocode = gcompany
+ locode = gloc.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

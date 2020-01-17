@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{sys/inc/var.i "new shared"}
 
 DEFINE VARIABLE onlyone    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE save-rowid AS ROWID   NO-UNDO.
@@ -53,9 +54,6 @@ DEFINE TEMP-TABLE ttProcedure NO-UNDO
 DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
-
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -525,14 +523,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCloseProcedures C-Win
-PROCEDURE pCloseProcedures:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCloseProcedures C-Win 
+PROCEDURE pCloseProcedures :
 /*------------------------------------------------------------------------------
  Purpose: close any open procedures
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplClose AS LOGICAL NO-UNDO INITIAL YES.
-    
+    DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO .
     DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
     
     
@@ -548,14 +546,7 @@ PROCEDURE pCloseProcedures:
         hProc = hProc:NEXT-SIBLING.
     END. /* do while */
     IF CAN-FIND(FIRST ttProcedure) THEN DO:
-        RUN pGetMessageProcs IN hMessageProcs (INPUT "11", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-        IF NOT lSuppressMessage THEN do:
-            MESSAGE
-             cCurrentMessage 
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        TITLE cCurrentTitle UPDATE oplClose.
-        END.
-        ELSE oplClose = TRUE .
+        RUN displayMessageQuestionLOG ("11", OUTPUT oplClose).
         IF oplClose THEN
         FOR EACH ttProcedure:
             IF VALID-HANDLE(ttProcedure.hProcedure) THEN
@@ -564,7 +555,7 @@ PROCEDURE pCloseProcedures:
     END. /* if can-find */
    
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -638,3 +629,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

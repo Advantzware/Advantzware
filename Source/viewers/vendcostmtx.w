@@ -55,6 +55,16 @@ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
  RUN util/Validate.p PERSISTENT SET hdValidator.
      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdValidator).
 
+DEFINE VARIABLE cVendItemCostSourceFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostItem# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostItemType AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostEst# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostForm# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostBlank# AS CHAR NO-UNDO.
+&Scoped-define VendItemCostCreateAfter procCreateAfter
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -296,7 +306,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer4.i}
+{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -423,7 +433,7 @@ DO:
          RUN windows/l-est.w (g_company,g_loc,vendItemCost.estimateNo:SCREEN-VALUE, OUTPUT char-val).
          IF char-val NE "" THEN DO:
              FIND FIRST eb NO-LOCK
-                  WHERE STRING(RECID(eb)) EQ char-val
+                  WHERE RECID(eb) EQ INT(char-val)
                   NO-ERROR.
              IF AVAILABLE eb THEN
              vendItemCost.estimateNo:screen-value = eb.est-no.
@@ -471,7 +481,7 @@ END.
 ON CHOOSE OF Btn_multi IN FRAME F-Main /* Update Add Multiple */
 DO:
    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
-    IF AVAILABLE vendItemCost THEN DO:
+    IF AVAILABLE vendItemCost AND NOT adm-new-record THEN DO:
         RUN viewers/dVendCostLevelM.w (ROWID(vendItemCost),"update") .
         RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
         IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
@@ -526,6 +536,10 @@ DO:
        RUN valid-estimate(OUTPUT lCheckError)  NO-ERROR.
        IF lCheckError THEN RETURN NO-APPLY.
    END.
+   
+   IF length(SELF:screen-value) < 8 then
+      SELF:SCREEN-VALUE = fill(" ", 8 - length(SELF:screen-value)) + trim(SELF:screen-value).
+      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -560,7 +574,7 @@ END.
 &Scoped-define SELF-NAME vendItemCost.itemID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemID V-table-Win
 ON LEAVE OF vendItemCost.itemID IN FRAME F-Main /* Item ID */
-DO:
+DO:      
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
    IF LASTKEY <> -1 THEN DO:
        RUN valid-i-no( OUTPUT lCheckError) NO-ERROR.
@@ -591,7 +605,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemType V-table-Win
 ON VALUE-CHANGED OF vendItemCost.itemType IN FRAME F-Main /* Item Type */
-DO:
+DO:      
     IF LENGTH(vendItemCost.itemType:SCREEN-VALUE) GE 2 THEN DO:
         IF LOOKUP(vendItemCost.itemType:SCREEN-VALUE,"RM,FG") EQ 0  THEN DO:
              MESSAGE "Item Type must be RM or FG" VIEW-AS ALERT-BOX ERROR .
@@ -800,20 +814,94 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getSourceAttributes V-table-Win
+PROCEDURE getSourceAttributes:
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+    -------------------------------------------------------------------------------*/
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostSourceFrom' ).
+    cVendItemCostSourceFrom = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE. 
+   
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+    cVendItemCostItem# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').    
+    cVendItemCostEst# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType' ).
+    cVendItemCostItemType = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor' ).
+    cVendItemCostVendor = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostCustomer' ).  
+    cVendItemCostCustomer = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostForm#' ).  
+    cVendItemCostForm# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostBlank#' ).  
+    cVendItemCostBlank# = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.
+    
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEF VAR liFromVendItemCostID LIKE vendItemCost.vendItemCostID NO-UNDO.
+  DEF BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+  DEF BUFFER bf-vendItemCost FOR vendItemCost.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  liFromVendItemCostID = vendItemCost.vendItemCostID.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    /* Code placed here will execute AFTER standard behavior.    */
+    
+  IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
+     FIND bf-venditemcost NO-LOCK WHERE bf-venditemcost.venditemcostID = liFromVendItemCostID NO-ERROR.
+     IF AVAIL bf-venditemcost THEN DO:  /* copy restriction values */
+        ASSIGN vendItemCost.dimLengthMaximum = bf-vendItemCost.dimLengthMaximum
+               vendItemCost.dimLengthMinimum = bf-vendItemCost.dimLengthMinimum 
+               vendItemCost.dimWidthMinimum = bf-vendItemCost.dimWidthMinimum 
+               vendItemCost.dimWidthMaximum = bf-vendItemCost.dimWidthMaximum 
+               vendItemCost.dimWidthOver = bf-vendItemCost.dimWidthOver
+               vendItemCost.dimLengthOver = bf-vendItemCost.dimLengthOver
+               vendItemCost.dimLengthUnder = bf-vendItemCost.dimLengthUnder
+               vendItemCost.dimLengthUnderCharge = bf-vendItemCost.dimLengthUnderCharge
+               vendItemCost.dimWidthUnder = bf-vendItemCost.dimWidthUnder
+               vendItemCost.dimWidthUnderCharge = bf-vendItemCost.dimWidthUnderCharge
+               vendItemCost.validWidth = bf-vendItemCost.validWidth
+               vendItemCost.validLength = bf-vendItemCost.validLength
+               vendItemCost.quantityMinimumOrder = bf-vendItemCost.quantityMinimumOrder
+               vendItemCost.quantityMaximumOrder = bf-vendItemCost.quantityMaximumOrder
+               .
+               
+     END.
+     FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = liFromVendItemCostID NO-LOCK: 
+       CREATE bf-vendItemCostLevel.
+       BUFFER-COPY vendItemCostLevel except vendItemCostLevel.vendItemCostID vendItemCostLevel.vendItemCostLevelID vendItemCostLevel.rec_key TO bf-vendItemCostLevel.      
+       ASSIGN 
+          bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID           
+/*          bf-vendItemCostLevel.quantityBase   = vendItemCostLevel.quantityBase                   */
+/*          bf-vendItemCostLevel.costPerUOM     = vendItemCostLevel.costPerUOM*/
+/*          bf-vendItemCostLevel.costSetup      = vendItemCostLevel.costSetup */
+          .
+     END.     
+  END.
+  
 
 END PROCEDURE.
 
@@ -835,7 +923,8 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (1).
-
+  adm-adding-record = NO .
+  adm-new-record = NO .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -847,7 +936,12 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
+  DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
+    
+  RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -859,52 +953,31 @@ PROCEDURE local-create-record :
   IF adm-adding-record THEN
   DO WITH FRAME {&FRAME-NAME}:
     /*eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").*/
-    vendItemCost.effectiveDate:SCREEN-VALUE =  "12/31/2099"  .
-    vendItemCost.effectiveDate = 12/31/2099 .
+    vendItemCost.effectiveDate:SCREEN-VALUE =  string(today) /*"12/31/2099" */ .
+    vendItemCost.effectiveDate = TODAY /*12/31/2099 */ .
     vendItemCost.dimWidthMaximum = 99999.99.
     vendItemCost.dimLengthMaximum = 99999.99.
     vendItemCost.dimWidthOver = 99999.99.
     vendItemCost.dimLengthOver = 99999.99.
     vendItemCost.quantityMaximumOrder = 99999.99.
-    vendItemCost.itemType = "FG" .
+    vendItemCost.itemType = IF cVendItemCostSourceFrom NE "" THEN cVendItemCostItemType ELSE "FG" .
+    vendItemCost.vendorUOM = "EA" .
+
+    CREATE bf-vendItemCostLevel .
+        ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID 
+               bf-vendItemCostLevel.quantityBase    = 99999999 .
+        FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .
+
+     RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+
   END.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
+  
+  
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
-PROCEDURE local-delete-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-    END.
-
-    FOR EACH vendItemCostLevel EXCLUSIVE-LOCK
-            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-            BY vendItemCostLevel.vendItemCostLevelID :
-        DELETE vendItemCostLevel .
-    END.
-
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-    /* Code placed here will execute AFTER standard behavior.    */
-    
-    /* task 10301314  */
-        FIND CURRENT vendItemCost NO-LOCK NO-ERROR .
-        IF NOT AVAILABLE vendItemCost THEN
-            FIND FIRST vendItemCost WHERE vendItemCost.company = cocode NO-LOCK NO-ERROR.
-        RUN local-display-fields.
-        {methods/template/local/deleteAfter.i}       /* task 10301314  */
-   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -925,11 +998,11 @@ PROCEDURE local-display-fields :
 
  DO WITH FRAME {&FRAME-NAME}:
      IF vendItemCost.effectiveDate:SCREEN-VALUE LT  "01/01/1900" 
-         THEN vendItemCost.effectiveDate:SCREEN-VALUE =  "01/01/1900"  .
+         THEN vendItemCost.effectiveDate:SCREEN-VALUE =  "01/01/1900"  .             
+         
  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
-
 
 END PROCEDURE.
 
@@ -976,6 +1049,10 @@ PROCEDURE local-update-record :
 
     RUN valid-expdate ( OUTPUT lCheckError) NO-ERROR.
     IF lCheckError THEN RETURN NO-APPLY.
+    
+    RUN valid-duplicateRecord ( OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+    
   END.
  
   DISABLE ALL WITH FRAME {&frame-name}.
@@ -995,12 +1072,49 @@ PROCEDURE local-update-record :
             RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
   END.
   adm-adding-record = NO .
-  
+  adm-new-record = NO .
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE procCreateAfter V-table-Win
+PROCEDURE procCreateAfter:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+    IF cVendItemCostSourceFrom = "EST" THEN     
+    DO WITH FRAME {&frame-name}:
+        DISABLE vendItemCost.ItemType vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+            venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
+
+      IF adm-new-record THEN do: 
+          ASSIGN vendItemCost.itemID:SCREEN-VALUE = cVendItemCostItem#
+              vendItemCost.vendorID:SCREEN-VALUE = cVendItemCostVendor
+              vendItemCost.customer:SCREEN-VALUE = cVendItemCostCustomer
+              vendItemCost.Estimate:SCREEN-VALUE = cVendItemCostEst#
+              vendItemCost.FormNo:SCREEN-VALUE = STRING(cVendItemCostForm#)
+              vendItemCost.BlankNo:SCREEN-VALUE = STRING(cVendItemCostBlank#)
+              .     
+      END.
+    END.
+    ELSE IF cVendItemCostSourceFrom NE "" THEN 
+    DO WITH FRAME {&frame-name}:
+            DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+                venditemCost.blankNo 
+                /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+    END.  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :
@@ -1090,15 +1204,28 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
 ------------------------------------------------------------------------------*/
 
-     DO WITH FRAME {&FRAME-NAME}:
-         ENABLE btnCalendar-1 btnCalendar-2 .
+     RUN getSourceAttributes.
+                
+     IF cVendItemCostSourceFrom = "EST" THEN DO WITH FRAME {&frame-name}:
+        DISABLE vendItemCost.ItemType vendItemCost.customerID vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+                venditemCost.blankNo /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.
+           
      END.
-  
+     ELSE IF cVendItemCostSourceFrom = "OF" THEN DO WITH FRAME {&frame-name}:
+        DISABLE /*vendItemCost.ItemType*/ vendItemCost.customerID vendItemCost.ItemID 
+            /*vendItemCost.estimateNo vendItemCost.formNo venditemCost.blankNo vendItemCost.effectiveDate vendItemCost.ExpirationDate*/.           
+     END.
+     ELSE IF cVendItemCostSourceFrom NE "" THEN DO WITH FRAME {&frame-name}:
+         DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
+             venditemCost.blankNo 
+                    /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+     END.  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,8 +1245,8 @@ PROCEDURE valid-cust-no :
   THEN DO:
       MESSAGE "Invalid Customer#. Try Help." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
-  END.
-
+  END.         
+  
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1150,6 +1277,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-duplicateRecord V-table-Win
+PROCEDURE valid-duplicateRecord:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opcReturnError AS LOGICAL NO-UNDO .
+ 
+  opcReturnError = 
+      can-find(FIRST bf-venditemcost WHERE bf-vendItemCost.company = venditemcost.company
+                                   AND bf-vendItemCost.itemID = vendItemCost.ItemID:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND bf-vendItemCost.ItemType = vendItemCost.ItemType:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND bf-vendItemCost.vendorID = vendItemCost.vendorID:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND bf-vendItemCost.customerID = vendItemCost.customerID:SCREEN-VALUE IN FRAME {&frame-name}
+                                   AND trim(bf-vendItemCost.EstimateNo) = trim(vendItemCost.EstimateNo:SCREEN-VALUE IN FRAME {&frame-name})
+                                   AND bf-vendItemCost.effectiveDate EQ DATE(vendItemCost.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+                                   AND bf-vendItemCost.vendItemCostID <> venditemcost.venditemcostID                                    
+             )    
+      .  
+      
+  IF opcReturnError THEN do:
+       MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR. 
+       APPLY "entry" TO vendItemCost.vendorID.
+  END.
+      
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entry V-table-Win 
 PROCEDURE valid-entry :
@@ -1392,3 +1552,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE vendcost-newitem V-table-Win 
+PROCEDURE vendcost-newitem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+
+ASSIGN oplExists = adm-new-record .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -21,11 +21,15 @@
            RUN sys/ref/convquom.p("EA", b-uom,
                                   item.basis-w, xeb.t-len, xeb.t-wid, xeb.t-dep,
                                   s-qty[i], OUTPUT s-qty[i]).
-
-         {est/matcost.i s-qty[i] s-cost[i] spe}
-
-         s-cost[i] = (s-cost[i] * s-qty[i]) + lv-setup-spe.
-
+         IF lNewVendorItemCost THEN 
+         DO:
+           {est/getVendCost.i s-qty[i] s-cost[i] spe}  
+         END.
+         ELSE 
+         DO:
+           {est/matcost.i s-qty[i] s-cost[i] spe}
+           s-cost[i] = (s-cost[i] * s-qty[i]) + lv-setup-spe.
+         END.
          find first brd where brd.form-no = xef.form-no and
                               brd.i-no    = xef.spec-no[i]
                               no-error.

@@ -16,10 +16,17 @@ for each ink break by ink.i-dscr by ink.i-code
    end.
    if iqty < item.min-lbs then iqty = item.min-lbs.
 
-   {est/matcost.i iqty icost ink}
-
-   ASSIGN
-    icost     = (icost * iqty) + lv-setup-ink
+   IF lNewVendorItemCost THEN 
+   DO:
+        {est/getVendCost.i iqty icost ink}  
+   END.
+   ELSE 
+   DO:
+       {est/matcost.i iqty icost ink}    
+       assign icost = (icost * iqty) + lv-setup-ink.
+   END.
+    
+   ASSIGN    
     dm-tot[4] = dm-tot[4] + (icost / (qty / 1000)).
     dm-tot[5] = dm-tot[5] + icost.
 

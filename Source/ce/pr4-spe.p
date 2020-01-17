@@ -12,7 +12,7 @@ DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
@@ -21,6 +21,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
     display xef.spec-dscr[i]
 	    s-qty[i]  to 48 space(1)
 	    e-item.std-uom when avail e-item
+        venditemcost.vendorUom WHEN AVAIL vendItemCost @ e-item.std-uom
 	    item.cons-uom when not avail e-item @ e-item.std-uom
 	    s-cost[i] / (qty / 1000) format ">>>>9.99" to 68
 	    s-cost[i] format ">,>>>,>>9.99" to 80 skip WITH STREAM-IO.

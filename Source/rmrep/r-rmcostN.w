@@ -1522,7 +1522,14 @@ PROCEDURE print-estimated :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-DEF VAR v-index AS INT NO-UNDO.
+DEFINE VARIABLE v-index        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cReturnValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lNewTableBased AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE cItemTypeRM AS CHARACTER NO-UNDO INITIAL "RM". /* Raw Materials */
+DEFINE VARIABLE iIndex1     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iIndex2     AS INTEGER   NO-UNDO.
 
 EMPTY TEMP-TABLE tt-e-i-v.
 
@@ -1530,74 +1537,133 @@ FIND item WHERE ROWID(item) EQ ip-rowid NO-LOCK NO-ERROR.
 
 RELEASE e-item.
 
-IF AVAIL item THEN
-FIND FIRST e-item
-     WHERE e-item.company EQ item.company
-       AND e-item.i-no    EQ item.i-no
-     NO-LOCK NO-ERROR.
-
-IF AVAIL e-item THEN DO:
-  FOR EACH e-item-vend OF e-item
-      WHERE e-item-vend.item-type EQ YES
-        AND e-item-vend.vend-no   GE begin_vend
-        AND e-item-vend.vend-no   LE end_vend
-      NO-LOCK:
-    CREATE tt-e-i-v.
-    ASSIGN tt-e-i-v.vend-no = e-item-vend.vend-no
-           tt-e-i-v.std-uom = e-item.std-uom.
-
-    DO v-index = 1 TO 10:
-       ASSIGN
-          tt-e-i-v.run-cost[v-index] = e-item-vend.run-cost[v-index]
-          tt-e-i-v.run-qty[v-index] = e-item-vend.run-qty[v-index]
-          tt-e-i-v.roll-w[v-index] = e-item-vend.roll-w[v-index].
-    END.
-
-    FIND FIRST b-qty WHERE
-         b-qty.reftable = "vend-qty" AND
-         b-qty.company = e-item-vend.company AND
-             b-qty.CODE    = e-item-vend.i-no AND
-         b-qty.code2   = e-item-vend.vend-no
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-qty THEN
-    DO:
-       DO v-index = 1 TO 10:
-          ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index].
-       END.
-    END.
-
-    DO v-index = 11 TO 30:
-       tt-e-i-v.roll-w[v-index] = e-item-vend.roll-w[v-index].
-    END.
-
-    RELEASE tt-e-i-v.
-  END.
-
-  IF "" GE begin_vend AND "" LE end_vend              AND
-     NOT CAN-FIND(FIRST tt-e-i-v WHERE vend-no EQ "") THEN DO:
-    CREATE tt-e-i-v.
-    tt-e-i-v.std-uom = e-item.std-uom.
-
-    DO v-index = 1 TO 10:
-       ASSIGN
-          tt-e-i-v.run-cost[v-index] = e-item.run-cost[v-index]
-          tt-e-i-v.run-qty[v-index] = e-item.run-qty[v-index]
-          tt-e-i-v.roll-w[v-index] = e-item.roll-w[v-index].
-    END.
-
+RUN sys/ref/nk1look.p (
+    INPUT  cocode,         /* Company       */
+    INPUT  "vendItemCost", /* Sys-Ctrl Name */
+    INPUT  "L",            /* Logical       */
+    INPUT  NO,             /* Check by cust */
+    INPUT  YES,            /* Use Cust      */
+    INPUT  "",             /* Customer      */
+    INPUT  "",             /* Ship-to       */
+    OUTPUT cReturnValue,
+    OUTPUT lRecFound
+    ).
+           
+IF lRecFound AND AVAILABLE(ITEM) THEN
+    lNewTableBased = LOGICAL(cReturnValue).
     
-       DO v-index = 1 TO 10:
-          ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = e-item.runQty[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = e-item.runCost[v-index].
-       END.
+/* Use new vendItemCost and vendItemCostLevel tables */
+IF lNewTableBased THEN DO:
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.VendorID GE begin_vend
+          AND vendItemCost.VendorID LE end_vend           
+          AND vendItemCost.company  EQ item.company
+          AND vendItemCost.itemID   EQ item.i-no
+          AND venditemcost.itemType EQ cItemTypeRM:
+       
+        CREATE tt-e-i-v.
+        ASSIGN 
+            tt-e-i-v.vend-no = vendItemCost.vendorID
+            tt-e-i-v.std-uom = vendItemCost.vendorUOM
+            iIndex1          = 1
+            .
+       
+        DO iIndex2 = 1 TO 26:
+            tt-e-i-v.roll-w[iIndex2] = vendItemCost.validWidth[iIndex2].
+        END.
+        
+        ASSIGN 
+            tt-e-i-v.roll-w[27] = vendItemCost.dimWidthMinimum
+            tt-e-i-v.roll-w[28] = vendItemCost.dimWidthMaximum 
+            tt-e-i-v.roll-w[29] = vendItemCost.dimLengthMinimum
+            tt-e-i-v.roll-w[30] = vendItemCost.dimLengthMaximum
+            .
 
-    RELEASE tt-e-i-v.
+        FOR EACH vendItemCostLevel NO-LOCK
+            WHERE vendItemCost.vendItemCostID EQ vendItemCostLevel.vendItemCostID:
+            ASSIGN
+                tt-e-i-v.run-cost[iIndex1] = vendItemCostLevel.costPerUOM 
+                tt-e-i-v.run-qty[iIndex1]  = vendItemCostLevel.quantityBase 
+                iIndex1                    = iIndex1 + 1
+                .				   
+        END.   
+    END.
+END.		
+ELSE DO: /* use legacy e-item and e-item-vend tables */
+    FIND FIRST e-item
+         WHERE e-item.company EQ item.company
+           AND e-item.i-no    EQ item.i-no
+         NO-LOCK NO-ERROR.
+         
+    IF AVAIL e-item THEN DO:
+        FOR EACH e-item-vend OF e-item NO-LOCK 
+           WHERE e-item-vend.item-type EQ YES
+             AND e-item-vend.vend-no   GE begin_vend
+             AND e-item-vend.vend-no   LE end_vend :
+          
+          
+            CREATE tt-e-i-v.
+            ASSIGN 
+                tt-e-i-v.vend-no = e-item-vend.vend-no
+                tt-e-i-v.std-uom = e-item.std-uom
+                .
 
-  END.
+            DO v-index = 1 TO 10:
+                ASSIGN
+                    tt-e-i-v.run-cost[v-index] = e-item-vend.run-cost[v-index]
+                    tt-e-i-v.run-qty[v-index] = e-item-vend.run-qty[v-index]
+                    tt-e-i-v.roll-w[v-index] = e-item-vend.roll-w[v-index]
+                    . 
+            END.
+        
+
+            FIND FIRST b-qty WHERE
+                b-qty.reftable = "vend-qty" AND
+                b-qty.company  = e-item-vend.company AND
+                b-qty.CODE     = e-item-vend.i-no AND
+                b-qty.code2    = e-item-vend.vend-no
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL b-qty THEN DO:
+                DO v-index = 1 TO 10:
+                    ASSIGN
+                        tt-e-i-v.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
+                        tt-e-i-v.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                        .
+                END.
+            END.
+
+            DO v-index = 11 TO 30:
+                tt-e-i-v.roll-w[v-index] = e-item-vend.roll-w[v-index].
+            END.
+
+              RELEASE tt-e-i-v.
+        END.
+
+        IF "" GE begin_vend AND "" LE end_vend  AND
+            NOT CAN-FIND(FIRST tt-e-i-v WHERE vend-no EQ "") THEN DO:
+            CREATE tt-e-i-v.
+            tt-e-i-v.std-uom = e-item.std-uom.
+
+        	DO v-index = 1 TO 10:
+                ASSIGN
+                    tt-e-i-v.run-cost[v-index] = e-item.run-cost[v-index]
+                    tt-e-i-v.run-qty[v-index] = e-item.run-qty[v-index]
+                    tt-e-i-v.roll-w[v-index] = e-item.roll-w[v-index]
+                    .
+                END.
+
+        
+        	DO v-index = 1 TO 10:
+                ASSIGN
+                    tt-e-i-v.run-qty[v-index + 10] = e-item.runQty[v-index]
+                    tt-e-i-v.run-cost[v-index + 10] = e-item.runCost[v-index]  
+                    .
+            END.
+
+            RELEASE tt-e-i-v.
+        END.
+    END. 
 END. 
 
 END PROCEDURE.

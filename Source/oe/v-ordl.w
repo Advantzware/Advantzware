@@ -1632,7 +1632,7 @@ PROCEDURE display-est-detail :
   def var lv-pr-uom as cha no-undo.
   DEF VAR lv-qty AS DEC NO-UNDO.
 
-  find first eb where string(recid(eb)) = ip-char no-lock no-error.
+  FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(ip-char) NO-ERROR.
   if avail eb then do WITH FRAME {&Frame-name} :
      find first est-qty where est-qty.company = eb.company
                      and est-qty.est-no = eb.est-no

@@ -2196,21 +2196,22 @@ END FUNCTION.
            AND xjob-mat.job-no  EQ job-hdr.job-no
            AND xjob-mat.job-no2 EQ job-hdr.job-no2
            AND xjob-mat.frm     EQ eb.form-no 
-           AND xjob-mat.blank-no EQ eb.blank-no
            AND xjob-mat.rm-i-no EQ estPacking.rmItemID BREAK BY estPacking.rmItemID :
 
          FIND FIRST ITEM NO-LOCK
              WHERE item.company  EQ cocode
              AND item.i-no     EQ estPacking.rmItemID
              NO-ERROR.
-
-         IF AVAIL ITEM AND FIRST-OF(estPacking.rmItemID) THEN do:
+         IF FIRST-OF(estPacking.rmItemID) THEN ld-qty-disp = 0 .
+            ld-qty-disp = ld-qty-disp + xjob-mat.qty .
+            
+         IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:
              PUT ITEM.i-no SPACE(4)
                  ITEM.i-name FORMAT "x(20)" SPACE(3)
                  estPacking.dimLength FORMAT ">9.9999" " "
                  estPacking.dimWidth FORMAT ">9.9999" " "
                  estPacking.dimDepth FORMAT ">9.9999" " "
-                 xjob-mat.qty FORMAT ">>>>>9" SKIP.
+                 ld-qty-disp FORMAT ">>>>>9" SKIP.
              intLnCount = intLnCount + 1.
          END.
      END.

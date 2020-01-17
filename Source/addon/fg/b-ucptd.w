@@ -52,6 +52,7 @@ DEF VAR v-prgmname AS CHAR INIT "b-rcptd." NO-UNDO.
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -222,7 +223,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
+      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U WIDTH 7
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -362,7 +363,7 @@ fg-rctd.rita-code = ""R"""
      _FldNameList[1]   > ASI.fg-rctd.tag
 "fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
-"fg-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.cases
@@ -1246,7 +1247,8 @@ PROCEDURE pPostMain PRIVATE :
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
-        INPUT YES,        /* create work-gl */
+        INPUT YES,         /* create work-gl */
+		INPUT lPromptForClose, /* Executes .w closing orders logic */
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,

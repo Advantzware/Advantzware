@@ -848,9 +848,8 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  /* Code placed here will execute PRIOR to standard behavior. */
-
+    DEFINE VARIABLE cMsgID AS CHARACTER INITIAL "13". /* Message ID */
+    /* Code placed here will execute PRIOR to standard behavior. */
     message "Delete Currently Selected Record(s)?" view-as alert-box question
         button yes-no update ll-ans as log.
 
@@ -859,14 +858,24 @@ PROCEDURE local-delete-record :
         FIND FIRST ap-invl NO-LOCK
         WHERE ap-invl.company EQ ap-inv.company
         AND ap-invl.i-no = ap-inv.i-no NO-ERROR.
-    IF NOT ll-ans AND NOT AVAIL ap-invl  THEN DO:
-        MESSAGE "You cannot have an invoice with no line items -" SKIP " either add line item or delete the invoice." VIEW-AS ALERT-BOX info.
-     END.
+    IF NOT ll-ans AND NOT AVAIL ap-invl  THEN 
+        RUN displayMessage (
+            INPUT cMsgID
+            ).
+                
+    IF NOT ll-ans THEN
+        RETURN ERROR.
 
-     if not ll-ans then return error.
-
-     /* Dispatch standard ADM method.                             */
-     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+    IF ap-inv.user-id NE USERID("ASI") THEN DO:
+        MESSAGE "This record was created by another user (" + ap-inv.user-id + "). Do you still want to delete it?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lContinue AS LOGICAL.
+        
+        IF NOT lContinue THEN
+            RETURN ERROR.
+    END.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
 END PROCEDURE.
 

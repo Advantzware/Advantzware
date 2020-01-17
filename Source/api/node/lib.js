@@ -180,14 +180,13 @@ const self = {
 			Object.keys(obj).reduce((resultJSON, itemNum) => {
 				const prefixChar = prefix.length ? prefix + '.' : '';
 				if (typeof obj[itemNum] === 'object') 
-					Object.assign(resultJSON, convertToFlatJSON(obj[itemNum], prefixChar + itemNum));
+					Object.assign(resultJSON, convertToFlatJSON(obj[itemNum], prefixChar + itemNum.toString().replace(/,/g,'#comma#').replace(/:/g,'#colon#').replace(/\./g,'#period#')));
 				else 
-					resultJSON[prefixChar + itemNum] = obj[itemNum];
+					resultJSON[prefixChar + itemNum.toString().replace(/,/g,'#comma#').replace(/:/g,'#colon#').replace(/\./g,'#period#')] = obj[itemNum].toString().replace(/,/g,'#comma#').replace(/:/g,'#colon#'); // replace any comma, colon or period in the key and value, and handle in Progress				
 				return resultJSON;
 			}, {});
 		return convertToFlatJSON(data);
 	},
-	
 	// this function returns the content-type of the request data
 	getRequestDataType: function(req){
 		var contentType= req.headers['content-type'];

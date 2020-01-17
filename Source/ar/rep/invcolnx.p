@@ -95,11 +95,33 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
 
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
@@ -476,40 +498,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             put skip(1).
             v-printline = v-printline + 1.
         end. /* each ar-invl */
-        
-        if v-prntinst then do:
-        do i = 1 to 4:
-          if ar-inv.bill-i[i] ne "" then do:
-             put ar-inv.bill-i[i] at 10 skip.
-             assign v-printline = v-printline + 1.
-          end.
-        end. /* 1 to 4 */
-        END.
-
-        IF v-printline > 45 THEN do:           
-           PAGE.
-           {ar/rep/invcolnx.i}  /* xprint form */
-           v-printline = 21.
-        END.
-
-        ASSIGN v-notes = ""
-               v-notes-line = 0
-               lv-line-chars = 80.
-
-        {custom/notesprtA.i ar-inv v-notes 60}
-         DO i = 1 TO 60:
-             IF v-printline > 47 THEN do:           
-                 PAGE.
-                 {ar/rep/invcolnx.i}  /* xprint form */
-                 v-printline = 21.
-             END.
-             IF v-notes[i] NE "" THEN do:
-                 PUT "<C3>" v-notes[i] FORMAT "x(80)" SKIP .
-                 v-printline = v-printline + 1 .
-             END.
-         END.
-
-        
+      
         ASSIGN
            v-frt-tax = ar-inv.freight
            v-inv-freight = if ar-inv.f-bill THEN ar-inv.freight
@@ -583,5 +572,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
     END. /* DO TRANSACTION avail ar-inv */ 
  
     end. /* each ar-inv */
+    
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File:AdvantzwareMonitor.w
+  File: api/AdvantzwareMonitor.w
 
   Description:Monitors Advantzware Resources
 
@@ -42,15 +42,20 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 DEFINE SHARED VARIABLE cIniLoc AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdStatus         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cColumnHandles   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDLCDir          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cAdminServerPort AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cAppServerPort   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cAppServerName   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cNameServerName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cNameServerPort  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cServerHostName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cColumnHandles            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDLCDir                   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdminServerPort          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAppServerPort            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAppServerName            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNameServerName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNameServerPort           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cServerHostName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEmailConfigDesc          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResourceName             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResourceType             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModeList                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOSProcs                 AS HANDLE    NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos      AS INTEGER
@@ -62,7 +67,11 @@ DEF TEMP-TABLE ttIniFile
 /* Fetches API required element from Advantzware.ini */
 RUN pFetchAPIElements.
 
-RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
+RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
+RUN system/OSProcs.p              PERSISTENT SET hdOSProcs.
+
+/* Procedure to initialize the configuration variables required for monitoring */
+RUN AdvantzwareMonitor_Initialize IN hdAdvantzwareMonitorProcs (
     INPUT cDLCDir,
     INPUT g_company,
     INPUT cAdminServerPort,
@@ -91,9 +100,11 @@ RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
 &Scoped-define INTERNAL-TABLES serverResource
 
 /* Definitions for BROWSE BROWSE-10                                     */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-10 resourceType() @ resourceType ~
-serverResource.name serverResource.port serverResource.resourceStatus ~
-serverResource.statusRemarks serverResource.notified 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-10 fGetResourceType() @ cResourceType ~
+fGetResourceName() @ cResourceName serverResource.isActive ~
+serverResource.port serverResource.resourceStatus ~
+serverResource.statusRemarks serverResource.notified ~
+serverResource.refreshFrequency fGetConfigDescription() @ cEmailConfigDesc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-10 
 &Scoped-define QUERY-STRING-BROWSE-10 FOR EACH serverResource NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-BROWSE-10 OPEN QUERY BROWSE-10 FOR EACH serverResource NO-LOCK INDEXED-REPOSITION.
@@ -118,8 +129,22 @@ serverResource.statusRemarks serverResource.notified
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD resourceType C-Win 
-FUNCTION resourceType RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetConfigDescription C-Win 
+FUNCTION fGetConfigDescription RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetResourceName C-Win 
+FUNCTION fGetResourceName RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetResourceType C-Win 
+FUNCTION fGetResourceType RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -139,36 +164,36 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 DEFINE BUTTON btexit 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "" 
-     SIZE 9 BY 2.14 TOOLTIP "Exit Window".
+     SIZE 11 BY 2.62 TOOLTIP "Exit Window".
 
 DEFINE BUTTON btRefresh 
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/refresh_disabled.ico":U
      LABEL "Restart" 
-     SIZE 9 BY 2.14 TOOLTIP "Retry Event(s)".
+     SIZE 11 BY 2.62 TOOLTIP "Refresh Services Status".
 
 DEFINE BUTTON btStart 
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.ico":U
      LABEL "Start" 
-     SIZE 9 BY 2.14
+     SIZE 11 BY 2.62 TOOLTIP "Start Service"
      FONT 6.
 
 DEFINE BUTTON btStop 
      IMAGE-UP FILE "Graphics/32x32/close.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/delete_disabled.ico":U
      LABEL "Stop" 
-     SIZE 9 BY 2.14
+     SIZE 11 BY 2.62 TOOLTIP "Stop Service"
      FONT 6.
 
 DEFINE VARIABLE fiProcess AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 27 BY .62
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     SIZE 28.2 BY 1.05
+     FGCOLOR 9 FONT 5 NO-UNDO.
 
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 157 BY 16.19.
+     SIZE 211 BY 24.29.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -180,35 +205,46 @@ DEFINE QUERY BROWSE-10 FOR
 DEFINE BROWSE BROWSE-10
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-10 C-Win _STRUCTURED
   QUERY BROWSE-10 NO-LOCK DISPLAY
-      resourceType() @ resourceType COLUMN-LABEL "Resource Type" FORMAT "X(32)":U
+      fGetResourceType() @ cResourceType COLUMN-LABEL "Resource Type" FORMAT "X(32)":U
             WIDTH 20.4
-      serverResource.name COLUMN-LABEL "Name" FORMAT "x(32)":U
+      fGetResourceName() @ cResourceName COLUMN-LABEL "Name" FORMAT "x(32)":U
+            WIDTH 26
+      serverResource.isActive FORMAT "Yes/No":U WIDTH 11.2
       serverResource.port COLUMN-LABEL "Listening on port" FORMAT "x(20)":U
+            WIDTH 19.2
       serverResource.resourceStatus COLUMN-LABEL "Status" FORMAT "x(20)":U
-      serverResource.statusRemarks COLUMN-LABEL "Remarks" FORMAT "x(40)":U
-      serverResource.notified COLUMN-LABEL "Notified" FORMAT "yes/no":U
+            WIDTH 11.2
+      serverResource.statusRemarks COLUMN-LABEL "Remarks" FORMAT "x(80)":U
+            WIDTH 55.2
+      serverResource.notified COLUMN-LABEL "Notified" FORMAT "Yes/No":U
+            WIDTH 9.2
+      serverResource.refreshFrequency COLUMN-LABEL "Refresh Freq(s)" FORMAT ">>>>>>9":U
+            WIDTH 18.2
+      fGetConfigDescription() @ cEmailConfigDesc COLUMN-LABEL "Email Config" FORMAT "x(24)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 155 BY 14 ROW-HEIGHT-CHARS .67 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 209 BY 23.43
+         FONT 5 ROW-HEIGHT-CHARS 1 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btStart AT ROW 2.14 COL 5 WIDGET-ID 6
-     btStop AT ROW 2.14 COL 18.2 WIDGET-ID 8
-     btRefresh AT ROW 2.14 COL 137.8 WIDGET-ID 28
-     btexit AT ROW 2.14 COL 151 WIDGET-ID 12
+     btStart AT ROW 1.67 COL 5 WIDGET-ID 6
+     btStop AT ROW 1.67 COL 22 WIDGET-ID 8
+     btRefresh AT ROW 1.67 COL 186 WIDGET-ID 28
+     btexit AT ROW 1.67 COL 203.4 WIDGET-ID 12
      BROWSE-10 AT ROW 5.67 COL 5 WIDGET-ID 200
-     fiProcess AT ROW 4.33 COL 130.8 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     fiProcess AT ROW 3.1 COL 154 COLON-ALIGNED NO-LABEL WIDGET-ID 40
      "Advantzware Service Resource Monitor" VIEW-AS TEXT
-          SIZE 44.8 BY .62 AT ROW 4.71 COL 8.2 WIDGET-ID 36
-          FONT 6
+          SIZE 46.8 BY .62 AT ROW 4.71 COL 8.2 WIDGET-ID 36
+          FONT 5
      RECT-29 AT ROW 5.05 COL 4 WIDGET-ID 34
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 161.6 BY 23.48 WIDGET-ID 100.
+         SIZE 216.2 BY 28.57
+         BGCOLOR 15 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -228,18 +264,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Service Resource Monitor"
-         HEIGHT             = 23.48
-         WIDTH              = 160
+         HEIGHT             = 28.57
+         WIDTH              = 216.2
          MAX-HEIGHT         = 33.57
-         MAX-WIDTH          = 273.2
+         MAX-WIDTH          = 216.2
          VIRTUAL-HEIGHT     = 33.57
-         VIRTUAL-WIDTH      = 273.2
-         CONTROL-BOX        = no
-         MIN-BUTTON         = no
+         VIRTUAL-WIDTH      = 216.2
          MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
@@ -281,17 +315,23 @@ THEN C-Win:HIDDEN = no.
      _TblList          = "ASI.serverResource"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _FldNameList[1]   > "_<CALC>"
-"resourceType() @ resourceType" "Resource Type" "X(32)" ? ? ? ? ? ? ? no ? no no "20.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.serverResource.name
-"serverResource.name" "Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.serverResource.port
-"serverResource.port" "Listening on port" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.serverResource.resourceStatus
-"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.serverResource.statusRemarks
-"serverResource.statusRemarks" "Remarks" "x(40)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.serverResource.notified
-"serverResource.notified" "Notified" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetResourceType() @ cResourceType" "Resource Type" "X(32)" ? ? ? ? ? ? ? no ? no no "20.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > "_<CALC>"
+"fGetResourceName() @ cResourceName" "Name" "x(32)" ? ? ? ? ? ? ? no ? no no "26" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.serverResource.isActive
+"serverResource.isActive" ? "Yes/No" "logical" ? ? ? ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.serverResource.port
+"serverResource.port" "Listening on port" "x(20)" "character" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.serverResource.resourceStatus
+"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.serverResource.statusRemarks
+"serverResource.statusRemarks" "Remarks" "x(80)" "character" ? ? ? ? ? ? no ? no no "55.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.serverResource.notified
+"serverResource.notified" "Notified" "Yes/No" "logical" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.serverResource.refreshFrequency
+"serverResource.refreshFrequency" "Refresh Freq(s)" ? "integer" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > "_<CALC>"
+"fGetConfigDescription() @ cEmailConfigDesc" "Email Config" "x(24)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-10 */
 &ANALYZE-RESUME
@@ -308,7 +348,7 @@ THEN C-Win:HIDDEN = no.
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
        ROW             = 1.38
-       COLUMN          = 75
+       COLUMN          = 92.6
        HEIGHT          = 2.62
        WIDTH           = 11
        WIDGET-ID       = 38
@@ -340,9 +380,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Advantzware Service Resource Monitor */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+
+    IF VALID-HANDLE(hdOSProcs) THEN
+        DELETE PROCEDURE hdOSProcs.
+
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE" TO THIS-PROCEDURE.    
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,7 +424,8 @@ DO:
                             serverResource.resourceStatus EQ "Stopped"
         btStop:SENSITIVE  = AVAILABLE serverResource  AND 
                             serverResource.resourceStatus EQ "Running" AND
-                            serverResource.resourceType NE "AdminServer" 
+                            serverResource.resourceType NE "AdminServer" AND
+                            serverResource.resourceType NE "ASI"
         .
 END.
 
@@ -390,9 +437,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btexit C-Win
 ON CHOOSE OF btexit IN FRAME DEFAULT-FRAME
 DO:
-   IF VALID-HANDLE(hdStatus) THEN
-       DELETE PROCEDURE hdStatus.
-   
+    IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+        DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+    
+    IF VALID-HANDLE(hdOSProcs) THEN
+        DELETE PROCEDURE hdOSProcs.
+
     APPLY "CLOSE" TO THIS-PROCEDURE.
     
     RETURN NO-APPLY.
@@ -420,21 +470,73 @@ DO:
 
     DEFINE VARIABLE cStartService AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCommand      AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lSilent       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNoWait       AS LOGICAL   NO-UNDO.
+             
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER NO-UNDO.
   
     SESSION:SET-WAIT-STATE("GENERAL").
 
     IF AVAILABLE serverResource THEN DO:
 
         IF SEARCH(serverResource.startService) NE ? THEN DO:
-            OS-COMMAND SILENT VALUE(SEARCH(serverResource.startService)). /* Re-starts AdminServer,AppServer and NameServer */            
+            cCommand = SEARCH(serverResource.startService).
+
+            IF serverResource.resourceType EQ "ASI" THEN DO:
+                RUN pGetASIMonitorStartCommand (
+                    INPUT  serverResource.name,
+                    INPUT  SEARCH(serverResource.startService),
+                    OUTPUT cCommand,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ) NO-ERROR.
+                IF NOT lSuccess THEN DO:
+                    MESSAGE cMessage
+                        VIEW-AS ALERT-BOX ERROR.
+                    RETURN NO-APPLY.
+                END.
+            END.
+
+            ASSIGN
+                lSilent = TRUE
+                lNoWait = FALSE
+                .
+            
+            /* Set Silent and NO-WAIT options to false for starting Node, as command 
+               may prompt for additional details in console */ 
+            IF serverResource.resourceType EQ "Node" THEN
+                ASSIGN
+                    lSilent = FALSE
+                    lNoWait = FALSE
+                    .
+            /* Set Silent to false for starting ASI Monitors, as command 
+               may suppress any visual objects in windows opened */
+            ELSE IF serverResource.resourceType EQ "ASI" THEN
+                ASSIGN
+                    lSilent = FALSE
+                    lNoWait = TRUE
+                    .
+            /* Re-starts AdminServer,AppServer, Node, ASI Monitors and NameServer */                                                     
+            RUN OS_RunCommand IN hdOSProcs (
+                INPUT  cCommand,             /* Command string to run */
+                INPUT  "",                   /* File name to write the command output */
+                INPUT  lSilent,              /* Run with SILENT option */
+                INPUT  lNoWait,              /* Run with NO-WAIT option */
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+                RETURN.         
         END. 
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "Node" OR serverResource.resourceType EQ "AdminServer" THEN
-                           "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " is not found"
-                       ELSE
-                           "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
-                       .
+                                "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " is not found"
+                            ELSE
+                                "Start script [" + serverResource.startService + "] for " + serverResource.resourceType + " [" + serverResource.name + "] is not found"
+                            .
             MESSAGE cErrorMessage VIEW-AS ALERT-BOX ERROR
             TITLE "Error".
         END.
@@ -460,15 +562,46 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btStop C-Win
 ON CHOOSE OF btStop IN FRAME DEFAULT-FRAME /* Stop */
 DO:
-    DEFINE VARIABLE cStopService  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-    DEF VAR iCurrBrowseRow AS INT NO-UNDO.
+    DEFINE VARIABLE cStopService   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCurrBrowseRow AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCommand       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSilent        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNoWait        AS LOGICAL   NO-UNDO.
 
     SESSION:SET-WAIT-STATE("GENERAL").
   
     IF AVAILABLE serverResource THEN DO:
-        IF SEARCH(serverResource.stopService) NE ? THEN 
-            OS-COMMAND NO-CONSOLE VALUE(SEARCH(serverResource.stopService)). /* Stops AdminServer,AppServer and NameServer */
+        IF SEARCH(serverResource.stopService) NE ? THEN DO:
+            cCommand = SEARCH(serverResource.stopService).
+            /* Stops AdminServer, AppServer, NodeServer and NameServer */
+
+            ASSIGN
+                lSilent = TRUE
+                lNoWait = FALSE
+                .
+
+            /* Set Silent and NO-WAIT options to false for stopping Node, as command 
+               may prompt for additional details in console */             
+            IF serverResource.resourceType EQ "Node" THEN
+                ASSIGN
+                    lSilent = FALSE
+                    lNoWait = FALSE
+                    .
+            
+            RUN OS_RunCommand IN hdOSProcs (
+                INPUT  cCommand,             /* Command string to run */
+                INPUT  "",                   /* File name to write the command output */
+                INPUT  lSilent,              /* Run with SILENT option */
+                INPUT  lNoWait,              /* Run with NO-WAIT option */
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR OR NOT lSuccess THEN
+                RETURN. 
+        END.
         ELSE DO:
             cErrorMessage = IF serverResource.resourceType EQ "Node" THEN
                            "Stop script [" + serverResource.stopService + "] for " + serverResource.resourceType + " is not found"
@@ -645,7 +778,8 @@ PROCEDURE pFetchAPIElements :
     
     /* Create the temp-table and load var names */
     cIniVarList = "# Setup Variables,DLCDir,hostname,
-                   # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,".
+                   # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,
+                   # ASI Login Items,modeList".
     
     EMPTY TEMP-TABLE ttIniFile.
     
@@ -694,6 +828,8 @@ PROCEDURE pFetchAPIElements :
             cNameServerPort = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "hostname" THEN
             cServerHostName = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "modeList" THEN
+            cModeList = ttIniFile.cVarValue.
     END.
 END PROCEDURE.
 
@@ -722,27 +858,124 @@ PROCEDURE pInit :
         
     RUN pStoreHandles.
     
-    PROCESS EVENTS.
     ASSIGN
         fiProcess:SCREEN-VALUE = "Refreshing..."
         btRefresh:SENSITIVE    = FALSE
         .
-   
-    RUN pMonitor IN hdStatus.
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
 
+    STATUS DEFAULT "Refreshing Service Resources status. Please wait..." IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
+    
+    RUN AdvantzwareMonitor_UpdateResourceStatus IN hdAdvantzwareMonitorProcs.
+
+    STATUS DEFAULT "Last Refresh Time: " + STRING(TIME, "hh:mm:ss") IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
+    SESSION:SET-WAIT-STATE("").
+    
     ASSIGN
-        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW.
+        iCurrBrowseRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW
+        .
+
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
     BROWSE {&BROWSE-NAME}:SELECT-ROW(iCurrBrowseRow).
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}. 
     
-    fiProcess:SCREEN-VALUE = "".
-    btRefresh:SENSITIVE    = TRUE.
+    ASSIGN
+        fiProcess:SCREEN-VALUE = ""
+        btRefresh:SENSITIVE    = TRUE
+        .
     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStartASIMonitor C-Win
+PROCEDURE pGetASIMonitorStartCommand PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to generate ASI start service command 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcResourceName AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCommand      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCommand      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCommandParamUserID      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamPassword    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamEnvironment AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamResource    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCommandParamDatabase    AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cCommandParamUserID      = "monitor"
+        cCommandParamPassword    = "monitor"
+        cCommandParamDatabase    = PDBNAME(LDBNAME(1))    /* Fetch physical DB name for "ASI" */ 
+        cCommandParamEnvironment = IF NUM-ENTRIES(ipcCommand, "\") GE 3 THEN   /* Fetch environment from batch file name */ 
+                                       ENTRY(3, ipcCommand, "\")
+                                   ELSE
+                                       ""
+        .
+    
+    IF cCommandParamEnvironment EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to fetch the environment"
+            .
+        RETURN.    
+    END.
+    
+    CASE ipcResourceName:
+        WHEN "cXML" THEN
+            cCommandParamResource = "cXML Monitor".
+        WHEN "fgXML" THEN
+            cCommandParamResource = "FG XML Monitor".
+        WHEN "RelXML" THEN
+            cCommandParamResource = "Rel XML Monitor".
+        WHEN "RFID" THEN
+            cCommandParamResource = "RFID Monitor".
+        WHEN "jobXML" THEN
+            cCommandParamResource = "Esko Monitor".
+        OTHERWISE
+            "".
+    END.
+    
+    IF LOOKUP(cCommandParamResource, cModeList) EQ 0 THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Mode '" + cCommandParamResource + "' is not available in available mode list"
+            .
+        RETURN.        
+    END.    
+    
+    /* Command to execute should have the following arguments
+       Command - <bat file to start ASI Monitors>.bat "<param1>,<param2>,<param3>,<param4>,<param5>"
+       param1 - ASI User ID
+       param2 - Password for the param1 user id
+       param3 - Environment to run the ASI Monitor (e.g. Devel, Prod)
+       param4 - ASI Monitor Mode name. **Important** Replace any spaces in Mode name with 
+                underscore "_", as Progress cannot accept spaces in arguments
+       param5 - Database to connect. (e.g. asiDevel, asiCust1) */    
+    opcCommand = ipcCommand + ' "' 
+               + cCommandParamUserID + ","
+               + cCommandParamPassword + ","
+               + cCommandParamEnvironment + ","
+               + REPLACE(cCommandParamResource," ","_") + ","
+               + cCommandParamDatabase
+               + '"'.
+
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .               
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStoreHandles C-Win 
 PROCEDURE pStoreHandles :
@@ -831,29 +1064,70 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION resourceType C-Win 
-FUNCTION resourceType RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetConfigDescription C-Win 
+FUNCTION fGetConfigDescription RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
 /*------------------------------------------------------------------------------
-  Purpose:  
+  Purpose: Function to fetch the email config description
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cConfigDesc AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE serverResource THEN DO:
+        FIND FIRST emailConfig NO-LOCK
+             WHERE emailConfig.configID EQ serverResource.configID
+             NO-ERROR.
+        IF AVAILABLE emailConfig THEN
+            cConfigDesc = emailConfig.description.
+    END.
+    
+    RETURN cConfigDesc.
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetResourceName C-Win 
+FUNCTION fGetResourceName RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose: Function to fetch resource name
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResourceName AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE serverResource THEN
+        cResourceName = IF serverResource.resourceType EQ "ASI" THEN
+                            serverResource.name + " Monitor"
+                        ELSE
+                            serverResource.name.
+    
+    RETURN cResourceName.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetResourceType C-Win 
+FUNCTION fGetResourceType RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose: Function to fetch resource type
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cResourceType AS CHARACTER NO-UNDO.
     
-    IF AVAILABLE serverResource THEN
-        
-        IF serverResource.resourceType EQ "Node" OR 
-           serverResource.resourceType EQ "AdminServer" THEN
-            cResourceType = serverResource.resourceType.
-        
+    IF AVAILABLE serverResource THEN DO:        
         IF serverResource.resourceType EQ "NameServer" THEN
             cResourceType = "-->" + serverResource.resourceType.
-        
-        IF serverResource.resourceType EQ "AppServer" THEN
+        ELSE IF serverResource.resourceType EQ "AppServer" THEN
             cResourceType = "---->" + serverResource.resourceType.
-        
-        RETURN cResourceType.   /* Function return value. */
-
+        ELSE
+            cResourceType = serverResource.resourceType.
+    END.
+    
+    RETURN cResourceType.   /* Function return value. */
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -75,10 +75,32 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-overrun AS cha NO-UNDO.
@@ -89,6 +111,12 @@ DEF VAR v-len-frac AS CHAR NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lPrintMsf AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dTax      as   DECIMAL extent 5 NO-UNDO.
+DEFINE VARIABLE cBotLab   as   CHARACTER format "x(63)" extent 5 NO-UNDO.
+def workfile w-tax
+    field w-dsc as   char
+    field w-tax as   dec.
+DEF VAR v-lines AS INT NO-UNDO.
 {custom/formtext.i NEW}
 
 FUNCTION FNformat RETURNS char (INPUT v-text AS CHAR, v-len AS INT):
@@ -260,6 +288,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 END.
 
 OUTPUT STREAM last-page CLOSE.
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 RETURN.
 

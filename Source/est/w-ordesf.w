@@ -38,11 +38,18 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
 
 DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 
 def var li-page as int extent 2 no-undo.
+DEF VAR li-pageb4VendCost AS INT INIT 1 NO-UNDO.
+&SCOPED-DEFINE SetUserExit SetUserExit
 
 DEFINE VARIABLE efbrowse AS CHARACTER NO-UNDO.
 
@@ -127,7 +134,7 @@ DEFINE VARIABLE h_vi-est2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-est AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
 DEFINE VARIABLE sh_v-naveb-3 AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -227,7 +234,8 @@ DO:
   def var char-hdl as cha no-undo.
   run get-link-handle in adm-broker-hdl(this-procedure,"quote-source", output char-hdl).
   run hide-estimate in widget-handle(char-hdl).
-
+  RUN setUserExit.
+  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1052,6 +1060,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+  RUN select-page (li-pageb4VendCost).
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-box-design W-Win 
 PROCEDURE init-box-design :
 /*------------------------------------------------------------------------------
@@ -1105,7 +1130,24 @@ PROCEDURE local-change-page :
        return no-apply.        
     end.                            
   end.
-   
+  
+  IF li-page[1] = 11 AND lNewVendorItemCost THEN 
+  DO: /* farm */        
+             
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(oe-ordl.est-no)).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + oe-ordl.i-no ).         
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
+        /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ' + oe-ordl.cust-no ).  
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + string(oe-ordl.form-no) ).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + string(oe-ordl.blank-no) ).
+        li-pageb4VendCost = li-page[2].  
+        RUN select-page (13).      
+            
+        RETURN.           
+  END. 
+     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -1144,8 +1186,34 @@ PROCEDURE local-create-objects :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    /* Code placed here will execute AFTER standard behavior.    */
+    DEF VAR v-current-page AS INT NO-UNDO.
+    
+    RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+    ASSIGN 
+        v-current-page = INTEGER(RETURN-VALUE).
+    
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
+
+    IF v-current-page = 13 THEN /* new vendor cost tab */
+    DO:                
+        RUN init-object IN THIS-PROCEDURE (
+            INPUT  'windows/vendcostmtx.w':U ,
+            INPUT  {&WINDOW-NAME} ,
+            INPUT  'Layout = ':U ,
+            OUTPUT h_vendcostmtx ).
+        /* Position in AB:  ( 5.91 , 7.60 ) */
+        /* Size in UIB:  ( 1.86 , 10.80 ) */
+    
+        /* Initialize other pages that this page requires. */
+        RUN init-pages IN THIS-PROCEDURE ('13':U) NO-ERROR.        
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1158,6 +1226,8 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+   RUN setUserExit.
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
@@ -1235,6 +1305,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win
+PROCEDURE setUserExit:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

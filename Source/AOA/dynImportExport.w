@@ -612,24 +612,33 @@ PROCEDURE pExport :
                 WHEN "dynSubjectTable" THEN
                 FOR EACH dynSubjectTable NO-LOCK
                     WHERE dynSubjectTable.subjectID EQ bDynSubject.subjectID
+                    BY dynSubjectTable.subjectID
+                    BY dynSubjectTable.sortOrder
                     :
                     EXPORT dynSubjectTable.
                 END. /* each dynsubjecttable */
                 WHEN "dynSubjectWhere" THEN
                 FOR EACH dynSubjectWhere NO-LOCK
                     WHERE dynSubjectWhere.subjectID EQ bDynSubject.subjectID
+                    BY dynSubjectWhere.subjectID
+                    BY dynSubjectWhere.whereTable
+                    BY dynSubjectWhere.sortOrder
                     :
                     EXPORT dynSubjectWhere.
                 END. /* each dynsubjectWhere */
                 WHEN "dynSubjectColumn" THEN
                 FOR EACH dynSubjectColumn NO-LOCK
                     WHERE dynSubjectColumn.subjectID EQ bDynSubject.subjectID
+                    BY dynSubjectColumn.subjectID
+                    BY dynSubjectColumn.sortOrder
                     :
                     EXPORT dynSubjectColumn.
                 END. /* each dynsubjectColumn */
                 WHEN "dynSubjectParamSet" THEN
                 FOR EACH dynSubjectParamSet NO-LOCK
                     WHERE dynSubjectParamSet.subjectID EQ bDynSubject.subjectID
+                    BY dynSubjectParamSet.subjectID
+                    BY dynSubjectParamSet.sortOrder
                     :
                     EXPORT dynSubjectParamSet.
                 END. /* each dynsubjectParamSet */
@@ -885,9 +894,11 @@ PROCEDURE pImport :
                     CREATE ttDynPrgrmsPage.
                     IMPORT ttDynPrgrmsPage.
                     FIND FIRST dynPrgrmsPage EXCLUSIVE-LOCK
-                         WHERE dynPrgrmsPage.prgmName  EQ ttDynPrgrmsPage.prgmName
-                           AND dynPrgrmsPage.pageTab   EQ ttDynPrgrmsPage.pageTab
-                           AND dynPrgrmsPage.subjectID EQ ttDynPrgrmsPage.subjectID
+                         WHERE dynPrgrmsPage.prgmName   EQ ttDynPrgrmsPage.prgmName
+                           AND dynPrgrmsPage.pageTab    EQ ttDynPrgrmsPage.pageTab
+                           AND dynPrgrmsPage.subjectID  EQ ttDynPrgrmsPage.subjectID
+                           AND dynPrgrmsPage.paramSetID EQ ttDynPrgrmsPage.paramSetID
+                           AND dynPrgrmsPage.paramName  EQ ttDynPrgrmsPage.paramName
                          NO-ERROR.
                     IF NOT AVAILABLE dynPrgrmsPage THEN
                     CREATE dynPrgrmsPage.
@@ -931,7 +942,8 @@ PROCEDURE pImport :
                     NEXT.
                     IF CAN-FIND(FIRST dynSubjectColumn
                                 WHERE dynSubjectColumn.subjectID EQ ttDynSubjectColumn.subjectID
-                                  AND dynSubjectColumn.fieldName EQ ttDynSubjectColumn.fieldName) THEN
+                                  AND dynSubjectColumn.fieldName EQ ttDynSubjectColumn.fieldName
+                                  AND dynSubjectColumn.sortOrder EQ ttDynSubjectColumn.sortOrder) THEN
                     NEXT.
                     CREATE dynSubjectColumn.
                     BUFFER-COPY ttDynSubjectColumn TO dynSubjectColumn.
@@ -969,9 +981,10 @@ PROCEDURE pImport :
                                     WHERE dynSubject.subjectID EQ ttDynSubjectWhere.subjectID) THEN
                     NEXT.
                     IF CAN-FIND(FIRST dynSubjectWhere
-                                WHERE dynSubjectWhere.subjectID EQ ttDynSubjectWhere.subjectID
-                                  AND dynSubjectWhere.tableName EQ ttDynSubjectWhere.tableName
-                                  AND dynSubjectWhere.sortOrder EQ ttDynSubjectWhere.sortOrder) THEN
+                                WHERE dynSubjectWhere.subjectID  EQ ttDynSubjectWhere.subjectID
+                                  AND dynSubjectWhere.tableName  EQ ttDynSubjectWhere.tableName
+                                  AND dynSubjectWhere.whereTable EQ ttDynSubjectWhere.whereTable
+                                  AND dynSubjectWhere.sortOrder  EQ ttDynSubjectWhere.sortOrder) THEN
                     NEXT.
                     CREATE dynSubjectWhere.
                     BUFFER-COPY ttDynSubjectWhere TO dynSubjectWhere.

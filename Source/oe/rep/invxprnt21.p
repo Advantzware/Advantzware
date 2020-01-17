@@ -120,10 +120,33 @@ DEFINE BUFFER bf-cust FOR cust.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -795,7 +818,7 @@ find first company where company.company eq cocode NO-LOCK.
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
                        fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
+                       string(v-t-tax[i],"->>,>>>,>>9.99")) else "".
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
     FOR EACH bf-cust NO-LOCK
@@ -815,7 +838,7 @@ find first company where company.company eq cocode NO-LOCK.
     IF v-bot-lab[4] <> "" THEN
     PUT "<R56><C59><#8><FROM><R+8><C+23><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
@@ -825,7 +848,7 @@ find first company where company.company eq cocode NO-LOCK.
 ELSE
     PUT "<R56><C59><#8><FROM><R+6><C+23><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
@@ -837,6 +860,9 @@ ELSE
     page.
  
     end. /* each xinv-head */
+    
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 
 PROCEDURE pNotes:

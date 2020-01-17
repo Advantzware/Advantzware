@@ -381,7 +381,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-po-no 
                 ar-invl.part-no  SPACE(1)
                 v-i-dscr FORM "x(30)" 
-                v-ship-qty  format "->>>>>>9" SPACE(2)
+                v-inv-qty  format "->>>>>>9" SPACE(2)
                 v-price  format "->>,>>9.9999"                
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
@@ -389,7 +389,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 ar-invl.i-no SPACE(1)
                 v-i-dscr2  SPACE(11)
                 v-pc  FORM "x" SPACE(7)
-                v-price-head 
+                v-price-head SPACE(3)
+                (IF AVAIL cust THEN cust.curr-code ELSE "")
                 /* gdm - */
                 SKIP
                 SPACE(32)
@@ -452,24 +453,21 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
     v-inv-total = v-subtot-lines + ar-inv.tax-amt + v-inv-freight.
 
     PUT "<R57><C1><#7><FROM><C+80><LINE>"
+        "<=7><C40><FROM><R+2.4><LINE>"
         "<=7><C50><FROM><R+2.4><LINE>"
         "<=7><C60><FROM><R+2.4><LINE>"
         "<=7><C70><FROM><R+2.4><LINE>"
         "<=7><C81><FROM><R+2.4><LINE>"
-        "<=7><C51>" v-inv-freight FORM ">>,>>9.99" "<=7><C61>" ar-inv.tax-amt FORM ">>>,>>9.99" "<=7><C70>" v-inv-total  FORM "->>>,>>9.99"
-        "<=7><R+1.2><C50><FROM><C81><LINE>"        
-        "<=7><R+1.2><C54><P6>FREIGHT<C63.5>SALES TAX<C72>INVOICE AMOUNT"
-        "<=7><R+2.4><C50><FROM><C81><LINE>"
+        "<=7><C44>" (IF AVAIL cust THEN cust.curr-code ELSE "") "<C51>" v-inv-freight FORM ">>,>>9.99" "<=7><C61>" ar-inv.tax-amt FORM ">>>,>>9.99" "<=7><C70>" v-inv-total  FORM "->>>,>>9.99"
+        "<=7><R+1.2><C40><FROM><C81><LINE>"        
+        "<=7><R+1.2><P6><C44>CURRENCY<C54>FREIGHT<C63.5>SALES TAX<C72>INVOICE AMOUNT"
+        "<=7><R+2.4><C40><FROM><C81><LINE>"
         "<P9><R58><C1><#8><FROM><R+4><C+29><RECT> " 
         "<=8><R+.5>  Finance Charge of 1.5% per month"
         "<=8><R+1.5>  (18% APR) may be charged after"
         "<=8><R+2.5>  30 days from date of invoice.".
 
     PUT "<FArial><R61><C63><#9><P12><B> THANK YOU. </B> <P9> " SKIP
-        "<=9><R-6>" v-notes[1]
-        "<=9><R-5>" v-notes[2]
-        "<=9><R-4>" v-notes[3]
-        "<=9><R-3>" v-notes[4]
         .
     
     v-printline = v-printline + 6.

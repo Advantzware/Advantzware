@@ -12,9 +12,6 @@
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
 
 /* Parameters Definitions ---                                           */
@@ -28,7 +25,7 @@ DEFINE OUTPUT PARAMETER polSuccess        AS LOGICAL   NO-UNDO INITIAL ?.
 DEFINE OUTPUT PARAMETER porRepositionId   AS ROWID     NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE giCurrentRecord    AS INTEGER NO-UNDO.
+{&_proparse_prolint-nowarn(varusage)}
 DEFINE VARIABLE giNumRecords       AS INTEGER NO-UNDO.
 DEFINE VARIABLE ghXmlBuffer        AS HANDLE  NO-UNDO.
 DEFINE VARIABLE ghXmlQuery         AS HANDLE  NO-UNDO.
@@ -790,6 +787,9 @@ PROCEDURE loadData :
         MESSAGE "Copy to database failed :(" VIEW-AS ALERT-BOX INFORMATION.
         NEXT XmlLoop.
       END.
+
+      /* Save rowid of first loaded record so DD can reposition to that */
+      IF porRepositionId = ? THEN porRepositionId = hDbBuffer:ROWID.
 
       /* Let it go ... */
       hXmlBuffer:BUFFER-RELEASE.

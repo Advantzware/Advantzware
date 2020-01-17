@@ -612,11 +612,12 @@ PROCEDURE create-misc :
   RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
-                      AND est-prep.simon = "S"     NO-LOCK .
+                      AND est-prep.simon = "S" 
+                      AND est-prep.orderID EQ ""    NO-LOCK .
       FIND FIRST oe-ordm WHERE oe-ordm.company = g_company
                            AND oe-ordm.ord-no = oe-ord.ord-no
                            AND oe-ordm.charge = est-prep.code
-                           NO-LOCK NO-ERROR.
+                           NO-LOCK NO-ERROR.  
       IF NOT AVAIL oe-ordm THEN DO:
          FIND LAST oe-ordm OF oe-ord NO-LOCK NO-ERROR.
          li-line = IF AVAIL oe-ordm THEN oe-ordm.line + 1 ELSE 1.
@@ -641,7 +642,9 @@ PROCEDURE create-misc :
                 oe-ordm.est-no = est-prep.est-no
                 oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
-                oe-ordm.bill  = "Y".
+                oe-ordm.bill  = "Y"
+                oe-ordm.form-no = est-prep.s-num
+                oe-ordm.blank-no = est-prep.b-num.
             
          IF PrepTax-log THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
@@ -692,7 +695,9 @@ PROCEDURE create-misc :
                    oe-ordm.dscr = IF AVAIL prep THEN prep.dscr ELSE ""
                    oe-ordm.actnum = IF AVAIL prep AND prep.actnum <> "" THEN prep.actnum ELSE ar-ctrl.sales
                    oe-ordm.cost = (ef.mis-labf[i] + ef.mis-matf[i] +
-                                  ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000))).
+                                  ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000)))
+                   oe-ordm.form-no = ef.form-no 
+                   oe-ordm.blank-no = bf-eb.blank-no  .
 
             RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                               OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).

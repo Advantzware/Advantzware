@@ -49,6 +49,7 @@ DEFINE VARIABLE lValidLoc        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidCompany    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iRNo             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTransfer        AS CHARACTER NO-UNDO INITIAL "T".
+DEFINE VARIABLE lPromptForClose  AS LOGICAL   NO-UNDO.
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -227,8 +228,9 @@ IF ipcItemType EQ "FG" THEN DO:
    /* Posts fg-rctd records */
     RUN PostFinishedGoodsForUser IN hdInventoryProcs(
         INPUT        ipcCompany,
-        INPUT        cTransfer,
+        INPUT        cTransfer,       /* Transfer */
         INPUT        ipcUsername,
+        INPUT        lPromptForClose, /* Executes API closing orders logic */
         INPUT-OUTPUT oplSuccess,
         INPUT-OUTPUT opcMessage
         ) NO-ERROR.

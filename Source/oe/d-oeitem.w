@@ -184,6 +184,7 @@ DEF VAR v-relflg AS LOG NO-UNDO.
 DEF VAR v-ponoUp AS LOG NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 
@@ -273,6 +274,8 @@ END.
 {sys/ref/oecount.i}
 {sys/inc/f16to32.i}
 {sys/inc/funcToWorkDay.i}
+{sys/inc/vendItemCost.i}
+DEF BUFFER b-vendItemCost FOR vendItemCost.
 
 DO TRANSACTION:
 
@@ -338,10 +341,24 @@ RUN methods/prgsecur.p
 DEF VAR lcReturn AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
+DEFINE VARIABLE lFGForcedCommission AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dFGForcedCommission AS DECIMAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
    llOeShipFromLog = LOGICAL(lcReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT llRecFound).
+IF llRecFound THEN
+lFGForcedCommission = LOGICAL(v-rtn-char) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "D" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT llRecFound).
+IF llRecFound THEN
+dFGForcedCommission = DECIMAL(v-rtn-char) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -660,9 +677,9 @@ DEFINE FRAME d-oeitem
           SIZE 31 BY 1
      oe-ordl.e-num AT ROW 9.33 COL 55 COLON-ALIGNED HELP
           "Customer PO Line Number"
-          LABEL "Ln#" FORMAT ">>>"
+          LABEL "Ln#" FORMAT ">>>>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
+          SIZE 9 BY 1
      oe-ordl.po-no-po AT ROW 10.52 COL 15.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -1037,8 +1054,12 @@ DO:
                  IF oe-ordl.i-no:SCREEN-VALUE = "" OR oe-ordl.i-no:SCREEN-VALUE = "0" 
                       THEN oe-ordl.i-no:SCREEN-VALUE = ENTRY(4,char-val).
                  RUN display-fgpart (look-recid).
-                 IF oe-ordl.price:SENSITIVE THEN 
-                   APPLY "entry" TO oe-ordl.price.
+                 IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
+                     IF oescreen-cha EQ "item-qty" THEN
+                         APPLY "entry" TO oe-ordl.qty.
+                     ELSE IF oe-ordl.price:SENSITIVE THEN 
+                         APPLY "entry" TO oe-ordl.price.
+                 END.
               END.
          END.
          WHEN "s-man" THEN DO:
@@ -1619,7 +1640,7 @@ END.
 ON ENTRY OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
 DO:
     ll-ok-i-no = NO.
-    IF (INDEX("ON",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
+    IF (INDEX("ONT",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
        (oe-ordl.est-no:SCREEN-VALUE = "" OR ls-stock = "") THEN DO:
     END.
     ELSE DO:
@@ -1627,6 +1648,16 @@ DO:
          APPLY "tab" TO SELF.     
          RETURN NO-APPLY.
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ordl.i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.i-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
+DO:
+   lCheckFgForceWarning = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1840,6 +1871,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME oe-ordl.part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
+DO:
+  lCheckFgForceWarning = NO .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
 ON LEAVE OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
@@ -1901,13 +1942,18 @@ DO:
 
       RUN display-fgpart (RECID(itemfg)) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      IF oe-ordl.price:SENSITIVE  THEN 
-        APPLY "entry" TO oe-ordl.price.
-      ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
-        APPLY "entry" TO oe-ordl.pr-uom.
-      ELSE 
-          APPLY "entry" TO oe-ordl.disc.
-                     
+     
+      IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
+          IF oescreen-cha EQ "item-qty" THEN
+              APPLY "entry" TO oe-ordl.qty.
+          ELSE IF oe-ordl.price:SENSITIVE THEN 
+              APPLY "entry" TO oe-ordl.price.
+          ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
+              APPLY "entry" TO oe-ordl.pr-uom.
+          ELSE 
+              APPLY "entry" TO oe-ordl.disc.
+      END.
+      
       RETURN NO-APPLY.
   END.
   IF SELF:screen-value EQ "" THEN
@@ -2057,8 +2103,9 @@ DO:
 
                  oe-ordl.cost:screen-value = STRING(ld-cost).                          
               END.
-
-              FIND FIRST e-itemfg-vend WHERE
+              IF lNewVendorItemCost THEN .
+              ELSE 
+                FIND FIRST e-itemfg-vend WHERE
                    e-itemfg-vend.company EQ po-ordl.company AND
                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
@@ -2218,8 +2265,8 @@ DO:
   DEF VAR op-value AS LOG NO-UNDO .
   
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-qty (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    /*RUN valid-qty (FOCUS) NO-ERROR.            */
+    /*IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/ /* ticket 56847 */
 
     IF NOT fi_qty-uom:SENSITIVE THEN RUN leave-qty.
     ELSE RUN new-qty.
@@ -2689,7 +2736,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
       IF INDEX(ip-type,"Update-") NE 0 AND oe-ordl.est-no NE "" THEN
          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-
+         RUN pGetPartComm (YES) .
       ASSIGN btn_done:hidden = YES.
       RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
 
@@ -3503,6 +3550,7 @@ PROCEDURE create-job :
          job.job-no     = oe-ordl.job-no
          job.job-no2    = oe-ordl.job-no2
          job.stat       = "P"
+         job.ordertype  = oe-ord.type
          job.csrUser_id = IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE ""
          op-recid = RECID(job) 
           .
@@ -4549,6 +4597,8 @@ PROCEDURE display-est-detail :
      oe-ordl.cases-unit:SCREEN-VALUE = "1".
   IF AVAIL itemfg THEN
       IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
+    RUN pGetPartComm (YES) .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4832,6 +4882,7 @@ DO WITH FRAME {&FRAME-NAME}:
    ASSIGN oe-ordl.pr-uom oe-ordl.price.
    RUN get-price.
  END.
+ RUN pGetPartComm(NO) .
 END.
 
 END PROCEDURE.
@@ -4966,7 +5017,8 @@ DO WITH FRAME {&frame-name}:
 
         IF AVAIL po-ord THEN
         DO:
-           FIND FIRST e-itemfg-vend WHERE
+           IF NOT lNewVendorItemCost THEN 
+             FIND FIRST e-itemfg-vend WHERE
                    e-itemfg-vend.company EQ po-ordl.company AND
                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
@@ -5022,6 +5074,8 @@ END.  /* frame {&frame-name} */
  END.
 
  RUN get-price.
+
+ RUN pGetPartComm(NO) .
  
  IF oe-ordl.qty:screen-value = "0" OR oe-ordl.qty:screen-value = "" THEN
     APPLY "entry" TO oe-ordl.qty.
@@ -6066,7 +6120,8 @@ PROCEDURE itemfg-cost :
       
           IF AVAIL po-ord THEN
           DO:
-             FIND FIRST e-itemfg-vend WHERE
+             IF NOT lNewVendorItemCost then 
+               FIND FIRST e-itemfg-vend WHERE
                    e-itemfg-vend.company EQ po-ordl.company AND
                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
@@ -7729,7 +7784,59 @@ IF AVAIL itemfg THEN DO:
   /*farm out/purchased items*/
   IF oe-ordl.est-no NE "" AND itemfg.pur-man THEN
   DO:
-     IF NOT CAN-FIND(FIRST e-itemfg WHERE
+      IF lNewVendorItemCost THEN 
+      DO:
+          IF NOT can-find(FIRST vendItemCost WHERE vendItemCost.company = itemfg.company AND vendItemCost.ItemID = itemfg.i-no)
+          THEN DO:
+              CREATE vendItemCost.
+              ASSIGN 
+                  vendItemCost.company = itemfg.company
+                  vendItemCost.itemID = itemfg.i-no
+                  .
+          END.
+
+          FOR EACH b-eb2 FIELDS(company est-no form-no blank-no stock-no)
+              WHERE b-eb2.company EQ itemfg.company
+              AND b-eb2.est-no  EQ oe-ordl.est-no
+              AND b-eb2.part-no EQ oe-ordl.part-no
+              NO-LOCK,
+              EACH vendItemCost WHERE vendItemcost.company = b-eb2.company 
+              AND vendItemCost.estimateNo = b-eb2.est-no
+              AND vendItemCost.formNo = b-eb2.form-no 
+              AND vendItemCost.blankNo = b-eb2.blank-no
+              NO-LOCK:
+
+              v-cost-updated = NO.
+              
+              FIND FIRST b-venditemcost WHERE b-venditemcost.company = b-eb2.company 
+                  AND b-venditemcost.itemID = itemfg.i-no
+                  AND b-venditemcost.estimateNo = ""
+                  AND b-venditemcost.vendorID = vendItemCost.vendorID
+                  AND b-vendItemCost.customerID = vendItemCost.customerID 
+                  NO-ERROR. 
+                                          
+              IF NOT AVAIL b-vendItemCost THEN
+              DO:
+                  CREATE b-vendItemCost.
+                  BUFFER-COPY vendItemCost EXCEPT venditemcostID itemID rec_key estimateNo formNo blankNo
+                      TO b-vendItemCost
+                      ASSIGN 
+                      b-vendItemCost.estimateNo = ""
+                      /*                            b-vend.eqty = 0*/
+                      b-vendItemCost.formNo = 0
+                      b-vendItemCost.blankNo = 0
+                      b-vendItemCost.itemID = itemfg.i-no
+                      v-cost-updated = YES.                 
+              END.
+              ELSE IF b-eb2.stock-no NE "" THEN  do: /*update costs*/
+                  BUFFER-COPY vendItemCost EXCEPT venditemcostID itemID rec_key estimateNo formNo blankNo
+                          TO b-vendItemCost.
+                  ASSIGN v-cost-updated = YES.
+              END.
+          END.    
+     END.
+     ELSE DO:  
+       IF NOT CAN-FIND(FIRST e-itemfg WHERE
         e-itemfg.company = itemfg.company AND
         e-itemfg.i-no = itemfg.i-no) THEN
         DO:
@@ -7739,7 +7846,7 @@ IF AVAIL itemfg THEN DO:
            RELEASE e-itemfg.
         END.
 
-     FOR EACH b-eb2 FIELDS(company est-no form-no blank-no stock-no)
+       FOR EACH b-eb2 FIELDS(company est-no form-no blank-no stock-no)
         WHERE b-eb2.company EQ itemfg.company
           AND b-eb2.est-no  EQ oe-ordl.est-no
           AND b-eb2.part-no EQ oe-ordl.part-no
@@ -7796,7 +7903,8 @@ IF AVAIL itemfg THEN DO:
 
 
               RELEASE b-e-itemfg-vend.
-     END.
+       END.
+     END.    
   END.
 END. /* If avail itemfg */
 
@@ -9586,11 +9694,56 @@ PROCEDURE pCrtPart :
                 cust-part.i-no    = oe-ordl.i-no:SCREEN-VALUE
                 cust-part.cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no
                 cust-part.part-no = oe-ordl.part-no:SCREEN-VALUE .
+            IF lFGForcedCommission THEN
+               cust-part.forcedCommissionPercent = dFGForcedCommission .
 
            RELEASE cust-part .
            io-rowid = ROWID(itemfg).
         END.
         
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPartComm d-oeitem 
+PROCEDURE pGetPartComm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplCheckValue AS LOGICAL NO-UNDO .
+    DEFINE BUFFER b-cust-part FOR cust-part .
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+    IF iplCheckValue THEN
+        lCheckFgForceWarning = NO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+      IF lFGForcedCommission AND NOT lCheckFgForceWarning THEN do:
+          cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
+           
+        FIND FIRST b-cust-part NO-LOCK
+            WHERE b-cust-part.company EQ cocode
+            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
+            AND b-cust-part.cust-no EQ cCustNo
+            AND b-cust-part.part-no EQ oe-ordl.part-no:SCREEN-VALUE NO-ERROR .
+        IF AVAIL b-cust-part THEN do:
+            IF b-cust-part.forcedCommissionPercent EQ 0  THEN 
+                MESSAGE "N-K-1 Setting = FGForceCommission = Yes, but there is no commission percentage set for this item."
+                  "Defaulting to normal commission percentage" VIEW-AS ALERT-BOX WARNING .
+            ELSE do:
+                 oe-ordl.s-comm[1]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+                 IF oe-ordl.s-man[2]:SCREEN-VALUE NE "" THEN
+                     oe-ordl.s-comm[2]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+                 IF oe-ordl.s-man[3]:SCREEN-VALUE NE "" THEN
+                     oe-ordl.s-comm[3]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+            END.
+            lCheckFgForceWarning = YES .
+        END.
+      END.
     END.
 END PROCEDURE.
 

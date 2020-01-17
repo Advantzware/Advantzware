@@ -60,4 +60,19 @@ router.post('/createinventoryreceipt', (req,res) => {
 router.post('/consumeinventoryviabol', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This route fetches the inventory details for a BOL 
+router.post('/getinventoryforbol', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
+//This will create and post inventory count transaction 
+router.post('/createinventorycount', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
+//This will create vendor invoices
+router.post('/createvendorinvoice', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;

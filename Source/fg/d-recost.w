@@ -264,14 +264,11 @@ DO:
             AND fg-rctd.i-no EQ begin_i-no:SCREEN-VALUE 
             AND (fg-rctd.rita-code eq "R")
             NO-LOCK:
-            
-            MESSAGE "There are unposted receipt transactions for item # '" + begin_i-no:SCREEN-VALUE + "' that would affect the balance for this item." SKIP
-                "Do you want to process anyway?"
-                VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE lProcess.
+            RUN displayMessageQuestionLOG ("16", OUTPUT lProcess).
             LEAVE.
-
         END.
     END.
+
     IF lProcess THEN RUN RunProcess(OUTPUT iCount).
     
     SESSION:SET-WAIT-STATE('').

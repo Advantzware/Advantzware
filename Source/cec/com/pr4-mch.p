@@ -102,7 +102,10 @@ FOR EACH est-op WHERE est-op.company = xest.company
     /*Run Qty Divisor 24462 (also undoes 19774)*/
     IF est-op.n_out_div GT 0 THEN 
         oprun = oprun / est-op.n_out_div.
-        
+    
+    IF oprun LT mach.minRunHours THEN 
+        oprun = mach.minRunHours.        
+    
     ASSIGN
         opmr$        = opmr  * est-op.op-rate[1]
         oprun$       = oprun * est-op.op-rate[2]

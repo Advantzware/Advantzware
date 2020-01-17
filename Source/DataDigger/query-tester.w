@@ -8,15 +8,11 @@
   Desc: Analyzes queries and displays the result in an other window
 
   Author: M.C. Fiere (fiere1@zonnet.nl)
-------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
-/* Datadigger */
 { DataDigger.i }
 
 /* Parameters Definitions ---                                           */
@@ -33,7 +29,6 @@ DEFINE TEMP-TABLE ttBuffer NO-UNDO
 &SCOPED-DEFINE CleanUp DELETE OBJECT hQry NO-ERROR. ~~n~
                        RUN clean-temp-table IN THIS-PROCEDURE.
 
-DEFINE VARIABLE lShowError     AS LOGICAL INITIAL TRUE NO-UNDO.
 DEFINE VARIABLE lErrorDetected AS LOGICAL NO-UNDO.
 DEFINE VARIABLE h-browser      AS HANDLE  NO-UNDO.
 DEFINE VARIABLE h-ProgName     AS HANDLE  NO-UNDO.
@@ -148,7 +143,7 @@ DEFINE FRAME DEFAULT-FRAME
      btnRunQuery AT Y 165 X 510
      resultset AT Y 290 X 5 NO-LABEL
      btnPopOut AT Y 290 X 510 WIDGET-ID 2
-     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 4
+     RECT-1 AT Y 0 X 0 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT X 0 Y 0
@@ -454,29 +449,34 @@ END PROCEDURE. /* ask-table-from-user */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clean-temp-table C-Win 
-PROCEDURE clean-temp-table PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cleanUp C-Win 
+PROCEDURE cleanUp PRIVATE :
 /* Clean up internal temp-tables
   */
-  DEFINE BUFFER bf-ttBuffer FOR ttBuffer.
-  DEFINE BUFFER bf-ttVstTableInfo FOR ttVstTableInfo.
-  DEFINE BUFFER bf-ttVstIndexInfo FOR ttVstIndexInfo.
+  DEFINE INPUT PARAMETER phQuery AS HANDLE NO-UNDO.
 
-  FOR EACH bf-ttBuffer:
-    DELETE OBJECT bf-ttBuffer.hBuffer NO-ERROR.
-    DELETE bf-ttBuffer.
+  DEFINE BUFFER bBuffer       FOR ttBuffer.
+  DEFINE BUFFER bVstTableInfo FOR ttVstTableInfo.
+  DEFINE BUFFER bVstIndexInfo FOR ttVstIndexInfo.
+
+  DELETE OBJECT phQuery NO-ERROR.
+
+  FOR EACH bBuffer:
+    DELETE OBJECT bBuffer.hBuffer NO-ERROR.
+    DELETE bBuffer.
   END.
 
-  FOR EACH bf-ttVstTableInfo:
-    DELETE bf-ttVstTableInfo.
+  FOR EACH bVstTableInfo:
+    DELETE bVstTableInfo.
   END.
 
-  FOR EACH bf-ttVstIndexInfo:
-    DELETE bf-ttVstIndexInfo.
+  FOR EACH bVstIndexInfo:
+    DELETE bVstIndexInfo.
   END.
 
   RUN enableButtons IN THIS-PROCEDURE.
-END PROCEDURE. /* clean-temp-table */
+
+END PROCEDURE. /* cleanUp */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -567,13 +567,11 @@ PROCEDURE processQuery :
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
-      lShowError = FALSE
       lcOldString = ed-qry:SCREEN-VALUE
       ed-qry:SCREEN-VALUE = REPLACE(SUBSTRING(ipcQueryString,INDEX(ipcQueryString,"FOR EACH":U)),",",",~n").
 
     RUN test-query IN THIS-PROCEDURE (INPUT FALSE,
                                       OUTPUT lErrorDetected).
-    ASSIGN lShowError = TRUE.
 
     IF NOT lErrorDetected THEN
     DO:
@@ -895,7 +893,7 @@ PROCEDURE test-query PRIVATE :
         IF NOT VALID-HANDLE(bf-ttBuffer.hBuffer) THEN
         DO:
           DELETE bf-ttBuffer. /* it's invalid so no need to bother deleting the object */
-          {&CleanUp}
+          RUN cleanUp(hQry).
           SESSION:SET-WAIT-STATE("").
           RETURN.
         END.
@@ -920,8 +918,7 @@ PROCEDURE test-query PRIVATE :
                              + SUBSTITUTE("Error status : &1 ~n", ERROR-STATUS:ERROR )
                              + SUBSTITUTE("Error message: &1 ~n", ERROR-STATUS:GET-MESSAGE(1) )
                              .
-      {&CleanUp}
-      ASSIGN hQry = ?.
+      RUN cleanUp(hQry).
       RETURN.
     END.
 
@@ -945,8 +942,7 @@ PROCEDURE test-query PRIVATE :
                                + SUBSTITUTE("Error status : &1 ~n", ERROR-STATUS:ERROR )
                                + SUBSTITUTE("Error message: &1 ~n", ERROR-STATUS:GET-MESSAGE(1) )
                                .
-        {&CleanUp}
-        ASSIGN hQry = ?.
+        RUN cleanUp(hQry).
         RETURN.
       END.
 
@@ -1029,7 +1025,7 @@ PROCEDURE test-query PRIVATE :
       hQry:QUERY-CLOSE.
     END.
 
-    {&CleanUp}
+    RUN cleanUp(hQry).
     SESSION:SET-WAIT-STATE("").
     ASSIGN oplErrorOccured = FALSE.
 

@@ -60,6 +60,7 @@ DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
@@ -1024,6 +1025,7 @@ PROCEDURE auto-post :
           INPUT "R",         /* Receipts       */
           INPUT lFgEmails,   /* Send fg emails */
           INPUT YES,         /* Create work-gl */
+		  INPUT lPromptForClose, /* Executes .w closing orders logic */
           INPUT TABLE w-fg-rctd BY-reference,
           INPUT TABLE tt-fgemail BY-reference,
           INPUT TABLE tt-email BY-reference,
@@ -1943,6 +1945,7 @@ PROCEDURE post-finish-goods:
         INPUT "T",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
         INPUT YES,         /* create work-gl */
+		INPUT lPromptForClose,	/* Executes .w closing orders logic */
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,

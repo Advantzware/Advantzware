@@ -79,12 +79,16 @@ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR vendItemCost.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS vendItemCost.validWidth[1] ~
-vendItemCost.validWidth[11] vendItemCost.validWidth[2] ~
+&Scoped-Define ENABLED-FIELDS vendItemCost.dimWidthMinimum ~
+vendItemCost.dimWidthMaximum vendItemCost.validWidth[1] ~
+vendItemCost.validWidth[11] vendItemCost.dimLengthMinimum ~
+vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
 vendItemCost.validWidth[12] vendItemCost.validWidth[3] ~
 vendItemCost.validWidth[13] vendItemCost.validWidth[4] ~
-vendItemCost.validWidth[14] vendItemCost.validWidth[5] ~
-vendItemCost.validWidth[15] vendItemCost.validWidth[6] ~
+vendItemCost.validWidth[14] vendItemCost.dimWidthUnder ~
+vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
+vendItemCost.validWidth[15] vendItemCost.dimLengthUnder ~
+vendItemCost.dimLengthOver vendItemCost.validWidth[6] ~
 vendItemCost.validWidth[16] vendItemCost.validWidth[7] ~
 vendItemCost.validWidth[17] vendItemCost.quantityMinimumOrder ~
 vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
@@ -95,36 +99,25 @@ vendItemCost.validWidth[20]
 &Scoped-define FIRST-ENABLED-TABLE vendItemCost
 &Scoped-Define DISPLAYED-FIELDS vendItemCost.itemType vendItemCost.itemID ~
 vendItemCost.dimWidthMinimum vendItemCost.dimWidthMaximum ~
-vendItemCost.validLength[11] vendItemCost.validWidth[1] ~
-vendItemCost.validWidth[11] vendItemCost.validLength[1] ~
+vendItemCost.validWidth[1] vendItemCost.validWidth[11] ~
 vendItemCost.vendorID vendItemCost.dimLengthMinimum ~
 vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
-vendItemCost.validWidth[12] vendItemCost.validLength[2] ~
-vendItemCost.validLength[12] vendItemCost.customerID ~
+vendItemCost.validWidth[12] vendItemCost.customerID ~
 vendItemCost.validWidth[3] vendItemCost.validWidth[13] ~
-vendItemCost.validLength[3] vendItemCost.validLength[13] ~
 vendItemCost.estimateNo vendItemCost.formNo vendItemCost.blankNo ~
 vendItemCost.validWidth[4] vendItemCost.validWidth[14] ~
-vendItemCost.validLength[4] vendItemCost.validLength[14] ~
 vendItemCost.vendorItemID vendItemCost.dimWidthUnder ~
 vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
-vendItemCost.validWidth[15] vendItemCost.validLength[5] ~
-vendItemCost.validLength[15] vendItemCost.effectiveDate ~
+vendItemCost.validWidth[15] vendItemCost.effectiveDate ~
 vendItemCost.dimLengthUnder vendItemCost.dimLengthOver ~
 vendItemCost.validWidth[6] vendItemCost.validWidth[16] ~
-vendItemCost.validLength[6] vendItemCost.validLength[16] ~
 vendItemCost.expirationDate vendItemCost.validWidth[7] ~
-vendItemCost.validWidth[17] vendItemCost.validLength[7] ~
-vendItemCost.validLength[17] vendItemCost.quantityMinimumOrder ~
+vendItemCost.validWidth[17] vendItemCost.quantityMinimumOrder ~
 vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
-vendItemCost.validLength[8] vendItemCost.validLength[18] ~
 vendItemCost.createdDate vendItemCost.createdID ~
 vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
-vendItemCost.validWidth[19] vendItemCost.validLength[9] ~
-vendItemCost.validLength[19] vendItemCost.updatedID ~
-vendItemCost.updatedDate vendItemCost.validWidth[10] ~
-vendItemCost.validWidth[20] vendItemCost.validLength[10] ~
-vendItemCost.validLength[20] 
+vendItemCost.validWidth[19] vendItemCost.updatedID vendItemCost.updatedDate ~
+vendItemCost.validWidth[10] vendItemCost.validWidth[20] vendItemCost.vendorUOM
 &Scoped-define DISPLAYED-TABLES vendItemCost
 &Scoped-define FIRST-DISPLAYED-TABLE vendItemCost
 
@@ -138,7 +131,7 @@ vendItemCost.customerID vendItemCost.estimateNo vendItemCost.formNo ~
 vendItemCost.blankNo vendItemCost.vendorItemID vendItemCost.effectiveDate ~
 vendItemCost.expirationDate vendItemCost.createdDate vendItemCost.createdID ~
 vendItemCost.quantityMaximumOrder vendItemCost.updatedID ~
-vendItemCost.updatedDate 
+vendItemCost.updatedDate vendItemCost.vendorUOM
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -193,6 +186,11 @@ DEFINE FRAME F-Main
                      "RM","RM"
           DROP-DOWN-LIST
           SIZE 9 BY 1
+     vendItemCost.vendorUOM AT ROW 2.22 COL 95.2 COLON-ALIGNED
+          LABEL "Cost and Quantity UOM"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+          BGCOLOR 15 
      vendItemCost.itemID AT ROW 3.43 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -476,30 +474,28 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     "Valid Width" VIEW-AS TEXT
-          SIZE 14.6 BY .62 AT ROW 3.57 COL 93.6 WIDGET-ID 50
+     "Valid Roll Widths" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 3.57 COL 90 WIDGET-ID 50
+     "Under" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
      "Upcharge" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 7.62 COL 72 WIDGET-ID 14
      " Restrictions" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.71 COL 51 WIDGET-ID 8
-     "Valid Length" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 3.57 COL 120.2 WIDGET-ID 48
-     "W:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 8.57 COL 53 WIDGET-ID 16
-     "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 9.52 COL 53 WIDGET-ID 18
-     "Min" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.57 COL 58.2 WIDGET-ID 24
-     "Max" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.57 COL 72 WIDGET-ID 26
-     "W:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 4.52 COL 52.8 WIDGET-ID 20
-     "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
      " Vendor Item Cost Details" VIEW-AS TEXT
           SIZE 29.8 BY .62 AT ROW 1.33 COL 4.2
-     "Under" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
+     "W:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 4.52 COL 52.8 WIDGET-ID 20
+     "Max" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.57 COL 72 WIDGET-ID 26
+     "Min" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.57 COL 58.2 WIDGET-ID 24
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 9.52 COL 53 WIDGET-ID 18
+     "W:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 8.57 COL 53 WIDGET-ID 16
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 2
      RECT-6 AT ROW 2.05 COL 49.2 WIDGET-ID 4
@@ -574,21 +570,21 @@ ASSIGN
 /* SETTINGS FOR FILL-IN vendItemCost.customerID IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthMaximum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthMinimum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthOver IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthUnder IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthMaximum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthMinimum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthOver IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthUnder IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.effectiveDate IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.estimateNo IN FRAME F-Main
@@ -614,45 +610,107 @@ ASSIGN
 /* SETTINGS FOR FILL-IN vendItemCost.updatedID IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[10] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.vendorUOM IN FRAME F-Main
+ NO-ENABLE 2 EXP-LABEL                                                  */
+ASSIGN 
+       vendItemCost.validLength[10]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[11] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[11]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[12] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[12]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[13] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[13]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[14] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[14]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[15] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[15]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[16] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[16]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[17] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[17]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[18] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[18]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[19] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[19]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[1] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[1]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[20] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[20]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[2] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[2]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[3] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[3]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[4] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[4]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[5] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[5]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[6] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[6]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[7] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[7]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[8] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[8]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[9] IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vendItemCost.validLength[9]:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN vendItemCost.vendorID IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.vendorItemID IN FRAME F-Main
@@ -730,7 +788,7 @@ DO:
         
          RUN windows/l-est.w (g_company,g_loc,vendItemCost.estimateNo:screen-value, OUTPUT char-val).
          IF char-val <> "" THEN DO:
-             FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+             FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
              IF AVAIL eb THEN 
                  vendItemCost.estimateNo:screen-value = eb.est-no.
          END.
@@ -940,19 +998,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   vendItemCost.company = cocode.
-  
-  IF adm-adding-record THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    /*eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").*/
-    vendItemCost.effectiveDate:SCREEN-VALUE =  "12/31/2099"  .
-    vendItemCost.effectiveDate = 12/31/2099 .
-    vendItemCost.dimWidthMaximum = 99999.99.
-    vendItemCost.dimLengthMaximum = 99999.99.
-    vendItemCost.dimWidthOver = 99999.99.
-    vendItemCost.dimLengthOver = 99999.99.
-    vendItemCost.quantityMaximumOrder = 99999.99.
-    vendItemCost.itemType = "FG" .
-  END.
+ 
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN

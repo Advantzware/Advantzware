@@ -167,6 +167,7 @@ DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
 DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -1087,6 +1088,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+
+ iLinePerPage = IF cerunc EQ "Protagon" AND ceprint-char EQ "Consolidate" THEN 65 ELSE 66 .
 
 DEFINE VARIABLE lv-col-hand AS HANDLE.
 FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
@@ -2232,20 +2235,11 @@ PROCEDURE import-price :
   DEFINE BUFFER b-eb FOR eb.
   DEFINE BUFFER bff-probe FOR probe .
 
-  DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-  RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-  
   {est/checkuse.i}
 
   RUN pCheckMultiRecords(OUTPUT lMultiRecords) .
-  IF lMultiRecords THEN do:
-      RUN pGetMessageProcs IN hMessageProcs (INPUT "7", OUTPUT cCurrentTitle, OUTPUT cCurrentMessage,OUTPUT lSuppressMessage ).
-      
-      IF NOT lSuppressMessage THEN
-          MESSAGE cCurrentMessage
-          VIEW-AS ALERT-BOX QUESTION 
-          BUTTONS YES-NO TITLE cCurrentTitle UPDATE lcheckflg  .
-  END.
+  IF lMultiRecords THEN
+     RUN displayMessageQuestionLOG (INPUT "7", OUTPUT lCheckFlg).
 
  FOR EACH bff-probe NO-LOCK
      WHERE bff-probe.company = eb.company 
@@ -2328,8 +2322,6 @@ PROCEDURE import-price :
     END.
   END.
  END.
-
- DELETE OBJECT hMessageProcs.
 
 END PROCEDURE.
 
@@ -3103,7 +3095,7 @@ PROCEDURE print-box-est :
 ASSIGN v-line-count = LINE-COUNTER . 
   IF v-prt-note THEN DO:
      
-    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 66  .
+    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE VALUE(iLinePerPage)  .
     RUN print-notes(v-line-count) .
     OUTPUT CLOSE.
   END.
@@ -3197,7 +3189,7 @@ PROCEDURE print-notes :
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
       
   DO i = 1 TO lv-k:
-      IF v-line-count GT 66 THEN DO:
+      IF v-line-count GT iLinePerPage THEN DO:
           PAGE.
           v-line-count = 0 .
       END.
@@ -3469,7 +3461,7 @@ PROCEDURE printProbe :
     IF AVAILABLE sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
     ELSE v-print-fmt = "".
      i = 0 . 
-     IF is-xprint-form THEN lv-lines = 66.
+     IF is-xprint-form THEN lv-lines = iLinePerPage.
      OUTPUT TO VALUE(ls-outfile) PAGE-SIZE VALUE(lv-lines). /* create .x file with page size */
 
      INPUT FROM VALUE(lv-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt)) NO-ECHO.

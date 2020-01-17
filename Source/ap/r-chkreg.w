@@ -41,6 +41,8 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
+{api/ttAPIOutboundEvent.i}
+
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 IF AVAIL company THEN lv-comp-curr = company.curr-code.
 
@@ -90,11 +92,14 @@ DEF VAR cDevice AS CHAR NO-UNDO.
 DEFINE VARIABLE cApCheckTextFile AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cApCheckCsvFile AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE hdOutboundProcs           AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lBankTransmitRecFound     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBankTransmitRecValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFullFilePath AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFileName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitSysCtrlName  AS CHARACTER NO-UNDO INITIAL "BankTransmittalLocation".
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 DEF STREAM excel.
 DEFINE STREAM ap-excel.
@@ -493,9 +498,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* A/P Checks Register */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+          
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,7 +514,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1846,7 +1857,6 @@ PROCEDURE run-report :
     DEFINE VARIABLE cBankCode       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iEventID        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hdFTPProcs      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lcResponseXML   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcRequestData   AS LONGCHAR  NO-UNDO.
@@ -1865,17 +1875,17 @@ PROCEDURE run-report :
             OUTPUT lSuccess,
             OUTPUT cMessage
             ) NO-ERROR.
-            
+
         /* Call outbound API "CheckTransfer" to FTP the file */
         IF NOT ERROR-STATUS:ERROR AND lSuccess AND cBankCode NE "" THEN DO:
             cFTPPartner = cBankCode.
             
             /* Copy the file generated to lcRequestData, which in turn will be saved to APIOutbound Request Data */
             COPY-LOB FROM FILE cBankTransmitFullFilePath + cBankTransmitFileName TO lcRequestData.
-            
+
             /* Step 2. Call to "CheckTransfer" API with "TransmitBankFile" trigger. This will initiate the 
                FTP transfer for the check file generated. Once executed an Outbound Event record will be generated */
-            RUN api\PrepareAndCallOutboundRequest.p (
+            RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
                 INPUT  cocode,                  /* Company Code (Mandatory) */
                 INPUT  g_loc,                   /* Location Code (Mandatory) */
                 INPUT  cAPIID,                  /* API ID (Mandatory) */
@@ -1885,47 +1895,51 @@ PROCEDURE run-report :
                 INPUT  cArgValues,              /* Comma separated list of Values for the respective key */
                 INPUT  cBankCode,               /* Primary ID for which API is called for (Mandatory) */   
                 INPUT  "FTP File Transfer",     /* Event's description (Optional) */
-                INPUT  FALSE,                   /* Re-trigger flag (Mandatory) - Pass TRUE to re-trigger an Outbound Event, Pass FALSE for new API call */
-                OUTPUT iEventID,                /* Outbound Event ID generated */
                 OUTPUT lSuccess,                /* Success/Failure flag */
                 OUTPUT cMessage                 /* Status message */
-                ).
-                        
+                ) NO-ERROR.
+            
             IF lSuccess THEN DO:
-                /* Step 3. Fetch the file name of the script from ftpConfig, in which FTP file transfer status is available */
-                RUN FTP_GetScriptName IN hdFTPProcs (
-                    INPUT  cocode,
-                    INPUT  cFTPType,
-                    INPUT  cFTPCode,
-                    INPUT  cFTPPartner,
-                    INPUT  cBankTransmitSysCtrlName,
-                    OUTPUT cFTPScriptFile
-                    ).
-                
-                /* Step 4. Reading the FTP transfer status xml */
-                RUN FTP_GetResponse IN hdFTPProcs (
-                    INPUT  cFTPScriptFile,
-                    OUTPUT lcResponseXML,
-                    OUTPUT lSuccess,
-                    OUTPUT cMessage
-                    ).
-                
-                cNotesMessage = IF lSuccess THEN
-                                    "FTP Transfer Status - SUCCESS - Check file transferred successfully"
-                                ELSE
-                                    "FTP Transfer Status - SUCCESS - " + cMessage
-                                .
-                                
-                /* Step 5. Update the Outbound event's request data, response data, error message and transfer status */
-                RUN api/UpdateAPIOutboundEvent.p (
-                    INPUT iEventID,
-                    INPUT lcRequestData,
-                    INPUT lcResponseXML,    
-                    INPUT cNotesMessage,                                                                       
-                    INPUT lSuccess,
-                    INPUT cMessage
-                    ).
+                RUN Outbound_GetEvents IN hdOutboundProcs (
+                    OUTPUT TABLE ttAPIOutboundEvent
+                    ) NO-ERROR.
+
+                FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.                
+                IF AVAILABLE ttAPIOutboundEvent THEN DO:
+                    /* Step 3. Fetch the file name of the script from ftpConfig, in which FTP file transfer status is available */
+                    RUN FTP_GetScriptName IN hdFTPProcs (
+                        INPUT  cocode,
+                        INPUT  cFTPType,
+                        INPUT  cFTPCode,
+                        INPUT  cFTPPartner,
+                        INPUT  cBankTransmitSysCtrlName,
+                        OUTPUT cFTPScriptFile
+                        ).
                     
+                    /* Step 4. Reading the FTP transfer status xml */
+                    RUN FTP_GetResponse IN hdFTPProcs (
+                        INPUT  cFTPScriptFile,
+                        OUTPUT lcResponseXML,
+                        OUTPUT lSuccess,
+                        OUTPUT cMessage
+                        ).
+                    
+                    cNotesMessage = IF lSuccess THEN
+                                        "FTP Transfer Status - SUCCESS - Check file transferred successfully"
+                                    ELSE
+                                        "FTP Transfer Status - SUCCESS - " + cMessage
+                                    .
+                                    
+                    /* Step 5. Update the Outbound event's request data, response data, error message and transfer status */
+                    RUN api/UpdateAPIOutboundEvent.p (
+                        INPUT ttAPIOutboundEvent.apiOutboundEventID,
+                        INPUT lcRequestData,
+                        INPUT lcResponseXML,    
+                        INPUT cNotesMessage,                                                                       
+                        INPUT lSuccess,
+                        INPUT cMessage
+                        ).
+                END.
                 MESSAGE "FTP transfer for check file " + cBankTransmitFullFilePath + cBankTransmitFileName
                     "is " + TRIM(STRING(lSuccess, "successful/failed")) + ". View log files for more information." VIEW-AS ALERT-BOX.
             END.

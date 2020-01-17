@@ -250,7 +250,7 @@ PROCEDURE GetCostForPOLine:
     IF AVAILABLE bf-itemfg THEN 
     DO: 
         ASSIGN  
-            dBasisWeight    = 0
+            dBasisWeight    = bf-itemfg.weight-100
             opcCostUOM      = bf-itemfg.prod-uom
             dLengthInInches = bf-itemfg.t-len
             dWidthInInches  = bf-itemfg.t-wid
@@ -275,6 +275,7 @@ PROCEDURE GetCostForPOLine:
             dLengthInInches = bf-po-ordl.s-len
             dWidthInInches  = bf-po-ordl.s-wid
             dDepthInInches  = bf-po-ordl.s-dep
+            opcCostUOM      = bf-po-ordl.pr-uom  
             .
             
         RUN pGetCostForPOLineInUOM(BUFFER bf-po-ord, BUFFER bf-po-ordl, opcCostUOM,

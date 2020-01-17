@@ -1,19 +1,23 @@
 /* oe/rep/ackxprnt.i */
 
 PUT "<FArial>".
-     PUT "<C1><#1><R+10><C+47><IMAGE#1=" ls-full-img1 SKIP. /* pacific package */ 
-           
-PUT "<=1>" SKIP.
-PUT /*"<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
+
+IF AVAIL bf-shipto AND bf-shipto.broker THEN do:
+PUT "<C1><#2>" 
     "<=2><R+1>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"     
-   "<P10><=2><R+2>"
+   "<P12><=2><R+2>"
      v-comp-add1 AT 8 SKIP
      v-comp-add2  AT 8  SKIP
      v-comp-add3  AT 8 SKIP
      v-comp-add4  AT 8 skip
      v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-     lv-email AT 8 SKIP(1) */
-   "<R+10>"
+     lv-email AT 8 SKIP(2) .
+END.
+ELSE DO:
+    PUT "<C1><#1><R+10><C+47><IMAGE#1=" ls-full-img1 SKIP. /* pacific package */ 
+END.
+ 
+ PUT
    "<FCourier New>"
    "Cobrar a:" SPACE(29) "Vendido a:"  SKIP
    SPACE(5) oe-ord.cust-name 
@@ -23,12 +27,12 @@ PUT /*"<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */
    SPACE(5) oe-ord.addr[2] 
     (IF oe-ord.sold-addr[2] = "" THEN oe-ord.addr[2] ELSE oe-ord.sold-addr[2]) AT 45 FORM "x(30)" SKIP
    SPACE(5) v-addr3  v-sold-addr3 AT 45 SKIP.
-/*
- IF lv-display-comp THEN
+
+ IF AVAIL bf-shipto AND bf-shipto.broker THEN
         PUT "<=2><C3><FGCOLOR=" trim(lv-comp-color) + ">"
             "<=2><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
             "<P10>".
-*/
+
 v-printline = v-printline + 14.
 PUT "<||3><R4><C50><#3><FROM><R10><C80><RECT>" SKIP.
 PUT "<R6><C50><FROM><R6><C80><LINE>" SKIP      

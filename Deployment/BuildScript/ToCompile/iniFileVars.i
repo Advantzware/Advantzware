@@ -658,7 +658,8 @@ PROCEDURE ipWriteIniFile :
     ------------------------------------------------------------------------------*/
     DEF VAR cThisElement AS CHAR NO-UNDO.
 
-    RUN ipStatus ("Writing advantzware.ini file...").
+    IF LOOKUP("ipStatus",THIS-PROCEDURE:INTERNAL-ENTRIES) NE 0 THEN
+        RUN ipStatus ("Writing advantzware.ini file..."). 
 
     IF wDbVerList NE "" THEN DO:
         FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.

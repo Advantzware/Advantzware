@@ -75,7 +75,7 @@ DEFINE        VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-fgimage AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
-DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
+DEFINE        VARIABLE cBarCodeVal   AS CHARACTER FORM "x(20)" NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 DEFINE        VARIABLE lv-text       AS CHARACTER NO-UNDO.
@@ -90,7 +90,7 @@ DEFINE NEW SHARED WORKFILE wrk-ink
     FIELD i-code AS CHARACTER FORMAT "x(10)"
     FIELD form-no LIKE eb.form-no
     FIELD blank-no LIKE eb.blank-no
-    FIELD i-dscr AS CHARACTER FORMAT "x(20)"
+    FIELD i-dscr AS CHARACTER FORMAT "x(30)"
     FIELD i-qty AS DECIMAL FORMAT ">,>>9.9<"
     FIELD i-pass AS DECIMAL
     FIELD i-unit AS INTEGER
@@ -266,7 +266,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=PartLabel><R+1><#Part>"
         "<=HeaderStart><C+22><R+0.6><#CustomerName>"
            
-        "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
+        "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" + cBarCodeVal + ">" FORMAT "x(150)"
         "<P14>                  "
         "<=JobLabel>Job #:"
         "<FGColor=Blue><B>   "
@@ -477,8 +477,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
         trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
         trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
-        "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
-        "<=Printed><B>" TODAY  "</B>"
+        "<=CAD><P10><B>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
+        "</B><P8><=Printed><B>" TODAY  "</B>"
         "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
         "<=OrderCsr>" SPACE(1) IF AVAILABLE xoe-ord THEN STRING(xoe-ord.csrUser_id) ELSE job.csrUser_id FORMAT "x(10)"
         "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
@@ -603,7 +603,7 @@ END. /* JOB-MAT */
 j = 0 . 
 FOR EACH wrk-ink NO-LOCK:
     j = j + 1   .
-    v-ink-1 =  STRING(wrk-ink.i-dscr,"x(25)") .
+    v-ink-1 =  STRING(wrk-ink.i-dscr,"x(28)") .
     v-ink-2 = (IF wrk-ink.i-qty <> 0 THEN STRING(wrk-ink.i-qty,">>>,>>9.99") ELSE "" ) +
         (IF wrk-ink.i-dscr <> "" THEN "  LBS" ELSE "") .
     v-ink-3 = "Pass: " +  STRING(wrk-ink.i-pass) + " " + STRING("F") .
@@ -952,13 +952,13 @@ PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"
               IF  i <= 2 THEN v-dept-note[i] = tt-formtext.tt-text.      
            END.
            PUT UNFORMATTED 
-               "<UNITS=INCHES><AT=7.25,.44><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-               (job.job-no) + STRING(job.job-no2,"99") + ">" "<AT=,.6>" 
-                   (job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") 
+               "<UNITS=INCHES> <C3><R44.5><FROM><C25><R46.8><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+               cBarCodeVal + ">" FORMAT "x(150)" "<R46.9><C7>" 
+                   cBarCodeVal  FORMAT "x(20)"
                "<R44><C1><FROM><C105><LINE><|3>" skip
-               "<R44><C19><FROM><R48><C19><LINE><|3>"
-               "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP
-               "<C30>" v-dept-note[2] "<=11><R+4>" SKIP.
+               "<R44><C26><FROM><R48><C26><LINE><|3>"
+               "<R44><C26.5><B>BN Notes:</B><C36>" v-dept-note[1] SKIP
+               "<C36>" v-dept-note[2] "<=11><R+4>" SKIP.
            
            v-out1-id = RECID(xeb).
            run cec/desprnL2.p (recid(xef),

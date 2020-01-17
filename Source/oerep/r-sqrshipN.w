@@ -1448,10 +1448,11 @@ PROCEDURE run-report :
 
         RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
  
-        IF AVAILABLE oe-ordl AND oe-ordl.ship-qty GT 0 THEN
-            dTotalSqft = round(dTotalSqft,5) * oe-ordl.ship-qty .
+        /*IF AVAILABLE oe-ordl AND oe-ordl.ship-qty GT 0 THEN*/
+         IF oe-boll.qty GT 0 THEN
+             dTotalSqft = round(dTotalSqft,5) * oe-boll.qty .
 
-        iShipQty = iShipQty + (IF AVAIL oe-ordl THEN oe-ordl.ship-qty ELSE 0).
+        iShipQty = iShipQty + /*(IF AVAIL oe-ordl THEN oe-ordl.ship-qty ELSE 0)*/ oe-boll.qty . /* ticket 60604*/
         iOrdQty = iOrdQty + (IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0).
         dTtlSqFt = dTtlSqFt + dTotalSqft.
       IF LAST-OF(oe-bolh.bol-no) THEN DO:
@@ -1474,7 +1475,7 @@ PROCEDURE run-report :
                 WHEN "v-trailer" THEN 
                     cVarValue = STRING(v-trailer,"x(21)").
                 WHEN "v-totl-sq" THEN 
-                    cVarValue = STRING(dTtlSqFt,"->>,>>,>>>.9<<<<").
+                    cVarValue = STRING(dTtlSqFt,"->,>>>,>>>.9<<<<").
                 WHEN "v-bol-no" THEN 
                     cVarValue = STRING(v-bol-no,">>>>>9").
 

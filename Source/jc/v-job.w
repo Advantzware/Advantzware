@@ -99,6 +99,15 @@ DEFINE VARIABLE autofgissue-log AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", NO, NO, "", "", 
     OUTPUT lvReturnChar, OUTPUT lvFound).
+    
+    DEFINE VARIABLE cOrdType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrdName AS CHARACTER NO-UNDO.
+  
+    RUN sys/ref/ordtypes.p(
+        OUTPUT cOrdType, 
+        OUTPUT cOrdName
+        ).     
+    
 
 {sys/inc/f16to32.i}
 {sys/ref/CustList.i NEW}
@@ -110,6 +119,7 @@ DO TRANSACTION:
    {sys/inc/graphic.i}
 END.
 {sys/inc/custlistform.i ""JU1"" }
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -137,19 +147,22 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btnCalendar-1 btnCalendar-2 ~
+fiTypeDescription 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id job.create-date
+job.start-date job.ordertype job.create-date job.csrUser_id job.close-date ~
+job.user-id job.loc job.due-date 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
-
+&Scoped-Define DISPLAYED-OBJECTS fiTypeDescription 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
-job.start-date job.close-date job.due-date job.create-date 
-&Scoped-define DISPLAY-FIELD job.start-date job.close-date job.due-date job.create-date 
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
+job.start-date job.ordertype job.create-date job.close-date job.due-date 
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
+&Scoped-define DISPLAY-FIELD job.start-date job.create-date job.close-date ~
+job.due-date 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -191,6 +204,10 @@ DEFINE BUTTON btnCalendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE VARIABLE fiTypeDescription AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 21.4 BY .81 NO-UNDO.
+
 DEFINE VARIABLE vHoldReason AS CHARACTER FORMAT "x(50)" 
      LABEL "Hold Reason" 
      VIEW-AS FILL-IN 
@@ -208,7 +225,7 @@ DEFINE FRAME F-Main
           LABEL "Job Number" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABELS
+     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
      job.est-no AT ROW 1.24 COL 65 COLON-ALIGNED FORMAT "x(8)"
@@ -221,12 +238,15 @@ DEFINE FRAME F-Main
           LABEL "Start"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
-
+     btnCalendar-1 AT ROW 1.24 COL 143.6
+     job.ordertype AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
      job.create-date AT ROW 2.43 COL 65 COLON-ALIGNED
           LABEL "Created"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
      job.csrUser_id AT ROW 2.43 COL 101 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
@@ -246,8 +266,8 @@ DEFINE FRAME F-Main
           LABEL "Due Date"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     btnCalendar-1 AT ROW 1.24 COL 143.5
-     btnCalendar-2 AT ROW 3.62 COL 143.5
+     btnCalendar-2 AT ROW 3.62 COL 143.6
+     fiTypeDescription AT ROW 2.52 COL 23.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -310,19 +330,25 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN job.close-date IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
-/* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
-   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR FILL-IN job.close-date IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
+/* SETTINGS FOR FILL-IN job.create-date IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
+/* SETTINGS FOR FILL-IN job.csrUser_id IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN job.job-no2 IN FRAME F-Main
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN job.ordertype IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN job.start-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
@@ -330,10 +356,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job.user-id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN job.csrUser_id IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN job.create-date IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN vHoldReason IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -352,7 +374,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -398,7 +420,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i job.start-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i job.due-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME job.due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.due-date V-table-Win
+ON HELP OF job.due-date IN FRAME F-Main /* Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.due-date V-table-Win
 ON LEAVE OF job.due-date IN FRAME F-Main /* Due Date */
 DO:
@@ -474,6 +528,44 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME job.ordertype
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.ordertype V-table-Win
+ON HELP OF job.ordertype IN FRAME F-Main /* Job Type */
+DO:
+    DEFINE VARIABLE cOrderType  AS CHARACTER NO-UNDO.
+  
+    RUN windows/l-ordtyp.w (
+        INPUT  job.orderType:SCREEN-VALUE, 
+        OUTPUT cOrderType
+        ).
+    IF cOrderType NE "" THEN 
+        job.orderType:SCREEN-VALUE = ENTRY(1,cOrderType).
+   
+    RUN pUpdateJobTypeDesc.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.ordertype V-table-Win
+ON LEAVE OF job.ordertype IN FRAME F-Main /* Job Type */
+DO:
+    IF LOOKUP(job.orderType:SCREEN-VALUE,cOrdType) EQ 0 THEN DO:
+        MESSAGE "Invalid job order type. Valid job order types [" + cOrdType + "]" VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+  
+    ELSE 
+        RUN pUpdateJobTypeDesc. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME job.start-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
 ON ENTRY OF job.start-date IN FRAME F-Main /* Start */
@@ -486,7 +578,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME job.start-date
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
+ON HELP OF job.start-date IN FRAME F-Main /* Start */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
 ON LEAVE OF job.start-date IN FRAME F-Main /* Start */
 DO:
@@ -496,48 +598,6 @@ DO:
         IF NOT ll-valid THEN RETURN NO-APPLY.
     END.
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME job.start-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
-ON HELP OF job.start-date IN FRAME F-Main /* Ack. Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME job.due-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.due-date V-table-Win
-ON HELP OF job.due-date IN FRAME F-Main /* Hold/Appr Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i job.start-date}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
-ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i job.due-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -999,7 +1059,7 @@ PROCEDURE local-copy-record :
   copyJobRowID = ROWID(job).
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) . 
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF noDate THEN
@@ -1159,7 +1219,6 @@ PROCEDURE local-delete-record :
   {&methods/lValidateError.i NO}
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1175,13 +1234,16 @@ PROCEDURE local-display-fields :
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
 DEFINE VARIABLE char-hdl AS cha NO-UNDO.
 
-
   /* Code placed here will execute PRIOR to standard behavior. */  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
+ 
   /* Code placed here will execute AFTER standard behavior.    */
+  /* The following code will fetch the job description from the job type list */
+ 
+  RUN pUpdateJobTypeDesc.
+  
   IF AVAILABLE job AND job.stat = "H" THEN DO: 
      FIND FIRST rejct-cd WHERE rejct-cd.type = "JH" 
                           AND rejct-cd.code = job.reason NO-LOCK NO-ERROR.
@@ -1239,6 +1301,7 @@ PROCEDURE local-enable-fields :
     END.
 
     IF AVAILABLE job-hdr THEN ENABLE job.due-date btnCalendar-1 btnCalendar-2.
+    IF NOT copyjob THEN ENABLE job.orderType. /* Enable the Job Type  */
   END.
 
 END PROCEDURE.
@@ -1530,6 +1593,22 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobTypeDesc V-table-Win 
+PROCEDURE pUpdateJobTypeDesc PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to fetch the job description from the job type list 
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF LOOKUP(job.orderType:SCREEN-VALUE, cOrdType) NE 0 THEN 
+        fiTypeDescription:SCREEN-VALUE = ENTRY(LOOKUP(job.orderType:SCREEN-VALUE, cOrdType), cOrdName).
+  
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1541,6 +1620,8 @@ PROCEDURE Rebuild-Stds :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cItemPurOrManuf AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE cEbPurOrManuf AS CHARACTER NO-UNDO .
   IF AVAILABLE job AND job.est-no NE "" THEN DO:   /*** STANDARD CALCULATION ***/
 
      IF job.stat = "Z" OR job.stat = "C" THEN DO:
@@ -1555,7 +1636,7 @@ PROCEDURE Rebuild-Stds :
            and job-hdr.job     EQ job.job
            and job-hdr.job-no  EQ job.job-no
          and job-hdr.job-no2 EQ job.job-no2 NO-LOCK ,
-         FIRST itemfg FIELDS(pur-man) WHERE
+         FIRST itemfg FIELDS(pur-man isaset) WHERE
                itemfg.company EQ job-hdr.company AND
                itemfg.i-no EQ job-hdr.i-no NO-LOCK:
          FIND FIRST eb NO-LOCK
@@ -1563,9 +1644,10 @@ PROCEDURE Rebuild-Stds :
                AND eb.est-no EQ job.est-no 
                AND eb.stock EQ job-hdr.i-no  NO-ERROR.
          IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
-             MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
-                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
-                " set the same." VIEW-AS ALERT-BOX WARNING . 
+             cItemPurOrManuf = IF itemfg.pur-man EQ TRUE THEN "purchased" ELSE "manufactured" .
+             cEbPurOrManuf = IF eb.pur-man EQ TRUE THEN "purchased" ELSE "manufactured" .
+             MESSAGE "FG Item file indicates item " itemfg.i-no " is " cItemPurOrManuf " while estimate " 
+                     "indicates it is " cEbPurOrManuf " - These should be set the same."  VIEW-AS ALERT-BOX WARNING . 
              LEAVE .
          END.
 
@@ -1825,7 +1907,6 @@ PROCEDURE unapprove :
   END.
   {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2126,6 +2207,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-est V-table-Win 
+PROCEDURE valid-job-est :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  ll-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+   IF adm-new-record THEN DO: 
+    IF TRIM(job.est-no:SCREEN-VALUE) EQ "" THEN DO:
+      MESSAGE "Job# is not allowed  to create with  blank line..."
+              VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO job.job-no.
+      ll-valid = NO.
+    END.
+   END.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no V-table-Win 
 PROCEDURE valid-job-no :
 /*------------------------------------------------------------------------------
@@ -2328,7 +2435,11 @@ PROCEDURE validate-est :
            ASSIGN
             v-bld-job = " " + job.est-no:SCREEN-VALUE
             li        = 0.  
-
+            
+           /* Use last 5 digits of estimate# */
+           IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+             
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
 
@@ -2389,9 +2500,17 @@ PROCEDURE validate-est :
     DISABLE ALL.
 
     IF ip-lastevent EQ "" THEN DO:   /* except update button clicked */
-      ENABLE job.job-no job.job-no2 job.start-date job.due-date btnCalendar-1 btnCalendar-2 .
-      APPLY "entry" TO job.job-no.
-      RETURN NO-APPLY.
+        ENABLE job.job-no job.job-no2 job.start-date job.due-date btnCalendar-1 btnCalendar-2 job.ordertype.
+      
+        IF job.job-no2:SCREEN-VALUE GT "0" THEN 
+            job.orderType:SCREEN-VALUE = "R".                                 
+        ELSE 
+            job.orderType:SCREEN-VALUE = "O".
+            
+        RUN pUpdateJobTypeDesc.        
+                                                    
+        APPLY "entry" TO job.job-no.
+        RETURN NO-APPLY.
     END.
   END.
 
@@ -2455,33 +2574,6 @@ PROCEDURE view-user-id :
 
       DISPLAY job.user-id.
    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-est V-table-Win 
-PROCEDURE valid-job-est :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-  ll-valid = YES.
-
-  DO WITH FRAME {&frame-name}:
-   IF adm-new-record THEN DO: 
-    IF TRIM(job.est-no:SCREEN-VALUE) EQ "" THEN DO:
-      MESSAGE "Job# is not allowed  to create with  blank line..."
-              VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO job.job-no.
-      ll-valid = NO.
-    END.
-   END.
-  END.
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

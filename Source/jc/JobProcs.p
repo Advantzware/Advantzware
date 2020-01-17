@@ -37,19 +37,27 @@ PROCEDURE GetSecondaryJobForJob:
     DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcJobno2List   AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER buf-job-mch FOR job-mch.
-    
-    FOR EACH buf-job-mch NO-LOCK
-        WHERE buf-job-mch.company EQ ipcCompany
-          AND buf-job-mch.job-no  EQ ipcJobno
-        BY buf-job-mch.line
-        :
-        opcJobno2List = IF opcJobno2List EQ "" THEN STRING(buf-job-mch.job-no2,"99")
-                        ELSE IF INDEX(opcJobno2List,STRING(buf-job-mch.job-no2,"99")) GT 0 THEN opcJobno2List
-                        ELSE opcJobno2List + "," + STRING(buf-job-mch.job-no2,"99").        
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno,
+            FIRST bf-job
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2:
+        opcJobno2List = IF opcJobno2List EQ "" THEN 
+                            STRING(bf-job-hdr.job-no2,"99")
+                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"99")) GT 0 THEN 
+                            opcJobno2List
+                        ELSE 
+                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"99").        
     END.
 
-    RELEASE buf-job-mch.
+    RELEASE bf-job-hdr.
+    RELEASE bf-job.
 END PROCEDURE.
 
 PROCEDURE GetFormnoForJob:
@@ -62,20 +70,36 @@ PROCEDURE GetFormnoForJob:
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcFormnoList   AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER buf-job-mch FOR job-mch.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
     
-    FOR EACH buf-job-mch NO-LOCK
-        WHERE buf-job-mch.company EQ ipcCompany
-          AND buf-job-mch.job-no  EQ ipcJobno
-          AND buf-job-mch.job-no2 EQ ipiJobno2
-        BY buf-job-mch.line
-        :        
-        opcFormnoList = IF opcFormnoList EQ "" THEN STRING(buf-job-mch.frm,"99")
-                        ELSE IF INDEX(opcFormnoList,STRING(buf-job-mch.frm,"99")) GT 0 THEN opcFormnoList
-                        ELSE opcFormnoList + "," + STRING(buf-job-mch.frm,"99").
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobno2,
+            FIRST bf-job NO-LOCK
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2,
+                EACH bf-job-mat NO-LOCK
+                WHERE bf-job-mat.company EQ bf-job.company
+                  AND bf-job-mat.job     EQ bf-job.job
+                  AND bf-job-mat.job-no  EQ bf-job.job-no
+                  AND bf-job-mat.job-no2 EQ bf-job.job-no2
+                USE-INDEX seq-idx:
+        opcFormnoList = IF opcFormnoList EQ "" THEN 
+                            STRING(bf-job-mat.frm,"99")
+                        ELSE IF INDEX(opcFormnoList,STRING(bf-job-mat.frm,"99")) GT 0 THEN 
+                            opcFormnoList
+                        ELSE 
+                            opcFormnoList + "," + STRING(bf-job-mat.frm,"99").
     END.
 
-    RELEASE buf-job-mch.
+    RELEASE bf-job-hdr.
+    RELEASE bf-job.
+    RELEASE bf-job-mat.
 END PROCEDURE.
 
 PROCEDURE GetBlanknoForJob:
@@ -88,20 +112,36 @@ PROCEDURE GetBlanknoForJob:
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcBlanknoList  AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER buf-job-mch FOR job-mch.
-    
-    FOR EACH buf-job-mch NO-LOCK
-        WHERE buf-job-mch.company EQ ipcCompany
-          AND buf-job-mch.job-no  EQ ipcJobno
-          AND buf-job-mch.job-no2 EQ ipiJobno2
-        BY buf-job-mch.line
-        :        
-        opcBlanknoList = IF opcBlanknoList EQ "" THEN STRING(buf-job-mch.blank-no,"99")
-                         ELSE IF INDEX(opcBlanknoList,STRING(buf-job-mch.blank-no,"99")) GT 0 THEN opcBlanknoList
-                         ELSE opcBlanknoList + "," + STRING(buf-job-mch.blank-no,"99").        
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobno2,
+            FIRST bf-job NO-LOCK
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2,
+                EACH bf-job-mat NO-LOCK
+                WHERE bf-job-mat.company EQ bf-job.company
+                  AND bf-job-mat.job     EQ bf-job.job
+                  AND bf-job-mat.job-no  EQ bf-job.job-no
+                  AND bf-job-mat.job-no2 EQ bf-job.job-no2
+                USE-INDEX seq-idx:
+        opcBlanknoList = IF opcBlanknoList EQ "" THEN 
+                             STRING(bf-job-mat.blank-no,"99")
+                         ELSE IF INDEX(opcBlanknoList,STRING(bf-job-mat.blank-no,"99")) GT 0 THEN 
+                             opcBlanknoList
+                         ELSE 
+                             opcBlanknoList + "," + STRING(bf-job-mat.blank-no,"99").        
     END.
 
-    RELEASE buf-job-mch.
+    RELEASE bf-job-hdr.
+    RELEASE bf-job.
+    RELEASE bf-job-mat.
 END PROCEDURE.
 
 PROCEDURE GetOperationsForJob:
@@ -114,25 +154,41 @@ PROCEDURE GetOperationsForJob:
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER buf-job-mch FOR job-mch.
-    
-    FOR EACH buf-job-mch NO-LOCK
-        WHERE buf-job-mch.company EQ ipcCompany
-          AND buf-job-mch.job-no  EQ ipcJobno
-          AND buf-job-mch.job-no2 EQ ipiJobno2
-        BY buf-job-mch.line
-        :
-        opcMachineList = IF opcMachineList EQ "" THEN STRING(buf-job-mch.m-code)
-                         ELSE IF INDEX(opcMachineList,STRING(buf-job-mch.m-code)) GT 0 THEN opcMachineList
-                         ELSE opcMachineList + "," + STRING(buf-job-mch.m-code).           
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobno2,
+            FIRST bf-job NO-LOCK
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2,
+                EACH bf-job-mch NO-LOCK
+                WHERE bf-job-mch.company EQ bf-job.company
+                  AND bf-job-mch.job     EQ bf-job.job
+                  AND bf-job-mch.job-no  EQ bf-job.job-no
+                  AND bf-job-mch.job-no2 EQ bf-job.job-no2
+                USE-INDEX line-idx:
+        opcMachineList = IF opcMachineList EQ "" THEN 
+                             STRING(bf-job-mch.m-code)
+                         ELSE IF INDEX(opcMachineList,STRING(bf-job-mch.m-code)) GT 0 THEN
+                             opcMachineList
+                         ELSE
+                             opcMachineList + "," + STRING(bf-job-mch.m-code).           
     END.
 
-    RELEASE buf-job-mch.
+    RELEASE bf-job-hdr.
+    RELEASE bf-job.
+    RELEASE bf-job-mch.
 END PROCEDURE.
 
 PROCEDURE GetRMItemsForJob:
     /*------------------------------------------------------------------------------
-     Purpose: Returns machine code list for a given jobID
+     Purpose: Returns RM Item list for a given jobID
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
@@ -142,22 +198,38 @@ PROCEDURE GetRMItemsForJob:
     DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRMListItems  AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER buf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
     
-    FOR EACH buf-job-mat NO-LOCK
-        WHERE buf-job-mat.company  EQ ipcCompany
-          AND buf-job-mat.job-no   EQ ipcJobno
-          AND buf-job-mat.job-no2  EQ ipiJobno2
-          AND buf-job-mat.frm      EQ ipiFormno
-          AND buf-job-mat.blank-no EQ ipiBlankno
-        BY buf-job-mat.line
-        :
-        opcRMListItems = IF opcRMListItems EQ "" THEN STRING(buf-job-mat.i-no)
-                         ELSE IF INDEX(opcRMListItems,STRING(buf-job-mat.i-no)) GT 0 THEN opcRMListItems
-                         ELSE opcRMListItems + "," + STRING(buf-job-mat.i-no).           
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobno2,
+            FIRST bf-job NO-LOCK
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2,
+                EACH bf-job-mat NO-LOCK
+                WHERE bf-job-mat.company  EQ bf-job.company
+                  AND bf-job-mat.job      EQ bf-job.job
+                  AND bf-job-mat.job-no   EQ bf-job.job-no
+                  AND bf-job-mat.job-no2  EQ bf-job.job-no2
+                  AND bf-job-mat.frm      EQ ipiFormno
+                  AND bf-job-mat.blank-no EQ ipiBlankno
+                  USE-INDEX seq-idx:
+        opcRMListItems = IF opcRMListItems EQ "" THEN 
+                             STRING(bf-job-mat.rm-i-no)
+                         ELSE IF INDEX(opcRMListItems,STRING(bf-job-mat.rm-i-no)) GT 0 THEN
+                             opcRMListItems
+                         ELSE 
+                             opcRMListItems + "," + STRING(bf-job-mat.rm-i-no).           
     END.
 
-    RELEASE buf-job-mat.
+    RELEASE bf-job-hdr.
+    RELEASE bf-job.
+    RELEASE bf-job-mat.
 END PROCEDURE.
 
 PROCEDURE GetOperationForPO:
@@ -236,37 +308,51 @@ PROCEDURE GetOperation:
     DEFINE INPUT        PARAMETER ipiType         AS CHARACTER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER buf-job-mch FOR job-mch.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
     Main-Loop-Mach:
-    FOR EACH buf-job-mch NO-LOCK
-        WHERE buf-job-mch.company EQ ipcCompany
-          AND buf-job-mch.job-no  EQ ipcJobno
-          AND buf-job-mch.job-no2 EQ ipiJobno2
-          AND buf-job-mch.frm EQ ipifrm use-index line-idx  :
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobno2,
+            FIRST bf-job NO-LOCK
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2,
+                EACH bf-job-mch NO-LOCK
+                WHERE bf-job-mch.company EQ bf-job.company
+                  AND bf-job-mch.job     EQ bf-job.job
+                  AND bf-job-mch.job-no  EQ bf-job.job-no
+                  AND bf-job-mch.job-no2 EQ bf-job.job-no2:
         
         IF ipiType EQ "First" AND opcMachineList EQ "" THEN do:
-            opcMachineList = buf-job-mch.m-code .
-            LEAVE .
+            opcMachineList = bf-job-mch.m-code.
+            LEAVE.
         END.
 
         FIND FIRST mach NO-LOCK
                 WHERE mach.company EQ ipcCompany
-                AND mach.m-code EQ buf-job-mch.m-code NO-ERROR  .
+                AND mach.m-code EQ bf-job-mch.m-code NO-ERROR.
 
-          IF AVAIL mach AND mach.dept[1] EQ "PR" AND ipiType EQ "Press" AND opcMachineList EQ "" THEN do:
-              ASSIGN opcMachineList = buf-job-mch.m-code .
-              LEAVE .
-          END.
-
-          IF AVAIL mach AND mach.dept[1] BEGINS "F" AND ipiType EQ "Internal" THEN NEXT Main-Loop-Mach .
-
-          IF opcMachineList EQ "" AND ipiType EQ "Internal" THEN do:
-              ASSIGN opcMachineList = buf-job-mch.m-code .
-              LEAVE .
-          END.
+        IF AVAIL mach AND mach.dept[1] EQ "PR" AND ipiType EQ "Press" AND opcMachineList EQ "" THEN DO:
+            opcMachineList = bf-job-mch.m-code.
+            LEAVE.
+        END.
+        
+        IF AVAIL mach AND mach.dept[1] BEGINS "F" AND ipiType EQ "Internal" THEN NEXT Main-Loop-Mach.
+        
+        IF opcMachineList EQ "" AND ipiType EQ "Internal" THEN DO:
+            opcMachineList = bf-job-mch.m-code.
+            LEAVE.
+        END.
     END.
 
-    RELEASE buf-job-mch.
+    RELEASE bf-job.
+    RELEASE bf-job-hdr.
+    RELEASE bf-job-mch.
 END PROCEDURE.
 
 PROCEDURE JobParser:
@@ -332,21 +418,21 @@ PROCEDURE JobParser:
                          ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
                              ENTRY(2,ipcJobno,"-")
                          ELSE
-                             "00"
+                             ""
             opcFormno  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
                             NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
                              ENTRY(2,ENTRY(2,ipcJobno,"-"),".")
                          ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
                              ENTRY(3,ipcJobno,"-")
                          ELSE
-                             "00"
+                             ""
             opcBlankno = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
                             NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
                              ENTRY(3,ENTRY(2,ipcJobno,"-"),".")
                          ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
                              ENTRY(4,ipcJobno,"-")
                          ELSE
-                             "00"
+                             ""
             NO-ERROR.
             
         IF ERROR-STATUS:ERROR THEN DO:
@@ -371,16 +457,45 @@ PROCEDURE ValidateJob:
     DEFINE INPUT  PARAMETER ipiFormno       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValidJob     AS LOGICAL   NO-UNDO.
+
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job     FOR job.
+
+    Main-Loop-Mach:
+    FOR EACH bf-job-hdr NO-LOCK
+        WHERE bf-job-hdr.company EQ ipcCompany
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.job-no2 EQ ipiJobno2,
+            FIRST bf-job NO-LOCK
+            WHERE bf-job.company EQ bf-job-hdr.company
+              AND bf-job.job     EQ bf-job-hdr.job
+              AND bf-job.job-no  EQ bf-job-hdr.job-no
+              AND bf-job.job-no2 EQ bf-job-hdr.job-no2:
+        
+        IF ipcMachine NE "" THEN
+            oplValidJob = CAN-FIND(FIRST job-mch NO-LOCK
+                    WHERE job-mch.company  EQ bf-job.company
+                      AND job-mch.job      EQ bf-job.job
+                      AND job-mch.m-code   EQ ipcMachine
+                      AND job-mch.job-no   EQ bf-job.job-no
+                      AND job-mch.job-no2  EQ bf-job.job-no2
+                      AND job-mch.frm      EQ ipiFormno
+                      AND job-mch.blank-no EQ ipiBlankno).
+        ELSE
+            oplValidJob = CAN-FIND(FIRST job-mat NO-LOCK
+                    WHERE job-mat.company  EQ bf-job.company
+                      AND job-mat.job      EQ bf-job.job
+                      AND job-mat.job-no   EQ bf-job.job-no
+                      AND job-mat.job-no2  EQ bf-job.job-no2
+                      AND job-mat.frm      EQ ipiFormno
+                      AND job-mat.blank-no EQ ipiBlankno).
+        
+        IF oplValidJob THEN
+            LEAVE.
+    END.
     
-    oplValidJob = CAN-FIND(FIRST job-mch NO-LOCK
-            WHERE job-mch.company  EQ ipcCompany
-              AND job-mch.job-no   EQ ipcJobno
-              AND (IF ipcMachine   EQ "" THEN TRUE 
-              ELSE job-mch.m-code  EQ ipcMachine)
-              AND job-mch.job-no2  EQ ipiJobno2
-              AND job-mch.frm      EQ ipiFormno
-              AND job-mch.blank-no EQ ipiBlankno).
-          
+    RELEASE bf-job.
+    RELEASE bf-job-hdr.
 END PROCEDURE.
 
 PROCEDURE ValidateJobHdr:

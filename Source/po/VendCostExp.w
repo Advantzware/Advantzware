@@ -502,7 +502,7 @@ DO:
 
            RUN windows/l-est.w (g_company,g_loc,"", OUTPUT char-val).
            IF char-val <> "" THEN DO:
-               FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+               FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                IF AVAIL eb THEN 
                    begin_est-no:screen-value = eb.est-no.
            END.
@@ -513,7 +513,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            RUN windows/l-est.w (g_company,g_loc,"", OUTPUT char-val).
            IF char-val <> "" THEN DO:
-               FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+               FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                IF AVAIL eb THEN 
                    end_est-no:screen-value = eb.est-no.
            END.

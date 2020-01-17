@@ -24,9 +24,12 @@ DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
@@ -36,11 +39,34 @@ DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
+/* zMessage Typed return variables */
+DEFINE VARIABLE chrMsgRtn           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE logMsgRtn           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE intMsgRtn           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE decMsgRtn           AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE recMsgRtn           AS RECID     NO-UNDO.
+DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
+DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
+DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
+/* alphabetical list of super-procedures comma delimited */
+ASSIGN 
+    cSuperProcedure = "system/CommonProcs.p,"
+                    + "system/CreditProcs.p,"
+                    + "system/PurgeProcs.p,"
+                    + "system/TagProcs.p,"
+                    + "system/VendorCostProcs.p,"
+    cSuperProcedure = TRIM(cSuperProcedure,",")
+    .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionParam AS CHARACTER
     FIELD sessionValue AS CHARACTER
         INDEX sessionParam IS PRIMARY UNIQUE sessionParam
+        .
+DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
+    FIELD superProcedure AS CHARACTER 
+    FIELD isRunning      AS LOGICAL
+        INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
 {system/ttPermissions.i}
 {system/ttSysCtrlUsage.i}
@@ -73,6 +99,32 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
+FUNCTION fMessageText RETURNS CHARACTER 
+  (ipcMessageID AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageTitle Procedure
+FUNCTION fMessageTitle RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetBeginSearch Procedure
@@ -96,47 +148,6 @@ FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE
 
 
 &ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfHideAMPM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHideAMPM Procedure
-FUNCTION sfHideAMPM RETURNS LOGICAL 
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfHourMax) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHourMax Procedure
-FUNCTION sfHourMax RETURNS INTEGER 
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfHourMin) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfHourMin Procedure
-FUNCTION sfHourMin RETURNS INTEGER 
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
 &IF DEFINED(EXCLUDE-sfIsUserSuperAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfIsUserSuperAdmin Procedure
@@ -148,36 +159,6 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
 
 
 &ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfTimeDisplay) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfTimeDisplay Procedure
-FUNCTION sfTimeDisplay RETURNS CHARACTER 
-  (ipiTime AS INTEGER,
-   iplClockTime AS LOGICAL,
-   iplSeconds AS LOGICAL) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfUserAMPM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfUserAMPM Procedure
-FUNCTION sfUserAMPM RETURNS LOGICAL 
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -313,14 +294,163 @@ FIND FIRST users NO-LOCK
      NO-ERROR.
 IF AVAILABLE users THEN 
 ASSIGN 
-    lUserAMPM = users.AMPM
-    lSuperAdmin = users.securityLevel GE 1000
+    lUserAMPM       = users.AMPM
+    lSuperAdmin     = users.securityLevel GE 1000
     .
+/* build temp-table of super-procedures */
+DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
+    CREATE ttSuperProcedure.
+    ttSuperProcedure.superProcedure = ENTRY(idx,cSuperProcedure).
+END. /* do idx */
+/* find if super-procedure is running */
+DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
+    hSuperProcedure = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES)).
+    FIND FIRST ttSuperProcedure
+         WHERE ttSuperProcedure.superProcedure EQ hSuperProcedure:NAME
+         NO-ERROR.
+    IF AVAILABLE ttSuperProcedure THEN
+    ttSuperProcedure.isRunning = YES.
+END. /* do idx */
+/* run any super-procedures not running */
+FOR EACH ttSuperProcedure
+    WHERE ttSuperProcedure.isRunning EQ NO
+    :
+    RUN VALUE(ttSuperProcedure.superProcedure) PERSISTENT SET hSuperProcedure.
+    SESSION:ADD-SUPER-PROCEDURE (hSuperProcedure).
+END. /* each ttSuperProcedure */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-displayMessage) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessage Procedure
+PROCEDURE displayMessage:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message in standard format
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+
+    FIND FIRST zMessage NO-LOCK
+         WHERE zMessage.msgID EQ ipcMessageID
+         NO-ERROR.    
+    IF NOT AVAILABLE zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress EQ TRUE THEN 
+        RETURN.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "Error" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX ERROR 
+                TITLE fMessageTitle().
+            WHEN "Info" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX INFO
+                TITLE fMessageTitle().
+            WHEN "Message" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX MESSAGE 
+                TITLE fMessageTitle().
+            WHEN "Warning" THEN
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX WARNING 
+                TITLE fMessageTitle().
+            OTHERWISE
+                MESSAGE 
+                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
+                    "NOTE: Message type for this record is not correct." SKIP 
+                    "Please correct using NZ@ or contact ASI Support."
+                VIEW-AS ALERT-BOX WARNING 
+                TITLE fMessageTitle().
+        END CASE.
+    END.
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF
+
+&IF DEFINED(EXCLUDE-displayMessageQuestion) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestion Procedure
+PROCEDURE displayMessageQuestion:
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message and returns a character-based answer as output
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcOutput    AS CHARACTER NO-UNDO.
+
+    FIND FIRST zMessage NO-LOCK
+         WHERE zMessage.msgID EQ ipcMessageID       
+         NO-ERROR.    
+    IF NOT AVAIL zMessage THEN DO:
+        MESSAGE 
+            "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
+            "Please correct this using function NZ@ or contact ASI Support"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress THEN
+         opcOutput = zMessage.rtnValue.
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "QUESTION-YN" THEN DO:
+                MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage AS LOGICAL.
+                opcOutput = STRING(lMessage).
+            END.
+            /* Deal with these options in next phase */
+            WHEN "QUESTION-CHAR" THEN DO:
+            END.
+            WHEN "QUESTION-INT" THEN DO:
+            END.
+            WHEN "QUESTION-DECI" THEN DO:
+            END.
+            WHEN "QUESTION-DATE" THEN DO:
+            END.
+        END CASE.
+    END.
+
+END PROCEDURE.
+&ANALYZE-RESUME
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-displayMessageQuestionLOG) = 0 &THEN
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestionLOG Procedure
+PROCEDURE displayMessageQuestionLOG:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOutput    AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cRtnValue AS CHARACTER NO-UNDO.
+    
+    RUN displayMessageQuestion (INPUT ipcMessageID, OUTPUT cRtnValue).
+    
+    oplOutput = LOGICAL(cRtnValue).
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
@@ -890,60 +1020,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-spParseTime) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spParseTime Procedure
-PROCEDURE spParseTime:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiTime    AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER iphHour    AS HANDLE  NO-UNDO.
-    DEFINE INPUT PARAMETER iphMinute  AS HANDLE  NO-UNDO.
-    DEFINE INPUT PARAMETER iphSeconds AS HANDLE  NO-UNDO.
-    DEFINE INPUT PARAMETER iphAMPM    AS HANDLE  NO-UNDO.
-
-    DEFINE VARIABLE cTime AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE kdx   AS INTEGER   NO-UNDO.
-
-    ASSIGN
-        idx   = IF lUserAMPM THEN 1  ELSE 0
-        jdx   = IF lUserAMPM THEN 12 ELSE 24
-        cTime = IF lUserAMPM THEN STRING(ipiTime,"HH:MM:SS AM")
-                ELSE STRING(ipiTime,"HH:MM:SS")
-              .    
-    IF iphHour:TYPE EQ "COMBO-BOX" THEN DO:
-        iphHour:LIST-ITEMS = " ".
-        DO kdx = jdx TO idx BY -1:
-            iphHour:LIST-ITEMS = iphHour:LIST-ITEMS + STRING(kdx) + ",".
-        END. /* do kdx */
-        iphHour:LIST-ITEMS = TRIM(iphHour:LIST-ITEMS,",").
-    END. /* if combo-box */
-
-    IF VALID-HANDLE(iphHour) THEN
-    iphHour:SCREEN-VALUE = SUBSTRING(cTime,1,2).
-    IF VALID-HANDLE(iphMinute) THEN
-    iphMinute:SCREEN-VALUE = SUBSTRING(cTime,4,2).
-    IF VALID-HANDLE(iphSeconds) THEN
-    iphSeconds:SCREEN-VALUE = SUBSTRING(cTime,7,2).
-    IF VALID-HANDLE(iphAMPM) THEN DO:
-        IF iphAMPM:TYPE EQ "BUTTON" THEN
-        iphAMPM:LABEL = IF lUserAMPM THEN SUBSTRING(cTime,10,2) ELSE "".
-        ELSE
-        iphAMPM:SCREEN-VALUE = IF lUserAMPM THEN SUBSTRING(cTime,10,2) ELSE "".
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSendEmail Procedure
@@ -1094,18 +1170,20 @@ PROCEDURE spSendEmail:
             cRecipientsReplyTo = cRecipientsReplyTo + " -reply-to:" + ENTRY(idx,ipcRecipientsReplyTo).
         END. /* do idx */
 
-    cMail = cMail + " -host:"
-          + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
-          + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
-          + " -starttls" + cAttachments
-          + " ~"-subject:" + ipcSubject + "~""
-          + " ~"-body:" + ipcBody + "~""
-          + " -from:" + emailConfig.smtpUser
-          + cRecipientsSendTo
-          + cRecipientsSendCC
-          + cRecipientsSendBCC
-          + cRecipientsReplyTo
-          .
+    ASSIGN
+        cMail = cMail + " -host:"
+              + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
+              + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
+              + " -starttls" + cAttachments
+              + " ~"-subject:" + ipcSubject + "~""
+              + " ~"-body:" + ipcBody + "~""
+              + " -from:" + emailConfig.smtpUser
+              + cRecipientsSendTo
+              + cRecipientsSendCC
+              + cRecipientsSendBCC
+              + cRecipientsReplyTo
+        cMail = REPLACE(cMail,CHR(10),"~\n")
+        .
     OS-COMMAND SILENT VALUE(cMail).
 
 END PROCEDURE.
@@ -1681,8 +1759,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
+
 
 
 /* ************************  Function Implementations ***************** */
@@ -1704,6 +1782,48 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMessageText Procedure
+FUNCTION fMessageText RETURNS CHARACTER 
+  (ipcMessageID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF zMessage.currMessage  NE "" THEN zMessage.currMessage
+           ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMessageTitle Procedure
+FUNCTION fMessageTitle RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN IF zMessage.currentTitle NE "" THEN zMessage.currentTitle
+	       ELSE zMessage.defaultTitle.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 
@@ -1750,63 +1870,6 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-sfHideAMPM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfHideAMPM Procedure
-FUNCTION sfHideAMPM RETURNS LOGICAL 
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-	RETURN NOT lUserAMPM.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-sfHourMax) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfHourMax Procedure
-FUNCTION sfHourMax RETURNS INTEGER 
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-	RETURN IF lUserAMPM THEN 12 ELSE 24.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-sfHourMin) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfHourMin Procedure
-FUNCTION sfHourMin RETURNS INTEGER 
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-	RETURN IF lUserAMPM THEN 1 ELSE 0.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
 &IF DEFINED(EXCLUDE-sfIsUserSuperAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserSuperAdmin Procedure
@@ -1823,55 +1886,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfTimeDisplay) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfTimeDisplay Procedure
-FUNCTION sfTimeDisplay RETURNS CHARACTER 
-  (ipiTime AS INTEGER, iplClockTime AS LOGICAL, iplSeconds AS LOGICAL):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFormat        AS CHARACTER NO-UNDO INITIAL "HH:MM".
-	DEFINE VARIABLE opcTimeDisplay AS CHARACTER NO-UNDO.
-
-    IF iplSeconds THEN
-    cFormat = cFormat + ":SS".
-    IF iplClockTime AND lUserAMPM THEN
-    cFormat = cFormat + " AM".    
-    opcTimeDisplay = STRING(ipiTime,cFormat).
-
-    RETURN opcTimeDisplay.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-sfUserAMPM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfUserAMPM Procedure
-FUNCTION sfUserAMPM RETURNS LOGICAL 
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-	RETURN lUserAMPM.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure

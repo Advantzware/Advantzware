@@ -16,18 +16,22 @@ DEFINE INPUT PARAMETER TABLE FOR ttTable.
 
 DEFINE BUFFER bDb    FOR dictdb._Db.
 DEFINE BUFFER bFile  FOR dictdb._File.
+DEFINE BUFFER bField FOR dictdb._Field.
 DEFINE BUFFER bTable FOR ttTable.
 
 FIND FIRST bTable NO-ERROR.
-FIND FIRST bDb NO-ERROR.
+FIND FIRST bDb NO-LOCK NO-ERROR.
 
-FOR EACH bFile NO-LOCK
-  WHERE bFile._File-Number < 32768
-    AND (IF bDb._Db-slave THEN bFile._For-Type = 'TABLE' ELSE TRUE)
+FOR EACH bDb   NO-LOCK
+  , EACH bFile NO-LOCK
+   WHERE bFile._Db-recid    = RECID(bDb)
+     AND bFile._File-Number < 32768
+     AND (IF bDb._Db-slave THEN bFile._For-Type = 'TABLE' ELSE TRUE)
   :
 
   CREATE bTable.
   ASSIGN
+    bTable.cSchemaHolder = (IF bDb._Db-slave THEN LDBNAME('dictdb') ELSE '')            /* [JAG 01-11-2019] */
     bTable.cDatabase   = (IF bDb._Db-slave THEN bDb._Db-name ELSE LDBNAME('dictdb'))
     bTable.cTableName  = bFile._file-name
     bTable.cTableDesc  = TRIM( (IF bFile._file-label <> ? AND bFile._file-label <> '' THEN bFile._file-label + ', ' ELSE '')
@@ -55,8 +59,9 @@ FOR EACH bFile NO-LOCK
   ELSE IF bFile._file-number >= -16384 AND bFile._file-number <= -80  THEN bTable.cCategory = 'Other'.
   ELSE IF bFile._file-number < -16384                                 THEN bTable.cCategory = 'VST'.
 
-  FOR EACH dictdb._Field OF bFile NO-LOCK:
-    bTable.cFields = bTable.cFields + ',' + dictdb._Field._Field-name.
+  FOR EACH bField 
+    WHERE bField._File-recid = RECID(bFile) NO-LOCK:
+    bTable.cFields = bTable.cFields + ',' + bField._Field-name.
   END.
   bTable.cFields = TRIM(bTable.cFields,',').
 END.

@@ -77,11 +77,24 @@ DEF STREAM s2.
 DEF STREAM apiFiles.
 DEF STREAM sOutput.
 
+DEF NEW SHARED TEMP-TABLE ttUpdateHist
+    FIELD fromVersion AS CHAR 
+    FIELD toVersion AS CHAR 
+    FIELD applyDate AS DATE 
+    FIELD startTimeInt AS INT
+    FIELD startTime AS CHAR 
+    FIELD endTimeInt AS INT 
+    FIELD endTime AS CHAR 
+    FIELD user_id AS CHAR 
+    FIELD success AS LOG INITIAL NO 
+    FIELD updLog AS CHAR.     
+
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
 DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
+DEF TEMP-TABLE ttDynPrgrmsPage LIKE dynPrgrmsPage.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
 DEF TEMP-TABLE ttNotes LIKE notes.
 DEF TEMP-TABLE ttModule LIKE module.
@@ -1922,6 +1935,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConfirmMonitorUser C-Win 
+PROCEDURE ipConfirmMonitorUser :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Validating Monitor User Entries").
+
+    DISABLE TRIGGERS FOR LOAD OF users.
+
+    FIND users EXCLUSIVE WHERE 
+        users.user_id = "monitor"
+        NO-ERROR.
+    ASSIGN
+        users.developer = false
+        users.fax = ""
+        users.fax-cnty = ""
+        users.image_filename = "asiHelp@advantzware.com"
+        users.isActive = true
+        users.isLocked = false
+        users.phone = "2153697800"
+        users.phone-cnty = "1"
+        users.securityLevel = 1000
+        users.showOnAck = false
+        users.showOnBol = false
+        users.showOnInv = false
+        users.showOnPO = false
+        users.showOnQuote = false
+        users.track_usage = true
+        users.updateDate = today
+        users.updateTime = time
+        users.updateUser = "monitor"
+        users.userType = "Administrator"
+        users.user_language = "English"
+        users.user_name = "ASI Monitor Runner Account"
+        users.user_program[1] = ""
+        users.user_program[2] = ""
+        users.user_program[3] = ""
+        users.use_colors = false
+        users.use_ctrl_keys = false
+        users.use_fonts = false
+        users.widget_bgc = 0
+        users.widget_fgc = 0
+        users.widget_font = 0
+        . 
+    
+    RUN ipSetMonitorPwd IN THIS-PROCEDURE.
+    RUN ipAddSuppUserRecords IN THIS-PROCEDURE (INPUT users.user_id).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertModule C-Win 
 PROCEDURE ipConvertModule :
 /*------------------------------------------------------------------------------
@@ -2438,6 +2506,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateMonitorUser C-Win 
+PROCEDURE ipCreateMonitorUser :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("Creating Monitor User").
+
+    DISABLE TRIGGERS FOR LOAD OF users.
+
+    CREATE users.
+    ASSIGN
+        users.user_id = "monitor"
+        users.createDate = today
+        users.createTime = time
+        users.createUser = USERID(LDBNAME(1)).
+        
+    RUN ipConfirmMonitorUser IN THIS-PROCEDURE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix C-Win 
@@ -2498,6 +2591,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161400.
     IF fIntVer(cThisEntry) LT 16140100 THEN  
         RUN ipDataFix161401.
+    IF fIntVer(cThisEntry) LT 16150000 THEN  
+        RUN ipDataFix161500.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2930,6 +3025,22 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161500 C-Win
+PROCEDURE ipDataFix161500:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161500...").
+    
+    RUN ipLoadEstCostData.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -2977,7 +3088,6 @@ PROCEDURE ipDataFixConfig :
 ------------------------------------------------------------------------------*/
     FOR EACH config EXCLUSIVE:
         ASSIGN
-            config.audit_dir = ".\CustFiles\Logs\AuditFiles"
             config.logs_dir = ".\CustFiles\Logs"
             config.spool_dir = ".\CustFiles\Logs\Spool".
     END.
@@ -3211,16 +3321,22 @@ PROCEDURE ipDeleteAudit :
     ELSE DO:
         RUN ipStatus ("    Deleting audit records older than 180 days...").
         RUN ipStatus ("      (30 minute limit on this process)").
-        FOR EACH AuditHdr WHERE 
+        FOR EACH AuditHdr NO-LOCK WHERE 
             DATE(auditHdr.auditDateTime) LT TODAY - 180:
-            FOR EACH AuditDtl OF auditHdr:
-                DELETE AuditDtl.
+            FOR EACH AuditDtl OF auditHdr NO-LOCK:
+                FIND CURRENT AuditDtl EXCLUSIVE-LOCK NO-WAIT.
+                IF AVAIL AuditDtl THEN DO:
+                    DELETE AuditDtl.
+                    ASSIGN
+                        iDelCount = iDelCount + 1.
+                END.
+            END.
+            FIND CURRENT AuditHdr EXCLUSIVE-LOCK NO-WAIT.
+            IF AVAIL auditHdr THEN DO:
+                DELETE AuditHdr.
                 ASSIGN
                     iDelCount = iDelCount + 1.
             END.
-            DELETE AuditHdr.
-            ASSIGN
-                iDelCount = iDelCount + 1.
             IF etime GT 1800000 THEN 
                 LEAVE.
         END.
@@ -3577,6 +3693,12 @@ PROCEDURE ipFixUsers :
         RUN ipCreateAdminUser IN THIS-PROCEDURE.
     ELSE 
         RUN ipConfirmAdminUser IN THIS-PROCEDURE.
+
+    IF NOT CAN-FIND (FIRST users WHERE
+        users.user_id = "monitor") THEN
+        RUN ipCreateMonitorUser IN THIS-PROCEDURE.
+    ELSE 
+        RUN ipConfirmMonitorUser IN THIS-PROCEDURE.
 
     RUN ipLoadNewUserData IN THIS-PROCEDURE.
     RUN ipCleanBadUserData IN THIS-PROCEDURE.
@@ -3941,6 +4063,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDynPrgrmsPage C-Win
+PROCEDURE ipLoadDynPrgrmsPage:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading dynPrgrmsPage Records").
+
+    &SCOPED-DEFINE tablename dynPrgrmsPage
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename} EXCLUSIVE:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
     /*------------------------------------------------------------------------------
@@ -3994,6 +4147,53 @@ PROCEDURE ipLoadEmailCodes :
                                     + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
         END.
     END.      
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEstCostData C-Win 
+PROCEDURE ipLoadEstCostData :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading EstCostData").
+
+    &SCOPED-DEFINE tablename estCostCategory
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
+        INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+        REPEAT:
+            CREATE {&tablename}.
+            IMPORT {&tablename}.
+        END.
+        INPUT CLOSE.
+    END.
+        
+    &SCOPED-DEFINE tablename estCostGroup
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
+        INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+        REPEAT:
+            CREATE {&tablename}.
+            IMPORT {&tablename}.
+        END.
+        INPUT CLOSE.
+    END.
+
+    &SCOPED-DEFINE tablename estCostGroupLevel
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
+        INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+        REPEAT:
+            CREATE {&tablename}.
+            IMPORT {&tablename}.
+        END.
+        INPUT CLOSE.
+    END.
   
 END PROCEDURE.
 
@@ -4478,12 +4678,8 @@ PROCEDURE ipLoadPrograms :
         FIND FIRST tt{&tablename} WHERE
             tt{&tablename}.prgmname = {&tablename}.prgmname 
             NO-ERROR.
-        IF NOT AVAIL {&tablename} THEN ASSIGN
-            {&tablename}.prgmname = "x" + {&tablename}.prgmname
-            {&tablename}.menu_item = false
-            {&tablename}.securityLevelDefault = 9999
-            {&tablename}.securityLevelUser = 9999
-            {&tablename}.mnemonic = "".
+        IF NOT AVAIL tt{&tablename} THEN 
+            DELETE {&tablename}.
     END.
     
     EMPTY TEMP-TABLE tt{&tablename}.
@@ -5611,6 +5807,44 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetMonitorPwd C-Win 
+PROCEDURE ipSetMonitorPwd :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+        
+    RUN ipStatus ("  Setting Monitor Password").
+
+    FIND FIRST _User WHERE 
+        _User._UserId = "monitor" 
+        EXCLUSIVE-LOCK NO-ERROR.
+
+    IF AVAIL (_User) THEN 
+    DO:
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
+        ASSIGN 
+            tempUser._Password = "laaEbPjiXlakhcq".
+        DELETE _User.
+        CREATE _User.
+        BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+    END.
+    ELSE 
+    DO:
+        CREATE _User.
+        ASSIGN
+            _User._UserId = "monitor"
+            _User._Password = "laaEbPjiXlakhcq".
+    END.
+
+    RELEASE _user.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetNewDbVersion C-Win
 PROCEDURE ipSetNewDbVersion:
     /*------------------------------------------------------------------------------
@@ -5651,7 +5885,12 @@ PROCEDURE ipStatus :
             cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = "  " + ipcStatus.
-        
+        FIND FIRST ttUpdateHist NO-LOCK NO-ERROR.
+        IF AVAIL ttUpdateHist THEN ASSIGN 
+                ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
+                ttUpdateHist.endTimeInt = INT(TIME)
+                ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
+                ttUpdateHist.success = lSuccess.        
         OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
         PUT STREAM logStream
             STRING(TODAY,"99/99/99") AT 1
@@ -5799,6 +6038,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
         RUN ipLoadZmessage IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
+        RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

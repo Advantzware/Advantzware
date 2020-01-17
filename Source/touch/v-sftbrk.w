@@ -551,8 +551,8 @@ PROCEDURE local-display-fields :
        }
 /*       DISPLAY {&TIME-FIELDS}.*/
        ASSIGN
-           start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfHideAMPM")
-           end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfHideAMPM")
+           start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+           end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
            .
   END.
 
@@ -576,8 +576,8 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
  ENABLE {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
  ASSIGN
-     start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfHideAMPM")
-     end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfHideAMPM")
+     start_AMPM:HIDDEN = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
+     end_AMPM:HIDDEN   = DYNAMIC-FUNCTION("sfCommon_HideAMPM")
      .
 
 END PROCEDURE.

@@ -17,7 +17,7 @@ DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 {cec/msfcalc.i}
 
 {cec/rollfac.i}
@@ -48,9 +48,15 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
       IF xeb.casNoCharge THEN c-cost = 0.
       ELSE IF xeb.cas-cost GT 0 THEN c-cost = xeb.cas-cost * c-qty.
       ELSE DO:
-        {est/matcost.i c-qty c-cost case}
-
-        c-cost = (c-cost * c-qty) + lv-setup-case.
+        IF lNewVendorItemCost THEN 
+        DO:
+           {est/getVendCost.i c-qty c-cost case}  
+        END.
+        ELSE 
+        DO:   
+          {est/matcost.i c-qty c-cost case}
+          c-cost = (c-cost * c-qty) + lv-setup-case.
+        END.
       END.
 
       ASSIGN
@@ -108,9 +114,15 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
       ELSE IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
       
       ELSE DO:
-        {est/matcost.i p-qty p-cost pallet}
-
-        p-cost = (p-cost * p-qty) + lv-setup-pallet.
+        IF lNewVendorItemCost THEN 
+        DO:
+          {est/getVendCost.i p-qty p-cost pallet}  
+        END.
+        ELSE 
+        DO:   
+          {est/matcost.i p-qty p-cost pallet}
+          p-cost = (p-cost * p-qty) + lv-setup-pallet.
+        END.
       END.
 
       ASSIGN
@@ -155,11 +167,15 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
                 no-lock no-error.
 
             if not avail item then leave pallet-blok.
-
-            {est/matcost.i strap-qty strap-cst strap}
-
-            strap-cst = (strap-cst * strap-qty) + lv-setup-strap.
-
+            IF lNewVendorItemCost THEN 
+            DO:
+              {est/getVendCost.i strap-qty strap-cst strap}  
+            END.
+            ELSE 
+            DO:
+              {est/matcost.i strap-qty strap-cst strap}
+              strap-cst = (strap-cst * strap-qty) + lv-setup-strap.
+            END.
             if strap-qty ne 0 then do with frame ac4 no-box no-labels:
                display item.i-name
                        strap-qty format ">>>,>>>"                 to 48 "MLI"

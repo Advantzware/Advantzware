@@ -1341,7 +1341,7 @@ PROCEDURE query-go :
   ELSE IF fi_i-name NE "" AND NOT fi_i-name BEGINS '*'  THEN DO: 
       {&for-each1} NO-LOCK
            /*USE-INDEX cust-part*/
-           BY vend.NAME:
+           BY vend.vend-no:
           ASSIGN
           li = li + 1
           lv-vend-no = vend.vend-no.

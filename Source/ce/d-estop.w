@@ -1624,19 +1624,19 @@ PROCEDURE valid-mach :
                     sh-len = IF b-ef.roll THEN b-ef.gsh-wid ELSE b-ef.nsh-wid
                     sh-wid = IF b-ef.roll THEN b-ef.gsh-len ELSE b-ef.nsh-len.
             ELSE
-                IF LOOKUP(lv-dept,"PR,GU,LM") GT 0 OR b-ef.n-out-l LE 1 THEN
+                /*IF LOOKUP(lv-dept,"PR,GU,LM,DC") GT 0 OR b-ef.n-out-l LE 1 THEN*/
                     ASSIGN
                         sh-len = b-ef.nsh-wid
                         sh-wid = b-ef.nsh-len.
-                ELSE
+               /* ELSE
                     ASSIGN
                         sh-len = b-ef.trim-w
-                        sh-wid = b-ef.trim-l.
+                        sh-wid = b-ef.trim-l.*/
 
             IF mach.p-type EQ "B" THEN
                 ASSIGN
-                    sh-len = b-eb.t-len
-                    sh-wid = b-eb.t-wid.
+                    sh-len = b-eb.t-wid
+                    sh-wid = b-eb.t-len.
 
             IF v-msg EQ ""            AND
                 mach.min-len GT sh-len THEN

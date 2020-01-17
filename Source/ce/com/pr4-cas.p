@@ -7,7 +7,7 @@ def shared buffer xef for ef.
 def shared buffer xeb for eb.
 
 {ce/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def buffer xcas for cas.
 
 def var v-cas-cnt as DEC NO-UNDO.
@@ -20,6 +20,8 @@ DEFINE VARIABLE dPackCostM AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dPackCostTotal AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dPackCostSetup AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cPackCostUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
 
 def shared var v-summ as log NO-UNDO.
 
@@ -74,7 +76,7 @@ for each xef where xef.company = xest.company
                 (if v-corr then ((xeb.t-sqin - xeb.t-win) * .000007)
                            else ((xeb.t-sqin - xeb.t-win) / 144000))) /
                 (if xeb.cas-wt ne 0 then xeb.cas-wt else item.avg-w).
-
+      dCasesProRata = c-qty.
       {sys/inc/roundup.i c-qty} /* CTS end */
       
       /*02031503-set case qty based on multipliers for cost and material calculations*/
@@ -126,12 +128,11 @@ for each xef where xef.company = xest.company
       end.
 
        IF xeb.spare-char-3 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.lp-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.lp-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.lp-up. /*per case - DEFAULT*/.
+          li-qty = dCasesProrata * xeb.lp-up. /*per case - DEFAULT*/.
 
       {sys/inc/roundup.i li-qty} /* CTS end */
 
@@ -174,12 +175,11 @@ for each xef where xef.company = xest.company
       end.
 
        IF xeb.spare-char-4 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.div-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.div-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.div-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.div-up. /*per case - DEFAULT*/
 
       {sys/inc/roundup.i li-qty} /* CTS end */
 
@@ -212,12 +212,11 @@ for each xef where xef.company = xest.company
         dPackQty = 0.
         CASE estPacking.quantityPer:
             WHEN "P" THEN DO:
-                li-qty = c-qty / xeb.cas-pal.
-                {sys/inc/roundup.i li-qty}
-                dPackQty = li-qty * estPacking.quantity.  /*per pallet*/
+                dPalletsProRata = c-qty / xeb.cas-pal.
+                dPackQty = dPalletsProRata * estPacking.quantity.  /*per pallet*/
             END.
             WHEN "C" THEN 
-                dPackQty = estPacking.quantity * c-qty.
+                dPackQty = estPacking.quantity * dCasesProRata.
             OTHERWISE 
                 dPackQty = estPacking.quantity.
         END CASE. 
@@ -282,10 +281,17 @@ for each cas where cas.typ eq 1
      FOR EACH xcas WHERE xcas.typ EQ 1 AND xcas.ino EQ cas.ino:
        cas.t-qty = cas.t-qty + xcas.qty.
      END.
-
-     {est/matcost.i cas.t-qty cas.cost 1}
-
-     cas.cost = (cas.cost * cas.qty) + lv-setup-1.
+     
+     IF lNewVendorItemCost THEN 
+     DO:
+       {est/getVendCost.i cas.t-qty cas.cost 1}  
+     END.
+     ELSE 
+     DO:
+       {est/matcost.i cas.t-qty cas.cost 1}
+       cas.cost = (cas.cost * cas.qty) + lv-setup-1.
+     END.    
+     
    END.
 
    ASSIGN
@@ -393,11 +399,16 @@ for each cas where cas.typ eq 5
    FOR EACH xcas WHERE xcas.typ EQ 5 AND xcas.ino EQ cas.ino:
        cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   {est/matcost.i cas.t-qty cas.cost 5}
-
-   cas.cost = (cas.cost * cas.qty) + lv-setup-5.
-
+    IF lNewVendorItemCost THEN 
+    DO:
+      {est/getVendCost.i cas.t-qty cas.cost 5}  
+    END.
+    ELSE 
+    DO: 
+      {est/matcost.i cas.t-qty cas.cost 5}
+      cas.cost = (cas.cost * cas.qty) + lv-setup-5.
+   END.
+   
    ASSIGN
     zzz      = cas.cosm
     /* cosm was set to tot # blanks this item; set to cost now */
@@ -499,11 +510,15 @@ for each cas where cas.typ eq 6
    FOR EACH xcas WHERE xcas.typ EQ 6 AND xcas.ino EQ cas.ino:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   {est/matcost.i cas.t-qty cas.cost 6}
-
-   cas.cost = (cas.cost * cas.qty) + lv-setup-6.
-
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i cas.t-qty cas.cost 6}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i cas.t-qty cas.cost 6}
+      cas.cost = (cas.cost * cas.qty) + lv-setup-6.
+   END.
    ASSIGN
     zzz      = cas.cosm
     /* cosm was set to tot # blanks this item; set to cost now */
@@ -604,11 +619,16 @@ for each cas where cas.typ eq 7
    FOR EACH xcas WHERE xcas.typ EQ 7 AND xcas.ino EQ cas.ino:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   {est/matcost.i cas.t-qty cas.cost 7}
-
-   cas.cost = (cas.cost * cas.qty) + lv-setup-7.
-
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i cas.t-qty cas.cost 7}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i cas.t-qty cas.cost 7}
+      cas.cost = (cas.cost * cas.qty) + lv-setup-7.
+   END.
+   
    ASSIGN
     zzz      = cas.cosm
     /* cosm was set to tot # blanks this item; set to cost now */
@@ -780,9 +800,15 @@ for each cas where cas.typ eq 3
    IF xeb.trNoCharge THEN cas.cost = 0.
    ELSE IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 3}
-
-     cas.cost = (cas.cost * cas.qty) + lv-setup-3.
+     IF lNewVendorItemCost THEN 
+     DO:
+       {est/getVendCost.i cas.t-qty cas.cost 3}  
+     END.
+     ELSE 
+     DO:   
+       {est/matcost.i cas.t-qty cas.cost 3}
+       cas.cost = (cas.cost * cas.qty) + lv-setup-3.
+     END.
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */

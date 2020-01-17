@@ -167,13 +167,13 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Duplicate Tag Locations Report"
+         TITLE              = "Duplicate FG Tag Locations Report"
          HEIGHT             = 13.19
          WIDTH              = 114.4
-         MAX-HEIGHT         = 19.76
-         MAX-WIDTH          = 114.4
-         VIRTUAL-HEIGHT     = 19.76
-         VIRTUAL-WIDTH      = 114.4
+         MAX-HEIGHT         = 32.52
+         MAX-WIDTH          = 273.2
+         VIRTUAL-HEIGHT     = 32.52
+         VIRTUAL-WIDTH      = 273.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -224,7 +224,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Duplicate Tag Locations Report */
+ON END-ERROR OF C-Win /* Duplicate FG Tag Locations Report */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
@@ -238,7 +238,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Duplicate Tag Locations Report */
+ON WINDOW-CLOSE OF C-Win /* Duplicate FG Tag Locations Report */
 DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -433,27 +433,32 @@ SESSION:SET-WAIT-STATE("General").
 
 
     SESSION:SET-WAIT-STATE("").
-    DEFINE VARIABLE iRecs AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iRecs    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotRecs AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDups AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDups    AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
     DO WITH FRAME {&frame-name}:
         ASSIGN fiCsv fiReport tgCsvExport.
     END.
-    ASSIGN fiReport = fnConvertSlash(fiReport)
-           fiCsv    = fnConvertSlash(fiCsv)
-           .
+    
+    ASSIGN 
+        fiReport = fnConvertSlash(fiReport)
+        fiCsv    = fnConvertSlash(fiCsv)
+        .
     OUTPUT stream sRpt to VALUE(fiReport).
     IF tgCsvExport THEN 
         OUTPUT stream sCsv to VALUE(fiCsv).
         
     PAUSE 0 BEFORE-HIDE.
     IF tgCsvExport THEN 
-        EXPORT STREAM sCsv DELIMITER "," "Company" "Item" "Tag" "Loc1" "Bin1" "Qty1" "Loc2" "Bin2" "Qty2".
-    FOR EACH fg-bin NO-LOCK 
-         WHERE fg-bin.tag GT "" USE-INDEX tag.
+        EXPORT STREAM sCsv DELIMITER "," "Company" "FGItem" "Tag" "Loc" "Bin" "Qty".
 
+    FOR EACH  fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ g_company
+          AND fg-bin.tag     GT ""
+        USE-INDEX tag: 
         iRecs = iRecs + 1.
         IF iRecs GT 4999 THEN 
         DO:
@@ -462,42 +467,55 @@ SESSION:SET-WAIT-STATE("General").
             STATUS DEFAULT STRING(iTotRecs).
         END.
   
-        IF fg-bin.qty EQ 0 THEN NEXT.
-  
-        FIND FIRST bf-fg-bin NO-LOCK
-            WHERE bf-fg-bin.company EQ fg-bin.company
-              AND bf-fg-bin.tag     EQ fg-bin.tag
-              AND bf-fg-bin.qty     GT 0
-              AND  (   bf-fg-bin.loc     NE fg-bin.loc 
-                    OR bf-fg-bin.loc-bin NE fg-bin.loc-bin)
-            NO-ERROR.
+        IF fg-bin.qty EQ 0 THEN 
+            NEXT.
 
-        IF AVAILABLE bf-fg-bin THEN 
-        DO:
+        FOR EACH bf-fg-bin NO-LOCK
+            WHERE bf-fg-bin.company   EQ fg-bin.company
+              AND bf-fg-bin.tag       EQ fg-bin.tag
+              AND bf-fg-bin.qty       NE 0
+              AND  (bf-fg-bin.loc     NE fg-bin.loc OR 
+                    bf-fg-bin.loc-bin NE fg-bin.loc-bin)
+              BREAK BY bf-fg-bin.tag:
+        
             iDups = iDups + 1.
+            
+            IF FIRST-OF(bf-fg-bin.tag) THEN
+                DISPLAY STREAM sRpt  
+                    fg-bin.company COLUMN-LABEL "Company"
+                    fg-bin.i-no    COLUMN-LABEL "FGItem" FORMAT "x(22)"
+                    fg-bin.tag     COLUMN-LABEL "Tag"    FORMAT "x(27)"
+                    fg-bin.loc     COLUMN-LABEL "Loc" 
+                    fg-bin.loc-bin COLUMN-LABEL "Bin" 
+                    fg-bin.qty     COLUMN-LABEL "Qty"    FORMAT "->>>>>>,>>9.9<<<<<"
+                    WITH FRAME FirstLine WIDTH 200 STREAM-IO.
+            
             DISPLAY STREAM sRpt 
-                fg-bin.company COLUMN-LABEL "Company"
-                fg-bin.i-no FORMAT "x(22)"
-                fg-bin.tag  FORMAT "x(27)" COLUMN-LABEL "Tag"
-                fg-bin.loc  COLUMN-LABEL "Loc1"
-                fg-bin.loc-bin COLUMN-LABEL "Bin1"
-                fg-bin.qty COLUMN-LABEL "Qty1" FORMAT "->>>>>>,>>9.9<<<<<"
-                bf-fg-bin.loc  COLUMN-LABEL "Loc2"
-                bf-fg-bin.loc-bin COLUMN-LABEL "Bin2"
-                bf-fg-bin.qty COLUMN-LABEL "Qty2" FORMAT "->>>>>>,>>9.9<<<<<"
-                WITH WIDTH 200 STREAM-IO. 
-            IF tgCsvExport THEN
-              EXPORT STREAM sCsv DELIMITER ","  
-                    fg-bin.company       
-                    fg-bin.i-no
-                    fg-bin.tag
-                    fg-bin.loc
-                    fg-bin.loc-bin
-                    fg-bin.qty
-                    bf-fg-bin.loc
-                    bf-fg-bin.loc-bin
-                    bf-fg-bin.qty
-                    .                    
+                 bf-fg-bin.loc     NO-LABEL AT 60 
+                 bf-fg-bin.loc-bin NO-LABEL  
+                 bf-fg-bin.qty     NO-LABEL FORMAT "->>>>>>,>>9.9<<<<<"
+                 WITH FRAME NextLine WIDTH 200 STREAM-IO NO-BOX.
+              
+            IF tgCsvExport THEN DO:
+                IF FIRST-OF(bf-fg-bin.tag) THEN
+                    EXPORT STREAM sCsv DELIMITER ","  
+                           fg-bin.company       
+                           fg-bin.i-no
+                           fg-bin.tag
+                           fg-bin.loc
+                           fg-bin.loc-bin
+                           fg-bin.qty SKIP
+                            . 
+                EXPORT STREAM sCsv DELIMITER "," 
+                     "" /* Company */
+                     "" /* Item no */
+                     "" /* Tag */
+                     bf-fg-bin.loc
+                     bf-fg-bin.loc-bin
+                     bf-fg-bin.qty SKIP
+                     . 
+            END.
+                                   
         END.
     
     END.
@@ -524,27 +542,24 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnConvertSlash C-Win
-FUNCTION fnConvertSlash RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnConvertSlash C-Win 
+FUNCTION fnConvertSlash RETURNS CHARACTER
   ( ipcPath AS CHARACTER ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+                DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
         IF OPSYS EQ "Win32" THEN 
            cResult = REPLACE(ipcPath, "/","\").
         ELSE 
            cResult = REPLACE(ipcPath, "\","/").
-		RETURN cResult.
+                RETURN cResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnDefaultRptName C-Win 
 FUNCTION fnDefaultRptName RETURNS CHARACTER
@@ -559,9 +574,9 @@ FUNCTION fnDefaultRptName RETURNS CHARACTER
         
     CASE ipcType:
         WHEN "Rpt" THEN 
-            cFileName = "DuplicateTagLocations" + cDateAsChar + ".txt".
+            cFileName = "DuplicateFGTagLocations" + cDateAsChar + ".txt".
         WHEN "csv" THEN 
-            cFileName = "DuplicateTagLocations" + cDateAsChar + ".csv".
+            cFileName = "DuplicateFGTagLocations" + cDateAsChar + ".csv".
     END CASE.
         
     RETURN cFileName.

@@ -7,14 +7,14 @@ IF NOT adm-new-record THEN DO:
 
   IF NOT allow-delete THEN RETURN "ADM-ERROR":U.
 
-  &IF INDEX("{custom/delete.i}","{&FIRST-EXTERNAL-TABLE}") NE 0 &THEN
+  &IF LOOKUP("{&FIRST-EXTERNAL-TABLE}","{custom/delete.i}"," ") NE 0 &THEN
   {methods/viewers/delete/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
   
   MESSAGE "Delete Currently Selected Record?"
       VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE response AS LOGICAL.
 
-  &IF INDEX("{custom/deleteSaveValue.i}","{&FIRST-EXTERNAL-TABLE}") NE 0 &THEN
+  &IF LOOKUP("{&FIRST-EXTERNAL-TABLE}","{custom/deleteSaveValue.i}"," ") NE 0 &THEN
   {methods/viewers/delete/{&FIRST-EXTERNAL-TABLE}SaveValue.i}
   &ENDIF
 

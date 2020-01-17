@@ -1,9 +1,9 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-/* Connected Databases
+/* Connected Databases 
 */
 &Scoped-define WINDOW-NAME wEdit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wEdit 
 /*------------------------------------------------------------------------
 
   Name : wEdit.w
@@ -14,9 +14,6 @@
 /*----------------------------------------------------------------------*/
 
 CREATE WIDGET-POOL.
-
-/* ***************************  Definitions  ************************** */
-
 { DataDigger.i }
 
 /* Parameters Definitions ---                                           */
@@ -36,7 +33,6 @@ DEFINE {&outvar} porRepositionId   AS ROWID     NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE gcUniqueFields AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glInEditMode   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ghBackupTable  AS HANDLE    NO-UNDO.
 
 /* This table holds the actual values of the selected records */
@@ -61,7 +57,7 @@ DEFINE TEMP-TABLE ttRecordMapping NO-UNDO
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -76,8 +72,8 @@ DEFINE TEMP-TABLE ttRecordMapping NO-UNDO
 &Scoped-define INTERNAL-TABLES ttColumn
 
 /* Definitions for BROWSE brRecord                                      */
-&Scoped-define FIELDS-IN-QUERY-brRecord ttColumn.lShow ttColumn.iOrder ttColumn.cFullName ttColumn.cLabel ttColumn.cNewValue
-&Scoped-define ENABLED-FIELDS-IN-QUERY-brRecord ttColumn.lShow  ttColumn.cNewValue
+&Scoped-define FIELDS-IN-QUERY-brRecord ttColumn.lShow ttColumn.iOrder ttColumn.cFullName ttColumn.cLabel ttColumn.cNewValue   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-brRecord ttColumn.lShow  ttColumn.cNewValue   
 &Scoped-define ENABLED-TABLES-IN-QUERY-brRecord ttColumn
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brRecord ttColumn
 &Scoped-define SELF-NAME brRecord
@@ -92,8 +88,8 @@ DEFINE TEMP-TABLE ttRecordMapping NO-UNDO
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS brRecord tgSelAll fiNumRecords btnDecrease ~
 btnOk btnClose tgWriteTrigger btnIncrease btnDatePicker btnEditor btnEncode ~
-btnListEdit btnLowerCase btnUpperCase btnWordCase
-&Scoped-Define DISPLAYED-OBJECTS tgSelAll fiNumRecords tgWriteTrigger
+btnListEdit btnLowerCase btnUpperCase btnWordCase 
+&Scoped-Define DISPLAYED-OBJECTS tgSelAll fiNumRecords tgWriteTrigger 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -104,7 +100,7 @@ btnListEdit btnLowerCase btnUpperCase btnWordCase
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD increaseCharValue wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD increaseCharValue wEdit 
 FUNCTION increaseCharValue RETURNS CHARACTER
   ( pcCharValue AS CHARACTER
   , piDelta     AS INTEGER) FORWARD.
@@ -119,68 +115,68 @@ FUNCTION increaseCharValue RETURNS CHARACTER
 DEFINE VAR wEdit AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnClose AUTO-END-KEY
-     LABEL "&Close"
+DEFINE BUTTON btnClose AUTO-END-KEY 
+     LABEL "&Close" 
      SIZE-PIXELS 74 BY 24.
 
 DEFINE BUTTON btnDatePicker  NO-FOCUS FLAT-BUTTON
-     LABEL "Date"
+     LABEL "Date" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "pick a date".
 
 DEFINE BUTTON btnDecrease  NO-FOCUS FLAT-BUTTON
-     LABEL "--"
+     LABEL "--" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "decrease value (CTRL-CURSOR-DOWN)".
 
 DEFINE BUTTON btnEditor  NO-FOCUS FLAT-BUTTON
-     LABEL "Edit"
+     LABEL "Edit" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "view-as editor (F3)".
 
 DEFINE BUTTON btnEncode  NO-FOCUS FLAT-BUTTON
-     LABEL "Enc"
+     LABEL "Enc" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "encode the current value (F11)".
 
 DEFINE BUTTON btnIncrease  NO-FOCUS FLAT-BUTTON
-     LABEL "++"
+     LABEL "++" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "increase value (CTRL-CURSOR-UP)".
 
 DEFINE BUTTON btnListEdit  NO-FOCUS FLAT-BUTTON
-     LABEL "List"
+     LABEL "List" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "edit as list (F12)".
 
 DEFINE BUTTON btnLowerCase  NO-FOCUS FLAT-BUTTON
-     LABEL "abc"
+     LABEL "abc" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "convert to all lower case (SHIFT-DOWN)".
 
-DEFINE BUTTON btnOk
-     LABEL "&Ok"
+DEFINE BUTTON btnOk 
+     LABEL "&Ok" 
      SIZE-PIXELS 74 BY 24 TOOLTIP "confirm changes".
 
 DEFINE BUTTON btnUpperCase  NO-FOCUS FLAT-BUTTON
-     LABEL "ABC"
+     LABEL "ABC" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "convert to all upper case (SHIFT-UP)".
 
 DEFINE BUTTON btnWordCase  NO-FOCUS FLAT-BUTTON
-     LABEL "Abc"
+     LABEL "Abc" 
      SIZE-PIXELS 30 BY 23 TOOLTIP "each word begins with a capital".
 
-DEFINE VARIABLE fiNumRecords AS CHARACTER FORMAT "X(256)":U
-     LABEL "Records"
-     VIEW-AS FILL-IN NATIVE
+DEFINE VARIABLE fiNumRecords AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Records" 
+     VIEW-AS FILL-IN NATIVE 
      SIZE-PIXELS 50 BY 21 NO-UNDO.
 
-DEFINE VARIABLE tgSelAll AS LOGICAL INITIAL YES
-     LABEL ""
+DEFINE VARIABLE tgSelAll AS LOGICAL INITIAL yes 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE-PIXELS 15 BY 15 TOOLTIP "toggle selection for all records" NO-UNDO.
 
-DEFINE VARIABLE tgWriteTrigger AS LOGICAL INITIAL YES
-     LABEL "Use &write trigger"
+DEFINE VARIABLE tgWriteTrigger AS LOGICAL INITIAL yes 
+     LABEL "Use &write trigger" 
      VIEW-AS TOGGLE-BOX
      SIZE-PIXELS 136 BY 17 TOOLTIP "Enable write triggers or not" NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY brRecord FOR
+DEFINE QUERY brRecord FOR 
       ttColumn SCROLLING.
 &ANALYZE-RESUME
 
@@ -221,9 +217,9 @@ DEFINE FRAME frMain
      btnLowerCase AT Y 0 X 120 WIDGET-ID 20
      btnUpperCase AT Y 0 X 90 WIDGET-ID 18
      btnWordCase AT Y 0 X 150 WIDGET-ID 22
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY
-         SIDE-LABELS NO-UNDERLINE THREE-D
-         AT COL 1 ROW 1 SCROLLABLE
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
          CANCEL-BUTTON btnClose WIDGET-ID 100.
 
 
@@ -250,15 +246,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH-P        = 1600
          VIRTUAL-HEIGHT-P   = 2079
          VIRTUAL-WIDTH-P    = 1600
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -273,27 +269,27 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME frMain
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB brRecord 1 frMain */
-ASSIGN
+ASSIGN 
        FRAME frMain:SCROLLABLE       = FALSE
        FRAME frMain:RESIZABLE        = TRUE.
 
-ASSIGN
+ASSIGN 
        brRecord:COLUMN-RESIZABLE IN FRAME frMain       = TRUE.
 
-ASSIGN
+ASSIGN 
        btnEditor:HIDDEN IN FRAME frMain           = TRUE.
 
-ASSIGN
+ASSIGN 
        btnEncode:HIDDEN IN FRAME frMain           = TRUE.
 
-ASSIGN
+ASSIGN 
        btnListEdit:HIDDEN IN FRAME frMain           = TRUE.
 
-ASSIGN
+ASSIGN 
        fiNumRecords:READ-ONLY IN FRAME frMain        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wEdit)
-THEN wEdit:HIDDEN = YES.
+THEN wEdit:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -310,7 +306,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttColumn.
 */  /* BROWSE brRecord */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -757,7 +753,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK wEdit 
 
 
 /* ***************************  Main Block  *************************** */
@@ -888,7 +884,6 @@ ON "leave" OF ttColumn.cNewValue IN BROWSE brRecord
 DO:
   DO WITH FRAME {&FRAME-NAME}:
     brRecord:TOOLTIP = "fields to edit".
-/*     ttColumn.cNewValue = ttColumn.cOldValue. */
     RUN enableToolbar("").
   END.
 END. /* leave cNewValue */
@@ -955,7 +950,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnGoChoose wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnGoChoose wEdit 
 PROCEDURE btnGoChoose :
 /*
  * Apply changes to all selected records
@@ -1093,7 +1088,7 @@ PROCEDURE btnGoChoose :
                                     ) ).
 
             /* 1=yes 2=no 3=yes-all 4=cancel */
-            CASE getRegistry('DataDigger:help', 'DataChanged:answer'):
+            CASE getRegistry('DataDigger:Help', 'DataChanged:answer'):
               WHEN '2' THEN NEXT #RecordLoop. /* no */
               WHEN '4' THEN UNDO #CommitLoop, LEAVE #CommitLoop. /* cancel */
             END CASE.
@@ -1112,6 +1107,13 @@ PROCEDURE btnGoChoose :
 
         FOR EACH bColumn WHERE bColumn.lShow = TRUE
           ON ERROR UNDO #CommitLoop, LEAVE #CommitLoop:
+
+          FIND bField WHERE bField.cFieldName = bColumn.cFieldName NO-ERROR.
+
+          /* Check for unknown value in mandatory field */
+          IF (bColumn.cNewValue = '' OR bColumn.cNewValue = ?) AND bField.cDataType <> 'CHARACTER' THEN 
+            bColumn.cNewValue = bField.cInitial.
+
           /* 2016-08-08 richardk large decimal values are not correctly casted from string,
            * last two digits of a 23 digit decimal are always zero */
           CASE hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):DATA-TYPE:
@@ -1121,17 +1123,15 @@ PROCEDURE btnGoChoose :
             DO:
               lCommit = YES.
 
-              FIND bField WHERE bField.cFieldName = bColumn.cFieldName NO-ERROR.
-              IF   AVAILABLE bField
-               AND bField.cFormat BEGINS "x(" THEN
+              IF bField.cFormat BEGINS "x(" THEN
               DO:
                 cRealOldValue = hSourceBuffer:BUFFER-FIELD(bColumn.cFieldName):BUFFER-VALUE(bColumn.iExtent).
                 iFormatLength = INTEGER(ENTRY(1, ENTRY(2, bField.cFormat, "("), ")")) NO-ERROR.
 
                 IF   iFormatLength <> ?
                  AND iFormatLength > 0
-                 AND length(cRealOldValue) > iFormatLength
-                 AND length(bColumn.cNewValue) = {&field-maxLength}   /* Betekent dat ie afgekapt is */
+                 AND LENGTH(cRealOldValue) > iFormatLength
+                 AND LENGTH(bColumn.cNewValue) = {&field-maxLength}   /* Betekent dat ie afgekapt is */
                 THEN
                   lCommit = NO.
               END.
@@ -1174,7 +1174,7 @@ END PROCEDURE. /* btnGoChoose */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnLowerCaseChoose wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnLowerCaseChoose wEdit 
 PROCEDURE btnLowerCaseChoose :
 /*
  * Make the string LOWER case
@@ -1190,7 +1190,7 @@ END PROCEDURE. /* btnLowerCaseChoose */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnUpperCaseChoose wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnUpperCaseChoose wEdit 
 PROCEDURE btnUpperCaseChoose :
 /*
  * Make the string UPPER case
@@ -1212,7 +1212,7 @@ PROCEDURE disable_UI :
   Purpose:     DISABLE the User Interface
   Parameters:  <none>
   Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide
+               dynamic widgets we have created and/or hide 
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
@@ -1225,7 +1225,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enableToolbar wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enableToolbar wEdit 
 PROCEDURE enableToolbar :
 /*
  * Enable/disable buttons on the toolbar
@@ -1257,14 +1257,14 @@ PROCEDURE enable_UI :
   Notes:       Here we display/view/enable the widgets in the
                user-interface.  In addition, OPEN all queries
                associated with each FRAME and BROWSE.
-               These statements here are based on the "Other
+               These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tgSelAll fiNumRecords tgWriteTrigger
+  DISPLAY tgSelAll fiNumRecords tgWriteTrigger 
       WITH FRAME frMain IN WINDOW wEdit.
-  ENABLE brRecord tgSelAll fiNumRecords btnDecrease btnOk btnClose
-         tgWriteTrigger btnIncrease btnDatePicker btnEditor btnEncode
-         btnListEdit btnLowerCase btnUpperCase btnWordCase
+  ENABLE brRecord tgSelAll fiNumRecords btnDecrease btnOk btnClose 
+         tgWriteTrigger btnIncrease btnDatePicker btnEditor btnEncode 
+         btnListEdit btnLowerCase btnUpperCase btnWordCase 
       WITH FRAME frMain IN WINDOW wEdit.
   {&OPEN-BROWSERS-IN-QUERY-frMain}
 END PROCEDURE.
@@ -1272,7 +1272,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getDataValues wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getDataValues wEdit 
 PROCEDURE getDataValues :
 /*
  * Collect all values in the selected records
@@ -1313,7 +1313,7 @@ END PROCEDURE. /* getDataValues */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getOriginalData wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getOriginalData wEdit 
 PROCEDURE getOriginalData :
 /*
  * Get the original data from the database so we
@@ -1354,7 +1354,7 @@ END PROCEDURE. /* getOriginalData */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE increaseValue wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE increaseValue wEdit 
 PROCEDURE increaseValue :
 /*
    * Try to increase the value of ttColumn.cNewValue
@@ -1411,7 +1411,7 @@ END PROCEDURE. /* increaseValue */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wEdit 
 PROCEDURE initializeObject :
 /* Setup
   */
@@ -1503,7 +1503,7 @@ PROCEDURE initializeObject :
       IF bField.cDatatype = 'character' THEN
       DO:
         IF NUM-ENTRIES(bField.cFormat,'(') > 1 THEN
-          iFieldLength = INTEGER(TRIM(bField.cFormat,'X()')) NO-ERROR.
+          iFieldLength = INTEGER(TRIM(bField.cFormat,'9X()')) NO-ERROR.
         ELSE
           iFieldLength = LENGTH(bField.cFormat).
 
@@ -1606,6 +1606,8 @@ PROCEDURE initializeObject :
 
   RUN reopenFieldBrowse(?,?).
 
+  /* Treat -RO database the same as read-only mode */
+  IF CAN-DO(DBRESTRICTIONS(picDatabase), "READ-ONLY") = YES THEN plReadOnlyDigger = TRUE.
   IF plReadOnlyDigger THEN btnOk:SENSITIVE = FALSE.
 
   /* Start listener to table changes in main window */
@@ -1616,7 +1618,7 @@ END PROCEDURE. /* initializeObject */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopenFieldBrowse wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopenFieldBrowse wEdit 
 PROCEDURE reopenFieldBrowse :
 /*
  * Open the field browse again, taking into account the
@@ -1700,7 +1702,7 @@ END PROCEDURE. /* reopenFieldBrowse */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tableChange wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tableChange wEdit 
 PROCEDURE tableChange :
 /*
  * Event handler for 'TableChange' event of main window
@@ -1718,7 +1720,7 @@ END PROCEDURE. /* tableChange */
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION increaseCharValue wEdit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION increaseCharValue wEdit 
 FUNCTION increaseCharValue RETURNS CHARACTER
   ( pcCharValue AS CHARACTER
   , piDelta     AS INTEGER):

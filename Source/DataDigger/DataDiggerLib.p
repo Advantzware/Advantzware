@@ -9,6 +9,8 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+DEFINE VARIABLE gcSaveDatabaseList  AS CHARACTER  NO-UNDO.  
+DEFINE VARIABLE giDataserverNr      AS INTEGER    NO-UNDO.  /* [JAG 01-11-2019] */
 
 /* Buildnr, temp-tables and forward defs */
 { DataDigger.i }
@@ -17,7 +19,7 @@ PROCEDURE GetUserNameA EXTERNAL "ADVAPI32.DLL":
   DEFINE INPUT        PARAMETER mUserId       AS MEMPTR NO-UNDO.
   DEFINE INPUT-OUTPUT PARAMETER intBufferSize AS LONG NO-UNDO.
   DEFINE RETURN       PARAMETER intResult     AS SHORT NO-UNDO.
-END PROCEDURE.
+END PROCEDURE. 
 
 /* Detect bitness of running Progress version
  * See Progress kb #54631
@@ -25,18 +27,18 @@ END PROCEDURE.
 &IF PROVERSION <= '8' &THEN  /* OE 10+ */
   &IF PROVERSION >= '11.3' &THEN   /* PROCESS-ARCHITECTURE function is available */
     &IF PROCESS-ARCHITECTURE = 32 &THEN /* 32-bit pointers */
-      &GLOBAL-DEFINE POINTERTYPE 'LONG'
+      &GLOBAL-DEFINE POINTERTYPE LONG
       &GLOBAL-DEFINE POINTERBYTES 4
     &ELSEIF PROCESS-ARCHITECTURE = 64 &THEN /* 64-bit pointers */
-      &GLOBAL-DEFINE POINTERTYPE 'INT64'
+      &GLOBAL-DEFINE POINTERTYPE INT64
       &GLOBAL-DEFINE POINTERBYTES 8
     &ENDIF  /* PROCESS-ARCHITECTURE */
   &ELSE   /* Can't check architecture pre-11.3 so default to 32-bit */
-    &GLOBAL-DEFINE POINTERTYPE 'LONG'
+    &GLOBAL-DEFINE POINTERTYPE LONG
     &GLOBAL-DEFINE POINTERBYTES 4
   &ENDIF  /* PROVERSION > 11.3 */
 &ELSE   /* pre-OE10 always 32-bit on Windows */
-  &GLOBAL-DEFINE POINTERTYPE 'LONG'
+  &GLOBAL-DEFINE POINTERTYPE LONG
   &GLOBAL-DEFINE POINTERBYTES 4
 &ENDIF  /* PROVERSION < 8 */
 
@@ -85,14 +87,15 @@ PROCEDURE GetParent EXTERNAL "user32.dll" :
   DEFINE RETURN PARAMETER hwndParent AS LONG.
 END PROCEDURE.
 
-PROCEDURE GetCursorPos EXTERNAL "user32.dll" :
-  DEFINE INPUT-OUTPUT PARAMETER lRect AS MEMPTR.
-END.
+PROCEDURE GetCursorPos EXTERNAL "user32":
+  DEFINE INPUT  PARAMETER  lpPoint     AS {&POINTERTYPE}. /* memptr */
+  DEFINE RETURN PARAMETER  ReturnValue AS LONG.
+END PROCEDURE.
 
 PROCEDURE GetSysColor EXTERNAL "user32.dll":
   DEFINE INPUT PARAMETER nDspElement AS LONG.
   DEFINE RETURN PARAMETER COLORREF AS LONG.
-END.
+END PROCEDURE.
 
 PROCEDURE ScreenToClient EXTERNAL "user32.dll" :
   DEFINE INPUT  PARAMETER hWnd     AS LONG.
@@ -105,7 +108,7 @@ PROCEDURE SetWindowLongA EXTERNAL "user32.dll":
   DEFINE INPUT PARAMETER nIndex AS LONG.
   DEFINE INPUT PARAMETER dwNewLong AS LONG.
   DEFINE RETURN PARAMETER stat AS LONG.
-END.
+END PROCEDURE.
 
 PROCEDURE SetLayeredWindowAttributes EXTERNAL "user32.dll":
   DEFINE INPUT PARAMETER HWND AS LONG.
@@ -113,7 +116,7 @@ PROCEDURE SetLayeredWindowAttributes EXTERNAL "user32.dll":
   DEFINE INPUT PARAMETER bAlpha AS SHORT.
   DEFINE INPUT PARAMETER dwFlagsas AS LONG.
   DEFINE RETURN PARAMETER stat AS SHORT.
-END.
+END PROCEDURE.
 
 
 /* Find out if a file is locked */
@@ -222,6 +225,20 @@ FUNCTION getColor RETURNS INTEGER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getColorByRGB) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getColorByRGB Procedure 
+FUNCTION getColorByRGB RETURNS INTEGER
+  ( piRed   AS INTEGER
+  , piGreen AS INTEGER
+  , piBlue  AS INTEGER
+  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getColumnLabel) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getColumnLabel Procedure 
@@ -232,6 +249,646 @@ FUNCTION getColumnLabel RETURNS CHARACTER
 &ANALYZE-RESUME
 
 &ENDIF
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
+FUNCTION addConnection RETURNS LOGICAL
+  ( pcDatabase AS CHARACTER
+  , pcSection  AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &IF DEFINED(EXCLUDE-getColumnWidthList) = 0 &THEN
 
@@ -422,6 +1079,18 @@ FUNCTION getRegistry RETURNS CHARACTER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getSchemaHolder) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getSchemaHolder Procedure 
+FUNCTION getSchemaHolder RETURNS CHARACTER
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getStackSize) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getStackSize Procedure 
@@ -436,8 +1105,8 @@ FUNCTION getStackSize RETURNS INTEGER() FORWARD.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTableDesc Procedure 
 FUNCTION getTableDesc RETURNS CHARACTER
-  ( INPUT  pcDatabase AS CHARACTER
-  , INPUT  pcTable    AS CHARACTER
+  ( INPUT pcDatabase AS CHARACTER
+  , INPUT pcTable    AS CHARACTER
   )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,6 +1189,18 @@ FUNCTION getXmlNodeName RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isBrowseChanged Procedure 
 FUNCTION isBrowseChanged RETURNS LOGICAL
   ( INPUT phBrowse AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-isDataServer) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isDataServer Procedure 
+FUNCTION isDataServer RETURNS LOGICAL
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -705,7 +1386,7 @@ FUNCTION setRegistry RETURNS CHARACTER
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 34.38
+         HEIGHT             = 24.91
          WIDTH              = 53.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -858,7 +1539,7 @@ PROCEDURE checkDir :
   FILE-INFO:FILE-NAME = cDumpDir.
   IF TRIM(FILE-INFO:FULL-PATHNAME,'\/') = TRIM(getProgramDir(),"/\") THEN
   DO:
-    pcError = getRegistry('DataDigger:help', 'ExportToProgramdir:message').
+    pcError = getRegistry('DataDigger:Help', 'ExportToProgramdir:message').
     RETURN.
   END.
 
@@ -873,12 +1554,12 @@ PROCEDURE checkDir :
     IF FILE-INFO:FILE-TYPE MATCHES '*F*' THEN
     DO:
       RUN showHelp('OverwriteDumpFile', pcFileName).
-      IF getRegistry('DataDigger:help', 'OverwriteDumpFile:answer') <> '1' THEN
+      IF getRegistry('DataDigger:Help', 'OverwriteDumpFile:answer') <> '1' THEN
       DO:
         /* Do not remember the answer "No" for this question, otherwise it will be
          * confusing the next time the user encounters this situation
          */
-        setRegistry('DataDigger:help', 'OverwriteDumpFile:answer',?).
+        setRegistry('DataDigger:Help', 'OverwriteDumpFile:answer',?).
         pcError = 'Aborted by user.'.
         RETURN.
       END.
@@ -905,7 +1586,7 @@ PROCEDURE checkDir :
     AND FILE-INFO:FULL-PATHNAME = ? THEN
   DO:
     RUN showHelp('CreateDumpDir', cDumpDir).
-    IF getRegistry('DataDigger:help', 'CreateDumpDir:answer') <> '1' THEN
+    IF getRegistry('DataDigger:Help', 'CreateDumpDir:answer') <> '1' THEN
     DO:
       pcError = 'Aborted by user.'.
       RETURN.
@@ -1146,8 +1827,10 @@ PROCEDURE correctFilterList :
     END.
 
     /* Remove empty elements */
-    pcPositive = REPLACE(pcPositive,',,',',').
     pcPositive = TRIM(pcPositive,',').
+    REPEAT WHILE INDEX(pcPositive,',,') > 0:
+      pcPositive = REPLACE(pcPositive,',,',',').
+    END.
   END.
 
 END PROCEDURE. /* correctFilterList */
@@ -1914,7 +2597,7 @@ PROCEDURE getFields :
       bField.cFullName     = bField.cFieldName
       bField.cDataType     = 'character'
       bField.cInitial      = ''
-      bField.cFormat       = ENTRY(i,"X(14),X(30)")
+      bField.cFormat       = ENTRY(i,"X(20),X(24)")
       bField.cFormatOrg    = bField.cFormat
       bField.cLabel        = bField.cFieldName
       bField.lPrimary      = NO
@@ -1977,18 +2660,20 @@ END PROCEDURE. /* getFields */
 PROCEDURE getMouseXY :
 /* Get the position of the mouse relative to the frame
   */
-  DEFINE INPUT  PARAMETER phFrame AS HANDLE      NO-UNDO.
-  DEFINE OUTPUT PARAMETER piMouseX AS INTEGER     NO-UNDO.
-  DEFINE OUTPUT PARAMETER piMouseY AS INTEGER     NO-UNDO.
+  DEFINE INPUT  PARAMETER phFrame  AS HANDLE  NO-UNDO.
+  DEFINE OUTPUT PARAMETER piMouseX AS INTEGER NO-UNDO.
+  DEFINE OUTPUT PARAMETER piMouseY AS INTEGER NO-UNDO.
 
-  DEFINE VARIABLE lp AS MEMPTR  NO-UNDO.
+  DEFINE VARIABLE lp   AS MEMPTR NO-UNDO.
+  {&_proparse_prolint-nowarn(varusage)}
+  DEFINE VARIABLE iRet AS INT64  NO-UNDO.
 
   SET-SIZE( LP ) = 16.
-  RUN GetCursorPos( INPUT-OUTPUT lp).
 
-  /* Get the location of the mouse relative to the frame */
+  {&_proparse_prolint-nowarn(varusage)}
+  RUN GetCursorPos(INPUT GET-POINTER-VALUE(lp), OUTPUT iRet).
+
   RUN ScreenToClient ( INPUT phFrame:HWND, INPUT lp ).
-
   piMouseX = GET-LONG( lp, 1 ).
   piMouseY = GET-LONG( lp, 5 ).
   SET-SIZE( LP ) = 0.
@@ -2042,18 +2727,31 @@ PROCEDURE getTables :
   DEFINE INPUT PARAMETER TABLE FOR ttTableFilter.
   DEFINE OUTPUT PARAMETER TABLE FOR ttTable.
 
-  DEFINE VARIABLE cCacheFile      AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE hDbBuffer       AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE hDbStatusBuffer AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE hQuery          AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE hDbQuery        AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE iDatabase       AS INTEGER     NO-UNDO.
-
+  DEFINE VARIABLE cCacheFile       AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE hDbBuffer        AS HANDLE     NO-UNDO.
+  DEFINE VARIABLE hDbStatusBuffer  AS HANDLE     NO-UNDO.
+  DEFINE VARIABLE hDbQuery         AS HANDLE     NO-UNDO.
+  DEFINE VARIABLE iDatabase        AS INTEGER    NO-UNDO.
+  DEFINE VARIABLE cCacheTimeStamp  AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE cCacheDir        AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE cSchemaCacheFile AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE cOneCacheFile    AS CHARACTER  NO-UNDO.
+  
+  DEFINE BUFFER bTable    FOR ttTable.
+  DEFINE BUFFER bTableXml FOR ttTableXml.
+  
   {&timerStart}
-
+  
+  /* Dataserver support can be for:
+   *
+   * V9:   "PROGRESS,AS400,ORACLE,MSS,ODBC"
+   * V10:  "PROGRESS,ORACLE,MSS,ODBC"        (from V10 no native support for AS400)
+   * V11:  "PROGRESS,ORACLE,MSS,ODBC"
+   * V12:  "PROGRESS,ORACLE,MSS"             (from V12 no ODBC support anymore)
+   *
+   */
   EMPTY TEMP-TABLE ttTable.
   CREATE WIDGET-POOL "metaInfo".
-  CREATE QUERY hQuery IN WIDGET-POOL "metaInfo".
 
   #Database:
   DO iDatabase = 1 TO NUM-DBS:
@@ -2064,20 +2762,35 @@ PROCEDURE getTables :
     DO:
       CREATE BUFFER hDbStatusBuffer FOR TABLE LDBNAME(iDatabase) + "._DbStatus" IN WIDGET-POOL "metaInfo".
       hDbStatusBuffer:FIND-FIRST("",NO-LOCK).
-      cCacheFile = SUBSTITUTE("&1cache\db.&2.&3.xml"
-                            , getWorkFolder()
-                            , LDBNAME(iDatabase)
-                            , REPLACE(REPLACE(hDbStatusBuffer::_dbstatus-cachestamp," ","_"),":","")
-                            ).
+      
+      ASSIGN 
+        cCacheTimeStamp = REPLACE(REPLACE(hDbStatusBuffer::_dbstatus-cachestamp," ","_"),":","")
+        cCacheFile = SUBSTITUTE("&1cache\db.&2.&3.xml", getWorkFolder(), LDBNAME(iDatabase), cCacheTimeStamp ).
+        
       DELETE OBJECT hDbStatusBuffer.
     END.
 
     /* If caching enabled and there is a cache file, read it */
-    IF glCacheTableDefs
-      AND SEARCH(cCacheFile) <> ? THEN
+    IF glCacheTableDefs AND SEARCH(cCacheFile) <> ? THEN
     DO:
       PUBLISH "debugInfo" (3, SUBSTITUTE("Get table list from cache file &1", cCacheFile)).
       TEMP-TABLE ttTable:READ-XML("file", cCacheFile, "APPEND", ?, ?, ?, ?).
+      
+      cCacheDir = SUBSTITUTE( "&1cache", getWorkFolder() ).
+      INPUT FROM OS-DIR(cCacheDir).
+      #ReadSchemaCache:
+      REPEAT:
+        IMPORT cSchemaCacheFile.
+        
+        IF cSchemaCacheFile BEGINS SUBSTITUTE("db.&1;", LDBNAME(iDatabase))
+         AND ENTRY(NUM-ENTRIES(cSchemaCacheFile, ".") - 1, cSchemaCacheFile, ".") = ENTRY (NUM-ENTRIES(cCacheFile, ".") - 1, cCacheFile, ".")  /* Check timestamp */
+        THEN
+        DO:
+          cOneCacheFile = SUBSTITUTE( "&1\&2", cCacheDir, cSchemaCacheFile).
+          TEMP-TABLE ttTable:READ-XML("file", cOneCacheFile, "APPEND", ?, ?, ?, ?).
+        END.
+      END.
+      INPUT CLOSE.
     END.
 
     /* Otherwise build it */
@@ -2104,10 +2817,10 @@ PROCEDURE getTables :
           hDbQuery:GET-NEXT().
           IF hDbQuery:QUERY-OFF-END THEN LEAVE #DB.
 
-          FOR EACH ttTable
-            WHERE ttTable.cDatabase = (IF hDbBuffer::_Db-slave THEN hDbBuffer::_Db-name ELSE LDBNAME(iDatabase)):
-            CREATE ttTableXml.
-            BUFFER-COPY ttTable TO ttTableXml.
+          FOR EACH bTable
+            WHERE bTable.cDatabase = (IF hDbBuffer::_Db-slave THEN hDbBuffer::_Db-name ELSE LDBNAME(iDatabase)):
+            CREATE bTableXml.
+            BUFFER-COPY bTable TO bTableXml.
           END.
         END.
 
@@ -2117,7 +2830,34 @@ PROCEDURE getTables :
 
         TEMP-TABLE ttTableXml:WRITE-XML("file", cCacheFile, YES, ?, ?, NO, NO).
         EMPTY TEMP-TABLE ttTableXml.
-      END.
+        
+        /* Support Dataservers */
+        FOR EACH bTable 
+          WHERE bTable.cSchemaHolder = LDBNAME(iDatabase)
+          BREAK BY bTable.cDatabase
+                BY bTable.cTableName:
+                  
+          IF FIRST-OF(bTable.cDatabase) THEN
+          DO:
+            cCacheFile  = SUBSTITUTE( "&1cache\db.&2;&3.&4.xml"
+                                    , getWorkFolder()
+                                    , LDBNAME(iDatabase)
+                                    , bTable.cDatabase
+                                    , cCacheTimeStamp
+                                    ).
+            EMPTY TEMP-TABLE bTableXml.
+          END.            
+
+          CREATE bTableXml.
+          BUFFER-COPY bTable TO bTableXml.
+            
+          IF LAST-OF(bTable.cDatabase) THEN
+          DO:
+            TEMP-TABLE bTableXml:WRITE-XML("file", cCacheFile, YES, ?, ?, NO, NO).
+            EMPTY TEMP-TABLE bTableXml.
+          END. /* IF LAST-OF */
+        END. /* FOR EACH bTable */
+      END. /* IF glCacheTableDefs THEN */
     END. /* tt empty */
   END. /* 1 to num-dbs */
 
@@ -2278,7 +3018,7 @@ PROCEDURE getTablesFiltered :
   END. /* for each ttTable */
 
   {&timerStop}
-END PROCEDURE. /* getTablesWithFields */
+END PROCEDURE. /* getTablesFiltered */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2444,6 +3184,7 @@ PROCEDURE lockWindow :
   DEFINE INPUT PARAMETER phWindow AS HANDLE  NO-UNDO.
   DEFINE INPUT PARAMETER plLock   AS LOGICAL NO-UNDO.
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE iRet AS INTEGER NO-UNDO.
   DEFINE BUFFER ttWindowLock FOR ttWindowLock.
 
@@ -2487,6 +3228,7 @@ PROCEDURE lockWindow :
   /* Now, only lock when the semaphore is increased to 1 */
   IF plLock AND ttWindowLock.iLockCounter = 1 THEN
   DO:
+    {&_proparse_prolint-nowarn(varusage)}
     RUN SendMessageA( phWindow:HWND /* {&window-name}:hwnd */
                     , {&WM_SETREDRAW}
                     , 0
@@ -2498,6 +3240,7 @@ PROCEDURE lockWindow :
   /* And only unlock after the last unlock command */
   ELSE IF ttWindowLock.iLockCounter <= 0 THEN
   DO:
+    {&_proparse_prolint-nowarn(varusage)}
     RUN SendMessageA( phWindow:HWND /* {&window-name}:hwnd */
                     , {&WM_SETREDRAW}
                     , 1
@@ -2505,6 +3248,7 @@ PROCEDURE lockWindow :
                     , OUTPUT iRet
                     ).
 
+    {&_proparse_prolint-nowarn(varusage)}
     RUN RedrawWindow( phWindow:HWND /* {&window-name}:hwnd */
                     , 0
                     , 0
@@ -2610,7 +3354,7 @@ PROCEDURE resetAnswers :
   DEFINE BUFFER bfConfig FOR ttConfig.
 
   FOR EACH bfConfig
-    WHERE bfConfig.cSection = 'DataDigger:help'
+    WHERE bfConfig.cSection = 'DataDigger:Help'
       AND (bfConfig.cSetting MATCHES '*:hidden' OR bfConfig.cSetting MATCHES '*:answer'):
     setRegistry(bfConfig.cSection, bfConfig.cSetting, ?).
   END. /* for each bfConfig */
@@ -2739,7 +3483,7 @@ PROCEDURE resizeFilterFields :
   END.
   PUBLISH "DD:Timer" ("stop", "resizeFilterFields:#Field").
 
-  /* Finally, set the lead button to the utmost left */
+  /* Place lead-button at the utmost left */
   IF VALID-HANDLE(phLeadButton) THEN
     ASSIGN
       phLeadButton:X = phBrowse:X
@@ -3090,12 +3834,15 @@ PROCEDURE setTransparency :
   &SCOPED-DEFINE LWA_ALPHA           2
   &SCOPED-DEFINE WS_EX_TRANSPARENT   32
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE stat AS INTEGER    NO-UNDO.
 
   /* Set WS_EX_LAYERED on this window  */
+  {&_proparse_prolint-nowarn(varusage)}
   RUN SetWindowLongA(phFrame:HWND, {&GWL_EXSTYLE}, {&WS_EX_LAYERED}, OUTPUT stat).
 
   /* Make this window transparent (0 - 255) */
+  {&_proparse_prolint-nowarn(varusage)}
   RUN SetLayeredWindowAttributes(phFrame:HWND, 0, piLevel, {&LWA_ALPHA}, OUTPUT stat).
 
 END PROCEDURE. /* setTransparency */
@@ -3175,12 +3922,12 @@ PROCEDURE showHelp :
   DEFINE VARIABLE cUserString    AS CHARACTER   NO-UNDO EXTENT 9.
 
   /* If no message, then just return */
-  cMessage = getRegistry('DataDigger:help', pcTopic + ':message').
+  cMessage = getRegistry('DataDigger:Help', pcTopic + ':message').
 
   /* What to start? */
-  cUrl = getRegistry('DataDigger:help', pcTopic + ':url').
-  cPrg = getRegistry('DataDigger:help', pcTopic + ':program').
-  cCanHide = getRegistry('DataDigger:help', pcTopic + ':canHide').
+  cUrl = getRegistry('DataDigger:Help', pcTopic + ':url').
+  cPrg = getRegistry('DataDigger:Help', pcTopic + ':program').
+  cCanHide = getRegistry('DataDigger:Help', pcTopic + ':canHide').
   cCanHide = TRIM(cCanHide).
   lCanHide = LOGICAL(cCanHide) NO-ERROR.
   IF lCanHide = ? THEN lCanHide = TRUE.
@@ -3193,23 +3940,23 @@ PROCEDURE showHelp :
   END.
 
   /* If type is unknown, set to QUESTION if there is a question mark in the message */
-  cType    = getRegistry('DataDigger:help', pcTopic + ':type').
+  cType    = getRegistry('DataDigger:Help', pcTopic + ':type').
   IF cType = ? THEN cType = (IF cMessage MATCHES '*?*' THEN 'Question' ELSE 'Message').
 
   /* If no button labels defined, set them based on message type */
-  cButtons = getRegistry('DataDigger:help', pcTopic + ':buttons').
+  cButtons = getRegistry('DataDigger:Help', pcTopic + ':buttons').
   IF cButtons = ? THEN cButtons = (IF cType = 'Question' THEN '&Yes,&No,&Cancel' ELSE '&Ok').
 
   /* If title is empty, set it to the type of the message */
-  cTitle   = getRegistry('DataDigger:help', pcTopic + ':title').
+  cTitle   = getRegistry('DataDigger:Help', pcTopic + ':title').
   IF cTitle = ? THEN cTitle = cType.
 
   /* If hidden has strange value, set it to NO */
-  lHidden = LOGICAL(getRegistry('DataDigger:help', pcTopic + ':hidden')) NO-ERROR.
+  lHidden = LOGICAL(getRegistry('DataDigger:Help', pcTopic + ':hidden')) NO-ERROR.
   IF lHidden = ? THEN lHidden = NO.
 
   /* If ButtonPressed has strange value, set hidden to NO */
-  iButtonPressed = INTEGER( getRegistry('DataDigger:help',pcTopic + ':answer') ) NO-ERROR.
+  iButtonPressed = INTEGER( getRegistry('DataDigger:Help',pcTopic + ':answer') ) NO-ERROR.
   IF iButtonPressed = ? THEN lHidden = NO.
 
   /* if we have no message, but we do have an URL or prog, then
@@ -3250,7 +3997,7 @@ PROCEDURE showHelp :
       ).
 
     IF lDontShowAgain THEN
-      setRegistry('DataDigger:help', pcTopic + ':hidden', 'yes').
+      setRegistry('DataDigger:Help', pcTopic + ':hidden', 'yes').
   END.
 
   /* Start external things if needed */
@@ -3261,7 +4008,7 @@ PROCEDURE showHelp :
   END.
 
   /* Save answer */
-  setRegistry('DataDigger:help',pcTopic + ':answer', STRING(iButtonPressed)).
+  setRegistry('DataDigger:Help',pcTopic + ':answer', STRING(iButtonPressed)).
 
 END PROCEDURE. /* showHelp */
 
@@ -3280,6 +4027,7 @@ PROCEDURE showScrollbars :
   DEFINE INPUT PARAMETER ip-horizontal AS LOGICAL NO-UNDO.
   DEFINE INPUT PARAMETER ip-vertical   AS LOGICAL NO-UNDO.
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE iv-retint AS INTEGER NO-UNDO.
 
   {&timerStart}
@@ -3291,15 +4039,18 @@ PROCEDURE showScrollbars :
   &scoped-define SB_BOTH 3
   &scoped-define SB_THUMBPOSITION 4
 
+  {&_proparse_prolint-nowarn(varusage)}
   RUN ShowScrollBar ( ip-Frame:HWND,
                       {&SB_HORZ},
                       IF ip-horizontal THEN -1 ELSE 0,
                       OUTPUT iv-retint ).
 
+  {&_proparse_prolint-nowarn(varusage)}
   RUN ShowScrollBar ( ip-Frame:HWND,
                       {&SB_VERT},
                       IF ip-vertical  THEN -1 ELSE 0,
                       OUTPUT iv-retint ).
+
   &undefine SB_HORZ
   &undefine SB_VERT
   &undefine SB_BOTH
@@ -3321,6 +4072,7 @@ PROCEDURE unlockWindow :
   */
   DEFINE INPUT PARAMETER phWindow AS HANDLE  NO-UNDO.
 
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE iRet AS INTEGER NO-UNDO.
   DEFINE BUFFER ttWindowLock FOR ttWindowLock.
 
@@ -3332,8 +4084,12 @@ PROCEDURE unlockWindow :
 
   IF ttWindowLock.iLockCounter > 0 THEN
   DO:
+    {&_proparse_prolint-nowarn(varusage)}
     RUN SendMessageA(phWindow:HWND, {&WM_SETREDRAW}, 1, 0, OUTPUT iRet).
+
+    {&_proparse_prolint-nowarn(varusage)}
     RUN RedrawWindow(phWindow:HWND, 0, 0, {&RDW_ALLCHILDREN} + {&RDW_ERASE} + {&RDW_INVALIDATE}, OUTPUT iRet).
+
     DELETE ttWindowLock.
   END.
 
@@ -3607,6 +4363,43 @@ END FUNCTION. /* getColor */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getColorByRGB) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getColorByRGB Procedure 
+FUNCTION getColorByRGB RETURNS INTEGER
+  ( piRed   AS INTEGER
+  , piGreen AS INTEGER
+  , piBlue  AS INTEGER
+  ):
+  /* Return the color number for a RGB combination
+   * if needed, add color to color table.
+   */
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  
+  /* See if already exists */
+  DO i = 0 TO COLOR-TABLE:NUM-ENTRIES - 1:
+    IF    COLOR-TABLE:GET-RED-VALUE(i)   = piRed
+      AND COLOR-TABLE:GET-GREEN-VALUE(i) = piGreen
+      AND COLOR-TABLE:GET-BLUE-VALUE(i)  = piBlue THEN RETURN i.
+  END.
+
+  /* Define new color */
+  i = COLOR-TABLE:NUM-ENTRIES.
+  COLOR-TABLE:NUM-ENTRIES = COLOR-TABLE:NUM-ENTRIES + 1.
+  COLOR-TABLE:SET-DYNAMIC(i, TRUE).
+  COLOR-TABLE:SET-RED-VALUE  (i, piRed  ).
+  COLOR-TABLE:SET-GREEN-VALUE(i, piGreen).
+  COLOR-TABLE:SET-BLUE-VALUE (i, piBlue ).
+
+  RETURN i.
+
+END FUNCTION. /* getColorByRGB */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getColumnLabel) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getColumnLabel Procedure 
@@ -3675,28 +4468,95 @@ END FUNCTION. /* getColumnWidthList */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getDatabaseList Procedure 
 FUNCTION getDatabaseList RETURNS CHARACTER:
-  /* Return a comma separated list of all connected datbases
+  /* Return a comma separated list of all connected databases
   */
-  DEFINE VARIABLE cDatabaseList  AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cSchemaHolders AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE iCount         AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE cDatabaseList    AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE cSchemaHolders   AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE iCount           AS INTEGER    NO-UNDO.
+  DEFINE VARIABLE cDbType          AS CHARACTER  NO-UNDO.  
+  DEFINE VARIABLE cLogicalDbName   AS CHARACTER  NO-UNDO.  
+  DEFINE VARIABLE iPos             AS INTEGER    NO-UNDO.  
 
+  DEFINE BUFFER bDataserver FOR ttDataserver.
+  
   {&timerStart}
 
-  /* Make a list of schema holders */
-  DO iCount = 1 TO NUM-DBS:
-    IF DBTYPE(iCount) <> 'PROGRESS' THEN cSchemaHolders = cSchemaHolders + ',' + SDBNAME(iCount).
-  END.
+  /* Support Dataservers */
+  IF gcSaveDatabaseList <> ""
+   AND PROGRAM-NAME(2) BEGINS "initializeObjects " THEN RETURN gcSaveDatabaseList.
 
-  /* And a list of all databases. If a database is in the list of schemaholders
-   * we don't want to see it here. */
+  /* Make a list of schema holders */
   #Db:
   DO iCount = 1 TO NUM-DBS:
-    IF LOOKUP(LDBNAME(iCount),cSchemaHolders) > 0 THEN NEXT #Db.
-    cDatabaseList = cDatabaseList + ',' + LDBNAME(iCount).
+    ASSIGN
+      cDbType        = DBTYPE(iCount)
+      cLogicalDbName = LDBNAME(iCount).
+
+    IF cDbType <> 'PROGRESS' THEN
+      cSchemaHolders = cSchemaHolders + ',' + SDBNAME(iCount).
+    
+    cDbType = DBTYPE(iCount).
+    IF cDbType <> "PROGRESS" THEN NEXT #Db.
+    
+    cDatabaseList = cDatabaseList + ',' + cLogicalDbName.
   END.
 
-  RETURN TRIM(cDatabaseList,',').
+  /* Build list of all databases. Skip if already in the list of schemaholders  */
+  #Db:
+  DO iCount = 1 TO NUM-DBS:
+    ASSIGN
+      cDbType         = DBTYPE(iCount)
+      cLogicalDbName  = LDBNAME(iCount).
+
+    IF LOOKUP(LDBNAME(iCount), cSchemaHolders) > 0 OR cDbType <> "PROGRESS" THEN NEXT #Db.
+    
+    CREATE ALIAS dictdb FOR DATABASE VALUE(cLogicalDbName).
+    RUN getDataserver.p
+      ( INPUT              cLogicalDbName
+      , INPUT-OUTPUT       giDataserverNr
+      , INPUT-OUTPUT TABLE bDataserver
+      ).
+    DELETE ALIAS dictdb.
+  END.
+  
+  /* Support dataservers */    
+  FOR EACH bDataserver BY bDataserver.cLDbNameSchema:
+    /* Remove schemaholder from database list */
+    IF bDataserver.lDontShowSchemaHr THEN
+    DO:
+      iPos = LOOKUP(bDataserver.cLDbNameSchema, cDatabaseList).
+      IF iPos > 0
+       AND NOT CAN-FIND(FIRST ttTable WHERE ttTable.cDatabase = bDataserver.cLDbNameSchema
+                                        AND ttTable.lHidden   = NO) THEN
+      DO:
+        ENTRY(iPos, cDatabaseList) = "".
+        cDatabaseList = TRIM(REPLACE(cDatabaseList, ",,", ","), ",").
+      END.
+    END.
+
+    /* Add dataserver to database list */
+    iPos = LOOKUP(bDataserver.cLDbNameDataserver, cDatabaseList).
+    IF bDataserver.lConnected THEN
+    DO:
+      IF iPos = 0 THEN cDatabaseList = TRIM(cDatabaseList + "," + bDataserver.cLDbNameDataserver, ",").
+    END. /* IF bDataserver.lConnected */
+    
+    ELSE
+    DO:
+      IF iPos > 0 THEN
+      DO:
+        ENTRY(iPos, cDatabaseList) = "".
+        cDatabaseList = TRIM(REPLACE(cDatabaseList, ",,", ","), ",").
+      END. /* IF iPos > 0 */
+    END. /* else */
+  END. /* FOR EACH bDataserver */
+
+  ASSIGN
+    cDatabaseList      = TRIM(cDatabaseList, ',')
+    gcSaveDatabaseList = cDatabaseList.
+
+  RETURN cDatabaseList.
+  
   {&timerStop}
 END FUNCTION. /* getDatabaseList */
 
@@ -3740,7 +4600,7 @@ FUNCTION getEscapedData RETURNS CHARACTER
     END.
   END CASE.
 
-  RETURN pcString.
+  RETURN cOutput.
   {&timerStop}
 
 END FUNCTION. /* getEscapedData */
@@ -3779,14 +4639,12 @@ FUNCTION getFieldList RETURNS CHARACTER
     cFields = cFields + "," + hField::_Field-name.
   END. /* #CollectFields */
 
+  hQuery:QUERY-CLOSE().
+  DELETE OBJECT hField.
+  DELETE OBJECT hFile.
+  DELETE OBJECT hQuery.
+  
   RETURN TRIM(cFields, ",").
-
-  FINALLY:
-    hQuery:QUERY-CLOSE().
-    DELETE OBJECT hField.
-    DELETE OBJECT hFile.
-    DELETE OBJECT hQuery.
-  END FINALLY.
 
 END FUNCTION. /* getFieldList */
 
@@ -3953,25 +4811,27 @@ FUNCTION getKeyList RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
   /* Return a list of special keys pressed
   */
-  DEFINE VARIABLE L-KBSTATE AS MEMPTR NO-UNDO.
-  DEFINE VARIABLE L-RETURNVALUE AS INT64 NO-UNDO.
-  DEFINE VARIABLE L-SHIFTLIST AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE mKeyboardState AS MEMPTR    NO-UNDO.
+  {&_proparse_prolint-nowarn(varusage)}
+  DEFINE VARIABLE iReturnValue   AS INT64     NO-UNDO.
+  DEFINE VARIABLE cKeyList       AS CHARACTER NO-UNDO.
 
-  SET-SIZE(L-KBSTATE) = 256.
+  SET-SIZE(mKeyboardState) = 256.
 
   /* Get the current state of the keyboard */
-  RUN GetKeyboardState(GET-POINTER-VALUE(L-KBSTATE), OUTPUT L-RETURNVALUE).
+  {&_proparse_prolint-nowarn(varusage)}
+  RUN GetKeyboardState(GET-POINTER-VALUE(mKeyboardState), OUTPUT iReturnValue) NO-ERROR.
 
-  IF GET-BITS(GET-BYTE(L-KBSTATE, 1 + 16), 8, 1) = 1
-  THEN L-SHIFTLIST = TRIM(L-SHIFTLIST + ",SHIFT",",").
-  IF GET-BITS(GET-BYTE(L-KBSTATE, 1 + 17), 8, 1) = 1
-  THEN L-SHIFTLIST = TRIM(L-SHIFTLIST + ",CTRL",",").
-  IF GET-BITS(GET-BYTE(L-KBSTATE, 1 + 18), 8, 1) = 1
-  THEN L-SHIFTLIST = TRIM(L-SHIFTLIST + ",ALT",",").
-
-  SET-SIZE(L-KBSTATE) = 0.
-
-  RETURN L-SHIFTLIST.   /* Function return value. */
+  /* try to suppress error: 'C' Call Stack has been compromised after calling  in  (6069) */
+  IF NOT ERROR-STATUS:ERROR THEN
+  DO:
+    IF GET-BITS(GET-BYTE(mKeyboardState, 1 + 16), 8, 1) = 1 THEN cKeyList = TRIM(cKeyList + ",SHIFT",",").
+    IF GET-BITS(GET-BYTE(mKeyboardState, 1 + 17), 8, 1) = 1 THEN cKeyList = TRIM(cKeyList + ",CTRL",",").
+    IF GET-BITS(GET-BYTE(mKeyboardState, 1 + 18), 8, 1) = 1 THEN cKeyList = TRIM(cKeyList + ",ALT",",").
+  END.
+  
+  SET-SIZE(mKeyboardState) = 0.
+  RETURN cKeyList.   /* Function return value. */
 
 END FUNCTION. /* getKeyList */
 
@@ -4199,6 +5059,24 @@ END FUNCTION. /* getRegistry */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getSchemaHolder) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getSchemaHolder Procedure 
+FUNCTION getSchemaHolder RETURNS CHARACTER
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ):
+  DEFINE BUFFER bDataserver FOR ttDataserver.
+
+  FIND bDataserver WHERE bDataserver.cLDBNameDataserver = pcDataSrNameOrDbName NO-ERROR.
+  RETURN (IF AVAILABLE bDataserver THEN bDataserver.cLDBNameSchema ELSE pcDataSrNameOrDbName).
+  
+END FUNCTION. /* getSchemaHolder */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getStackSize) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getStackSize Procedure 
@@ -4241,8 +5119,8 @@ END FUNCTION. /* getStackSize */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTableDesc Procedure 
 FUNCTION getTableDesc RETURNS CHARACTER
-  ( INPUT  pcDatabase AS CHARACTER
-  , INPUT  pcTable    AS CHARACTER
+  ( INPUT pcDatabase AS CHARACTER
+  , INPUT pcTable    AS CHARACTER
   ) :
   DEFINE BUFFER bTable FOR ttTable.
 
@@ -4272,7 +5150,7 @@ FUNCTION getTableLabel RETURNS CHARACTER
     WHERE bTable.cDatabase  = pcDatabase
       AND bTable.cTableName = pcTable NO-ERROR.
 
-  RETURN (IF AVAILABLE bTable THEN bTable.cTableLabel ELSE '').
+  RETURN (IF AVAILABLE bTable AND bTable.cTableLabel <> ? THEN bTable.cTableLabel ELSE '').
 
 END FUNCTION. /* getTableLabel */
 
@@ -4484,6 +5362,21 @@ END FUNCTION. /* isBrowseChanged */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-isDataServer) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isDataServer Procedure 
+FUNCTION isDataServer RETURNS LOGICAL
+  ( INPUT pcDataSrNameOrDbName AS CHARACTER
+  ):
+  RETURN CAN-FIND(ttDataserver WHERE ttDataserver.cLDBNameDataserver = pcDataSrNameOrDbName).
+  
+END FUNCTION. /* isDataServer */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-isDefaultFontsChanged) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isDefaultFontsChanged Procedure 
@@ -4529,6 +5422,7 @@ FUNCTION isFileLocked RETURNS LOGICAL
   /* Check whether a file is locked on the file system
   */
   DEFINE VARIABLE iFileHandle   AS INTEGER NO-UNDO.
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE nReturn       AS INTEGER NO-UNDO.
 
   /* Try to lock the file agains writing */
@@ -4543,9 +5437,8 @@ FUNCTION isFileLocked RETURNS LOGICAL
                   ).
 
   /* Release file handle */
-  RUN CloseHandle ( INPUT iFileHandle
-                  , OUTPUT nReturn
-                  ).
+  {&_proparse_prolint-nowarn(varusage)}
+  RUN CloseHandle (INPUT iFileHandle, OUTPUT nReturn).
 
   RETURN (iFileHandle = -1).
 
@@ -4635,6 +5528,7 @@ FUNCTION isValidCodePage RETURNS LOGICAL
   (pcCodepage AS CHARACTER):
   /* Returns whether pcCodePage is valid
   */
+  {&_proparse_prolint-nowarn(varusage)}
   DEFINE VARIABLE cDummy AS LONGCHAR NO-UNDO.
 
   IF pcCodePage = '' THEN RETURN TRUE.
@@ -4954,4 +5848,3 @@ END FUNCTION. /* setRegistry */
 &ANALYZE-RESUME
 
 &ENDIF
-

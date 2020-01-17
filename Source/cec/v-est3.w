@@ -68,13 +68,6 @@ END.
 
 {custom/framechk.i NEW}
 
-DEFINE VARIABLE hMessageProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO .
-DEFINE VARIABLE cCurrentMessage  AS CHARACTER NO-UNDO .
-DEFINE VARIABLE cCurrentTitle    AS CHARACTER NO-UNDO .
-RUN system/MessageProcs.p PERSISTENT SET hMessageProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hMessageProcs).
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -262,7 +255,7 @@ DEFINE FRAME Corr
      eb.i-code[1] AT ROW 4.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[1] AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[1] AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[1] AT ROW 4.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -282,7 +275,7 @@ DEFINE FRAME Corr
      eb.i-code[2] AT ROW 5.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[2] AT ROW 5.57 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[2] AT ROW 5.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[2] AT ROW 5.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -312,7 +305,7 @@ DEFINE FRAME Corr
      eb.i-code[3] AT ROW 6.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[3] AT ROW 6.57 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[3] AT ROW 6.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[3] AT ROW 6.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -330,7 +323,7 @@ DEFINE FRAME Corr
      eb.i-code[4] AT ROW 7.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[4] AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[4] AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[4] AT ROW 7.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -345,7 +338,7 @@ DEFINE FRAME Corr
      eb.i-code[5] AT ROW 8.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[5] AT ROW 8.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[5] AT ROW 8.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[5] AT ROW 8.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -361,7 +354,7 @@ DEFINE FRAME Corr
      eb.i-code[6] AT ROW 9.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[6] AT ROW 9.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[6] AT ROW 9.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[6] AT ROW 9.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -377,7 +370,7 @@ DEFINE FRAME Corr
      eb.i-code[7] AT ROW 10.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -396,7 +389,7 @@ DEFINE FRAME Corr
      eb.i-code[8] AT ROW 11.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[8] AT ROW 11.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -417,7 +410,7 @@ DEFINE FRAME Corr
      eb.i-code[9] AT ROW 12.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[9] AT ROW 12.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[9] AT ROW 12.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[9] AT ROW 12.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -438,7 +431,7 @@ DEFINE FRAME Corr
      eb.i-code[10] AT ROW 13.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[10] AT ROW 13.67 COL 30 COLON-ALIGNED NO-LABEL
+     eb.i-dscr[10] AT ROW 13.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[10] AT ROW 13.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -2214,7 +2207,7 @@ PROCEDURE local-update-record :
   RUN release-shared-buffers.
 
   IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
-  ELSE IF framechk-i-changed AND NOT lSuppressMessage THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
+  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
 
   ASSIGN
    ll-unit-calc   = NO.
@@ -2348,9 +2341,7 @@ IF eb.form-no NE 0 THEN DO:
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  RUN pGetMessageProcs(INPUT "4" ,OUTPUT cCurrentTitle,OUTPUT cCurrentMessage, OUTPUT lSuppressMessage) .
-
-  IF NOT lSuppressMessage AND framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
+  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
 END.
 
 END PROCEDURE.

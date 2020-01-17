@@ -7,18 +7,23 @@ PROCEDURE cXMLOrder:
   DEFINE VARIABLE XMLFile AS CHARACTER FORMAT 'X(50)' NO-UNDO.
   DEFINE VARIABLE attrList AS CHARACTER FORMAT 'X(4)' NO-UNDO.
   DEFINE VARIABLE returnValue AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cCompanyMask  AS CHARACTER NO-UNDO INITIAL "$company$". /* Mask character */
+  DEFINE VARIABLE ccXMLOrderDir AS CHARACTER NO-UNDO. 
   
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ cocode
          AND sys-ctrl.name EQ 'cXMLOrder'
        NO-ERROR.
   IF sys-ctrl.log-fld THEN DO:
-    INPUT FROM OS-DIR(sys-ctrl.char-fld) NO-ECHO.
+    ccXMLOrderDir = sys-ctrl.char-fld.
+    IF INDEX(ccXMLOrderDir,cCompanyMask) GT 0 THEN /* checks whether mask character present or not */
+        ccXMLOrderDir = REPLACE(ccXMLOrderDir,cCompanyMask,cocode). /* Replaces mask with company code */
+    INPUT FROM OS-DIR(ccXMLOrderDir) NO-ECHO.
     REPEAT:
       SET XMLFile ^ attrList.
       IF attrList NE 'f' OR XMLFile BEGINS '.' OR
          INDEX(XMLFile,'.xml') EQ 0 THEN NEXT.
-      XMLFile = SEARCH(sys-ctrl.char-fld + '/' + XMLFile).
+      XMLFile = SEARCH(ccXMLOrderDir + '/' + XMLFile).
       IF XMLFile NE ? THEN DO:
         RUN gencXMLOrder (XMLFile,
                           NO, /* temptable only */

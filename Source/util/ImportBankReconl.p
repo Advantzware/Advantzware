@@ -49,11 +49,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportBankReconl FOR ttImportBankReconl.
-
-    RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
     
@@ -104,7 +101,6 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN 
         ASSIGN 
         opcNote = "Update record - Cleared fields to be overwritten" .
-
     
 END PROCEDURE.
 

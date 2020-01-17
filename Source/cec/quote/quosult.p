@@ -103,7 +103,11 @@ DEF VAR v-signature AS cha NO-UNDO.
 DEF VAR v-sig-image AS cha NO-UNDO.
 
 DEF VAR v-quo-date AS DATE FORM "99/99/9999" NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 /*ASSIGN
   ls-image1 = "images\sultana.jpg"
@@ -113,6 +117,25 @@ DEF VAR v-quo-date AS DATE FORM "99/99/9999" NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">"  .
 
@@ -552,6 +575,9 @@ ELSE DO:
         END.  /*ch-multi AND v-last */
     END. /* for each report */
 END.  /* multi */
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 PROCEDURE printHeader:
   DEFINE INPUT PARAMETER ipPageOffSet AS INTEGER NO-UNDO.

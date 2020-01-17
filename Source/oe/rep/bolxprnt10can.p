@@ -44,6 +44,8 @@ def var v-ship-city  like shipto.ship-city.
 def var v-ship-state like shipto.ship-state.
 def var v-ship-zip   like shipto.ship-zip.
 def var v-ship-addr3 as   char format "x(30)".
+DEFINE VARIABLE cShipContact as   CHARACTER format "x(30)".
+DEFINE VARIABLE cCustContact as   CHARACTER format "x(30)".
 def var v-comp-name  like company.name.
 def var v-comp-addr  like company.addr.
 def var v-comp-city  like company.city.
@@ -108,6 +110,11 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /*ASSIGN
    ls-image1 = "images\Lovepac_logo.jpg"
    FILE-INFO:FILE-NAME = ls-image1
@@ -116,6 +123,24 @@ DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
@@ -200,7 +225,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
     v-phone = IF oe-bolh.area-code + oe-bolh.phone <> "" THEN 
               "(" + oe-bolh.area-code + ")" + string(oe-bolh.phone,"xxx-xxxx")
               ELSE ""
-    v-shipto-contact = oe-bolh.contact.
+    v-shipto-contact = oe-bolh.contact
+    cShipContact = shipto.contact .
 
     IF v-phone = "" THEN v-phone = "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx").
     IF v-shipto-contact = "" THEN v-shipto-contact = shipto.contact.
@@ -247,14 +273,30 @@ for each xxreport where xxreport.term-id eq v-term-id,
     IF AVAIL oe-boll THEN DO:
         FIND FIRST oe-ord WHERE oe-ord.company = oe-bolh.company
             AND oe-ord.ord-no = oe-boll.ord-no NO-LOCK NO-ERROR.
-        IF AVAIL oe-ord THEN
-            assign
-            v-comp-name    = oe-ord.sold-name
-            v-comp-addr[1] = oe-ord.sold-addr[1]
-            v-comp-addr[2] = oe-ord.sold-addr[2]
-            v-comp-addr3   = oe-ord.sold-city + ", " +
-                             oe-ord.sold-state + "  " +
-                             oe-ord.sold-zip.
+        IF AVAIL oe-ord THEN do:
+            FIND FIRST soldto NO-LOCK
+                WHERE soldto.company EQ oe-bolh.company
+                AND soldto.cust-no EQ oe-bolh.cust-no
+                AND soldto.sold-id EQ oe-ord.sold-id NO-ERROR .
+            IF AVAIL soldto THEN
+                assign
+                v-comp-name    = soldto.sold-name
+                v-comp-addr[1] = soldto.sold-addr[1]
+                v-comp-addr[2] = soldto.sold-addr[2]
+                v-comp-addr3   = soldto.sold-city + ", " +
+                                 soldto.sold-state + "  " +
+                                 soldto.sold-zip
+                cCustContact  = IF AVAIL cust THEN cust.contact ELSE "" .
+            ELSE
+                ASSIGN
+                    v-comp-name    = oe-ord.sold-name
+                    v-comp-addr[1] = oe-ord.sold-addr[1]
+                    v-comp-addr[2] = oe-ord.sold-addr[2]
+                    v-comp-addr3   = oe-ord.sold-city + ", " +
+                                     oe-ord.sold-state + "  " +
+                                     oe-ord.sold-zip
+                   cCustContact  = IF AVAIL cust THEN cust.contact ELSE "" .
+        END.
     END.
 
     if trim(v-comp-addr3) eq "," then v-comp-addr3 = "".
@@ -267,6 +309,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
       assign
        v-ship-addr[2] = v-ship-addr3
        v-ship-addr3   = "".
+
+    IF v-comp-addr3 EQ "" THEN
+        ASSIGN v-comp-addr3 = cCustContact
+               cCustContact = "" .
+    IF v-ship-addr3 EQ "" THEN
+        ASSIGN v-ship-addr3 = cShipContact
+               cShipContact = "" .
 
     if trim(v-ship-addr3) eq "," then v-ship-addr3 = "".
     if trim(v-cust-addr3) eq "," then v-cust-addr3 = "".
@@ -348,6 +397,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF v-ship-addr[2] = "" THEN
            ASSIGN v-ship-addr[2] = v-ship-addr3
                   v-ship-addr3 = "".
+     IF v-comp-addr3 EQ "" THEN
+        ASSIGN v-comp-addr3 = cCustContact
+               cCustContact = "" .
+    IF v-ship-addr3 EQ "" THEN
+        ASSIGN v-ship-addr3 = cShipContact
+               cShipContact = "" .
      
      {oe/rep/bolxprn10can.i}
      {oe/rep/bolxprnt10can.i}
@@ -374,7 +429,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R56><C1>" v-ship-i[4] AT 7 
     "<R58><C1>"
     "__________________________________________________________________________________________________________________" 
-    "<R59><C1>" "<B>  Signature De Rèception </B>" 
+    "<R59><C1>" "<B>  Signature De Réception </B>" 
     "<R60><C7>" "Client ________________________________________                       Transporteur/Carrier_____________________________" 
     "<R62><C7>" "Date ____________________________________________                       Date _________________________________________"     
     .
@@ -397,6 +452,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
   oe-bolh.printed = yes.
 end. /* for each oe-bolh */
 
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 PROCEDURE PrintBarTag:
    DEF VAR iBarLine AS INT NO-UNDO.

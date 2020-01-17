@@ -22,7 +22,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
 {cec/print42.i shared}
-
+{sys/inc/venditemcost.i}
 def buffer xcas for cas.
 
 def var v-pallets as log init yes no-undo.
@@ -35,6 +35,8 @@ DEF VAR ld-rm AS DEC NO-UNDO.
 DEF VAR ld-hp AS DEC NO-UNDO.
 DEF VAR ll-unitize AS LOG NO-UNDO.
 DEFINE VARIABLE iCaseMult AS INTEGER     NO-UNDO.
+DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
 
 save-qty = qty.
 
@@ -319,11 +321,20 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
 
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
-   b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                    ELSE item.cons-uom.
-
+   IF lNewVendorItemCost THEN 
+   DO:
+        FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
+            AND venditemcost.itemid = ITEM.i-no
+            AND venditemcost.itemtype = "RM" NO-ERROR.
+        b-uom = IF AVAIL venditemcost AND venditemcost.vendorUom NE "" THEN venditemcost.vendorUom ELSE item.cons-uom.                                     
+   END.
+   ELSE 
+   DO:     
+       FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+       b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom ELSE item.cons-uom.
+   END.
+    
+   
    IF b-uom EQ "M" THEN
      ASSIGN
       cas.qty   = cas.qty / 1000
@@ -334,10 +345,17 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
    IF xeb.casNoCharge THEN cas.cost = 0.
    ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 2}
+       IF lNewVendorItemCost THEN 
+       DO:
+           {est/getVendCost.i cas.t-qty cas.cost 2}  
+       END.
+       ELSE 
+       DO:
+           {est/matcost.i cas.t-qty cas.cost 2}
+           cas.cost = (cas.cost * cas.qty) + lv-setup-2. 
+       END.
 
-     ASSIGN
-      cas.cost = (cas.cost * cas.qty) + lv-setup-2
+     ASSIGN     
       v-setup  = lv-setup-2.
    END.
 
@@ -739,6 +757,7 @@ PROCEDURE do-cas-no:
       c-qty = qty / ws_cas-cnt. /* number of cases required, by weight */
     end.
     else c-qty = b-wt-tot / item.avg-w.
+    dCasesProRata = c-qty.
     {sys/inc/roundup.i c-qty} /* CTS end */
      /*02031503-set case qty based on multipliers for cost and material calculations*/
       IF xeb.spare-int-3 GT 0 THEN 
@@ -775,12 +794,11 @@ PROCEDURE do-cas-no:
        cas.dscr = item.est-dscr.
     end.
     IF xeb.spare-char-3 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.lp-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.lp-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.lp-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.lp-up. /*per case - DEFAULT*/
     {sys/inc/roundup.i li-qty} /* CTS end */
     ASSIGN
     cas.qty = cas.qty + li-qty
@@ -807,12 +825,11 @@ PROCEDURE do-cas-no:
        cas.dscr = item.est-dscr.
     end.
      IF xeb.spare-char-4 EQ "P" THEN DO:
-          li-qty = c-qty / xeb.cas-pal.
-          {sys/inc/roundup.i li-qty}
-          li-qty = li-qty * xeb.div-up.  /*per pallet*/
+          dPalletsProRata = c-qty / xeb.cas-pal.
+          li-qty = dPalletsProRata * xeb.div-up.  /*per pallet*/
       END.
       ELSE
-          li-qty = c-qty * xeb.div-up. /*per case - DEFAULT*/
+          li-qty = dCasesProRata * xeb.div-up. /*per case - DEFAULT*/
     {sys/inc/roundup.i li-qty} /* CTS end */
     ASSIGN
     cas.qty = cas.qty + li-qty

@@ -442,7 +442,7 @@ PROCEDURE local-assign-record :
     termsCOD = saveTermsCOD
     terms.cod = IF INT(termsCOD) EQ 1 THEN TRUE ELSE FALSE.
     IF terms.dueOnMonth NE 0 AND terms.dueOnDay EQ 0 THEN do:
-        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("Common_GetNumberOfDaysInMonth", terms.dueOnMonth ).
+        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("sfCommon_GetNumberOfDaysInMonth", terms.dueOnMonth ).
                terms.dueOnDay:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(terms.dueOnDay) .
     END.
   
@@ -615,7 +615,7 @@ PROCEDURE valid-day :
     {&methods/lValidateError.i YES}
      DO WITH FRAME {&FRAME-NAME}:
          IF INTEGER(terms.dueOnMonth:SCREEN-VALUE) GT 0 THEN do:
-             iCountDayInMonth = DYNAMIC-FUNCTION("Common_GetNumberOfDaysInMonth", INTEGER(terms.dueOnMonth:SCREEN-VALUE) ).
+             iCountDayInMonth = DYNAMIC-FUNCTION("sfCommon_GetNumberOfDaysInMonth", INTEGER(terms.dueOnMonth:SCREEN-VALUE) ).
              IF integer(terms.dueOnDay:SCREEN-VALUE) GT iCountDayInMonth  THEN DO:
                  MESSAGE "Day is not valid for this month" VIEW-AS ALERT-BOX INFO .
                  oplReturnError = YES .

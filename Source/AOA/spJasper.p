@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE aoaJasper 8
+&SCOPED-DEFINE aoaJasper 6
 &SCOPED-DEFINE aoaJasperGap 5
 &SCOPED-DEFINE noBrowseRefresh
 
@@ -227,7 +227,17 @@ PROCEDURE pGetUserParamValue:
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
 
-    FIND dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID.
+    FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID.
+    FIND FIRST dynSubject NO-LOCK
+         WHERE dynSubject.subjectID EQ dynParamValue.subjectID
+         NO-ERROR.
+    IF AVAILABLE dynSubject AND dynSubject.businessLogic NE "" THEN DO:
+        RUN VALUE(dynSubject.businessLogic) PERSISTENT SET hBusinessLogic.
+        ASSIGN
+            hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hBusinessLogic)
+            hTable = hTable:DEFAULT-BUFFER-HANDLE
+            .
+    END.
     ASSIGN
         aoaProgramID = dynParamValue.prgmName
         aoaUserID    = dynParamValue.user-id
@@ -263,15 +273,16 @@ PROCEDURE pGetUserParamValue:
                 cTable = ENTRY(1,dynParamValue.colName[idx],".")
                 cField = ENTRY(2,dynParamValue.colName[idx],".")
                 .
-            IF CAN-FIND(FIRST dynSubject
-                        WHERE dynSubject.subjectID     EQ dynParamValue.subjectID
-                          AND dynSubject.businessLogic EQ "") THEN DO:
+            IF dynSubject.businessLogic EQ "" THEN DO:
                 cTemp = cField.
                 IF INDEX(cTemp,"[") NE 0 THEN
                 cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).
                 CREATE BUFFER hTable FOR TABLE cTable.
                 dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
             END. /* if not business logic */
+            ELSE
+            IF VALID-HANDLE(hTable) THEN
+            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
         END. /* if table.field */
         ELSE
         cField = dynParamValue.colName[idx].
@@ -303,6 +314,7 @@ PROCEDURE pGetUserParamValue:
             ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).
         END. /* if field-value */
     END. /* do idx */
+    RELEASE dynSubject.
    
 END PROCEDURE.
 	
@@ -521,6 +533,12 @@ PROCEDURE pJasperDetailBand :
         "                    <pen lineWidth=~"0.0~"/>" SKIP
         "                </graphicElement>" SKIP
         "            </rectangle>" SKIP
+        "            <textField isBlankWhenNull=~"true~">" SKIP
+        "                <reportElement x=~"1~" y=~"0~" width=~"350~" height=~"14~">" SKIP
+        "                    <property name=~"com.jaspersoft.studio.spreadsheet.connectionID~"/>" SKIP
+        "                </reportElement>" SKIP
+        "                <textFieldExpression><![CDATA[$F~{NoDataMessage}]]></textFieldExpression>" SKIP
+        "            </textField>" SKIP
         .
     FOR EACH ttColumn
         WHERE ttColumn.isActive EQ YES
@@ -1203,9 +1221,12 @@ PROCEDURE pJasperQueryString :
 ------------------------------------------------------------------------------*/
     PUT UNFORMATTED
         "    <queryString language=~"json~">" SKIP
-        "        <![CDATA[" REPLACE(aoaTitle," ","_")
-        "." REPLACE(aoaTitle," ","") "]]>" SKIP
+        "        <![CDATA[" REPLACE(aoaTitle," ","_") "." REPLACE(aoaTitle," ","") "]]>" SKIP
         "    </queryString>" SKIP
+        "    <field name=~"NoDataMessage~" class=~"java.lang.String~">" SKIP
+        "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"NoDataMessage~"/>" SKIP
+        "        <fieldDescription><![CDATA[NoDataMessage]]></fieldDescription>" SKIP
+        "    </field>" SKIP
         .
 
 END PROCEDURE.

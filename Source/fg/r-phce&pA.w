@@ -973,13 +973,24 @@ time_stamp = string(time,"hh:mmam").
                               fg-rctd.std-cost, output v-std-cost).
 
        IF AVAIL fg-bin THEN do: 
-            FIND LAST oe-ordl WHERE
-                 oe-ordl.company EQ fg-bin.company AND
-                 oe-ordl.job-no EQ fg-bin.job-no AND
-                 oe-ordl.job-no2 EQ fg-bin.job-no2 AND
-                 oe-ordl.i-no EQ fg-bin.i-no AND
-                 (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
-                 NO-LOCK NO-ERROR.
+         IF fg-bin.job-no NE "" THEN
+              FIND LAST oe-ordl WHERE
+                     oe-ordl.company EQ fg-bin.company AND
+                     oe-ordl.job-no EQ fg-bin.job-no AND
+                     oe-ordl.job-no2 EQ fg-bin.job-no2 AND
+                     oe-ordl.i-no EQ fg-bin.i-no AND
+                     (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
+                     USE-INDEX job
+                     NO-LOCK NO-ERROR.
+            ELSE 
+                FIND LAST oe-ordl WHERE
+                     oe-ordl.company EQ fg-bin.company AND
+                     oe-ordl.job-no EQ fg-bin.job-no AND
+                     oe-ordl.job-no2 EQ fg-bin.job-no2 AND
+                     oe-ordl.i-no EQ fg-bin.i-no AND
+                     (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
+                     USE-INDEX item
+                     NO-LOCK NO-ERROR.
 
             IF AVAIL oe-ordl THEN
                ASSIGN
@@ -1217,13 +1228,24 @@ time_stamp = string(time,"hh:mmam").
             tt-fg-bin.v-uom     = itemfg.prod-uom.
 
       IF AVAIL fg-bin THEN do: 
-            FIND LAST oe-ordl WHERE
-                 oe-ordl.company EQ fg-bin.company AND
-                 oe-ordl.job-no EQ fg-bin.job-no AND
-                 oe-ordl.job-no2 EQ fg-bin.job-no2 AND
-                 oe-ordl.i-no EQ fg-bin.i-no AND
-                 (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
-                 NO-LOCK NO-ERROR.
+         IF fg-bin.job-no NE "" THEN
+              FIND LAST oe-ordl WHERE
+                     oe-ordl.company EQ fg-bin.company AND
+                     oe-ordl.job-no EQ fg-bin.job-no AND
+                     oe-ordl.job-no2 EQ fg-bin.job-no2 AND
+                     oe-ordl.i-no EQ fg-bin.i-no AND
+                     (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
+                     USE-INDEX job
+                     NO-LOCK NO-ERROR.
+            ELSE 
+                FIND LAST oe-ordl WHERE
+                     oe-ordl.company EQ fg-bin.company AND
+                     oe-ordl.job-no EQ fg-bin.job-no AND
+                     oe-ordl.job-no2 EQ fg-bin.job-no2 AND
+                     oe-ordl.i-no EQ fg-bin.i-no AND
+                     (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
+                     USE-INDEX item
+                     NO-LOCK NO-ERROR.
 
             IF AVAIL oe-ordl THEN
                ASSIGN

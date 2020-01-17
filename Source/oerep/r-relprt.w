@@ -103,9 +103,28 @@ DEF VAR v-chkflg AS LOG NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
 DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEFINE VARIABLE lAllowUserMultRelease AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList           AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
 END.
+
+RUN methods/prgsecur.p
+ 	    (INPUT "MultReleaseAllow",
+ 	     INPUT "ACCESS", /* based on run, create, update, delete or all */
+ 	     INPUT NO,    /* use the directory in addition to the program */
+ 	     INPUT NO,    /* Show a message if not authorized */
+ 	     INPUT NO,    /* Group overrides user security? */
+ 	     OUTPUT lAllowUserMultRelease, /* Allowed? Yes/NO */
+ 	     OUTPUT lAccessClose, /* used in template/windows.i  */
+ 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -681,9 +700,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Release Ticket */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -777,7 +798,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -947,6 +970,7 @@ DO:
 
                   RUN set-report.
                   RUN run-report.
+                  RUN pRunAPIOutboundTrigger(BUFFER b-oe-relh, tb_printed).
                   IF v-multi-cust THEN DO:
 
                     tfile = tfile + "1".
@@ -1582,7 +1606,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        IF custcount NE "" AND ou-log THEN
            cCustList =  custcount .
       END.
-    
+    IF NOT lAllowUserMultRelease THEN do: 
+        ASSIGN tgMultipleReleases:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No" 
+            tgMultipleReleases:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+    END.
     IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO:
         ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".
         DISABLE END_relnum.
@@ -2064,6 +2091,120 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win 
+PROCEDURE pRunAPIOutboundTrigger :
+/*------------------------------------------------------------------------------
+ Purpose:  Fires Outbound APIs for given release header
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-relh FOR oe-relh.
+    DEFINE INPUT PARAMETER  iplReprint   AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+       
+    DEFINE BUFFER bf-oe-rell FOR oe-rell.
+    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    IF AVAILABLE ipbf-oe-relh THEN DO:
+        IF iplReprint THEN 
+            cTriggerID = "ReprintRelease".
+        ELSE 
+            cTriggerID = "PrintRelease".
+ 
+        FOR EACH bf-oe-rell NO-LOCK 
+            WHERE bf-oe-rell.company EQ ipbf-oe-relh.company
+            AND bf-oe-rell.r-no EQ ipbf-oe-relh.r-no,
+            FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ bf-oe-rell.company
+            AND bf-itemfg.i-no EQ bf-oe-rell.i-no
+            BREAK BY bf-oe-rell.r-no  /*In order to get .loc from first oe-rell as "shipFrom"*/
+            BY bf-oe-rell.i-no:
+            
+            IF FIRST-OF(bf-oe-rell.r-no) THEN DO:
+                ASSIGN 
+                    cAPIID       = "SendRelease"
+                    cPrimaryID   = STRING(ipbf-oe-relh.release#)
+                    cDescription = cAPIID + " triggered by " + cTriggerID 
+                                 + " from r-relprt.w for Release: " + cPrimaryID
+                    . 
+                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                    INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
+                    INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                  /* API ID (Mandatory) */
+                    INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                    INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+                    INPUT  "oe-relh",               /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(ipbf-oe-relh)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,       /* Event's description (Optional) */
+                    OUTPUT lSuccess,                /* Success/Failure flag */
+                    OUTPUT cMessage                 /* Status message */
+                    ) NO-ERROR.
+
+                FIND FIRST bf-cust NO-LOCK
+                    WHERE bf-cust.company EQ ipbf-oe-relh.company
+                    AND bf-cust.cust-no EQ ipbf-oe-relh.cust-no
+                    NO-ERROR.
+                IF AVAILABLE bf-cust THEN DO:
+                    ASSIGN  
+                        cAPIId = "SendCustomer"
+                        cPrimaryID = bf-cust.cust-no
+                        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-relprt.w for Customer: " + cPrimaryID
+                        .
+                    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                        INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
+                        INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
+                        INPUT  cAPIID,                  /* API ID (Mandatory) */
+                        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                        INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+                        INPUT  "cust",               /* Comma separated list of table names for which data being sent (Mandatory) */
+                        INPUT  STRING(ROWID(bf-cust)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                        INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+                        INPUT  cDescription,       /* Event's description (Optional) */
+                        OUTPUT lSuccess,                /* Success/Failure flag */
+                        OUTPUT cMessage                 /* Status message */
+                        ) NO-ERROR.
+                END. /*avail bf-cust*/
+            END. /*First bf-oe-rell.r-no*/
+
+            IF FIRST-OF(bf-oe-rell.i-no) THEN DO:
+                ASSIGN 
+                    cAPIId       = "SendFinishedGood"
+                    cPrimaryID   = bf-itemfg.i-no
+                    cDescription = cAPIID + " triggered by " + cTriggerID 
+                                 + " from r-relprt.w for FG Item: " + cPrimaryID
+                    .
+                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                    INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
+                    INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                  /* API ID (Mandatory) */
+                    INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                    INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+                    INPUT  "itemfg",               /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(bf-itemfg)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,       /* Event's description (Optional) */
+                    OUTPUT lSuccess,                /* Success/Failure flag */
+                    OUTPUT cMessage                 /* Status message */
+                    ) NO-ERROR.
+            END. /*First bf-oe-rell.i-no*/
+        END. /*each bf-oe-rell*/
+        
+        /* Reset context at the end of API calls to clear temp-table 
+           data inside OutboundProcs */
+        RUN Outbound_ResetContext IN hdOutboundProcs.
+    END. /*avail oe-relh*/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
 /*------------------------------------------------------------------------------
@@ -2496,7 +2637,7 @@ PROCEDURE set-report :
   ELSE IF v-relprint EQ "CardedX" THEN
    ASSIGN
     lv-program     = "oe/rep/relcardx.p"
-    lines-per-page = 75
+    lines-per-page = 120
     is-xprint-form = YES  . /*60*/
 
   ELSE IF v-relprint EQ "Peachtree" THEN

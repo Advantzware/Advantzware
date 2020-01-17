@@ -95,14 +95,14 @@ DEFINE QUERY external_tables FOR mach.
 mach.loc mach.dept[1] mach.dept[2] mach.dept[3] mach.dept[4] mach.m-seq ~
 mach.p-type mach.run-spoil mach.mr-waste mach.daily-prod-hours mach.therm ~
 mach.gang-jobs mach.lab-rate[1] mach.lab-rate[2] mach.lab-rate[3] ~
-mach.lab-drate mach.mrk-rate mach.mr-crusiz mach.run-crusiz mach.mr-varoh ~
-mach.mr-fixoh mach.mr-trate mach.run-varoh mach.run-fixoh mach.run-trate ~
-mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
-mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
-mach.min-pan-w mach.max-pan-w mach.min_pan_lw mach.max_pan_lw ~
-mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
-mach.min-dep mach.max-dep mach.min-run mach.max-run mach.tan-mrp ~
-mach.num-wid mach.num-len mach.spare-int-1 mach.machineImage[1] ~
+mach.lab-drate mach.mr-crusiz mach.run-crusiz mach.mrk-rate ~
+mach.minRunHours mach.spare-int-1 mach.mr-varoh mach.mr-fixoh mach.mr-trate ~
+mach.run-varoh mach.run-fixoh mach.run-trate mach.min-len mach.max-len ~
+mach.min-trimw mach.min-wid mach.max-wid mach.min-triml mach.min-cal ~
+mach.max-cal mach.min-pan-l mach.max-pan-l mach.min-pan-w mach.max-pan-w ~
+mach.min_pan_lw mach.max_pan_lw mach.min_slot_score mach.max_slot_score ~
+mach.min_hd_hd mach.max_hd_hd mach.min-dep mach.max-dep mach.min-run ~
+mach.max-run mach.tan-mrp mach.num-wid mach.num-len mach.machineImage[1] ~
 mach.physicalLoc 
 &Scoped-define ENABLED-TABLES mach
 &Scoped-define FIRST-ENABLED-TABLE mach
@@ -110,17 +110,18 @@ mach.physicalLoc
 mach.spare-int-2 mach.loc mach.dept[1] mach.dept[2] mach.dept[3] ~
 mach.dept[4] mach.d-seq mach.m-seq mach.p-type mach.run-spoil mach.mr-waste ~
 mach.daily-prod-hours mach.therm mach.gang-jobs mach.lab-rate[1] ~
-mach.lab-rate[2] mach.lab-rate[3] mach.lab-drate mach.mrk-rate ~
-mach.mr-crusiz mach.run-crusiz mach.mr-rate mach.mr-varoh mach.mr-fixoh ~
-mach.mr-trate mach.run-rate mach.run-varoh mach.run-fixoh mach.run-trate ~
-mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
-mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
-mach.min-pan-w mach.max-pan-w mach.min_pan_lw mach.max_pan_lw ~
-mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
-mach.min-dep mach.max-dep mach.min-run mach.max-run mach.pr-type ~
-mach.washup mach.col-pass mach.max-color mach.coater mach.col-wastesh ~
-mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf mach.num-wid ~
-mach.num-len mach.spare-int-1 mach.machineImage[1] mach.physicalLoc 
+mach.lab-rate[2] mach.lab-rate[3] mach.lab-drate mach.mr-crusiz ~
+mach.run-crusiz mach.mrk-rate mach.minRunHours mach.spare-int-1 ~
+mach.mr-rate mach.mr-varoh mach.mr-fixoh mach.mr-trate mach.run-rate ~
+mach.run-varoh mach.run-fixoh mach.run-trate mach.min-len mach.max-len ~
+mach.min-trimw mach.min-wid mach.max-wid mach.min-triml mach.min-cal ~
+mach.max-cal mach.min-pan-l mach.max-pan-l mach.min-pan-w mach.max-pan-w ~
+mach.min_pan_lw mach.max_pan_lw mach.min_slot_score mach.max_slot_score ~
+mach.min_hd_hd mach.max_hd_hd mach.min-dep mach.max-dep mach.min-run ~
+mach.max-run mach.pr-type mach.washup mach.col-pass mach.max-color ~
+mach.coater mach.col-wastesh mach.ink-waste mach.col-wastelb mach.tan-mrp ~
+mach.tan-mrf mach.num-wid mach.num-len mach.machineImage[1] ~
+mach.physicalLoc 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -313,31 +314,39 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     mach.mrk-rate AT ROW 5.52 COL 56 COLON-ALIGNED
-          LABEL "Min Charge" FORMAT ">,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-     mach.mr-crusiz AT ROW 6.48 COL 56 COLON-ALIGNED
+     mach.mr-crusiz AT ROW 6.48 COL 46 COLON-ALIGNED
           LABEL "Setup Crew"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     mach.run-crusiz AT ROW 7.43 COL 56 COLON-ALIGNED
+     mach.run-crusiz AT ROW 7.43 COL 46 COLON-ALIGNED
           LABEL "Run Crew"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     mach.mr-rate AT ROW 5.52 COL 99 COLON-ALIGNED
+     mach.mrk-rate AT ROW 6.48 COL 77 COLON-ALIGNED
+          LABEL "Min Charge" FORMAT ">,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     mach.minRunHours AT ROW 7.43 COL 77 COLON-ALIGNED WIDGET-ID 124
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     mach.spare-int-1 AT ROW 8.38 COL 77 COLON-ALIGNED HELP
+          "Enter Kicks Per Hour" WIDGET-ID 2
+          LABEL "Kicks/Hr" FORMAT ">>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     mach.mr-rate AT ROW 5.52 COL 107 COLON-ALIGNED
           LABEL "Setup D.L." FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.mr-varoh AT ROW 6.48 COL 99 COLON-ALIGNED
+     mach.mr-varoh AT ROW 6.48 COL 107 COLON-ALIGNED
           LABEL "Var OH" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.mr-fixoh AT ROW 7.43 COL 99 COLON-ALIGNED
+     mach.mr-fixoh AT ROW 7.43 COL 107 COLON-ALIGNED
           LABEL "Fixed OH" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.mr-trate AT ROW 8.38 COL 99 COLON-ALIGNED
+     mach.mr-trate AT ROW 8.38 COL 107 COLON-ALIGNED
           LABEL "Total" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -388,13 +397,6 @@ DEFINE FRAME F-Main
           LABEL "Box Length"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-pan-l AT ROW 12.81 COL 40 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.min-pan-w AT ROW 13.62 COL 22 COLON-ALIGNED
-          LABEL "Box Width"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -402,6 +404,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     mach.max-pan-l AT ROW 12.81 COL 40 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.min-pan-w AT ROW 13.62 COL 22 COLON-ALIGNED
+          LABEL "Box Width"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
      mach.max-pan-w AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
@@ -471,11 +480,18 @@ DEFINE FRAME F-Main
           LABEL "Tandem MR/Plate"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+     ls-limit-lbl AT ROW 9.76 COL 9 COLON-ALIGNED NO-LABEL
      mach.tan-mrf AT ROW 14.57 COL 135 COLON-ALIGNED
           LABEL "/Fountain"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     ls-limit-lbl AT ROW 9.76 COL 9 COLON-ALIGNED NO-LABEL
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      mach.num-wid AT ROW 16 COL 105 COLON-ALIGNED
           LABEL "Max Num  Width"
           VIEW-AS FILL-IN 
@@ -484,18 +500,6 @@ DEFINE FRAME F-Main
           LABEL "Max Num Length"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     mach.spare-int-1 AT ROW 8.38 COL 56 COLON-ALIGNED HELP
-          "Enter Kicks Per Hour" WIDGET-ID 2
-          LABEL "Kicks/Hr" FORMAT ">>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
      mach.machineImage[1] AT ROW 17.67 COL 92 COLON-ALIGNED WIDGET-ID 120
           LABEL "Image" FORMAT "x(256)"
           VIEW-AS FILL-IN 
@@ -506,8 +510,8 @@ DEFINE FRAME F-Main
      "Printing Press" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.81 COL 73
           FGCOLOR 9 
-     "R A T E S" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 5.05 COL 72
+     "Rates, Minimums, and Crew Size" VIEW-AS TEXT
+          SIZE 40 BY .62 AT ROW 5.05 COL 53
           FGCOLOR 9 
      "Max" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 9.76 COL 46

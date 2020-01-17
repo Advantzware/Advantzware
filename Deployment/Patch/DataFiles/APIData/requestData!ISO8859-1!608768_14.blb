@@ -1,0 +1,1 @@
+{"Requestedby":"[STRING-REQ]","Company": "[STRING-REQ]","WareHouseID":"[STRING-OPT]","LocationID":"[STRING-OPT]","InventoryStockID":"[STRING-OPT]","PrimaryID":"[STRING-OPT]","ItemType":"[STRING-REQ]","RequesterNotes":"[STRING-OPT]"}

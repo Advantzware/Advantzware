@@ -70,10 +70,34 @@ DEF VAR lv-due-date AS DATE NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
+DEFINE BUFFER bf-shipto FOR shipto .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
@@ -195,6 +219,22 @@ find first company where company.company eq cocode no-lock no-error.
          END.
       END.
       lv-due-date = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE oe-ord.due-date.
+
+      RUN oe/custxship.p (oe-ord.company,
+                        oe-ord.cust-no,
+                        oe-ord.ship-id,
+                        BUFFER bf-shipto).
+      IF AVAIL bf-shipto AND bf-shipto.broker then DO:
+       ASSIGN
+          lv-comp-name = oe-ord.sold-name
+          v-comp-add1 = oe-ord.sold-addr[1]
+          v-comp-add2 = oe-ord.sold-addr[2]
+          v-comp-add3 =  oe-ord.sold-city + ", " + oe-ord.sold-state + "  " + oe-ord.sold-zip
+          v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999")
+          v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
+          lv-email    = "Email:  " + cust.email  .
+
+      END.
       /*
       format header
           "ACKNOWLEDGEMENT" at 62 skip
@@ -501,6 +541,8 @@ find first company where company.company eq cocode no-lock no-error.
       IF v-printline <= 66 THEN page. /*PUT SKIP(60 - v-printline). */
 
     end. /* each oe-ord */
+    IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 RETURN.
 

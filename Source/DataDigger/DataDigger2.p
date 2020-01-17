@@ -90,6 +90,16 @@ FUNCTION getProcessorArchitecture RETURNS INTEGER() FORWARD.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getProwin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getProwin Procedure 
+FUNCTION getProwin RETURNS CHARACTER() FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getRegistry) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getRegistry Procedure 
@@ -143,16 +153,6 @@ FUNCTION setRegistry RETURNS CHARACTER
   ( pcSection AS CHARACTER 
   , pcSetting AS CHARACTER
   , pcValue   AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-getProwin) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getProwin Procedure
-FUNCTION getProwin RETURNS CHARACTER() FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -373,10 +373,10 @@ END PROCEDURE. /* getSourceFiles */
 PROCEDURE initializeObject :
 /* Initialize all kind of things.
   */
-  /* Are we at least 10.1C ? */
-  IF PROVERSION < "10.1C" THEN
+  /* Are we at least 10.1B ? */
+  IF PROVERSION < "10.1B" THEN
   DO:
-    MESSAGE "You need at least Progress 10.1C to run DataDigger" SKIP(1)
+    MESSAGE "You need at least Progress 10.1B to run DataDigger" SKIP(1)
             "The program will now quit."
             VIEW-AS ALERT-BOX INFORMATION.
     QUIT.
@@ -398,6 +398,17 @@ PROCEDURE initializeObject :
   /* Add program dir to propath (if not already in) */
   IF SEARCH('datadigger.txt') = ? THEN
     PROPATH = gcProgramDir + ',' + PROPATH.
+
+  /* If the help-ini does not exist, refuse to start */
+  IF SEARCH(gcProgramDir + "DataDiggerHelp.ini") = ? THEN
+  DO:
+    MESSAGE "The file DataDiggerHelp.ini is missing." 
+      SKIP "Please download and reinstall DataDigger again" 
+      SKIP(1) "The program will now quit"
+           VIEW-AS ALERT-BOX INFORMATION.
+    OS-COMMAND NO-WAIT START VALUE("https://datadigger.wordpress.com/download/").
+    QUIT.
+  END.
 
   /* If the general ini file does not exist, create it */
   IF SEARCH(gcProgramDir + "DataDigger.ini") = ? THEN
@@ -491,21 +502,23 @@ END PROCEDURE. /* recompileDataDigger */
 PROCEDURE recompileSelf :
 /* Recompile all DataDigger procedures
   */
-  DEFINE VARIABLE cDiggerDriveType   AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cBuildNr           AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cDiggerDriveType   AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cExpectedDateTime  AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cFileList          AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cLogFile           AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cLogicalDbName     AS CHARACTER   NO-UNDO.  
   DEFINE VARIABLE cMemory            AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cProgressDriveType AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cSystem            AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE cVersionInfo       AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cWorkfolder        AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE hWindow            AS HANDLE      NO-UNDO.
+  DEFINE VARIABLE iCount             AS INTEGER     NO-UNDO.  
+  DEFINE VARIABLE iFile              AS INTEGER     NO-UNDO.
   DEFINE VARIABLE lCompileError      AS LOGICAL     NO-UNDO.
   DEFINE VARIABLE lCoreFileError     AS LOGICAL     NO-UNDO.
-  DEFINE VARIABLE hWindow            AS HANDLE      NO-UNDO.
-  DEFINE VARIABLE cFileList          AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE iFile              AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE cWorkfolder        AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cLogFile           AS CHARACTER   NO-UNDO.
-
+  
   DEFINE BUFFER bOsFile FOR ttOsFile.
 
   /* Get progress version info */
@@ -621,6 +634,17 @@ PROCEDURE recompileSelf :
   /* Recompile sources */
   PUT UNFORMATTED SKIP(1) "RECOMPILING".
 
+  /* Set the standard dictdb alias to the first Progress db */
+  #SetDictDb:
+  DO iCount = 1 TO NUM-DBS:
+    IF DBTYPE(iCount) = "PROGRESS" THEN
+    DO:
+      cLogicalDbName = LDBNAME(iCount).
+      CREATE ALIAS dictdb FOR DATABASE VALUE(cLogicalDbName).
+      LEAVE #SetDictDb.
+    END.
+  END.
+
   FOR EACH bOsFile
     WHERE bOsFile.cFileType = "p"
        OR bOsFile.cFileType = "cls"
@@ -646,6 +670,9 @@ PROCEDURE recompileSelf :
       IF bOsFile.cFileName <> "myDataDigger.p" THEN lCoreFileError = TRUE.
     END.
   END.
+
+  IF cLogicalDbName <> "" THEN
+    DELETE ALIAS dictdb.
 
   /* Reread dir to catch new date/times of .r files */
   RUN getSourceFiles(INPUT gcProgramDir, OUTPUT TABLE bOsFile).
@@ -790,6 +817,30 @@ FUNCTION getProcessorArchitecture RETURNS INTEGER():
 
   RETURN (IF ival1 = ival2 THEN 64 ELSE 32).
 END FUNCTION. /* getProcessorArchitecture */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-getProwin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getProwin Procedure 
+FUNCTION getProwin RETURNS CHARACTER():
+  /* Return the prowin executable name
+  */
+
+  DEFINE VARIABLE cProwin64 AS CHARACTER NO-UNDO INIT "prowin.exe".
+  DEFINE VARIABLE cProwin32 AS CHARACTER NO-UNDO INIT "prowin32.exe".
+
+  FILE-INFO:FILE-NAME = cProwin64.
+  IF FILE-INFO:FULL-PATHNAME > "" THEN RETURN cProwin64.
+
+  FILE-INFO:FILE-NAME = cProwin32.
+  IF FILE-INFO:FULL-PATHNAME > "" THEN RETURN cProwin32.
+
+  RETURN "".
+END FUNCTION. /* getProwin */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -954,30 +1005,6 @@ FUNCTION setRegistry RETURNS CHARACTER
   RETURN "".   /* Function return value. */
 
 END FUNCTION. /* setRegistry */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-getProwin) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getProwin Procedure
-FUNCTION getProwin RETURNS CHARACTER():
-  /* Return the prowin executable name
-  */
-
-  DEFINE VARIABLE cProwin64 AS CHARACTER NO-UNDO INIT "prowin.exe".
-  DEFINE VARIABLE cProwin32 AS CHARACTER NO-UNDO INIT "prowin32.exe".
-
-  FILE-INFO:FILE-NAME = cProwin64.
-  IF FILE-INFO:FULL-PATHNAME > "" THEN RETURN cProwin64.
-
-  FILE-INFO:FILE-NAME = cProwin32.
-  IF FILE-INFO:FULL-PATHNAME > "" THEN RETURN cProwin32.
-
-  RETURN "".
-END FUNCTION. /* getProwin */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

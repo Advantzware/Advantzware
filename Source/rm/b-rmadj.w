@@ -64,10 +64,16 @@ END.
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cAdjustReason-Desc AS CHARACTER NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+cAdjustReason-Desc = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -95,11 +101,11 @@ lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date rm-rctd.i-no ~
 rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
-rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.reject-code[1] ~
+rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.adjustmentCode ~
 rm-rctd.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.i-no rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
-rm-rctd.cost 
+rm-rctd.cost rm-rctd.adjustmentCode
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
@@ -186,7 +192,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
       rm-rctd.cost COLUMN-LABEL "Unit Cost" FORMAT "->>>,>>9.99<<<<":U
       rm-rctd.cost-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
-      rm-rctd.reject-code[1] FORMAT "x(2)":U VIEW-AS COMBO-BOX SORT INNER-LINES 5
+      rm-rctd.adjustmentCode COLUMN-LABEL "Reason" FORMAT "x(50)":U 
+                  VIEW-AS COMBO-BOX SORT INNER-LINES 5
                       LIST-ITEM-PAIRS "Item 1"," Item 1"
                       DROP-DOWN-LIST 
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
@@ -198,6 +205,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.tag
       rm-rctd.qty
       rm-rctd.cost
+      rm-rctd.adjustmentCode
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 15.1
@@ -313,8 +321,8 @@ rm-rctd.rita-code = ""A"""
 "cost" "Unit Cost" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.rm-rctd.cost-uom
 "cost-uom" "UOM" "x(4)" "character" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > asi.rm-rctd.reject-code[1]
-"reject-code[1]" ? ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1, Item 1" 5 yes 0 no no
+     _FldNameList[11]   > asi.rm-rctd.adjustmentCode
+"adjustmentCode" ? ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1, Item 1" 5 yes 0 no no
      _FldNameList[12]   > asi.rm-rctd.user-id
 "user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -547,6 +555,32 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rm-rctd.adjustmentCode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.adjustmentCode Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF rm-rctd.adjustmentCode IN BROWSE Browser-Table /* Reason */
+DO: 
+   IF AVAIL rm-rctd AND rm-rctd.adjustmentCode EQ "" THEN
+       ASSIGN rm-rctd.adjustmentCode:SCREEN-VALUE IN BROWSE {&browse-name} = "" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.adjustmentCode Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rctd.adjustmentCode IN BROWSE Browser-Table /* Reason */
+DO:
+    DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-reason(OUTPUT lopError) NO-ERROR.
+    IF lopError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &UNDEFINE SELF-NAME
 
@@ -661,6 +695,10 @@ PROCEDURE local-assign-record :
    rm-rctd.pur-uom  = lv-pur-uom
    rm-rctd.cost-uom = lv-cst-uom 
    .
+  DO WITH FRAME {&FRAME-NAME}:
+      rm-rctd.adjustmentCode = rm-rctd.adjustmentCode:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} .
+  END.
+
 
 END PROCEDURE.
 
@@ -701,6 +739,14 @@ PROCEDURE local-create-record :
          rm-rctd.s-num  = 0
          rm-rctd.rct-date = today
          .
+
+   IF cAdjustReason-Desc NE "" THEN
+     ASSIGN rm-rctd.adjustmentCode = cAdjustReason-Desc.
+    ELSE
+        ASSIGN 
+            rm-rctd.adjustmentCode = ""
+            rm-rctd.adjustmentCode:SCREEN-VALUE IN BROWSE {&browse-name} = ""  .
+
   disp rm-rctd.rct-date with browse {&browse-name}. 
   lv-recid = recid(rm-rctd).  
   
@@ -828,7 +874,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* when new record created from last row, get error "No rm-rctd" record ava */
@@ -837,8 +883,8 @@ PROCEDURE local-update-record :
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-reason NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-reason(OUTPUT lopError) NO-ERROR.
+  IF lopError THEN RETURN NO-APPLY.
 
   RUN valid-loc-bin-tag (3) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -930,14 +976,15 @@ PROCEDURE pAdjReason :
 ------------------------------------------------------------------------------*/
     &IF DEFINED(FWD-VERSION) EQ 0 &THEN
     cComboList = "".
-    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-     
+    
     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
     RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
     DELETE OBJECT hPgmReason.
 
     DO WITH FRAME {&FRAME-NAME}:   
-        rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+       /* IF lAdjustReason-log EQ NO THEN*/
+        cComboList = cComboList + ",".
+        rm-rctd.adjustmentCode:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
     END.
     &ENDIF
 
@@ -995,14 +1042,14 @@ PROCEDURE valid-reason :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
   DO WITH FRAME {&FRAME-NAME}:
-
-    IF cComboList NE "" AND lAdjustReason-log AND rm-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
+/*MESSAGE "cComboList " STRING(lAdjustReason-log) cComboList  "value  " rm-rctd.adjustmentCode:SCREEN-VALUE IN BROWSE {&browse-name}  VIEW-AS ALERT-BOX ERROR .*/
+    IF cComboList NE "" AND lAdjustReason-log AND rm-rctd.adjustmentCode:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
     THEN DO:
       MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX INFO.
-      APPLY "entry" TO rm-rctd.reject-code[1] IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      APPLY "entry" TO rm-rctd.adjustmentCode IN BROWSE {&browse-name}.
+      oplReturnError = YES .
     END.
   END.
   

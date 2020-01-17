@@ -6,8 +6,8 @@ DEFINE VARIABLE iHourMax AS INTEGER NO-UNDO.
 DEFINE VARIABLE iHourMin AS INTEGER NO-UNDO.
 
 ASSIGN
-    iHourMax = DYNAMIC-FUNCTION("sfHourMax")
-    iHourMin = DYNAMIC-FUNCTION("sfHourMin")
+    iHourMax = DYNAMIC-FUNCTION("sfCommon_HourMax")
+    iHourMin = DYNAMIC-FUNCTION("sfCommon_HourMin")
     .
 &ENDIF
 

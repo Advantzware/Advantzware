@@ -7,13 +7,14 @@
 -l 40000            # Local buffer size
 -Mm 1024            # Message buffer size (3,1K,32K) (must be same in database startup)
 -mmax 65534         # Maximum memory (1,512,65K)
-#-q                  # Quick Request
+-q                  # Quick Request
 -rereadnolock
 -s 2048             # Stack size (9,40,5M)
 -T c:\tmp           # Temp file directory
 -TB 31              # Speed sort (1,2,31)
 -tmpbsize 8
 -TM 32              # Merge number (1,5,32)
+
 # Product Type Parameters
 #-rx
 # ABL Parameters
@@ -23,7 +24,8 @@
 -rand 2             # Random number generator
 -strictEntityResolution 0	#required for Premier, ok for others
 # Internationalization Parameters
--cpstream ISO8859-1 # Stream codepage
+#-cpstream ISO8859-1 # Stream codepage
+-cpstream IBM850    # Stream codepage
 -d mdy              # Date format
 -yy 1950            # Year cutover for century
 -debugalert

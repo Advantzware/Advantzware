@@ -45,8 +45,12 @@ CREATE WIDGET-POOL.
 
 /* to have item spec note window instead regular specnote window */
 &scoped-define item_spec RMItem  
+&scoped-define setUserExit setUserExit
 
-def var li-current-page as int no-undo.
+def var li-current-page as int INIT 1 no-undo.
+def var li-prev-page as int INIT 1 no-undo.
+DEF VAR h_vendcostmtx AS HANDLE NO-UNDO.
+DEF VAR li-page-b4VendCost AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -120,7 +124,7 @@ DEFINE VARIABLE h_v-navest-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-rmov AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecolH AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -140,15 +144,15 @@ DEFINE FRAME FRAME-C
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 61 ROW 1
-         SIZE 89 BY 1.91
+         AT COL 55 ROW 1
+         SIZE 95 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 70 BY 1.91
+         SIZE 60 BY 1.91
          BGCOLOR 15 .
 
 
@@ -223,7 +227,7 @@ ASSIGN FRAME FRAME-C:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME FRAME-C
    UNDERLINE                                                            */
@@ -303,6 +307,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{sys/inc/var.i new shared}
+ASSIGN 
+    cocode = g_Company
+    locode = g_Loc.
+{sys/inc/vendItemCost.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -350,7 +359,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 18.00 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 24.30 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -358,7 +367,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 25.60 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 32.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -366,7 +375,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 81.20 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 88.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Links to SmartFolder h_folder. */
@@ -382,11 +391,19 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 10.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 8.70 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -394,7 +411,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_movecol2 ).
-       RUN set-position IN h_movecol2 ( 1.00 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_movecol2 ( 1.00 , 16.50 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -407,6 +424,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+          /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartViewer h_export. */
        RUN add-link IN adm-broker-hdl ( h_b-item , 'export-xl':U , h_export ).
@@ -901,27 +921,79 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
+PROCEDURE hideVendorCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+   RUN SELECT-page (li-page-b4VendCost).
+   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impItem.p .
+ RUN local-open-query IN h_b-item .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR lv-current-page AS INT NO-UNDO.
+  DEF VAR lv-current-page AS INT NO-UNDO.
+  
+  RUN get-attribute ('Current-Page':U).
+  ASSIGN li-prev-page = li-current-page 
+         li-current-page = int(return-value).        
+  
+    if li-current-page = 5 AND lNewVendorItemCost then 
+    do:
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).
+        /*     RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEstimate = ' + item.est-no).*/
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).
+        ASSIGN 
+            li-page-b4VendCost = li-prev-page.        
+        RUN select-page (11).
 
+        RETURN.
+    END. 
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
     RUN get-attribute ('Current-Page':U).
     ASSIGN 
-        lv-current-page = int(return-value).
+        lv-current-page = int(return-value).    
+  
     IF VALID-HANDLE(h_vp-rmov) THEN DO:
         IF lv-current-page EQ 4 THEN 
             RUN ipShowBtn IN h_vp-rmov (TRUE).
         ELSE
             RUN ipShowBtn IN h_vp-rmov (FALSE).
-    END.
-    
+    END.    
+   
     {methods/winReSizePgChg.i}
   
 END PROCEDURE.
@@ -936,22 +1008,46 @@ PROCEDURE local-create-objects :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+  DEF VAR v-current-page AS INT NO-UNDO.
+    
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN v-current-page = INTEGER(RETURN-VALUE).
+        
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-/* not for corrugated item
-  if avail item and item.i-code = "E" then do:
-     run get-link-handle in adm-broker-hdl(this-procedure, "page-source", output char-hdl).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 5).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 7).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 8).
-     RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 9).
-  end.  
-*/  
+    /* Code placed here will execute AFTER standard behavior.    */
+    /* not for corrugated item
+      if avail item and item.i-code = "E" then do:
+         run get-link-handle in adm-broker-hdl(this-procedure, "page-source", output char-hdl).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 5).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 7).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 8).
+         RUN disable-folder-page IN widget-handle(char-hdl) (INPUT 9).
+      end.  
+    */  
+
+    IF v-current-page = 11 THEN /* new vendor cost tab */
+    DO:
+        RUN init-object IN THIS-PROCEDURE (
+            INPUT  'windows/vendcostmtx.w':U ,
+            INPUT  {&WINDOW-NAME} ,
+            INPUT  'Layout = ':U ,
+            OUTPUT h_vendcostmtx ).
+        /* Position in AB:  ( 5.91 , 7.60 ) */
+        /* Size in UIB:  ( 1.86 , 10.80 ) */
+    
+        /* Initialize other pages that this page requires. */
+        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+        RUN set-position IN h_vendcostmtx ( 5.91 , 7.60 ) NO-ERROR. 
+    /* Links to SmartWindow */
+    /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
+        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'VendCost':U , h_vendcostmtx ).
+    
+    /* Adjust the tab order of the smart objects. */
+    END. /* Page 10 */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -960,10 +1056,22 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
-  Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
-  Parameters:  <none>
-  Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+      Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+      Parameters:  <none>
+      Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+
+
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    /*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').*/
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).    
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = "" ' ).   
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).    */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).       */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).      */
+
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
@@ -1012,6 +1120,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win
+PROCEDURE setUserExit:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+ ------------------------------------------------------------------------------*/
+
+    /* reset VendItemCost Attributes */
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+    /*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').*/
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).    
+    RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = "" ' ).   
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).    */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).       */
+/*   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).      */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

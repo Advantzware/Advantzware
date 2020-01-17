@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_venditemcost
+&SCOPED-DEFINE SetUserExit SetUserExit
 
 /* Parameters Definitions ---                                           */
 
@@ -247,8 +248,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Price Matrix */
 DO:
-  /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
+    /* This ADM code must be left here in order for the SmartWindow
+       and its descendents to terminate properly on exit. */
+  RUN setUserExit.
+       
+  def var char-hdl as cha no-undo.
+  run get-link-handle in adm-broker-hdl(this-procedure,"VendCost-source", output char-hdl).
+  IF valid-handle(widget-handle(char-hdl)) THEN 
+     run hideVendorCost in widget-handle(char-hdl).
   
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -462,6 +469,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_venditemcost , 'Record':U , h_b-vendcostvalue ).
        RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'reopen':U , h_b-vendcostvalue ).
        RUN add-link IN adm-broker-hdl (  h_p-updsav2  , 'TableIO':U , h_b-vendcostvalue) .
+       RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'bottom':U , h_venditemcost-2 ).
        
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_venditemcost-2 ,
@@ -615,7 +623,20 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  DEFINE VARIABLE lQuoteitmExists AS LOGICAL NO-UNDO.
+   
+  DEF VAR adm-current-page AS INT NO-UNDO.
+     RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(h_venditemcost-2) AND adm-current-page NE 2 THEN DO:     
+    RUN vendcost-newitem IN h_venditemcost-2 (OUTPUT lQuoteitmExists).
+    IF lQuoteitmExists THEN DO:
+      MESSAGE "Please add an item or cancel it"
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+      RUN select-page IN THIS-PROCEDURE ( 2 ).
+    END.
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
@@ -653,6 +674,9 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+
+   RUN setUserExit.
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
@@ -702,6 +726,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win
+PROCEDURE setUserExit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# =""').
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = "" ').
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "" ' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = "" ' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
+  RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
+    
+  APPLY "window-close" TO CURRENT-WINDOW.
+  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 

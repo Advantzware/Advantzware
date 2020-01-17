@@ -47,6 +47,12 @@ DEF TEMP-TABLE tt-po-ordl NO-UNDO LIKE po-ordl.
 {windows/l-jobmt1.i NEW}
 {oe/tt-item-qty-price.i}
 
+DEF VAR vic-log AS LOG  NO-UNDO.
+DEF VAR cReturn AS CHAR NO-UNDO.
+DEF VAR lFound  AS LOG  NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -287,7 +293,13 @@ DO:
      END.
     
      DO WHILE TRUE:
-       RUN po/d-poordl.w (?, po-ord.po-no, "add").
+       /* new NK1 for vendItemCost table referencing */
+/*       IF UseVendItemCost THEN RUN po/d-poordlN.w (?, po-ord.po-no, "add").*/
+/*       ELSE                                                                */
+       IF vic-log THEN RUN po/d-poordlN.w (?, po-ord.po-no, "add").
+       ELSE RUN po/d-poordl.w (?, po-ord.po-no, "add").
+       
+       
        FIND FIRST w-po-ordl NO-ERROR.
        IF AVAIL w-po-ordl THEN DELETE w-po-ordl.
        IF NOT CAN-FIND(FIRST w-po-ordl) THEN LEAVE.
@@ -347,7 +359,8 @@ DO:
       BUFFER-COPY po-ordl EXCEPT rec_key line rel-qty t-rel-qty t-inv-qty deleted t-rec-qty opened TO b-po-ordl.
       b-po-ordl.LINE = z.
      
-      RUN po/d-poordl.w (RECID(b-po-ordl), po-ord.po-no, "Copy").
+      IF vic-log THEN RUN po/d-poordlN.w (RECID(b-po-ordl), po-ord.po-no, "Copy").
+      ELSE RUN po/d-poordl.w (RECID(b-po-ordl), po-ord.po-no, "Copy").
      
       FOR EACH b-po-ordl WHERE
           b-po-ordl.company EQ po-ord.company AND
@@ -414,8 +427,8 @@ DO:
       
        CREATE tt-po-ordl.
        BUFFER-COPY po-ordl TO tt-po-ordl.
-      
-       run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "update") . 
+       IF vic-log THEN run po/d-poordlN.w (recid(po-ordl), po-ord.po-no, "update") .
+       ELSE run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "update") . 
       
        BUFFER-COMPARE tt-po-ordl TO po-ordl SAVE RESULT IN ll.
       
@@ -462,8 +475,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View V-table-Win
 ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
-   IF AVAIL po-ord THEN
-      run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view"). 
+   IF AVAIL po-ord THEN DO:
+      IF vic-log THEN run po/d-poordlN.w (recid(po-ordl), po-ord.po-no, "view"). 
+      ELSE run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view").
+   END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -577,8 +577,8 @@ END.
 ON WINDOW-CLOSE OF C-Win /* PO Purchased Variance */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -654,8 +654,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-   apply "close" to this-procedure.
+DO: 
+  /* This event will close the window and terminate the procedure.  */
+     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1243,6 +1244,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTTVendItemCost C-Win 
+PROCEDURE pBuildTTVendItemCost PRIVATE:
+/*------------------------------------------------------------------------------ 
+  Purpose:  Populates tt-ei and tt-eiv from vendItemCost and vendItemcostLevel tables  
+  Parameters:  <none>
+  Notes:    
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemId   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorId AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO INITIAL 1.
+
+    FIND FIRST vendItemCost NO-LOCK  
+        WHERE vendItemCost.company  EQ ipcCompany
+          AND vendItemCost.itemID   EQ ipcItemID
+          AND vendItemcost.itemType EQ ipcItemtype
+          AND vendItemCost.vendorID EQ ipcVendorId
+          NO-ERROR.
+           
+    IF AVAILABLE(vendItemCost) THEN DO:
+        CREATE tt-ei.
+        ASSIGN 
+            iIndex        = 1
+            tt-ei.std-uom = vendItemCost.vendorUom
+            .
+            
+        CREATE tt-eiv.
+        FOR EACH  vendItemCostLevel NO-LOCK
+            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID :
+            ASSIGN
+                tt-eiv.run-cost[iIndex] = vendItemCostLevel.costPerUOM
+                tt-eiv.run-qty[iIndex]  = vendItemCostLevel.quantityBase
+                iIndex                  = iIndex + 1
+                .                                          
+        END.    
+    END.    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1636,6 +1681,11 @@ DEF VAR vaddr2 AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-top5DL3.f}
@@ -1723,6 +1773,18 @@ DEF VAR cslist AS cha NO-UNDO.
    OUTPUT STREAM st-excel TO VALUE(cFileName).
    PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
+ 
+ RUN sys/ref/nk1look.p(
+     INPUT  cocode,         /* Company       */
+     INPUT  "vendItemCost", /* Sys-Ctrl Name */
+     INPUT  "L",            /* Logical       */
+     INPUT  NO,             /* Check by cust */
+     INPUT  YES,            /* Use Cust      */
+     INPUT  "",             /* Customer      */
+     INPUT  "",             /* Ship-to       */
+     OUTPUT cReturnValue,
+     OUTPUT lRecFound
+     ).
 
 {sa/sa-sls01.i}
 
@@ -1838,71 +1900,80 @@ def var pr-ct as int no-undo.
 
 IF rd_vend-cost BEGINS "Vend" THEN DO:
 
-  EMPTY TEMP-TABLE tt-ei.
-  EMPTY TEMP-TABLE tt-eiv.
-
-  IF po-ordl.item-type THEN DO:
-    FIND FIRST e-item
-        WHERE e-item.company EQ cocode
-          AND e-item.i-no    EQ po-ordl.i-no
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL e-item THEN DO:
-      CREATE tt-ei.
-      ASSIGN tt-ei.std-uom = e-item.std-uom.
-
-      FIND FIRST e-item-vend OF e-item
-          WHERE e-item-vend.vend-no EQ po-ord.vend-no
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL e-item-vend THEN DO:
-         CREATE tt-eiv.
-         DO pr-ct = 1 TO 10:
-            ASSIGN
-               tt-eiv.run-qty[pr-ct] = e-item-vend.run-qty[pr-ct]
-               tt-eiv.run-cost[pr-ct] = e-item-vend.run-cost[pr-ct].
-         END.
-
-         
-
-         IF AVAIL e-item-vend THEN
-         DO:
-            
-
-            DO pr-ct = 1 TO 10:
-               ASSIGN
-                  tt-eiv.run-qty[pr-ct + 10] = e-item-vend.runQtyXtra[pr-ct]
-                  tt-eiv.run-cost[pr-ct + 10] = e-item-vend.runCostXtra[pr-ct].
+    EMPTY TEMP-TABLE tt-ei.
+    EMPTY TEMP-TABLE tt-eiv.
+    
+    IF lRecFound AND LOGICAL(cReturnValue) THEN 
+        RUN pBuildTTVendItemCost( 
+            INPUT cocode,                                     /*Company code  */
+            INPUT po-ordl.i-no,                               /*Item number   */                
+            INPUT (IF po-ordl.item-type THEN "RM" ELSE "FG"), /*Item type     */
+            INPUT po-ord.vend-no                              /*Vendor number */
+            ).
+                
+    ELSE DO: 
+        /* If item type is RM (Raw Material) */
+        IF po-ordl.item-type THEN DO:
+            FIND FIRST e-item
+                 WHERE e-item.company EQ cocode
+                   AND e-item.i-no    EQ po-ordl.i-no
+                   NO-LOCK NO-ERROR.
+        
+            IF AVAIL e-item THEN DO:
+                CREATE tt-ei.
+                ASSIGN tt-ei.std-uom = e-item.std-uom.
+                
+                FIND FIRST e-item-vend OF e-item
+                     WHERE e-item-vend.vend-no EQ po-ord.vend-no
+                     NO-LOCK NO-ERROR.
+        
+                IF AVAIL e-item-vend THEN DO:
+                    CREATE tt-eiv.
+                    DO pr-ct = 1 TO 10:
+                        ASSIGN
+                            tt-eiv.run-qty[pr-ct]  = e-item-vend.run-qty[pr-ct]
+                            tt-eiv.run-cost[pr-ct] = e-item-vend.run-cost[pr-ct]
+                            .
+                    END.
+               
+                    IF AVAIL e-item-vend THEN DO:
+                        DO pr-ct = 1 TO 10:
+                            ASSIGN
+                                tt-eiv.run-qty[pr-ct + 10] = e-item-vend.runQtyXtra[pr-ct]
+                                tt-eiv.run-cost[pr-ct + 10] = e-item-vend.runCostXtra[pr-ct]
+                                .
+                        END.
+                    END.
+                END.
             END.
-         END.
-      END.
-    END.
-  END.
-
-  ELSE DO:
-    FIND FIRST e-itemfg
-        WHERE e-itemfg.company EQ cocode
-          AND e-itemfg.i-no    EQ po-ordl.i-no
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL e-itemfg THEN DO:
-      CREATE tt-ei.
-      BUFFER-COPY e-itemfg TO tt-ei.
-
-      FIND FIRST e-itemfg-vend OF e-itemfg
-          WHERE e-itemfg-vend.vend-no EQ po-ord.vend-no
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL e-itemfg-vend THEN DO:
-        CREATE tt-eiv.
-        DO pr-ct = 1 TO 10:
-           ASSIGN
-              tt-eiv.run-qty[pr-ct] = e-itemfg-vend.run-qty[pr-ct]
-              tt-eiv.run-cost[pr-ct] = e-itemfg-vend.run-cost[pr-ct].
         END.
-      END.
+        ELSE DO: /* If item type is FG (Finished Goods) */
+            FIND FIRST e-itemfg
+                WHERE e-itemfg.company EQ cocode
+                  AND e-itemfg.i-no    EQ po-ordl.i-no
+                  NO-LOCK NO-ERROR.
+    
+            IF AVAIL e-itemfg THEN DO:
+      
+                CREATE tt-ei.
+                BUFFER-COPY e-itemfg TO tt-ei.
+    
+                FIND FIRST e-itemfg-vend OF e-itemfg
+                    WHERE e-itemfg-vend.vend-no EQ po-ord.vend-no
+                    NO-LOCK NO-ERROR.
+    
+                IF AVAIL e-itemfg-vend THEN DO:
+                    CREATE tt-eiv.
+                    DO pr-ct = 1 TO 10:
+                        ASSIGN
+                            tt-eiv.run-qty[pr-ct] = e-itemfg-vend.run-qty[pr-ct]
+                            tt-eiv.run-cost[pr-ct] = e-itemfg-vend.run-cost[pr-ct]
+                            .
+                    END.
+                END.
+            END.
+        END. 
     END.
-  END.
 
   find first tt-eiv no-error.
 
@@ -1922,11 +1993,23 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
 
     IF AVAIL tt-eiv THEN DO:
       ld-dim-charge = 0.
-      IF AVAIL e-item-vend  THEN
-      RUN est/dim-charge.p (e-item-vend.rec_key,
-                            po-ordl.s-wid,
-                            po-ordl.s-len,
-                            INPUT-OUTPUT ld-dim-charge).
+      IF LOGICAL(cReturnValue) AND AVAILABLE(vendItemCost) THEN
+          RUN GetDimCharge (
+              INPUT ROWID(vendItemCost),        /*VendItemCost RowID*/
+              INPUT po-ordl.s-wid,              /*Width             */
+              INPUT po-ordl.s-len,              /*Length            */
+              INPUT-OUTPUT ld-dim-charge,       /*Dim charge        */
+              OUTPUT lError,                    /*Success flag      */
+              OUTPUT cMessage                   /*Message           */
+              ) NO-ERROR.               
+      ELSE IF AVAILABLE(e-item-vend)  THEN
+          RUN est/dim-charge.p (
+              INPUT e-item-vend.rec_key,
+              INPUT po-ordl.s-wid,
+              INPUT po-ordl.s-len,
+              INPUT-OUTPUT ld-dim-charge
+              ).     
+                          
       DO pr-ct = 1 TO 20:
         IF tt-eiv.run-qty[pr-ct] GE v-tot-vend THEN DO:
            v-vend-cost = (tt-eiv.run-cost[pr-ct] + ld-dim-charge) * v-tot-vend.
@@ -1934,7 +2017,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
         END.
       END.
     END.
-  end.
+  END.
 END.
 
 ELSE RUN sys/inc/po-invqa.p (RECID(po-ordl), OUTPUT ld, OUTPUT v-vend-cost).

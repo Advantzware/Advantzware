@@ -1,1 +1,1 @@
-notes period
+notes period venditemcost

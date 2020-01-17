@@ -32,15 +32,24 @@ DEFINE INPUT PARAMETER ipcEndCust   AS CHARACTER NO-UNDO .
 DEFINE INPUT PARAMETER ipdtBeginDate AS DATE NO-UNDO .
 DEFINE INPUT PARAMETER ipdtEndDate  AS DATE NO-UNDO .
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
+
+{methods/defines/globdefs.i}
+DEFINE VARIABLE v-prgmname   LIKE prgrms.prgmname NO-UNDO.
+/*{custom/globdefs.i}*/
 
 {oe/rep/oe-lad.i }
 
 {sys/inc/var.i new shared}
 
+
 assign
  cocode = g_company
  locode = g_loc.
+
+ASSIGN
+    v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
+    v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")) .
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -247,6 +256,7 @@ DO:
         tt-temp-report.key-08  = cState:SCREEN-VALUE
         tt-temp-report.key-09  = cZip:SCREEN-VALUE  .
 
+     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -284,9 +294,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       AND oe-bolh.frt-pay EQ "T" NO-ERROR .
 
   DO WITH FRAME {&FRAME-NAME}:
-      IF NOT AVAIL oe-bolh THEN
+      {custom/usrprint.i}
+      IF NOT AVAIL oe-bolh THEN do:
           DISABLE cName cAdd1 cAdd2 cCity cState cZip  .
+          cName:SCREEN-VALUE = "".
+          cAdd1:SCREEN-VALUE = "".
+          cAdd2:SCREEN-VALUE = "".
+          cCity:SCREEN-VALUE = "".
+          cState:SCREEN-VALUE = "".
+          cZip:SCREEN-VALUE = "".
       END.
+  END.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 
 END.

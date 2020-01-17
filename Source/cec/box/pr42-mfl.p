@@ -26,7 +26,7 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
 {cec/print4.i shared shared}
-
+{sys/inc/venditemcost.i}
 def var rm-wt$ as de NO-UNDO.
 def var rm-wt% as de NO-UNDO.
 def var rm-wt  as de NO-UNDO.
@@ -120,12 +120,19 @@ do with no-box no-labels frame med1  stream-io :
      v-qty = med-qty.
    ELSE
      v-qty = med-qty * item.basis-w.
-
-   {est/matcost.i v-qty mfl$ medium}
-
+     
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i v-qty mfl$ medium}  
+   END.
+   ELSE 
+   DO:
+      {est/matcost.i v-qty mfl$ medium}
+       mfl$  = (b-msh * v-qty) + lv-setup-medium.
+   END.
    ASSIGN
-    b-msh = mfl$
-    mfl$  = (b-msh * v-qty) + lv-setup-medium.
+    b-msh = mfl$.
+    
 
    /*find first brd where brd.form-no = xef.form-no and
                         brd.i-no    = item-bom.i-no
@@ -229,12 +236,20 @@ do with no-box no-labels frame flute  stream-io :
      v-qty = med-qty.
    ELSE
      v-qty = med-qty * item.basis-w.
-
-   {est/matcost.i v-qty mfl$ flute}
-
+     
+   IF lNewVendorItemCost THEN 
+   DO:
+      {est/getVendCost.i v-qty mfl$ flute}  
+   END.
+   ELSE 
+   DO:
+     {est/matcost.i v-qty mfl$ flute}
+     mfl$  = (b-msh * v-qty) + lv-setup-flute.
+   END.
+   
    ASSIGN
-    b-msh = mfl$
-    mfl$  = (b-msh * v-qty) + lv-setup-flute.
+    b-msh = mfl$. 
+    
 
    create w-brd.
    assign w-brd.form-no  = xef.form-no
