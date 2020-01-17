@@ -1017,9 +1017,9 @@ PROCEDURE ipProcess :
     DO:
         RUN ipStatus("  Connecting Audit DB with statement...").
         ASSIGN
-            cConnect = "-db " + cAudDb + 
+            cConnect = "-db " + ENTRY(iEnv,cAudDBList) + 
                        " -H " + chostName +
-                       " -S " + cPort +
+                       " -S " + ENTRY(iEnv,cAudPortList) +
                        " -N tcp -ld Audit".
         RUN ipStatus("    " + cConnect).
         CONNECT VALUE(cConnect) NO-ERROR.
@@ -1219,7 +1219,8 @@ PROCEDURE ipStatus :
         END.
     END.
     
-    RUN asiUpdateHist.p (INPUT TABLE ttUpdateHist BY-REFERENCE).
+    IF ipcStatus EQ "Upgrade Complete." THEN 
+        RUN asiUpdateHist.p (INPUT TABLE ttUpdateHist BY-REFERENCE).
                
     PROCESS EVENTS.
 
