@@ -446,6 +446,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* FG Physical Analysis  Posting */
 DO:
+  RUN spSetSessionParam ("ItemType", "All,FG,RM,WP").
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
