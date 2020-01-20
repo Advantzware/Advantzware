@@ -59,6 +59,13 @@ DEF VAR lv-start-time-su AS cha COLUMN-LABEL "Setup!Start" NO-UNDO FORMAT 'X(5)'
 DEF VAR lv-end-time-su AS cha COLUMN-LABEL "Setup!End" NO-UNDO FORMAT 'X(5)'.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEFINE VARIABLE cEstMachine AS CHARACTER LABEL "Est Mach" NO-UNDO.
+DEFINE NEW SHARED TEMP-TABLE tt-job-item 
+    FIELD tt-rowid    AS ROWID
+    FIELD frm         LIKE job-mat.frm
+    FIELD blank-no    LIKE job-mat.blank-no
+    FIELD rm-i-no     AS CHARACTER 
+    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1067,14 +1074,47 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ DEFINE BUFFER bf-job-mch FOR job-mch .
+ DEFINE VARIABLE lMultiRecord AS LOGICAL NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-  END.
+ i = 0 .
+ MAIN-JOB-MCH:
+ FOR EACH bf-job-mch NO-LOCK
+     WHERE bf-job-mch.company = job.company 
+       AND bf-job-mch.job = job.job
+       AND bf-job-mch.job-no = job.job-no 
+       AND bf-job-mch.job-no2 = job.job-no2 
+     use-index line-idx :
+     i = i + 1 .
+     IF i GE 2 THEN do:
+       lMultiRecord = YES .
+       LEAVE MAIN-JOB-MCH .
+     END.
+ END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+ IF lMultiRecord THEN do:
+     IF AVAIL job-mch THEN
+         RUN jc/JobItemPop.w(job.job-no,job.job-no2,ROWID(job-mch),"job-mch" ) .
+
+     FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
+        FOR EACH bf-job-mch EXCLUSIVE-LOCK 
+            WHERE bf-job-mch.company EQ cocode AND 
+            ROWID(bf-job-mch) EQ tt-job-item.tt-rowid :
+            DELETE bf-job-mch .
+        END.
+    END.
+
+     RUN dispatch ("open-query").
+     APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+ END.
+ ELSE do:
+     IF NOT adm-new-record THEN DO:
+      {custom/askdel.i}
+     END.
+
+      /* Dispatch standard ADM method.                             */
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+ END.
 
   /* Code placed here will execute AFTER standard behavior.    */
 
