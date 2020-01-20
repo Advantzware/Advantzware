@@ -2019,7 +2019,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     tb_EMailAdvNotice:SENSITIVE = YES.
     APPLY 'value-changed':u TO rd-dest.
-    APPLY "VALUE-CHANGED":U TO tb_post-bol.
   END.
 
 
@@ -2050,7 +2049,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          RUN_format:HIDDEN IN FRAME FRAME-A = YES .
      ELSE 
          RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
-
+         
+  APPLY "VALUE-CHANGED":U TO tb_post-bol IN FRAME {&FRAME-NAME}.
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -3897,7 +3898,10 @@ PROCEDURE post-bol :
     END.
   END.
 
-  RUN oe/oe-bolp3.p (v-term).
+  RUN oe/oe-bolp3.p(
+         INPUT v-term,
+         INPUT fiPostDate
+         ).
 
   /* close transfer order here */
   RUN oe/closchk.p (0).

@@ -2685,7 +2685,10 @@ FOR EACH tt-report:
   BUFFER-COPY tt-report TO report.
   DELETE tt-report.
 END.
-RUN oe/oe-bolp3.p (v-term).    
+RUN oe/oe-bolp3.p(
+    INPUT v-term,
+    INPUT TODAY
+    ).    
 
 RUN upd-actual-rel (v-term).
 EMPTY TEMP-TABLE tt-report-a.
