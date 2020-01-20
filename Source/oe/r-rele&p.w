@@ -1147,7 +1147,10 @@ FOR EACH report WHERE report.term-id EQ v-term EXCLUSIVE-LOCK,
   DELETE report.
 END.
 
-RUN oe/oe-bolp3.p (v-term).
+RUN oe/oe-bolp3.p(
+    INPUT v-term,
+    INPUT tran-date 
+    ).
 
 delete-blok:
 FOR EACH oe-relh NO-LOCK

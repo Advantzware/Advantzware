@@ -1548,7 +1548,8 @@
         END.
             
         RUN oe/oe-bolp3.p (
-            INPUT cTerm
+            INPUT cTerm,
+            INPUT TODAY
             ) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN DO:
             ASSIGN

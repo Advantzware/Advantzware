@@ -354,7 +354,10 @@ PROCEDURE post-bol:
     END.
   END.
 
-  RUN oe/oe-bolp3.p (v-term).
+  RUN oe/oe-bolp3.p(
+      INPUT v-term,
+      INPUT TODAY
+      ).
 
   /* close transfer order here */
   RUN oe/closchk.p (0).
