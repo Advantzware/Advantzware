@@ -146,6 +146,56 @@ PROCEDURE JSON_GetFieldValueByNameAndParent:
     RELEASE bf-ttRequest.        
 END PROCEDURE.
 
+PROCEDURE JSON_GetFieldOrderListByParent:  
+    /*------------------------------------------------------------------------------
+     Purpose: Fetches the list of field order values for a given parent 
+     Notes:  
+    ------------------------------------------------------------------------------*/      
+    DEFINE INPUT  PARAMETER ipiParentID       AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecFound       AS LOGICAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcFieldOrderList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttRequest FOR ttRequest.
+
+    FOR EACH bf-ttRequest
+        WHERE bf-ttRequest.fieldParent EQ ipiParentID:
+        ASSIGN
+            oplRecFound       = TRUE
+            opcFieldOrderList = opcFieldOrderList + "," + STRING(bf-ttRequest.fieldOrder)
+            .
+    END.
+    
+    opcFieldOrderList = TRIM(opcFieldOrderList,",").
+    
+    RELEASE bf-ttRequest.        
+END PROCEDURE.
+
+PROCEDURE JSON_GetNameAndValueByFieldOrder:  
+    /*------------------------------------------------------------------------------
+     Purpose: Fetches the name and value of a given field order id
+     Notes:  
+    ------------------------------------------------------------------------------*/      
+    DEFINE INPUT  PARAMETER ipiFieldOrderID  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcName          AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcValue         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttRequest FOR ttRequest.
+
+    FIND FIRST bf-ttRequest
+         WHERE bf-ttRequest.fieldOrder EQ ipiFieldOrderID
+         NO-ERROR.
+    IF AVAILABLE bf-ttRequest THEN DO:
+        ASSIGN
+            oplRecFound = TRUE
+            opcName     = bf-ttRequest.fieldName
+            opcValue    = bf-ttRequest.fieldValue
+            .
+    END.   
+    
+    RELEASE bf-ttRequest.        
+END PROCEDURE.
+
 PROCEDURE JSON_GetFieldOrderByNameValueAndParent:    
     DEFINE INPUT  PARAMETER ipcFieldName  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFieldValue AS CHARACTER NO-UNDO.
