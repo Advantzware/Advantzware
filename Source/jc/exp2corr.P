@@ -352,10 +352,14 @@ SUBSTRING(download-record1,92,10) = "          "   /* download-item*/
 v-sheets = 0.
 /*SUBSTRING(download-record1,102,6) = string(job-hdr.qty)  /*download-quantity*/ */
 IF lNetQty THEN DO:
+    // Including the job field in the join affects the sort order
     FOR EACH job-mat NO-LOCK 
         WHERE job-mat.company EQ job-hdr.company
+          AND job-mat.job EQ job-hdr.job
           AND job-mat.job-no EQ job-hdr.job-no
           AND job-mat.job-no2 EQ job-hdr.job-no2
+          BY job-mat.frm 
+          BY job-mat.blank-no
         :
         FIND ITEM NO-LOCK 
             WHERE item.company EQ job-hdr.company
@@ -363,9 +367,9 @@ IF lNetQty THEN DO:
             NO-ERROR.
 
             /* #56309 - correction for when more than 1 up */
-            IF AVAIL eb AND eb.num-up GT 1 THEN DO:
+            IF AVAIL eb AND eb.num-up GT 1 THEN DO:              
               for each job-mch no-lock
-                where job-mch.company eq job-hdr.company
+                where job-mch.company eq job-hdr.company                 
                   and job-mch.job-no eq job-hdr.job-no
                   and job-mch.job-no2 eq job-hdr.job-no2
                   by job-mch.frm 
