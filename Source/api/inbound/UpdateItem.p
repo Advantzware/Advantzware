@@ -128,7 +128,7 @@ PROCEDURE pUpdateInputs PRIVATE:
                 OUTPUT bf-ttInput.fieldProcess
                 ) NO-ERROR.
             
-            IF bf-ttInput.fieldDB NE "" AND bf-ttInput.fieldDataType NE "" THEN
+            IF bf-ttInput.fieldDB EQ "" OR bf-ttInput.fieldDataType EQ "" THEN
                 NEXT.
              
             IF bf-ttInput.fieldDataType EQ "CHARACTER" THEN
