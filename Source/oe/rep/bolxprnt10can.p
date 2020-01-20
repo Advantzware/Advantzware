@@ -110,6 +110,11 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /*ASSIGN
    ls-image1 = "images\Lovepac_logo.jpg"
    FILE-INFO:FILE-NAME = ls-image1
@@ -118,6 +123,24 @@ DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
@@ -406,7 +429,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R56><C1>" v-ship-i[4] AT 7 
     "<R58><C1>"
     "__________________________________________________________________________________________________________________" 
-    "<R59><C1>" "<B>  Signature De Rèception </B>" 
+    "<R59><C1>" "<B>  Signature De Réception </B>" 
     "<R60><C7>" "Client ________________________________________                       Transporteur/Carrier_____________________________" 
     "<R62><C7>" "Date ____________________________________________                       Date _________________________________________"     
     .
@@ -429,6 +452,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
   oe-bolh.printed = yes.
 end. /* for each oe-bolh */
 
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 PROCEDURE PrintBarTag:
    DEF VAR iBarLine AS INT NO-UNDO.

@@ -6,8 +6,7 @@
   &Scoped-define TABLENAME {&FIRST-EXTERNAL-TABLE}
   &ENDIF
 
-  &IF /*INDEX("{&NORECKEY}","{&TABLENAME}") bug*/
-       lookup("{&TABLENAME}","{&NORECKEY}"," ")  = 0 &THEN
+  &IF LOOKUP("{&TABLENAME}","{&NORECKEY}"," ")  = 0 &THEN
   IF AVAILABLE {&TABLENAME} THEN
   DO:    
     FIND CURRENT {&TABLENAME} NO-LOCK.

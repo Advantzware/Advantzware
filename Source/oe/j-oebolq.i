@@ -3,16 +3,17 @@
 DEF VAR lv-b-no LIKE oe-bolh.bol-no NO-UNDO.
 
 IF fi_bol-no NE 0 THEN DO:
-  FIND FIRST oe-bolh NO-LOCK
-      WHERE oe-bolh.company EQ cocode
-        AND oe-bolh.bol-no  EQ fi_bol-no
-      NO-ERROR.
+    FIND FIRST oe-bolh NO-LOCK
+         WHERE oe-bolh.company EQ cocode
+           AND oe-bolh.bol-no  EQ fi_bol-no
+         NO-ERROR.
 
-  IF AVAIL oe-bolh THEN DO:
-    lv-b-no = oe-bolh.b-no.
+    IF AVAILABLE oe-bolh THEN DO:
+        lv-b-no = oe-bolh.b-no.
 
-    RELEASE oe-bolh.
-
+        RELEASE oe-bolh.
+    END.
+  
     &SCOPED-DEFINE open-query               ~
         OPEN QUERY {&browse-name}           ~
           {&for-each1}                      ~
@@ -23,7 +24,7 @@ IF fi_bol-no NE 0 THEN DO:
 
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
-  END.
+  
 END.
 
 ELSE

@@ -44,7 +44,7 @@ assign
 {ap/ap-chk.i NEW }
 FIND CURRENT sys-ctrl NO-LOCK NO-ERROR.
 def var laser-list as char no-undo
-   init "l,Laser,Raritan,Hartford,ASILaser,Laser,TriadLas,ASI2000,AllLaser,Argvlas,Action,AllLaserHP1536DN".    /* Task 09301303*/
+   init "l,Laser,Raritan,Hartford,ASILaser,Delta,Laser,TriadLas,ASI2000,AllLaser,Argvlas,Action,AllLaserHP1536DN".    /* Task 09301303*/
 DEFINE VARIABLE laser-list-ach AS CHARACTER NO-UNDO 
     INIT "ASI,Badger".
 
@@ -1132,7 +1132,7 @@ DEF VAR lFlag AS LOGICAL NO-UNDO INIT YES.
 /* Finds/creates tmp directory */
 {sys/inc/print1.i}
 
-   IF LOOKUP(next-program,"ap/ap-ckfibl.p,ap/ap-ckuni.p,ap/ap-ckprt.p,ap/ap-ckasx.p,ap/ap-ckhug.p") EQ 0 THEN DO:    /* Task 09301303*/
+   IF LOOKUP(next-program,"ap/ap-ckfibl.p,ap/ap-ckuni.p,ap/ap-ckprt.p,ap/ap-ckasx.p,ap/ap-ckhug.p,ap/ap-chkondu.p") EQ 0 THEN DO:    /* Task 09301303*/
         {sys/inc/outprint.i 0}  /* output to value(list-name) page-size {1} */
    END.
 /*    ELSE IF LOOKUP(next-program,"ap/ap-ckhug.p") GT 0 THEN */
@@ -1463,6 +1463,10 @@ ELSE DO:
           assign
              max-per-chk  = 12
              next-program = "ap/ap-ckasi.p".
+       WHEN "Delta" THEN
+          assign
+             max-per-chk  = 12
+             next-program = "ap/ap-delta.p".
        WHEN "Laser" THEN
           assign
              max-per-chk  = 12
@@ -1593,6 +1597,11 @@ ELSE DO:
              ll-is-xprint-form = YES
              max-per-chk  = 10
              next-program = "ap/ap-ckapfmt2.p".
+       WHEN "Onducorr" then
+          assign
+             ll-is-xprint-form = YES
+             max-per-chk  = 12
+             next-program = "ap/ap-chkondu.p".
        OTHERWISE DO:
           assign
              max-per-chk  = if v-print-fmt eq "s" then 20 else 12
@@ -1600,6 +1609,7 @@ ELSE DO:
 
           if search(next-program) eq ? then
              next-program = "ap/ap-chk" + v-print-fmt + ".r".
+          
        END.
 
    END CASE.

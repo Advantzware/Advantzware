@@ -677,9 +677,9 @@ DEFINE FRAME d-oeitem
           SIZE 31 BY 1
      oe-ordl.e-num AT ROW 9.33 COL 55 COLON-ALIGNED HELP
           "Customer PO Line Number"
-          LABEL "Ln#" FORMAT ">>>"
+          LABEL "Ln#" FORMAT ">>>>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
+          SIZE 9 BY 1
      oe-ordl.po-no-po AT ROW 10.52 COL 15.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -1640,7 +1640,7 @@ END.
 ON ENTRY OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
 DO:
     ll-ok-i-no = NO.
-    IF (INDEX("ON",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
+    IF (INDEX("ONT",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
        (oe-ordl.est-no:SCREEN-VALUE = "" OR ls-stock = "") THEN DO:
     END.
     ELSE DO:
@@ -7818,7 +7818,7 @@ IF AVAIL itemfg THEN DO:
               IF NOT AVAIL b-vendItemCost THEN
               DO:
                   CREATE b-vendItemCost.
-                  BUFFER-COPY vendItemCost EXCEPT itemID rec_key estimateNo formNo blankNo
+                  BUFFER-COPY vendItemCost EXCEPT venditemcostID itemID rec_key estimateNo formNo blankNo
                       TO b-vendItemCost
                       ASSIGN 
                       b-vendItemCost.estimateNo = ""
@@ -7829,7 +7829,7 @@ IF AVAIL itemfg THEN DO:
                       v-cost-updated = YES.                 
               END.
               ELSE IF b-eb2.stock-no NE "" THEN  do: /*update costs*/
-                  BUFFER-COPY vendItemCost EXCEPT itemID rec_key estimateNo formNo blankNo
+                  BUFFER-COPY vendItemCost EXCEPT venditemcostID itemID rec_key estimateNo formNo blankNo
                           TO b-vendItemCost.
                   ASSIGN v-cost-updated = YES.
               END.

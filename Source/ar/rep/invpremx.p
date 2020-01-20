@@ -107,7 +107,11 @@ DEFINE VARIABLE lChkImage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cTaxCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
     
     find first company where company.company = cocode no-lock no-error.
 IF company.company EQ '004' THEN 
@@ -131,6 +135,24 @@ IF company.company EQ '004' THEN
   RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
             OUTPUT cRtnChar, OUTPUT lRecFound).
+  IF lRecFound AND cRtnChar NE "" THEN DO:
+      cRtnChar = DYNAMIC-FUNCTION (
+                     "fFormatFilePath" IN hdFileSysProcs,
+                     cRtnChar
+                     ).
+                     
+      /* Validate the N-K-1 BusinessFormLogo image file */
+      RUN FileSys_ValidateFile IN hdFileSysProcs (
+          INPUT  cRtnChar,
+          OUTPUT lValid,
+          OUTPUT cMessage
+          ) NO-ERROR.
+  
+      IF NOT lValid THEN DO:
+          MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+              VIEW-AS ALERT-BOX ERROR.
+      END.
+   END.
 
 IF cRtnChar NE "" THEN DO:
     ASSIGN 
@@ -517,5 +539,7 @@ END.
               xar-inv.stat = "X".
     END. /* DO TRANSACTION avail ar-inv */ 
   end. /* each ar-inv */
+  IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

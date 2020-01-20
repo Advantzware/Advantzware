@@ -634,14 +634,7 @@ PROCEDURE pAddEstFarm PRIVATE:
     FIND FIRST bf-estCostItem NO-LOCK 
         WHERE bf-estCostItem.estCostItemID EQ ipbf-estCostBlank.estCostItemID
         NO-ERROR.
-    FIND FIRST bf-e-itemfg-vend NO-LOCK 
-        WHERE bf-e-itemfg-vend.company EQ ipbf-estCostBlank.company
-        AND bf-e-itemfg-vend.est-no EQ ipbf-estCostBlank.estimateNo
-        AND bf-e-itemfg-vend.form-no EQ ipbf-estCostBlank.formNo
-        AND bf-e-itemfg-vend.blank-no EQ ipbf-estCostBlank.blankNo
-        //AND bf-e-itemfg-vend.vend-no EQ ""  /*REFACTOR - vendor selection?*/
-        NO-ERROR.    
-    IF AVAILABLE bf-estCostItem AND AVAILABLE bf-e-itemfg-vend THEN 
+    IF AVAILABLE bf-estCostItem THEN 
     DO:
         CREATE opbf-estCostMaterial.
         ASSIGN 
@@ -654,7 +647,7 @@ PROCEDURE pAddEstFarm PRIVATE:
             opbf-estCostMaterial.blankNo            = ipbf-estCostBlank.blankNo
             opbf-estCostMaterial.itemID             = bf-estCostItem.itemID
             opbf-estCostMaterial.itemName           = bf-estCostItem.itemName
-            opbf-estCostMaterial.quantityUOM        = bf-e-itemfg-vend.std-uom
+            opbf-estCostMaterial.quantityUOM        = "EA"
             opbf-estCostMaterial.quantityUOMWaste   = opbf-estCostMaterial.quantityUOM
             opbf-estCostMaterial.sequenceOfMaterial = 1
             .
@@ -3705,98 +3698,100 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
         opdCost    = 0
         opdSetup   = 0.
     
-    /*    RUN GetVendorCost(ipbf-estCostMaterial.company,   */
-    /*                  ipbf-estCostMaterial.itemID,        */
-    /*                  "RM",                               */
-    /*                  ipcVendNo,                          */
-    /*                  "",                                 */
-    /*                  ipbf-estCostMaterial.estimateNo,    */
-    /*                  ipbf-estCostMaterial.formNo,        */
-    /*                  ipbf-estCostMaterial.blankNo,       */
-    /*                  ipdQty,                             */
-    /*                  ipcQtyUOM,                          */
-    /*                  ipbf-estCostMaterial.dimLength,     */
-    /*                  ipbf-estCostMaterial.dimWidth,      */
-    /*                  ipbf-estCostMaterial.dimDepth,      */
-    /*                  ipbf-estCostMaterial.dimUOM,        */
-    /*                  ipbf-estCostMaterial.basisWeight,   */
-    /*                  ipbf-estCostMaterial.basisWeightUOM,*/
-    /*                  NO,                                 */
-    /*                  OUTPUT opdCost,                     */
-    /*                  OUTPUT opdSetup,                    */
-    /*                  OUTPUT opcCostUOM,                  */
-    /*                  OUTPUT dCostTotal,                  */
-    /*                  OUTPUT lError,                      */
-    /*                  OUTPUT cMessage).                   */
-    /*                                                      */
-    FIND FIRST e-itemfg NO-LOCK
-        WHERE e-itemfg.company EQ ipbf-estCostHeader.company
-        AND e-itemfg.i-no EQ ipbf-estCostMaterial.itemID
-        NO-ERROR.
-    IF AVAILABLE e-itemfg THEN
-    DO:
-        opcCostUom = e-itemfg.std-uom.
-        RELEASE e-itemfg-vend.
-        IF ipcVendNo NE "" THEN
-            FIND FIRST e-itemfg-vend NO-LOCK
-                WHERE e-itemfg-vend.company EQ ipbf-estCostHeader.company 
-                AND e-itemfg-vend.est-no EQ ipbf-estCostHeader.estimateNo
-                AND e-itemfg-vend.form-no EQ ipbf-estCostMaterial.formNo
-                AND e-itemfg-vend.blank-no EQ ipbf-estCostMaterial.blankNo
-                AND e-itemfg-vend.vend-no EQ ipcVendNo
-                NO-ERROR.
-        IF NOT AVAILABLE e-itemfg-vend THEN
-            FOR EACH e-itemfg-vend NO-LOCK
-                WHERE e-itemfg-vend.company EQ ipbf-estCostHeader.company 
-                AND e-itemfg-vend.est-no EQ ipbf-estCostHeader.estimateNo
-                AND e-itemfg-vend.form-no EQ ipbf-estCostMaterial.formNo
-                AND e-itemfg-vend.blank-no EQ ipbf-estCostMaterial.blankNo
-                AND e-itemfg-vend.vend-no EQ ""
-                BY e-itemfg-vend.vend-no:
-                LEAVE.
-            END.
-        IF NOT AVAILABLE e-itemfg-vend THEN
-            FOR EACH e-itemfg-vend NO-LOCK
-                WHERE e-itemfg-vend.company EQ ipbf-estCostHeader.company 
-                AND e-itemfg-vend.est-no EQ ipbf-estCostHeader.estimateNo
-                AND e-itemfg-vend.form-no EQ ipbf-estCostMaterial.formNo
-                AND e-itemfg-vend.blank-no EQ ipbf-estCostMaterial.blankNo
-                BY e-itemfg-vend.vend-no:
-                LEAVE.
-            END.
+    IF glVendItemCost THEN
+        RUN GetVendorCost(ipbf-estCostMaterial.company,
+                      ipbf-estCostMaterial.itemID,
+                      "FG",
+                      ipcVendNo,
+                      "",
+                      ipbf-estCostMaterial.estimateNo,
+                      ipbf-estCostMaterial.formNo,
+                      ipbf-estCostMaterial.blankNo,
+                      ipdQty,
+                      ipcQtyUOM,
+                      ipbf-estCostMaterial.dimLength,
+                      ipbf-estCostMaterial.dimWidth,
+                      ipbf-estCostMaterial.dimDepth,
+                      ipbf-estCostMaterial.dimUOM,
+                      ipbf-estCostMaterial.basisWeight,
+                      ipbf-estCostMaterial.basisWeightUOM,
+                      NO,
+                      OUTPUT opdCost,
+                      OUTPUT opdSetup,
+                      OUTPUT opcCostUOM,
+                      OUTPUT dCostTotal,
+                      OUTPUT lError,
+                      OUTPUT cMessage).
 
-        IF AVAILABLE e-itemfg-vend THEN
+    ELSE DO:
+        FIND FIRST e-itemfg NO-LOCK
+            WHERE e-itemfg.company EQ ipbf-estCostHeader.company
+            AND e-itemfg.i-no EQ ipbf-estCostMaterial.itemID
+            NO-ERROR.
+        IF AVAILABLE e-itemfg THEN
         DO:
-            IF e-itemfg-vend.std-uom NE "" THEN
-                opcCostUom = e-itemfg-vend.std-uom.
-
-            DO iIndex = 1 TO 10:
-                ASSIGN
-                    dRunQty[iIndex]  = e-itemfg-vend.run-qty[iIndex]
-                    dRunCost[iIndex] = e-itemfg-vend.run-cost[iIndex]
-                    dSetups[iIndex]  = e-itemfg-vend.setups[iIndex].
-            END.
-            IF opcCostUOM NE ipcQtyUOM THEN
-                RUN custom/convquom.p(e-itemfg-vend.company,ipcQtyUOM,opcCostUOM,
-                    ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth,
-                    ipdQty, OUTPUT dQtyInCUOM).
-            ELSE
-                dQtyInCUOM = ipdQty.
-            DO iIndex = 1 TO 10:
-                IF dRunQty[iIndex] NE 0   AND
-                    dRunQty[iIndex] GE dQtyInCUOM THEN
-                DO:
-                    ASSIGN
-                        lCostFound = YES
-                        opdCost    = dRunCost[iIndex]
-                        opdSetup   = dSetups[iIndex]
-                        .
+            opcCostUom = e-itemfg.std-uom.
+            RELEASE e-itemfg-vend.
+            IF ipcVendNo NE "" THEN
+                FIND FIRST e-itemfg-vend NO-LOCK
+                    WHERE e-itemfg-vend.company EQ ipbf-estCostHeader.company 
+                    AND e-itemfg-vend.est-no EQ ipbf-estCostHeader.estimateNo
+                    AND e-itemfg-vend.form-no EQ ipbf-estCostMaterial.formNo
+                    AND e-itemfg-vend.blank-no EQ ipbf-estCostMaterial.blankNo
+                    AND e-itemfg-vend.vend-no EQ ipcVendNo
+                    NO-ERROR.
+            IF NOT AVAILABLE e-itemfg-vend THEN
+                FOR EACH e-itemfg-vend NO-LOCK
+                    WHERE e-itemfg-vend.company EQ ipbf-estCostHeader.company 
+                    AND e-itemfg-vend.est-no EQ ipbf-estCostHeader.estimateNo
+                    AND e-itemfg-vend.form-no EQ ipbf-estCostMaterial.formNo
+                    AND e-itemfg-vend.blank-no EQ ipbf-estCostMaterial.blankNo
+                    AND e-itemfg-vend.vend-no EQ ""
+                    BY e-itemfg-vend.vend-no:
                     LEAVE.
+            END.    
+            IF NOT AVAILABLE e-itemfg-vend THEN
+                FOR EACH e-itemfg-vend NO-LOCK
+                    WHERE e-itemfg-vend.company EQ ipbf-estCostHeader.company 
+                    AND e-itemfg-vend.est-no EQ ipbf-estCostHeader.estimateNo
+                    AND e-itemfg-vend.form-no EQ ipbf-estCostMaterial.formNo
+                    AND e-itemfg-vend.blank-no EQ ipbf-estCostMaterial.blankNo
+                    BY e-itemfg-vend.vend-no:
+                    LEAVE.
+                END.    
+    
+            IF AVAILABLE e-itemfg-vend THEN
+            DO: 
+                IF e-itemfg-vend.std-uom NE "" THEN
+                    opcCostUom = e-itemfg-vend.std-uom.
+    
+                DO iIndex = 1 TO 10:
+                    ASSIGN
+                        dRunQty[iIndex]  = e-itemfg-vend.run-qty[iIndex]
+                        dRunCost[iIndex] = e-itemfg-vend.run-cost[iIndex]
+                        dSetups[iIndex]  = e-itemfg-vend.setups[iIndex].
+                END.
+                IF opcCostUOM NE ipcQtyUOM THEN
+                    RUN custom/convquom.p(e-itemfg-vend.company,ipcQtyUOM,opcCostUOM,
+                        ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth,
+                        ipdQty, OUTPUT dQtyInCUOM).
+                ELSE
+                    dQtyInCUOM = ipdQty.
+                DO iIndex = 1 TO 10:
+                    IF dRunQty[iIndex] NE 0   AND
+                        dRunQty[iIndex] GE dQtyInCUOM THEN
+                    DO:
+                        ASSIGN
+                            lCostFound = YES
+                            opdCost    = dRunCost[iIndex]
+                            opdSetup   = dSetups[iIndex]
+                            .
+                        LEAVE.
+                    END.
                 END.
             END.
         END.
-    END.
-            
+    END.                
 END PROCEDURE.
 
 PROCEDURE pGetEstMaterialCosts PRIVATE:

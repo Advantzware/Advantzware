@@ -31,10 +31,33 @@ DEFINE VARIABLE v-ship-addr3  AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE ls-full-img-s AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-full-img1  AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE v-job-no      AS CHARACTER INIT "" NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath" IN hdFileSysProcs,
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile IN hdFileSysProcs (
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.    
 
 ASSIGN 
     ls-full-img1 = cRtnChar + ">" .
@@ -226,5 +249,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         PAGE.
     END.
 END.
+
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */

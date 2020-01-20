@@ -227,47 +227,43 @@ PROCEDURE createTempFromVendItemCost:
                 tt-ei.i-no    = eb.stock-no
                 tt-ei.company = vendItemCost.company.
 
-
-        /*    DO li = 1 TO 10:                                      */
-        /*       ASSIGN                                             */
-        /*          tt-ei.run-qty[li] = e-itemfg-vend.run-qty[li]   */
-        /*          tt-ei.run-cost[li] = e-itemfg-vend.run-cost[li].*/
-        /*    END.                                                  */
         END.
-
+        IF NOT CAN-FIND(FIRST tt-eiv
+                WHERE tt-eiv.company   EQ vendItemCost.company
+                AND tt-eiv.i-no      EQ eb.stock-no
+                AND tt-eiv.vend-no   EQ vendItemCost.vendorID) THEN 
+        DO:
+            CREATE tt-eiv.
+            ASSIGN
+                tt-eiv.row-id = ROWID(vendItemCost)
+                tt-eiv.i-no   = eb.stock-no
+                tt-eiv.company = vendItemCost.company
+                tt-eiv.vend-no = vendItemCost.vendorID
+                tt-eiv.item-type = vendItemCost.itemType = "RM"
+                tt-eiv.rec_key   = vendItemCost.rec_key
+                tt-eiv.roll-w[27] = vendItemCost.dimWidthMinimum
+                tt-eiv.roll-w[28] = vendItemCost.dimWidthMaximum
+                tt-eiv.roll-w[29] = vendItemCost.dimLengthMinimum
+                tt-eiv.roll-w[30] = vendItemCost.dimLengthMaximum
+                .
+            DO v-index = 1 TO 26:
+                ASSIGN 
+                    tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index].
+            END.
+        END.
         v-index = 0.
         FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
             BY vendItemCostLevel.vendItemCostLevelID:
          
             v-index = v-index + 1.
+            IF v-index LE 20 THEN 
+                ASSIGN 
+                    tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
+                    tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
+                    tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
+                    tt-eiv.SELECTED[v-index] = vendItemCostLevel.useForBestCost
+                    .
 
-            IF NOT CAN-FIND(FIRST tt-eiv
-                WHERE tt-eiv.company   EQ vendItemCost.company
-                AND tt-eiv.i-no      EQ eb.stock-no
-                AND tt-eiv.vend-no   EQ vendItemCost.vendorID) THEN 
-            DO:
-                CREATE tt-eiv.
-                ASSIGN
-                    tt-eiv.row-id = ROWID(vendItemCost)
-                    tt-eiv.i-no   = eb.stock-no
-                    tt-eiv.company = vendItemCost.company
-                    tt-eiv.vend-no = vendItemCost.vendorID
-                    tt-eiv.item-type = vendItemCost.itemType = "RM"
-                    tt-eiv.rec_key   = vendItemCost.rec_key.
-
-                IF v-index GT 0 AND v-index LE 10 THEN 
-                    ASSIGN /*v-index                  = vendItemCostLevel.vendItemCostLevelID*/
-                        tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
-                        tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
-                        tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[v-index] */
-                        tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */
-                        tt-eiv.SELECTED[li] = vendItemCost.useQuantityFromBase
-                        .
-                IF v-index GT 10 AND v-index LE 30 THEN           
-                    assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
-                        .
-
-            END.
         END.
     END.
 

@@ -218,6 +218,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
     DEFINE BUFFER bQuoteItm FOR quoteitm.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
+    DEFINE VARIABLE hdupdQuoteProcs AS HANDLE NO-UNDO.
+    RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 
     ASSIGN 
         cQuoteGroup = ""
@@ -377,6 +379,6 @@ PROCEDURE pProcessRecord PRIVATE:
       RUN pAssignValueD (ipbf-ttImportQuote.profit, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.profit).
       RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.uom).
 
-      
+      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm)) .
 END PROCEDURE.
 

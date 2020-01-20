@@ -70,4 +70,9 @@ router.post('/getinventoryforbol', (req,res) => {
 router.post('/createinventorycount', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This will create vendor invoices
+router.post('/createvendorinvoice', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;

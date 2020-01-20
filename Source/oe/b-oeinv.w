@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -59,6 +60,52 @@ DEF BUFFER b-cust FOR cust.
 {sys/inc/invcopys.i}
 IF AVAIL sys-ctrl THEN
    invcopys-cha  = sys-ctrl.char-fld.
+   
+DEFINE VARIABLE dMargin  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lFirst   AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE cFreight AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cSortBy  AS CHARACTER NO-UNDO INITIAL "inv-no".
+DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
+
+&SCOPED-DEFINE for-each1                             ~
+    FOR EACH inv-head NO-LOCK                        ~
+        WHERE inv-head.company   EQ     cocode       ~
+          AND inv-head.cust-no   BEGINS fiCustNumber ~
+          AND inv-head.cust-name BEGINS fiCustName   ~
+          AND (inv-head.inv-no   EQ     fiInvoice  OR fiInvoice EQ 0) ~
+          AND (inv-head.bol-no   EQ     fiBol      OR fiBol EQ 0)     ~
+          AND (IF cbStatus = "A" THEN YES ELSE IF cbStatus = '' THEN inv-head.stat = cbStatus or inv-head.stat = "X" ELSE IF cbStatus = "H" THEN inv-head.stat = "H" ELSE inv-head.stat = "W")~
+          AND (IF cbPrinted = "All" THEN YES ELSE inv-head.printed = LOGICAL(cbPrinted)) ~
+          AND inv-head.multi-invoice = NO
+ 
+  &SCOPED-DEFINE sortby-log  BY ~
+  IF cSortBy  EQ 'cust-no'       THEN inv-head.cust-no ELSE ~
+  IF cSortBy  EQ 'cust-name'     THEN inv-head.cust-name ELSE ~
+  IF cSortBy  EQ 'inv-date'      THEN STRING(YEAR(inv-head.inv-date),'9999') + ~
+     STRING(MONTH(inv-head.inv-date),'99') + ~
+     STRING(DAY(inv-head.inv-date),'99')  ELSE ~
+  IF cSortBy  EQ 'bol-no'        THEN STRING(inv-head.bol-no,'>>>>>>>9') ELSE ~
+  IF cSortBy  EQ 'printed'       THEN STRING(inv-head.printed,'Y/N') ELSE ~
+  IF cSortBy  EQ 'ls-status'     THEN STRING(inv-head.stat) ELSE ~
+  IF cSortBy  EQ 'li-ord-no'     THEN string(f-ordno()) ELSE ~
+  IF cSortBy  EQ 't-inv-rev'     THEN STRING(inv-head.t-inv-rev,'->>,>>>,>>9.99') ELSE ~
+  IF cSortBy  EQ 'r-no'          THEN STRING(inv-head.r-no,'>>>>>>>9') ELSE ~
+  IF cSortBy  EQ 't-inv-tax'     THEN STRING (inv-head.t-inv-tax, '->>,>>>,>>9.99') ELSE ~
+  IF cSortBy  EQ 't-inv-freight' THEN STRING(inv-head.t-inv-freight,'->>,>>>,>>9.99') ELSE ~
+  IF cSortBy  EQ 'fob-code'      THEN inv-head.fob-code ELSE ~
+  IF cSortBy  EQ 'multi-invoice' THEN STRING(inv-head.multi-invoice) ELSE ~
+  IF cSortBy  EQ 'multi-inv-no'  THEN STRING(inv-head.multi-inv-no,'>>>>>9') ELSE ~
+  IF cSortBy  EQ 'ediInvoice'    THEN STRING(inv-head.ediInvoice) ELSE ~
+  IF cSortBy  EQ 'spare-char-5'  THEN STRING(inv-head.spare-char-5) ELSE ~
+  IF cSortBy  EQ 'cFreight'      THEN frt-pay ELSE ~
+  STRING(inv-head.inv-no,'>>>>>9') ~  
+  
+&SCOPED-DEFINE sortby-phrase-asc ~
+    {&sortby-log}                ~
+    
+&SCOPED-DEFINE sortby-phrase-desc ~
+    {&sortby-log} DESCENDING      ~
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -87,7 +134,11 @@ IF AVAIL sys-ctrl THEN
 &Scoped-define FIELDS-IN-QUERY-Browser-Table inv-head.inv-no ~
 inv-head.cust-no inv-head.cust-name inv-head.inv-date inv-head.bol-no ~
 f-ordno() @ li-ord-no inv-head.printed inv-head.t-inv-rev ~
-getStatus() @ ls-status inv-head.r-no inv-head.company f-cust-PO() @ li-cust-Po
+getStatus() @ ls-status inv-head.r-no inv-head.company ~
+f-cust-Po() @ li-cust-Po inv-head.t-inv-tax inv-head.t-inv-freight ~
+inv-head.fob-code pGetFreightTerms() @ cFreight inv-head.multi-invoice ~
+inv-head.multi-inv-no inv-head.ediInvoice inv-head.spare-char-5 ~
+pGetMargin() @ dMargin 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-head WHERE ~{&KEY-PHRASE} ~
       AND inv-head.company = cocode and ~
@@ -104,10 +155,10 @@ ASI.inv-head.multi-invoice = no NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find fi_By fi_AutoFindLabel 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_By ~
-fi_AutoFindLabel 
+&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-7 fiCustNumber btGo btShow ~
+fiInvoice fiBol cbPrinted fiCustName cbStatus Browser-Table 
+&Scoped-Define DISPLAYED-OBJECTS fiCustNumber fiInvoice fiBol cbPrinted ~
+fiCustName cbStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -118,15 +169,15 @@ fi_AutoFindLabel
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-ordno B-table-Win 
-FUNCTION f-ordno RETURNS INTEGER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-cust-Po B-table-Win 
+FUNCTION f-cust-Po RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-cust-Po B-table-Win 
-FUNCTION f-cust-Po RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-ordno B-table-Win 
+FUNCTION f-ordno RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -139,19 +190,82 @@ FUNCTION getStatus RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetFreightTerms B-table-Win 
+FUNCTION pGetFreightTerms RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetMargin B-table-Win 
+FUNCTION pGetMargin RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btGo 
+     LABEL "Go" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
      FONT 4.
 
+DEFINE BUTTON btShow 
+     LABEL "Show All" 
+     SIZE 15 BY 1.14.
+
+DEFINE VARIABLE cbPrinted AS CHARACTER FORMAT "X(256)" INITIAL "All" 
+     LABEL "Printed" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All","Yes","No" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "A" 
+     LABEL "Status" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "All","A",
+                     "Released","",
+                     "Hold","H",
+                     "Wait/App","W"
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiBol AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
+     LABEL "BOL #" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiCustName AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Customer Name" 
+     VIEW-AS FILL-IN 
+     SIZE 36.8 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiCustNumber AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Customer #" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiInvoice AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
+     LABEL "Invoice #" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_AutoFindLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Find:" 
       VIEW-AS TEXT 
@@ -180,6 +294,10 @@ DEFINE VARIABLE fi_cust-PO AS CHARACTER FORMAT "X(256)":U
      LABEL "PO#" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 2.86.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -190,33 +308,57 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      inv-head.inv-no COLUMN-LABEL "Invoice #" FORMAT ">>>>>9":U
-            WIDTH 16.2 LABEL-BGCOLOR 14
-      inv-head.cust-no COLUMN-LABEL "Customer #" FORMAT "x(8)":U
-            WIDTH 14.6 LABEL-BGCOLOR 14
-      inv-head.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
-      inv-head.inv-date FORMAT "99/99/9999":U WIDTH 18.6 LABEL-BGCOLOR 14
-      inv-head.bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
-            WIDTH 16.2 LABEL-BGCOLOR 14
-      f-ordno() @ li-ord-no COLUMN-LABEL "Order#" LABEL-BGCOLOR 14
-      inv-head.printed FORMAT "Y/N":U WIDTH 9.6 LABEL-BGCOLOR 14
-      inv-head.t-inv-rev COLUMN-LABEL "Invoiced Total" FORMAT "->>,>>>,>>9.99":U
+      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>9":U
             LABEL-BGCOLOR 14
+      inv-head.cust-no COLUMN-LABEL "Cust #" FORMAT "x(8)":U WIDTH 10.6
+            LABEL-BGCOLOR 14
+      inv-head.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
+      inv-head.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
+            WIDTH 14.6 LABEL-BGCOLOR 14
+      inv-head.bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
+            LABEL-BGCOLOR 14
+      f-ordno() @ li-ord-no COLUMN-LABEL "Order#" LABEL-BGCOLOR 14
+      inv-head.printed FORMAT "Yes/No":U WIDTH 9.6 LABEL-BGCOLOR 14
+      inv-head.t-inv-rev COLUMN-LABEL "Invoice Amt" FORMAT "->>,>>>,>>9.99":U
+            WIDTH 16.6 LABEL-BGCOLOR 14
       getStatus() @ ls-status COLUMN-LABEL "Status" FORMAT "x(8)":U
-            WIDTH 13.6 
+            WIDTH 11.6 LABEL-BGCOLOR 14
       inv-head.r-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       inv-head.company FORMAT "x(3)":U
       f-cust-Po() @ li-cust-Po COLUMN-LABEL "PO#" LABEL-BGCOLOR 14
+      inv-head.t-inv-tax COLUMN-LABEL "Tax Amt" FORMAT "->>,>>>,>>9.99":U
+            WIDTH 14.2 LABEL-BGCOLOR 14
+      inv-head.t-inv-freight COLUMN-LABEL "Freight Amt" FORMAT "->>,>>9.99":U
+            WIDTH 15.6 LABEL-BGCOLOR 14
+      inv-head.fob-code FORMAT "x(5)":U LABEL-BGCOLOR 14
+      pGetFreightTerms() @ cFreight COLUMN-LABEL "Freight Terms" FORMAT "x(12)":U
+            LABEL-BGCOLOR 14
+      inv-head.multi-invoice COLUMN-LABEL "Grouped" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14
+      inv-head.multi-inv-no COLUMN-LABEL "Group #" FORMAT ">>>>>9":U
+            LABEL-BGCOLOR 14
+      inv-head.ediInvoice FORMAT "yes/no":U LABEL-BGCOLOR 14
+      inv-head.spare-char-5 COLUMN-LABEL "Comment" FORMAT "x(60)":U
+            LABEL-BGCOLOR 14
+      pGetMargin() @ dMargin COLUMN-LABEL "Margin%" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.57
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
+     fiCustNumber AT ROW 1.19 COL 39.2 COLON-ALIGNED WIDGET-ID 26
+     btGo AT ROW 1.19 COL 112.8 WIDGET-ID 34
+     btShow AT ROW 1.19 COL 128.2 WIDGET-ID 36
+     fiInvoice AT ROW 1.24 COL 10.2 COLON-ALIGNED WIDGET-ID 30
+     fiBol AT ROW 1.24 COL 61.8 COLON-ALIGNED WIDGET-ID 32
+     cbPrinted AT ROW 1.24 COL 87.2 COLON-ALIGNED WIDGET-ID 46
+     fiCustName AT ROW 2.38 COL 39.2 COLON-ALIGNED WIDGET-ID 28
+     cbStatus AT ROW 2.48 COL 87 COLON-ALIGNED WIDGET-ID 50
+     Browser-Table AT ROW 3.86 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
@@ -228,6 +370,7 @@ DEFINE FRAME F-Main
      fi_By AT ROW 19.38 COL 2.6 NO-LABEL
      fi_AutoFindLabel AT ROW 19.57 COL 79 NO-LABEL
      RECT-4 AT ROW 19.1 COL 1
+     RECT-7 AT ROW 1 COL 1 WIDGET-ID 48
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -287,10 +430,20 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table cbStatus F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN auto_find IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       browse-order:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
@@ -301,10 +454,21 @@ ASSIGN
        inv-head.r-no:VISIBLE IN BROWSE Browser-Table = FALSE
        inv-head.company:VISIBLE IN BROWSE Browser-Table = FALSE.
 
+/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_AutoFindLabel IN FRAME F-Main
-   ALIGN-L                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       fi_AutoFindLabel:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_By IN FRAME F-Main
-   ALIGN-L                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       fi_By:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -321,32 +485,51 @@ ASSIGN
 /* Query rebuild information for BROWSE Browser-Table
      _TblList          = "ASI.inv-head"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
+     _OrdList          = "ASI.inv-head.inv-no|yes"
      _Where[1]         = "ASI.inv-head.company = cocode and
 ASI.inv-head.multi-invoice = no"
      _FldNameList[1]   > ASI.inv-head.inv-no
-"inv-head.inv-no" "Invoice #" ? "integer" ? ? ? 14 ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.inv-no" "Invoice#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.inv-head.cust-no
-"inv-head.cust-no" "Customer #" ? "character" ? ? ? 14 ? ? no ? no no "14.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.cust-no" "Cust #" ? "character" ? ? ? 14 ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.inv-head.cust-name
 "inv-head.cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.inv-head.inv-date
-"inv-head.inv-date" ? ? "date" ? ? ? 14 ? ? no ? no no "18.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.inv-date" "Inv Date" ? "date" ? ? ? 14 ? ? no ? no no "14.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.inv-head.bol-no
-"inv-head.bol-no" "BOL #" ? "integer" ? ? ? 14 ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.bol-no" "BOL #" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "f-ordno() @ li-ord-no" "Order#" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.inv-head.printed
-"inv-head.printed" ? ? "logical" ? ? ? 14 ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.printed" ? "Yes/No" "logical" ? ? ? 14 ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.inv-head.t-inv-rev
-"inv-head.t-inv-rev" "Invoiced Total" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.t-inv-rev" "Invoice Amt" ? "decimal" ? ? ? 14 ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
-"getStatus() @ ls-status" "Status" "x(8)" ? ? ? ? 14 ? ? no ? no no "13.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getStatus() @ ls-status" "Status" "x(8)" ? ? ? ? 14 ? ? no ? no no "11.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.inv-head.r-no
 "inv-head.r-no" ? ? "integer" ? ? ? 14 ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.inv-head.company
 "inv-head.company" ? ? "character" ? ? ? ? ? ? no "" no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
 "f-cust-Po() @ li-cust-Po" "PO#" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.inv-head.t-inv-tax
+"inv-head.t-inv-tax" "Tax Amt" "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.inv-head.t-inv-freight
+"inv-head.t-inv-freight" "Freight Amt" ? "decimal" ? ? ? 14 ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.inv-head.fob-code
+"inv-head.fob-code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > "_<CALC>"
+"pGetFreightTerms() @ cFreight" "Freight Terms" "x(12)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > ASI.inv-head.multi-invoice
+"inv-head.multi-invoice" "Grouped" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.inv-head.multi-inv-no
+"inv-head.multi-inv-no" "Group #" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
+     _FldNameList[19]   > ASI.inv-head.ediInvoice
+"inv-head.ediInvoice" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > ASI.inv-head.spare-char-5
+"inv-head.spare-char-5" "Comment" "x(60)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[21]   > "_<CALC>"
+"pGetMargin() @ dMargin" "Margin%" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -404,7 +587,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-  RUN startSearch.
+    
+    DEFINE VARIABLE hdColumn    AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE cColumnName AS CHARACTER  NO-UNDO.
+
+    ASSIGN
+        hdColumn     = {&BROWSE-NAME}:CURRENT-COLUMN 
+        cColumnName  = hdColumn:NAME
+        .
+
+    IF cSortBy EQ cColumnName THEN 
+        lSortAsc = NOT lSortAsc.
+    ELSE
+        cSortBy = cColumnName.
+        
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+    APPLY "CHOOSE" TO btGo.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -427,6 +626,58 @@ DO:
   IF AVAIL b-cust THEN
      RUN pushpin-image-proc(INPUT b-cust.rec_key).
   RUN dept-pan-image-proc.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btGo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
+ON CHOOSE OF btGo IN FRAME F-Main /* Go */
+DO: 
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            fiinvoice
+            fibol
+            ficustName
+            ficustNumber
+            cbprinted
+            cbstatus      
+            lFirst = NO
+            .
+            
+    IF ficustName:SCREEN-VALUE EQ "" AND ficustNumber:SCREEN-VALUE EQ "" AND 
+       fiinvoice:SCREEN-VALUE  EQ "" AND fibol:SCREEN-VALUE EQ "" THEN 
+        lFirst = YES.
+        
+    RUN dispatch ('open-query').
+
+    APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
+    
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btShow
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btShow B-table-Win
+ON CHOOSE OF btShow IN FRAME F-Main /* Show All */
+DO: 
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            ficustName:SCREEN-VALUE    = ""
+            ficustNumber:SCREEN-VALUE  = ""
+            fibol:SCREEN-VALUE         = ""
+            fiinvoice:SCREEN-VALUE     = ""
+            cbstatus:SCREEN-VALUE      = "A"
+            cbprinted:SCREEN-VALUE     = "All"
+            .    
+    END.  
+    APPLY "CHOOSE" TO btGo.  
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,24 +725,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
-PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME F-Main.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
 PROCEDURE dept-pan-image-proc :
 /*------------------------------------------------------------------------------
@@ -513,6 +746,24 @@ PROCEDURE dept-pan-image-proc :
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -541,11 +792,53 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
   /* Code placed here will execute AFTER standard behavior.    */
+    IF lFirst THEN DO:
+       &SCOPED-DEFINE open-query               ~
+        OPEN QUERY {&browse-name} {&for-each1} ~
+        
+        IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+    END.
+  
+    ELSE DO:
+        IF fibol NE 0 THEN DO:
+            &SCOPED-DEFINE open-query              ~
+            OPEN QUERY {&browse-name} {&for-each1} ~
+            AND inv-head.bol-no EQ fibol           ~
+            
+            IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}.
+        END.
+      
+        ELSE IF ficustNAME NE "" OR ficustNumber NE "" THEN DO:
+            &SCOPED-DEFINE open-query              ~
+            OPEN QUERY {&browse-name} {&for-each1} ~
+   
+            IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}.
+         END. 
+        
+        ELSE IF fiinvoice NE 0 THEN DO:
+             &SCOPED-DEFINE open-query               ~
+             OPEN QUERY {&browse-name} {&for-each1}  ~
+             AND inv-head.inv-no = fiinvoice         ~
+  
+             IF lSortAsc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.   
+        END.
+          
+    
+  END.
+
+  lFirst = NO.
+
+  RUN dispatch ("display-fields").
+
+  RUN dispatch ("row-changed").
+
   IF AVAIL inv-head THEN APPLY "value-changed" TO BROWSE {&browse-name}.
 END PROCEDURE.
 
@@ -582,9 +875,9 @@ PROCEDURE pushpin-image-proc :
                   STRING(0)
     
     v-att = CAN-FIND(FIRST asi.attach WHERE
-            attach.company = cocode and
+            attach.company = cocode AND
             attach.rec_key = ip-rec_key AND
-            (attach.est-no eq lv-ord-no OR ATTACH.est-no EQ "")).
+            (attach.est-no EQ lv-ord-no OR ATTACH.est-no EQ "")).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
   
@@ -738,37 +1031,6 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-ordno B-table-Win 
-FUNCTION f-ordno RETURNS INTEGER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  DEF VAR lf-ord-no AS INT NO-UNDO.
-
-
-  RELEASE inv-line.
-  RELEASE inv-misc.
-
-  FIND FIRST inv-line OF inv-head NO-LOCK
-      WHERE inv-line.ord-no NE 0
-      NO-ERROR.
-  IF NOT AVAIL inv-line THEN
-  FIND FIRST inv-misc OF inv-head NO-LOCK
-      WHERE inv-misc.ord-no NE 0
-      NO-ERROR.
-  lf-ord-no = IF AVAIL inv-line THEN inv-line.ord-no ELSE
-              IF AVAIL inv-misc THEN inv-misc.ord-no ELSE 0.
-  
-  RETURN lf-ord-no.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-cust-Po B-table-Win 
 FUNCTION f-cust-Po RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
@@ -807,6 +1069,36 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-ordno B-table-Win 
+FUNCTION f-ordno RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR lf-ord-no AS INT NO-UNDO.
+
+
+  RELEASE inv-line.
+  RELEASE inv-misc.
+
+  FIND FIRST inv-line OF inv-head NO-LOCK
+      WHERE inv-line.ord-no NE 0
+      NO-ERROR.
+  IF NOT AVAIL inv-line THEN
+  FIND FIRST inv-misc OF inv-head NO-LOCK
+      WHERE inv-misc.ord-no NE 0
+      NO-ERROR.
+  lf-ord-no = IF AVAIL inv-line THEN inv-line.ord-no ELSE
+              IF AVAIL inv-misc THEN inv-misc.ord-no ELSE 0.
+  
+  RETURN lf-ord-no.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getStatus B-table-Win 
 FUNCTION getStatus RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
@@ -815,11 +1107,10 @@ FUNCTION getStatus RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
 DEF VAR cReturn AS CHAR NO-UNDO.
-
 CASE inv-head.stat:
     WHEN "H" THEN
         cReturn = "On Hold".
-    WHEN ""  THEN
+    WHEN "" OR WHEN "X" THEN
         cReturn = "Released".
     WHEN "W" THEN
         cReturn = "Wait/App".
@@ -829,6 +1120,45 @@ END.
 
   RETURN cReturn.   /* Function return value. */
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetFreightTerms B-table-Win 
+FUNCTION pGetFreightTerms RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    CASE inv-head.frt-pay:       
+        WHEN "P" THEN
+            RETURN "P-Prepaid". 
+        WHEN "C" THEN 
+            RETURN "C-Collect".
+        WHEN "B" THEN 
+            RETURN "B-Bill".
+        WHEN "T" THEN
+             RETURN "T-3rd Party".
+    END CASE.
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetMargin B-table-Win 
+FUNCTION pGetMargin RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF inv-head.t-inv-rev NE 0 AND inv-head.t-inv-rev NE ? THEN
+        RETURN (inv-head.t-inv-rev - inv-head.t-inv-cost) / (inv-head.t-inv-rev) * 100.
+    ELSE
+        RETURN 0.            
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

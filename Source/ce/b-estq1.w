@@ -69,6 +69,7 @@ DEFINE VARIABLE lv-first-show-est-no AS cha       NO-UNDO.
 DEFINE VARIABLE v-col-move           AS LOG       INIT TRUE NO-UNDO.
 DEFINE VARIABLE v-rec-key-list       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lActive              AS LOG       NO-UNDO.
+DEFINE VARIABLE cEstType AS CHARACTER NO-UNDO .
 DO TRANSACTION:
     {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""EF"" }
@@ -283,6 +284,13 @@ FUNCTION display-qty-set RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-type B-table-Win 
+FUNCTION get-type RETURNS CHARACTER
+    ()  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -464,8 +472,11 @@ DEFINE BROWSE Browser-Table
     eb.len LABEL-BGCOLOR 14
     est.est-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     eb.wid LABEL-BGCOLOR 14
-    eb.pur-man FORMAT "P/M":U
+    eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "Purchased/Manufacture":U
     eb.dep LABEL-BGCOLOR 14
+    get-type() @ cEstType COLUMN-LABEL "Est Type" FORMAT "x(21)":U
+            WIDTH 29.4
+
   ENABLE
       est.est-no
       eb.cust-no
@@ -627,8 +638,7 @@ ASSIGN
        Browser-Table:MAX-DATA-GUESS IN FRAME F-Main     = 30
        Browser-Table:PRIVATE-DATA IN FRAME F-Main       = "2".
 
-ASSIGN 
-       eb.pur-man:VISIBLE IN BROWSE Browser-Table = FALSE.
+
 
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -709,9 +719,11 @@ eb.est-no = lv-last-est-no"
      _FldNameList[23]   > "_<CALC>"
 "eb.wid" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.eb.pur-man
-"eb.pur-man" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
 "eb.dep" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[26]   > "_<CALC>"
+"get-type() @ cEstType" "Est Type" "x(21)" "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2613,3 +2625,25 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-type B-table-Win 
+FUNCTION get-type RETURNS CHARACTER
+    () :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cReturnType AS CHARACTER NO-UNDO.
+ 
+   IF AVAIL est THEN DO:
+      RUN est/GetEstimateTypeDesc.p(est.company,est.est-type,
+                                  est.est-no,OUTPUT cReturnType) .
+   END.
+
+   RETURN cReturnType .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -182,7 +182,7 @@ DEFINE BROWSE browse-machine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browse-machine C-Win _FREEFORM
   QUERY browse-machine NO-LOCK DISPLAY
       tt-oe-bolh.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-      oe-bolh.bol-no FORMAT ">>>>>>" COLUMN-LABEL "BOL No" width 10
+      oe-bolh.bol-no FORMAT ">>>>>>>>" COLUMN-LABEL "BOL No" width 10
       oe-bolh.cust-no FORMAT "X(8)" COLUMN-LABEL "Customer"
       tt-oe-bolh.i-count COLUMN-LABEL "Item" 
       oe-bolh.bol-date

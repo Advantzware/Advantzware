@@ -712,13 +712,13 @@ PROCEDURE create-invoice :
            DO v-li = 1 TO LENGTH(usergrps.users):
               ls = SUBSTRING(usergrps.users,v-li,1).
              
-              IF v-line-count LT 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
+              IF v-line-count LT 4 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
                  ASSIGN
                     v-line-count = v-line-count + 1
                     inv-head.bill-i[v-line-count] = SUBSTRING(usergrps.users,v-start-pos,v-li - v-start-pos)
                     v-start-pos = v-li + 1.
            
-              IF v-line-count LT 5 AND v-li EQ LENGTH(usergrps.users) AND
+              IF v-line-count LT 4 AND v-li EQ LENGTH(usergrps.users) AND
                  NOT(ls EQ CHR(10) OR ls EQ CHR(13)) THEN
                  ASSIGN
                     v-line-count = v-line-count + 1

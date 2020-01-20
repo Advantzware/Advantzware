@@ -5,6 +5,7 @@ DEFINE VARIABLE cSuperProcs AS CHARACTER NO-UNDO.
 /* ********************************************************* */
 /* shared tables and or variables reside here                */
 
+{sys/ref/CustList.i NEW}
 /* fg/FgBinBuild.p */
 {fg/ttFGBins.i "NEW SHARED"}
 /* Inventory/InventoryProcs.p */
@@ -29,13 +30,16 @@ PROCEDURE pSuperProcs:
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     
     /* alphabetical list of persistent procedures */
-    cSuperProcs = "api/InboundProcs.p,"
-                + "api/JSONProcs.p,"
-                + "AOA/spDynCalcField.p,"
+    cSuperProcs = "AOA/spDynCalcField.p,"
                 + "AOA/spDynDescriptionProc.p,"
                 + "AOA/spDynInitializeProc.p,"
                 + "AOA/spDynValidateProc.p,"
                 + "AOA/spJasper.p,"
+                + "api/AdvantzwareMonitorProcs.p,"
+                + "api/inbound/InventoryReceiptProcs.p,"
+                + "api/InboundProcs.p,"
+                + "api/JSONProcs.p,"
+                + "api/OutboundProcs.p,"
                 + "custom/schedule.p,"
                 + "est/ArtiosProcs.p,"
                 + "est/CadImgProcs.p,"
@@ -45,19 +49,32 @@ PROCEDURE pSuperProcs:
                 + "fg/ReasonCode.p,"
                 + "inventory/CycleCountCompare.p,"
                 + "inventory/CycleCountCompareRM.p,"
+                + "Inventory/invBin.p,"
                 + "Inventory/InventoryProcs.p,"
+                + "Inventory/invIM.p,"
+                + "Inventory/invMTG.p,"
+                + "Inventory/invMTM.p,"
+                + "Inventory/invRG.p,"
+                + "Inventory/invRM.p,"
+                + "Inventory/invSG.p,"
                 + "jc/JobProcs.p,"
+                + "lstlogic/persist.p,"
+                + "methods/excelrep.p,"
                 + "nosweat/persist.p,"
                 + "oe/OrderProcs.p,"
                 + "oe/PriceProcs.p,"
                 + "oerep/LoadtagProcs.p,"
-                + "sys/NotesProcs.p,"            
+                + "oerep/r-invprtARSuper.p,"
+                + "oerep/r-invprtOESuper.p,"
+                + "sys/NotesProcs.p,"
                 + "system/CommonProcs.p,"
                 + "system/CostProcs.p,"
                 + "system/CreditProcs.p,"
+                + "system/FileSysProcs.p,"
                 + "system/FreightProcs.p,"
                 + "system/ftpProcs.p,"
                 + "system/oeValidate.p,"
+                + "system/OSProcs.p,"
                 + "system/OutputProcs.p,"
                 + "system/PgmMstrSecur.p,"
                 + "system/ProgramMasterSecurity.p,"
@@ -66,9 +83,14 @@ PROCEDURE pSuperProcs:
                 + "system/TagProcs.p,"
                 + "system/TaxProcs.p,"
                 + "system/VendorCostProcs.p,"
+                + "UDF/mfPersist.p,"
+                + "util/dev/spRefTable.p,"
+                + "util/dev/VendorCostConvProcs.p,"
                 + "util/ImportProcs.p,"
-                + "util/Validate.p"
+                + "util/updQuoteProcs.p,"
+                + "util/Validate.p,"
                 .
+    cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):
         cProcFile = ENTRY(idx,cSuperProcs).
         IF SEARCH(cProcFile) EQ ? THEN

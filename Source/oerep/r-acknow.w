@@ -3173,6 +3173,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Dee" THEN ASSIGN v-program = "oe/rep/ackdee.p" is-xprint-form = YES lines-per-page = 69.
        WHEN "Allwest" THEN ASSIGN v-program = "oe/rep/ackallws.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Simkins" THEN ASSIGN v-program = "oe/rep/acksimkn.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "AllPackaing" THEN ASSIGN v-program = "oe/rep/ackallpack.p" is-xprint-form = YES lines-per-page = 65.
        OTHERWISE ASSIGN v-program = "oe/rep/ackasi.p" is-xprint-form = NO lines-per-page = 55.
 
    END.

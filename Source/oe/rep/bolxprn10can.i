@@ -5,7 +5,7 @@
            "<C2><R2><#1><R+10><C+45><IMAGE#1=" ls-full-img1  SKIP
          
                "<FCourier New>"
-               "Vendu À:" SPACE(23) "Livrè À:<P10>"   SKIP
+               "Vendu à:" SPACE(23) "Livré à:<P10>"   SKIP
                SPACE(5) v-comp-name v-ship-name AT 48 skip
                SPACE(5) v-comp-addr[1] FORMAT "x(40)" v-ship-addr[1] AT 48 FORMAT "x(40)" SKIP
              SPACE(5) v-comp-addr[2] FORMAT "x(40)" v-ship-addr[2]  AT 48 FORMAT "x(40)" SKIP

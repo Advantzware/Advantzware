@@ -703,6 +703,7 @@ PROCEDURE ipGetLockData :
     DEF VAR cFieldString AS CHAR NO-UNDO.
     DEF VAR iIdxCt AS INT NO-UNDO.
     DEF VAR jCtr AS INT NO-UNDO.
+    DEF VAR kCtr AS INT NO-UNDO.
     DEF VAR hTestName AS HANDLE NO-UNDO.
     DEF VAR cTestName AS CHAR NO-UNDO.
     DEF VAR cDisp AS CHAR NO-UNDO.
@@ -746,7 +747,9 @@ PROCEDURE ipGetLockData :
         _lock._lock-usr <> ? AND 
         _lock._lock-recid <> ? NO-LOCK:
         ASSIGN 
-            iIdxCt = 0.
+            iIdxCt = 0
+            cFieldString = ""
+            cKeyString = "".     
         FIND FIRST _file WHERE
             _file._file-number = _lock._lock-table
             USE-INDEX _file-number
@@ -761,8 +764,8 @@ PROCEDURE ipGetLockData :
             _index._unique EQ TRUE  
             NO-LOCK NO-ERROR.
         IF NOT AVAIL _index THEN FIND FIRST _index OF _file WHERE 
-            RECID(_index) = _file._prime-index
-            NO-LOCK NO-ERROR.
+                RECID(_index) = _file._prime-index
+                NO-LOCK NO-ERROR.
         IF AVAIL _index THEN DO:
             CREATE BUFFER hbRecKey FOR TABLE _file._file-name.
             CREATE QUERY hqRecKey.
@@ -771,10 +774,11 @@ PROCEDURE ipGetLockData :
                 ") = " + STRING(_lock._Lock-RecID)).
             hqRecKey:QUERY-OPEN.
             IF hqRecKey:NUM-RESULTS NE 0 THEN DO:
-                hqRecKey:GET-FIRST.
+                hqRecKey:GET-FIRST().
                 FOR EACH _index-field OF _index NO-LOCK:
                     FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
-                    IF AVAIL _field THEN DO:
+                    IF AVAIL _field 
+                    AND _field._extent LT 2 THEN DO:
                         ASSIGN
                             iIdxCt = iIdxCt + 1.
                         checkname:
@@ -782,13 +786,13 @@ PROCEDURE ipGetLockData :
                             ASSIGN 
                                 hTestName = hbRecKey:BUFFER-FIELD(jCtr)
                                 cTestName = hTestName:NAME.
-                            IF cTestName EQ _field._field-name 
-                            /* Why there might be an extented field in an index, I don't know, but there it is */
-                            AND _field._extent LT 2 THEN DO:
+                            IF hTestName:EXTENT GT 1 THEN NEXT.
+                            IF cTestName EQ _field._field-name THEN DO:
                                 ASSIGN 
                                     hIdxFld[iIdxCt] = hbRecKey:BUFFER-FIELD(jCtr) 
-                                    cFieldString = cFieldString + hIdxFld[iIdxCt]:LABEL + "|" 
-                                    cKeyString = cKeyString + hIdxFld[iIdxCt]:BUFFER-VALUE + "|" 
+                                    cFieldString = cFieldString + hIdxFld[iIdxCt]:NAME  + "|" 
+                                    cKeyString = cKeyString + 
+                                                    (IF hIdxFld[iIdxCt]:BUFFER-VALUE EQ "" THEN "N/A" ELSE STRING(hIdxFld[iIdxCt]:BUFFER-VALUE)) + "|" 
                                     NO-ERROR.
                                 LEAVE checkname.
                             END.

@@ -79,12 +79,16 @@ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR vendItemCost.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS vendItemCost.validWidth[1] ~
-vendItemCost.validWidth[11] vendItemCost.validWidth[2] ~
+&Scoped-Define ENABLED-FIELDS vendItemCost.dimWidthMinimum ~
+vendItemCost.dimWidthMaximum vendItemCost.validWidth[1] ~
+vendItemCost.validWidth[11] vendItemCost.dimLengthMinimum ~
+vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
 vendItemCost.validWidth[12] vendItemCost.validWidth[3] ~
 vendItemCost.validWidth[13] vendItemCost.validWidth[4] ~
-vendItemCost.validWidth[14] vendItemCost.validWidth[5] ~
-vendItemCost.validWidth[15] vendItemCost.validWidth[6] ~
+vendItemCost.validWidth[14] vendItemCost.dimWidthUnder ~
+vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
+vendItemCost.validWidth[15] vendItemCost.dimLengthUnder ~
+vendItemCost.dimLengthOver vendItemCost.validWidth[6] ~
 vendItemCost.validWidth[16] vendItemCost.validWidth[7] ~
 vendItemCost.validWidth[17] vendItemCost.quantityMinimumOrder ~
 vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
@@ -113,7 +117,7 @@ vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
 vendItemCost.createdDate vendItemCost.createdID ~
 vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
 vendItemCost.validWidth[19] vendItemCost.updatedID vendItemCost.updatedDate ~
-vendItemCost.validWidth[10] vendItemCost.validWidth[20] 
+vendItemCost.validWidth[10] vendItemCost.validWidth[20] vendItemCost.vendorUOM
 &Scoped-define DISPLAYED-TABLES vendItemCost
 &Scoped-define FIRST-DISPLAYED-TABLE vendItemCost
 
@@ -127,7 +131,7 @@ vendItemCost.customerID vendItemCost.estimateNo vendItemCost.formNo ~
 vendItemCost.blankNo vendItemCost.vendorItemID vendItemCost.effectiveDate ~
 vendItemCost.expirationDate vendItemCost.createdDate vendItemCost.createdID ~
 vendItemCost.quantityMaximumOrder vendItemCost.updatedID ~
-vendItemCost.updatedDate 
+vendItemCost.updatedDate vendItemCost.vendorUOM
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -182,6 +186,11 @@ DEFINE FRAME F-Main
                      "RM","RM"
           DROP-DOWN-LIST
           SIZE 9 BY 1
+     vendItemCost.vendorUOM AT ROW 2.22 COL 95.2 COLON-ALIGNED
+          LABEL "Cost and Quantity UOM"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+          BGCOLOR 15 
      vendItemCost.itemID AT ROW 3.43 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -467,12 +476,12 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      "Valid Roll Widths" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 3.57 COL 90 WIDGET-ID 50
-     " Restrictions" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 1.71 COL 51 WIDGET-ID 8
-     "W:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 8.57 COL 53 WIDGET-ID 16
      "Under" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
+     "Upcharge" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 7.62 COL 72 WIDGET-ID 14
+     " Restrictions" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.71 COL 51 WIDGET-ID 8
      " Vendor Item Cost Details" VIEW-AS TEXT
           SIZE 29.8 BY .62 AT ROW 1.33 COL 4.2
      "L:" VIEW-AS TEXT
@@ -485,8 +494,8 @@ DEFINE FRAME F-Main
           SIZE 9 BY .62 AT ROW 3.57 COL 58.2 WIDGET-ID 24
      "L:" VIEW-AS TEXT
           SIZE 4 BY .62 AT ROW 9.52 COL 53 WIDGET-ID 18
-     "Upcharge" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 7.62 COL 72 WIDGET-ID 14
+     "W:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 8.57 COL 53 WIDGET-ID 16
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 2
      RECT-6 AT ROW 2.05 COL 49.2 WIDGET-ID 4
@@ -561,21 +570,21 @@ ASSIGN
 /* SETTINGS FOR FILL-IN vendItemCost.customerID IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthMaximum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthMinimum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthOver IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthUnder IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthMaximum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthMinimum IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthOver IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthUnder IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.effectiveDate IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.estimateNo IN FRAME F-Main
@@ -602,6 +611,8 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[10] IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.vendorUOM IN FRAME F-Main
+ NO-ENABLE 2 EXP-LABEL                                                  */
 ASSIGN 
        vendItemCost.validLength[10]:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -987,19 +998,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   vendItemCost.company = cocode.
-  
-  IF adm-adding-record THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    /*eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").*/
-    vendItemCost.effectiveDate:SCREEN-VALUE =  "12/31/2099"  .
-    vendItemCost.effectiveDate = 12/31/2099 .
-    vendItemCost.dimWidthMaximum = 99999.99.
-    vendItemCost.dimLengthMaximum = 99999.99.
-    vendItemCost.dimWidthOver = 99999.99.
-    vendItemCost.dimLengthOver = 99999.99.
-    vendItemCost.quantityMaximumOrder = 99999.99.
-    vendItemCost.itemType = "FG" .
-  END.
+ 
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN

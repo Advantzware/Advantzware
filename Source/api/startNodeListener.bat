@@ -23,7 +23,6 @@ IF NOT EXIST !dbDrive!\!topDir!\!dbDir!\Structure\STFiles\progress.dev (
 
 SET DLC=!DLCDir!
 SET API_JAVA_PROGRAMS_DIR=java
-SET API_JAVA_LOGS_DIR=java\logs
 SET API_JAVA_PROCESSOR=RequestDispatcher
 SET API_APPSERVER_URL=AppServer://localhost:!NameServerPort!/!AppServerName!
 SET API_APPSERVER_REQUEST_ROUTER=api/inbound/APIRequestRouterAS.p
@@ -32,6 +31,8 @@ SET API_PORT=!apiPort!
 
 ECHO Running node listeners...Ctrl-Break to exit
 if exist ./programs/api/node/InboundAPIStart.js (
+    SET LogDir=..\..\..\CustFiles\Node
+    SET API_JAVA_LOGS_DIR=!LogDir!
     CD ./programs/api/node
     ) else (
     if exist ./api/node/InboundAPIStart.js (
@@ -41,9 +42,8 @@ if exist ./programs/api/node/InboundAPIStart.js (
             )
         )
     )
-        
-START /B node InboundAPIStart.js >> node.server.log 2>> node.server.error.log
 
+START /B node InboundAPIStart.js >> %LogDir%\node.server.log 2>> %LogDir%\node.server.error.log
 :QUIT
 :: This leaves a command window open; that's a good thing
 EXIT

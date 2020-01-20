@@ -216,7 +216,7 @@ DEFINE BROWSE BROWSE-1
       estRelease.quantity LABEL "Est Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.quantityRelease LABEL "Rel Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.shipFromLocationID LABEL "From" WIDTH 10 LABEL-BGCOLOR 14
-    getShipLoc() @ cShipLoc LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
+    estRelease.shipToID LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierID LABEL "Carrier" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierZone LABEL "Zone" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.quantityOfUnits LABEL "Units" WIDTH 10 LABEL-BGCOLOR 14

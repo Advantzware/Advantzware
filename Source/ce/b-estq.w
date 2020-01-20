@@ -69,6 +69,7 @@ DEF VAR lv-last-show-est-no AS cha NO-UNDO.
 DEF VAR lv-first-show-est-no AS cha NO-UNDO.
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE cEstType AS CHARACTER NO-UNDO .
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""EF"" }
@@ -282,6 +283,14 @@ FUNCTION display-qty-set RETURNS DECIMAL
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-type B-table-Win 
+FUNCTION get-type RETURNS CHARACTER
+    ()  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -460,7 +469,9 @@ DEFINE BROWSE Browser-Table
       est.updated-id COLUMN-LABEL "Modifed By" FORMAT "X(8)":U
             WIDTH 15 LABEL-BGCOLOR 14
       est.est-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      eb.pur-man FORMAT "P/M":U
+      eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "Purchased/Manufacture":U
+      get-type() @ cEstType COLUMN-LABEL "Est Type" FORMAT "x(21)":U
+            WIDTH 29.4
   ENABLE
       est.est-no
       eb.cust-no
@@ -620,9 +631,6 @@ ASSIGN
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2".
 
-ASSIGN 
-       eb.pur-man:VISIBLE IN BROWSE Browser-Table = FALSE.
-
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
@@ -700,7 +708,9 @@ eb.est-no = lv-last-est-no"
      _FldNameList[22]   > ASI.est.est-date
 "est.est-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.eb.pur-man
-"eb.pur-man" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[24]   > "_<CALC>"
+"get-type() @ cEstType" "Est Type" "x(21)" "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -882,26 +892,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-   DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
-
   
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
-
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
-  APPLY "choose" TO btn_go.
+  IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
+      ASSIGN
+          lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+          lv-column-nam = lh-column:NAME
+          lv-column-lab = lh-column:LABEL
+          .    
+      IF lv-sort-by EQ lv-column-nam THEN
+      ll-sort-asc = NOT ll-sort-asc.    
+      ELSE
+      ASSIGN
+         lv-sort-by     = lv-column-nam
+         lv-sort-by-lab = lv-column-lab
+         .    
+      APPLY "END-SEARCH":U TO {&BROWSE-NAME}.    
+      APPLY "CHOOSE":U TO btn_go.
+  END. /* if sortable column */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2569,3 +2579,23 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-type B-table-Win 
+FUNCTION get-type RETURNS CHARACTER
+    () :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cReturnType AS CHARACTER NO-UNDO.
+
+   IF AVAIL est THEN DO:
+      RUN est/GetEstimateTypeDesc.p(est.company,est.est-type,
+                                  est.est-no,OUTPUT cReturnType) .
+   END.
+
+   RETURN cReturnType .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

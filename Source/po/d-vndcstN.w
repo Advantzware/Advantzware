@@ -471,7 +471,7 @@ PROCEDURE build-table :
   DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
   DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO. 
         
   FOR EACH bf-report NO-LOCK WHERE bf-report.term-id EQ v-term :
       FIND report WHERE ROWID(report) EQ ROWID(bf-report) EXCLUSIVE-LOCK.
@@ -490,6 +490,7 @@ PROCEDURE build-table :
 /*      ELSE IF AVAILABLE e-itemfg-vend THEN                                        */
 /*          cUom = e-itemfg-vend.std-uom.                                           */
      FIND first vendItemCostLevel NO-LOCK WHERE recid(vendItemCostLevel) = report.rec-id NO-ERROR.
+    
      FIND FIRST vendItemCost no-lock    
           WHERE vendItemCost.vendItemCostID = vendItemCostLevel.vendItemCostID NO-ERROR.
       IF AVAIL vendItemCost THEN
@@ -547,11 +548,11 @@ PROCEDURE build-table :
 /*              VIEW-AS ALERT-BOX.                 */                                                     
                                                       
                            
-          ASSIGN
-            report.key-01 = STRING(dCostTotal)  /*dCalcCost*/
-            report.key-02 = STRING(ipdQty)
-            report.key-05 = STRING((dCostSetup / ipdQty),"9999999999.9999")
-            report.key-06 = STRING(dCostSetup,"9999999999.9999").  /* dSetup*/
+/*          ASSIGN                                                              */
+/*            report.key-01 = STRING(dCostTotal)  /*dCalcCost*/                 */
+/*            report.key-02 = STRING(ipdQty)                                    */
+/*            report.key-05 = STRING((dCostSetup / ipdQty),"9999999999.9999")   */
+/*            report.key-06 = STRING(dCostSetup,"9999999999.9999").  /* dSetup*/*/
        
       END.
       
@@ -566,11 +567,12 @@ PROCEDURE build-table :
              tt-report.key-03 = report.key-03
              tt-report.key-04 = report.key-04
              tt-report.vend-name = IF AVAILABLE vend THEN vend.NAME ELSE ""
-             tt-report.report-cost = dCostTotal /*dCalcCost*/
+             tt-report.report-cost = /* dCostTotal */ dCalcCost
              tt-report.disc-days  = IF AVAILABLE vend THEN vend.disc-days ELSE 0 
              tt-report.ext-price  = DECIMAL(report.key-02) * tt-report.report-cost
              tt-report.rec-id = RECID(report)
-             tt-report.cost-uom = cUom.
+             tt-report.cost-uom = cUom                   
+             .
 
         IF AVAILABLE vendItemCost /*e-itemfg-vend*/  THEN
             ASSIGN
@@ -580,7 +582,7 @@ PROCEDURE build-table :
             tt-report.len-min   = vendItemCost.dimLengthMinimum /*e-itemfg-vend.roll-w[29]*/
             tt-report.len-max   = vendItemCost.dimLengthMaximum /*e-itemfg-vend.roll-w[30]*/
             .     
-       
+      
           IF AVAILABLE job-mat THEN
           FIND FIRST job-hdr NO-LOCK WHERE job-hdr.company EQ job-mat.company
                                        AND job-hdr.job-no  EQ job-mat.job-no

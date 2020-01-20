@@ -46,6 +46,16 @@ CREATE WIDGET-POOL.
 
 {custom/b-ebfgDefs.i}
 
+DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -203,6 +213,9 @@ ASSIGN
                 "7"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
        Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE.
+IF NOT lVendItemUseDeviation THEN
+    ASSIGN 
+      vendItemCostLevel.costDeviation:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -253,6 +266,14 @@ ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
    
    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+   DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    run get-link-handle in adm-broker-hdl  (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
+
+   IF NOT lAllowUpdate THEN
    IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
        RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"update",OUTPUT lv-rowid) .
        
@@ -452,6 +473,19 @@ DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
 DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE rwRowidLevel AS ROWID NO-UNDO .
 
+DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    run get-link-handle in adm-broker-hdl  (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
+
+IF NOT lAllowUpdate THEN do:
+
+  IF NOT adm-new-record THEN DO:
+    {custom/askdel.i}
+  END.
+
      RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
   /* Code placed here will execute PRIOR to standard behavior. */
   
@@ -465,6 +499,7 @@ DEFINE VARIABLE rwRowidLevel AS ROWID NO-UNDO .
  DELETE OBJECT hVendorCostProcs.
 IF AVAIL vendItemCost THEN
     RUN reopen-query (ROWID(vendItemCost),rwRowidLevel).
+END. /* NOT lAllowUpdate*/
 
 END PROCEDURE.
 
@@ -522,6 +557,14 @@ PROCEDURE pCopyRecord :
   Notes:       
 -------------------------------------------------------------*/
  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+ DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
+ DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    run get-link-handle in adm-broker-hdl  (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
+
+    IF NOT lAllowUpdate THEN
     IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
 
        RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"Copy",OUTPUT rwRowid) .
@@ -543,6 +586,14 @@ PROCEDURE pAddRecord :
 -------------------------------------------------------------*/
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
     DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+    DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    run get-link-handle in adm-broker-hdl  (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
+
+    IF NOT lAllowUpdate THEN
     IF AVAIL vendItemCost  THEN do:
        RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),lv-rowid,"Create", OUTPUT rwRowid) .
        
@@ -563,6 +614,14 @@ PROCEDURE pUpdateRecord :
   Notes:       
 -------------------------------------------------------------*/
  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+ DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
+ DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    run get-link-handle in adm-broker-hdl  (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
+
+    IF NOT lAllowUpdate THEN
     IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
        RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"Update",OUTPUT rwRowid) .
        
@@ -582,6 +641,14 @@ PROCEDURE pViewRecord :
   Notes:       
 -------------------------------------------------------------*/
  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+ DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
+ DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    run get-link-handle in adm-broker-hdl  (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
+
+    IF NOT lAllowUpdate THEN
     IF AVAIL vendItemCost THEN do:
        RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"view",OUTPUT rwRowid) .
        

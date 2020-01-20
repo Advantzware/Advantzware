@@ -221,15 +221,21 @@ PROCEDURE pValidate PRIVATE:
 
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
 
-    IF ipbf-ttImportWarehouse.isAPIEnabled EQ "Yes" THEN
+    IF ipbf-ttImportWarehouse.isAPIEnabled EQ "Yes" 
+    OR ipbf-ttImportWarehouse.isAPIEnabled EQ "Y" 
+    OR ipbf-ttImportWarehouse.isAPIEnabled EQ "True" THEN
          ipbf-ttImportWarehouse.isAPIEnabled = "Y".
     ELSE ipbf-ttImportWarehouse.isAPIEnabled = "N".
 
-    IF ipbf-ttImportWarehouse.lActive EQ "Yes" THEN
+    IF ipbf-ttImportWarehouse.lActive EQ "Yes" 
+    OR ipbf-ttImportWarehouse.lActive EQ "Y"
+    OR ipbf-ttImportWarehouse.lActive EQ "True" THEN
          ipbf-ttImportWarehouse.lActive = "Y".
     ELSE ipbf-ttImportWarehouse.lActive = "N".
 
-    IF ipbf-ttImportWarehouse.cActive EQ "Yes" THEN
+    IF ipbf-ttImportWarehouse.cActive EQ "Yes" 
+    OR ipbf-ttImportWarehouse.cActive EQ "Y"
+    OR ipbf-ttImportWarehouse.cActive EQ "True" THEN
          ipbf-ttImportWarehouse.cActive = "Y".
     ELSE ipbf-ttImportWarehouse.cActive = "N".
 

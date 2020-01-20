@@ -443,9 +443,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure W-Win
-PROCEDURE pDeleteProcedure:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure W-Win 
+PROCEDURE pDeleteProcedure :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -454,11 +453,9 @@ PROCEDURE pDeleteProcedure:
    DELETE PROCEDURE hAppSrvBin.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCompany W-Win 
 PROCEDURE pGetCompany :

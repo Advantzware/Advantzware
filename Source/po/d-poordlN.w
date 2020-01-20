@@ -6676,7 +6676,7 @@ PROCEDURE vend-cost :
                 0, 
                 0,
                 DEC(po-ordl.ord-qty:SCREEN-VALUE), 
-                vendItemCost.vendorUOM,
+                po-ordl.pr-qty-uom:screen-value,
                 item.s-len, 
                 ITEM.s-wid, 
                 0, 
@@ -6753,8 +6753,8 @@ PROCEDURE vend-cost :
                 WHERE vendItemCost.company EQ cocode
                 AND vendItemCost.itemID    EQ po-ordl.i-no:SCREEN-VALUE
                 AND vendItemCost.itemType EQ "FG"
+                AND vendItemCost.vendorID = po-ord.vend-no 
                 NO-ERROR.
-      
             IF AVAILABLE vendItemCost THEN 
             DO:
                 CREATE tt-ei.
@@ -6773,7 +6773,7 @@ PROCEDURE vend-cost :
                     0, 
                     0,
                 DEC(po-ordl.ord-qty:SCREEN-VALUE), 
-                vendItemCost.vendorUOM,
+                (po-ordl.pr-qty-uom:SCREEN-VALUE) ,
                     itemfg.t-len, 
                     itemfg.t-wid, 
                     0, 
@@ -6786,10 +6786,11 @@ PROCEDURE vend-cost :
                     OUTPUT cCostUOM,
                     OUTPUT dCostTotal, 
                     OUTPUT lError, 
-                    OUTPUT cMessage).  
-        
+                    OUTPUT cMessage).          
                 v-index = 0.  
                 FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
+                                 AND venditemcostlevel.quantityfrom LE int(po-ordl.ord-qty:screen-value)
+                                 AND venditemcostlevel.quantityto GE int(po-ordl.ord-qty:screen-value)
                     BY vendItemCostLevel.vendItemCostLevelID:
          
                     FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
@@ -6799,7 +6800,7 @@ PROCEDURE vend-cost :
                         tt-eiv.rec_key = vendItemCostLevel.rec_key.
                     END.  
                     IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/ v-index GT 20 THEN LEAVE.
-                    ASSIGN v-index = vendItemCostLevel.vendItemCostLevelID
+                    ASSIGN v-index = v-index + 1
                         tt-eiv.run-qty[v-index]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[v-index]*/
                         tt-eiv.run-cost[v-index] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[v-index] */
                         tt-eiv.setups[v-index]   = vendItemCostLevel.costSetup   /* e-item-vend.setups[v-index] */
@@ -6880,8 +6881,9 @@ PROCEDURE vend-cost :
                     
           IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
                 lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
-          po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).                      
+          po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).                                          
         END.                
+        
         /*        IF AVAILABLE tt-eiv THEN                                                                                  */
         /*        DO:                                                                                                       */
         /*            ASSIGN                                                                                                */

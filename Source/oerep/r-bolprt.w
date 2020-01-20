@@ -121,6 +121,8 @@ DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -265,19 +267,19 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
 &Scoped-Define ENABLED-OBJECTS RECT-6 begin_cust end_cust begin_bol# ~
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
-rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line ~
-tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill ~
-tb_footer lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok ~
-btn-cancel run_format tb_print-DetPage
+tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
+tb_print-binstags rd_bol-sort fi_specs tb_print-spec rd_bolcert ~
+tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
+tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no td-show-parm ~
+tb_post-bol run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
-lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert ~
-tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
-tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no lv-font-name ~
-tb_post-bol td-show-parm run_format tb_print-DetPage
+tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
+tb_print-binstags lbl_bolsort rd_bol-sort fi_specs tb_print-spec ~
+lbl_bolcert rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest ~
+tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt ~
+lines-per-page lv-font-no lv-font-name td-show-parm tb_post-bol run_format 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -350,6 +352,11 @@ DEFINE VARIABLE end_ord# AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiPostdate AS DATE FORMAT "99/99/9999":U 
+     LABEL "Post Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_depts AS CHARACTER FORMAT "X(100)" 
      VIEW-AS FILL-IN 
      SIZE 38.4 BY 1.
@@ -373,12 +380,17 @@ DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99
 
 DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
      VIEW-AS FILL-IN 
-     SIZE 47.6 BY 1 NO-UNDO.
+     SIZE 51.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
      LABEL "Font" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
+
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -396,7 +408,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To Fax", 4,
 "To Email", 5,
 "To Port Directly", 6
-     SIZE 23 BY 7.86 NO-UNDO.
+     SIZE 20.6 BY 7.86 NO-UNDO.
 
 DEFINE VARIABLE rd_bol-sort AS CHARACTER INITIAL "Item #" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -459,7 +471,7 @@ DEFINE VARIABLE tb_per-bol-line AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_post-bol AS LOGICAL INITIAL no 
      LABEL "Post BOL?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 16 BY 1
+     SIZE 13 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
@@ -470,12 +482,7 @@ DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_print-barcode AS LOGICAL INITIAL no 
      LABEL "Print Barcode by Part Number?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 44 BY .81 NO-UNDO. 
-
-DEFINE VARIABLE tb_print-DetPage AS LOGICAL INITIAL no 
-     LABEL "Print Detail Bol Page 2?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 44 BY .81 NO-UNDO. 
+     SIZE 44 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_print-binstags AS LOGICAL INITIAL no 
      LABEL "Print Bins/Tags?" 
@@ -491,6 +498,11 @@ DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no
      LABEL "Print Dept Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_print-DetPage AS LOGICAL INITIAL no 
+     LABEL "Print Detail Bol Page 2?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 44 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_print-shipnote AS LOGICAL INITIAL no 
      LABEL "Print Ship Notes?" 
@@ -520,13 +532,8 @@ DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
-     LABEL "Format" 
-     VIEW-AS FILL-IN /*COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST*/
-     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -555,10 +562,10 @@ DEFINE FRAME FRAME-A
      tb_barcode AT ROW 10.57 COL 34
      fi_depts AT ROW 11.33 COL 53.6 COLON-ALIGNED HELP
           "Enter Dept Codes separated by commas" NO-LABEL
-     tb_print-dept AT ROW 11.43 COL 34
      tb_print_ship AT ROW 11.43 COL 34 WIDGET-ID 4
+     tb_print-dept AT ROW 11.43 COL 34
      tb_print-barcode AT ROW 12.29 COL 34 WIDGET-ID 2
-     tb_print-DetPage AT ROW 13.01 COL 34 
+     tb_print-DetPage AT ROW 13 COL 34
      tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
      tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
      lbl_bolsort AT ROW 13.86 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
@@ -569,27 +576,28 @@ DEFINE FRAME FRAME-A
      lbl_bolcert AT ROW 15.1 COL 24 COLON-ALIGNED NO-LABEL
      rd_bolcert AT ROW 15.1 COL 34.6 NO-LABEL
      tb_per-bol-line AT ROW 15.19 COL 73.4 WIDGET-ID 20
-     tb_EMailAdvNotice AT ROW 16.67 COL 67 RIGHT-ALIGNED
-     rd-dest AT ROW 17.48 COL 5 NO-LABEL
-     tb_MailBatchMode AT ROW 17.57 COL 59 RIGHT-ALIGNED
-     tb_ComInvoice AT ROW 18.48 COL 64 RIGHT-ALIGNED
-     tb_freight-bill AT ROW 19.38 COL 61 RIGHT-ALIGNED
-     tb_footer AT ROW 20.29 COL 61 RIGHT-ALIGNED
-     lv-ornt AT ROW 21.1 COL 34 NO-LABEL
+     tb_EMailAdvNotice AT ROW 16.67 COL 62.6 RIGHT-ALIGNED
+     rd-dest AT ROW 17.48 COL 3.4 NO-LABEL
+     tb_MailBatchMode AT ROW 17.57 COL 54.6 RIGHT-ALIGNED
+     tb_ComInvoice AT ROW 18.48 COL 59.6 RIGHT-ALIGNED
+     tb_freight-bill AT ROW 19.38 COL 56.6 RIGHT-ALIGNED
+     tb_footer AT ROW 20.29 COL 56.6 RIGHT-ALIGNED
+     lv-ornt AT ROW 21.1 COL 29.6 NO-LABEL
      lines-per-page AT ROW 21.1 COL 83 COLON-ALIGNED
-     lv-font-no AT ROW 22.19 COL 32 COLON-ALIGNED
-     lv-font-name AT ROW 22.19 COL 39.4 COLON-ALIGNED NO-LABEL
-     tb_post-bol AT ROW 23.33 COL 67.1
-     td-show-parm AT ROW 23.33 COL 34
-     run_format AT ROW 24.64 COL 65 COLON-ALIGNED WIDGET-ID 12
+     lv-font-no AT ROW 22.19 COL 27.8 COLON-ALIGNED
+     lv-font-name AT ROW 22.19 COL 35.2 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 23.33 COL 30
+     fiPostdate AT ROW 23.33 COL 60.8 COLON-ALIGNED WIDGET-ID 22
+     tb_post-bol AT ROW 23.33 COL 79.2
+     run_format AT ROW 24.62 COL 65.2 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 26 COL 20
      btn-cancel AT ROW 26 COL 61
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.52 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 2
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.52 COL 5
-     RECT-6 AT ROW 16.29 COL 2
+     RECT-6 AT ROW 16.24 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
@@ -690,6 +698,11 @@ ASSIGN
        end_ord#:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN fiPostdate IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       fiPostdate:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_depts IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -784,11 +797,6 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       tb_print-DetPage:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-
-ASSIGN 
        tb_print-binstags:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_print-binstags:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -802,6 +810,10 @@ ASSIGN
 ASSIGN 
        tb_print-dept:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_print-dept:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_print-DetPage:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -944,6 +956,24 @@ DO:
       APPLY "entry" TO begin_date.
       RETURN NO-APPLY.
   END.
+  IF tb_post-bol THEN DO: 
+      RUN pCheckPostDate(
+          OUTPUT lvalid
+          ).
+      IF NOT lValid THEN 
+          RETURN NO-APPLY.
+  
+      IF MONTH(fiPostdate) NE MONTH(TODAY) OR 
+          YEAR(fiPostDate) NE YEAR(TODAY) THEN DO:
+          MESSAGE "The BOL posting date is not in the current month - " SKIP 
+              " Are you sure you want to post using this date ?" 
+              VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL UPDATE lCheckFlag as LOGICAL .
+          IF NOT lCheckFlag THEN DO:
+              APPLY "ENTRY" TO fiPostDate IN FRAME {&FRAME-NAME}.
+              RETURN NO-APPLY .
+          END.
+      END. 
+   END.          
 
    IF invstatus-char EQ "One Bol Only" THEN
        ASSIGN END_bol# = begin_bol#
@@ -1406,6 +1436,34 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiPostdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPostdate C-Win
+ON LEAVE OF fiPostdate IN FRAME FRAME-A /* Post Date */
+DO:
+    ASSIGN {&SELF-NAME}.
+    IF LASTKEY NE -1 THEN DO:
+        RUN pCheckPostDate(
+            OUTPUT lValid
+            ).
+        IF NOT lValid THEN
+            RETURN NO-APPLY.
+    END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPostdate C-Win
+ON VALUE-CHANGED OF fiPostdate IN FRAME FRAME-A /* Post Date */
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_depts
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_depts C-Win
 ON LEAVE OF fi_depts IN FRAME FRAME-A
@@ -1517,24 +1575,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME tb_freight-bill
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_freight-bill C-Win
-ON VALUE-CHANGED OF tb_freight-bill IN FRAME FRAME-A
-DO:
-  assign {&self-name}.
-
-  IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
-      IF tb_freight-bill THEN
-          run_format:SCREEN-VALUE = vcDefaultBOLX .
-      ELSE
-          run_format:SCREEN-VALUE = vcDefaultForm.
-  END.
-  ELSE run_format:SCREEN-VALUE = v-def-coc-fmt.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME rd_bolcert
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_bolcert C-Win
@@ -1559,135 +1599,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_EMailAdvNotice
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_EMailAdvNotice C-Win
-ON VALUE-CHANGED OF tb_EMailAdvNotice IN FRAME FRAME-A /* E-Mail Advanced Ship Notice? */
-DO:
-
-  IF NOT rd-dest:SCREEN-VALUE EQ '5' THEN DO:
-
-    IF SELF:CHECKED THEN DO:
-      ASSIGN tb_MailBatchMode:sensitive  = true.
-      APPLY 'value-changed':u to tb_MailBatchMode.
-    end.
-
-    ELSE
-      assign  tb_MailBatchMode:sensitive  = false.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_pallet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_pallet C-Win
-ON VALUE-CHANGED OF tb_pallet IN FRAME FRAME-A /* Print Number Of Pallets? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_post-bol
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-bol C-Win
-ON VALUE-CHANGED OF tb_post-bol IN FRAME FRAME-A /* Post BOL? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_posted
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_posted C-Win
-ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted BOL? */
-DO:
-  assign {&self-name}.
-  IF tb_posted THEN do:
-     ASSIGN tb_reprint = YES
-            END_bol#:SCREEN-VALUE = begin_bol#:SCREEN-VALUE
-                /*  END_ord#:SCREEN-VALUE = begin_ord#:SCREEN-VALUE
-                  END_cust:SCREEN-VALUE = begin_cust:SCREEN-VALUE*/.
-     DISP tb_reprint     WITH FRAME {&FRAME-NAME}.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_reprint
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_reprint C-Win
-ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Reprint Bill Of Ladings? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME td-show-parm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
-ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&UNDEFINE SELF-NAME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
-
 &Scoped-define SELF-NAME run_format
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
-ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
-DO:
-   ASSIGN run_format.
-
-   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN
-        DO:
-        IF tb_freight-bill:SCREEN-VALUE EQ "NO" THEN
-            DO:
-            IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
-                ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
-                    vcDefaultForm = v-print-fmt.
-                RUN  pRunFormatValueChanged .
-            END.
-        END.
-        ELSE IF tb_freight-bill:SCREEN-VALUE EQ "Yes" THEN
-            DO:
-            IF vcDefaultBOLX NE run_format:SCREEN-VALUE THEN DO:
-                ASSIGN 
-                    v-print-fmt =  run_format:SCREEN-VALUE
-                    vcDefaultBOLX = run_format:SCREEN-VALUE .
-                RUN  pRunFormatValueChanged .
-            END.
-        END.
-    END.
-    ELSE
-        DO:
-        IF v-def-coc-fmt NE run_format:SCREEN-VALUE THEN DO:
-            ASSIGN 
-                v-print-fmt =  run_format:SCREEN-VALUE
-                v-def-coc-fmt = run_format:SCREEN-VALUE .
-            RUN  pRunFormatValueChanged .
-        END.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME run_format
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
-ON HELP OF run_format IN FRAME FRAME-A /* Font */
+ON HELP OF run_format IN FRAME FRAME-A /* Format */
 DO:
     DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
 
@@ -1735,7 +1649,169 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ***************************  Main Block  *************************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
+DO:
+   ASSIGN run_format.
+
+   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN
+        DO:
+        IF tb_freight-bill:SCREEN-VALUE EQ "NO" THEN
+            DO:
+            IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+                ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
+                    vcDefaultForm = v-print-fmt.
+                RUN  pRunFormatValueChanged .
+            END.
+        END.
+        ELSE IF tb_freight-bill:SCREEN-VALUE EQ "Yes" THEN
+            DO:
+            IF vcDefaultBOLX NE run_format:SCREEN-VALUE THEN DO:
+                ASSIGN 
+                    v-print-fmt =  run_format:SCREEN-VALUE
+                    vcDefaultBOLX = run_format:SCREEN-VALUE .
+                RUN  pRunFormatValueChanged .
+            END.
+        END.
+    END.
+    ELSE
+        DO:
+        IF v-def-coc-fmt NE run_format:SCREEN-VALUE THEN DO:
+            ASSIGN 
+                v-print-fmt =  run_format:SCREEN-VALUE
+                v-def-coc-fmt = run_format:SCREEN-VALUE .
+            RUN  pRunFormatValueChanged .
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_EMailAdvNotice
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_EMailAdvNotice C-Win
+ON VALUE-CHANGED OF tb_EMailAdvNotice IN FRAME FRAME-A /* E-Mail Advanced Ship Notice? */
+DO:
+
+  IF NOT rd-dest:SCREEN-VALUE EQ '5' THEN DO:
+
+    IF SELF:CHECKED THEN DO:
+      ASSIGN tb_MailBatchMode:sensitive  = true.
+      APPLY 'value-changed':u to tb_MailBatchMode.
+    end.
+
+    ELSE
+      assign  tb_MailBatchMode:sensitive  = false.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_freight-bill
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_freight-bill C-Win
+ON VALUE-CHANGED OF tb_freight-bill IN FRAME FRAME-A /* Print Freight Bill / Logo? */
+DO:
+  assign {&self-name}.
+
+  IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
+      IF tb_freight-bill THEN
+          run_format:SCREEN-VALUE = vcDefaultBOLX .
+      ELSE
+          run_format:SCREEN-VALUE = vcDefaultForm.
+  END.
+  ELSE run_format:SCREEN-VALUE = v-def-coc-fmt.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_pallet
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_pallet C-Win
+ON VALUE-CHANGED OF tb_pallet IN FRAME FRAME-A /* Print Number Of Pallets? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_post-bol
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-bol C-Win
+ON VALUE-CHANGED OF tb_post-bol IN FRAME FRAME-A /* Post BOL? */
+DO:
+    ASSIGN {&SELF-NAME}.
+    IF tb_post-bol THEN DO:
+        ASSIGN
+            fiPostDate:SENSITIVE    = TRUE
+            fiPostDate:HIDDEN       = FALSE
+            fiPostDate:SCREEN-VALUE = STRING(TODAY)
+            fiPostDate              = TODAY
+            .
+    END. 
+    ELSE DO:
+        ASSIGN
+            fiPostDate:SENSITIVE = FALSE
+            fiPostDate:HIDDEN    = TRUE
+            .
+    END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_posted
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_posted C-Win
+ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted BOL? */
+DO:
+  assign {&self-name}.
+  IF tb_posted THEN do:
+     ASSIGN tb_reprint = YES
+            END_bol#:SCREEN-VALUE = begin_bol#:SCREEN-VALUE
+                /*  END_ord#:SCREEN-VALUE = begin_ord#:SCREEN-VALUE
+                  END_cust:SCREEN-VALUE = begin_cust:SCREEN-VALUE*/.
+     DISP tb_reprint     WITH FRAME {&FRAME-NAME}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_reprint
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_reprint C-Win
+ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Reprint Bill Of Ladings? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME td-show-parm
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
+ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
+DO:
+    assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
+
+
 PROCEDURE mail EXTERNAL "xpMail.dll" :
       DEF INPUT PARAM mailTo AS CHAR.
       DEF INPUT PARAM mailsubject AS CHAR.
@@ -1943,7 +2019,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     tb_EMailAdvNotice:SENSITIVE = YES.
     APPLY 'value-changed':u TO rd-dest.
-
+    APPLY "VALUE-CHANGED":U TO tb_post-bol.
   END.
 
 
@@ -2995,21 +3071,21 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
           tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
-          tb_barcode tb_print_ship tb_print-barcode tb_print-DetPage
+          tb_barcode tb_print_ship tb_print-barcode tb_print-DetPage 
           tb_print-unassemble-component tb_print-binstags lbl_bolsort 
           rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
           tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode 
           tb_ComInvoice tb_freight-bill tb_footer lv-ornt lines-per-page 
-          lv-font-no lv-font-name tb_post-bol td-show-parm run_format
+          lv-font-no lv-font-name td-show-parm tb_post-bol run_format 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
-         tb_print-unassemble-component tb_print-binstags rd_bol-sort fi_specs 
-         tb_print-spec rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest 
-         tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt 
-         lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
-         run_format tb_print-DetPage
+         tb_print-DetPage tb_print-unassemble-component tb_print-binstags 
+         rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line 
+         tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
+         tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no 
+         td-show-parm tb_post-bol run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3634,10 +3710,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPostDate C-Win 
+PROCEDURE pCheckPostDate PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose: To check whether period exists for the Post date   
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        oplValid = YES.
+        FIND FIRST period NO-LOCK 
+             WHERE period.company EQ cocode
+               AND period.pst     LE fiPostDate
+               AND period.pend    GE fiPostDate 
+             NO-ERROR.  
+        IF NOT AVAILABLE period THEN DO:
+            MESSAGE "No defined period exists for" fiPostDate:SCREEN-VALUE  
+                VIEW-AS ALERT-BOX ERROR. 
+            oplValid = NO.      
+        END.               
+    END.    
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win
-PROCEDURE pdfArchive:
-    /*------------------------------------------------------------------------------
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win 
+PROCEDURE pdfArchive :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3693,11 +3795,9 @@ PROCEDURE pdfArchive:
     PROCESS EVENTS.
     STATUS DEFAULT "Create PDF files complete".
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bol C-Win 
 PROCEDURE post-bol :
@@ -3943,6 +4043,140 @@ PROCEDURE post-bol :
 
   IF VALID-HANDLE(lr-rel-lib) THEN
      DELETE OBJECT lr-rel-lib.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF v-print-fmt EQ "XPRINT"   OR
+            v-print-fmt EQ "bolfmt 1"   OR
+            v-print-fmt EQ "bolfmt 10"   OR
+            v-print-fmt EQ "Wingate-BOL"   OR
+            v-print-fmt EQ "bolfmt10-CAN"   OR
+            v-print-fmt EQ "Lakeside"   OR
+            v-print-fmt EQ "ACCORDBC"   OR
+            v-print-fmt EQ "Protagon" OR
+            v-print-fmt = "CapCityIN" OR 
+            v-print-fmt = "Axis" OR 
+            v-print-fmt EQ "Allwest"  OR
+            v-print-fmt EQ "PackRite"  OR
+            v-print-fmt EQ "Badger"   OR
+            v-print-fmt EQ "BadgerSoldTo"   OR
+            v-print-fmt EQ "MidwestX"   OR
+            v-print-fmt EQ "Loylang"  OR
+            v-print-fmt EQ "Printers"  OR
+            v-print-fmt EQ "Printers2"  OR
+            v-print-fmt EQ "Multicell"
+            THEN 
+            ASSIGN
+            tb_print-dept:HIDDEN IN FRAME {&FRAME-NAME} = NO
+            fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO
+            tb_print-dept:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+            fi_depts:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+
+        IF InvStatus-char NE "One BOL Only" THEN
+            ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME} = NO
+            END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+
+        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+            tb_print-component:SCREEN-VALUE = "no".
+            DISABLE tb_print-component.
+            tb_print-unassemble-component:SCREEN-VALUE = "no".
+            DISABLE tb_print-unassemble-component.
+        END.
+
+        IF v-print-fmt = "Xprint"    or
+           v-print-fmt = "Delta2"    or
+            v-print-fmt = "bolfmt 1"    or
+            v-print-fmt = "bolfmt 10"    or
+            v-print-fmt = "Wingate-BOL"    or
+            v-print-fmt = "bolfmt10-CAN"    or
+            v-print-fmt = "Lakeside"    or
+            v-print-fmt = "Accordbc"    or
+            v-print-fmt = "Protagon"  or
+            v-print-fmt = "CapCityIN" or 
+            v-print-fmt = "Axis" or 
+            v-print-fmt = "Peachtree" OR
+            v-print-fmt = "PeachtreeBC" OR
+            v-print-fmt = "MidwestX" or
+            v-print-fmt = "Allwest"   or 
+            v-print-fmt = "Badger"    OR
+            v-print-fmt = "BadgerSoldTo"   OR
+            v-print-fmt = "Loylang"   OR
+            v-print-fmt EQ "Printers" OR
+            v-print-fmt EQ "Printers2" OR
+            v-print-fmt = "Multicell" OR 
+            v-print-fmt = "SouleMed"  OR
+            v-print-fmt = "Soule"
+
+            THEN tb_print-shipnote:SENSITIVE = YES.
+        ELSE tb_print-shipnote:SENSITIVE = NO.
+
+        IF v-print-fmt <> "NSTOCK" THEN
+            tb_print_ship:HIDDEN       = YES.
+        ELSE
+            tb_print_ship:HIDDEN       = NO .
+
+        IF v-coc-fmt EQ "BOLCERT10" THEN DO:
+            assign
+                tb_per-bol-line:HIDDEN       = NO
+                tb_per-bol-line:screen-value = "NO"
+                tb_per-bol-line:SENSITIVE = NO.
+        END.
+        ELSE DO:
+            tb_per-bol-line:HIDDEN       = YES .
+        END.
+
+        IF v-print-fmt = "ACCORDBC" AND v-print-fmt-int = 1 THEN
+            tb_print-binstags:HIDDEN = NO.
+        ELSE
+            tb_print-binstags:HIDDEN = YES.
+
+       IF v-print-fmt = "Protagon" OR v-print-fmt = "Axis" THEN
+           ASSIGN 
+           tb_print-spec:HIDDEN = NO
+           fi_specs:HIDDEN = NO.
+       ELSE
+           ASSIGN 
+               tb_print-spec:HIDDEN = YES
+               fi_specs:HIDDEN = YES.
+       IF v-print-fmt = "bolfmt10-can" THEN
+           ASSIGN 
+           tb_print-unassemble-component:HIDDEN = NO.
+       ELSE
+           ASSIGN 
+               tb_print-unassemble-component:HIDDEN = YES.
+
+                
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
+       ASSIGN
+        lbl_bolsort:HIDDEN = NO
+        rd_bol-sort:HIDDEN = NO .
+   ELSE
+       ASSIGN
+        lbl_bolsort:HIDDEN = YES
+        rd_bol-sort:HIDDEN = YES .
+
+      IF v-print-fmt NE "PremierXFooter"    THEN
+         ASSIGN  tb_footer:HIDDEN = YES
+                 tb_footer:SCREEN-VALUE = "No" .
+
+      
+    IF v-print-fmt = "Peachtree" OR v-print-fmt = "PeachtreeBC" OR v-print-fmt = "PeachtreeLotPO"  THEN 
+       ASSIGN
+        tb_print-DetPage:HIDDEN = NO .
+   ELSE
+       ASSIGN
+        tb_print-DetPage:HIDDEN = YES .
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5077,140 +5311,6 @@ PROCEDURE show-param :
   put fill("-",80) format "x(80)" skip.
   PAGE.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
-PROCEDURE pRunFormatValueChanged :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF v-print-fmt EQ "XPRINT"   OR
-            v-print-fmt EQ "bolfmt 1"   OR
-            v-print-fmt EQ "bolfmt 10"   OR
-            v-print-fmt EQ "Wingate-BOL"   OR
-            v-print-fmt EQ "bolfmt10-CAN"   OR
-            v-print-fmt EQ "Lakeside"   OR
-            v-print-fmt EQ "ACCORDBC"   OR
-            v-print-fmt EQ "Protagon" OR
-            v-print-fmt = "CapCityIN" OR 
-            v-print-fmt = "Axis" OR 
-            v-print-fmt EQ "Allwest"  OR
-            v-print-fmt EQ "PackRite"  OR
-            v-print-fmt EQ "Badger"   OR
-            v-print-fmt EQ "BadgerSoldTo"   OR
-            v-print-fmt EQ "MidwestX"   OR
-            v-print-fmt EQ "Loylang"  OR
-            v-print-fmt EQ "Printers"  OR
-            v-print-fmt EQ "Printers2"  OR
-            v-print-fmt EQ "Multicell"
-            THEN 
-            ASSIGN
-            tb_print-dept:HIDDEN IN FRAME {&FRAME-NAME} = NO
-            fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO
-            tb_print-dept:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-            fi_depts:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-
-        IF InvStatus-char NE "One BOL Only" THEN
-            ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME} = NO
-            END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-
-        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
-            tb_print-component:SCREEN-VALUE = "no".
-            DISABLE tb_print-component.
-            tb_print-unassemble-component:SCREEN-VALUE = "no".
-            DISABLE tb_print-unassemble-component.
-        END.
-
-        IF v-print-fmt = "Xprint"    or
-           v-print-fmt = "Delta2"    or
-            v-print-fmt = "bolfmt 1"    or
-            v-print-fmt = "bolfmt 10"    or
-            v-print-fmt = "Wingate-BOL"    or
-            v-print-fmt = "bolfmt10-CAN"    or
-            v-print-fmt = "Lakeside"    or
-            v-print-fmt = "Accordbc"    or
-            v-print-fmt = "Protagon"  or
-            v-print-fmt = "CapCityIN" or 
-            v-print-fmt = "Axis" or 
-            v-print-fmt = "Peachtree" OR
-            v-print-fmt = "PeachtreeBC" OR
-            v-print-fmt = "MidwestX" or
-            v-print-fmt = "Allwest"   or 
-            v-print-fmt = "Badger"    OR
-            v-print-fmt = "BadgerSoldTo"   OR
-            v-print-fmt = "Loylang"   OR
-            v-print-fmt EQ "Printers" OR
-            v-print-fmt EQ "Printers2" OR
-            v-print-fmt = "Multicell" OR 
-            v-print-fmt = "SouleMed"  OR
-            v-print-fmt = "Soule"
-
-            THEN tb_print-shipnote:SENSITIVE = YES.
-        ELSE tb_print-shipnote:SENSITIVE = NO.
-
-        IF v-print-fmt <> "NSTOCK" THEN
-            tb_print_ship:HIDDEN       = YES.
-        ELSE
-            tb_print_ship:HIDDEN       = NO .
-
-        IF v-coc-fmt EQ "BOLCERT10" THEN DO:
-            assign
-                tb_per-bol-line:HIDDEN       = NO
-                tb_per-bol-line:screen-value = "NO"
-                tb_per-bol-line:SENSITIVE = NO.
-        END.
-        ELSE DO:
-            tb_per-bol-line:HIDDEN       = YES .
-        END.
-
-        IF v-print-fmt = "ACCORDBC" AND v-print-fmt-int = 1 THEN
-            tb_print-binstags:HIDDEN = NO.
-        ELSE
-            tb_print-binstags:HIDDEN = YES.
-
-       IF v-print-fmt = "Protagon" OR v-print-fmt = "Axis" THEN
-           ASSIGN 
-           tb_print-spec:HIDDEN = NO
-           fi_specs:HIDDEN = NO.
-       ELSE
-           ASSIGN 
-               tb_print-spec:HIDDEN = YES
-               fi_specs:HIDDEN = YES.
-       IF v-print-fmt = "bolfmt10-can" THEN
-           ASSIGN 
-           tb_print-unassemble-component:HIDDEN = NO.
-       ELSE
-           ASSIGN 
-               tb_print-unassemble-component:HIDDEN = YES.
-
-                
-   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
-       ASSIGN
-        lbl_bolsort:HIDDEN = NO
-        rd_bol-sort:HIDDEN = NO .
-   ELSE
-       ASSIGN
-        lbl_bolsort:HIDDEN = YES
-        rd_bol-sort:HIDDEN = YES .
-
-      IF v-print-fmt NE "PremierXFooter"    THEN
-         ASSIGN  tb_footer:HIDDEN = YES
-                 tb_footer:SCREEN-VALUE = "No" .
-
-      
-    IF v-print-fmt = "Peachtree" OR v-print-fmt = "PeachtreeBC" OR v-print-fmt = "PeachtreeLotPO"  THEN 
-       ASSIGN
-        tb_print-DetPage:HIDDEN = NO .
-   ELSE
-       ASSIGN
-        tb_print-DetPage:HIDDEN = YES .
-    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

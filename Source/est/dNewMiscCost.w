@@ -55,7 +55,7 @@ ELSE
 /*{est\ttInputEst.i}*/
 {sys/inc/var.i shared}
 {custom/gcompany.i}  
-
+{sys/inc/venditemcost.i}
 gcompany = cocode.
 
 
@@ -1283,71 +1283,72 @@ PROCEDURE pAssignValues :
                     dCalValueSetup = dCalValueSetup + dSuCost5
                     dCalValueCost = dCalValueCost + dEaCost5 * iQtyPer5 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).            
            
-
-            FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK
-                WHERE bff-e-itemfg-vend.company = eb.company 
-                 AND bff-e-itemfg-vend.est-no = eb.est-no 
-                 AND bff-e-itemfg-vend.eqty = eb.eqty 
-                 AND bff-e-itemfg-vend.form-no = eb.form-no 
-                 AND bff-e-itemfg-vend.blank-no = eb.blank-no
-                 AND bff-e-itemfg-vend.vend-no NE ""  NO-ERROR .
-            IF NOT AVAIL bff-e-itemfg-vend  THEN
+            IF lNewVendorItemCost THEN RUN pAssignValuestToNewVendorCost (dCalValueCost, dCalValueSetup  ).
+            ELSE DO:
                 FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK
-                WHERE bff-e-itemfg-vend.company = eb.company 
-                 AND bff-e-itemfg-vend.est-no = eb.est-no 
-                 AND bff-e-itemfg-vend.eqty = eb.eqty 
-                 AND bff-e-itemfg-vend.form-no = eb.form-no 
-                 AND bff-e-itemfg-vend.blank-no = eb.blank-no
-                 AND bff-e-itemfg-vend.vend-no EQ ""  NO-ERROR.
-            
-            IF AVAIL bff-e-itemfg-vend THEN do:
- 
-               ASSIGN
-                   bff-e-itemfg-vend.vend-no   = cVendor 
-                   bff-e-itemfg-vend.vend-item = cVendorItem 
-                   bff-e-itemfg-vend.std-uom   = cCostUom 
-                   bff-e-itemfg-vend.run-qty[1]  = 9999999
-                   bff-e-itemfg-vend.run-cost[1] = dCalValueCost
-                   bff-e-itemfg-vend.setups[1]   = dCalValueSetup .  
-            END.
-
-            IF NOT AVAILABLE bff-e-itemfg-vend THEN DO:
-
-                DO i = 1 TO 2:
-                    IF cVendor EQ "" THEN
-                        ASSIGN i = 2 .
-                    CREATE e-itemfg-vend .
-                    ASSIGN 
-                        e-itemfg-vend.company   = cocode
-                        e-itemfg-vend.item-type = NO   /* for finished good */
-                        e-itemfg-vend.est-no    = eb.est-no
-                        e-itemfg-vend.eqty      = eb.eqty
-                        e-itemfg-vend.form-no   = eb.form-no
-                        e-itemfg-vend.blank-no  = eb.blank-no
-                        e-itemfg-vend.i-no      = eb.stock-no .
-                        
-                    IF i EQ 1 THEN
-                        ASSIGN
-                        e-itemfg-vend.vend-no   = cVendor .
-                    ASSIGN
-                        e-itemfg-vend.vend-item = cVendorItem 
-                        e-itemfg-vend.std-uom   = cCostUom .
-                    ASSIGN
-                        e-itemfg-vend.run-qty[1]  = 9999999
-                        e-itemfg-vend.run-cost[1] = dCalValueCost 
-                        e-itemfg-vend.setups[1]   = dCalValueSetup
-                         .  
+                    WHERE bff-e-itemfg-vend.company = eb.company 
+                     AND bff-e-itemfg-vend.est-no = eb.est-no 
+                     AND bff-e-itemfg-vend.eqty = eb.eqty 
+                     AND bff-e-itemfg-vend.form-no = eb.form-no 
+                     AND bff-e-itemfg-vend.blank-no = eb.blank-no
+                     AND bff-e-itemfg-vend.vend-no NE ""  NO-ERROR .
+                IF NOT AVAIL bff-e-itemfg-vend  THEN
+                    FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK
+                    WHERE bff-e-itemfg-vend.company = eb.company 
+                     AND bff-e-itemfg-vend.est-no = eb.est-no 
+                     AND bff-e-itemfg-vend.eqty = eb.eqty 
+                     AND bff-e-itemfg-vend.form-no = eb.form-no 
+                     AND bff-e-itemfg-vend.blank-no = eb.blank-no
+                     AND bff-e-itemfg-vend.vend-no EQ ""  NO-ERROR.
+                
+                IF AVAIL bff-e-itemfg-vend THEN do:
+     
+                   ASSIGN
+                       bff-e-itemfg-vend.vend-no   = cVendor 
+                       bff-e-itemfg-vend.vend-item = cVendorItem 
+                       bff-e-itemfg-vend.std-uom   = cCostUom 
+                       bff-e-itemfg-vend.run-qty[1]  = 9999999
+                       bff-e-itemfg-vend.run-cost[1] = dCalValueCost
+                       bff-e-itemfg-vend.setups[1]   = dCalValueSetup .  
+                END.
     
-                    IF NOT CAN-FIND(FIRST e-itemfg OF e-itemfg-vend) THEN 
-                    DO:
-                        CREATE e-itemfg.
+                IF NOT AVAILABLE bff-e-itemfg-vend THEN DO:
+    
+                    DO i = 1 TO 2:
+                        IF cVendor EQ "" THEN
+                            ASSIGN i = 2 .
+                        CREATE e-itemfg-vend .
                         ASSIGN 
-                            e-itemfg.company = e-itemfg-vend.company
-                            e-itemfg.i-no    = e-itemfg-vend.i-no.
+                            e-itemfg-vend.company   = cocode
+                            e-itemfg-vend.item-type = NO   /* for finished good */
+                            e-itemfg-vend.est-no    = eb.est-no
+                            e-itemfg-vend.eqty      = eb.eqty
+                            e-itemfg-vend.form-no   = eb.form-no
+                            e-itemfg-vend.blank-no  = eb.blank-no
+                            e-itemfg-vend.i-no      = eb.stock-no .
+                            
+                        IF i EQ 1 THEN
+                            ASSIGN
+                            e-itemfg-vend.vend-no   = cVendor .
+                        ASSIGN
+                            e-itemfg-vend.vend-item = cVendorItem 
+                            e-itemfg-vend.std-uom   = cCostUom .
+                        ASSIGN
+                            e-itemfg-vend.run-qty[1]  = 9999999
+                            e-itemfg-vend.run-cost[1] = dCalValueCost 
+                            e-itemfg-vend.setups[1]   = dCalValueSetup
+                             .  
+        
+                        IF NOT CAN-FIND(FIRST e-itemfg OF e-itemfg-vend) THEN 
+                        DO:
+                            CREATE e-itemfg.
+                            ASSIGN 
+                                e-itemfg.company = e-itemfg-vend.company
+                                e-itemfg.i-no    = e-itemfg-vend.i-no.
+                        END.
                     END.
                 END.
-            END.
-
+            END.  
 
 
         END. /* avail ef */
@@ -1362,6 +1363,80 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignValuestToNewVendorCost D-Dialog
+PROCEDURE pAssignValuestToNewVendorCost:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+  DEF INPUT parameter ipdCalValueCost AS DECIMAL no-undo.
+  DEF INPUT PARAMETER ipdCalValueSetup AS DECIMAL NO-UNDO.
+  
+  FIND FIRST venditemcost exclusive-lock
+                    WHERE venditemcost.company = eb.company
+                      AND venditemcost.estimateNo = eb.est-no 
+                      AND venditemcost.formNo = eb.form-no
+                      AND venditemcost.blankNo = eb.blank-no
+                      AND venditemcost.itemID = eb.stock-no
+                      AND venditemcost.itemType = "FG"
+                      AND venditemcost.vendorID NE ""
+                      NO-ERROR.
+  IF NOT AVAIL venditemcost then
+     FIND FIRST venditemcost exclusive-lock
+            WHERE venditemcost.company = eb.company
+            AND venditemcost.estimateNo = eb.est-no 
+            AND venditemcost.formNo = eb.form-no
+            AND venditemcost.blankNo = eb.blank-no
+            AND venditemcost.itemID = eb.stock-no
+            AND venditemcost.itemType = "FG"
+            AND venditemcost.vendorID eq ""
+            NO-ERROR.            
+    IF AVAIL venditemcost THEN 
+    do:                                    
+       ASSIGN venditemcost.vendorID = cVendor
+              venditemcost.vendorItemID = cVendorItem
+              venditemcost.vendorUOM = cCostUOM
+              .                            
+       FIND FIRST venditemcostLevel exclusive-lock 
+            WHERE vendItemCostLevel.vendItemCostID = venditemcost.venditemcostID
+            NO-ERROR.            
+       IF AVAILABLE venditemcostLevel then
+          ASSIGN vendItemCostLevel.quantityBase = 9999999
+                 vendItemCostLevel.costPerUOM   = ipdCalValueCost
+                 vendItemCostLevel.costSetup    = ipdCalValueSetup
+                 .                                        
+    END.
+    ELSE DO:
+      CREATE venditemcost.
+      ASSIGN vendItemCost.Company = cocode
+             vendItemCost.ItemID = eb.stock-no
+             vendItemCost.itemType = "FG"                   
+             venditemcost.estimateNO = eb.est-no
+             venditemcost.formNo = eb.form-no
+             venditemcost.blankNo = eb.blank-no
+             venditemcost.vendorID = cVendor
+             vendItemCost.VendorUOM = cCostUOM
+             venditemcost.vendorItemID = cVendorItem
+             venditemcost.effectiveDate = today
+             venditemcost.expirationDate = 12/31/2099
+             .
+       CREATE venditemcostLevel.
+       ASSIGN venditemcostLevel.venditemcostID = venditemcost.venditemcostID
+              vendItemCostLevel.quantityBase = 9999999
+              vendItemCostLevel.quantityTo = 9999999
+              vendItemCostLevel.costPerUOM = ipdCalValueCost
+              vendItemCostLevel.costSetup    = ipdCalValueSetup
+              .       
+    END.
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
 PROCEDURE pDisplayValue :

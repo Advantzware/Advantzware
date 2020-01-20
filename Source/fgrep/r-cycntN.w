@@ -1508,31 +1508,36 @@ PROCEDURE Get-First-Trx-Dt-Typ :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER op-TrxDate AS DATE NO-UNDO.
-  DEFINE OUTPUT PARAMETER op-TrxType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-TrxDate AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-TrxType AS CHARACTER NO-UNDO.
 
+    ASSIGN
+        op-TrxDate = ?
+        op-TrxType = ""
+        .
+  
+    /* Return if fg-bin.tag value is empty */
+    IF fg-bin.tag EQ "" THEN
+        RETURN.
+     
+    FOR EACH fg-rdtlh NO-LOCK
+        WHERE fg-rdtlh.company EQ fg-bin.company
+          AND fg-rdtlh.tag     EQ fg-bin.tag
+        USE-INDEX tag,
+        EACH fg-rcpth NO-LOCK
+        WHERE fg-rcpth.r-no      EQ fg-rdtlh.r-no
+          AND fg-rcpth.rita-code EQ fg-rdtlh.rita-code
+          AND fg-rcpth.i-no      EQ fg-bin.i-no
+        USE-INDEX r-no
+        BY fg-rcpth.trans-date 
+        BY fg-rdtlh.trans-time:
 
-  op-TrxDate = ? .
-  op-TrxType = "" .
-  FOR EACH fg-rdtlh
-      WHERE fg-rdtlh.company   EQ fg-bin.company
-        AND fg-rdtlh.tag       EQ fg-bin.tag 
-        AND fg-rdtlh.tag       NE ""
-      USE-INDEX tag NO-LOCK,
-
-      EACH fg-rcpth
-      WHERE fg-rcpth.r-no      EQ fg-rdtlh.r-no
-        AND fg-rcpth.rita-code EQ fg-rdtlh.rita-code
-        AND fg-rcpth.i-no      EQ fg-bin.i-no
-      USE-INDEX r-no NO-LOCK
-
-      BY fg-rcpth.trans-date 
-      BY fg-rdtlh.trans-time:
-
-    op-TrxDate = fg-rcpth.trans-date.
-    op-TrxType = fg-rcpth.rita-code.
-    LEAVE.
-  END.
+        ASSIGN
+            op-TrxDate = fg-rcpth.trans-date
+            op-TrxType = fg-rcpth.rita-code
+            .
+        LEAVE.
+    END.
 
 END PROCEDURE.
 

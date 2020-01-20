@@ -279,6 +279,10 @@ DEFINE VARIABLE iEbTotalUpQty AS INTEGER NO-UNDO .
 DEFINE SHARED VARIABLE s-prt-fgimage     AS LOG       NO-UNDO.
 DEFINE BUFFER bf-ttSoule FOR ttSoule .
 DEFINE VARIABLE lv-pg-num AS INT NO-UNDO.
+DEFINE VARIABLE lAssembled AS LOGICAL NO-UNDO . 
+DEFINE VARIABLE cSetFGItem AS CHARACTER NO-UNDO . 
+DEFINE VARIABLE dPerSetQty AS DECIMAL NO-UNDO .
+DEFINE VARIABLE iEbTotalOverQty AS INTEGER NO-UNDO .
 IF reprint EQ NO THEN
     cNewOrderValue = CAPS("NEW ORDER") .
 ELSE "" .
@@ -1139,9 +1143,13 @@ FOR EACH job-hdr NO-LOCK
 
                             IF FIRST(tt-reftable.val[12]) THEN DO: 
                                 FOR EACH bff-eb NO-LOCK
-                                    WHERE bff-eb.est-no EQ eb.est-no
+                                    WHERE bff-eb.company EQ eb.company
+                                    AND bff-eb.est-no EQ eb.est-no
                                     AND bff-eb.form-no EQ 0
                                     AND bff-eb.est-type EQ 2 :
+
+                                    lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
+                                    cSetFGItem = bff-eb.stock-no  .
 
                                     IF LINE-COUNTER > 70 THEN DO: 
                                         PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
@@ -1179,10 +1187,10 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>Ctn/Bdl.Per: </b>" STRING(bff-eb.cas-pal) SKIP
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  SKIP  .
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                         PUT v-fill SKIP .
+                                        PUT "<R-1>" .
                                 END.
-                                PUT "<R-1>" .
                             END.
 
                             IF FIRST-OF(eb.form-no) THEN 
@@ -1192,16 +1200,28 @@ FOR EACH job-hdr NO-LOCK
                                        iEbTotalUpQty  = 0 .
 
                                 FOR EACH bff-eb NO-LOCK
-                                    WHERE bff-eb.est-no EQ eb.est-no
+                                    WHERE bff-eb.company EQ eb.company
+                                      AND bff-eb.est-no EQ eb.est-no
                                       AND bff-eb.form-no EQ eb.form-no ,
                                     FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
                                      AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
                                     AND  bf-ttSoule.runForm EQ YES NO-LOCK :
+                                    dPerSetQty = 1 .
+                                    IF cSetFGItem NE "" THEN do:
+                                         FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                             AND fg-set.set-no = cSetFGItem
+                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
+                                         IF AVAIL fg-set THEN
+                                            dPerSetQty = fg-set.qtyPerSet .
+                                     END.
+
                                     ASSIGN
-                                        iEbTotalYldQty = iEbTotalYldQty + (IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty)
-                                        iEbTotalblQty  = iEbTotalblQty + bff-eb.bl-qty
+                                        iEbTotalYldQty = iEbTotalYldQty + ((IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty) * dPerSetQty )
+                                        iEbTotalblQty  = iEbTotalblQty + ( bff-eb.bl-qty * dPerSetQty )
                                         iEbTotalUpQty  = iEbTotalUpQty + bff-eb.num-up  .
                                 END.
+
+                                
 
 
                                 k = 1 .
@@ -1222,6 +1242,7 @@ FOR EACH job-hdr NO-LOCK
 
                                 IF LINE-COUNTER > 70 THEN 
                                     DO:
+                                        PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                         PAGE.
                                         RUN pPrintHeader .
                                     END.
@@ -1309,6 +1330,14 @@ FOR EACH job-hdr NO-LOCK
                                             IF AVAIL bff-eb THEN
                                                 iDisYieldQty = INTEGER(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
                                              ELSE iDisYieldQty = INTEGER(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
+                                             IF cSetFGItem NE "" THEN do:
+                                                 FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                                     AND fg-set.set-no = cSetFGItem
+                                                     AND fg-set.part-no = eb.stock-no NO-ERROR.
+                                                 IF AVAIL fg-set THEN
+                                                     ASSIGN
+                                                     iDisYieldQty = iDisYieldQty * fg-set.qtyPerSet.      
+                                             END.
                                         END.
                                         ELSE iDisYieldQty = INTEGER(wrk-op.num-sh[wrk-op.s-num] - dRunWaste - wrk-op.mr-waste[wrk-op.s-num]) .
                                         {sys/inc/roundup.i dRunWaste}
@@ -1336,19 +1365,32 @@ FOR EACH job-hdr NO-LOCK
                                 END. /* each wrk-op*/
                                 
                               PUT v-fill SKIP  .
+                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .
+                              iEbTotalblQty  = eb.bl-qty  .
+                              iEbTotalOverQty = eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1) .
+                              IF cSetFGItem NE "" THEN do:
+                                  FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                      AND fg-set.set-no = cSetFGItem
+                                      AND fg-set.part-no = eb.stock-no NO-ERROR.
+                                  IF AVAIL fg-set THEN
+                                      ASSIGN
+                                      iEbTotalYldQty = iEbTotalYldQty * fg-set.qtyPerSet 
+                                      iEbTotalblQty  = iEbTotalblQty  * fg-set.qtyPerSet 
+                                      iEbTotalOverQty = iEbTotalOverQty * fg-set.qtyPerSet .
+                              END.
                                
                               PUT 
                                   "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
                                   "<C45><b>FG#: </b>" eb.stock-no FORMAT "x(15)"     
-                                  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty))   skip 
+                                  "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
 
                                   "<P10><C20><b>Descr.: </B>" eb.part-dscr1 FORMAT "x(30)"  
                                   "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(12)"
-                                  "<C70><B><P10>Req Qty: </B>" TRIM(STRING(eb.bl-qty))  skip
+                                  "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty)) FORMAT "x(12)"  skip
 
                                   "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
                                   "<C45><b>Art#: </b>" eb.Plate-no FORMAT "x(12)"
-                                  "<C70><B><P10>Over Qty: </B>" TRIM(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) SKIP 
+                                  "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP 
                                   
                                   "<C2><B>Blank | </B>" STRING(eb.blank-no,"99")  "<C10><B># Up: </b>" string(eb.num-up)
                                   "<P10><C20><b>Size: </B>" (string(eb.len,">9.9999") + " x " + STRING(eb.wid,">9.9999") + " x " + STRING(eb.dep,">9.9999")) FORMAT "x(40)" SKIP .
@@ -1359,6 +1401,7 @@ FOR EACH job-hdr NO-LOCK
                                         PAGE.
                                         RUN pPrintHeader .
                                     END.
+                              IF NOT lAssembled THEN do:
                                PUT   
                                   "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                   "<P10><C20><b>Packing: </B>" eb.cas-no FORMAT "x(15)"  
@@ -1369,8 +1412,11 @@ FOR EACH job-hdr NO-LOCK
 
                                   "<P10><C20><b>Count: </B>" STRING(eb.cas-cnt)  
                                   /*"<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
-
-                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no).
+                             
+                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no,"5,6,M").
+                              END.
+                              ELSE 
+                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no,"M").
 
                                 PUT v-fill SKIP .
 
@@ -1387,19 +1433,32 @@ FOR EACH job-hdr NO-LOCK
                                          RUN pPrintHeader .
                                      END.
                                      k = K + 1 .
+                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .
+                                     iEbTotalblQty  = bff-eb.bl-qty  .
+                                     iEbTotalOverQty =  bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1) .
+                                     IF cSetFGItem NE "" THEN do:
+                                         FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                             AND fg-set.set-no = cSetFGItem
+                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
+                                         IF AVAIL fg-set THEN
+                                             ASSIGN
+                                             iEbTotalYldQty = iEbTotalYldQty * fg-set.qtyPerSet 
+                                             iEbTotalblQty  = iEbTotalblQty * fg-set.qtyPerSet 
+                                             iEbTotalOverQty = iEbTotalOverQty * fg-set.qtyPerSet.
+                                     END.
 
                                      PUT 
                                          "<R-1><P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
                                          "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    
-                                         "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty))   skip 
+                                         "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
                                          
                                          "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
                                          "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(12)"
-                                         "<C70><B><P10>Req Qty: </B>" TRIM(STRING(bff-eb.bl-qty))   skip
+                                         "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty)) FORMAT "x(12)"  skip
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
                                          "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)"
-                                         "<C70><B><P10>Over Qty: </B>" TRIM(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) SKIP
+                                         "<C70><B><P10>Over Qty: </B>" TRIM(STRING(iEbTotalOverQty)) FORMAT "x(12)" SKIP
                                          
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  "<C10><B># Up: </B>" string(bff-eb.num-up)
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" SKIP .
@@ -1409,6 +1468,7 @@ FOR EACH job-hdr NO-LOCK
                                             PAGE.
                                             RUN pPrintHeader .
                                         END.
+                                      IF NOT lAssembled THEN do:
                                        PUT  
                                          "<C19.5><FROM><R+3><C65><RECT><R-3>"
                                          "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
@@ -1419,7 +1479,10 @@ FOR EACH job-hdr NO-LOCK
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  
                                          /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no).
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
+                                      END.
+                                      ELSE 
+                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"M").
                                         PUT v-fill SKIP .
                                 END.
                                 PUT "<R-1>" .
@@ -1821,6 +1884,8 @@ v-first = NO.
 
 END. /* each job-hdr */
 
+PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
+
 
 
 RELEASE xjob-hdr NO-ERROR.    
@@ -1855,11 +1920,13 @@ PROCEDURE pPrintMRItem :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcEstimateas AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO .
     DEFINE INPUT PARAMETER ipiForm AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO .
-
-    
+    DEFINE INPUT PARAMETER ipcMatTypes AS CHARACTER NO-UNDO.
+   
+    DEFINE BUFFER bf-eb FOR eb.
+   
     FOR EACH xjob-mat NO-LOCK
         WHERE xjob-mat.company EQ job-hdr.company
         AND xjob-mat.job     EQ job-hdr.job
@@ -1870,7 +1937,7 @@ PROCEDURE pPrintMRItem :
         FIRST item NO-LOCK
         WHERE item.company EQ xjob-mat.company
         AND item.i-no    EQ xjob-mat.rm-i-no  
-        AND CAN-DO("5,6,M",item.mat-type)
+        AND CAN-DO(ipcMatTypes, item.mat-type)
         BREAK BY item.i-no :
         
         IF LAST-OF(item.i-no) THEN do:
@@ -1881,30 +1948,53 @@ PROCEDURE pPrintMRItem :
         END.
     END.
 
-/*    FOR EACH estPacking NO-LOCK                                                   */
-/*        WHERE estPacking.company  EQ cocode                                       */
-/*        AND estPacking.estimateNo EQ ipcEstimateas                                */
-/*        AND estPacking.FormNo     EQ ipiForm                                      */
-/*        AND estPacking.BlankNo    EQ ipiBlank,                                    */
-/*        EACH xjob-mat NO-LOCK                                                     */
-/*        WHERE xjob-mat.company EQ job-hdr.company                                 */
-/*        AND xjob-mat.job     EQ job-hdr.job                                       */
-/*        AND xjob-mat.job-no  EQ job-hdr.job-no                                    */
-/*        AND xjob-mat.job-no2 EQ job-hdr.job-no2                                   */
-/*        AND xjob-mat.frm     EQ ipiForm                                           */
-/*        AND xjob-mat.rm-i-no EQ estPacking.rmItemID BREAK BY estPacking.rmItemID :*/
-/*                                                                                  */
-/*        FIND FIRST ITEM NO-LOCK                                                   */
-/*            WHERE item.company  EQ cocode                                         */
-/*            AND item.i-no     EQ estPacking.rmItemID                              */
-/*            NO-ERROR.                                                             */
-/*        IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:                   */
-/*            PUT                                                                   */
-/*                "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)                       */
-/*                "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.             */
-/*                                                                                  */
-/*        END.                                                                      */
-/*    END.                                                                          */
+    IF ipiForm EQ 0 THEN DO:  /*To work around defect that doesn't include 0 form layers, pad, and enhanced packing in job-mat*/
+        FOR EACH estPacking NO-LOCK
+            WHERE estPacking.company  EQ cocode
+            AND estPacking.estimateNo EQ ipcEstimate
+            AND estPacking.FormNo     EQ ipiForm
+            AND estPacking.BlankNo    EQ ipiBlank
+            BREAK BY estPacking.rmItemID:
+    
+            FIND FIRST ITEM NO-LOCK
+                WHERE item.company  EQ cocode
+                AND item.i-no     EQ estPacking.rmItemID
+                NO-ERROR.
+            IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:
+                PUT
+                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
+                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+    
+            END.
+        END.
+        
+        FIND FIRST bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ cocode
+            AND bf-eb.est-no EQ ipcEstimate
+            AND bf-eb.form-no EQ 0
+            AND bf-eb.blank-no EQ 0
+            NO-ERROR.
+        IF AVAILABLE bf-eb AND bf-eb.divider NE "" THEN DO:
+            FIND FIRST ITEM NO-LOCK
+                WHERE item.company  EQ bf-eb.company
+                AND item.i-no     EQ bf-eb.divider
+                NO-ERROR.
+            IF AVAILABLE ITEM THEN 
+                PUT
+                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
+                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+        END.
+        IF AVAILABLE bf-eb AND bf-eb.layer-pad NE "" THEN DO:
+            FIND FIRST ITEM NO-LOCK
+                WHERE item.company  EQ bf-eb.company
+                AND item.i-no     EQ bf-eb.layer-pad
+                NO-ERROR.
+            IF AVAILABLE ITEM THEN 
+                PUT
+                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
+                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+        END.
+    END.
                                  
 /*    IF ipiBlank EQ 1  THEN do:                                                                         */
 /*        DO i = 1 TO 5: /*no room for all 6*/                                                           */

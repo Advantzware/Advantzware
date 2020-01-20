@@ -73,7 +73,10 @@ END FUNCTION.
 
 iopcCompany = getCompany(iopcCompany).
   
-/* Finding sys-cntrl */
+/* This code has been commented out because as per the new  
+   requirements in ticket #60939 this is no longer used to  
+   retrieve company, location and customer no */
+/*        
 FIND FIRST sys-ctrl-shipto NO-LOCK
      WHERE sys-ctrl-shipto.name      EQ 'cXMLOrder'
        AND sys-ctrl-shipto.cust-vend EQ YES
@@ -109,8 +112,24 @@ IF AVAILABLE sys-ctrl-shipto THEN DO:
     
     RETURN.
 END.
+*/
 
-/* Finding shipto */
+/* Finding shipto based on SiteID */
+FIND FIRST obf-shipto NO-LOCK
+     WHERE obf-shipto.siteID EQ iopcShipToID NO-ERROR.
+IF AVAILABLE obf-shipto THEN DO:
+    ASSIGN
+        opcCustomerID   = obf-shipto.cust
+        iopcCompany     = obf-shipto.company
+        iopcWarehouseID = obf-shipto.loc
+        iopcShipToID    = obf-shipto.ship-id
+        .
+        
+    RETURN.
+END.
+
+
+/* Finding shipto based on ShipToID */
 FIND FIRST obf-shipto NO-LOCK
      WHERE obf-shipto.ship-id EQ iopcShipToID NO-ERROR.
 IF AVAILABLE obf-shipto THEN DO:

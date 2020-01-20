@@ -75,6 +75,12 @@ ASSIGN
     cocode = g_company
     locode = g_loc.
 
+DEFINE VARIABLE cVendItemCostItem# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostItemType AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostEst# AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
+DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
+
 FIND FIRST users NO-LOCK WHERE 
     users.user_id EQ USERID(LDBNAME(1)) 
     NO-ERROR.
@@ -94,14 +100,14 @@ IF AVAILABLE users THEN ASSIGN
           AND (IF TRIM(fi_est-no) BEGINS '*' THEN TRIM(vendItemCost.estimateNo) MATCHES (TRIM(fi_est-no) + "*") ~
                ELSE TRIM(vendItemCost.estimateNo) BEGINS TRIM(fi_est-no)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
-          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) 
 
 &SCOPED-DEFINE for-eachblank ~
     FOR EACH vendItemCost ~
         WHERE vendItemCost.company EQ cocode ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
-          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) ~
           AND {&key-phrase} 
 
@@ -114,7 +120,7 @@ IF AVAILABLE users THEN ASSIGN
           AND (vendItemCost.vendorID  eq fi_vend-no OR fi_vend-no = "") ~
           AND (fi_est-no EQ "" OR TRIM(vendItemCost.estimateNo) eq TRIM(fi_est-no)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
-          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY)
 /*
 &SCOPED-DEFINE for-each-ExactMatch ~
@@ -186,10 +192,10 @@ fGetLevel(10) @ cLevel[10]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-exp tb_in-est ~
 cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff btn_go btn_show ~
 Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-exp tb_in-est ~
 cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff fi_sort-by 
 
 /* Custom List Definitions                                              */
@@ -288,7 +294,7 @@ DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Item" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1
+     SIZE 21.6 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
@@ -312,7 +318,7 @@ DEFINE VARIABLE tb_fut-eff AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL yes 
      LABEL "Include Estimate" 
      VIEW-AS TOGGLE-BOX
      SIZE 22.6 BY 1 NO-UNDO.
@@ -361,12 +367,12 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
      tb_exactMatch AT ROW 1.14 COL 25.4
-     tb_in-est AT ROW 1.19 COL 75.4 WIDGET-ID 50
      tb_in-exp AT ROW 1.19 COL 106.6 WIDGET-ID 52
+     tb_in-est AT ROW 1.24 COL 81.6 WIDGET-ID 50
      cb_itemType AT ROW 2.24 COL 6.4 COLON-ALIGNED WIDGET-ID 40
      fi_i-no AT ROW 2.24 COL 23.4 COLON-ALIGNED WIDGET-ID 16
-     fi_vend-no AT ROW 2.24 COL 50.4 COLON-ALIGNED WIDGET-ID 2
-     fi_est-no AT ROW 2.24 COL 73.4 COLON-ALIGNED
+     fi_vend-no AT ROW 2.24 COL 55.2 COLON-ALIGNED WIDGET-ID 2
+     fi_est-no AT ROW 2.29 COL 79.6 COLON-ALIGNED
      tb_fut-eff AT ROW 2.38 COL 106.6 WIDGET-ID 54
      btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
      btn_show AT ROW 3.62 COL 15.2 WIDGET-ID 10
@@ -910,6 +916,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getSourceAttributes B-table-Win 
+PROCEDURE getSourceAttributes :
+/*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+------------------------------------------------------------------------------*/
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+    cVendItemCostItem# = RETURN-VALUE.
+    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').    
+    cVendItemCostEst# = RETURN-VALUE.       
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType' ).
+    cVendItemCostItemType = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor' ).
+    cVendItemCostVendor = RETURN-VALUE.
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostCustomer' ).  
+    cVendItemCostCustomer = RETURN-VALUE.      
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-excel B-table-Win 
 PROCEDURE import-excel :
 /*------------------------------------------------------------------------------
@@ -942,8 +970,7 @@ PROCEDURE local-display-fields :
         fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
         cb_itemType:SCREEN-VALUE = cb_itemType .                   
-    END.
-   
+    END.   
     
 END PROCEDURE.
 
@@ -1047,7 +1074,7 @@ PROCEDURE local-initialize :
     RUN setCellColumns.
     /* Code placed here will execute AFTER standard behavior.    */
    
-    cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType:ENTRY(1) .
+/*    cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType:ENTRY(1) .*/
 
     APPLY 'ENTRY':U TO fi_i-no IN FRAME {&FRAME-NAME}.
 
@@ -1062,8 +1089,7 @@ PROCEDURE local-open-query :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cVendItemCost AS CHAR NO-UNDO.
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.    
     
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1090,15 +1116,16 @@ PROCEDURE local-open-query :
         RUN dispatch ("row-changed").
 
     END.
-    
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
-    cVendItemCost = RETURN-VALUE.
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
-    IF (cVendItemCost NE "" AND cVendItemCost NE ?) or
-       (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:                  
-       RUN openqueryOne (cVendItemCost).                  
+    IF ll-first THEN DO:
+        RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
+        cVendItemCostItem# = RETURN-VALUE.
+        RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
+        IF (cVendItemCostItem# NE "" AND cVendItemCostItem# NE ?) or
+           (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:    
+                             
+           RUN openqueryOne (cVendItemCostItem#).                  
+        END.     
     END.     
-     
     ll-show-all = NO .
   
     APPLY "value-changed" TO BROWSE {&browse-name}.
@@ -1183,37 +1210,36 @@ PROCEDURE openQueryOne :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcValue AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue AS CHARACTER NO-UNDO.
      
     tb_exactMatch = YES.
      
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostVendor').
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor').
 /*    fi_vend-no = IF RETURN-VALUE <> ? THEN RETURN-VALUE ELSE "".*/
     
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostType').
-    cb_itemType = IF RETURN-VALUE = "RM" THEN cb_itemType:ENTRY(3) IN FRAME {&FRAME-NAME}  
-                ELSE IF RETURN-VALUE = "FG" THEN cb_itemType:ENTRY(2)
-                ELSE cb_itemType:ENTRY(1).                    
-    
-    RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').
+    IF RETURN-VALUE NE ? THEN
+    ASSIGN
+        cb_itemType = RETURN-VALUE  
+        cb_itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cb_itemType
+        .                    
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostEst#').
     fi_est-no = IF RETURN-VALUE EQ ? THEN "" ELSE return-value.
     IF fi_est-no NE "" THEN ASSIGN tb_in-est = YES.
         
-    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue           .
+    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue.
 /*    DISPLAY fi_i-no fi_vend-no cb_itemType fi_est-no WITH FRAME {&frame-name}.*/
-                   
 /*    RUN query-go.*/
 
-    &SCOPED-DEFINE open-query                   ~
-          OPEN QUERY {&browse-name}               ~
-            {&for-each-ExactMatch}                          ~
+    &SCOPED-DEFINE open-query ~
+          OPEN QUERY {&browse-name} ~
+            {&for-each-ExactMatch} ~
                NO-LOCK
 
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+                   ELSE {&open-query} {&sortby-phrase-desc}.
                     
-    RUN dispatch ('display-fields').
-    
+    RUN dispatch ('display-fields').    
    
 END PROCEDURE.
 
@@ -1359,18 +1385,18 @@ PROCEDURE set-defaults :
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fi_vend-no:SCREEN-VALUE = ""
-            cb_itemType:SCREEN-VALUE  = "ALL"
-            fi_i-no:SCREEN-VALUE    = ""
-            fi_est-no:SCREEN-VALUE  = "" 
+            fi_vend-no:SCREEN-VALUE  = ""
+            cb_itemType:SCREEN-VALUE = "ALL"
+            fi_i-no:SCREEN-VALUE     = ""
+            fi_est-no:SCREEN-VALUE   = "" 
             fi_vend-no
             cb_itemType
             fi_i-no
             fi_est-no
-            tb_exactMatch = no
+            tb_exactMatch = NO
             tb_exactMatch:SCREEN-VALUE = "no"
-            tb_in-est = no
-            tb_in-est:SCREEN-VALUE = "no"
+            tb_in-est = YES
+            tb_in-est:SCREEN-VALUE = "Yes"
             .     
     END.
 

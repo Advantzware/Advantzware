@@ -2420,8 +2420,8 @@ PROCEDURE run-report :
         no-lock,
           
         first mach
-    {sys/ref/machW.i}
-      and mach.m-code eq pc-prdd.m-code
+        {sys/ref/machW.i}
+        and mach.m-code eq pc-prdd.m-code
         no-lock,
 
         first job
@@ -2554,21 +2554,22 @@ PROCEDURE run-report :
                     next.
                 END.
             end.
-
-            CREATE tt-report.
-            tt-report.rec-id = RECID(pc-prdd).
-  
         END.
+        
+        CREATE tt-report.
+        tt-report.rec-id = RECID(pc-prdd).
+  
+    END.
  
-        if v-dept-paging then 
-        do:
-        {pc/rep/mch-edit2.i pc-prdd.dept "by pc-prdd.m-code"}
-        end.
+    if v-dept-paging then 
+    do:
+    {pc/rep/mch-edit2.i pc-prdd.dept "by pc-prdd.m-code"}
+    end.
 
-        else 
-        do:
-        {pc/rep/mch-edit2.i pc-prdd.m-code}
-end.
+    else 
+    do:
+    {pc/rep/mch-edit2.i pc-prdd.m-code}
+    END.
 
 IF dcpostgl-log THEN
     FOR EACH work-gl BY work-gl.actnum BY work-gl.job-no BY work-gl.job-no2:

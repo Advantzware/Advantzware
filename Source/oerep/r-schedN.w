@@ -520,7 +520,6 @@ DEFINE VARIABLE tg-print-due AS LOGICAL INITIAL yes
 DEFINE FRAME FRAME-A
      tb_cust-list AT ROW 1.60 COL 45 WIDGET-ID 6
     btnCustList AT ROW 1.60 COL 80 
-     rd_printOnhand AT ROW 12.3 COL 47 NO-LABEL WIDGET-ID 128
      lbl-print AT ROW 10.05 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 114
      begin_cust-no AT ROW 2.55 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
@@ -554,6 +553,14 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Product Category"
      end_cat AT ROW 9.17 COL 90 COLON-ALIGNED HELP
           "Enter Ending Product Category"
+     begin_shipfrom AT ROW 10.12 COL 40 COLON-ALIGNED HELP
+          "Enter starting ship from location." WIDGET-ID 158
+     end_shipfrom AT ROW 10.12 COL 90 COLON-ALIGNED HELP
+          "Enter ending ship from location." WIDGET-ID 160
+     begin_csr AT ROW 10.98 COL 40 COLON-ALIGNED HELP
+          "Enter starting CSR." WIDGET-ID 164
+     end_csr AT ROW 10.98 COL 90 COLON-ALIGNED HELP
+          "Enter ending CSR." WIDGET-ID 166
      tb_scheduled AT ROW 12.81 COL 2.6 WIDGET-ID 78
      tb_late AT ROW 13.81 COL 2.6 WIDGET-ID 68
      tb_invoiceable AT ROW 14.81 COL 2.6 WIDGET-ID 66
@@ -562,6 +569,7 @@ DEFINE FRAME FRAME-A
      tb_posted AT ROW 18.29 COL 2.6 WIDGET-ID 74
      tb_invoice AT ROW 19.29 COL 2.6 WIDGET-ID 64
      tb_completed AT ROW 20.38 COL 2.6 WIDGET-ID 60
+     rd_printOnhand AT ROW 12.3 COL 47 NO-LABEL WIDGET-ID 128
      rd_sort AT ROW 13.06 COL 42 NO-LABEL WIDGET-ID 32
      rd_print AT ROW 17.57 COL 138 NO-LABEL WIDGET-ID 24
      rs-item-option AT ROW 21.71 COL 136 NO-LABEL WIDGET-ID 48
@@ -569,21 +577,17 @@ DEFINE FRAME FRAME-A
      tg-print-due AT ROW 11 COL 143 WIDGET-ID 94
      tb_po-no AT ROW 11.71 COL 143 WIDGET-ID 72
      tb_subt AT ROW 14.43 COL 102.6 WIDGET-ID 82
+     tb_neg-avail AT ROW 15.19 COL 102.6 WIDGET-ID 162
      tb_oh-rlqty AT ROW 16 COL 102.6 WIDGET-ID 156
-     tb_stats AT ROW 21.33 COL 103 WIDGET-ID 80
-     rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
      tb_notes AT ROW 17.52 COL 104 WIDGET-ID 70
      begin_spec AT ROW 18.71 COL 119 COLON-ALIGNED HELP
           "Enter Beginning Carrier Number" WIDGET-ID 2
      end_spec AT ROW 19.67 COL 119 COLON-ALIGNED HELP
           "Enter Ending Carrier Number" WIDGET-ID 4
-     lv-font-name AT ROW 28.24 COL 2.4 NO-LABEL WIDGET-ID 96
-     rd-dest AT ROW 23.81 COL 2.2 NO-LABEL WIDGET-ID 16
-     lv-ornt AT ROW 25.67 COL 2.2 NO-LABEL WIDGET-ID 12
-     lv-font-no AT ROW 26.86 COL 5.8 COLON-ALIGNED WIDGET-ID 10
-     lines-per-page AT ROW 26.86 COL 30.8 COLON-ALIGNED WIDGET-ID 8
-     td-show-parm AT ROW 24.29 COL 93.4 WIDGET-ID 84
-     tb_excel AT ROW 26.33 COL 100 RIGHT-ALIGNED WIDGET-ID 62
+     tb_stats AT ROW 21.33 COL 103 WIDGET-ID 80
+     rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
+     
+     
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -591,31 +595,31 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     sl_avail AT ROW 15.62 COL 30 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 15.81 COL 59 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 17 COL 59 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 138
+     Btn_Remove AT ROW 18.19 COL 59 HELP
+          "Remove Selected Table from Tables to Audit" WIDGET-ID 142
+     btn_Up AT ROW 19.38 COL 59 WIDGET-ID 144
+     btn_down AT ROW 20.57 COL 59 WIDGET-ID 140
+     sl_selected AT ROW 15.62 COL 75 NO-LABEL WIDGET-ID 148
+     lv-font-name AT ROW 28.24 COL 2.4 NO-LABEL WIDGET-ID 96
+     rd-dest AT ROW 23.81 COL 2.2 NO-LABEL WIDGET-ID 16
+     lv-ornt AT ROW 25.67 COL 2.2 NO-LABEL WIDGET-ID 12
+     lv-font-no AT ROW 26.86 COL 5.8 COLON-ALIGNED WIDGET-ID 10
+     lines-per-page AT ROW 26.86 COL 30.8 COLON-ALIGNED WIDGET-ID 8
+     td-show-parm AT ROW 24.29 COL 93.4 WIDGET-ID 84
+     tb_excel AT ROW 26.33 COL 100 RIGHT-ALIGNED WIDGET-ID 62
      tb_runExcel AT ROW 26.33 COL 121.6 RIGHT-ALIGNED WIDGET-ID 76
      fi_file AT ROW 27.43 COL 77.6 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
      btn-ok AT ROW 30.05 COL 32
      btn-cancel AT ROW 29.86 COL 87
      lbl-print-2 AT ROW 13.4 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 124
-     sl_avail AT ROW 15.62 COL 30 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 15.81 COL 59 HELP
-          "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 17 COL 59 HELP
-          "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     sl_selected AT ROW 15.62 COL 75 NO-LABEL WIDGET-ID 148
-     Btn_Remove AT ROW 18.19 COL 59 HELP
-          "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 19.38 COL 59 WIDGET-ID 144
-     btn_down AT ROW 20.57 COL 59 WIDGET-ID 140
-     begin_shipfrom AT ROW 10.12 COL 40 COLON-ALIGNED HELP
-          "Enter starting ship from location." WIDGET-ID 158
-     end_shipfrom AT ROW 10.12 COL 90 COLON-ALIGNED HELP
-          "Enter ending ship from location." WIDGET-ID 160
-     tb_neg-avail AT ROW 15.19 COL 102.6 WIDGET-ID 162
-     begin_csr AT ROW 10.98 COL 40 COLON-ALIGNED HELP
-          "Enter starting CSR." WIDGET-ID 164
-     end_csr AT ROW 10.98 COL 90 COLON-ALIGNED HELP
-          "Enter ending CSR." WIDGET-ID 166
+     
+     
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
