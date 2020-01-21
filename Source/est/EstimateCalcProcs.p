@@ -545,6 +545,20 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.freightCostOverridePerCWT = ipbf-eb.fr-out-c
         opbf-estCostItem.freightCostOverridePerM   = ipbf-eb.fr-out-m
         opbf-estCostItem.isPurchased               = ipbf-eb.pur-man
+        opbf-estCostItem.blankWidth                = IF ipbf-eb.t-wid EQ 0 THEN ipbf-eb.wid ELSE ipbf-eb.t-wid
+        opbf-estCostItem.blankLength               = IF ipbf-eb.t-len EQ 0 THEN ipbf-eb.len ELSE ipbf-eb.t-len
+        opbf-estCostItem.blankDepth                = IF ipbf-eb.t-dep EQ 0 THEN ipbf-eb.dep ELSE ipbf-eb.t-dep
+        opbf-estCostItem.blankArea                 = IF ipbf-eb.t-sqin EQ 0 THEN opbf-estCostItem.blankLength * opbf-estCostItem.blankWidth ELSE ipbf-eb.t-sqin
+        opbf-estCostItem.dimLength                 = ipbf-eb.len
+        opbf-estCostItem.dimWidth                  = ipbf-eb.wid
+        opbf-estCostItem.dimDepth                  = ipbf-eb.dep
+        opbf-estCostItem.quantityPerSubUnit        = ipbf-eb.cas-cnt
+        opbf-estCostItem.quantitySubUnitsPerUnit   = ipbf-eb.cas-pal
+        /*Refactor - Calculate Windowing*/
+        opbf-estCostItem.blankAreaNetWindow      = opbf-estCostItem.blankArea                
+        /*Refactor - Hardcoded*/
+        opbf-estCostItem.areaUOM                 = "SQIN"
+        opbf-estCostItem.dimUOM                  = "IN"
         .
     
     IF ipbf-eb.est-type LT 5 THEN
@@ -1390,7 +1404,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         dQtyShipped = ipbf-estCostBlank.quantityRequired
                 
         /*REFACTOR - MSF assumed use blankAreaUOM*/
-        dMSFforEA   = ipbf-estCostBlank.blankAreaNetWindow / 144000  
+        dMSFforEA   = ipbf-estCostItem.blankArea / 144000  
                 
         /*REFACTOR - LBs assumed use weightUOM */
         dLBsforEA   = IF ipbf-estCostItem.freightWeightPerMOverride NE 0 
@@ -1750,6 +1764,7 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
     DEFINE BUFFER bf-eb                     FOR eb.
     
     DEFINE BUFFER bfFirstBlank-estCostBlank FOR estCostBlank.
+    DEFINE BUFFER bfComp-estCostBlank FOR estCostBlank.
     
     FIND FIRST bf-estCostHeader NO-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
@@ -1931,7 +1946,7 @@ PROCEDURE pCalculateHeader PRIVATE:
             bf-estCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-estCostHeader NO-LOCK.
         END.                            
-        RUN pCalculateWeights(bf-estCostHeader.estCostHeaderID).
+        RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -2361,7 +2376,7 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateWeights PRIVATE:
+PROCEDURE pCalculateWeightsAndSizes PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an estCostHeaderID, calculate weight for all blanks, items, forms
      and header based on weight of materials flagged for inclusion
@@ -2378,7 +2393,6 @@ PROCEDURE pCalculateWeights PRIVATE:
     DEFINE VARIABLE dWeightInDefaultUOM         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dBasisWeightInDefaultUOM    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dBlankAreaTotalInDefaultUOM AS DECIMAL NO-UNDO.
-    
     
     
     FOR EACH bf-estCostBlank NO-LOCK 
@@ -2460,6 +2474,23 @@ PROCEDURE pCalculateWeights PRIVATE:
             bf-estCostItem.weightTare  = bf-estCostHeader.weightTare
             .
     END. 
+    /*Calc Total MSF for a Set*/
+    FOR FIRST bf-estCostHeader NO-LOCK
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
+        AND bf-estCostHeader.isUnitizedSet,
+        FIRST bfSet-estCostItem EXCLUSIVE-LOCK 
+        WHERE bfSet-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+        AND bfSet-estCostItem.isSet,
+        EACH bf-estCostItem NO-LOCK
+        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHEader.estCostHeaderID
+        AND NOT bf-estCostItem.isSet:
+            ASSIGN 
+                bfSet-estCostItem.blankArea = bfSet-estCostItem.blankArea + bf-estCostItem.blankArea * bf-estCostItem.quantityPerSet
+                bfSet-estCostItem.blankAreaNetWindow = bfSet-estCostItem.blankAreaNetWindow + bf-estCostItem.blankAreaNetWindow * bf-estCostItem.quantityPerSet
+                bfSet-estCostItem.blankAreaWindow = bfSet-estCostItem.blankAreaWindow + bf-estCostItem.blankAreaWindow * bf-estCostItem.quantityPerSet
+                .
+    END.
+    RELEASE bfSet-estCostItem.
     RELEASE bf-estCostItem.
     RELEASE bf-estCostHeader.
     
@@ -3614,7 +3645,7 @@ PROCEDURE pProcessPacking PRIVATE:
         
         ASSIGN  
             iPalletCount                               = IF ttPack.iCountPerUnit EQ 0 THEN ttPack.iCountSubUnitsPerUnit * iCaseCount ELSE ttPack.iCountPerUnit
-            dPalletsProRata                            = bf-estCostBlank.quantityRequired / iPalletCount
+            dPalletsProRata                            = IF iPalletCount NE 0 THEN bf-estCostBlank.quantityRequired / iPalletCount ELSE iPalletCount
             iPallets                                   = fRoundUp(dPalletsProRata * ttPack.dQtyMultiplier) 
             bf-estCostMaterial.addToWeightTare         = YES
             bf-estCostMaterial.quantityRequiredNoWaste = iPallets
