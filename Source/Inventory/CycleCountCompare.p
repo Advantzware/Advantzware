@@ -464,6 +464,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
                                                     AND ttCycleCountCompare.cSysLoc EQ ttCycleCountCompare.cScanLoc
                                                     AND ttCycleCountCompare.cSysLocBin EQ ttCycleCountCompare.cScanLocBin)
                 .
+
         END.   
         
         /*Count existing non-zero bins for tag*/
@@ -500,13 +501,16 @@ PROCEDURE pBuildCompareTable PRIVATE:
         END.   
         
         ASSIGN 
-            ttCycleCountCompare.lLocationChanged          = ttCycleCountCompare.cScanLocBin NE "" 
+            ttCycleCountCompare.lLocationChanged          = (ttCycleCountCompare.cScanLocBin NE "" 
                                                             AND ttCycleCountCompare.cScanLoc NE ""
                                                             AND (ttCycleCountCompare.cScanLoc NE ttCycleCountCompare.cSysLoc 
                                                                  OR ttCycleCountCompare.cScanLocBin NE ttCycleCountCompare.cSysLocBin)
-            ttCycleCountCompare.lQuantityChanged          = (ttCycleCountCompare.dScanQty NE ttCycleCountCompare.dSysQty)
+                                                            OR ttCycleCountCompare.cSysLoc EQ "")
+            ttCycleCountCompare.lQuantityChanged          = (ttCycleCountCompare.dScanQty NE ttCycleCountCompare.dSysQty
+                                                                AND ttCycleCountCompare.dSysQty GT 0)
             ttCycleCountCompare.iCountOfBinsForTagNonZero = iCountBins
             .
+
         /*See if there are have been shipments for that tag after the scan was done*/
         IF ttCycleCountCompare.lQuantityChanged AND ttCycleCountCompare.dSysQty EQ 0 THEN 
         DO:
@@ -596,7 +600,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
             PROCESS EVENTS.
         END.
- 
+
         ttCycleCountCompare.cAction = fGetAction(
             ttCycleCountCompare.lLocationChanged OR ttCycleCountCompare.cSysLoc EQ "",
             ttCycleCountCompare.lQuantityChanged, 
@@ -632,8 +636,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 AND fg-bin.job-no EQ ttCycleCountCompare.cJobNo
                 AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
                 USE-INDEX tag NO-ERROR.
-        dCost = 0.
-        dMsf = 0.
+        ASSIGN  dCost = 0
+                dMsf = 0
+                .
         lFound = NO.
         IF AVAILABLE fg-bin THEN 
             RUN pGetCostMSF (INPUT ROWID(fg-bin), ttCycleCountCompare.dSysQty, OUTPUT dMsf, OUTPUT dCost).
@@ -952,6 +957,7 @@ PROCEDURE pCreateTransferCounts:
         // AND ttCycleCountCompare.cSysLoc GT ""
         // AND ttCycleCountCompare.cSysLocBin GT ""
         :  
+
         FIND FIRST fg-bin NO-LOCK 
             WHERE fg-bin.company EQ  ttCycleCountCompare.cCompany
             AND fg-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
@@ -979,6 +985,7 @@ PROCEDURE pCreateTransferCounts:
                 AND fg-bin.tag     EQ ttCycleCountCompare.cTag   
                 AND fg-bin.qty     GT 0        
                 NO-ERROR.       
+
         IF NOT AVAIL fg-bin THEN 
             NEXT.
                      
@@ -1849,7 +1856,6 @@ FUNCTION fGetAction RETURNS CHARACTER
 
     DEFINE VARIABLE cresult AS CHARACTER NO-UNDO.
     cResult = "Count Posted".
- //   IF  ipcLocChanged THEN cResult = "Zero count created for original location".
         
     IF  iplQtyChanged THEN cResult = "Count Posted".
         
