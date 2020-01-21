@@ -367,6 +367,11 @@ PROCEDURE pBuildCompareTable PRIVATE:
         AND lookup(ttSnapshot.cSysLoc, ipcWhseList) GT 0   
         AND ttSnapshot.cSysLocBin  GE ipcBinStart
         AND ttSnapshot.cSysLocBin  LE ipcBinEnd         
+         AND CAN-FIND(FIRST ITEM NO-LOCK
+                         WHERE ITEM.company EQ ttSnapshot.cCompany
+                           AND ITEM.i-no EQ ttSnapshot.cFGItemID
+                           AND item.cc-code GE ipcFromCycleCode
+                           AND item.cc-code LE ipcToCycleCode)
         :
             
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
@@ -456,6 +461,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
                                                     AND ttCycleCountCompare.cSysLoc EQ ttCycleCountCompare.cScanLoc
                                                     AND ttCycleCountCompare.cSysLocBin EQ ttCycleCountCompare.cScanLocBin )
                 .
+
         END.   
         
         /*Count existing non-zero bins for tag*/
@@ -496,7 +502,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
                                                             AND ttCycleCountCompare.cScanLoc NE ""
                                                             AND (ttCycleCountCompare.cScanLoc NE ttCycleCountCompare.cSysLoc 
                                                                   OR ttCycleCountCompare.cScanLocBin NE ttCycleCountCompare.cSysLocBin)
-            ttCycleCountCompare.lQuantityChanged          = (ttCycleCountCompare.dScanQty NE ttCycleCountCompare.dSysQty)
+            ttCycleCountCompare.lQuantityChanged          = (ttCycleCountCompare.dScanQty NE ttCycleCountCompare.dSysQty
+                                                              AND ttCycleCountCompare.dSysQty GT 0)
             ttCycleCountCompare.iCountOfBinsForTagNonZero = iCountBins
             .
         /*See if there are have been shipments for that tag after the scan was done*/
@@ -616,7 +623,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
                 AND rm-bin.tag EQ ttCycleCountCompare.cTag  
                 USE-INDEX tag NO-ERROR.
-                
+        ASSIGN  dCost = 0
+                dMsf = 0
+                .                
         IF AVAILABLE rm-bin THEN DO:
             RUN pGetCostMSF (INPUT ROWID(rm-bin), ttCycleCountCompare.dSysQty, OUTPUT dShtLen, OUTPUT dShtWid, OUTPUT dMSF, OUTPUT dCost).
             IF rm-bin.cost GT 0 THEN 
@@ -768,8 +777,8 @@ PROCEDURE pCheckBinDups:
         END.
         OUTPUT STREAM sOutput CLOSE.
     END.
-    
     oplNoDups = lIsDups.
+    
 
 END PROCEDURE.
 
@@ -811,7 +820,8 @@ PROCEDURE pCheckCountDups:
     IF lIsDups THEN 
     DO:
         OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
-        PUT STREAM sOutput UNFORMATTED "Item #,Tag#,Transaction Types Found" SKIP.
+        PUT STREAM sOutput UNFORMATTED 
+            "Item#,Tag#,Transaction Types Found" SKIP.
         FOR EACH ttDupTags:
             PUT STREAM sOutput UNFORMATTED  
                 '"' ttDupTags.i-no '",'
@@ -942,7 +952,8 @@ PROCEDURE pCreateTransferCounts:
 
     FOR EACH ttCycleCountCompare NO-LOCK 
         WHERE lNotScanned = FALSE 
-        AND (lLocationChanged OR ttCycleCountCompare.cSysLoc NE ttCycleCountCompare.cScanLoc)
+        AND (lLocationChanged OR ttCycleCountCompare.cSysLoc NE ttCycleCountCompare.cScanLoc
+               OR ttCycleCountCompare.cSysLoc EQ "")
         :   
         FIND FIRST rm-bin NO-LOCK 
             WHERE rm-bin.company EQ  ttCycleCountCompare.cCompany
@@ -979,10 +990,7 @@ PROCEDURE pCreateTransferCounts:
         IF AVAIL bf-rm-rctd THEN DO:
              IF ipdtTransDate NE ? THEN
                 bf-rm-rctd.rct-date = ipdtTransDate.
-            CREATE ttToPost.                
-            ASSIGN ttToPost.rRmRctd = ROWID(bf-rm-rctd)
-                   ttToPost.r-no    = bf-rm-rctd.r-no
-                   . 
+ 
         END.
         FIND CURRENT bf-rm-rctd NO-LOCK NO-ERROR. 
         /* ttCycleCountCompare.cSysLoc/bin is the original location of the tag, so 0 that out */
@@ -1006,10 +1014,7 @@ PROCEDURE pCreateTransferCounts:
             lv-tag             = rm-bin.tag
             rm-rctd.cost       = (IF AVAIL bf-rm-rctd THEN bf-rm-rctd.cost ELSE 0)
             .
-        CREATE ttToPost.
-        ASSIGN ttToPost.rRmRctd = ROWID(rm-rctd)
-               ttToPost.r-no    = rm-rctd.r-no
-               . 
+
 
         IF rm-rctd.pur-uom = "" THEN
             rm-rctd.pur-uom = rm-rctd.cost-uom.
@@ -1029,7 +1034,10 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.pur-uom = ITEM.cons-uom.
             RELEASE ITEM.
         END.  
-
+        CREATE ttToPost.
+        ASSIGN ttToPost.rRmRctd = ROWID(rm-rctd)
+               ttToPost.r-no    = rm-rctd.r-no
+               . 
         FIND FIRST rm-rdtlh WHERE
             rm-rdtlh.company = rm-bin.company AND
             rm-rdtlh.tag = lv-tag AND
@@ -1084,8 +1092,9 @@ PROCEDURE pCreateZeroCount:
         AND */ rm-bin.company EQ  ttCycleCountCompare.cCompany
         AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
         AND rm-bin.tag     EQ ttCycleCountCompare.cTag        
-        AND rm-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
-        AND rm-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
+        AND rm-bin.loc     EQ ttCycleCountCompare.cSysLoc    
+        AND rm-bin.loc-bin EQ ttCycleCountCompare.cSysLocBin    
+        AND rm-bin.qty     NE 0
         :
             
         RUN sys/ref/asiseq.p (INPUT rm-bin.company, INPUT "rm_rcpt_seq", OUTPUT iNextRNo) NO-ERROR.
@@ -1426,7 +1435,6 @@ PROCEDURE pGetLastTransDate PRIVATE:
         WHERE fg-rcpth.company EQ ipcCompany
         AND fg-rcpth.i-no EQ ipcFGItemID
         AND fg-rcpth.rita-code EQ ipcRita,
-        
         EACH fg-rdtlh NO-LOCK 
         WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
         AND fg-rdtlh.company EQ fg-rcpth.company
@@ -1502,7 +1510,7 @@ PROCEDURE postRM:
         RETURN.
     END.
     IF NOT iplSkipUnscanned THEN 
-    RUN pCreateZeroCount (ipdtTransDate).
+        RUN pCreateZeroCount (ipdtTransDate).
     RUN pCreateTransferCounts (ipdtTransDate).
     
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
@@ -1510,7 +1518,6 @@ PROCEDURE postRM:
         
     RUN pPostCounts (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd,  ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
-        
     MESSAGE "Posting Complete"
         VIEW-AS ALERT-BOX.
 END PROCEDURE.
@@ -1816,7 +1823,7 @@ PROCEDURE reportComparison:
         
     IF lChoosePost THEN 
         RUN postRM (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
-            ipcBinStart, ipcBinEnd). 
+            ipcBinStart, ipcBinEnd, iplSkipUnscanned). 
         
 END PROCEDURE.
 
@@ -1833,16 +1840,16 @@ FUNCTION fGetAction RETURNS CHARACTER
 
     DEFINE VARIABLE cresult AS CHARACTER NO-UNDO.
     cResult = "Count Posted".
-    IF  ipcLocChanged THEN cResult = "Count Posted, Count orig to 0".
+    
         
     IF  iplQtyChanged THEN cResult = "Count Posted".
-        
-    IF  ipcLocChanged AND iplQtyChanged THEN 
-        cResult = "Count Posted, Count orig to 0".
+    
+    IF  ipcLocChanged /* AND iplQtyChanged */ THEN 
+        cResult = "Count Posted, zero count created for original location".
         
     /* Not in snapshot but may have been in another warehouse */
-    // IF  ipcLocChanged AND iplQtyChanged AND ipcLoc = "" THEN 
-    //     cResult = "Count Posted".          
+    IF  ipcLocChanged AND iplQtyChanged AND ipcLoc = "" THEN 
+         cResult = "Count Posted".          
                       
     IF  ipdCntNonZero > 1 THEN 
         ASSIGN cResult = "Cannot Post - Remove Dupcate" .
