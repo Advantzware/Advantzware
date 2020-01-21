@@ -68,6 +68,9 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   DEFINE VARIABLE hOrderProcs      AS HANDLE    NO-UNDO.
   DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lOEAutoApproval  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cResult          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
   
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no  NO-UNDO.
   DEFINE VARIABLE iNextShipNo      LIKE shipto.ship-no NO-UNDO.
@@ -93,7 +96,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
         NO-ERROR. 
 
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).
-  Assign
+  ASSIGN
       payLoadID    = getNodeValue('cXML','payloadID')
       opcPayloadID = payLoadID.
 
@@ -178,8 +181,11 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
          sys control is not available, so the value of ttOrdHead.ttcustNo is reassigned with
          custno which is output from procedure getCustDetails.p */
 
-      IF AVAILABLE ttOrdHead THEN  
-          ttOrdHead.ttcustNo = custno.
+      IF AVAILABLE ttOrdHead THEN
+          ASSIGN  
+              ttOrdHead.ttcustNo   = custno
+              ttOrdHead.ttshipToID = shipToID
+              .
 
       RUN genTempOrderLinesLocal (
           INPUT rOrdRec, 
@@ -303,12 +309,31 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
               ttOrdHead.ttProcessed     = TRUE
               .
           
+      /* Determine autoapproval for this customer/shipto */
+      lOEAutoApproval = NO.
+      RUN sys/ref/nk1look.p (
+          INPUT  ipcCompany, 
+          INPUT  "OEAutoApproval", 
+          INPUT  "L", 
+          INPUT  YES /* use shipto */,
+          INPUT  YES /* use cust*/, 
+          INPUT  custno, 
+          INPUT  ShipToID, 
+          OUTPUT cResult, 
+          OUTPUT lFound
+          ).
+      
+      IF lFound THEN
+          lOEAutoApproval = LOGICAL(cResult) NO-ERROR.
+      
+      /* 52995 DSG Automated Ship To Creation */
+      IF lOeAutoApproval THEN 
           RUN ProcessImportedOrder IN hOrderProcs (
-              INPUT rOrdRec, 
+              INPUT  rOrdRec, 
               OUTPUT lError, 
               OUTPUT cMessage
               ).
-           
+              
          IF NOT oplSuccess THEN
             UNDO EACH-ORDER, LEAVE.
           
