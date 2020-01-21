@@ -7,18 +7,14 @@ IF fSuperRunning("session.") THEN DO:
         .
 END. /* if super running */ 
 ELSE DO:
+    DEFINE VARIABLE iLoop AS INTEGER NO-UNDO.
+
     {1}.rec_key = STRING(YEAR(TODAY),"9999")
                 + STRING(MONTH(TODAY),"99")
                 + STRING(DAY(TODAY),"99")
                 + STRING(TIME,"99999")
                 + ".NoSuper"
                 .
-    RUN pBlankRecKeyLog.
-END. /* else */
-
-PROCEDURE pBlankRecKeyLog:
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-
     OUTPUT TO "blankRecKey.log" APPEND.
     PUT UNFORMATTED
         "Table: {1} - "
@@ -28,11 +24,11 @@ PROCEDURE pBlankRecKeyLog:
         SKIP.
     DO WHILE TRUE:
         PUT UNFORMATTED
-            STRING(idx,"99") " - "
-            PROGRAM-NAME(idx)
+            STRING(iLoop,"99") " - "
+            PROGRAM-NAME(iLoop)
             SKIP.
-        idx = idx + 1.
-        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE. 
+        iLoop = iLoop + 1.
+        IF PROGRAM-NAME(iLoop) EQ ? THEN LEAVE. 
     END. /* do while true */
     OUTPUT CLOSE.
-END PROCEDURE.
+END. /* else */
