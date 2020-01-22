@@ -175,7 +175,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   (xqqty.qty * xqqty.price).
 
        PUT xqqty.qty xqqty.rels SPACE(5)
-               xqqty.price FORM "->>,>>9.99" SPACE(6)
+               xqqty.price FORM "->>,>>9.999999" SPACE(3)
                xqqty.uom .   
               
        v-line-total = v-line-total + xqqty.price.
