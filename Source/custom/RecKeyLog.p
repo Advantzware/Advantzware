@@ -1,10 +1,12 @@
 /* RecKeyLog.p - rstark - 1.22.2020 */
 
+DEFINE INPUT PARAMETER ipcTable AS CHARACTER NO-UNDO.
+
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
 OUTPUT TO "blankRecKey.log" APPEND.
 PUT UNFORMATTED
-    "Table: {1} - "
+    "Table: " ipcTable " - "
     STRING(TODAY,"99/99/9999")
     " @ "
     STRING(TIME,"HH:MM:SS am")
