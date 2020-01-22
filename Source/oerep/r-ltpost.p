@@ -18,6 +18,7 @@
    def buffer b-oe-ordl     for oe-ordl.
    DEF BUFFER b-itemfg FOR itemfg.
 
+   DEFINE VARIABLE lAnyJobCloses AS LOGICAL NO-UNDO.
    def var v-one-item as log.
    def var v-dec as dec decimals 10.
    def var v-po-no like rm-rcpt.po-no no-undo.
@@ -58,6 +59,11 @@
    DEF STREAM st-email.
 
    DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fCanCloseJob RETURNS LOGICAL 
+    ( INPUT iprwJobRec AS RECID, INPUT ipcINo AS CHARACTER ) FORWARD.
+
 
 
    FIND FIRST users WHERE
@@ -298,6 +304,31 @@
     RUN gl-from-work (1, v-trnum).
     RUN gl-from-work (2, v-trnum).
   END.
+  
+/* Remove w-job recs that should not be prompted to close */ 
+EACH-JOB:   
+FOR EACH w-job:             
+    FIND FIRST job NO-LOCK 
+        WHERE RECID(job) EQ w-job.rec-id
+        NO-ERROR.
+    IF NOT AVAIL job THEN 
+        NEXT.
+    lAnyJobCloses = NO.
+    FOR EACH w-fg-rctd NO-LOCK
+        WHERE w-fg-rctd.company EQ job.company
+        AND w-fg-rctd.job-no EQ job.job-no
+        AND w-fg-rctd.job-no2 EQ job.job-no2
+        BREAK BY w-fg-rctd.job-no 
+        BY w-fg-rctd.job-no2 
+        BY w-fg-rctd.i-no
+        :    
+
+        IF LAST-OF(w-fg-rctd.i-no) AND fCanCloseJob(w-job.rec-id, w-fg-rctd.i-no) THEN
+            lAnyJobCloses = YES.
+    END.
+    IF NOT lAnyJobCloses THEN DELETE w-job.  
+END.
+
   find first w-job no-error.
   /* Run only when not batch process. */
   if avail w-job AND plBatch = NO THEN DO:
@@ -341,6 +372,8 @@
   IF v-got-fgemail THEN DO:
     RUN send-fgemail (v-fgemail-file).
   END.
+
+
 
 PROCEDURE gl-from-work:
  DEF INPUT PARAM ip-run AS INT NO-UNDO.
@@ -425,3 +458,160 @@ PROCEDURE SEND-fgemail:
    END.
 
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fCanCloseJob RETURNS LOGICAL 
+	( INPUT iprwJobRec AS RECID, INPUT ipcINo AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+   DEF VAR li-t-qty AS INT.
+    DEF VAR lv-rowid AS ROWID NO-UNDO.
+    DEF VAR ll-set AS LOG.  
+    DEFINE VARIABLE ll-qty-changed AS LOG       NO-UNDO.
+    DEFINE VARIABLE v-fin-qty      AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE choice         AS LOG       NO-UNDO. 
+    DEFINE VARIABLE v-overrun-qty  LIKE fg-rctd.qty NO-UNDO. 
+    DEFINE VARIABLE v-underrun-qty LIKE fg-rctd.qty NO-UNDO. 
+    DEFINE VARIABLE v-reduce-qty   AS INTEGER   NO-UNDO.   
+    DEFINE VARIABLE ll-whs-item    AS LOG       NO-UNDO.       
+    DEFINE BUFFER b-itemfg FOR itemfg.
+    FIND FIRST job
+        WHERE RECID(job) EQ iprwJobRec
+        NO-ERROR.
+    IF NOT AVAIL job THEN 
+        RETURN NO.
+
+    ASSIGN 
+        choice         = NO
+        li-t-qty       = 0
+        ll-set         = NO
+        ll-qty-changed = NO 
+        v-overrun-qty  = 0
+        v-underrun-qty = 0
+        v-reduce-qty   = 0
+        ll-whs-item   = no
+        .
+
+    FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ cocode
+        AND itemfg.i-no    EQ ipcIno
+        NO-ERROR.
+    IF NOT AVAIL itemfg THEN 
+        RETURN NO.
+    /*    IF w-fg-rctd.job-no    NE ""  AND         */
+    /*      w-fg-rctd.rita-code NE "T" THEN         */
+    /*      FIND FIRST job NO-LOCK                  */
+    /*        WHERE job.company EQ cocode           */
+    /*          AND job.job-no  EQ w-job.job-no     */
+    /*          AND job.job-no2 EQ w-fg-rctd.job-no2*/
+    /*        NO-ERROR.                             */
+
+    IF AVAIL job THEN 
+    DO:
+
+        /* Determine if job may be closed via li-t-qty */
+        li-t-qty = w-fg-rctd.t-qty.
+
+        FIND FIRST job-hdr NO-LOCK
+            WHERE job-hdr.company EQ job.company
+            AND job-hdr.job     eq job.job
+            AND job-hdr.job-no  eq job.job-no
+            AND job-hdr.job-no2 eq job.job-no2
+            AND job-hdr.i-no    eq ipcIno
+            NO-ERROR.
+        IF AVAIL job-hdr THEN ll-set = NO.
+
+        ELSE      /* Check for a set header to process instead */
+            IF NOT itemfg.isaset THEN 
+            DO:
+                FIND FIRST reftable NO-LOCK
+                    WHERE reftable.reftable EQ "jc/jc-calc.p"
+                    AND reftable.company  EQ job.company
+                    AND reftable.loc      EQ ""
+                    AND reftable.code     EQ STRING(job.job,"999999999")
+                    AND reftable.code2    EQ w-fg-rctd.i-no
+                    NO-ERROR.
+
+
+                /* Used to determine choice to close job for a set */
+                RUN fg/setsrcvd.p (BUFFER job, BUFFER reftable, BUFFER job-hdr,
+                    INPUT-OUTPUT li-t-qty).
+                ll-set = AVAIL job-hdr.
+            END.
+        IF AVAILABLE job-hdr THEN 
+        DO:
+            IF job.opened                           AND
+                (NOT ll-set OR (CAN-FIND(FIRST b-itemfg
+                WHERE b-itemfg.company EQ job-hdr.company
+                AND b-itemfg.i-no    EQ job-hdr.i-no
+                AND b-itemfg.isaset  EQ YES
+                AND b-itemfg.alloc   NE NO))) THEN 
+            DO:
+
+                RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).
+
+              /* Get underrun quantity, v-fin-qty, uses ll-qty-changed */
+                {fg/closejob.i}
+
+                IF v-close-job GT 0                                            AND
+                    (job.stat EQ "W"                                OR
+                    v-close-job GT 1                               OR
+                    CAN-FIND(FIRST mat-act
+                    WHERE mat-act.company EQ job.company
+                    AND mat-act.job     EQ job.job
+                    AND mat-act.job-no  EQ job.job-no
+                    AND mat-act.job-no2 EQ job.job-no2) OR
+                    CAN-FIND(FIRST mch-act
+                    WHERE mch-act.company EQ job.company
+                    AND mch-act.job     EQ job.job
+                    AND mch-act.job-no  EQ job.job-no
+                    AND mch-act.job-no2 EQ job.job-no2) OR
+                    CAN-FIND(FIRST misc-act
+                    WHERE misc-act.company EQ job.company
+                    AND misc-act.job     EQ job.job
+                    AND misc-act.job-no  EQ job.job-no
+                    AND misc-act.job-no2 EQ job.job-no2))          AND
+                    v-fin-qty + li-t-qty GE v-underrun-qty                     AND
+                    w-fg-rctd.rita-code EQ "R" THEN 
+                DO:
+
+                    choice = YES.
+
+                    RELEASE job-hdr.
+                    FOR EACH job-hdr NO-LOCK
+                        WHERE job-hdr.company EQ job.company
+                        AND job-hdr.job     EQ job.job
+                        AND job-hdr.job-no  EQ job.job-no
+                        AND job-hdr.job-no2 EQ job.job-no2
+                        AND ROWID(job-hdr)  NE lv-rowid
+                        AND NOT CAN-FIND(FIRST b-itemfg
+                        WHERE b-itemfg.company EQ job-hdr.company
+                        AND b-itemfg.i-no    EQ job-hdr.i-no
+                        AND b-itemfg.pur-man EQ YES)
+                        AND NOT CAN-FIND(FIRST eb
+                        WHERE eb.company  EQ job.company
+                        AND eb.est-no   EQ job.est-no
+                        AND eb.stock-no EQ job-hdr.i-no
+                        AND eb.pur-man  EQ YES):
+                  /* get underrun quantity, v-find-qty, uses ll-qty-changed */
+                  {fg/closejob.i}
+
+                        IF v-fin-qty LT v-underrun-qty THEN 
+                        DO:
+                            choice = NO.
+                            LEAVE.
+                        END.
+                    END. /* For each job-hdr */
+
+                END. /* If v-job-close gt 0 */
+            END. /* If job.opened... */
+        END. /* if avail job-hdr */
+    END. /* If avail job */
+
+    RETURN choice.
+
+END FUNCTION.
