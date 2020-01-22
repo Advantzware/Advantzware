@@ -61,7 +61,7 @@ DEF VAR v-inv-qtys AS DEC NO-UNDO.
 def var v-ship-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.99999" no-undo.
+def var v-price as dec format ">>>>9.999999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like ar-invl.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
@@ -441,7 +441,7 @@ END.
                 PUT v-inv-qtys  format "->>9.99" SPACE(2).
             ELSE PUT v-ship-qty  format "->>>>>9" SPACE(2).
 
-            PUT v-price  format "->>,>>9.99999"                
+            PUT v-price  format "->>,>>9.999999"                
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no SPACE(10)
@@ -513,7 +513,7 @@ END.
     v-inv-total = v-subtot-lines + /*v-t-tax[1] + v-t-tax[2] + v-t-tax[3] AH 03-10-10 */ ar-inv.tax-amt + v-inv-freight
                   .
 
-    PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
+    PUT "<R58><C59><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
         "<=8><R+2> " cTaxCode FORMAT "x(9)" "    :" ar-inv.tax-amt FORM "->>,>>9.99"

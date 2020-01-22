@@ -61,7 +61,7 @@ DEF VAR v-inv-qtys AS DEC NO-UNDO.
 def var v-ship-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.9999" no-undo.
+def var v-price as dec format ">>>>9.999999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like ar-invl.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
@@ -374,10 +374,10 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-i-dscr FORM "x(30)". 
             /* PremierS switch*/
             IF ip-print-s THEN
-                PUT v-inv-qtys  format "->>9.99" SPACE(3).
-            ELSE PUT v-ship-qty  format "->>>>>9" SPACE(3).
+                PUT v-inv-qtys  format "->>9.99" SPACE(2).
+            ELSE PUT v-ship-qty  format "->>>>>9" SPACE(2).
 
-            PUT v-price  format "->>,>>9.9999"                
+            PUT v-price  format "->>,>>9.999999"                
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no SPACE(10)

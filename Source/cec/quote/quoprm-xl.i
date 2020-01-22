@@ -308,7 +308,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        chExcelApplication:Goto(v-cell) NO-ERROR.
 
        ASSIGN
-          chExcelApplication:ActiveCell:Value = "$" + TRIM(STRING(xqqty.price,">>>,>>9.9999"))
+          chExcelApplication:ActiveCell:Value = "$" + TRIM(STRING(xqqty.price,">>>,>>9.999999"))
           v-cell = "R" + string(inrowcount) + "C6".
 
        chExcelApplication:Goto(v-cell) NO-ERROR.
