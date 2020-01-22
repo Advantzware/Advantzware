@@ -297,6 +297,7 @@ DEFINE VARIABLE gcTransactionTypeAdjustQty AS CHARACTER INITIAL "A".
 DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER INITIAL "I".
 DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER INITIAL "S".
 DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER INITIAL "C".
+DEFINE VARIABLE gcTransactionTypeReturns   AS CHARACTER INITIAL "E".
 
 DEFINE VARIABLE gcSnapshotTypeCount        AS CHARACTER INITIAL "C". /* Count */
 DEFINE VARIABLE gcSnapshotTypeCapture      AS CHARACTER INITIAL "R". /* Report Capture */
@@ -316,6 +317,7 @@ DEFINE VARIABLE gcUOMWeight                AS CHARACTER INITIAL "LB".
 
 DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER INITIAL "Job".
 DEFINE VARIABLE gcInventorySourceTypePO    AS CHARACTER INITIAL "PO".
+DEFINE VARIABLE gcInventorySourceTypeFG    AS CHARACTER INITIAL "FG".
 
 /* ********************  Preprocessor Definitions  ******************** */
 

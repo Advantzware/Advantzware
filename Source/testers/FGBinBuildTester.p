@@ -17,13 +17,13 @@
 DEFINE STREAM sOutput. 
 
 DEFINE VARIABLE glAtOnce        AS LOGICAL INITIAL YES.
-DEFINE VARIABLE glPurge         AS LOGICAL INITIAL YES.
+DEFINE VARIABLE glPurge         AS LOGICAL INITIAL NO.
 DEFINE VARIABLE glMakeCounts    AS LOGICAL.
 DEFINE VARIABLE gcOutputFile    AS CHARACTER.
 DEFINE VARIABLE hdFGBinBuild    AS HANDLE.
 DEFINE VARIABLE giCounter       AS INTEGER.
 DEFINE VARIABLE giTimer         AS INTEGER.
-DEFINE VARIABLE gcAsOf          AS DATE      INITIAL 12/31/2010.
+DEFINE VARIABLE gcAsOf          AS DATE      INITIAL TODAY.
 DEFINE VARIABLE gcCompany       AS CHARACTER INITIAL "001".
 DEFINE VARIABLE gcFGItemIDStart AS CHARACTER INITIAL '6X6X6'.
 DEFINE VARIABLE gcFGItemIDEnd   AS CHARACTER INITIAL '6X6X6'.
@@ -113,6 +113,25 @@ PROCEDURE pProcessAtOnce PRIVATE:
         ELSE 
             RUN BuildBinsForItem IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter).
     END.
+    RUN pExportTempTable(TEMP-TABLE ttFGBins:HANDLE, gcOutputFile, YES).
+
+END PROCEDURE.
+
+PROCEDURE pProcessInventoryAtOnce PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to create InventoryStock records from fg tables
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    FOR EACH itemfg NO-LOCK 
+        WHERE itemfg.company EQ gcCompany
+        AND itemfg.i-no GE gcFGItemIDStart
+        AND itemfg.i-no LE gcFGItemIDEnd
+        :
+        RUN BuildTTInventoryForItem IN hdFGBinBuild (ROWID(itemfg), gcAsOf, INPUT-OUTPUT giCounter).
+        RUN CreateInventoryFromTTInventory IN hdFGBinBuild.
+    END.      
+    
     RUN pExportTempTable(TEMP-TABLE ttFGBins:HANDLE, gcOutputFile, YES).
 
 END PROCEDURE.
