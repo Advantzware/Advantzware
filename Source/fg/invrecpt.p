@@ -488,7 +488,10 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
     w-inv.bol-no = lv-new-bol-no.
   END.
 
-  RUN oe/oe-bolp3.p (v-term).
+  RUN oe/oe-bolp3.p(
+      INPUT v-term,
+      INPUT TODAY
+      ).
 
   FOR EACH w-inv,
       FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-inv.row-id NO-LOCK
