@@ -21,7 +21,11 @@ DEFINE INPUT-OUTPUT PARAMETER iopcShipToID    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCompany     AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcWarehouseID AS CHARACTER NO-UNDO.  
 DEFINE OUTPUT       PARAMETER opcCustomerID   AS CHARACTER NO-UNDO. 
+DEFINE OUTPUT       PARAMETER oplSuccess      AS LOGICAL   NO-UNDO. 
+DEFINE OUTPUT       PARAMETER opcMessage      AS CHARACTER NO-UNDO. 
 DEFINE              PARAMETER BUFFER obf-shipto FOR shipto.
+
+oplSuccess = YES.
 
 /* This function returns valid ShipID */
 FUNCTION getShipID RETURNS CHARACTER (cCompany AS CHARACTER,cCustomerID AS CHARACTER,cShipToID AS CHARACTER):    
@@ -132,26 +136,34 @@ END.
 /* Finding shipto based on ShipToID */
 FIND FIRST obf-shipto NO-LOCK
      WHERE obf-shipto.ship-id EQ iopcShipToID NO-ERROR.
-IF AVAILABLE obf-shipto THEN DO:
+IF NOT AVAILABLE obf-shipto THEN DO:
     ASSIGN
-        opcCustomerID   = obf-shipto.cust
-        iopcCompany     = obf-shipto.company
-        iopcWarehouseID = obf-shipto.loc
+        opcMessage = "SiteID (" + iopcShipToID + ") is not valid."
+        oplSuccess = NO
         .
         
     RETURN.
 END.
 
-/* Finding cust "X" */ 
-FIND FIRST cust NO-LOCK
-     WHERE cust.active EQ "X" NO-ERROR.
-IF AVAILABLE cust THEN DO:
-    ASSIGN 
-        opcCustomerID   = cust.cust-no
-        iopcCompany     = cust.company
-        iopcShipToID    = getShipID(iopcCompany,opcCustomerID,iopcShipToID)
-        iopcWarehouseID = getWarehouseID(iopcShipToID)
-        .
+ASSIGN
+    opcCustomerID   = obf-shipto.cust
+    iopcCompany     = obf-shipto.company
+    iopcWarehouseID = obf-shipto.loc
+    .
         
-    RETURN.
-END.
+/*/* This code has been commented out because as per the new                 */
+/*   requirements in ticket #60939 this is no longer used to                 */
+/*   retrieve company, location and customer no */                           */
+/*/* Finding cust "X" */                                                     */
+/*FIND FIRST cust NO-LOCK                                                    */
+/*     WHERE cust.active EQ "X" NO-ERROR.                                    */
+/*IF AVAILABLE cust THEN DO:                                                 */
+/*    ASSIGN                                                                 */
+/*        opcCustomerID   = cust.cust-no                                     */
+/*        iopcCompany     = cust.company                                     */
+/*        iopcShipToID    = getShipID(iopcCompany,opcCustomerID,iopcShipToID)*/
+/*        iopcWarehouseID = getWarehouseID(iopcShipToID)                     */
+/*        .                                                                  */
+/*                                                                           */
+/*    RETURN.                                                                */
+/*END.                                                                       */
