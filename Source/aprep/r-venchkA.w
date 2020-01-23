@@ -489,12 +489,6 @@ DO:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-  IF tb_excel THEN DO:
-    OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-  END. 
-
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
@@ -1436,6 +1430,12 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
 
+IF tb_excel THEN 
+DO:
+    OUTPUT STREAM excel CLOSE.
+    IF tb_runExcel THEN
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+END. 
 /* end ---------------------------------- copr. 2004 Advanced Software, Inc. */
 
 END PROCEDURE.
