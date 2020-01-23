@@ -843,6 +843,7 @@ PROCEDURE post-gl :
              gltrans.tr-date   = tran-date
              gltrans.tr-amt    = -1 * ar-cashl.amt-paid
              gltrans.period    = tran-period
+             gltrans.yr        = year(tran-date)
              gltrans.trnum     = v-trnum
              /*ar-cashl.amt-paid = -1 * ar-cashl.amt-paid*/ .
 
@@ -860,6 +861,7 @@ PROCEDURE post-gl :
               gltrans.tr-date = tran-date
               gltrans.tr-amt  = -1 * ar-cashl.amt-disc
               gltrans.period  = tran-period
+              gltrans.yr      = year(tran-date)
               gltrans.trnum   = v-trnum.
 
              RELEASE gltrans.
@@ -898,6 +900,7 @@ PROCEDURE post-gl :
              gltrans.tr-dscr = "CASH RECEIPTS VOID"
              gltrans.tr-date = tran-date
              gltrans.period  = tran-period
+             gltrans.yr      = YEAR(tran-date)
              gltrans.trnum   = v-trnum
              lv-rowid        = ROWID(gltrans).
           END.

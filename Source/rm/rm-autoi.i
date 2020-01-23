@@ -1059,6 +1059,7 @@ PROCEDURE gl-from-work:
         gltrans.actnum  = work-gl.actnum
         gltrans.jrnl    = "RMPOST"
         gltrans.period  = period.pnum
+        gltrans.yr      = period.yr
         gltrans.tr-amt  = debits - credits
         gltrans.tr-date = v-post-date
         gltrans.tr-dscr = if work-gl.job-no NE "" then "RM Issue to Job"

@@ -1058,6 +1058,7 @@ PROCEDURE post-gl :
        gltrans.tr-date = tran-date
        gltrans.tr-amt  = (-1 * wkdistrib.amount)
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        gltrans.trnum   = v-trnum.*/
 
       create gltrans.
@@ -1069,6 +1070,7 @@ PROCEDURE post-gl :
        gltrans.tr-date = tran-date
        gltrans.tr-amt  = wkdistrib.amount
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        gltrans.trnum   = v-trnum.
       RELEASE gltrans.
     end.    /* each wkdistrib */

@@ -879,6 +879,7 @@ PROCEDURE post-gl :
             gltrans.tr-date = tran-date
             gltrans.tr-amt  = - (ap-payl.amt-paid - ap-payl.amt-disc)
             gltrans.period  = tran-period
+            gltrans.yr      = year(tran-date)
             gltrans.trnum   = xtrnum
             ap-payl.posted  = true.
 
@@ -923,6 +924,7 @@ PROCEDURE post-gl :
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = g1 - g2   /* DAR  -  g2 - g1  */
       gltrans.period  = tran-period
+      gltrans.yr      = year(tran-date)
       gltrans.trnum   = xtrnum.
       RELEASE gltrans.
 

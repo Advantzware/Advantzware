@@ -73,6 +73,7 @@
           gltrans.tr-date = tran-date
           gltrans.tr-amt  = ar-cashl.amt-disc - ar-cashl.amt-paid
           gltrans.period  = tran-period
+          gltrans.yr      = year(tran-date)
           gltrans.trnum   = xtrnum.
         IF gltrans.tr-amt < 0 THEN
           ASSIGN  gltrans.jrnl = "DBMEM".

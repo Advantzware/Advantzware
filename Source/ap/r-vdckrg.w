@@ -896,6 +896,7 @@ do transaction on error undo, leave:
                  gltrans.tr-date = udate
                  gltrans.tr-amt  = v-bank-amt
                  gltrans.period  = tran-period
+                 gltrans.yr      = year(udate)
                  gltrans.trnum   = v-trnum
                  v-bank-amt = 0.
           RELEASE gltrans.
@@ -916,6 +917,7 @@ do transaction on error undo, leave:
     gltrans.tr-date = udate
     gltrans.tr-amt  = v-tot-amt-paid
     gltrans.period  = tran-period
+    gltrans.yr      = year(udate)
     gltrans.trnum   = v-trnum.
    */
    if v-tot-amt-disc ne 0 then do:
@@ -928,6 +930,7 @@ do transaction on error undo, leave:
       gltrans.tr-date = udate
       gltrans.tr-amt  = v-tot-amt-disc
       gltrans.period  = tran-period
+      gltrans.yr      = year(udate)
       gltrans.trnum   = v-trnum.
      RELEASE gltrans.
    end.
@@ -951,6 +954,7 @@ do transaction on error undo, leave:
         gltrans.tr-amt  = ((accum sub-total by w-actnum w-amt-paid) +
                            (accum sub-total by w-actnum w-amt-disc)) * -1 
         gltrans.period  = tran-period
+        gltrans.yr      = year(udate)
         gltrans.trnum   = v-trnum.
        RELEASE gltrans.
      end.
@@ -965,6 +969,7 @@ do transaction on error undo, leave:
     gltrans.tr-date = udate
     gltrans.tr-amt  = (v-tot-amt-paid + v-tot-amt-disc) * -1
     gltrans.period  = tran-period
+    gltrans.yr      = year(udate)
     gltrans.trnum   = v-trnum.
    RELEASE gltrans.
 

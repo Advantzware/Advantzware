@@ -1401,6 +1401,20 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'OnLine' THEN string(ttOePrmtx.online) ELSE ~
      string(ttOePrmtx.procat) ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'tt-gltrans' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Run' THEN string(tt-gltrans.trnum) ELSE ~
+  IF sortColumn EQ 'Account' THEN string(tt-gltrans.actnum)  ELSE ~
+  IF sortColumn EQ 'Dscription' THEN string(tt-gltrans.tr-dscr) ELSE ~
+  IF sortColumn EQ 'Journal' THEN string(tt-gltrans.jrnl) ELSE ~
+  IF sortColumn EQ 'Year' THEN string(tt-gltrans.yr) ELSE ~
+  IF sortColumn EQ 'Period' THEN string(tt-gltrans.period) ELSE ~
+  IF sortColumn EQ 'Amount' THEN string(tt-gltrans.tr-amt) ELSE ~
+  IF sortColumn EQ 'Date' THEN STRING(YEAR(tt-gltrans.tr-date),'9999') + ~
+                                   STRING(MONTH(tt-gltrans.tr-date),'99') + ~
+                                   STRING(DAY(tt-gltrans.tr-date),'99') ELSE ~
+  string(tt-gltrans.trnum) ~{&SORTED}
+
 
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN

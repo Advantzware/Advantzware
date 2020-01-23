@@ -1053,6 +1053,7 @@ DO TRANSACTION:
             gltrans.company = cocode
             gltrans.tr-amt  = gl-jrnl.tr-amt
             gltrans.period  = gl-jrn.period
+            gltrans.yr      = gl-jrn.yr
             gltrans.trnum   = xtrnum.
 /*
             gltrans.trnum   = gl-jrn.journal. /* 9508 CAH was jrnl.line */
@@ -1068,6 +1069,7 @@ DO TRANSACTION:
             gltrans.company = cocode
             gltrans.tr-amt  = gl-jrnl.tr-amt
             gltrans.period  = gl-jrn.period
+            gltrans.yr      = gl-jrn.yr
             gltrans.trnum   = xtrnum.
 /*
             gltrans.trnum   = gl-jrn.journal. /* 9508 CAH was jrnl.line */

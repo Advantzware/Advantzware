@@ -995,6 +995,7 @@ PROCEDURE post-gl :
             gltrans.tr-date = tran-date
             gltrans.tr-amt  = ap-disl.amt
             gltrans.period  = tran-period
+            gltrans.yr      = year(tran-date)
             gltrans.trnum   = xtrnum
             ap-disl.posted  = true.
          end.  /* each line */
@@ -1040,6 +1041,7 @@ PROCEDURE post-gl :
          gltrans.tr-date = tran-date
          gltrans.tr-amt  = -(ap-dis.check-amt)
          gltrans.period  = tran-period
+         gltrans.yr      = year(tran-date)
          gltrans.trnum   = xtrnum.
 
          bank.last-chk = IF lv-chkno-posted >= bank.last-chk THEN lv-chkno-posted

@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -34,17 +33,15 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Browse01 h_b-gljrn1
-&SCOPED-DEFINE h_Object01 h_p-navico
-&SCOPED-DEFINE h_Object02 h_p-cashl
+&SCOPED-DEFINE h_Browse01 h_b-gltrans
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR lv-prev-page AS INT NO-UNDO.
-DEF VAR lv-curr-page AS INT NO-UNDO.
-        /* for restriced exit */
-&SCOPED-DEFINE asi-exit check-balanced
+def var li-prev-page as int init 1 no-undo.
+def var li-cur-page as int init 1 no-undo.
+def var h-detail as handle no-undo.
+DEF VAR li-last-page AS INT NO-UNDO.  /* for folding estimate page */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,12 +62,13 @@ DEF VAR lv-curr-page AS INT NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES gl-jrn
-&Scoped-define FIRST-EXTERNAL-TABLE gl-jrn
+&Scoped-define EXTERNAL-TABLES vendItemCost
+&Scoped-define FIRST-EXTERNAL-TABLE vendItemCost
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR gl-jrn.
+DEFINE QUERY external_tables FOR vendItemCost.
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -85,23 +83,18 @@ DEFINE QUERY external_tables FOR gl-jrn.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_b-gljrn1 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_b-gljrn2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_b-gljrn2-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-gltrans AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-glrun AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_impexcel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-arinv AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-cashl AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-cashl-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_q-gljrn AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-gljrn AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-gljrn-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_w-glinvl AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -112,18 +105,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
-         SIZE 105 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 47 ROW 2.91
+         SIZE 104 BY 1.43
          BGCOLOR 15 .
 
 
@@ -132,9 +125,8 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.gl-jrn
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -145,7 +137,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "General Ledger Journal Entries"
+         TITLE              = "GL Transaction"
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 320
@@ -238,7 +230,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* General Ledger Journal Entries */
+ON END-ERROR OF W-Win /* GL Inquiry */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -251,18 +243,10 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* General Ledger Journal Entries */
+ON WINDOW-CLOSE OF W-Win /* GL Inquiry */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  RUN check-balanced NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   /* task 11121308 */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"is-delete-target", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN is-delete IN WIDGET-HANDLE(char-hdl).
-
-  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -280,6 +264,11 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{sys/inc/var.i new shared}
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -303,28 +292,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 52.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
        RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/smartmsg.w':U ,
+             INPUT  FRAME message-frame:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_smartmsg ).
+       RUN set-position IN h_smartmsg ( 1.00 , 52.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -337,7 +318,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Journals|View Journals' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'GL Trans|GL Trans View' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -347,8 +328,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
-             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
@@ -356,49 +335,59 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 61.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+        RUN init-object IN THIS-PROCEDURE (                 
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 68.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 69.30 ) NO-ERROR.      
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'gl/b-gljrn1.w':U ,
+             INPUT  'gl/b-gltrans.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_b-gljrn1 ).
-       RUN set-position IN h_b-gljrn1 ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-gljrn1 ( 19.52 , 145.00 ) NO-ERROR.
+             OUTPUT h_b-gltrans ).
+       RUN set-position IN h_b-gltrans ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_b-gltrans ( 18.57 , 143.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 76.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to SmartObject h_export. */
-       RUN add-link IN adm-broker-hdl ( h_b-gljrn1 , 'export-xl':U , h_export ).
+        /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
-       /* Links to SmartNavBrowser h_b-gljrn1. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-gljrn1 ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'win':U , h_b-gljrn1 ).
-       RUN add-link IN adm-broker-hdl ( h_b-gljrn1 , 'Record':U , THIS-PROCEDURE ).
+       /* Links to SmartNavBrowser h_venditemcost. */
+       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-gltrans ).
+       RUN add-link IN adm-broker-hdl ( h_b-gltrans , 'Record':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_b-gltrans , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-gljrn1 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-gltrans ,
              h_folder , 'AFTER':U ).
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-gltrans , 'move-columns':U , h_movecol ).
+
     END. /* Page 1 */
     WHEN 2 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-arinv.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-arinv ).
-       RUN set-position IN h_p-arinv ( 4.81 , 106.00 ) NO-ERROR.
-       RUN set-size IN h_p-arinv ( 6.43 , 18.00 ) NO-ERROR.
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'gl/v-gljrn.w':U ,
+      RUN init-object IN THIS-PROCEDURE (
+             INPUT  'gl/v-gltrans.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
                      Hide-on-Init = no,
@@ -406,30 +395,10 @@ PROCEDURE adm-create-objects :
                      Key-Name = ,
                      Layout = ,
                      Create-On-Add = Yes':U ,
-             OUTPUT h_v-gljrn ).
-       RUN set-position IN h_v-gljrn ( 5.05 , 7.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.71 , 95.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/impexcel.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_impexcel ).
-       RUN set-position IN h_impexcel ( 5.05 , 126.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 19.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'gl/b-gljrn2.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
-             OUTPUT h_b-gljrn2 ).
-       RUN set-position IN h_b-gljrn2 ( 11.48 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-gljrn2 ( 10.71 , 145.00 ) NO-ERROR.
-
+             OUTPUT h_b-glrun ).
+       RUN set-position IN h_b-glrun ( 5.00 , 3.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.19 , 142.00 ) */
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -437,112 +406,30 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.43 , 6.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 1.91 , 38.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 22.20 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-cashl.w':U ,
+             INPUT  'adm/objects/p-updsav.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-cashl ).
-       RUN set-position IN h_p-cashl ( 22.43 , 64.00 ) NO-ERROR.
-       RUN set-size IN h_p-cashl ( 2.00 , 82.00 ) NO-ERROR.
+             OUTPUT h_p-updsav ).
+       RUN set-position IN h_p-updsav ( 22.20 , 57 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
-       /* Initialize other pages that this page requires. */
+        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_v-gljrn. */
-       RUN add-link IN adm-broker-hdl ( h_b-gljrn1 , 'Record':U , h_v-gljrn ).
-       RUN add-link IN adm-broker-hdl ( h_p-arinv , 'TableIO':U , h_v-gljrn ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_v-gljrn ).
-       RUN add-link IN adm-broker-hdl ( h_v-gljrn , 'is-balanced':U , THIS-PROCEDURE ).
+       
+       /* Links to SmartViewer h_venditemcost-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-gltrans , 'Record':U , h_b-glrun ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-glrun ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_b-glrun ).
 
-       /* Links to SmartViewer h_impexcel. */
-       RUN add-link IN adm-broker-hdl ( h_v-gljrn , 'excel':U , h_impexcel ).
-
-       /* Links to SmartNavBrowser h_b-gljrn2. */
-       RUN add-link IN adm-broker-hdl ( h_b-gljrn1 , 'browse':U , h_b-gljrn2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-cashl , 'TableIO':U , h_b-gljrn2 ).
-       RUN add-link IN adm-broker-hdl ( h_v-gljrn , 'Record':U , h_b-gljrn2 ).
-
-       /* Links to SmartPanel h_p-cashl. */
-       RUN add-link IN adm-broker-hdl ( h_v-gljrn , 'adding-line':U , h_p-cashl ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-arinv ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-gljrn ,
-             h_p-arinv , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_impexcel ,
-             h_v-gljrn , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-gljrn2 ,
-             h_impexcel , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_b-gljrn2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-cashl ,
-             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
-    WHEN 3 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-cashl.w':U ,
-             INPUT  {&WINDOW-NAME} ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-cashl-2 ).
-       RUN set-position IN h_p-cashl-2 ( 22.14 , 16.80 ) NO-ERROR.
-       RUN set-size IN h_p-cashl-2 ( 1.86 , 109.60 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'gl/v-gljrn.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Key-Name = ,
-                     Layout = ,
-                     Create-On-Add = ?':U ,
-             OUTPUT h_v-gljrn-2 ).
-       RUN set-position IN h_v-gljrn-2 ( 5.05 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.71 , 95.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'gl/b-gljrn2.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
-             OUTPUT h_b-gljrn2-2 ).
-       RUN set-position IN h_b-gljrn2-2 ( 10.76 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_b-gljrn2-2 ( 10.71 , 145.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'gl/q-gljrn.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_q-gljrn ).
-       RUN set-position IN h_q-gljrn ( 6.95 , 114.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.86 , 10.80 ) */
-
-       /* Links to SmartViewer h_v-gljrn-2. */
-       RUN add-link IN adm-broker-hdl ( h_q-gljrn , 'Record':U , h_v-gljrn-2 ).
-       RUN add-link IN adm-broker-hdl ( h_v-gljrn-2 , 'is-recurbal':U , THIS-PROCEDURE ).
-
-       /* Links to SmartNavBrowser h_b-gljrn2-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-cashl-2 , 'TableIO':U , h_b-gljrn2-2 ).
-       RUN add-link IN adm-broker-hdl ( h_v-gljrn-2 , 'Record':U , h_b-gljrn2-2 ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-gljrn-2 ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-gljrn2-2 ,
-             h_v-gljrn-2 , 'AFTER':U ).
-    END. /* Page 3 */
-
+    
   END CASE.
   /* Select a Startup page. */
   IF adm-current-page eq 0 
@@ -567,47 +454,18 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "gl-jrn"}
+  {src/adm/template/row-list.i "gltrans"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "gl-jrn"}
+  {src/adm/template/row-find.i "gltrans"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-balanced W-Win 
-PROCEDURE check-balanced :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-balanced AS LOG NO-UNDO.
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-balanced-source",OUTPUT char-hdl).
-  RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
-  IF NOT lv-balanced THEN do:
-     MESSAGE "You are out of balance." VIEW-AS ALERT-BOX ERROR. 
-     RETURN ERROR.
-  END.
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-recurbal-source",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:  
-     RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
-     IF NOT lv-balanced THEN do:
-        MESSAGE "Recuring Entry is out of balance." VIEW-AS ALERT-BOX ERROR. 
-        RETURN ERROR.
-     END.
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,16 +513,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-current-page W-Win 
-PROCEDURE get-current-page :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-estimate W-Win 
+PROCEDURE hide-estimate :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAM adm-current-page AS INTEGER NO-UNDO.
-   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
-   adm-current-page = INTEGER(RETURN-VALUE).
+  
+  RUN select-page (li-prev-page).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,41 +534,20 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS cha NO-UNDO.
-  DEF VAR lv-balanced AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/winReSizePgChg.i}
 
-  RUN GET-ATTRIBUTE ("current-page").
-  ASSIGN lv-prev-page = lv-curr-page
-         lv-curr-page = int(return-value).
-  
-  IF lv-prev-page = 2  THEN DO:
-     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-balanced-source",OUTPUT char-hdl).
-     RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
-     IF NOT lv-balanced THEN do:
-         MESSAGE "You are out of balance." VIEW-AS ALERT-BOX ERROR. 
-         run select-page (lv-prev-page).
-         RETURN NO-APPLY.
-     END.
-  END.
-  IF lv-prev-page = 3  THEN DO:
-     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-recurbal-source",OUTPUT char-hdl).
-     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:     
-        RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
-        IF NOT lv-balanced THEN do:
-           MESSAGE "Recuring Entry is out of balance." VIEW-AS ALERT-BOX ERROR. 
-           run select-page (lv-prev-page).
-           RETURN NO-APPLY.
-        END.
-     END.
-  END.
-    /* Dispatch standard ADM method.                             */
+  run get-attribute ("current-page").
+  assign li-prev-page = li-cur-page
+         li-cur-page = int(return-value).
+
+  /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,28 +560,10 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-MESSAGE "heloclose " VIEW-AS ALERT-BOX ERROR.
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_add W-Win 
-PROCEDURE select_add :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
-  
-  run select-page(2).
-  run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-  run add-item in widget-handle(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -758,11 +577,11 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
+   /* Define variables needed by this internal procedure.               */
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "gl-jrn"}
+  {src/adm/template/snd-list.i "gltrans"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -786,3 +605,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
+PROCEDURE Select_Add :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+   RUN select-page(2).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
+   RUN add-item IN WIDGET-HANDLE(char-hdl).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impGlTrans.p .
+ RUN local-initialize IN h_b-gltrans .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

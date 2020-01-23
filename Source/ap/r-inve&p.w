@@ -975,6 +975,7 @@ DO TRANSACTION ON ERROR UNDO postit:
        gltrans.tr-amt  = ap-invl.amt
        gltrans.trnum   = v-trnum
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        ap-invl.posted  = YES.
 
       FIND FIRST po-ordl
@@ -1257,6 +1258,7 @@ DO TRANSACTION ON ERROR UNDO postit:
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = lv-frt-total
      gltrans.period  = tran-period
+     gltrans.yr      = year(tran-date)
      gltrans.trnum   = v-trnum.
 
     g2 = g2 + lv-frt-total.
@@ -1271,6 +1273,7 @@ DO TRANSACTION ON ERROR UNDO postit:
    gltrans.tr-date = tran-date
    gltrans.tr-amt  = - g2
    gltrans.period  = tran-period
+   gltrans.yr      = year(tran-date)
    gltrans.trnum   = v-trnum.
 
   FOR EACH work-gl BREAK BY work-gl.actnum:
@@ -1287,6 +1290,7 @@ DO TRANSACTION ON ERROR UNDO postit:
        gltrans.period  = tran-period
        gltrans.tr-amt  = debits - credits
        gltrans.tr-date = tran-date
+       gltrans.yr      = year(tran-date)
        gltrans.tr-dscr = "AP for FG Receipts from PO"
        gltrans.trnum   = v-trnum.
 

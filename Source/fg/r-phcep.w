@@ -735,6 +735,7 @@ postit:
          gltrans.jrnl    = "OEINV"
          gltrans.tr-date = udate
          gltrans.period  = uperiod
+         gltrans.yr      = YEAR(udate)
          gltrans.trnum   = v-trnum.
 
         if work-job.fg then

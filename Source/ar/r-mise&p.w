@@ -919,6 +919,7 @@ DO TRANSACTION:
       gltrans.tr-dscr = STRING(ar-mcash.m-no)
       gltrans.tr-date = tran-date
       gltrans.period  = tran-period
+      gltrans.yr      = year(tran-date)
       gltrans.trnum   = xtrnum
       gltrans.tr-amt  = - ar-mcash.check-amt.
      RELEASE gltrans.
@@ -946,6 +947,7 @@ DO TRANSACTION:
                           STRING(ar-mcash.m-no)
         gltrans.tr-date = tran-date
         gltrans.period  = tran-period
+        gltrans.yr      = year(tran-date)
         gltrans.trnum   = xtrnum
         gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
        RELEASE gltrans.
@@ -959,6 +961,7 @@ DO TRANSACTION:
                           STRING(ar-mcash.m-no)
         gltrans.tr-date = tran-date
         gltrans.period  = tran-period
+        gltrans.yr      = year(tran-date)
         gltrans.trnum   = xtrnum
         gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
        RELEASE gltrans.
@@ -977,6 +980,7 @@ DO TRANSACTION:
     gltrans.tr-dscr = "MISC CASH RECEIPTS"
     gltrans.tr-date = tran-date
     gltrans.period  = tran-period
+    gltrans.yr      = year(tran-date)
     gltrans.trnum   = xtrnum
     gltrans.tr-amt  = w-bank.bal.
    RELEASE gltrans.

@@ -1308,6 +1308,7 @@ do transaction on error undo postit:
        gltrans.tr-amt  = tt-ap-invl.amt
        gltrans.trnum   = v-trnum
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        ap-invl.posted  = yes.      
 
       RELEASE gltrans.
@@ -1652,6 +1653,7 @@ do transaction on error undo postit:
        gltrans.tr-date = tran-date
        gltrans.tr-amt  = (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight)) * -1
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        gltrans.trnum   = v-trnum.
       RELEASE gltrans.
     END.
@@ -1669,6 +1671,7 @@ do transaction on error undo postit:
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate)
      gltrans.period  = tran-period
+     gltrans.yr      = year(tran-date)
      gltrans.trnum   = v-trnum.
     RELEASE gltrans.
   end.
@@ -1688,6 +1691,7 @@ do transaction on error undo postit:
        gltrans.tr-date = tran-date
        gltrans.tr-amt  = (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt)
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        gltrans.trnum   = v-trnum.
       RELEASE gltrans.
     END.
@@ -1702,6 +1706,7 @@ do transaction on error undo postit:
    gltrans.tr-date = tran-date
    gltrans.tr-amt  = - g2
    gltrans.period  = tran-period
+   gltrans.yr      = year(tran-date)
    gltrans.trnum   = v-trnum.
   RELEASE gltrans.
 

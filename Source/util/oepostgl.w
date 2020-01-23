@@ -766,6 +766,7 @@ FOR EACH ar-inv
          gltrans.tr-date = ar-ledger.tr-date
          gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
+         gltrans.yr      = period.yr
          gltrans.trnum   = ar-ledger.tr-num.
       end. /* last actnum */
     end. /* each work-line */
@@ -788,6 +789,7 @@ FOR EACH ar-inv
          gltrans.actnum  = tt-report.key-02
          gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
+         gltrans.yr      = period.yr
          gltrans.trnum   = ar-ledger.tr-num.
       end. /* last actnum */
     end. /* each work-misc */
@@ -810,6 +812,7 @@ FOR EACH ar-inv
          gltrans.tr-date = ar-ledger.tr-date
          gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
+         gltrans.yr      = period.yr
          gltrans.trnum   = ar-ledger.tr-num.
       end. /* last actnum */
     end. /* each work-tax */
@@ -822,6 +825,7 @@ FOR EACH ar-inv
        gltrans.jrnl    = "OEINV"
        gltrans.tr-date = ar-ledger.tr-date
        gltrans.period  = period.pnum
+       gltrans.yr      = period.yr
        gltrans.trnum   = ar-ledger.tr-num.
 
       if work-job.fg then
@@ -844,6 +848,7 @@ FOR EACH ar-inv
      gltrans.tr-date = ar-ledger.tr-date
      gltrans.tr-amt  = v-post-freight
      gltrans.period  = period.pnum
+     gltrans.yr      = period.yr
      gltrans.trnum   = ar-ledger.tr-num.
 
                                            /** POST DISCOUNT TO G/L TRANS **/
@@ -856,6 +861,7 @@ FOR EACH ar-inv
      gltrans.tr-date = ar-ledger.tr-date
      gltrans.tr-amt  = v-post-disc
      gltrans.period  = period.pnum
+     gltrans.yr      = period.yr
      gltrans.trnum   = ar-ledger.tr-num.
                                            /** POST CASH TO G/L TRANS **/
     if v-post-cash ne 0 then do:
@@ -868,6 +874,7 @@ FOR EACH ar-inv
        gltrans.tr-date = ar-ledger.tr-date
        gltrans.tr-amt  = v-post-cash
        gltrans.period  = period.pnum
+       gltrans.yr      = period.yr
        gltrans.trnum   = ar-ledger.tr-num.
     end.
                                                   /** OFFSET ENTRY TO G/L **/
@@ -880,6 +887,7 @@ FOR EACH ar-inv
      gltrans.tr-date = ar-ledger.tr-date
      gltrans.tr-amt  = v-post-total
      gltrans.period  = period.pnum
+     gltrans.yr      = period.yr
      gltrans.trnum   = ar-ledger.tr-num.
   END.
 END.

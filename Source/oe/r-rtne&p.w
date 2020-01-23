@@ -1136,6 +1136,7 @@ gltrans.tr-dscr = "CREDIT/DEBIT MEMO"
 gltrans.tr-date = tran-date
 gltrans.tr-amt  = + g2
 gltrans.period  = tran-period
+gltrans.yr      = year(tran-date)
 gltrans.trnum   = xtrnum.
 IF gltrans.tr-amt LT 0 THEN gltrans.jrnl = "CRMEM".
 
@@ -1149,6 +1150,7 @@ FOR EACH work-job BREAK BY work-job.actnum:
   gltrans.jrnl    = "OEINV"
   gltrans.tr-date = tran-date
   gltrans.period  = tran-period
+  gltrans.yr      = year(tran-date)
   gltrans.trnum   = xtrnum.
 
   IF work-job.fg THEN

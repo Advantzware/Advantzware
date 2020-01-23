@@ -1597,6 +1597,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid)
       gltrans.period  = tran-period
+      gltrans.yr      = year(tran-date)
       gltrans.trnum   = v-trnum.
       RELEASE gltrans.
 
@@ -1609,6 +1610,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-paid - ap-sel.amt-paid)
       gltrans.period  = tran-period
+      gltrans.yr      = year(tran-date)
       gltrans.trnum   = v-trnum.
       RELEASE gltrans.
     END.
@@ -1779,6 +1781,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = - ACCUM TOTAL BY ap-sel.bank-code ap-sel.amt-paid
       gltrans.period  = tran-period
+      gltrans.yr      = year(tran-date)
       gltrans.trnum   = v-trnum.
       RELEASE gltrans.
     END.
@@ -1815,6 +1818,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
     gltrans.jrnl    = "APCKR"
     gltrans.tr-dscr = "AP CHECK REGISTER"
     gltrans.tr-date = tran-date
+    gltrans.yr      = year(tran-date)
     gltrans.tr-amt  = gtot1 + gtot2
     gltrans.period  = tran-period
     gltrans.trnum   = v-trnum.
@@ -1830,6 +1834,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = - gtot1
      gltrans.period  = tran-period
+     gltrans.yr      = year(tran-date)
      gltrans.trnum   = v-trnum.
     RELEASE gltrans.
   END.

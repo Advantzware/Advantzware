@@ -1089,6 +1089,7 @@ PROCEDURE post-gl :
            gltrans.tr-date = tran-date
            gltrans.tr-amt  = ar-cashl.amt-disc
            gltrans.period  = tran-period
+           gltrans.yr      = year(tran-date)
            gltrans.trnum   = xtrnum.
 
           RELEASE gltrans.
@@ -1130,6 +1131,7 @@ PROCEDURE post-gl :
          gltrans.tr-dscr = "CASH RECEIPTS"
          gltrans.tr-date = tran-date
          gltrans.period  = tran-period
+         gltrans.yr      = year(tran-date)
          gltrans.trnum   = xtrnum
          lv-rowid        = ROWID(gltrans).
       END.
@@ -1163,6 +1165,7 @@ PROCEDURE post-gl :
        gltrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
        gltrans.tr-date = tran-date
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        gltrans.trnum   = xtrnum
        gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
 
@@ -1176,6 +1179,7 @@ PROCEDURE post-gl :
        gltrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
        gltrans.tr-date = tran-date
        gltrans.period  = tran-period
+       gltrans.yr      = year(tran-date)
        gltrans.trnum   = xtrnum
        gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
       RELEASE gltrans.

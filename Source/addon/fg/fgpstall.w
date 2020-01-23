@@ -1598,6 +1598,7 @@ PROCEDURE fg-post :
        gltrans.jrnl    = "ADJUST"
        gltrans.tr-date = v-post-date
        gltrans.period  = period.pnum
+       gltrans.yr      = period.yr
        gltrans.trnum   = v-trnum.
 
       if work-job.fg then
@@ -1775,6 +1776,7 @@ PROCEDURE gl-from-work :
        gltrans.actnum  = work-gl.actnum
        gltrans.jrnl    = "FGPOST"
        gltrans.period  = period.pnum
+       gltrans.yr      = period.yr
        gltrans.tr-amt  = debits - credits
        gltrans.tr-date = v-post-date
        gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"

@@ -70,11 +70,11 @@ DEF STREAM excel.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-10 RECT-6 RECT-7 tran-date ~
+&Scoped-Define ENABLED-OBJECTS RECT-10 RECT-6 RECT-7 tran-year tran-period ~
 begin_acct-no end_acct-no tb_sup-zero tb_sub-acct begin_sub-acct ~
 end_sub-acct rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_acct-no ~
+&Scoped-Define DISPLAYED-OBJECTS tran-year tran-period begin_acct-no ~
 end_acct-no lbl_paid tb_sup-zero lbl_paid-2 tb_sub-acct v-sub-acct-lvl ~
 begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page lv-font-no ~
 lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
@@ -148,10 +148,10 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Transaction Date" 
+DEFINE VARIABLE tran-year AS INTEGER FORMAT ">>>>":U INITIAL 0 
+     LABEL "Year" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tran-period AS INTEGER FORMAT ">9":U INITIAL 0 
      LABEL "Period" 
@@ -224,7 +224,7 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tran-date AT ROW 1.95 COL 39 COLON-ALIGNED
+     tran-year AT ROW 1.95 COL 39 COLON-ALIGNED
      tran-period AT ROW 2.91 COL 39 COLON-ALIGNED
      begin_acct-no AT ROW 4.33 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Account Number"
@@ -376,7 +376,7 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tran-year:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
@@ -679,16 +679,16 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tran-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
-ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
+&Scoped-define SELF-NAME tran-year
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-year C-Win
+ON LEAVE OF tran-year IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
 
-  if lastkey ne -1 then do:
+  /*if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
-  end.
+  end.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -700,6 +700,10 @@ END.
 ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
 DO:
   assign {&self-name}.
+  if lastkey ne -1 then do:
+      run check-date.
+      if v-invalid then return no-apply.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -749,13 +753,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
 
-  tran-date = TODAY.
+  tran-year = YEAR(TODAY) .
+  tran-period = (MONTH(TODAY))  .
 
   RUN init-proc.
   RUN enable_UI.
   {custom/usrprint.i}
 
-  tran-date:SCREEN-VALUE = string(TODAY).
+  tran-year:SCREEN-VALUE = string(YEAR(TODAY)) .
+  tran-period:SCREEN-VALUE = STRING(MONTH(TODAY))  .
 
   RUN check-date.
 
@@ -782,13 +788,13 @@ PROCEDURE check-date :
 
     find first period                   
         where period.company eq cocode
-          and period.pst     le tran-date
-          and period.pend    ge tran-date
+           AND period.yr   EQ tran-year
+          AND period.pnum  EQ tran-period
         no-lock no-error.
-    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).
+    /*if avail period then tran-period:SCREEN-VALUE = string(period.pnum).*/
 
-    ELSE DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
+    IF NOT AVAIL period THEN DO:
+      message "No Defined Period Exists for" tran-period view-as alert-box error.
       v-invalid = yes.
     end.
   END.
@@ -828,12 +834,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period begin_acct-no end_acct-no lbl_paid tb_sup-zero 
+  DISPLAY tran-year tran-period begin_acct-no end_acct-no lbl_paid tb_sup-zero 
           lbl_paid-2 tb_sub-acct v-sub-acct-lvl begin_sub-acct end_sub-acct 
           rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
           tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-10 RECT-6 RECT-7 tran-date begin_acct-no end_acct-no tb_sup-zero 
+  ENABLE RECT-10 RECT-6 RECT-7 tran-year tran-period begin_acct-no end_acct-no tb_sup-zero 
          tb_sub-acct begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page 
          lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -1048,8 +1054,7 @@ ASSIGN facct = begin_acct-no
 
 find last period
     where period.company eq cocode
-      and period.pst     le tran-date
-      and period.pend    ge tran-date
+      AND period.yr      EQ tran-year
       and period.pnum    eq tran-period
     no-lock.
 
@@ -1104,14 +1109,15 @@ DO:
         ptd-value = 0.
         view frame r-top.
 
-        run gl/gl-open1.p (recid(account), vyear, tran-date, tran-period,
+        run gl/gl-open1.p (recid(account), vyear, ?, tran-period,
                            output cyr).
 
         for each glhist no-lock
             where glhist.company eq account.company
               and glhist.actnum  eq account.actnum
-              and glhist.tr-date ge vdate 
-              and glhist.tr-date le tran-date:
+              and glhist.period EQ tran-period 
+              and glhist.yr EQ tran-year
+              :
 
           assign
            ptd-value = ptd-value + glhist.tr-amt
@@ -1122,8 +1128,8 @@ DO:
         for each gltrans no-lock
             where gltrans.company eq account.company
               and gltrans.actnum  eq account.actnum
-              and gltrans.tr-date ge vdate 
-              and gltrans.tr-date le tran-date:
+              and gltrans.period EQ tran-period 
+              and gltrans.yr EQ tran-year :
 
           assign
            ptd-value = ptd-value + gltrans.tr-amt

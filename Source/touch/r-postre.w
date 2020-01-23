@@ -774,6 +774,7 @@ DEF INPUT PARAM ip-run AS INT NO-UNDO.
        gltrans.actnum  = work-gl.actnum
        gltrans.jrnl    = "JCOST"
        gltrans.period  = period.pnum
+       gltrans.yr      = period.yr
        gltrans.tr-amt  = debits - credits
        gltrans.tr-date = TODAY
        gltrans.tr-dscr = "Production Job Costing"

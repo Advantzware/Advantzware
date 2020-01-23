@@ -82,14 +82,14 @@ DEFINE QUERY external_tables FOR gl-jrn.
 &Scoped-define FIRST-ENABLED-TABLE gl-jrn
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS gl-jrn.journal gl-jrn.tcred gl-jrn.tr-date ~
-gl-jrn.tdeb gl-jrn.period gl-jrn.tr-amt 
+gl-jrn.tdeb gl-jrn.period gl-jrn.yr gl-jrn.tr-amt 
 &Scoped-define DISPLAYED-TABLES gl-jrn
 &Scoped-define FIRST-DISPLAYED-TABLE gl-jrn
 &Scoped-Define DISPLAYED-OBJECTS tb_reverse tb_from-reverse cb_freq 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS gl-jrn.period tb_reverse cb_freq 
+&Scoped-define ADM-ASSIGN-FIELDS gl-jrn.period gl-jrn.yr tb_reverse cb_freq 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -166,6 +166,10 @@ DEFINE FRAME F-Main
           LABEL "Period"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
+     gl-jrn.yr AT ROW 3.24 COL 26 COLON-ALIGNED
+          NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
      gl-jrn.tr-amt AT ROW 3.24 COL 59 COLON-ALIGNED
           LABEL "Balance" FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
@@ -175,6 +179,8 @@ DEFINE FRAME F-Main
      cb_freq AT ROW 4.24 COL 59 COLON-ALIGNED HELP
           "Please enter how often this journal entry will be applied"
      RECT-1 AT ROW 1 COL 1
+      "/" VIEW-AS TEXT
+           SIZE 1 BY .62 AT ROW 3.44 COL 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -243,6 +249,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN gl-jrn.period IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN gl-jrn.yr IN FRAME F-Main
+   NO-ENABLE 2 NO-LABEL                                                 */
 /* SETTINGS FOR TOGGLE-BOX tb_from-reverse IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tb_reverse IN FRAME F-Main
@@ -436,7 +444,8 @@ PROCEDURE check-date :
                                 period.pend >= date(gl-jrn.tr-date:SCREEN-VALUE)
                                 no-lock no-error.
          IF AVAIL period AND period.pstat then do:
-            assign gl-jrn.period:SCREEN-VALUE = string(period.pnum).          
+            assign gl-jrn.period:SCREEN-VALUE = string(period.pnum)
+                   gl-jrn.yr:SCREEN-VALUE = string(period.yr).          
          end.
          else do:
             message "Period is not OPEN !" VIEW-AS ALERT-BOX ERROR.
@@ -450,7 +459,8 @@ PROCEDURE check-date :
          if not choice then do:
            ASSIGN
             gl-jrn.tr-date:SCREEN-VALUE = STRING(gl-jrn.tr-date)
-            gl-jrn.period:SCREEN-VALUE  = STRING(gl-jrn.period).
+            gl-jrn.period:SCREEN-VALUE  = STRING(gl-jrn.period)
+            gl-jrn.yr:SCREEN-VALUE  = STRING(gl-jrn.yr).
            RETURN ERROR.
          END.
   END.
@@ -538,240 +548,16 @@ PROCEDURE import-excel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-answer AS LOG NO-UNDO.
-   def var chFile as cha no-undo.
-   def var ll-ok as log no-undo.
-   DEF VAR chExcelApplication AS COM-HANDLE   NO-UNDO.
-   DEF VAR chWorkBook AS COM-HANDLE   NO-UNDO.
-   DEF VAR chWorksheet AS COM-HANDLE   NO-UNDO.
-   DEF VAR viRowCount AS INT INIT 1 NO-UNDO.
-   DEF VAR v-line AS INT INIT 1 NO-UNDO.
-   DEF VAR valid-flag AS LOG INIT YES NO-UNDO.
-   def var char-hdl as cha no-undo.
-   DEF VAR v-rowid AS ROWID NO-UNDO.
-   DEF VAR v-id AS CHAR NO-UNDO.
-   DEF VAR i-actnum AS INTE NO-UNDO.
-   {&methods/lValidateError.i YES}
-   DO WITH FRAME {&FRAME-NAME}:
+  DEFINE VARIABLE rdRowid AS ROWID NO-UNDO .
+   RUN util/dev/ImpGlJrn.p  .
 
-      system-dialog get-file chFile 
-                    title "Select File to Import"
-                    filters "Excel File (*.xls) " "*.xls"
-                    initial-dir "c:\"
-                    MUST-EXIST
-                    USE-FILENAME
-                    UPDATE ll-ok.
+   IF AVAIL gl-jrn THEN
+       ASSIGN rdRowid = ROWID(gl-jrn) .
 
-      IF ll-ok THEN
-      DO:
-         IF LENGTH(chFile) LT 4 OR
-            SUBSTR(chFile,LENGTH(chFile) - 3) NE ".xls" THEN
-         DO:
-            MESSAGE "Invalid File.  Must Choose Excel (.xls) File."
-                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-            LEAVE.
-         END.
-
-         SESSION:SET-WAIT-STATE ("general").
-
-         EMPTY TEMP-TABLE tt-gl-jrn.
-         EMPTY TEMP-TABLE tt-gl-jrnl.
-
-         /* Initialize Excel. */
-         CREATE "Excel.Application" chExcelApplication NO-ERROR.
-
-         /* Check if Excel got initialized. */
-         IF not (valid-handle (chExcelApplication)) THEN
-         DO:
-            MESSAGE "Unable to Start Excel." VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
-         END.
-
-         /* Open our Excel File. */  
-         chExcelApplication:Visible = FALSE.
-         chWorkbook = chExcelApplication:Workbooks:OPEN(chfile) no-error.
-
-         /* Do not display Excel error messages. */
-         chExcelApplication:DisplayAlerts = false  no-error.
-
-         /* Go to the Active Sheet. */
-         chWorkbook:WorkSheets(1):Activate no-error.
-
-         ASSIGN
-            chWorkSheet = chExcelApplication:Sheets:item(1).
-
-         REPEAT:
-            IF chWorkSheet:Range("A" + STRING(viRowCount)):VALUE EQ ? OR
-               NOT valid-flag THEN LEAVE.
-
-            IF chWorkSheet:Range("B" + STRING(viRowCount)):VALUE = "H" THEN /*Header*/
-            DO:
-               CREATE tt-gl-jrn.
-               tt-gl-jrn.DATE = chWorkSheet:Range("C" + STRING(viRowCount)):value NO-ERROR.
-               IF ERROR-STATUS:ERROR THEN
-               DO:
-                  MESSAGE "Invalid Header Date, in row " + STRING(viRowCount) + "."
-                      VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-                  valid-flag = NO.
-                  LEAVE.
-               END.
-
-               RUN check-date-excel(INPUT tt-gl-jrn.DATE, OUTPUT tt-gl-jrn.period) NO-ERROR.
-
-               IF ERROR-STATUS:ERROR THEN
-               DO:
-                  valid-flag = NO.
-                  LEAVE.
-               END.
-
-               tt-gl-jrn.reverse = chWorkSheet:Range("D" + STRING(viRowCount)):VALUE NO-ERROR.
-
-               IF ERROR-STATUS:ERROR THEN
-               DO:
-                  MESSAGE "Invalid Reverse Entry Value, in row " + STRING(viRowCount) + "."
-                      VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-                  valid-flag = NO.
-                  LEAVE.
-               END.
-
-               IF chWorkSheet:Range("A" + STRING(viRowCount)):VALUE NE ? THEN
-                  tt-gl-jrn.id = chWorkSheet:Range("A" + STRING(viRowCount)):VALUE.
-               ELSE
-               DO:
-                   MESSAGE "Invalid Unique Identifier, in row " + STRING(viRowCount) + "."
-                       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                   valid-flag = NO.
-                   LEAVE.
-               END.
-
-               RELEASE tt-gl-jrn.
-               viRowCount = viRowCount + 1.
-            END.
-            ELSE IF chWorkSheet:Range("B" + STRING(viRowCount)):VALUE = "T" THEN /*Trailer*/
-            DO:
-               CREATE tt-gl-jrnl.
-               ASSIGN tt-gl-jrnl.actnum = IF chWorkSheet:Range("C" + STRING(viRowCount)):VALUE NE ? THEN
-                                             chWorkSheet:Range("C" + STRING(viRowCount)):VALUE
-                                          ELSE ""
-                      tt-gl-jrnl.dscr   = IF chWorkSheet:Range("D" + STRING(viRowCount)):VALUE NE ? THEN
-                                             chWorkSheet:Range("D" + STRING(viRowCount)):VALUE
-                                          ELSE ""
-                      tt-gl-jrnl.tr-amt = IF chWorkSheet:Range("E" + STRING(viRowCount)):VALUE NE ? THEN
-                                             chWorkSheet:Range("E" + STRING(viRowCount)):VALUE
-                                          ELSE 0.
-
-              /* to format actnum to integer when there are no dashes */
-              IF length(trim(tt-gl-jrnl.actnum)) > 0 AND index(tt-gl-jrnl.actnum,"-") = 0 THEN DO:
-                  ASSIGN i-actnum = INTE(tt-gl-jrnl.actnum) NO-ERROR.
-                  IF ERROR-STATUS:ERROR = FALSE THEN
-                     ASSIGN tt-gl-jrnl.actnum = string(i-actnum).
-              END.
-
-               IF NOT CAN-FIND(FIRST account WHERE
-                  account.company EQ g_company AND
-                  account.type    NE "T" AND
-                  account.actnum  EQ tt-gl-jrnl.actnum) THEN
-                  DO:
-                     MESSAGE "Invalid Account #, in row " + STRING(viRowCount) + " - Company: " g_company + " Acct Num: " + tt-gl-jrnl.actnum + "."
-                         VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-                     valid-flag = NO.
-                     LEAVE.
-                  END.
-
-               IF chWorkSheet:Range("A" + STRING(viRowCount)):VALUE NE ? THEN
-               DO:
-                  v-id = chWorkSheet:Range("A" + STRING(viRowCount)):VALUE.
-
-                  IF NOT CAN-FIND(FIRST tt-gl-jrnl WHERE
-                     tt-gl-jrnl.id = v-id) THEN
-                     v-line = 1.
-
-                  ASSIGN
-                     tt-gl-jrnl.id = v-id
-                     tt-gl-jrnl.LINE = v-line.
-               END.
-               ELSE
-               DO:
-                  MESSAGE "Invalid Unique Identifier , in row " + STRING(viRowCount)
-                      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                  valid-flag = NO.
-                  LEAVE.
-               END.
-
-               RELEASE tt-gl-jrnl.
-
-               ASSIGN
-                  v-line = v-line + 1
-                  viRowCount = viRowCount + 1.
-            END.
-            ELSE
-            DO:
-               MESSAGE "Invalid Header/Trailer Value, in row " + STRING(viRowCount) + "."
-                   VIEW-AS ALERT-BOX INFO BUTTONS OK.
-               valid-flag = NO.
-               LEAVE.
-            END.
-         END.
-
-         /*Free memory*/
-         chWorkbook = chExcelApplication:Workbooks:CLOSE() no-error.
-         RELEASE OBJECT chWorkbook NO-ERROR.
-         RELEASE OBJECT chWorkSheet NO-ERROR.
-         RELEASE OBJECT chExcelApplication NO-ERROR.
-
-         IF valid-flag THEN
-         DO:
-            /*create records*/
-
-            FOR EACH tt-gl-jrn:
-
-               CREATE gl-jrn.
-               ASSIGN 
-                  gl-jrn.reverse = tt-gl-jrn.reverse
-                  gl-jrn.tr-date = tt-gl-jrn.DATE
-                  gl-jrn.company = g_company
-                  gl-jrn.period  = tt-gl-jrn.period
-                  gl-jrn.recur   = ll-recur
-                  gl-jrn.from-reverse = NO
-                  v-rowid = ROWID(gl-jrn)  
-                  tt-gl-jrn.j-no = gl-jrn.j-no.
-            END.
-
-            FOR EACH tt-gl-jrnl,
-                FIRST tt-gl-jrn WHERE
-                      tt-gl-jrn.id = tt-gl-jrnl.id,
-                FIRST gl-jrn WHERE
-                      gl-jrn.j-no EQ tt-gl-jrn.j-no
-                      EXCLUSIVE-LOCK:
-
-                CREATE gl-jrnl.
-                ASSIGN gl-jrnl.j-no = tt-gl-jrn.j-no
-                       gl-jrnl.line = tt-gl-jrnl.LINE
-                       gl-jrnl.actnum = tt-gl-jrnl.actnum
-                       gl-jrnl.dscr = tt-gl-jrnl.dscr
-                       gl-jrnl.tr-amt = tt-gl-jrnl.tr-amt.
-
-                IF gl-jrnl.tr-amt GT 0 THEN
-                   gl-jrn.tdeb = gl-jrn.tdeb  + tt-gl-jrnl.tr-amt.
-                ELSE
-                   gl-jrn.tcred = gl-jrn.tcred + tt-gl-jrnl.tr-amt.
-
-                gl-jrn.tr-amt = gl-jrn.tdeb + gl-jrn.tcred.
-
-                RELEASE gl-jrnl.
-            END.
-
-            MESSAGE "Excel File Imported." SKIP
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
-            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
-
-            IF v-rowid NE ? THEN
-               RUN repos-query in WIDGET-HANDLE(char-hdl) (INPUT v-rowid).
-         END.
-      END.
-   END.
-   {&methods/lValidateError.i NO}
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
+   
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN repos-query in WIDGET-HANDLE(char-hdl)(rdRowid) .
 END PROCEDURE.
 
 
@@ -838,6 +624,7 @@ PROCEDURE local-create-record :
   ASSIGN 
    gl-jrn.company      = g_company
    gl-jrn.period       = g_period
+   gl-jrn.yr           = YEAR(TODAY) 
    gl-jrn.recur        = ll-recur
    gl-jrn.reverse      = NO
    gl-jrn.from-reverse = NO.
@@ -907,6 +694,7 @@ PROCEDURE local-initialize :
       ASSIGN
        gl-jrn.tr-date:VISIBLE = NO
        gl-jrn.period:VISIBLE  = NO
+       gl-jrn.yr:VISIBLE  = NO
        cb_freq:HIDDEN         = NO.
     ELSE
       ASSIGN

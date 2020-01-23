@@ -1000,6 +1000,7 @@ postit:
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = + g2
       gltrans.period  = tran-period
+      gltrans.yr      = year(tran-date)
       gltrans.trnum   = xtrnum.
     IF gltrans.tr-amt < 0 THEN
     gltrans.jrnl = "CRMEM".
