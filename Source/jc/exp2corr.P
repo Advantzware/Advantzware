@@ -308,7 +308,8 @@ IF AVAIL eb AND eb.k-wid EQ 0 AND eb.k-len EQ 0 THEN
   lNoScores = TRUE.
 ELSE 
   lNoScores = FALSE.
-  
+
+
 RELEASE oe-ordl.
 RELEASE oe-ord.
 
@@ -338,8 +339,8 @@ SUBSTRING(download-record1,24,6) = IF job-hdr.due-date <> ? THEN (SUBSTRING(STRI
                                  + STRING(MONTH(job-hdr.due-date),"99")
                                  + STRING(DAY(job-hdr.due-date),"99"))
                                  ELSE "      "
-v-len = {sys/inc/k16.i ef.nsh-len} * 100                                 
-v-wid = {sys/inc/k16.i ef.nsh-wid} * 100
+v-len = {sys/inc/k16.i ef.gsh-len} * 100                                 
+v-wid = {sys/inc/k16.i ef.gsh-wid} * 100
 SUBSTRING(download-record1,30,10) = /*string(jobNumber,"x(10)")*/
    (IF LENGTH(TRIM(job-hdr.job-no)) < 6 THEN FILL(" ", 6 - length(job-hdr.job-no))
            ELSE "") + trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") + string(ef.form-no,"99")
