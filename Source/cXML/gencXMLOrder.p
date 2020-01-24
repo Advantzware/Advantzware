@@ -112,14 +112,57 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           orderID      = getNodeValue('OrderRequestHeader','orderID')
           shipToID     = getNodeValue('shipTo','AddressID')
           NO-ERROR.
+          
+      /* Validation of AddressID */    
       IF shipToID EQ "" THEN DO:
           ASSIGN
-              opcReturnValue = "SiteID is empty"
+              opcReturnValue = "AddressID is empty"
               oplSuccess     = NO
               .
               
           RETURN. 
       END.
+      
+      /* Validation of PayloadiD */
+      IF payLoadID EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'Payload is empty'
+              .
+              
+          RETURN.
+      END. 
+      
+      /* Validation of identity present in from tag */
+      IF fromIdentity EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'FromIdentity is empty'
+              .
+              
+          RETURN.
+      END. 
+      
+      /* Validation of orderDate */
+      IF orderDate EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'orderDate is empty'
+              .
+              
+          RETURN.
+      END. 
+      
+      /* Validation of orderID */
+      IF orderID EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'orderID is empty'
+              .
+              
+          RETURN.
+      END.
+      
       /* This procedure validates company code,shipToID and location code, 
          and returns valid company code,location code,shipToID and customer number.
          and additionally it returns the shipto table buffer to access any other data 
@@ -145,19 +188,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           cocode = ipcCompany
           locode = ipcWarehouseID
           .
-          
-      IF payLoadID EQ "" OR
-         fromIdentity EQ "" OR
-         orderDate EQ ? OR
-         orderID EQ "" THEN DO:
-          ASSIGN
-              opcReturnValue = "Requested XML is not in valid format"
-              oplSuccess     = NO
-              .
-              
-          RETURN. 
-      END.
-
+      
       FIND FIRST oe-ord NO-LOCK
            WHERE oe-ord.company     EQ ipcCompany
              AND oe-ord.cust-no      EQ custNo

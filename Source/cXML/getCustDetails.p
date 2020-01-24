@@ -138,7 +138,7 @@ FIND FIRST obf-shipto NO-LOCK
      WHERE obf-shipto.ship-id EQ iopcShipToID NO-ERROR.
 IF NOT AVAILABLE obf-shipto THEN DO:
     ASSIGN
-        opcMessage = "SiteID (" + iopcShipToID + ") is not valid."
+        opcMessage = "AddressID (" + iopcShipToID + ") is not valid."
         oplSuccess = NO
         .
         
