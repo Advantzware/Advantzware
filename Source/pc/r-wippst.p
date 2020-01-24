@@ -2323,7 +2323,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
     DEFINE VARIABLE cCurrentTitle AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCurrentMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSuppressMessage AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -2394,7 +2394,7 @@ PROCEDURE run-report :
     if td-show-parm then run show-param.
 
     display "" with frame r-top.
-
+    lCheckMessage = NO .
     for each pc-prdd
         where pc-prdd.company eq cocode
         and pc-prdd.m-code  ge v-m-code[1]
@@ -2550,7 +2550,11 @@ PROCEDURE run-report :
 
                 if v-tot-fg gt v-tot-rm THEN 
                 do:
-                    RUN displayMessageQuestionLOG ("6", OUTPUT ll-ok-to-post).
+                    IF NOT lCheckMessage THEN do:
+                        RUN displayMessage ("6") .
+                        lCheckMessage = YES .
+                    END.
+                    ll-ok-to-post = NO .
                     next.
                 END.
             end.
