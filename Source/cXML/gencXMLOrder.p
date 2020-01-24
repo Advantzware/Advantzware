@@ -123,11 +123,11 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           RETURN. 
       END.
       
-      /* Validation of PayloadiD */
+      /* Validation of PayloadID */
       IF payLoadID EQ "" THEN DO:
           ASSIGN
               oplSuccess     = NO
-              opcReturnValue = 'Payload is empty'
+              opcReturnValue = 'PayloadID is empty'
               .
               
           RETURN.
