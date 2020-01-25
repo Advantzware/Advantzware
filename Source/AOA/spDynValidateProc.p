@@ -374,3 +374,99 @@ PROCEDURE pGetWidgetByName PRIVATE:
     END. /* do while */
     ophWidget = hWidget.
 END PROCEDURE.
+
+PROCEDURE dynValCarrier:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST carrier
+                 WHERE carrier.company EQ cCompany
+                   AND carrier.carrier EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValPrep:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST prep
+                 WHERE prep.company EQ cCompany
+                   AND prep.CODE    EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+
+PROCEDURE dynValStyle:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST style
+                 WHERE style.company EQ cCompany
+                   AND style.style   EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+
+PROCEDURE dynValScoreType:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST scoreType
+                 WHERE scoreType.company   EQ cCompany
+                   AND scoreType.scoreType EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+
+PROCEDURE dynValBoxDesign:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST box-design-hdr
+                 WHERE box-design-hdr.company EQ cCompany
+                 AND box-design-hdr.design-no <> 0
+                   AND box-design-hdr.design-no  EQ integer(iphWidget:SCREEN-VALUE))
+        ).
+END PROCEDURE.
+
+
+
+PROCEDURE dynValFlute:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST flute
+                 WHERE flute.company EQ cCompany
+                   AND flute.CODE    EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+
+
+PROCEDURE dynValStackPatterns:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST stackPattern
+                 WHERE  stackPattern.stackCode     EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+
+PROCEDURE dynValCustype:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST custype
+                 WHERE custype.company EQ cCompany
+                   AND custype.custype EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.

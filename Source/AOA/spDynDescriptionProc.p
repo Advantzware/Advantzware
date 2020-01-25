@@ -163,3 +163,111 @@ PROCEDURE dynDescripVendor:
     IF AVAILABLE vend THEN
     iphWidgetTo:SCREEN-VALUE = vend.name.
 END PROCEDURE.
+
+PROCEDURE dynDescripCarrier:
+    {&defInputParam}
+    FIND FIRST carrier NO-LOCK
+         WHERE carrier.company EQ cCompany
+           AND carrier.carrier EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE carrier THEN
+    iphWidgetTo:SCREEN-VALUE = carrier.dscr.
+END PROCEDURE.
+
+PROCEDURE dynDescripPerp:
+    {&defInputParam}
+    FIND FIRST prep NO-LOCK
+         WHERE prep.company EQ cCompany
+           AND prep.CODE EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE prep THEN
+    iphWidgetTo:SCREEN-VALUE = prep.dscr.
+END PROCEDURE.
+
+PROCEDURE dynDescripCarrierZone:
+    {&defInputParam}
+    FIND FIRST carr-mtx NO-LOCK
+         WHERE carr-mtx.company EQ cCompany
+           AND carr-mtx.del-zone EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE carr-mtx THEN
+    iphWidgetTo:SCREEN-VALUE = carr-mtx.del-dscr.
+END PROCEDURE.
+
+PROCEDURE dynDescripRouting:
+    {&defInputParam}
+    FIND FIRST routing NO-LOCK
+         WHERE routing.company EQ cCompany
+           AND routing.r-code EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE routing THEN
+    iphWidgetTo:SCREEN-VALUE = routing.dscr .
+END PROCEDURE.
+
+PROCEDURE dynDescripStyle:
+    {&defInputParam}
+    FIND FIRST style NO-LOCK
+         WHERE style.company EQ cCompany
+           AND style.style EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE style THEN
+    iphWidgetTo:SCREEN-VALUE = style.dscr .
+END PROCEDURE.
+
+
+PROCEDURE dynDescripScoreType:
+    {&defInputParam}
+    FIND FIRST scoreType NO-LOCK
+         WHERE scoreType.company EQ cCompany
+           AND scoreType.scoreType EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE scoreType THEN
+    iphWidgetTo:SCREEN-VALUE = scoreType.description .
+END PROCEDURE.
+
+
+
+PROCEDURE dynDescripBoxDesign:
+    {&defInputParam}
+    FIND FIRST box-design-hdr NO-LOCK
+         WHERE box-design-hdr.company EQ cCompany
+           AND box-design-hdr.design-no <> 0 
+           AND box-design-hdr.design-no EQ integer(iphWidgetFrom:SCREEN-VALUE)
+         NO-ERROR.
+    IF AVAILABLE box-design-hdr THEN
+    iphWidgetTo:SCREEN-VALUE = box-design-hdr.description .
+END PROCEDURE.
+
+
+
+PROCEDURE dynDescripFlute:
+    {&defInputParam}
+    FIND FIRST flute NO-LOCK
+         WHERE flute.company EQ cCompany
+           AND flute.CODE EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE flute THEN
+    iphWidgetTo:SCREEN-VALUE = flute.dscr .
+END PROCEDURE.
+
+
+
+PROCEDURE dynDescripStackPatterns:
+    {&defInputParam}
+    FIND FIRST stackPattern NO-LOCK
+         WHERE  stackPattern.stackCode EQ iphWidgetFrom:SCREEN-VALUE 
+         NO-ERROR.
+    IF AVAILABLE stackPattern THEN
+    iphWidgetTo:SCREEN-VALUE = stackPattern.stackDescription .
+END PROCEDURE.
+
+
+PROCEDURE dynDescripCustype:
+    {&defInputParam}
+    FIND FIRST custype NO-LOCK
+         WHERE custype.company EQ cCompany
+           AND custype.custype EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE custype THEN
+    iphWidgetTo:SCREEN-VALUE = custype.dscr .
+END PROCEDURE.
