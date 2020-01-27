@@ -130,11 +130,12 @@ do  WITH STREAM-IO no-box no-labels frame med1:
    ELSE 
    DO: 
       {est/matcost.i med-qty mfl$ medium}
-      mfl$ = (mfl$ * med-qty) + lv-setup-medium.
+      
    END.
    
    ASSIGN    
-    b-msh     = mfl$ / med-qty
+    mfl$ = (mfl$ * med-qty) + lv-setup-medium
+    b-msh     = mfl$ / med-qty            
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty ) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))
     dm-tot[4] = dm-tot[4] + ((mfl$ / mqty) * m-waste) / (qty / 1000)
