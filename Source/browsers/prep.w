@@ -74,7 +74,8 @@ DEFINE VARIABLE cSimon AS CHARACTER NO-UNDO .
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table prep.code prep.dscr ~
 get-type-info() @ cTypeInfo prep.mkup prep.cost prep.dfault prep.amtz ~
-prep.ml prep.uom prep.simon get-simon-info() @ cSimon prep.taxable 
+prep.ml prep.uom prep.simon get-simon-info() @ cSimon prep.taxable ~
+prep.mat-type 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = gcompany NO-LOCK ~
@@ -154,7 +155,8 @@ DEFINE QUERY Browser-Table FOR
       prep.ml
       prep.uom
       prep.simon
-      prep.taxable) SCROLLING.
+      prep.taxable
+      prep.mat-type) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -174,6 +176,7 @@ DEFINE BROWSE Browser-Table
       prep.simon FORMAT "X":U
       get-simon-info() @ cSimon
       prep.taxable FORMAT "yes/no":U
+      prep.mat-type FORMAT "X":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 18.1
@@ -262,7 +265,8 @@ ASSIGN
                 "2".
 
 ASSIGN 
-       prep.simon:VISIBLE IN BROWSE Browser-Table = FALSE.
+       prep.simon:VISIBLE IN BROWSE Browser-Table = FALSE
+       prep.mat-type:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -296,6 +300,8 @@ ASSIGN
      _FldNameList[11]   > "_<CALC>"
 "get-simon-info() @ cSimon" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   = ASI.prep.taxable
+     _FldNameList[13]   > ASI.prep.mat-type
+"mat-type" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
