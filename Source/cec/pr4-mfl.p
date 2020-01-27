@@ -147,11 +147,12 @@ REPEAT:
         ELSE 
         DO:
            {est/matcost.i v-qty mfl$ medium}
-           mfl$           = (b-msh * v-qty) + lv-setup-medium.
+           
         END.
         CREATE w-brd.
         ASSIGN 
             b-msh          = mfl$            
+            mfl$           = (b-msh * v-qty) + lv-setup-medium
             w-brd.form-no  = xef.form-no
             w-brd.blank-no = 1
             w-brd.i-no     = item-bom.i-no
@@ -263,11 +264,12 @@ REPEAT:
         ELSE 
         DO: 
            {est/matcost.i v-qty mfl$ flute}
-           mfl$  = (b-msh * v-qty) + lv-setup-flute.
+           
         END.
         ASSIGN
-            b-msh = mfl$.
-            
+            b-msh = mfl$
+            mfl$  = (b-msh * v-qty) + lv-setup-flute
+            .
 
         CREATE w-brd.
         ASSIGN 
