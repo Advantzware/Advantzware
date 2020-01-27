@@ -544,7 +544,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         AND job-mat.job     EQ job-hdr.job
         AND job-mat.frm     EQ xeb.form-no
         NO-LOCK,
-        FIRST item
+        FIRST ITEM NO-LOCK 
         {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
                        
