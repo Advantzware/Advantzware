@@ -99,6 +99,7 @@
     DEFINE VARIABLE cJobIDFormNo       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineStatus      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityReceived  AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
@@ -295,6 +296,7 @@
                 cJobID2               = STRING(po-ordl.job-no2)
                 cJobIDFormNo          = STRING(po-ordl.s-num)
                 cJobIDBlankNo         = STRING(po-ordl.b-num)
+                cQuantityReceived     = STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<")
                 .
 
             FIND FIRST itemfg NO-LOCK
@@ -356,7 +358,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobIDBlankNo", cJobIDBlankNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "whscode", cWhsCode).                
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "unitsperpack", cQtyPerPack).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "purchaseunit", cPurchaseUnit).            
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "purchaseunit", cPurchaseUnit).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityReceived", cQuantityReceived).
                         
             IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
                 /* Fetch adder details for the purchase order line */
