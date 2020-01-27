@@ -256,10 +256,11 @@ do WITH STREAM-IO no-box no-labels frame flute:
    ELSE 
    DO:
       {est/matcost.i med-qty mfl$ flute}
-      mfl$ = (mfl$ * med-qty) + lv-setup-flute .
+      
    END.
    
-   ASSIGN   
+   ASSIGN
+    mfl$ = (mfl$ * med-qty) + lv-setup-flute   
     b-msh     = mfl$ / med-qty
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))
