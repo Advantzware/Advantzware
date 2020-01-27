@@ -33,8 +33,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define prgmName userTasks.
 &Scoped-define defaultUser _default
+&Scoped-define program-id userTasks.
 
 /* Parameters Definitions ---                                           */
 
@@ -223,7 +223,7 @@ DEFINE BROWSE browseParamValue
 ttDynParamValue.paramDescription LABEL-BGCOLOR 14
 ttDynParamValue.module LABEL-BGCOLOR 14
 ttDynParamValue.user-id LABEL-BGCOLOR 14
-ttDynParamValue.paramValueID LABEL-BGCOLOR 14
+ttDynParamValue.paramValueID
 ttDynParamValue.outputFormat
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
@@ -699,13 +699,14 @@ END.
 
 {AOA/includes/pRunNow.i "tt"}
 
-{methods/sortByProc.i "pBymnemonic" "ttDynParamValue.mnemonic"}
+{methods/sortByProc.i "pByLastRunDateTime" "ttDynParamValue.lastRunDateTime"}
+{methods/sortByProc.i "pByModule" "ttDynParamValue.module"}
+{methods/sortByProc.i "pByMnemonic" "ttDynParamValue.mnemonic"}
 {methods/sortByProc.i "pByParamTitle" "ttDynParamValue.paramTitle"}
 {methods/sortByProc.i "pByPrgmName" "ttDynParamValue.prgmName"}
 {methods/sortByProc.i "pByProgTitle" "ttDynParamValue.paramDescription"}
 {methods/sortByProc.i "pByParamDescription" "ttDynParamValue.ParamDescription"}
 {methods/sortByProc.i "pByUserID" "ttDynParamValue.user-id"}
-{methods/sortByProc.i "pLastRunDateTime" "ttDynParamValue.lastRunDateTime"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -940,7 +941,7 @@ PROCEDURE pGetSettings :
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ cCompany
-                      AND user-print.program-id EQ "{&programID}"
+                      AND user-print.program-id EQ "{&program-id}"
                       AND user-print.user-id    EQ "{&defaultUser}") THEN
     RUN pSaveSettings ("{&defaultUser}").
     FIND FIRST user-print NO-LOCK
@@ -978,9 +979,11 @@ PROCEDURE pReopenBrowse :
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
         WHEN "lastRunDateTime" THEN
-        RUN pLastRunDateTime.
+        RUN pByLastRunDateTime.
         WHEN "mnemonic" THEN
-        RUN pBymnemonic.
+        RUN pByMnemonic.
+        WHEN "module" THEN
+        RUN pByModule.
         WHEN "paramDescription" THEN
         RUN pByParamDescription.
         WHEN "prgmName" THEN

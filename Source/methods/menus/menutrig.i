@@ -43,65 +43,14 @@ PROCEDURE Select_{&ITEM{1}}:
     /* run dynamic subject if subject id ne 0 */
     IF iSubjectID NE 0 AND
        CAN-FIND(FIRST dynSubject WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
-        /* check override parameters exists */
         &IF "{&EXTERNAL-TABLES}" NE "" &THEN
-        FOR EACH bDynPrgrmsPage
-            WHERE bDynPrgrmsPage.prgmName  EQ b-prgrms.prgmName
-              AND bDynPrgrmsPage.pageTab   EQ iDynSubjectPage
-              AND bDynPrgrmsPage.subjectID EQ iSubjectID
-            BREAK BY bDynPrgrmsPage.tableName
-            :
-            IF FIRST-OF(bDynPrgrmsPage.tableName) THEN DO:
-                IF bDynPrgrmsPage.tableName NE "" THEN DO:
-                    RUN send-records (bDynPrgrmsPage.tableName, OUTPUT cRowID).
-                    IF ERROR-STATUS:ERROR THEN RETURN. /* getting rowid failed */
-                    IF cRowID NE "?":U THEN DO:
-                        CREATE QUERY hQuery.
-                        CREATE BUFFER hBuffer FOR TABLE bDynPrgrmsPage.tableName.
-                        hQuery:ADD-BUFFER(hBuffer).
-                        hQuery:QUERY-PREPARE(
-                            "FOR EACH " + bDynPrgrmsPage.tableName + " NO-LOCK " +
-                            "WHERE ROWID(" + bDynPrgrmsPage.tableName + ") EQ TO-ROWID(~"" +
-                            cRowID + "~")"
-                            ).
-                        hQuery:QUERY-OPEN().
-                        hQuery:GET-FIRST().
-                        hTable = hQuery:GET-BUFFER-HANDLE(bDynPrgrmsPage.tableName).
-                    END. /* if crowid */
-                END. /* if tablename */
-                FOR EACH dynPrgrmsPage NO-LOCK
-                    WHERE dynPrgrmsPage.prgmName  EQ bDynPrgrmsPage.prgmName
-                      AND dynPrgrmsPage.pageTab   EQ bDynPrgrmsPage.pageTab
-                      AND dynPrgrmsPage.subjectID EQ bDynPrgrmsPage.subjectID
-                      AND dynPrgrmsPage.tableName EQ bDynPrgrmsPage.tableName
-                    :
-                    IF dynPrgrmsPage.tableName EQ "" THEN
-                    cBufferValue = dynPrgrmsPage.paramInitValue.
-                    ELSE
-                    cBufferValue = hTable:BUFFER-FIELD(dynPrgrmsPage.fieldName):BUFFER-VALUE().
-                    ASSIGN
-                        cParamList  = cParamList  + dynPrgrmsPage.paramName + "|"
-                        cParamValue = cParamValue + cBufferValue + "|"
-                        .
-                END. /* each dynprgrmspage */
-            END. /* if first-of */
-            IF VALID-HANDLE(hQuery) THEN
-            DELETE OBJECT hQuery.
-            IF VALID-HANDLE(hTable) THEN
-            DELETE OBJECT hTable.
-        END. /* each bdynpargrmspage */
-        ASSIGN
-            cParamList  = TRIM(cParamList,"|")
-            cParamValue = TRIM(cParamValue,"|")
-            .
-        IF cParamList NE "" THEN
-        RUN pInitDynParamValue (
+        /* check if override parameters exists */
+        RUN pDynPrgrmsPage (
             iSubjectID,
-            USERID("ASI"),
+            "",
             b-prgrms.prgmName,
-            0,
-            cParamList,
-            cParamValue
+            iDynSubjectPage,
+            THIS-PROCEDURE
             ).
         &ENDIF
         run-proc = "AOA/Jasper.r".

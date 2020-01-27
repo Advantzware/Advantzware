@@ -266,7 +266,6 @@ PROCEDURE pGetUserParamValue:
     EMPTY TEMP-TABLE ttGroupCalc.
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
         dWidth = 10.
         IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:
             ASSIGN
@@ -290,12 +289,13 @@ PROCEDURE pGetUserParamValue:
             cTable,
             cField,
             idx,
-            YES,
+            dynParamValue.isActive[idx],
             dynParamValue.colLabel[idx],
             dynParamValue.dataType[idx],
             dynParamValue.colFormat[idx],
             dWidth,
-            MAX(dWidth,LENGTH(dynParamValue.colLabel[idx]))
+            MAX(dWidth,LENGTH(dynParamValue.colLabel[idx])),
+            dynParamValue.calcFormula[idx]
             ).
         ttColumn.isGroup = dynParamValue.isGroup[idx].
         IF dynParamValue.groupCalc[idx] NE "" THEN DO:
@@ -565,14 +565,18 @@ PROCEDURE pJasperDetailBand :
         PUT UNFORMATTED
             "                <textElement textAlignment=~"Right~"/>" SKIP
             .
+        IF ttColumn.ttFormula NE "" THEN
+        cFieldName = ttColumn.ttFormula.
+        ELSE
         ASSIGN
-            cFieldName = ttColumn.ttField
+            cFieldName = (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "") + ttColumn.ttField
             cFieldName = REPLACE(cFieldName,"[","")
             cFieldName = REPLACE(cFieldName,"]","")
+            cFieldName = "$F~{" + cFieldName + "}"
             . 
         PUT UNFORMATTED
-            "                <textFieldExpression><![CDATA[$F~{" cFieldName
-            "}]]></textFieldExpression>" SKIP
+            "                <textFieldExpression><![CDATA[" cFieldName
+            "]]></textFieldExpression>" SKIP
             "            </textField>" SKIP
             .
     END. /* each ttColumn */
@@ -597,6 +601,7 @@ PROCEDURE pJasperFieldDeclarations :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cData      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDataType  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 
@@ -604,10 +609,7 @@ PROCEDURE pJasperFieldDeclarations :
     
     /* field declarations */
     FOR EACH ttColumn
-        WHERE ttColumn.isActive    EQ YES
-           OR ttColumn.isGroup     EQ YES
-           OR ttColumn.ttGroupCalc NE ""
-           BY ttColumn.ttOrder
+          BY ttColumn.ttOrder
         :
         CASE ttColumn.ttType:
             WHEN "Character" THEN
@@ -620,14 +622,15 @@ PROCEDURE pJasperFieldDeclarations :
             cDataType = "String".
         END CASE.
         ASSIGN
-            cFieldName = ttColumn.ttField
+            cFieldName = (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "") + ttColumn.ttField
             cFieldName = REPLACE(cFieldName,"[","")
             cFieldName = REPLACE(cFieldName,"]","")
+            cData      = IF ttColumn.ttFormula NE "" THEN ttColumn.ttFormula ELSE cFieldName
             .
         PUT UNFORMATTED
             "    <field name=~"" cFieldName "~" class=~"java.lang." cDataType "~">" SKIP
             "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" cFieldName "~"/>" SKIP
-            "        <fieldDescription><![CDATA[" cFieldName "]]></fieldDescription>" SKIP
+            "        <fieldDescription><![CDATA[" cData "]]></fieldDescription>" SKIP
             "    </field>" SKIP
             .
     END. /* each ttColumn */
@@ -657,7 +660,9 @@ PROCEDURE pJasperGroupDeclarations :
         :
         PUT UNFORMATTED
             "    <group name=~"" REPLACE(ttColumn.ttLabel," ","_") + "_Group~">" SKIP
-            "        <groupExpression><![CDATA[$F~{" ttColumn.ttField "}]]></groupExpression>" SKIP
+            "        <groupExpression><![CDATA[$F~{"
+            (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "")
+            ttColumn.ttField "}]]></groupExpression>" SKIP
             .
         IF svShowGroupHeader THEN
         RUN pJasperGroupHeader (ROWID(ttColumn)).
@@ -737,6 +742,7 @@ PROCEDURE pJasperGroupFooter :
             "                        <font isBold=~"true~"/>" SKIP
             "                    </textElement>" SKIP
             "                    <textFieldExpression><![CDATA[$V~{"
+            (IF bttColumn.ttTable NE "" THEN bttColumn.ttTable + "__" ELSE "")
             bttColumn.ttField "_" REPLACE(ttColumn.ttLabel," ","_") "_Group"
             "}]]></textFieldExpression>" SKIP
             "                </textField>" SKIP
@@ -919,9 +925,10 @@ PROCEDURE pJasperJSON:
             lFirstRow = NO.
             PUT UNFORMATTED FILL(" ",6) "~{" SKIP.
             FOR EACH ttColumn
-                WHERE ttColumn.isActive    EQ YES
-                   OR ttColumn.isGroup     EQ YES
-                   OR ttColumn.ttGroupCalc NE ""
+                WHERE (ttColumn.isActive    EQ YES
+                   OR  ttColumn.isGroup     EQ YES
+                   OR  ttColumn.ttGroupCalc NE "")
+                  AND  ttColumn.ttFormula   EQ ""
                 BREAK BY ttColumn.ttField
                 :
                 ASSIGN
@@ -1482,8 +1489,15 @@ PROCEDURE pJasperVariableDeclarations :
             ENTRY(2,ttGroupCalc.ttCalcType,"|")
             .
         ELSE
+        IF ttColumn.ttFormula NE "" THEN
         PUT UNFORMATTED
-            "$F~{" ttColumn.ttField "}"
+            ttColumn.ttFormula
+            .
+        ELSE
+        PUT UNFORMATTED
+            "$F~{"
+            (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "")
+            ttColumn.ttField "}"
             .
         PUT UNFORMATTED
             "]]></variableExpression>" SKIP

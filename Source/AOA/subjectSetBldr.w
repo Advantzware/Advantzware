@@ -70,6 +70,10 @@ RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME paramFrame
 
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS FILL-IN-1 
+&Scoped-Define DISPLAYED-OBJECTS FILL-IN-1 
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -95,13 +99,13 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.ico":U NO-FOCUS
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
@@ -110,10 +114,16 @@ DEFINE RECTANGLE RECT-1
      SIZE 18 BY 2.38
      BGCOLOR 15 FGCOLOR 15 .
 
+DEFINE VARIABLE FILL-IN-1 AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Fill 1" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
+     FILL-IN-1 AT ROW 3.14 COL 9 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -121,10 +131,10 @@ DEFINE FRAME paramFrame
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
-     btnSave AT ROW 1.95 COL 139 HELP
-          "Save" WIDGET-ID 6
      btnReset AT ROW 1.95 COL 147 HELP
           "Reset" WIDGET-ID 8
+     btnSave AT ROW 1.95 COL 139 HELP
+          "Save" WIDGET-ID 6
      "RESERVED AREA" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 2.67 COL 70 WIDGET-ID 4
           FGCOLOR 15 FONT 6
@@ -199,6 +209,12 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME paramFrame
    FRAME-NAME                                                           */
+
+DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
+
+ASSIGN XXTABVALXX = FRAME outputFrame:MOVE-BEFORE-TAB-ITEM (FILL-IN-1:HANDLE IN FRAME paramFrame)
+/* END-ASSIGN-TABS */.
+
 ASSIGN 
        FRAME paramFrame:BOX-SELECTABLE   = TRUE.
 
@@ -307,11 +323,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   APPLY "CHOOSE":U TO BtnReset.
   FRAME {&FRAME-NAME}:HIDDEN = NO.
+  FILL-IN-1:MOVE-TO-BOTTOM().
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
-{AOA/includes/dynWidgets.i "dyn"}
+{AOA/includes/dynWidgets.i "dyn" "SubjectBuilder"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -351,7 +368,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
-  VIEW FRAME paramFrame IN WINDOW C-Win.
+  DISPLAY FILL-IN-1 
+      WITH FRAME paramFrame IN WINDOW C-Win.
+  ENABLE FILL-IN-1 
+      WITH FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   VIEW C-Win.
 END PROCEDURE.

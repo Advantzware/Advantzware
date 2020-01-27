@@ -596,8 +596,15 @@ DO:
                             no-lock no-error.   
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
-           if avail style and style.type = "f" then  /* foam */
-                 run windows/l-boardf.w (rfqitem.company,lv-ind,focus:screen-value,output char-val).
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+              RUN AOA/dynLookup/70.p ("style," + STRING(ROWID(style)), OUTPUT char-val).
+              ASSIGN
+                rfqitem.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
+                rfqitem.cal:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "cal",    char-val)
+                rfqitem.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                .
+              APPLY "ENTRY":U TO rfqitem.board.
+           END. /* if foam */
            else run windows/l-board.w (rfqitem.company,lv-ind,focus:screen-value, output char-val).
            if char-val <> "" then do:
               assign rfqitem.board:screen-value in frame {&frame-name} = entry(1,char-val)

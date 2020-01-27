@@ -772,9 +772,10 @@ DO:
            IF AVAIL style THEN lv-ind = style.industry.
            ELSE lv-ind = "".  
            IF AVAIL style AND style.type = "f" THEN  DO: /* foam */
-              RUN windows/l-boardf.w (gcompany,lv-ind,lw-focus:SCREEN-VALUE,OUTPUT char-val).
+              RUN AOA/dynLookup/70.p ("style," + STRING(ROWID(style)), OUTPUT char-val).
               IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
-                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
+                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                APPLY "ENTRY":U TO ef.board.
                 RUN new-board.
               END.
            END.

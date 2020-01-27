@@ -19,6 +19,7 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE VARIABLE cBufferValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFormula        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hBrowseColumn   AS HANDLE    NO-UNDO EXTENT 200.
 DEFINE VARIABLE hBrowseQuery    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 200.
@@ -30,13 +31,13 @@ DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
 
-RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
-SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
 RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
+RUN AOA/spDynCalcField.p       PERSISTENT SET hDynCalcField.
+SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
 
-RUN spSetSessionParam ("Company", g_company).
+RUN spSetSessionParam ("Company",  g_company).
 RUN spSetSessionParam ("Location", g_loc).
 
 /* _UIB-CODE-BLOCK-END */
@@ -80,6 +81,13 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
     DO idx = 1 TO EXTENT(hCalcColumn):
         IF VALID-HANDLE(hCalcColumn[idx]) AND
            dynParamValue.isCalcField[idx] THEN DO:
+            ASSIGN
+                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")
+                cFormula = REPLACE(cFormula,"}","")
+                cFormula = REPLACE(cFormula,"__",".")
+                cBufferValue = ""
+                .
+            IF dynParamValue.calcProc[idx] NE "" THEN
             RUN spDynCalcField IN hDynCalcField (
                 hBrowseQuery:HANDLE,
                 dynParamValue.calcProc[idx],
@@ -88,6 +96,9 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
                 dynParamValue.colFormat[idx],
                 OUTPUT cBufferValue
                 ).
+            ELSE
+            IF dynParamValue.calcFormula[idx] NE "" THEN
+            cBufferValue = cFormula.
             ASSIGN
                 hCalcColumn[idx]:SCREEN-VALUE = cBufferValue
                 hCalcColumn[idx]:FGCOLOR      = iFGColor
@@ -177,24 +188,42 @@ PROCEDURE pResultsBrowser :
         hQueryBrowse:VISIBLE = TRUE
         .
     DO idx = 1 TO EXTENT(dynParamValue.colName):
-        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+        hColumn = ?.
+        IF dynParamValue.colName[idx]  EQ "" THEN LEAVE.
         IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
-        IF dynParamValue.isCalcField[idx] THEN
-        ASSIGN
-            hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
-                dynParamValue.dataType[idx],
-                dynParamValue.colFormat[idx],
-                "",
-                dynParamValue.colLabel[idx]
-                )
-            hColumn = hCalcColumn[idx]
-            .
+        IF dynParamValue.isCalcField[idx] THEN DO:
+            IF dynParamValue.calcProc[idx] NE "" THEN
+            ASSIGN
+                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
+                    dynParamValue.dataType[idx],
+                    dynParamValue.colFormat[idx],
+                    "",
+                    dynParamValue.colLabel[idx]
+                    )
+                hColumn = hCalcColumn[idx]
+                .
+            ELSE
+            IF dynParamValue.calcFormula[idx] NE "" THEN
+            ASSIGN
+                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")
+                cFormula = REPLACE(cFormula,"}","")
+                cFormula = REPLACE(cFormula,"__",".")
+                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
+                    "Character",
+                    "x(" + STRING(LENGTH(cFormula)) + ")",
+                    "",
+                    dynParamValue.colLabel[idx] + "[Calc]"
+                    )
+                hColumn = hCalcColumn[idx]
+                .
+        END. /* if calc field */
         ELSE
         ASSIGN
             hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])
             hColumn:LABEL = dynParamValue.colLabel[idx]
             hBrowseColumn[idx] = hColumn
             .
+        IF NOT VALID-HANDLE(hColumn) THEN NEXT.
 /*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynParamValue.columnSize[idx] NE 0 THEN
         hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].

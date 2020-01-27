@@ -149,6 +149,7 @@ ttSubjectColumn.fieldFormat
 ttSubjectColumn.calcProc
 ttSubjectColumn.calcParam
 ttSubjectColumn.groupCalc
+ttSubjectColumn.calcFormula
 ENABLE
 ttSubjectColumn.isActive
 ttSubjectColumn.fieldLabel
@@ -492,6 +493,7 @@ PROCEDURE pSave :
             dynParamValue.isCalcField    = NO
             dynParamValue.calcProc       = "" 
             dynParamValue.calcParam      = ""
+            dynParamValue.calcFormula    = ""
             .                           
         FOR EACH ttSubjectColumn BY ttSubjectColumn.sortOrder:
             ASSIGN
@@ -510,6 +512,7 @@ PROCEDURE pSave :
                 dynParamValue.isCalcField[idx]    = ttSubjectColumn.isCalcField
                 dynParamValue.calcProc[idx]       = ttSubjectColumn.calcProc
                 dynParamValue.calcParam[idx]      = ttSubjectColumn.calcParam
+                dynParamValue.calcFormula[idx]    = ttSubjectColumn.calcFormula
                 .
         END. /* each ttSubjectColumn */
         FIND CURRENT dynParamValue NO-LOCK.
@@ -560,6 +563,7 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.isCalcField    = dynParamValue.isCalcField[idx]
             ttSubjectColumn.calcProc       = dynParamValue.calcProc[idx]
             ttSubjectColumn.calcParam      = dynParamValue.calcParam[idx]
+            ttSubjectColumn.calcFormula    = dynParamValue.calcFormula[idx]
             .
         IF ttSubjectColumn.groupCalc NE "" THEN
         DO jdx = 1 TO NUM-ENTRIES(ttSubjectColumn.groupCalc) BY 2:

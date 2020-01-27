@@ -16,6 +16,7 @@ DEFINE TEMP-TABLE ttColumn NO-UNDO
     FIELD ttGroupLabel   AS CHARACTER LABEL "Group Label"       FORMAT "x(20)"
     FIELD ttGroupCalc    AS CHARACTER LABEL "Group:Calculation" FORMAT "x(200)"
     FIELD ttPending      AS LOGICAL   LABEL "Pending"
+    FIELD ttFormula      AS CHARACTER LABEL "Formula"           FORMAT "x(256)"
         INDEX ttSubject IS PRIMARY
             ttField
         INDEX ttOrder

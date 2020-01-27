@@ -92,9 +92,10 @@ hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
 {custom/resizmx.i}
 {custom/resizrs.i}
 
-{AOA/includes/pGetDynParamValue.i}
-{AOA/includes/pInitDynParamValue.i}
-{AOA/includes/pSetDynParamValue.i "dyn"}
+/* moved these procedures to session.p    */
+/*{AOA/includes/pGetDynParamValue.i}      */
+/*{AOA/includes/pInitDynParamValue.i}     */
+/*{AOA/includes/pSetDynParamValue.i "dyn"}*/
 
 FIND FIRST company NO-LOCK WHERE company.company EQ g_company NO-ERROR .
 

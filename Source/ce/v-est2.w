@@ -714,8 +714,12 @@ DO:
                             NO-LOCK NO-ERROR.   
            IF AVAIL style THEN lv-ind = style.industry.
            ELSE lv-ind = "".  
-           IF AVAIL style AND style.type = "f" THEN  /* foam */
-                 RUN windows/l-boardf.w (eb.company,lv-ind,lw-focus:SCREEN-VALUE,OUTPUT char-val).
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+              RUN AOA/dynLookup/70.p ("style," + STRING(ROWID(style)), OUTPUT char-val).
+              ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+              APPLY "ENTRY":U TO ef.board.
+              RUN new-board.
+           END. /* if foam */
            ELSE RUN windows/l-board1.w (eb.company,lv-ind,lw-focus:SCREEN-VALUE, OUTPUT lv-rowid).
            FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
            IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
