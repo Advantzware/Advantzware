@@ -283,6 +283,7 @@ DEFINE VARIABLE lAssembled AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cSetFGItem AS CHARACTER NO-UNDO . 
 DEFINE VARIABLE dPerSetQty AS DECIMAL NO-UNDO .
 DEFINE VARIABLE iEbTotalOverQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE cCaseItem AS CHARACTER NO-UNDO.
 IF reprint EQ NO THEN
     cNewOrderValue = CAPS("NEW ORDER") .
 ELSE "" .
@@ -1177,17 +1178,17 @@ FOR EACH job-hdr NO-LOCK
                                              PAGE.
                                              RUN pPrintHeader .
                                          END.
-                                       
+                                       RUN pGetCaseItem(BUFFER bff-eb, BUFFER job-hdr, OUTPUT cCaseItem).
                                        PUT  
                                          "<C19.5><FROM><R+3><C65><RECT><R-3>"
-                                         "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
+                                         "<P10><C20><b>Packing: </B>" cCaseItem FORMAT "x(15)"  
                                          "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
 
                                          "<P10><C20><b>Case Size: </B>" (STRING(bff-eb.cas-len,">9.9999") + " x " + STRING(bff-eb.cas-wid,">9.9999") + " x " + STRING(bff-eb.cas-dep,"99.9999")) FORMAT "x(40)"  
                                          "<C45><b>Ctn/Bdl.Per: </b>" STRING(bff-eb.cas-pal) SKIP
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  SKIP  .
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
+                                         RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                         PUT v-fill SKIP .
                                         PUT "<R-1>" .
                                 END.
@@ -1402,9 +1403,10 @@ FOR EACH job-hdr NO-LOCK
                                         RUN pPrintHeader .
                                     END.
                               IF NOT lAssembled THEN do:
+                               RUN pGetCaseItem(BUFFER eb, BUFFER job-hdr, OUTPUT cCaseItem).
                                PUT   
                                   "<C19.5><FROM><R+3><C65><RECT><R-3>"
-                                  "<P10><C20><b>Packing: </B>" eb.cas-no FORMAT "x(15)"  
+                                  "<P10><C20><b>Packing: </B>" cCaseItem FORMAT "x(15)"  
                                   "<C45><b>Pallet: </b>" eb.tr-no FORMAT "x(15)" SKIP
 
                                   "<P10><C20><b>Case Size: </B>" (STRING(eb.cas-len,">9.9999") + " x " + STRING(eb.cas-wid,">9.9999") + " x " + STRING(eb.cas-dep,">9.9999")) FORMAT "x(40)"
@@ -1413,10 +1415,10 @@ FOR EACH job-hdr NO-LOCK
                                   "<P10><C20><b>Count: </B>" STRING(eb.cas-cnt)  
                                   /*"<C45><b>Label: </b>" (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
                              
-                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no,"5,6,M").
+                                   RUN pPrintMiscItems(eb.est-no,eb.form-no,eb.blank-no,"5,6,M").
                               END.
                               ELSE 
-                                   RUN pPrintMRItem(eb.est-no,eb.form-no,eb.blank-no,"M").
+                                   RUN pPrintMiscItems(eb.est-no,eb.form-no,eb.blank-no,"M").
 
                                 PUT v-fill SKIP .
 
@@ -1469,9 +1471,10 @@ FOR EACH job-hdr NO-LOCK
                                             RUN pPrintHeader .
                                         END.
                                       IF NOT lAssembled THEN do:
+                                       RUN pGetCaseItem(BUFFER bff-eb, BUFFER job-hdr, OUTPUT cCaseItem).
                                        PUT  
                                          "<C19.5><FROM><R+3><C65><RECT><R-3>"
-                                         "<P10><C20><b>Packing: </B>" bff-eb.cas-no FORMAT "x(15)"  
+                                         "<P10><C20><b>Packing: </B>" cCaseItem FORMAT "x(15)"  
                                          "<C45><b>Pallet: </b>" bff-eb.tr-no FORMAT "x(15)" SKIP
 
                                          "<P10><C20><b>Case Size: </B>" (STRING(bff-eb.cas-len,">9.9999") + " x " + STRING(bff-eb.cas-wid,">9.9999") + " x " + STRING(bff-eb.cas-dep,"99.9999")) FORMAT "x(40)"  
@@ -1479,10 +1482,10 @@ FOR EACH job-hdr NO-LOCK
 
                                          "<P10><C20><b>Count: </B>" STRING(bff-eb.cas-cnt)  
                                          /*"<C45><b>Label: </b>" (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" )*/ SKIP  .
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
+                                         RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"5,6,M").
                                       END.
                                       ELSE 
-                                         RUN pPrintMRItem(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"M").
+                                         RUN pPrintMiscItems(bff-eb.est-no,bff-eb.form-no,bff-eb.blank-no,"M").
                                         PUT v-fill SKIP .
                                 END.
                                 PUT "<R-1>" .
@@ -1891,6 +1894,36 @@ PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM
 RELEASE xjob-hdr NO-ERROR.    
 
 
+/* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE pGetCaseItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+DEFINE PARAMETER BUFFER ipbf-job-hdr FOR job-hdr.
+DEFINE OUTPUT PARAMETER opcCaseItemID AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bf-job-mat FOR job-mat.
+    
+    IF AVAILABLE ipbf-eb AND AVAILABLE ipbf-job-hdr THEN DO:
+       opcCaseItemID = ipbf-eb.cas-no.
+       FIND FIRST bf-job-mat NO-LOCK 
+           WHERE bf-job-mat.company EQ ipbf-job-hdr.company
+           AND bf-job-mat.job EQ ipbf-job-hdr.job
+           AND bf-job-mat.job-no EQ ipbf-job-hdr.job-no
+           AND bf-job-mat.job-no2 EQ ipbf-job-hdr.job-no2
+           AND bf-job-mat.frm EQ ipbf-eb.form-no
+           AND bf-job-mat.blank-no EQ ipbf-eb.blank-no
+           AND bf-job-mat.i-no EQ opcCaseItemID
+           NO-ERROR.
+       IF NOT AVAILABLE bf-job-mat THEN 
+           opcCaseItemID = "FPNC".
+    END.
+    
+END PROCEDURE.
 
 PROCEDURE pPrintHeader :
     /*------------------------------------------------------------------------------
@@ -1914,7 +1947,7 @@ PROCEDURE pPrintHeader :
 END PROCEDURE.
 
 
-PROCEDURE pPrintMRItem :
+PROCEDURE pPrintMiscItems :
     /*------------------------------------------------------------------------------
       Purpose:     Print header
       Parameters:  <none>
@@ -1926,7 +1959,8 @@ PROCEDURE pPrintMRItem :
     DEFINE INPUT PARAMETER ipcMatTypes AS CHARACTER NO-UNDO.
    
     DEFINE BUFFER bf-eb FOR eb.
-   
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    
     FOR EACH xjob-mat NO-LOCK
         WHERE xjob-mat.company EQ job-hdr.company
         AND xjob-mat.job     EQ job-hdr.job
@@ -1979,7 +2013,16 @@ PROCEDURE pPrintMRItem :
                 WHERE item.company  EQ bf-eb.company
                 AND item.i-no     EQ bf-eb.divider
                 NO-ERROR.
-            IF AVAILABLE ITEM THEN 
+            FIND FIRST bf-job-mat NO-LOCK 
+                WHERE bf-job-mat.company EQ bf-eb.company
+                AND bf-job-mat.job EQ job-hdr.job
+                AND bf-job-mat.job-no EQ job-hdr.job-no
+                AND bf-job-mat.job-no2 EQ job-hdr.job-no2
+                AND bf-job-mat.frm EQ 0
+                AND bf-job-mat.blank-no EQ 0
+                AND bf-job-mat.i-no EQ bf-eb.divider
+                NO-ERROR.
+            IF AVAILABLE ITEM AND NOT AVAILABLE bf-job-mat THEN 
                 PUT
                     "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
                     "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
@@ -1989,7 +2032,16 @@ PROCEDURE pPrintMRItem :
                 WHERE item.company  EQ bf-eb.company
                 AND item.i-no     EQ bf-eb.layer-pad
                 NO-ERROR.
-            IF AVAILABLE ITEM THEN 
+            FIND FIRST bf-job-mat NO-LOCK 
+                WHERE bf-job-mat.company EQ bf-eb.company
+                AND bf-job-mat.job EQ job-hdr.job
+                AND bf-job-mat.job-no EQ job-hdr.job-no
+                AND bf-job-mat.job-no2 EQ job-hdr.job-no2
+                AND bf-job-mat.frm EQ 0
+                AND bf-job-mat.blank-no EQ 0
+                AND bf-job-mat.i-no EQ bf-eb.layer-pad
+                NO-ERROR.    
+            IF AVAILABLE ITEM AND NOT AVAILABLE bf-job-mat THEN 
                 PUT
                     "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
                     "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
@@ -2018,5 +2070,4 @@ PROCEDURE pPrintMRItem :
 
 END PROCEDURE.
 
-/* end ---------------------------------- copr. 1994  advanced software, inc. */
 
