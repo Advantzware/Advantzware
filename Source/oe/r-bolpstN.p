@@ -38,6 +38,7 @@ DEF VAR ip-post AS LOG INIT YES NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEF VAR list-name as cha no-undo.
 DEF VAR init-dir AS CHA NO-UNDO.
+DEFINE VARIABLE lSingleBOL AS LOGICAL NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -524,7 +525,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  DEF VAR lv-post AS LOG NO-UNDO.
+  DEFINE VARIABLE  lv-post      AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE  lv-exception AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
@@ -549,7 +551,10 @@ DO:
            END_bolnum:SCREEN-VALUE = begin_bolnum:SCREEN-VALUE.  
   ELSE
     ASSIGN END_bolnum.
-
+    
+  IF begin_bolnum EQ end_bolnum THEN
+      lSingleBOL = TRUE.
+  
   assign
    rd-dest
    tran-period
@@ -575,7 +580,31 @@ DO:
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-
+  
+  FIND FIRST w-except NO-ERROR.
+  IF AVAILABLE w-except THEN DO:
+      lv-exception = YES.
+          MESSAGE "  Bill(s) of Lading have been found that do not have  "     SKIP
+                  "  sufficient inventory for posting to be completed.   "     SKIP
+                  "  Do you wish to print the exception report?          "
+              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+       UPDATE lv-exception.
+       IF lv-exception THEN DO:
+           RUN exception-rpt.
+           CASE rd-dest:
+               WHEN 1 THEN 
+                   RUN output-to-printer.
+               WHEN 2 THEN  
+                   RUN output-to-screen.
+               WHEN 3 THEN 
+                   RUN output-to-file.
+           END CASE.
+       END.
+       FOR EACH w-except:
+           DELETE w-except.
+       END.    
+  END.
+ 
   IF ip-post THEN DO:
     IF CAN-FIND(FIRST w-bolh) THEN DO:
       lv-post = NO.
@@ -967,8 +996,6 @@ PROCEDURE create-nopost :
    w-nopost.po-no    = oe-boll.PO-NO
    w-nopost.reason   = ip-reason.
 
-  DELETE w-bolh.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1355,9 +1382,8 @@ PROCEDURE post-bols :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR lv-exception AS LOG NO-UNDO.
-DEF VAR d-out AS DECIMAL NO-UNDO.
-DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
+DEFINE VARIABLE d-out      AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 
 {sa/sa-sls01.i}
 
@@ -1409,12 +1435,9 @@ DO TRANSACTION.
       break by oe-bolh.bol-no
             by oe-bolh.ord-no
             by oe-bolh.rel-no.
-
-    IF FIRST-OF(oe-bolh.bol-no) AND v-u-inv AND v-check-qty THEN
-      RUN oe/bolcheck.p (ROWID(oe-bolh)).
-
+            
     find first w-except where w-except.bol-no eq oe-bolh.bol-no no-error.
-    if avail w-except then next bolh.
+    if available w-except then next bolh.
 
     olinecnt = olinecnt + 1.
 
@@ -1560,25 +1583,6 @@ for each oe-bolh
 end. /* each oe-bolh */
 
 
-
-find first w-except no-error.
-if avail w-except then do:
-  lv-exception = YES.
-  MESSAGE "  Bill(s) of Lading have been found that do not have  "     skip
-          "  sufficient inventory for posting to be completed.   "     skip
-          "  Do you wish to print the exception report?          "
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE lv-exception.
-  IF lv-exception THEN do:
-    run exception-rpt.
-    case rd-dest:
-         when 1 then run output-to-printer.
-         when 2 then run output-to-screen.
-         when 3 then run output-to-file.
-    end case.
-  END.
-END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1590,7 +1594,8 @@ PROCEDURE run-report :
 /* BILL OF LADING POSTING REPORT MODULE 2 - O/E Module                        */
 /* -------------------------------------------------------------------------- */
 
-DEF BUFFER b-oe-boll FOR oe-boll.
+DEFINE BUFFER b-oe-boll FOR oe-boll.
+DEFINE BUFFER bf-itemfg FOR itemfg.
 
 {sys/form/r-top3w.f}
 
@@ -1638,8 +1643,6 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
         and oe-bolh.bol-date le v-e-date
         and oe-bolh.cust-no  ge v-s-cust
         and oe-bolh.cust-no  le v-e-cust
-        and oe-bolh.trailer  ne "HOLD"
-        and oe-bolh.stat     eq "R"
       use-index post no-lock:
 
     create w-bolh.
@@ -1660,8 +1663,6 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
         and oe-bolh.bol-no   le v-e-bol
         and oe-bolh.bol-date ge v-s-date
         and oe-bolh.bol-date le v-e-date
-        and oe-bolh.trailer  ne "HOLD"
-        and oe-bolh.stat     eq "R"
       use-index deleted no-lock:
 
     create w-bolh.
@@ -1685,7 +1686,15 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   for each w-bolh by w-bolh.bol-no by w-bolh.ord-no
                   by w-bolh.rel-no by w-bolh.b-ord-no:
     find oe-bolh where recid(oe-bolh) eq w-bolh.w-recid no-lock.
-
+    
+    IF NOT AVAILABLE oe-bolh THEN
+        NEXT MAINBLOK.
+        
+    IF v-u-inv AND v-check-qty THEN
+        RUN oe/bolcheck.p(
+            INPUT ROWID(oe-bolh)
+            ).
+          
     v-tot-post = v-tot-post + 1.
 
     FOR EACH oe-boll
@@ -1700,14 +1709,52 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
 
       RELEASE oe-ord.
       RELEASE oe-ordl.
-
-      if not oe-bolh.deleted then do:
+      IF oe-bolh.trailer EQ "HOLD"  OR  oe-bolh.stat EQ "H" THEN DO:
+          IF lSingleBOL THEN
+              MESSAGE "BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status"
+                  VIEW-AS ALERT-BOX ERROR.    
+           ELSE 
+               RUN create-nopost(
+                   INPUT "BOL is on Hold Status"
+                   ).
+           
+          DELETE w-bolh.
+          NEXT mainblok.           
+      END.  
+      
+      FIND FIRST w-except NO-LOCK 
+           WHERE w-except.bol-no EQ oe-bolh.bol-no 
+           NO-ERROR. 
+      IF AVAILABLE w-except THEN DO:
+          IF lSingleBOL THEN 
+               MESSAGE "BOL # " +  STRING(w-bolh.bol-no) + " cannot be processed because there is not enough inventory to be shipped." SKIP
+                   "Correct actual inventory available, select different tags or reduce the shipped quantity as your settings" SKIP
+                   "Do not allow this condition to be processed."
+                   VIEW-AS ALERT-BOX.  
+          ELSE 
+              RUN create-nopost(
+                  INPUT "Not Enough Quantity Available to be shipped"
+                  ).   
+          DELETE w-bolh. 
+          NEXT MAINBLOK.                                                  
+      END. 
+     
+      IF NOT oe-bolh.deleted THEN DO:
         find first oe-ord where oe-ord.company = oe-bolh.company and
              oe-ord.ord-no = oe-boll.ord-no no-lock no-error.
-        if not avail oe-ord then do:
-          RUN create-nopost ("Order Was Not Found").
-          next mainblok.
-        end.
+        IF NOT AVAILABLE oe-ord THEN DO:
+                  
+            IF lSingleBOL THEN
+                MESSAGE "Order Not Found for Bol " + STRING(w-bolh.bol-no)
+                    VIEW-AS ALERT-BOX ERROR.                     
+             ELSE 
+                 RUN create-nopost(
+                     INPUT "Order Was Not Found"
+                     ).
+          
+          DELETE w-bolh.
+          NEXT mainblok.
+        END.
         
         /* 04301302 - If customer 'x' and shipto = shipfrom, don't post */
         FIND cust 
@@ -1717,15 +1764,31 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
                
         IF AVAIL(cust) AND cust.ACTIVE EQ "X"
             AND oe-bolh.ship-id = oe-boll.loc THEN DO:
-            run create-nopost ("Cannot transfer to the same location").
-            next mainblok.
+            IF lSingleBOL THEN     
+                MESSAGE "BOL # " STRING(w-bolh.bol-no) + " Cannot Transfer to the same location " oe-boll.loc 
+                    VIEW-AS ALERT-BOX ERROR.
+            ELSE 
+                RUN create-nopost(
+                    INPUT "Cannot transfer Bol to the same location"
+                    ).
+            
+            DELETE w-bolh.
+            NEXT mainblok.
         END.
         find first oe-ordl where oe-ordl.company = oe-boll.company  and
               oe-ordl.ord-no = oe-boll.ord-no  and
               oe-ordl.line   = oe-boll.line no-lock no-error.
-        if not avail oe-ordl then do:
-          run create-nopost ("Order Lines Were Not Found").
-          next mainblok.
+        IF NOT AVAILABLE oe-ordl THEN DO:
+          IF lSingleBOL THEN
+              MESSAGE "Order Lines Were Not Found for BOL " + STRING(w-bolh.bol-no)
+                  VIEW-AS ALERT-BOX ERROR .  
+          ELSE 
+              RUN create-nopost(
+                  INPUT "Order Lines Were Not Found"
+                  ).
+          
+          DELETE w-bolh.
+          NEXT mainblok.
         end.
         RUN oe/custxship.p (oe-bolh.company,
             oe-bolh.cust-no,
@@ -1734,7 +1797,15 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           
         IF NOT AVAILABLE shipto THEN 
         DO:
-          RUN create-nopost ("Invalid Shipto").
+          IF lSingleBOL THEN 
+              MESSAGE "Invalid Shipto Address or Shipto doesnot exists for Bol# " + STRING(w-bolh.bol-no)
+                  VIEW-AS ALERT-BOX ERROR.  
+          ELSE 
+              RUN create-nopost(
+                  INPUT "Invalid Shipto Address"
+                  ).
+          
+          DELETE w-bolh.
           NEXT mainblok.            
         END. 
         
@@ -1743,33 +1814,67 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
                oe-rell.i-no = oe-boll.i-no and
                oe-rell.line = oe-boll.line
               USE-INDEX r-no no-lock no-error.
-        if not avail oe-rell then do:
-          run create-nopost ("Release Lines Were Not Found").
-          next mainblok.
-        end.
+        IF NOT AVAILABLE oe-rell THEN DO:
+          IF lSingleBOL THEN
+              MESSAGE "Release Lines  Not Found For BOL " + STRING(w-bolh.bol-no)
+                  VIEW-AS ALERT-BOX ERROR. 
+                   
+          ELSE 
+              RUN create-nopost(
+                  INPUT "Release Lines Were Not Found"
+                  ).
+          
+          DELETE w-bolh.
+          NEXT mainblok.
+        END.
 
         find first itemfg where itemfg.company = oe-boll.company and
                 itemfg.i-no = oe-boll.i-no no-lock no-error.
-        if not avail itemfg then do:
-          run create-nopost ("Finish Good Item Was Not Found").
+        IF NOT AVAILABLE itemfg THEN DO:
+          IF lSingleBOL THEN
+              MESSAGE "Finish Good Item Not Found For BOL " + STRING(w-bolh.bol-no) 
+                  VIEW-AS ALERT-BOX ERROR. 
+                   
+          ELSE 
+              RUN create-nopost(
+                 INPUT "Finish Good Item Not Found"
+                 ).
+          
+          DELETE w-bolh.
           NEXT mainblok.
         end.
             
-        if oe-boll.loc eq "" or oe-boll.loc-bin eq "" THEN do:
-          run create-nopost ("Warehouse or Bin is Blank").
+        IF oe-boll.loc EQ "" or oe-boll.loc-bin EQ "" THEN do:
+          IF lSingleBOL THEN
+              MESSAGE "Warehouse or Bin is Blank for BOL " + STRING(w-bolh.bol-no) 
+                  VIEW-AS ALERT-BOX ERROR.
+                  
+          ELSE
+               RUN create-nopost(
+                   INPUT "Warehouse or Bin is Blank"
+                   ).
+          
+          DELETE w-bolh.
           NEXT mainblok.
-        end.
+        END.
 
         IF NOT CAN-FIND(FIRST b-oe-boll
                         WHERE b-oe-boll.company EQ oe-bolh.company
                           AND b-oe-boll.b-no    EQ oe-bolh.b-no
                           AND b-oe-boll.qty     NE 0)
         THEN DO:
-          RUN create-nopost ("BOL Qty is Zero").
+          IF lSingleBOL THEN
+              MESSAGE "Quantity is Zero for BOL# " + STRING(w-bolh.bol-no) 
+                  VIEW-AS ALERT-BOX ERROR.  
+          ELSE 
+              RUN create-nopost(
+                  INPUT "BOL Quantity is Zero"
+                  ).
+          
+          DELETE w-bolh.
           NEXT mainblok.
         END.
       end.
-        
       if first-of(oe-boll.b-no) then do:
         DISPLAY oe-bolh.BOL-date
                 oe-bolh.BOL-no 
@@ -1827,13 +1932,13 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
             w-nopost.ord-no     COLUMN-LABEL "Order#"
             string(w-nopost.rel-no,">>>9") + "-" +
             string(w-nopost.b-ord-no,"99")
-                                COLUMN-LABEL "Rel#-BO#"    FORMAT "x(7)"
+                                COLUMN-LABEL "Rel#-BO#"     FORMAT "X(7)"
             w-nopost.cust-no    COLUMN-LABEL "Cust.#"
             w-nopost.po-no      COLUMN-LABEL "PO#"
             w-nopost.i-no       COLUMN-LABEL "Item"
-            w-nopost.i-name     COLUMN-LABEL "Name"         format "x(20)"
-            w-nopost.reason     COLUMN-LABEL "Reason"       skip
-        with down STREAM-IO width 132 frame nopost2.
+            w-nopost.i-name     COLUMN-LABEL "Name"         FORMAT  "X(20)"
+            w-nopost.reason     COLUMN-LABEL "Reason"       FORMAT  "X(50)" SKIP
+        with down STREAM-IO width 180 frame nopost2.
     down with frame nopost2.
 
     v-no-post = v-no-post + 1.
