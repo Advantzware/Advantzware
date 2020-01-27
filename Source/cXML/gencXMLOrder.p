@@ -76,6 +76,8 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   DEFINE VARIABLE iNextShipNo      LIKE shipto.ship-no NO-UNDO.
   DEFINE VARIABLE dItemQtyEach     LIKE oe-ordl.qty    NO-UNDO.
  
+  oplSuccess = YES.
+  
   RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
   RUN XMLOutput/APIXMLParser.p (
@@ -110,7 +112,57 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           orderID      = getNodeValue('OrderRequestHeader','orderID')
           shipToID     = getNodeValue('shipTo','AddressID')
           NO-ERROR.
-
+          
+      /* Validation of AddressID */    
+      IF shipToID EQ "" THEN DO:
+          ASSIGN
+              opcReturnValue = "AddressID is empty"
+              oplSuccess     = NO
+              .
+              
+          RETURN. 
+      END.
+      
+      /* Validation of PayloadID */
+      IF payLoadID EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'PayloadID is empty'
+              .
+              
+          RETURN.
+      END. 
+      
+      /* Validation of identity present in from tag */
+      IF fromIdentity EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'FromIdentity is empty'
+              .
+              
+          RETURN.
+      END. 
+      
+      /* Validation of orderDate */
+      IF orderDate EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'orderDate is empty'
+              .
+              
+          RETURN.
+      END. 
+      
+      /* Validation of orderID */
+      IF orderID EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'orderID is empty'
+              .
+              
+          RETURN.
+      END.
+      
       /* This procedure validates company code,shipToID and location code, 
          and returns valid company code,location code,shipToID and customer number.
          and additionally it returns the shipto table buffer to access any other data 
@@ -121,9 +173,13 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
           OUTPUT       custno,
+          OUTPUT       oplSuccess,
+          OUTPUT       opcReturnValue,
           BUFFER       bf-shipto
           ).
-          
+
+       IF NOT oplSuccess THEN
+           RETURN.   
       /* This assignment is required to populate cocode and locode variables 
          with company code and location code since as these variables are being 
          used in cXMLOrderProc.i procedures(genOrderHeader,touchOrder,assignOrderHeader
@@ -132,29 +188,22 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           cocode = ipcCompany
           locode = ipcWarehouseID
           .
-      IF payLoadID EQ "" OR
-         fromIdentity EQ "" OR
-         orderDate EQ ? OR
-         orderID EQ "" OR
-         shipToID EQ "" THEN DO:
-          ASSIGN
-              opcReturnValue = "Requested XML is not in valid format"
-              oplSuccess     = NO
-              .
-          RETURN. 
-      END.
-
+      
       FIND FIRST oe-ord NO-LOCK
-           WHERE oe-ord.company EQ ipcCompany
-             AND oe-ord.cust-no EQ custNo
-             AND oe-ord.po-no   EQ orderID
+           WHERE oe-ord.company     EQ ipcCompany
+             AND oe-ord.cust-no      EQ custNo
+             AND oe-ord.po-no        EQ orderID
              AND oe-ord.spare-char-3 EQ payLoadID
            NO-ERROR.
       IF AVAILABLE oe-ord AND orderID GT "" THEN DO:
-        opcReturnValue = 'Order already exists with PO#: ' + orderID + ', Payload ID: ' + payloadID.
-        RETURN.
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'Order already exists with PO#: ' + orderID + ', Payload ID: ' + payloadID
+              .
+              
+          RETURN.
       END.
-
+     
       FIND FIRST ttNodes NO-LOCK 
              WHERE ttNodes.parentName EQ 'itemDetail' 
                AND ttNodes.nodeName EQ 'ManufacturerPartID'
@@ -168,7 +217,11 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
               NO-ERROR.
 
       IF NOT AVAILABLE ttNodes THEN DO:
-          opcReturnValue = 'Part Number is missing from XML file' .
+          ASSIGN
+              oplSuccess = NO
+              opcReturnValue = 'Part Number is missing from XML file' 
+              .
+              
           RETURN.
       END. 
       
@@ -219,6 +272,8 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
           OUTPUT       custno,
+          OUTPUT       oplSuccess,
+          OUTPUT       opcReturnValue,
           BUFFER       bf-shipto
           ).
       
@@ -249,7 +304,11 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
                 NO-ERROR.
 
             IF NOT AVAILABLE itemfg THEN DO:
-                opcReturnValue = 'Part Number is missing from XML file' .
+                ASSIGN
+                    oplSuccess     = NO
+                    opcReturnValue = 'Part Number is missing from XML file' 
+                    .
+                    
                 RETURN.                
             END.
       END.
@@ -501,7 +560,16 @@ PROCEDURE genOrderLinesLocal:
   FOR EACH ttOrdLines WHERE 
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
       BY ttItemLineNumber:
-      
+     
+     IF ttOrdLines.ttitemSupplierPartID EQ "" THEN DO:
+        ASSIGN
+            oplSuccess     = NO
+            opcReturnValue = "SupplierPartID is empty for line (" + ttItemLineNumber + ")"
+            .
+
+        RETURN.
+     END.
+     
      ASSIGN cRequestedDeliveryDate = ttOrdLines.ttItemDueDate
             dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
                                      ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
@@ -524,7 +592,7 @@ PROCEDURE genOrderLinesLocal:
          ).
         
      IF NOT oplSuccess THEN DO:
-        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") is not available for the given ShipToID's company and location".
+        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") is does not exist".
 
         RETURN.
      END.
