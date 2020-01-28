@@ -271,7 +271,7 @@ tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
 tb_print-binstags rd_bol-sort fi_specs tb_print-spec rd_bolcert ~
 tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
 tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no td-show-parm ~
-tb_post-bol run_format btn-ok btn-cancel 
+tb_post-bol run_format btn-ok btn-cancel tb_suppress-name
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
@@ -279,7 +279,8 @@ tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
 tb_print-binstags lbl_bolsort rd_bol-sort fi_specs tb_print-spec ~
 lbl_bolcert rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest ~
 tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_post-bol run_format 
+lines-per-page lv-font-no lv-font-name td-show-parm tb_post-bol run_format ~
+tb_suppress-name
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -451,6 +452,11 @@ DEFINE VARIABLE tb_footer AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_freight-bill AS LOGICAL INITIAL no 
      LABEL "Print Freight Bill / Logo?" 
      VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO. 
+
+DEFINE VARIABLE tb_suppress-name AS LOGICAL INITIAL no 
+     LABEL "Suppress Name" 
+     VIEW-AS TOGGLE-BOX
      SIZE 28 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_MailBatchMode AS LOGICAL INITIAL no 
@@ -581,6 +587,7 @@ DEFINE FRAME FRAME-A
      tb_MailBatchMode AT ROW 17.57 COL 54.6 RIGHT-ALIGNED
      tb_ComInvoice AT ROW 18.48 COL 59.6 RIGHT-ALIGNED
      tb_freight-bill AT ROW 19.38 COL 56.6 RIGHT-ALIGNED
+     tb_suppress-name AT ROW 20.29 COL 56.6 RIGHT-ALIGNED
      tb_footer AT ROW 20.29 COL 56.6 RIGHT-ALIGNED
      lv-ornt AT ROW 21.1 COL 29.6 NO-LABEL
      lines-per-page AT ROW 21.1 COL 83 COLON-ALIGNED
@@ -766,6 +773,12 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm". 
+
+/* SETTINGS FOR TOGGLE-BOX tb_suppress-name IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_suppress-name:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_MailBatchMode IN FRAME FRAME-A
@@ -1584,14 +1597,20 @@ DO:
   
   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
       ASSIGN tb_per-bol-line:SENSITIVE = NO .
-      IF tb_freight-bill THEN
+      IF tb_freight-bill THEN do:
           run_format:SCREEN-VALUE = vcDefaultBOLX .
-      ELSE
+          IF vcDefaultBOLX EQ "BOLFMTX15" THEN
+            tb_suppress-name:HIDDEN = NO .
+      END.
+      ELSE do:
           run_format:SCREEN-VALUE = vcDefaultForm.
+          tb_suppress-name:HIDDEN = YES .
+      END.
   END.
   ELSE do: 
       ASSIGN tb_per-bol-line:SENSITIVE = YES
           run_format:SCREEN-VALUE = v-def-coc-fmt.
+          tb_suppress-name:HIDDEN = YES .
   END.
 END.
 
@@ -1718,12 +1737,20 @@ DO:
   assign {&self-name}.
 
   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
-      IF tb_freight-bill THEN
+      IF tb_freight-bill THEN do:
           run_format:SCREEN-VALUE = vcDefaultBOLX .
-      ELSE
+          IF vcDefaultBOLX EQ "BOLFMTX15" THEN
+            tb_suppress-name:HIDDEN = NO .
+      END.
+      ELSE do:
           run_format:SCREEN-VALUE = vcDefaultForm.
+          tb_suppress-name:HIDDEN = YES .
+      END.
   END.
-  ELSE run_format:SCREEN-VALUE = v-def-coc-fmt.
+  ELSE do:
+      run_format:SCREEN-VALUE = v-def-coc-fmt.
+      tb_suppress-name:HIDDEN = YES .
+  END.
 
 END.
 
@@ -2002,6 +2029,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
 
     tb_freight-bill:SCREEN-VALUE = "NO".
+    tb_suppress-name:HIDDEN = YES .
 
     IF NOT PROGRAM-NAME(1) BEGINS "listobjs/oe-boll_." OR llBlockPost THEN
       ASSIGN
@@ -3077,7 +3105,7 @@ PROCEDURE enable_UI :
           rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
           tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode 
           tb_ComInvoice tb_freight-bill tb_footer lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_post-bol run_format 
+          lv-font-no lv-font-name td-show-parm tb_post-bol run_format tb_suppress-name
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
@@ -3086,7 +3114,7 @@ PROCEDURE enable_UI :
          rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line 
          tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
          tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_post-bol run_format btn-ok btn-cancel 
+         td-show-parm tb_post-bol run_format btn-ok btn-cancel tb_suppress-name
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -4180,6 +4208,13 @@ PROCEDURE pRunFormatValueChanged :
    ELSE
        ASSIGN
         tb_print-DetPage:HIDDEN = YES .
+
+     IF tb_freight-bill:SCREEN-VALUE EQ "Yes" THEN do:
+         IF vcDefaultBOLX EQ "BOLFMTX15" THEN
+             tb_suppress-name:HIDDEN = NO .
+         ELSE tb_suppress-name:HIDDEN = YES .
+     END.
+
     END.
 END PROCEDURE.
 
@@ -4215,7 +4250,8 @@ PROCEDURE run-packing-list :
     v-print-unassembled = tb_print-unassemble-component
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line
-    lPrintDetailPage    = tb_print-DetPage .
+    lPrintDetailPage    = tb_print-DetPage
+    lSuppressName       = tb_suppress-name .
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -4404,7 +4440,8 @@ PROCEDURE run-report :
     v-print-unassembled = tb_print-unassemble-component 
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line
-    lPrintDetailPage    = tb_print-DetPage .
+    lPrintDetailPage    = tb_print-DetPage
+    lSuppressName       = tb_suppress-name.
 
   /*IF lAsiUser THEN DO:
      ASSIGN v-print-fmt = run_format
@@ -4632,7 +4669,8 @@ assign
   v-print-unassembled = tb_print-unassemble-component
   v-footer            = tb_footer
   lPerBolLine         = tb_per-bol-line
-  lPrintDetailPage    = tb_print-DetPage .
+  lPrintDetailPage    = tb_print-DetPage
+  lSuppressName       = tb_suppress-name .
 
 IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
    ASSIGN
@@ -4900,7 +4938,8 @@ PROCEDURE run-report-mail :
     v-print-unassembled = tb_print-unassemble-component
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line
-    lPrintDetailPage    = tb_print-DetPage .
+    lPrintDetailPage    = tb_print-DetPage
+    lSuppressName       = tb_suppress-name .
 
   IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN
