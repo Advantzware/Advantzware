@@ -6,4 +6,4 @@ DEF VAR lFound  AS LOG  NO-UNDO.
 
 /* RUN NK1LOOKUP.P instead of using sys/inc/.i */
 RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-IF lFound THEN lNewVendorItemCost = IF cReturn = "Yes" THEN YES ELSE No.
+IF lFound THEN lNewVendorItemCost = IF cReturn EQ "Yes" THEN YES ELSE NO.

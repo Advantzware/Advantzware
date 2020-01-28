@@ -79,7 +79,7 @@ bank.o-chk bank.RTN bank.dep-tr bank.ODFI bank.SwiftBIC bank.serv ~
 bank.curr-code[1] bank.Bank-ID 
 &Scoped-define ENABLED-TABLES bank
 &Scoped-define FIRST-ENABLED-TABLE bank
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 RECT-7 cbPayType 
+&Scoped-Define ENABLED-OBJECTS cbPayType 
 &Scoped-Define DISPLAYED-FIELDS bank.bank-code bank.bank-name bank.addr[1] ~
 bank.addr[2] bank.city bank.state bank.zip bank.phone bank.contact ~
 bank.bk-act bank.actnum bank.last-chk bank.spare-int-1 bank.bal bank.ACHID ~
@@ -130,152 +130,154 @@ DEFINE VARIABLE cbPayType AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "CK-Printed Check","PC-Payment Card","CC-Credit Card","DC-Debit Card","DD-Direct Deposit","BD-Direct Business Debit","WT-Wire Transfer","EP-Electronic Payment","ET-Electronic Transfer","VC-Virtual Currency","BC-Bitcoin","PA-Payables Advantage" 
      DROP-DOWN-LIST
      SIZE 28 BY 1
-     FONT 4 NO-UNDO.
+     BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE VARIABLE account_dscr AS CHARACTER FORMAT "x(45)" 
      VIEW-AS FILL-IN 
      SIZE 36 BY 1
-     FONT 4.
+     BGCOLOR 15 FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 118 BY 6.62.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 120 BY 6.91.
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 118 BY 2.91.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 120 BY 2.67.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 118 BY 7.38.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 120 BY 7.38.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     bank.bank-code AT ROW 1.71 COL 12 COLON-ALIGNED
+     bank.bank-code AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-          FONT 4
-     bank.bank-name AT ROW 1.71 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.bank-name AT ROW 1.24 COL 42 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
-          FONT 4
-     bank.addr[1] AT ROW 2.67 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.addr[1] AT ROW 2.43 COL 42 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
-          FONT 4
-     bank.addr[2] AT ROW 3.62 COL 44 COLON-ALIGNED NO-LABEL
+          BGCOLOR 15 FONT 4
+     bank.addr[2] AT ROW 3.38 COL 42 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
-          FONT 4
-     bank.city AT ROW 4.57 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.city AT ROW 4.33 COL 42 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-          FONT 4
-     bank.state AT ROW 4.57 COL 70 COLON-ALIGNED NO-LABEL
+          BGCOLOR 15 FONT 4
+     bank.state AT ROW 4.33 COL 68 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-          FONT 4
-     bank.zip AT ROW 4.57 COL 76 COLON-ALIGNED NO-LABEL
+          BGCOLOR 15 FONT 4
+     bank.zip AT ROW 4.33 COL 74 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-          FONT 4
-     bank.phone AT ROW 5.52 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.phone AT ROW 5.52 COL 42 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-          FONT 4
-     bank.contact AT ROW 6.48 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.contact AT ROW 6.71 COL 42 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
-          FONT 4
-     bank.bk-act AT ROW 8.1 COL 44 COLON-ALIGNED FORMAT "X(14)"
+          BGCOLOR 15 FONT 4
+     bank.bk-act AT ROW 8.38 COL 42 COLON-ALIGNED FORMAT "X(14)"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
-          FONT 4
-     cbPayType AT ROW 8.1 COL 84 COLON-ALIGNED
-     bank.actnum AT ROW 9.38 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     cbPayType AT ROW 8.38 COL 82 COLON-ALIGNED
+     bank.actnum AT ROW 9.67 COL 42 COLON-ALIGNED
           LABEL "G/L Account #"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-          FONT 4
-     account_dscr AT ROW 9.38 COL 76 COLON-ALIGNED NO-LABEL
-     bank.last-chk AT ROW 11 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     account_dscr AT ROW 9.67 COL 74 COLON-ALIGNED NO-LABEL
+     bank.last-chk AT ROW 11.24 COL 42 COLON-ALIGNED
           LABEL "Last Check # Used"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.spare-int-1 AT ROW 11 COL 86 COLON-ALIGNED WIDGET-ID 2
+          BGCOLOR 15 FONT 4
+     bank.spare-int-1 AT ROW 11.24 COL 84 COLON-ALIGNED WIDGET-ID 2
           LABEL "ACH Check #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.bal AT ROW 11.95 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.bal AT ROW 12.43 COL 42 COLON-ALIGNED
           LABEL "Account Balance"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.ACHID AT ROW 11.95 COL 86 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.ACHID AT ROW 12.43 COL 84 COLON-ALIGNED
           LABEL "ACH Payment" FORMAT ">>>>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.o-chk AT ROW 13.19 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.o-chk AT ROW 13.67 COL 42 COLON-ALIGNED
           LABEL "Outstanding Balance"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.RTN AT ROW 13.19 COL 86 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.RTN AT ROW 13.67 COL 84 COLON-ALIGNED
           LABEL "Routing#" FORMAT "999999999"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.dep-tr AT ROW 14.14 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.dep-tr AT ROW 14.81 COL 42 COLON-ALIGNED
           LABEL "Deposits in Transit"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.ODFI AT ROW 14.24 COL 88
+          BGCOLOR 15 FONT 4
+     bank.ODFI AT ROW 14.91 COL 86
           VIEW-AS TOGGLE-BOX
-          SIZE 25 BY .8
+          SIZE 25 BY .81
           FONT 4
-     bank.SwiftBIC AT ROW 15.05 COL 86 COLON-ALIGNED
+     bank.SwiftBIC AT ROW 16 COL 84 COLON-ALIGNED
           LABEL "Swift Code" FORMAT "x(11)"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.serv AT ROW 15.1 COL 44 COLON-ALIGNED
+          BGCOLOR 15 FONT 4
+     bank.serv AT ROW 16.05 COL 42 COLON-ALIGNED
           LABEL "Service charge"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.curr-code[1] AT ROW 16 COL 44 COLON-ALIGNED
-          LABEL "Currency Code"
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
-     bank.Bank-ID AT ROW 16 COL 86 COLON-ALIGNED
-          LABEL "Bank ID" FORMAT "x(9)"
-          VIEW-AS FILL-IN 
-          SIZE 25 BY 1
-          FONT 4
+          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     bank.Pay-type AT ROW 16.95 COL 114 COLON-ALIGNED NO-LABEL
+     bank.curr-code[1] AT ROW 17.19 COL 42 COLON-ALIGNED
+          LABEL "Currency Code"
           VIEW-AS FILL-IN 
-          SIZE 3 BY 1 NO-TAB-STOP 
-     RECT-1 AT ROW 1.24 COL 3
-     RECT-5 AT ROW 7.86 COL 3
-     RECT-7 AT ROW 10.76 COL 3
+          SIZE 10 BY 1
+          BGCOLOR 15 
+     bank.Bank-ID AT ROW 17.19 COL 84 COLON-ALIGNED
+          LABEL "Bank ID" FORMAT "x(9)"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          BGCOLOR 15 FONT 4
+     bank.Pay-type AT ROW 17.19 COL 112 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3 BY 1
+          BGCOLOR 15  NO-TAB-STOP 
+     RECT-1 AT ROW 1 COL 1
+     RECT-5 AT ROW 8.14 COL 1
+     RECT-7 AT ROW 11 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -305,8 +307,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.86
-         WIDTH              = 121.4.
+         HEIGHT             = 17.38
+         WIDTH              = 120.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -363,6 +365,12 @@ ASSIGN
 ASSIGN 
        bank.Pay-type:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN bank.RTN IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN bank.serv IN FRAME F-Main
@@ -494,6 +502,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-proc V-table-Win 
+PROCEDURE disable-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE cbPayType .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -538,6 +563,23 @@ PROCEDURE display-paytype :
       when "BC" then cbPayType:screen-value = "BC-Bitcoin".
       WHEN "PA" THEN cbPayType:SCREEN-VALUE = "PA-Payables Advantage".  
     end case.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-proc V-table-Win 
+PROCEDURE enable-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    ENABLE cbPayType .
   END.
 
 END PROCEDURE.
@@ -740,40 +782,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-proc V-table-Win 
-PROCEDURE enable-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    ENABLE cbPayType .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-proc V-table-Win 
-PROCEDURE disable-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE cbPayType .
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

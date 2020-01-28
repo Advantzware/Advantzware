@@ -253,7 +253,7 @@ DEFINE BUTTON btn_go
 
 DEFINE BUTTON btn_next 
      LABEL "Show &Next" 
-     SIZE 15 BY 1
+     SIZE 16 BY 1
      FONT 6.
 
 DEFINE BUTTON btn_prev 
@@ -263,7 +263,7 @@ DEFINE BUTTON btn_prev
 
 DEFINE BUTTON btn_show 
      LABEL "&Show All" 
-     SIZE 12 BY 1
+     SIZE 16 BY 1
      FONT 6.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
@@ -307,19 +307,19 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fi_style AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1
+     SIZE 12.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_act AS LOGICAL INITIAL yes 
      LABEL "Active" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .81
+     SIZE 13.4 BY 1
      FGCOLOR 9 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tb_in-act AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .81
+     SIZE 13.4 BY 1
      FGCOLOR 9 FONT 6 NO-UNDO.
 
 /* Query definitions                                                    */
@@ -363,54 +363,54 @@ DEFINE BROWSE r_table
       itemfg.q-onh
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 156 BY 20.95
+    WITH NO-ASSIGN SEPARATORS SIZE 170 BY 21.43
          BGCOLOR 8 FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tb_act AT ROW 1.43 COL 142.8 WIDGET-ID 48
-     fi_i-no AT ROW 2.19 COL 2.6 NO-LABEL WIDGET-ID 2
-     fi_part-no AT ROW 2.19 COL 24.6 NO-LABEL WIDGET-ID 40
-     fi_cust-no AT ROW 2.19 COL 45.6 NO-LABEL WIDGET-ID 16
-     fi_i-name AT ROW 2.19 COL 62.4 NO-LABEL WIDGET-ID 20
-     fi_est-no AT ROW 2.19 COL 98.2 NO-LABEL WIDGET-ID 18
-     fi_style AT ROW 2.19 COL 113.2 NO-LABEL WIDGET-ID 32
-     fi_procat AT ROW 2.19 COL 124.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     tb_in-act AT ROW 2.57 COL 142.8 WIDGET-ID 50
-     btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
-     btn_prev AT ROW 3.62 COL 13.8 WIDGET-ID 8
-     btn_next AT ROW 3.62 COL 34 WIDGET-ID 6
-     btn_show AT ROW 3.62 COL 49.2 WIDGET-ID 10
-     fi_sort-by AT ROW 3.62 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fi_movecol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     r_table AT ROW 4.81 COL 1
+     tb_act AT ROW 1 COL 157 WIDGET-ID 48
+     fi_i-no AT ROW 1.95 COL 4 NO-LABEL WIDGET-ID 2
+     fi_part-no AT ROW 1.95 COL 26 NO-LABEL WIDGET-ID 40
+     fi_cust-no AT ROW 1.95 COL 47 NO-LABEL WIDGET-ID 16
+     fi_i-name AT ROW 1.95 COL 63.8 NO-LABEL WIDGET-ID 20
+     fi_est-no AT ROW 1.95 COL 99.6 NO-LABEL WIDGET-ID 18
+     fi_style AT ROW 1.95 COL 114.6 NO-LABEL WIDGET-ID 32
+     fi_procat AT ROW 1.95 COL 125.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     tb_in-act AT ROW 2 COL 157.2 WIDGET-ID 50
+     btn_go AT ROW 3.14 COL 4 WIDGET-ID 4
+     btn_prev AT ROW 3.14 COL 26 WIDGET-ID 8
+     btn_next AT ROW 3.14 COL 47 WIDGET-ID 6
+     btn_show AT ROW 3.14 COL 64 WIDGET-ID 10
+     fi_sort-by AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fi_movecol AT ROW 3.14 COL 155 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     r_table AT ROW 4.33 COL 1
      "Customer Part#" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 25.8 WIDGET-ID 42
-          FGCOLOR 9 FONT 6
-     "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
-          FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
-          FONT 6
-     "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 49.2 WIDGET-ID 22
-          FGCOLOR 9 FONT 6
-     "Category" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 127 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "Style" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 116 WIDGET-ID 34
-          FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
-     "Name" VIEW-AS TEXT
-          SIZE 7.2 BY .71 AT ROW 1.24 COL 77.4 WIDGET-ID 26
+          SIZE 18 BY .71 AT ROW 1.24 COL 26 WIDGET-ID 42
           FGCOLOR 9 FONT 6
      "FG Item#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 6.6 WIDGET-ID 24
+          SIZE 13 BY .71 AT ROW 1.24 COL 4 WIDGET-ID 24
+          FGCOLOR 9 FONT 6
+     "Name" VIEW-AS TEXT
+          SIZE 7.2 BY .71 AT ROW 1.24 COL 64 WIDGET-ID 26
+          FGCOLOR 9 FONT 6
+     "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 27 BY .95 AT ROW 3.14 COL 129 WIDGET-ID 14
+     "Style" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 115 WIDGET-ID 34
+          FGCOLOR 9 FONT 6
+     "Category" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 128 WIDGET-ID 38
+          FGCOLOR 9 FONT 6
+     "Customer#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 47 WIDGET-ID 22
+          FGCOLOR 9 FONT 6
+     "Sorted By:" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 3.14 COL 83 WIDGET-ID 30
+          FONT 6
+     "Estimate#" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -446,7 +446,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 25.1
-         WIDTH              = 159.2.
+         WIDTH              = 171.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

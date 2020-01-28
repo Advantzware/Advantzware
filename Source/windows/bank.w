@@ -98,18 +98,18 @@ DEFINE FRAME F-Main
          SIZE 126 BY 24.1
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 3.38
-         SIZE 80.8 BY 1.19
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 125 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 46 ROW 3.38
+         SIZE 80.8 BY 1.19
          BGCOLOR 15 .
 
 
@@ -335,7 +335,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_bank ).
        RUN set-position IN h_bank ( 5.29 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_bank ( 17.86 , 99.00 ) NO-ERROR.
+       RUN set-size IN h_bank ( 19.52 , 99.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -355,7 +355,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_bank-2 ).
        RUN set-position IN h_bank-2 ( 5.05 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.38 , 116.00 ) */
+       /* Size in UIB:  ( 17.38 , 120.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -364,7 +364,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.67 , 6.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 22.67 , 4.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -374,7 +374,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updncp ).
-       RUN set-position IN h_p-updncp ( 22.67 , 63.00 ) NO-ERROR.
+       RUN set-position IN h_p-updncp ( 22.67 , 68.00 ) NO-ERROR.
        RUN set-size IN h_p-updncp ( 2.14 , 56.80 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
