@@ -56,13 +56,26 @@ IF (AVAIL tt-bolx AND tt-bolx.print-logo) OR NOT AVAIL tt-bolx THEN
   END. /* ELSE DO */ 
 
   PUT "<FGCOLOR=" + TRIM(lv-other-color) + ">" FORM "x(15)" SKIP
-  SKIP(1)
-  "<FCourier New>"
-  SPACE(30) "Ship To:" AT 59  SKIP
-  SPACE(5) v-comp-name v-ship-name AT 45 skip
-  SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
-  SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
-  SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP
+  SKIP(1).
+  if NOT lSuppressName THEN DO:
+      put
+      "<FCourier New>"
+      SPACE(30) "Ship To:" AT 59  SKIP
+      SPACE(5) v-comp-name v-ship-name AT 45 skip
+      SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
+      SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
+      SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP .
+  END.
+  ELSE DO:
+     put
+      "<FCourier New>"
+      SPACE(5) "Ship To:"   SKIP
+      SPACE(5) v-ship-name  skip
+      SPACE(5) v-ship-addr[1]  SKIP
+      SPACE(5) v-ship-addr[2]  SKIP
+      SPACE(5) v-ship-addr3  SKIP .
+  END.
+  put
   "<R6><C51><#3>" SKIP
   "<FArial><P14><=#3><P10>" SKIP
   "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP(1)
