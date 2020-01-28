@@ -1887,7 +1887,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
         PUT CONTROL CHR(18).
     END.
 
-    ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
+    ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
         DO:
             RUN value(v-program) (""). 
             v-reprint = YES.
@@ -2402,6 +2402,11 @@ PROCEDURE SetInvForm:
         WHEN "CCCFGLot" THEN
             ASSIGN
                 v-program      = "oe/rep/invcccfg.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "CCCACH" THEN
+            ASSIGN
+                v-program      = "oe/rep/invcccach.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "CCCFGL3" THEN
@@ -3006,6 +3011,11 @@ PROCEDURE SetInvPostForm:
         WHEN "CCCFGLot" THEN
             ASSIGN
                 v-program      = "ar/rep/invcccfg.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "CCCACH" THEN
+            ASSIGN
+                v-program      = "ar/rep/invcccach.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "CCCFGL3" THEN

@@ -2202,7 +2202,7 @@ PROCEDURE pRunFormatValueChanged :
              ASSIGN rs_no_PN:HIDDEN    = TRUE
              rs_no_PN:SENSITIVE = FALSE.
 
-         IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+         IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES
