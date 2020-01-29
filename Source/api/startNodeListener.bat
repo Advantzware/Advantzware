@@ -43,7 +43,7 @@ if exist ./programs/api/node/InboundAPIStart.js (
         )
     )
 
-START /B node InboundAPIStart.js >> %LogDir%\node.server.log 2>> %LogDir%\node.server.error.log
+start /min node InboundAPIStart.js >> %LogDir%\node.server.log 2>> %LogDir%\node.server.error.log
 :QUIT
 :: This leaves a command window open; that's a good thing
 EXIT
