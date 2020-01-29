@@ -59,22 +59,6 @@
     IF NOT oplSuccess THEN
     DO:
        oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
-       
-       /* Log the request to APIInboundEvent */
-       RUN api\CreateAPIInboundEvent.p (
-           INPUT ipcRoute,
-           INPUT iplcRequestData,
-           INPUT oplcResponseData,
-           INPUT oplSuccess,
-           INPUT opcMessage,
-           INPUT NOW,
-           INPUT ipcRequestedBy,
-           INPUT ipcRecordSource,
-           INPUT ipcNotes,
-           INPUT  "", /* PayloadID */
-           OUTPUT opcAPIInboundEvent
-           ).
-       
        RETURN.  
     END.
      
@@ -82,22 +66,6 @@
         oplcResponseData = '~{"response_code":200,"response_message":"Inventory Consume is successful"}'
         opcMessage = "Success"
         .
-    
-    /* Log the request to APIInboundEvent */
-    RUN api\CreateAPIInboundEvent.p (
-        INPUT ipcRoute,
-        INPUT iplcRequestData,
-        INPUT oplcResponseData,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT NOW,
-        INPUT ipcRequestedBy,
-        INPUT ipcRecordSource,
-        INPUT ipcNotes,
-        INPUT  "", /* PayloadID */
-        OUTPUT opcAPIInboundEvent
-        ).
-    
     
     SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
     DELETE PROCEDURE hdSession.
