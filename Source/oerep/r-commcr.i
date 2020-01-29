@@ -147,7 +147,7 @@
             ASSIGN
              tt-report.key-01    = v-slsm[1]
              tt-report.key-02    = ar-inv.cust-no
-             tt-report.key-03    = STRING(ar-inv.inv-no,"999999")
+             tt-report.key-03    = STRING(ar-inv.inv-no,"9999999")
              tt-report.key-10    = "ar-invl"
              tt-report.rec-id    = RECID(ar-invl)
              tt-report.row-id    = ROWID(ar-invl)

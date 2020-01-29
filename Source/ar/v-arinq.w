@@ -142,7 +142,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      ar-inv.inv-no AT ROW 3.14 COL 19 COLON-ALIGNED
-          LABEL "Invoice#"
+          LABEL "Invoice#" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      ar-invl.cost AT ROW 3.14 COL 79 COLON-ALIGNED
@@ -276,7 +276,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ar-inv.gross IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.inv-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ar-inv.po-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.tax-code IN FRAME F-Main

@@ -1638,7 +1638,7 @@ FORM account.actnum
 
         DISPLAY tmp-work-job.actnum @ account.actnum
             v-dscr
-            tmp-work-job.inv-no @ inv-head.inv-no
+            tmp-work-job.inv-no @ inv-head.inv-no FORMAT ">>>>>>9"
             tmp-work-job.i-no   @ inv-line.i-no
             v-tmp-amt
             ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
@@ -1728,7 +1728,7 @@ FORM account.actnum
 
           DISPLAY v-ar-freight          @ account.actnum
                   v-dscr
-                  int(tt-report.key-02) @ inv-head.inv-no
+                  int(tt-report.key-02) @ inv-head.inv-no FORMAT ">>>>>>9"
                   "FREIGHT"             @ inv-line.i-no
                   dec(tt-report.key-05) @ v-tmp-amt
                   ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
@@ -1803,7 +1803,7 @@ FORM account.actnum
 
           DISPLAY v-ar-disc             @ account.actnum
                   v-dscr
-                  int(tt-report.key-02) @ inv-head.inv-no
+                  int(tt-report.key-02) @ inv-head.inv-no FORMAT ">>>>>>9"
                   "DISCOUNT"            @ inv-line.i-no
                   dec(tt-report.key-05) @ v-tmp-amt
                   ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
@@ -1880,7 +1880,7 @@ FORM account.actnum
 
             DISPLAY ar-ctrl.cash-act    @ account.actnum
                     v-dscr
-                    int(tt-report.key-02)  @ inv-head.inv-no
+                    int(tt-report.key-02)  @ inv-head.inv-no FORMAT ">>>>>>9"
                     "CASH INVOICE"      @ inv-line.i-no
                     dec(tt-report.key-05)  @ v-tmp-amt
                     ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 
@@ -2052,17 +2052,17 @@ PROCEDURE list-post-inv :
   DEFINE VARIABLE v-first AS LOG INIT YES.
   DEFINE VARIABLE v-tot-frt AS DECIMAL NO-UNDO.
   FORMAT
-    inv-head.inv-no AT 1
-    inv-head.inv-date AT 8 FORMAT "99/99/99"
-    inv-head.cust-no AT 17
-    inv-head.cust-name FORMAT "x(25)" AT 26
-    v-ord-no TO 59
+    inv-head.inv-no FORMAT ">>>>>>9" AT 1
+    inv-head.inv-date AT 9 FORMAT "99/99/99"
+    inv-head.cust-no AT 18
+    inv-head.cust-name FORMAT "x(25)" AT 27
+    v-ord-no TO 60
     v-inv-qty
     inv-head.t-inv-freight FORMAT "->,>>9.99"
     inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
     v-misc-tot FORMAT "->>>>9.99"
     v-line-tot FORMAT "->>>>>>9.99"
-    inv-head.t-inv-rev format "->>,>>>,>>9.999999" TO 138
+    inv-head.t-inv-rev format "->>,>>>,>>9.999999" TO 139
     ld-pton FORMAT "->>>>>>9.999"
     ld-t[2]
     WITH STREAM-IO WIDTH 180 NO-LABELS NO-BOX NO-UNDERLINE FRAME inv.
@@ -2464,13 +2464,13 @@ PROCEDURE run-report :
     str-tit4 AT 58
     SKIP(1)
     "  - Invoice - " SKIP
-    "Number"  "Date" AT 10  "Cust#" AT 17 "Customer Name" AT 26 "Order#" TO 59
-    "Quantity" TO 74 "Frt" TO 84 "Tax" TO 98
-    "Misc" TO 108 "Items" TO 120
-    "Total" TO 138 
-    lv-label-ton[1] TO 162
+    "Number"  "Date" AT 11  "Cust#" AT 18 "Customer Name" AT 27 "Order#" TO 60
+    "Quantity" TO 75 "Frt" TO 85 "Tax" TO 99
+    "Misc" TO 109 "Items" TO 121
+    "Total" TO 139 
+    lv-label-ton[1] TO 163
     FILL("=",142) FORMAT "x(142)"
-    lv-label-ton[2] TO 162
+    lv-label-ton[2] TO 163
     WITH FRAME r-top WIDTH 180.
 
   FIND FIRST period                   
