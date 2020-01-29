@@ -47,22 +47,7 @@ RUN ReadRequestData IN hdJSONProcs (
       
 IF NOT oplSuccess THEN DO:   
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.
-    /* Log the request to APIInboundEvent */
-    RUN api\CreateAPIInboundEvent.p (
-        INPUT ipcRoute,
-        INPUT iplcRequestData,
-        INPUT oplcResponseData,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT NOW,
-        INPUT ipcRequestedBy,
-        INPUT ipcRecordSource,
-        INPUT ipcNotes,
-        INPUT  "", /* PayloadID */
-        OUTPUT opcAPIInboundEvent
-        ).
-
-   RETURN.
+    RETURN.
 END.        
 
 RUN pProcessInputs (
@@ -82,21 +67,6 @@ ELSE
         oplcResponseData = '~{"response_code":200,"response_message":"' + opcMessage + '","response_data":[' + lcConcatResponseData + ']}'
         opcMessage = "Success"
         .
-        
-/* Log the request to APIInboundEvent */
-RUN api\CreateAPIInboundEvent.p (
-    INPUT ipcRoute,
-    INPUT iplcRequestData,
-    INPUT oplcResponseData,
-    INPUT oplSuccess,
-    INPUT opcMessage,
-    INPUT NOW,
-    INPUT ipcRequestedBy,
-    INPUT ipcRecordSource,
-    INPUT ipcNotes,
-    INPUT  "", /* PayloadID */
-    OUTPUT opcAPIInboundEvent
-    ).
 
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
 DELETE PROCEDURE hdJSONProcs.
@@ -149,21 +119,6 @@ PROCEDURE pProcessInputs:
     IF NOT oplSuccess THEN
     DO:
         oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
-        /* Log the request to APIInboundEvent */
-        RUN api\CreateAPIInboundEvent.p (
-            INPUT  ipcRoute,
-            INPUT  iplcRequestData,
-            INPUT  oplcResponseData,
-            INPUT  oplSuccess,
-            INPUT  opcMessage,
-            INPUT  NOW,
-            INPUT  ipcRequestedBy,
-            INPUT  ipcRecordSource,
-            INPUT  ipcNotes,
-            INPUT  "", /* PayloadID */
-            OUTPUT opcAPIInboundEvent
-            ).
-   
         RETURN.  
     END.
     
