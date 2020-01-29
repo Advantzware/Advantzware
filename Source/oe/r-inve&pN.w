@@ -113,8 +113,8 @@ DEFINE VARIABLE v-post-zero-cgs AS LOG NO-UNDO.
 DEFINE VARIABLE v-export LIKE sys-ctrl.char-fld NO-UNDO.
 DEFINE VARIABLE v-rec-written AS INTEGER NO-UNDO.
 DEFINE VARIABLE t-rec-written AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-s-inv-no LIKE inv-head.inv-no INIT 0 NO-UNDO.
-DEFINE VARIABLE v-e-inv-no LIKE v-s-inv-no INIT 999999.
+DEFINE VARIABLE v-s-inv-no LIKE inv-head.inv-no INIT 0 NO-UNDO FORMAT ">>>>>>9".
+DEFINE VARIABLE v-e-inv-no LIKE v-s-inv-no INIT 9999999.
 DEFINE VARIABLE v-s-date   LIKE inv-head.inv-date FORMAT "99/99/9999"
                                           INIT 01/01/0001 NO-UNDO.
 DEFINE VARIABLE v-e-date   LIKE v-s-date INIT TODAY.
@@ -1187,7 +1187,7 @@ IF NOT AVAILABLE bf-inv-head THEN
            tt-report.term-id = ""
            tt-report.key-01  = "work-tax"
            tt-report.key-02  = account.actnum
-           tt-report.key-03  = STRING(ipi-inv-no,"999999")
+           tt-report.key-03  = STRING(ipi-inv-no,"9999999")
            tt-report.key-04  = bf-inv-head.tax-gr
            tt-report.key-05  = STRING(v-tax-rate[i] *
                                       (IF AVAILABLE bf-currency  THEN

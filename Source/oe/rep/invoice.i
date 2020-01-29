@@ -2,7 +2,7 @@
 
 def {1} shared var fcust like inv-head.cust-no.
 def {1} shared var tcust like fcust init "zzzzzzzz".
-def {1} shared var finv like inv-head.inv-no format ">>>>>>".
+def {1} shared var finv like inv-head.inv-no format ">>>>>>>".
 def {1} shared var tinv like finv init 999999.
 def {1} shared var v-prntinst as log init yes.
 def {1} shared var v-reprint as log init no.

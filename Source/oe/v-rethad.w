@@ -61,7 +61,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -72,14 +72,15 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-reth.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-reth.return-date oe-reth.tot-freight oe-reth.spare-char-1 
+&Scoped-Define ENABLED-FIELDS oe-reth.return-date oe-reth.tot-freight 
 &Scoped-define ENABLED-TABLES oe-reth
 &Scoped-define FIRST-ENABLED-TABLE oe-reth
 &Scoped-Define ENABLED-OBJECTS RECT-21 RECT-22 RECT-23 RECT-24 RECT-25 
 &Scoped-Define DISPLAYED-FIELDS oe-reth.ra-no oe-reth.cust-no ~
 oe-reth.inv-no oe-reth.return-date oe-reth.applied oe-reth.posted ~
 oe-reth.tot-qty-return oe-reth.tot-tax oe-reth.qty-return-inv ~
-oe-reth.tot-freight oe-reth.tot-return-amt oe-reth.tot-cost oe-reth.spare-char-1
+oe-reth.spare-char-1 oe-reth.tot-freight oe-reth.tot-return-amt ~
+oe-reth.tot-cost 
 &Scoped-define DISPLAYED-TABLES oe-reth
 &Scoped-define FIRST-DISPLAYED-TABLE oe-reth
 &Scoped-Define DISPLAYED-OBJECTS lv-soldto lv-cname lv-sname lv-caddr ~
@@ -91,7 +92,7 @@ lv-szip lv-tot-line
 &Scoped-define ADM-CREATE-FIELDS oe-reth.cust-no oe-reth.inv-no 
 &Scoped-define ADM-ASSIGN-FIELDS oe-reth.applied oe-reth.posted ~
 oe-reth.tot-qty-return oe-reth.tot-tax oe-reth.qty-return-inv ~
-oe-reth.tot-return-amt oe-reth.tot-cost 
+oe-reth.spare-char-1 oe-reth.tot-return-amt oe-reth.tot-cost 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -212,7 +213,7 @@ DEFINE FRAME F-Main
      oe-reth.cust-no AT ROW 2.91 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     oe-reth.inv-no AT ROW 1.48 COL 37.2 COLON-ALIGNED
+     oe-reth.inv-no AT ROW 1.48 COL 37.2 COLON-ALIGNED FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      oe-reth.return-date AT ROW 1.48 COL 68.4 COLON-ALIGNED
@@ -325,7 +326,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit Custom                                       */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -335,7 +336,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-reth.cust-no IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN oe-reth.inv-no IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN lv-caddr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-caddr2 IN FRAME F-Main
@@ -370,9 +371,9 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-reth.ra-no IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN oe-reth.tot-cost IN FRAME F-Main
-   NO-ENABLE 2 EXP-LABEL                                                */ 
 /* SETTINGS FOR FILL-IN oe-reth.spare-char-1 IN FRAME F-Main
+   NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN oe-reth.tot-cost IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-reth.tot-qty-return IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
@@ -393,7 +394,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
