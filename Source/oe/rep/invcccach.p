@@ -412,6 +412,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
               {oe/rep/invcccach.i}
               v-printline = 21.
             END.
+        END.
         ELSE DO:
             IF v-printline > 62 THEN DO:
               PAGE.
