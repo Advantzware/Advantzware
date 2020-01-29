@@ -103,6 +103,7 @@ DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpgradeAvail     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserExit         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lViewTaskResults  AS LOGICAL   NO-UNDO INITIAL ?.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
@@ -881,19 +882,28 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
     
     lSaveErrStat = ERROR-STATUS:ERROR.
-    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
-    FIND FIRST taskResult NO-LOCK
-         WHERE taskResult.user-id EQ USERID("ASI")
-           AND taskResult.viewed  EQ NO
-        NO-ERROR.    
-    IF AVAILABLE taskResult AND
-       SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
-        PAUSE 2 NO-MESSAGE.
-        OS-COMMAND NO-WAIT start VALUE(SEARCH(taskResult.folderFile)).
-        FIND CURRENT taskResult EXCLUSIVE-LOCK.
-        taskResult.viewed = YES.
-        RELEASE taskResult.
-    END. /* if avail */
+    IF lViewTaskResults EQ YES OR lViewTaskResults EQ ? THEN DO:
+        RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
+        FIND FIRST taskResult NO-LOCK
+             WHERE taskResult.user-id EQ USERID("ASI")
+               AND taskResult.viewed  EQ NO
+            NO-ERROR.    
+        IF AVAILABLE taskResult AND
+           SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
+            IF lViewTaskResults EQ ? THEN
+            MESSAGE
+                "An Unviewed Task Result Exists, View Now?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lViewTaskResults.
+            IF lViewTaskResults THEN DO:
+                PAUSE 2 NO-MESSAGE.
+                OS-COMMAND NO-WAIT start VALUE(SEARCH(taskResult.folderFile)).
+                FIND CURRENT taskResult EXCLUSIVE-LOCK.
+                taskResult.viewed = YES.
+                RELEASE taskResult.
+            END. /* if lViewTaskResults eq ? */
+        END. /* if avail */
+    END.
     FIND FIRST config NO-LOCK.
     cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
     IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:

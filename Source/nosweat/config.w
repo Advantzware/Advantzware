@@ -65,7 +65,8 @@ DEFINE VARIABLE selected-name AS CHARACTER NO-UNDO.
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.logs_dir ~
 config.spool_dir config.taskName config.taskType config.taskDate ~
-config.taskTime config.cueCard config.start_page_no 
+config.taskTime config.cueCard config.taskerLastExecuted ~
+config.start_page_no 
 &Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH config SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH config SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME config
@@ -76,7 +77,7 @@ config.taskTime config.cueCard config.start_page_no
 &Scoped-Define ENABLED-OBJECTS btnUpdate btnClose 
 &Scoped-Define DISPLAYED-FIELDS config.logs_dir config.spool_dir ~
 config.taskName config.taskType config.taskDate config.taskTime ~
-config.cueCard config.start_page_no 
+config.cueCard config.taskerLastExecuted config.start_page_no 
 &Scoped-define DISPLAYED-TABLES config
 &Scoped-define FIRST-DISPLAYED-TABLE config
 
@@ -141,24 +142,28 @@ DEFINE FRAME DEFAULT-FRAME
      config.taskTime AT ROW 3.62 COL 72 WIDGET-ID 26
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY 1
-     btnUpdate AT ROW 3.86 COL 88 HELP
-          "Update/Save System Configurations"
-     btnClose AT ROW 3.86 COL 97 HELP
-          "Cancel Update or Close Window"
      config.cueCard AT ROW 4.81 COL 24 WIDGET-ID 30
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY 1
-     config.start_page_no AT ROW 4.81 COL 79 COLON-ALIGNED
+     btnUpdate AT ROW 5.05 COL 88 HELP
+          "Update/Save System Configurations"
+     btnClose AT ROW 5.05 COL 97 HELP
+          "Cancel Update or Close Window"
+     config.taskerLastExecuted AT ROW 6 COL 22 COLON-ALIGNED WIDGET-ID 34
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 
+     config.start_page_no AT ROW 6 COL 79 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 
      "Email Subject:" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 3.62 COL 10 WIDGET-ID 32
-     RECT-1 AT ROW 3.62 COL 87
+     RECT-1 AT ROW 4.81 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 106 BY 5
+         SIZE 106 BY 6.48
          FGCOLOR 1 .
 
 
@@ -179,11 +184,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "System Configurations"
-         HEIGHT             = 5
+         HEIGHT             = 6.48
          WIDTH              = 106
-         MAX-HEIGHT         = 5
+         MAX-HEIGHT         = 6.48
          MAX-WIDTH          = 106
-         VIRTUAL-HEIGHT     = 5
+         VIRTUAL-HEIGHT     = 6.48
          VIRTUAL-WIDTH      = 106
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -233,6 +238,8 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR TOGGLE-BOX config.taskDate IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN config.taskerLastExecuted IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX config.taskName IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR TOGGLE-BOX config.taskTime IN FRAME DEFAULT-FRAME
@@ -438,7 +445,8 @@ PROCEDURE enable_UI :
   GET FIRST DEFAULT-FRAME.
   IF AVAILABLE config THEN 
     DISPLAY config.logs_dir config.spool_dir config.taskName config.taskType 
-          config.taskDate config.taskTime config.cueCard config.start_page_no 
+          config.taskDate config.taskTime config.cueCard 
+          config.taskerLastExecuted config.start_page_no 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnUpdate btnClose 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.

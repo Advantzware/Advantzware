@@ -63,8 +63,10 @@ IF fSuperRunning("session.") THEN DO:
         iSecurityLevelUser
         ).
     
-    /* if SysCtrlUsage viewer open, auto refresh */
-    hSysCtrlUsage = DYNAMIC-FUNCTION("sfGetSysCtrlUsageHandle").
-    IF VALID-HANDLE(hSysCtrlUsage) THEN
-    RUN pGetSysCtrlUsage IN hSysCtrlUsage.
+    IF {&tableName}.name NE "TaskerNotRunning" THEN DO:
+        /* if SysCtrlUsage viewer open, auto refresh */
+        hSysCtrlUsage = DYNAMIC-FUNCTION("sfGetSysCtrlUsageHandle").
+        IF VALID-HANDLE(hSysCtrlUsage) THEN
+        RUN pGetSysCtrlUsage IN hSysCtrlUsage.
+    END. /* if tasker not running */
 END. /* if super running */
