@@ -598,7 +598,7 @@ PROCEDURE genOrderLinesLocal:
          ).
         
      IF NOT oplSuccess THEN DO:
-        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") is does not exist : PO #" + ttOrdHead.ttOrderID.
+        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") does not exist : PO #" + ttOrdHead.ttOrderID.
 
         RETURN.
      END.
