@@ -72,15 +72,14 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-reth.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-reth.return-date oe-reth.tot-freight 
+&Scoped-Define ENABLED-FIELDS oe-reth.return-date oe-reth.tot-freight oe-reth.spare-char-1 
 &Scoped-define ENABLED-TABLES oe-reth
 &Scoped-define FIRST-ENABLED-TABLE oe-reth
 &Scoped-Define ENABLED-OBJECTS RECT-21 RECT-22 RECT-23 RECT-24 RECT-25 
 &Scoped-Define DISPLAYED-FIELDS oe-reth.ra-no oe-reth.cust-no ~
 oe-reth.inv-no oe-reth.return-date oe-reth.applied oe-reth.posted ~
 oe-reth.tot-qty-return oe-reth.tot-tax oe-reth.qty-return-inv ~
-oe-reth.spare-char-1 oe-reth.tot-freight oe-reth.tot-return-amt ~
-oe-reth.tot-cost 
+oe-reth.tot-freight oe-reth.tot-return-amt oe-reth.tot-cost oe-reth.spare-char-1
 &Scoped-define DISPLAYED-TABLES oe-reth
 &Scoped-define FIRST-DISPLAYED-TABLE oe-reth
 &Scoped-Define DISPLAYED-OBJECTS lv-soldto lv-cname lv-sname lv-caddr ~
