@@ -47,12 +47,12 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   DEFINE INPUT  PARAMETER ipcWarehouseID    AS CHARACTER NO-UNDO.
   
   DEFINE OUTPUT PARAMETER opcPayloadID         AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcOrderID           AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
   DEFINE OUTPUT PARAMETER opcReturnValue       AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opcInternalException AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE payLoadID        AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE orderID          AS CHARACTER NO-UNDO.
   DEFINE VARIABLE fromIdentity     AS CHARACTER NO-UNDO.
   DEFINE VARIABLE orderDate        AS CHARACTER NO-UNDO.
   DEFINE VARIABLE custNo           AS CHARACTER NO-UNDO.
@@ -71,6 +71,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   DEFINE VARIABLE lOEAutoApproval  AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cResult          AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE orderID          AS CHARACTER NO-UNDO.
   
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no  NO-UNDO.
   DEFINE VARIABLE iNextShipNo      LIKE shipto.ship-no NO-UNDO.
@@ -86,10 +87,11 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   
   IF ERROR-STATUS:ERROR OR NOT TEMP-TABLE ttNodes:HAS-RECORDS THEN DO:
       ASSIGN
-          opcInternalException = ERROR-STATUS:GET-MESSAGE(1)
+          opcInternalException = RETURN-VALUE
           opcReturnValue       = "Requested XML is not in valid format"
           oplSuccess           = NO
           .
+          
       RETURN.  
   END.
   
@@ -103,64 +105,66 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       opcPayloadID = payLoadID.
 
   IF NOT lIsEdiXML THEN DO:
-      
+ 
       ASSIGN
-          payLoadID    = getNodeValue('cXML','payloadID')
-          opcPayloadID = payLoadID
-          fromIdentity = getNodeValue('From','Identity')
-          orderDate    = getNodeValue('OrderRequestHeader','orderDate')
-          orderID      = getNodeValue('OrderRequestHeader','orderID')
-          shipToID     = getNodeValue('shipTo','AddressID')
-          NO-ERROR.
-          
-      /* Validation of AddressID */    
-      IF shipToID EQ "" THEN DO:
-          ASSIGN
-              opcReturnValue = "AddressID is empty"
-              oplSuccess     = NO
-              .
-              
-          RETURN. 
-      END.
-      
-      /* Validation of PayloadID */
-      IF payLoadID EQ "" THEN DO:
-          ASSIGN
-              oplSuccess     = NO
-              opcReturnValue = 'PayloadID is empty'
-              .
-              
-          RETURN.
-      END. 
-      
-      /* Validation of identity present in from tag */
-      IF fromIdentity EQ "" THEN DO:
-          ASSIGN
-              oplSuccess     = NO
-              opcReturnValue = 'FromIdentity is empty'
-              .
-              
-          RETURN.
-      END. 
-      
-      /* Validation of orderDate */
-      IF orderDate EQ "" THEN DO:
-          ASSIGN
-              oplSuccess     = NO
-              opcReturnValue = 'orderDate is empty'
-              .
-              
-          RETURN.
-      END. 
-      
+          orderID    = getNodeValue('OrderRequestHeader','orderID')
+          opcOrderID = orderID
+          .            
       /* Validation of orderID */
       IF orderID EQ "" THEN DO:
           ASSIGN
               oplSuccess     = NO
-              opcReturnValue = 'orderID is empty'
+              opcReturnValue = 'OrderID is empty'
               .
               
           RETURN.
+      END.
+      
+      ASSIGN
+          payLoadID    = getNodeValue('cXML','payloadID')
+          opcPayloadID = payLoadID
+          .
+      /* Validation of PayloadID */
+      IF payLoadID EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'PayloadID is empty : PO # ' + orderID 
+              .
+              
+          RETURN.
+      END. 
+      
+      fromIdentity = getNodeValue('From','Identity').
+      /* Validation of identity present in from tag */
+      IF fromIdentity EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'FromIdentity is empty : PO # ' + orderID
+              .
+              
+          RETURN.
+      END. 
+      
+      orderDate = getNodeValue('OrderRequestHeader','orderDate').
+      /* Validation of orderDate */
+      IF orderDate EQ "" THEN DO:
+          ASSIGN
+              oplSuccess     = NO
+              opcReturnValue = 'orderDate is empty : PO # ' + orderID
+              .
+              
+          RETURN.
+      END. 
+      
+      shipToID = getNodeValue('shipTo','AddressID').
+      /* Validation of AddressID */    
+      IF shipToID EQ "" THEN DO:
+          ASSIGN
+              opcReturnValue = "AddressID is empty : PO # " + orderID
+              oplSuccess     = NO
+              .
+              
+          RETURN. 
       END.
       
       /* This procedure validates company code,shipToID and location code, 
@@ -172,6 +176,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           INPUT-OUTPUT shipToID,
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
+          INPUT        OrderID,
           OUTPUT       custno,
           OUTPUT       oplSuccess,
           OUTPUT       opcReturnValue,
@@ -219,7 +224,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       IF NOT AVAILABLE ttNodes THEN DO:
           ASSIGN
               oplSuccess = NO
-              opcReturnValue = 'Part Number is missing from XML file' 
+              opcReturnValue = 'Part Number is missing from XML file  : PO # ' + orderID
               .
               
           RETURN.
@@ -271,6 +276,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           INPUT-OUTPUT shipToID,
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
+          INPUT        OrderID,
           OUTPUT       custno,
           OUTPUT       oplSuccess,
           OUTPUT       opcReturnValue,
@@ -289,7 +295,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
          fromIdentity EQ "" OR
          orderDate EQ ? THEN DO:
           ASSIGN
-              opcReturnValue = "Requested XML is not in valid format"
+              opcReturnValue = "Requested XML is not in valid format : PO # " + orderID
               oplSuccess     = NO
               .
           RETURN. 
@@ -306,7 +312,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
             IF NOT AVAILABLE itemfg THEN DO:
                 ASSIGN
                     oplSuccess     = NO
-                    opcReturnValue = 'Part Number is missing from XML file' 
+                    opcReturnValue = 'Part Number is missing from XML file : PO # ' + orderID 
                     .
                     
                 RETURN.                
@@ -410,7 +416,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
       
   ASSIGN
       oplSuccess     = TRUE
-      opcReturnValue = 'Successfully Generated Order'
+      opcReturnValue = 'Successfully Generated Order : PO # ' + orderID 
       .
 
 /* Procedure genTempOrderLinesLocal is modelled after internal procedure (genTempOrderLines)
@@ -564,7 +570,7 @@ PROCEDURE genOrderLinesLocal:
      IF ttOrdLines.ttitemSupplierPartID EQ "" THEN DO:
         ASSIGN
             oplSuccess     = NO
-            opcReturnValue = "SupplierPartID is empty for line (" + ttItemLineNumber + ")"
+            opcReturnValue = "SupplierPartID is empty for line (" + ttItemLineNumber + ") : PO #" + ttOrdHead.ttOrderID
             .
 
         RETURN.
@@ -592,7 +598,7 @@ PROCEDURE genOrderLinesLocal:
          ).
         
      IF NOT oplSuccess THEN DO:
-        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") is does not exist".
+        opcReturnValue = "SupplierPartID (" + ttOrdLines.ttItemSupplierPartID + ") does not exist : PO #" + ttOrdHead.ttOrderID.
 
         RETURN.
      END.
