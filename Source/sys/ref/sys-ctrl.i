@@ -199,7 +199,7 @@ ASSIGN
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
  str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
- str-init[111] = ",Positive Pay,Positive Pay-knight"
+ str-init[111] = ",Positive Pay,Positive Pay-knight,Positive Pay-Santander"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 
  str-init[114] = ",Overrun/Underrun"
