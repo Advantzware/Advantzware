@@ -943,7 +943,7 @@ PROCEDURE UpdateSetUnitize :
          IF NOT AVAIL bf-estPacking THEN do:
 
              CREATE bf-estPacking .
-             BUFFER-COPY estPacking EXCEPT FormNo BlankNo TO bf-estPacking .
+             BUFFER-COPY estPacking EXCEPT rec_key FormNo BlankNo TO bf-estPacking .
              ASSIGN 
                  bf-estPacking.FormNo       = eb.form-no
                  bf-estPacking.BlankNo      = eb.blank-No. 

@@ -1415,7 +1415,7 @@ PROCEDURE run-process :
          AND estPacking.estimateNo = est.est-no :
                  
           CREATE bf-estPacking .
-          BUFFER-COPY estPacking EXCEPT company estimateNo TO bf-estPacking .
+          BUFFER-COPY estPacking EXCEPT rec_key company estimateNo TO bf-estPacking .
              ASSIGN 
                  bf-estPacking.company    = kest.company
                  bf-estPacking.estimateNo = kest.est-no . 
