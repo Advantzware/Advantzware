@@ -90,17 +90,18 @@ RUN util/checkModule.p (INPUT "", INPUT "EdIvTran.", INPUT NO, OUTPUT lEDI810Vis
 DEFINE QUERY external_tables FOR ar-inv.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
-ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.tax-code ar-inv.terms ~
-ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ar-inv.carrier ~
-ar-inv.f-bill
+ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.period ~
+ar-inv.tax-code ar-inv.terms ar-inv.cust-name ar-inv.disc-% ~
+ar-inv.disc-days ar-inv.carrier ar-inv.f-bill ar-inv.freight 
 &Scoped-define ENABLED-TABLES ar-inv
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 tbEdiInvoice RECT-1 RECT-5 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
-ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.tax-code ar-inv.terms ~
-ar-inv.period ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
-ar-inv.carrier ar-inv.freight ar-inv.tax-amt ar-inv.gross ar-inv.disc-taken ~
-ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate ar-inv.f-bill
+ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.period ~
+ar-inv.tax-code ar-inv.terms ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ~
+ar-inv.disc-days ar-inv.carrier ar-inv.f-bill ar-inv.freight ar-inv.tax-amt ~
+ar-inv.gross ar-inv.disc-taken ar-inv.paid ar-inv.due ar-inv.curr-code[1] ~
+ar-inv.ex-rate 
 &Scoped-define DISPLAYED-TABLES ar-inv
 &Scoped-define FIRST-DISPLAYED-TABLE ar-inv
 &Scoped-Define DISPLAYED-OBJECTS ship_name tbEdiInvoice 
@@ -110,7 +111,7 @@ ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate ar-inv.f-bill
 &Scoped-define ADM-CREATE-FIELDS ar-inv.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS ar-inv.cust-no ar-inv.terms-d ~
 ar-inv.cust-name ar-inv.curr-code[1] 
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,7 +187,7 @@ DEFINE FRAME F-Main
           SIZE 21 BY 1
      ship_name AT ROW 2.43 COL 37 COLON-ALIGNED NO-LABEL
      ar-inv.inv-no AT ROW 3.38 COL 16 COLON-ALIGNED
-          LABEL "Invoice#"
+          LABEL "Invoice#" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.po-no AT ROW 4.33 COL 16 COLON-ALIGNED
@@ -199,12 +200,10 @@ DEFINE FRAME F-Main
      ar-inv.due-date AT ROW 6.24 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
-    ar-inv.printed AT ROW 6.45 COL 56 COLON-ALIGNED FORMAT "Yes/No"
-          LABEL "Printed"
+     ar-inv.printed AT ROW 6.43 COL 56 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
-    ar-inv.period AT ROW 7.30 COL 56 COLON-ALIGNED 
-          LABEL "Period"
+     ar-inv.period AT ROW 7.29 COL 56 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.tax-code AT ROW 7.19 COL 16 COLON-ALIGNED
@@ -230,8 +229,7 @@ DEFINE FRAME F-Main
      ar-inv.carrier AT ROW 5.52 COL 56 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ar-inv.f-bill AT ROW 2.91 COL 78 COLON-ALIGNED
-          LABEL "Bill Freight"
+     ar-inv.f-bill AT ROW 2.91 COL 80
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
      ar-inv.freight AT ROW 2.91 COL 105 COLON-ALIGNED
@@ -329,6 +327,7 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
@@ -349,12 +348,10 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN ar-inv.freight IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN ar-inv.f-bill IN FRAME F-Main
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.gross IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN ar-inv.inv-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ar-inv.paid IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.po-no IN FRAME F-Main
@@ -441,6 +438,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i ar-inv.inv-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i ar-inv.due-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ar-inv.curr-code[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.curr-code[1] V-table-Win
 ON LEAVE OF ar-inv.curr-code[1] IN FRAME F-Main /* Currency Code */
@@ -489,6 +508,16 @@ END.
 
 &Scoped-define SELF-NAME ar-inv.due-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.due-date V-table-Win
+ON HELP OF ar-inv.due-date IN FRAME F-Main /* Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.due-date V-table-Win
 ON LEAVE OF ar-inv.due-date IN FRAME F-Main /* Due Date */
 DO:
   IF LASTKEY NE -1 THEN DO:
@@ -503,6 +532,16 @@ END.
 
 &Scoped-define SELF-NAME ar-inv.inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.inv-date V-table-Win
+ON HELP OF ar-inv.inv-date IN FRAME F-Main /* Invoice Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.inv-date V-table-Win
 ON LEAVE OF ar-inv.inv-date IN FRAME F-Main /* Invoice Date */
 DO:
     {&methods/lValidateError.i YES}
@@ -515,48 +554,6 @@ DO:
     RUN pInvDueDate .  /* recalc due-date */
     lv-due-calckt = YES.
     {&methods/lValidateError.i NO}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME ar-inv.due-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.due-date V-table-Win
-ON HELP OF ar-inv.due-date IN FRAME F-Main /* Ack. Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME ar-inv.inv-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.inv-date V-table-Win
-ON HELP OF ar-inv.inv-date IN FRAME F-Main /* Hold/Appr Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i ar-inv.inv-date}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
-ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i ar-inv.due-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -773,6 +770,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CheckCreate V-table-Win 
+PROCEDURE CheckCreate :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DEFINE OUTPUT PARAMETER op-error AS LOGICAL NO-UNDO .
+    ASSIGN 
+        ls-add-what = "" 
+        Is-add-dup-inv = "" .
+    RUN oe/d-addfol.w (INPUT YES, OUTPUT ls-add-what,OUTPUT Is-add-dup-inv).
+    
+    IF ls-add-what = "" THEN do:  /* cancel from dialog box */
+       ASSIGN op-error = YES .
+        RETURN NO-APPLY.
+    END.
+
+    IF ls-add-what NE "add" AND Is-add-dup-inv EQ "" THEN DO:
+        ASSIGN op-error = YES .
+        RETURN NO-APPLY.
+    END.
+
+    IF ls-add-what EQ "duplicate" THEN DO:
+       ASSIGN op-error = YES .
+       RUN pCreateDuplicate("duplicate") . 
+    END.
+    ELSE IF ls-add-what EQ "credit" THEN DO:
+        ASSIGN op-error = YES .
+        RUN pCreateCredit("credit") .
+    END.
+    ELSE IF ls-add-what EQ "rebill" THEN DO:
+        ASSIGN op-error = YES .
+         RUN pCreateCredit("Rebill") .
+        RUN  pCreateDuplicate("Rebill") .
+    END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -970,49 +1009,6 @@ PROCEDURE local-disable :
   DO WITH FRAME F-Main:
     DISABLE tbEdiInvoice.
   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CheckCreate V-table-Win 
-PROCEDURE CheckCreate :
-
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-DEFINE OUTPUT PARAMETER op-error AS LOGICAL NO-UNDO .
-    ASSIGN 
-        ls-add-what = "" 
-        Is-add-dup-inv = "" .
-    RUN oe/d-addfol.w (INPUT YES, OUTPUT ls-add-what,OUTPUT Is-add-dup-inv).
-    
-    IF ls-add-what = "" THEN do:  /* cancel from dialog box */
-       ASSIGN op-error = YES .
-        RETURN NO-APPLY.
-    END.
-
-    IF ls-add-what NE "add" AND Is-add-dup-inv EQ "" THEN DO:
-        ASSIGN op-error = YES .
-        RETURN NO-APPLY.
-    END.
-
-    IF ls-add-what EQ "duplicate" THEN DO:
-       ASSIGN op-error = YES .
-       RUN pCreateDuplicate("duplicate") . 
-    END.
-    ELSE IF ls-add-what EQ "credit" THEN DO:
-        ASSIGN op-error = YES .
-        RUN pCreateCredit("credit") .
-    END.
-    ELSE IF ls-add-what EQ "rebill" THEN DO:
-        ASSIGN op-error = YES .
-         RUN pCreateCredit("Rebill") .
-        RUN  pCreateDuplicate("Rebill") .
-    END.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1256,6 +1252,270 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateCredit V-table-Win 
+PROCEDURE pCreateCredit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER cType AS CHARACTER NO-UNDO .  
+
+DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE X AS INTEGER NO-UNDO.
+DEFINE VARIABLE Y AS INTEGER NO-UNDO.
+
+  DEF BUFFER b-ar-inv FOR ar-inv.
+  DEFINE BUFFER bff-ar-inv FOR ar-inv .
+  DEFINE BUFFER bff-ar-invl FOR ar-invl .
+  DEFINE BUFFER bf-invl FOR ar-invl .
+
+  ASSIGN
+     x = 0
+     y = 0.
+
+  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
+  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
+  FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
+  Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
+
+  DO WHILE TRUE:
+    FIND FIRST b-ar-inv
+        WHERE b-ar-inv.company EQ g_company
+          AND b-ar-inv.inv-no  EQ y
+        NO-LOCK NO-ERROR.
+    FIND FIRST inv-head
+        WHERE inv-head.company EQ g_company
+          AND inv-head.inv-no  EQ y
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL b-ar-inv AND NOT AVAIL inv-head THEN LEAVE.
+
+    y = y + 1.
+  END.
+ CREATE ar-inv .
+  assign
+   ar-inv.company  = g_company
+   ar-inv.inv-date = today
+   ar-inv.x-no     = x 
+   ar-inv.inv-no   = y 
+   ar-inv.posted   = FALSE 
+   ar-inv.USER-ID  = USERID(LDBNAME(1)) 
+   ar-inv.upd-date = TODAY 
+   ar-inv.upd-time = TIME 
+   .
+
+  FIND FIRST bff-ar-inv NO-LOCK 
+      WHERE bff-ar-inv.company EQ g_company 
+        AND bff-ar-inv.inv-no EQ integer(Is-add-dup-inv) NO-ERROR .
+  IF AVAIL bff-ar-inv THEN DO:
+      BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
+      ASSIGN 
+          ar-inv.t-comm        = ar-inv.t-comm * -1 
+          ar-inv.t-cost        = ar-inv.t-cost * -1 
+          ar-inv.freight       = ar-inv.freight * -1 
+          ar-inv.fuel          = ar-inv.fuel * -1 
+          ar-inv.gross         = ar-inv.gross * -1 
+          ar-inv.tax-amt       = ar-inv.tax-amt * -1  
+          ar-inv.t-weight      = ar-inv.t-weight * -1
+          ar-inv.net           = ar-inv.net * -1
+          ar-inv.due           = ar-inv.due * -1
+          ar-inv.paid          = 0
+          ar-inv.printed       = NO 
+          ar-inv.inv-date      = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
+          ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
+          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv)
+          ar-inv.t-sales       = ar-inv.t-sales * -1      .
+          
+          FIND FIRST cust NO-LOCK 
+              WHERE cust.company EQ g_company
+              AND cust.cust-no EQ ar-inv.cust-no
+              NO-ERROR.  
+          IF AVAIL cust THEN
+          FIND FIRST terms NO-LOCK 
+              WHERE terms.t-code EQ cust.terms
+             NO-ERROR.
+            IF AVAIL terms THEN
+                ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
+            ELSE ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
+
+   FOR EACH bff-ar-invl NO-LOCK 
+       WHERE bff-ar-invl.company EQ bff-ar-inv.company
+         AND bff-ar-invl.inv-no  EQ bff-ar-inv.inv-no
+         AND bff-ar-invl.x-no    EQ bff-ar-inv.x-no :
+       
+       CREATE bf-invl .
+       ASSIGN bf-invl.company = g_company
+              bf-invl.x-no    = X
+              bf-invl.inv-no  = Y 
+              bf-invl.b-no    = 0
+              bf-invl.upd-date = TODAY 
+              bf-invl.upd-time = TIME
+              bf-invl.posted = FALSE
+           .
+        BUFFER-COPY bff-ar-invl EXCEPT company x-no inv-no b-no upd-date upd-time posted rec_key TO bf-invl .
+        ASSIGN
+            bf-invl.amt-msf    = bf-invl.amt-msf * -1 
+            bf-invl.cost       = bf-invl.cost * -1 
+            //bf-invl.disc       = bf-invl.disc * -1 
+            bf-invl.inv-qty    = bf-invl.inv-qty * -1 
+            bf-invl.qty        = bf-invl.qty * -1
+            bf-invl.t-freight  = bf-invl.t-freight * -1 
+            bf-invl.t-fuel     = bf-invl.t-fuel * -1 
+            bf-invl.amt        = bf-invl.amt * -1
+            bf-invl.t-cost     = bf-invl.t-cost * -1  
+            bf-invl.prep-amt   = bf-invl.prep-amt * -1
+            bf-invl.std-fix-cost = bf-invl.std-fix-cost * -1 
+            bf-invl.std-lab-cost = bf-invl.std-lab-cost * -1 
+            bf-invl.std-mat-cost = bf-invl.std-mat-cost * -1
+            bf-invl.std-tot-cost = bf-invl.std-tot-cost * -1  
+            bf-invl.std-var-cost = bf-invl.std-var-cost * -1 
+
+            bf-invl.prep-cost    = bf-invl.prep-cost * -1
+            bf-invl.ship-qty     = bf-invl.ship-qty * -1
+            bf-invl.sf-sht       = bf-invl.sf-sht * -1
+            bf-invl.amt-msf      = bf-invl.amt-msf * -1
+              .
+
+        
+   END. /* for each bff-ar-invl */
+  END. /* if avail bff-ar-inv*/
+
+  FIND CURRENT ar-inv NO-LOCK NO-ERROR .
+ 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN New_record IN WIDGET-HANDLE(char-hdl) (ROWID(ar-inv)) NO-ERROR.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDuplicate V-table-Win 
+PROCEDURE pCreateDuplicate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER cType AS CHARACTER NO-UNDO . 
+
+
+ DEF VAR X AS INT NO-UNDO.
+  DEF VAR Y AS INT NO-UNDO.
+
+  DEF BUFFER b-ar-inv FOR ar-inv.
+  DEFINE BUFFER bff-ar-inv FOR ar-inv .
+  DEFINE BUFFER bff-ar-invl FOR ar-invl .
+  DEFINE BUFFER bf-invl FOR ar-invl .
+
+  ASSIGN
+     x = 0
+     y = 0.
+
+  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
+  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
+  FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
+  Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
+
+  DO WHILE TRUE:
+    FIND FIRST b-ar-inv
+        WHERE b-ar-inv.company EQ g_company
+          AND b-ar-inv.inv-no  EQ y
+        NO-LOCK NO-ERROR.
+    FIND FIRST inv-head
+        WHERE inv-head.company EQ g_company
+          AND inv-head.inv-no  EQ y
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL b-ar-inv AND NOT AVAIL inv-head THEN LEAVE.
+
+    y = y + 1.
+  END.
+ CREATE ar-inv .
+  assign
+   ar-inv.company  = g_company
+   ar-inv.inv-date = today
+   ar-inv.x-no     = x 
+   ar-inv.inv-no   = y 
+   ar-inv.posted   = FALSE 
+   ar-inv.USER-ID  = USERID(LDBNAME(1)) 
+   ar-inv.upd-date = TODAY 
+   ar-inv.upd-time = TIME 
+   .
+
+  FIND FIRST bff-ar-inv NO-LOCK 
+      WHERE bff-ar-inv.company EQ g_company 
+        AND bff-ar-inv.inv-no EQ integer(Is-add-dup-inv) NO-ERROR .
+  IF AVAIL bff-ar-inv THEN DO:
+      BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
+       ar-inv.inv-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
+       ar-inv.printed  = NO .
+       ar-inv.paid     = 0 .
+       ar-inv.spare-char-1 = IF cType EQ "duplicate" THEN "Copy" ELSE "Rebill" .
+       ar-inv.spare-int-2  = INTEGER(Is-add-dup-inv) .
+       FIND FIRST cust NO-LOCK 
+           WHERE cust.company EQ g_company
+           AND cust.cust-no EQ ar-inv.cust-no
+           NO-ERROR.  
+       IF AVAIL cust THEN
+           FIND FIRST terms NO-LOCK 
+           WHERE terms.t-code EQ cust.terms
+           NO-ERROR.
+       IF AVAIL terms THEN
+           ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
+       ELSE ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
+
+   FOR EACH bff-ar-invl NO-LOCK 
+       WHERE bff-ar-invl.company EQ bff-ar-inv.company
+         AND bff-ar-invl.inv-no  EQ bff-ar-inv.inv-no
+         AND bff-ar-invl.x-no    EQ bff-ar-inv.x-no :
+       
+       CREATE bf-invl .
+       ASSIGN bf-invl.company = g_company
+              bf-invl.x-no    = X
+              bf-invl.inv-no  = Y 
+              bf-invl.b-no    = 0
+              bf-invl.upd-date = TODAY 
+              bf-invl.upd-time = TIME
+              bf-invl.posted = FALSE
+           .
+        BUFFER-COPY bff-ar-invl EXCEPT company x-no inv-no b-no upd-date upd-time posted rec_key TO bf-invl .
+        
+   END. /* for each bff-ar-invl */
+  END. /* if avail bff-ar-inv*/
+
+  FIND CURRENT ar-inv NO-LOCK NO-ERROR .
+  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN New_record IN WIDGET-HANDLE(char-hdl) (ROWID(ar-inv)) NO-ERROR. 
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInvDueDate V-table-Win 
+PROCEDURE pInvDueDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+
+DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
+END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -1466,273 +1726,6 @@ PROCEDURE valid-inv-no :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDuplicate V-table-Win 
-PROCEDURE pCreateDuplicate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER cType AS CHARACTER NO-UNDO . 
-
-
- DEF VAR X AS INT NO-UNDO.
-  DEF VAR Y AS INT NO-UNDO.
-
-  DEF BUFFER b-ar-inv FOR ar-inv.
-  DEFINE BUFFER bff-ar-inv FOR ar-inv .
-  DEFINE BUFFER bff-ar-invl FOR ar-invl .
-  DEFINE BUFFER bf-invl FOR ar-invl .
-
-  ASSIGN
-     x = 0
-     y = 0.
-
-  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
-  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
-  FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
-  Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
-
-  DO WHILE TRUE:
-    FIND FIRST b-ar-inv
-        WHERE b-ar-inv.company EQ g_company
-          AND b-ar-inv.inv-no  EQ y
-        NO-LOCK NO-ERROR.
-    FIND FIRST inv-head
-        WHERE inv-head.company EQ g_company
-          AND inv-head.inv-no  EQ y
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL b-ar-inv AND NOT AVAIL inv-head THEN LEAVE.
-
-    y = y + 1.
-  END.
- CREATE ar-inv .
-  assign
-   ar-inv.company  = g_company
-   ar-inv.inv-date = today
-   ar-inv.x-no     = x 
-   ar-inv.inv-no   = y 
-   ar-inv.posted   = FALSE 
-   ar-inv.USER-ID  = USERID(LDBNAME(1)) 
-   ar-inv.upd-date = TODAY 
-   ar-inv.upd-time = TIME 
-   .
-
-  FIND FIRST bff-ar-inv NO-LOCK 
-      WHERE bff-ar-inv.company EQ g_company 
-        AND bff-ar-inv.inv-no EQ integer(Is-add-dup-inv) NO-ERROR .
-  IF AVAIL bff-ar-inv THEN DO:
-      BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
-       ar-inv.inv-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
-       ar-inv.printed  = NO .
-       ar-inv.paid     = 0 .
-       ar-inv.spare-char-1 = IF cType EQ "duplicate" THEN "Copy" ELSE "Rebill" .
-       ar-inv.spare-int-2  = INTEGER(Is-add-dup-inv) .
-       FIND FIRST cust NO-LOCK 
-           WHERE cust.company EQ g_company
-           AND cust.cust-no EQ ar-inv.cust-no
-           NO-ERROR.  
-       IF AVAIL cust THEN
-           FIND FIRST terms NO-LOCK 
-           WHERE terms.t-code EQ cust.terms
-           NO-ERROR.
-       IF AVAIL terms THEN
-           ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
-       ELSE ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
-
-   FOR EACH bff-ar-invl NO-LOCK 
-       WHERE bff-ar-invl.company EQ bff-ar-inv.company
-         AND bff-ar-invl.inv-no  EQ bff-ar-inv.inv-no
-         AND bff-ar-invl.x-no    EQ bff-ar-inv.x-no :
-       
-       CREATE bf-invl .
-       ASSIGN bf-invl.company = g_company
-              bf-invl.x-no    = X
-              bf-invl.inv-no  = Y 
-              bf-invl.b-no    = 0
-              bf-invl.upd-date = TODAY 
-              bf-invl.upd-time = TIME
-              bf-invl.posted = FALSE
-           .
-        BUFFER-COPY bff-ar-invl EXCEPT company x-no inv-no b-no upd-date upd-time posted rec_key TO bf-invl .
-        
-   END. /* for each bff-ar-invl */
-  END. /* if avail bff-ar-inv*/
-
-  FIND CURRENT ar-inv NO-LOCK NO-ERROR .
-  
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN New_record IN WIDGET-HANDLE(char-hdl) (ROWID(ar-inv)) NO-ERROR. 
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateCredit V-table-Win 
-PROCEDURE pCreateCredit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER cType AS CHARACTER NO-UNDO .  
-
-DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-DEFINE VARIABLE X AS INTEGER NO-UNDO.
-DEFINE VARIABLE Y AS INTEGER NO-UNDO.
-
-  DEF BUFFER b-ar-inv FOR ar-inv.
-  DEFINE BUFFER bff-ar-inv FOR ar-inv .
-  DEFINE BUFFER bff-ar-invl FOR ar-invl .
-  DEFINE BUFFER bf-invl FOR ar-invl .
-
-  ASSIGN
-     x = 0
-     y = 0.
-
-  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
-  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
-  FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
-  Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
-
-  DO WHILE TRUE:
-    FIND FIRST b-ar-inv
-        WHERE b-ar-inv.company EQ g_company
-          AND b-ar-inv.inv-no  EQ y
-        NO-LOCK NO-ERROR.
-    FIND FIRST inv-head
-        WHERE inv-head.company EQ g_company
-          AND inv-head.inv-no  EQ y
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL b-ar-inv AND NOT AVAIL inv-head THEN LEAVE.
-
-    y = y + 1.
-  END.
- CREATE ar-inv .
-  assign
-   ar-inv.company  = g_company
-   ar-inv.inv-date = today
-   ar-inv.x-no     = x 
-   ar-inv.inv-no   = y 
-   ar-inv.posted   = FALSE 
-   ar-inv.USER-ID  = USERID(LDBNAME(1)) 
-   ar-inv.upd-date = TODAY 
-   ar-inv.upd-time = TIME 
-   .
-
-  FIND FIRST bff-ar-inv NO-LOCK 
-      WHERE bff-ar-inv.company EQ g_company 
-        AND bff-ar-inv.inv-no EQ integer(Is-add-dup-inv) NO-ERROR .
-  IF AVAIL bff-ar-inv THEN DO:
-      BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
-      ASSIGN 
-          ar-inv.t-comm        = ar-inv.t-comm * -1 
-          ar-inv.t-cost        = ar-inv.t-cost * -1 
-          ar-inv.freight       = ar-inv.freight * -1 
-          ar-inv.fuel          = ar-inv.fuel * -1 
-          ar-inv.gross         = ar-inv.gross * -1 
-          ar-inv.tax-amt       = ar-inv.tax-amt * -1  
-          ar-inv.t-weight      = ar-inv.t-weight * -1
-          ar-inv.net           = ar-inv.net * -1
-          ar-inv.due           = ar-inv.due * -1
-          ar-inv.paid          = 0
-          ar-inv.printed       = NO 
-          ar-inv.inv-date      = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
-          ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
-          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv)
-          ar-inv.t-sales       = ar-inv.t-sales * -1      .
-          
-          FIND FIRST cust NO-LOCK 
-              WHERE cust.company EQ g_company
-              AND cust.cust-no EQ ar-inv.cust-no
-              NO-ERROR.  
-          IF AVAIL cust THEN
-          FIND FIRST terms NO-LOCK 
-              WHERE terms.t-code EQ cust.terms
-             NO-ERROR.
-            IF AVAIL terms THEN
-                ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
-            ELSE ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
-
-   FOR EACH bff-ar-invl NO-LOCK 
-       WHERE bff-ar-invl.company EQ bff-ar-inv.company
-         AND bff-ar-invl.inv-no  EQ bff-ar-inv.inv-no
-         AND bff-ar-invl.x-no    EQ bff-ar-inv.x-no :
-       
-       CREATE bf-invl .
-       ASSIGN bf-invl.company = g_company
-              bf-invl.x-no    = X
-              bf-invl.inv-no  = Y 
-              bf-invl.b-no    = 0
-              bf-invl.upd-date = TODAY 
-              bf-invl.upd-time = TIME
-              bf-invl.posted = FALSE
-           .
-        BUFFER-COPY bff-ar-invl EXCEPT company x-no inv-no b-no upd-date upd-time posted rec_key TO bf-invl .
-        ASSIGN
-            bf-invl.amt-msf    = bf-invl.amt-msf * -1 
-            bf-invl.cost       = bf-invl.cost * -1 
-            //bf-invl.disc       = bf-invl.disc * -1 
-            bf-invl.inv-qty    = bf-invl.inv-qty * -1 
-            bf-invl.qty        = bf-invl.qty * -1
-            bf-invl.t-freight  = bf-invl.t-freight * -1 
-            bf-invl.t-fuel     = bf-invl.t-fuel * -1 
-            bf-invl.amt        = bf-invl.amt * -1
-            bf-invl.t-cost     = bf-invl.t-cost * -1  
-            bf-invl.prep-amt   = bf-invl.prep-amt * -1
-            bf-invl.std-fix-cost = bf-invl.std-fix-cost * -1 
-            bf-invl.std-lab-cost = bf-invl.std-lab-cost * -1 
-            bf-invl.std-mat-cost = bf-invl.std-mat-cost * -1
-            bf-invl.std-tot-cost = bf-invl.std-tot-cost * -1  
-            bf-invl.std-var-cost = bf-invl.std-var-cost * -1 
-
-            bf-invl.prep-cost    = bf-invl.prep-cost * -1
-            bf-invl.ship-qty     = bf-invl.ship-qty * -1
-            bf-invl.sf-sht       = bf-invl.sf-sht * -1
-            bf-invl.amt-msf      = bf-invl.amt-msf * -1
-              .
-
-        
-   END. /* for each bff-ar-invl */
-  END. /* if avail bff-ar-inv*/
-
-  FIND CURRENT ar-inv NO-LOCK NO-ERROR .
- 
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN New_record IN WIDGET-HANDLE(char-hdl) (ROWID(ar-inv)) NO-ERROR.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInvDueDate V-table-Win 
-PROCEDURE pInvDueDate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-
-DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
-END.
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

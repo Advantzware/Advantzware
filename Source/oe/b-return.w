@@ -143,7 +143,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-reth.ra-no FORMAT ">>>>>9":U WIDTH 12.2
-      oe-reth.inv-no COLUMN-LABEL "Invoice #" FORMAT ">>>>>9":U
+      oe-reth.inv-no COLUMN-LABEL "Invoice #" FORMAT ">>>>>>9":U
             WIDTH 16.2
       oe-reth.cust-no FORMAT "x(8)":U WIDTH 18.2
       oe-retl.i-no FORMAT "x(15)":U WIDTH 27.2

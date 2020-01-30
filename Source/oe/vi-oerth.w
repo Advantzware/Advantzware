@@ -126,7 +126,7 @@ DEFINE FRAME F-Main
      oe-reth.ra-no AT ROW 1.71 COL 8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-reth.inv-no AT ROW 1.71 COL 31 COLON-ALIGNED
+     oe-reth.inv-no AT ROW 1.71 COL 31 COLON-ALIGNED FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      oe-reth.return-date AT ROW 1.71 COL 59 COLON-ALIGNED
@@ -205,6 +205,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN oe-reth.inv-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN lv-tot-line IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-tot-line-qty IN FRAME F-Main
