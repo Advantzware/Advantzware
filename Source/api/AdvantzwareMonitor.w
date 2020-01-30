@@ -987,6 +987,7 @@ PROCEDURE pStoreHandles :
     DEFINE VARIABLE hdCurrColHdl AS HANDLE NO-UNDO.
     
     hdCurrColHdl = BROWSE {&BROWSE-NAME}:FIRST-COLUMN.
+    cColumnHandles = "".
     DO WHILE VALID-HANDLE(hdCurrColHdl):
         ASSIGN 
             cColumnHandles = IF cColumnHandles <> "":U THEN
