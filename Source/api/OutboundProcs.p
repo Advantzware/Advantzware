@@ -45,6 +45,7 @@ DEFINE VARIABLE cRequestStatusError       AS CHARACTER NO-UNDO INITIAL "Error".
 DEFINE VARIABLE cRequestStatusSuccess     AS CHARACTER NO-UNDO INITIAL "Success".
 DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
 DEFINE VARIABLE cRequestDataTypeFTP       AS CHARACTER NO-UNDO INITIAL "FTP".
+DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 
 PROCEDURE Outbound_GetAPIID:
     /*------------------------------------------------------------------------------
@@ -551,6 +552,7 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
             RUN pValidateLocation (
                 INPUT  ttRequestData.company,
                 INPUT  ttRequestData.location,
+                INPUT  ttRequestData.apiID,
                 OUTPUT ttRequestData.success,
                 OUTPUT ttRequestData.requestMessage
                 ) NO-ERROR.
@@ -647,6 +649,7 @@ PROCEDURE pPrepareRequest PRIVATE:
             RUN pValidateLocation (
                 INPUT  ttRequestData.company,
                 INPUT  ttRequestData.location,
+                INPUT  ttRequestData.apiID,
                 OUTPUT ttRequestData.success,
                 OUTPUT ttRequestData.requestMessage
                 ) NO-ERROR.
@@ -866,16 +869,27 @@ PROCEDURE pValidateLocation PRIVATE:
      Purpose: Validate location if API enabled
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
     FIND FIRST loc NO-LOCK
          WHERE loc.company EQ ipcCompany
            AND loc.loc     EQ ipcLocation
          NO-ERROR.
-    IF NOT AVAILABLE loc OR NOT loc.isAPiEnabled THEN DO:
+    IF NOT AVAILABLE loc THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid location '"
+                       + ipcLocation + "'"
+            .
+        RETURN.        
+    END.
+    
+    /* Skip this validation where APIs added to cLocValidationExceptions list */
+    IF NOT loc.isAPIEnabled AND LOOKUP(ipcAPIID, cLocValidationExceptions) EQ 0 THEN DO:
         ASSIGN
             oplSuccess = FALSE
             opcMessage = "API Calls are not enabled for location '"
