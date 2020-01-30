@@ -153,59 +153,59 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportVend FOR ttImportVend.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-vend FOR vend.
     
-    
-    FIND FIRST vend EXCLUSIVE-LOCK
-        WHERE vend.company EQ ipbf-ttImportVend.Company
-        AND vend.vend-no EQ ipbf-ttImportVend.VendNo
+    FIND FIRST bf-vend EXCLUSIVE-LOCK
+        WHERE bf-vend.company EQ ipbf-ttImportVend.Company
+        AND bf-vend.vend-no EQ ipbf-ttImportVend.VendNo
         NO-ERROR.
-    IF NOT AVAILABLE vend THEN 
+    IF NOT AVAILABLE bf-vend THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE vend.
+        CREATE bf-vend.
         ASSIGN 
-            vend.company = ipbf-ttImportVend.Company
-            vend.loc = ipbf-ttImportVend.Location
-            vend.vend-no = ipbf-ttImportVend.VendNo
-            vend.frt-pay      = "P"
-            vend.payment-type = "Check"
+            bf-vend.company = ipbf-ttImportVend.Company
+            bf-vend.loc = ipbf-ttImportVend.Location
+            bf-vend.vend-no = ipbf-ttImportVend.VendNo
+            bf-vend.frt-pay      = "P"
+            bf-vend.payment-type = "Check"
             .
     END.
-    RUN pAssignValueC (ipbf-ttImportVend.VendName, iplIgnoreBlanks, INPUT-OUTPUT vend.name).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRemit, iplIgnoreBlanks, INPUT-OUTPUT vend.remit).
-    RUN pAssignValueC (ipbf-ttImportVend.VendAdd1, iplIgnoreBlanks, INPUT-OUTPUT vend.add1).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRAdd1, iplIgnoreBlanks, INPUT-OUTPUT vend.r-add1).
-    RUN pAssignValueC (ipbf-ttImportVend.VendAdd2, iplIgnoreBlanks, INPUT-OUTPUT vend.add2).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRAdd2, iplIgnoreBlanks, INPUT-OUTPUT vend.r-add2).
-    RUN pAssignValueC (ipbf-ttImportVend.VendCity, iplIgnoreBlanks, INPUT-OUTPUT vend.city).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRCity, iplIgnoreBlanks, INPUT-OUTPUT vend.r-city).
-    RUN pAssignValueC (ipbf-ttImportVend.VendState, iplIgnoreBlanks, INPUT-OUTPUT vend.state).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRState, iplIgnoreBlanks, INPUT-OUTPUT vend.r-state).
-    RUN pAssignValueC (ipbf-ttImportVend.VendCountry, iplIgnoreBlanks, INPUT-OUTPUT vend.country).
-    RUN pAssignValueC (ipbf-ttImportVend.VendCountry, iplIgnoreBlanks, INPUT-OUTPUT vend.r-country).
-    RUN pAssignValueC (ipbf-ttImportVend.VendPostal, iplIgnoreBlanks, INPUT-OUTPUT vend.postal).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRPostal, iplIgnoreBlanks, INPUT-OUTPUT vend.r-postal).
-    RUN pAssignValueC (ipbf-ttImportVend.VendZip, iplIgnoreBlanks, INPUT-OUTPUT vend.zip).
-    RUN pAssignValueC (ipbf-ttImportVend.VendRZip, iplIgnoreBlanks, INPUT-OUTPUT vend.r-zip).    
-    RUN pAssignValueC (ipbf-ttImportVend.VendAreaCode, iplIgnoreBlanks, INPUT-OUTPUT vend.area-code).
-    RUN pAssignValueC (REPLACE(ipbf-ttImportVend.VendPhone,"-",""), iplIgnoreBlanks, INPUT-OUTPUT vend.phone).
-    RUN pAssignValueC (ipbf-ttImportVend.VendFaxAreaCode, iplIgnoreBlanks, INPUT-OUTPUT vend.fax-area).
-    RUN pAssignValueC (REPLACE(ipbf-ttImportVend.VendFax,"-",""), iplIgnoreBlanks, INPUT-OUTPUT vend.fax).
-    RUN pAssignValueC (ipbf-ttImportVend.TaxGroup, YES, INPUT-OUTPUT vend.tax-gr).
-    RUN pAssignValueC (ipbf-ttImportVend.Terms, YES, INPUT-OUTPUT vend.terms).
-    RUN pAssignValueC (ipbf-ttImportVend.Code1099, iplIgnoreBlanks, INPUT-OUTPUT vend.code-1099).
-    RUN pAssignValueC (ipbf-ttImportVend.Carrier, YES, INPUT-OUTPUT vend.carrier).
-    RUN pAssignValueC (ipbf-ttImportVend.GL, YES, INPUT-OUTPUT vend.actnum).
-    RUN pAssignValueC (ipbf-ttImportVend.FedID, iplIgnoreBlanks, INPUT-OUTPUT vend.tax-id).
-    RUN pAssignValueC (ipbf-ttImportVend.BankAcct, YES, INPUT-OUTPUT vend.Bank-Acct).
-    RUN pAssignValueC (ipbf-ttImportVend.SwiftBIC, YES, INPUT-OUTPUT vend.SwiftBIC).
-    RUN pAssignValueC (ipbf-ttImportVend.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT vend.Bank-RTN).
+    RUN pAssignValueC (ipbf-ttImportVend.VendName, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.name).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRemit, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.remit).
+    RUN pAssignValueC (ipbf-ttImportVend.VendAdd1, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.add1).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRAdd1, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-add1).
+    RUN pAssignValueC (ipbf-ttImportVend.VendAdd2, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.add2).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRAdd2, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-add2).
+    RUN pAssignValueC (ipbf-ttImportVend.VendCity, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.city).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRCity, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-city).
+    RUN pAssignValueC (ipbf-ttImportVend.VendState, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.state).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRState, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-state).
+    RUN pAssignValueC (ipbf-ttImportVend.VendCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.country).
+    RUN pAssignValueC (ipbf-ttImportVend.VendCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-country).
+    RUN pAssignValueC (ipbf-ttImportVend.VendPostal, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.postal).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRPostal, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-postal).
+    RUN pAssignValueC (ipbf-ttImportVend.VendZip, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.zip).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRZip, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-zip).    
+    RUN pAssignValueC (ipbf-ttImportVend.VendAreaCode, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.area-code).
+    RUN pAssignValueC (REPLACE(ipbf-ttImportVend.VendPhone,"-",""), iplIgnoreBlanks, INPUT-OUTPUT bf-vend.phone).
+    RUN pAssignValueC (ipbf-ttImportVend.VendFaxAreaCode, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.fax-area).
+    RUN pAssignValueC (REPLACE(ipbf-ttImportVend.VendFax,"-",""), iplIgnoreBlanks, INPUT-OUTPUT bf-vend.fax).
+    RUN pAssignValueC (ipbf-ttImportVend.TaxGroup, YES, INPUT-OUTPUT bf-vend.tax-gr).
+    RUN pAssignValueC (ipbf-ttImportVend.Terms, YES, INPUT-OUTPUT bf-vend.terms).
+    RUN pAssignValueC (ipbf-ttImportVend.Code1099, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.code-1099).
+    RUN pAssignValueC (ipbf-ttImportVend.Carrier, YES, INPUT-OUTPUT bf-vend.carrier).
+    RUN pAssignValueC (ipbf-ttImportVend.GL, YES, INPUT-OUTPUT bf-vend.actnum).
+    RUN pAssignValueC (ipbf-ttImportVend.FedID, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.tax-id).
+    RUN pAssignValueC (ipbf-ttImportVend.BankAcct, YES, INPUT-OUTPUT bf-vend.Bank-Acct).
+    RUN pAssignValueC (ipbf-ttImportVend.SwiftBIC, YES, INPUT-OUTPUT bf-vend.SwiftBIC).
+    RUN pAssignValueC (ipbf-ttImportVend.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.Bank-RTN).
     
-    IF vend.country = "Canada" THEN 
-        vend.curr-code = "CAD".
+    IF bf-vend.country = "Canada" THEN 
+        bf-vend.curr-code = "CAD".
     ELSE 
-        vend.curr-code = "USD".
-    
+        bf-vend.curr-code = "USD".
+    RELEASE bf-vend .
 
 END PROCEDURE.
 

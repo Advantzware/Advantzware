@@ -74,68 +74,71 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-loc FOR loc.
+    DEFINE BUFFER bf-location FOR location.
 
-    FIND FIRST loc EXCLUSIVE-LOCK 
-        WHERE loc.company EQ ipbf-ttImportWarehouse.Company
-        AND loc.loc EQ ipbf-ttImportWarehouse.locCode
+    FIND FIRST bf-loc EXCLUSIVE-LOCK 
+        WHERE bf-loc.company EQ ipbf-ttImportWarehouse.Company
+        AND bf-loc.loc EQ ipbf-ttImportWarehouse.locCode
         NO-ERROR.
-    IF AVAIL loc THEN
-        FIND FIRST location EXCLUSIVE-LOCK 
-           WHERE location.rec_key EQ loc.addrRecKey
-           AND location.locationCode EQ ipbf-ttImportWarehouse.locCode
+    IF AVAIL bf-loc THEN
+        FIND FIRST bf-location EXCLUSIVE-LOCK 
+           WHERE bf-location.rec_key EQ bf-loc.addrRecKey
+           AND bf-location.locationCode EQ ipbf-ttImportWarehouse.locCode
         NO-ERROR.
 
-    IF NOT AVAILABLE loc THEN 
+    IF NOT AVAILABLE bf-loc THEN 
     DO:
         ASSIGN 
             iopiAdded = iopiAdded + 1.
 
-        CREATE loc .
-        CREATE location.
+        CREATE bf-loc .
+        CREATE bf-location.
         ASSIGN
-            loc.company           = ipbf-ttImportWarehouse.Company 
-            loc.loc               = ipbf-ttImportWarehouse.locCODE
-            location.company      = ipbf-ttImportWarehouse.Company
-            location.locationCode = loc.loc
-            loc.rec_key           = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-            location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-            loc.addrRecKey        = location.rec_key.
+            bf-loc.company           = ipbf-ttImportWarehouse.Company 
+            bf-loc.loc               = ipbf-ttImportWarehouse.locCODE
+            bf-location.company      = ipbf-ttImportWarehouse.Company
+            bf-location.locationCode = bf-loc.loc
+            bf-loc.rec_key           = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+            bf-location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+            bf-loc.addrRecKey        = bf-location.rec_key.
     END.
                                                                                                                                      
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */  
-    RUN pAssignValueC (ipbf-ttImportWarehouse.dscr, iplIgnoreBlanks, INPUT-OUTPUT loc.dscr).                                                   
-    RUN pAssignValueD (ipbf-ttImportWarehouse.handlingCost, iplIgnoreBlanks, INPUT-OUTPUT loc.handlingCost).                               
-    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost1, iplIgnoreBlanks, INPUT-OUTPUT loc.storageCost[1]).                                                   
-    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost2, iplIgnoreBlanks, INPUT-OUTPUT loc.storageCost[2]).                                                   
-    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost3, iplIgnoreBlanks, INPUT-OUTPUT loc.storageCost[3]).                                       
-    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost4, iplIgnoreBlanks, INPUT-OUTPUT loc.storageCost[4]).                                         
-    RUN pAssignValueI (ipbf-ttImportWarehouse.locationSquareFeet, iplIgnoreBlanks, INPUT-OUTPUT loc.locationSquareFeet).                      
-    RUN pAssignValueI (ipbf-ttImportWarehouse.palletCapacity, iplIgnoreBlanks, INPUT-OUTPUT loc.palletCapacity).                                 
-    RUN pAssignValueC (ipbf-ttImportWarehouse.division, iplIgnoreBlanks, INPUT-OUTPUT loc.division).                                     
-    RUN pAssignValuec (ipbf-ttImportWarehouse.GlCode, iplIgnoreBlanks, INPUT-OUTPUT loc.GlCode).                                                 
-    RUN pAssignValueC (ipbf-ttImportWarehouse.cActive, iplIgnoreBlanks, INPUT-OUTPUT loc.Active).                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.isAPIEnabled, iplIgnoreBlanks, INPUT-OUTPUT loc.isAPIEnabled).                                         
-    RUN pAssignValueC (ipbf-ttImportWarehouse.lovOwner, iplIgnoreBlanks, INPUT-OUTPUT loc.Owner).
+    RUN pAssignValueC (ipbf-ttImportWarehouse.dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.dscr).                                                   
+    RUN pAssignValueD (ipbf-ttImportWarehouse.handlingCost, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.handlingCost).                               
+    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost1, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.storageCost[1]).                                                   
+    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost2, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.storageCost[2]).                                                   
+    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost3, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.storageCost[3]).                                       
+    RUN pAssignValueD (ipbf-ttImportWarehouse.storageCost4, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.storageCost[4]).                                         
+    RUN pAssignValueI (ipbf-ttImportWarehouse.locationSquareFeet, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.locationSquareFeet).                      
+    RUN pAssignValueI (ipbf-ttImportWarehouse.palletCapacity, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.palletCapacity).                                 
+    RUN pAssignValueC (ipbf-ttImportWarehouse.division, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.division).                                     
+    RUN pAssignValuec (ipbf-ttImportWarehouse.GlCode, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.GlCode).                                                 
+    RUN pAssignValueC (ipbf-ttImportWarehouse.cActive, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.Active).                   
+    RUN pAssignValueC (ipbf-ttImportWarehouse.isAPIEnabled, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.isAPIEnabled).                                         
+    RUN pAssignValueC (ipbf-ttImportWarehouse.lovOwner, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.Owner).
 
-    RUN pAssignValueC (ipbf-ttImportWarehouse.defaultBin, iplIgnoreBlanks, INPUT-OUTPUT location.defaultBin).                                                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.streetAddr1, iplIgnoreBlanks, INPUT-OUTPUT location.streetAddr[1]).                               
-    RUN pAssignValueC (ipbf-ttImportWarehouse.streetAddr2, iplIgnoreBlanks, INPUT-OUTPUT location.streetAddr[2]).                                                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.streetAddr3, iplIgnoreBlanks, INPUT-OUTPUT location.streetAddr[3]).                                                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.subCode3, iplIgnoreBlanks, INPUT-OUTPUT location.subCode3).                                       
-    RUN pAssignValueC (ipbf-ttImportWarehouse.subCode1, iplIgnoreBlanks, INPUT-OUTPUT location.subCode1).                                         
-    RUN pAssignValueC (ipbf-ttImportWarehouse.Phone, iplIgnoreBlanks, INPUT-OUTPUT location.phone).                      
-    RUN pAssignValueC (ipbf-ttImportWarehouse.fax, iplIgnoreBlanks, INPUT-OUTPUT location.fax).                                 
-    RUN pAssignValueC (ipbf-ttImportWarehouse.email, iplIgnoreBlanks, INPUT-OUTPUT location.email).                                     
-    RUN pAssignValuec (ipbf-ttImportWarehouse.subCode4, iplIgnoreBlanks, INPUT-OUTPUT location.subCode4).                                                 
-    RUN pAssignValueC (ipbf-ttImportWarehouse.countryCode, iplIgnoreBlanks, INPUT-OUTPUT location.countryCode).                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.subCode2, iplIgnoreBlanks, INPUT-OUTPUT location.subCode2).                                         
-    RUN pAssignValueD (ipbf-ttImportWarehouse.geoLat, iplIgnoreBlanks, INPUT-OUTPUT location.geoLat).                                 
-    RUN pAssignValueD (ipbf-ttImportWarehouse.geoLong, iplIgnoreBlanks, INPUT-OUTPUT location.geoLong).                                       
-    RUN pAssignValueC (ipbf-ttImportWarehouse.externalID1, iplIgnoreBlanks, INPUT-OUTPUT location.externalID[1]).                                 
-    RUN pAssignValueC (ipbf-ttImportWarehouse.notes, iplIgnoreBlanks, INPUT-OUTPUT location.notes).                                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.lActive, iplIgnoreBlanks, INPUT-OUTPUT location.lActive).                             
+    RUN pAssignValueC (ipbf-ttImportWarehouse.defaultBin, iplIgnoreBlanks, INPUT-OUTPUT bf-location.defaultBin).                                                   
+    RUN pAssignValueC (ipbf-ttImportWarehouse.streetAddr1, iplIgnoreBlanks, INPUT-OUTPUT bf-location.streetAddr[1]).                               
+    RUN pAssignValueC (ipbf-ttImportWarehouse.streetAddr2, iplIgnoreBlanks, INPUT-OUTPUT bf-location.streetAddr[2]).                                                   
+    RUN pAssignValueC (ipbf-ttImportWarehouse.streetAddr3, iplIgnoreBlanks, INPUT-OUTPUT bf-location.streetAddr[3]).                                                   
+    RUN pAssignValueC (ipbf-ttImportWarehouse.subCode3, iplIgnoreBlanks, INPUT-OUTPUT bf-location.subCode3).                                       
+    RUN pAssignValueC (ipbf-ttImportWarehouse.subCode1, iplIgnoreBlanks, INPUT-OUTPUT bf-location.subCode1).                                         
+    RUN pAssignValueC (ipbf-ttImportWarehouse.Phone, iplIgnoreBlanks, INPUT-OUTPUT bf-location.phone).                      
+    RUN pAssignValueC (ipbf-ttImportWarehouse.fax, iplIgnoreBlanks, INPUT-OUTPUT bf-location.fax).                                 
+    RUN pAssignValueC (ipbf-ttImportWarehouse.email, iplIgnoreBlanks, INPUT-OUTPUT bf-location.email).                                     
+    RUN pAssignValuec (ipbf-ttImportWarehouse.subCode4, iplIgnoreBlanks, INPUT-OUTPUT bf-location.subCode4).                                                 
+    RUN pAssignValueC (ipbf-ttImportWarehouse.countryCode, iplIgnoreBlanks, INPUT-OUTPUT bf-location.countryCode).                   
+    RUN pAssignValueC (ipbf-ttImportWarehouse.subCode2, iplIgnoreBlanks, INPUT-OUTPUT bf-location.subCode2).                                         
+    RUN pAssignValueD (ipbf-ttImportWarehouse.geoLat, iplIgnoreBlanks, INPUT-OUTPUT bf-location.geoLat).                                 
+    RUN pAssignValueD (ipbf-ttImportWarehouse.geoLong, iplIgnoreBlanks, INPUT-OUTPUT bf-location.geoLong).                                       
+    RUN pAssignValueC (ipbf-ttImportWarehouse.externalID1, iplIgnoreBlanks, INPUT-OUTPUT bf-location.externalID[1]).                                 
+    RUN pAssignValueC (ipbf-ttImportWarehouse.notes, iplIgnoreBlanks, INPUT-OUTPUT bf-location.notes).                                   
+    RUN pAssignValueC (ipbf-ttImportWarehouse.lActive, iplIgnoreBlanks, INPUT-OUTPUT bf-location.lActive).                             
                                       
-
+    RELEASE bf-loc.
+    RELEASE bf-location.
 END PROCEDURE.                                                                                                                 
                                                                                                                                
 PROCEDURE pValidate PRIVATE:

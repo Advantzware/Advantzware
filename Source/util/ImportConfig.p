@@ -166,43 +166,44 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportConfig FOR ttImportConfig.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
-     
-    FIND FIRST sys-ctrl EXCLUSIVE-LOCK
-        WHERE sys-ctrl.company EQ ipbf-ttImportConfig.Company
-        AND sys-ctrl.name EQ ipbf-ttImportConfig.cConfigName
+    DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl .
+
+    FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
+        WHERE bf-sys-ctrl.company EQ ipbf-ttImportConfig.Company
+        AND bf-sys-ctrl.name EQ ipbf-ttImportConfig.cConfigName
         NO-ERROR.  
-    IF NOT AVAILABLE sys-ctrl THEN 
+    IF NOT AVAILABLE bf-sys-ctrl THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE sys-ctrl.
+        CREATE bf-sys-ctrl.
         ASSIGN 
-            sys-ctrl.company = ipbf-ttImportConfig.Company
-            sys-ctrl.name = ipbf-ttImportConfig.cConfigName
+            bf-sys-ctrl.company = ipbf-ttImportConfig.Company
+            bf-sys-ctrl.name = ipbf-ttImportConfig.cConfigName
             .
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportConfig.cConfigDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.descrip).
-    RUN pAssignValueC (ipbf-ttImportConfig.cCategory, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.category).
-    RUN pAssignValueC (ipbf-ttImportConfig.cCategorySub, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.subcategory). 
-    RUN pAssignValueC (ipbf-ttImportConfig.cModule, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.module).
-    RUN pAssignValueCToL (ipbf-ttImportConfig.cAllowsContext, "YES", iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.allowsContext).
-    RUN pAssignValueC (ipbf-ttImportConfig.cCharVal, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.char-fld).
-    RUN pAssignValueC (ipbf-ttImportConfig.cCharValDef, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.char_field_default).
-    RUN pAssignValueC (ipbf-ttImportConfig.cCharValDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.char-fld_descrip).
-    RUN pAssignValueDate (ipbf-ttImportConfig.dtDateVal, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.date-fld).
-    RUN pAssignValueDate (ipbf-ttImportConfig.dtDateValDef, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.date-fld_default).
-    RUN pAssignValueC (ipbf-ttImportConfig.cDateValDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.date-fld_descrip).
-    RUN pAssignValueD (ipbf-ttImportConfig.dDecimalVal, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.dec-fld).
-    RUN pAssignValueD (ipbf-ttImportConfig.dDecimalValDef, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.dec-fld_default).
-    RUN pAssignValueC (ipbf-ttImportConfig.cDecimalValDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.dec-fld_descrip).
-    RUN pAssignValueI (ipbf-ttImportConfig.iIntegerVal, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.int-fld).
-    RUN pAssignValueI (ipbf-ttImportConfig.iIntegerValDef, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.int-fld_default).
-    RUN pAssignValueC (ipbf-ttImportConfig.cIntegerValDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.int-fld_descrip).
-    RUN pAssignValueCToL (ipbf-ttImportConfig.cLogicalVal, "YES", iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.log-fld).
-    RUN pAssignValueCToL (ipbf-ttImportConfig.cLogicalValDef, "YES", iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.log-fld_default).
-    RUN pAssignValueC (ipbf-ttImportConfig.cLogicalValDesc, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.log-fld_descrip).
-    RUN pAssignValueI (ipbf-ttImportConfig.iSecLevUser, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.securityLevelUser).
-    RUN pAssignValueI (ipbf-ttImportConfig.iSecUserDef, iplIgnoreBlanks, INPUT-OUTPUT sys-ctrl.securityLevelDefault).
+    RUN pAssignValueC (ipbf-ttImportConfig.cConfigDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.descrip).
+    RUN pAssignValueC (ipbf-ttImportConfig.cCategory, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.category).
+    RUN pAssignValueC (ipbf-ttImportConfig.cCategorySub, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.subcategory). 
+    RUN pAssignValueC (ipbf-ttImportConfig.cModule, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.module).
+    RUN pAssignValueCToL (ipbf-ttImportConfig.cAllowsContext, "YES", iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.allowsContext).
+    RUN pAssignValueC (ipbf-ttImportConfig.cCharVal, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.char-fld).
+    RUN pAssignValueC (ipbf-ttImportConfig.cCharValDef, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.char_field_default).
+    RUN pAssignValueC (ipbf-ttImportConfig.cCharValDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.char-fld_descrip).
+    RUN pAssignValueDate (ipbf-ttImportConfig.dtDateVal, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.date-fld).
+    RUN pAssignValueDate (ipbf-ttImportConfig.dtDateValDef, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.date-fld_default).
+    RUN pAssignValueC (ipbf-ttImportConfig.cDateValDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.date-fld_descrip).
+    RUN pAssignValueD (ipbf-ttImportConfig.dDecimalVal, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.dec-fld).
+    RUN pAssignValueD (ipbf-ttImportConfig.dDecimalValDef, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.dec-fld_default).
+    RUN pAssignValueC (ipbf-ttImportConfig.cDecimalValDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.dec-fld_descrip).
+    RUN pAssignValueI (ipbf-ttImportConfig.iIntegerVal, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.int-fld).
+    RUN pAssignValueI (ipbf-ttImportConfig.iIntegerValDef, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.int-fld_default).
+    RUN pAssignValueC (ipbf-ttImportConfig.cIntegerValDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.int-fld_descrip).
+    RUN pAssignValueCToL (ipbf-ttImportConfig.cLogicalVal, "YES", iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.log-fld).
+    RUN pAssignValueCToL (ipbf-ttImportConfig.cLogicalValDef, "YES", iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.log-fld_default).
+    RUN pAssignValueC (ipbf-ttImportConfig.cLogicalValDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.log-fld_descrip).
+    RUN pAssignValueI (ipbf-ttImportConfig.iSecLevUser, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.securityLevelUser).
+    RUN pAssignValueI (ipbf-ttImportConfig.iSecUserDef, iplIgnoreBlanks, INPUT-OUTPUT bf-sys-ctrl.securityLevelDefault).
     .
-
+ RELEASE bf-sys-ctrl .
 END PROCEDURE.

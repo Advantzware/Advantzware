@@ -108,88 +108,90 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
     DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
      RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
 
-    FIND FIRST vendItemCost EXCLUSIVE-LOCK 
-        WHERE vendItemCost.company EQ ipbf-ttImportVendCostMtx.Company
-        AND vendItemCost.itemType EQ ipbf-ttImportVendCostMtx.itemType
-        AND vendItemCost.itemID EQ ipbf-ttImportVendCostMtx.itemID
-        AND vendItemCost.vendorID EQ ipbf-ttImportVendCostMtx.vendorID
-        AND vendItemCost.customerID EQ ipbf-ttImportVendCostMtx.customerID
-        AND vendItemCost.estimateNo EQ ipbf-ttImportVendCostMtx.estimateNo
-        AND vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
-        AND vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
-        AND vendItemCost.expirationDate EQ date(ipbf-ttImportVendCostMtx.expirationDate)
-        AND vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
+    FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK 
+        WHERE bf-vendItemCost.company EQ ipbf-ttImportVendCostMtx.Company
+        AND bf-vendItemCost.itemType EQ ipbf-ttImportVendCostMtx.itemType
+        AND bf-vendItemCost.itemID EQ ipbf-ttImportVendCostMtx.itemID
+        AND bf-vendItemCost.vendorID EQ ipbf-ttImportVendCostMtx.vendorID
+        AND bf-vendItemCost.customerID EQ ipbf-ttImportVendCostMtx.customerID
+        AND bf-vendItemCost.estimateNo EQ ipbf-ttImportVendCostMtx.estimateNo
+        AND bf-vendItemCost.formNo EQ ipbf-ttImportVendCostMtx.formNo
+        AND bf-vendItemCost.blankNo EQ ipbf-ttImportVendCostMtx.blankNo
+        AND bf-vendItemCost.expirationDate EQ date(ipbf-ttImportVendCostMtx.expirationDate)
+        AND bf-vendItemCost.effectiveDate EQ date(ipbf-ttImportVendCostMtx.effectiveDate)
         NO-ERROR.
 
-    IF NOT AVAILABLE vendItemCost THEN 
+    IF NOT AVAILABLE bf-vendItemCost THEN 
     DO:
         ASSIGN 
             iopiAdded = iopiAdded + 1.
-        CREATE vendItemCost.
+        CREATE bf-vendItemCost.
         ASSIGN 
-            vendItemCost.company   = ipbf-ttImportVendCostMtx.Company.
+            bf-vendItemCost.company   = ipbf-ttImportVendCostMtx.Company.
            
     END.
                                                                                                                                      
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.itemType, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.itemType).                                                   
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.itemID, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.itemID).                                                   
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorID, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.vendorID).                               
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.customerID, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.customerID).                                                   
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.estimateNo, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.estimateNo).                                                   
-    RUN pAssignValueI (ipbf-ttImportVendCostMtx.formNo, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.formNo).                                       
-    RUN pAssignValueI (ipbf-ttImportVendCostMtx.blankNo, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.blankNo).                                         
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorItemID, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.vendorItemID).                      
-    RUN pAssignValueDate (ipbf-ttImportVendCostMtx.effectiveDate, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.effectiveDate).                                 
-    RUN pAssignValueDate (ipbf-ttImportVendCostMtx.expirationDate, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.expirationDate).                                     
-    RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorUOM, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.vendorUOM).                                                 
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthMinimum, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthMinimum).                   
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthMaximum, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthMaximum).                                         
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthMinimum, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimLengthMinimum).                                 
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthMaximum, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimLengthMaximum).                                       
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthUnder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimLengthUnder).                                 
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthUnder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthUnder).                                   
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthOver, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimWidthOver).                             
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthOver, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.dimLengthOver).                                 
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.quantityMinimumOrder).                             
-    RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT vendItemCost.quantityMaximumOrder). 
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.itemType, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.itemType).                                                   
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.itemID, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.itemID).                                                   
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorID, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.vendorID).                               
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.customerID, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.customerID).                                                   
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.estimateNo, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.estimateNo).                                                   
+    RUN pAssignValueI (ipbf-ttImportVendCostMtx.formNo, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.formNo).                                       
+    RUN pAssignValueI (ipbf-ttImportVendCostMtx.blankNo, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.blankNo).                                         
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorItemID, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.vendorItemID).                      
+    RUN pAssignValueDate (ipbf-ttImportVendCostMtx.effectiveDate, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.effectiveDate).                                 
+    RUN pAssignValueDate (ipbf-ttImportVendCostMtx.expirationDate, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.expirationDate).                                     
+    RUN pAssignValueC (ipbf-ttImportVendCostMtx.vendorUOM, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.vendorUOM).                                                 
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthMinimum, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimWidthMinimum).                   
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthMaximum, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimWidthMaximum).                                         
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthMinimum, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimLengthMinimum).                                 
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthMaximum, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimLengthMaximum).                                       
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthUnder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimLengthUnder).                                 
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthUnder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimWidthUnder).                                   
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimWidthOver, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimWidthOver).                             
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.dimLengthOver, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.dimLengthOver).                                 
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMinimumOrder).                             
+    RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMaximumOrder). 
     
-    FOR EACH  vendItemCostLevel EXCLUSIVE-LOCK
-        WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID :
-        DELETE vendItemCostLevel .
+    FOR EACH  bf-vendItemCostLevel EXCLUSIVE-LOCK
+        WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID :
+        DELETE bf-vendItemCostLevel .
     END.
     
    DO iCount = 1 TO 10:
        IF iCount EQ 1 AND ipbf-ttImportVendCostMtx.LevelQuantity01 NE 0 THEN
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity01,ipbf-ttImportVendCostMtx.LevelCostPerUOM01,ipbf-ttImportVendCostMtx.LevelSetup01,ipbf-ttImportVendCostMtx.DeviationCost1) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity01,ipbf-ttImportVendCostMtx.LevelCostPerUOM01,ipbf-ttImportVendCostMtx.LevelSetup01,ipbf-ttImportVendCostMtx.DeviationCost1) .
        ELSE IF iCount EQ 2 AND ipbf-ttImportVendCostMtx.LevelQuantity02 NE 0 THEN
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity02, ipbf-ttImportVendCostMtx.LevelCostPerUOM02,ipbf-ttImportVendCostMtx.LevelSetup02,ipbf-ttImportVendCostMtx.DeviationCost2) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity02, ipbf-ttImportVendCostMtx.LevelCostPerUOM02,ipbf-ttImportVendCostMtx.LevelSetup02,ipbf-ttImportVendCostMtx.DeviationCost2) .
        ELSE IF iCount EQ 3 AND ipbf-ttImportVendCostMtx.LevelQuantity03 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity03, ipbf-ttImportVendCostMtx.LevelCostPerUOM03,ipbf-ttImportVendCostMtx.LevelSetup03,ipbf-ttImportVendCostMtx.DeviationCost3) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity03, ipbf-ttImportVendCostMtx.LevelCostPerUOM03,ipbf-ttImportVendCostMtx.LevelSetup03,ipbf-ttImportVendCostMtx.DeviationCost3) .
        ELSE IF iCount EQ 4 AND ipbf-ttImportVendCostMtx.LevelQuantity04 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity04, ipbf-ttImportVendCostMtx.LevelCostPerUOM04,ipbf-ttImportVendCostMtx.LevelSetup04,ipbf-ttImportVendCostMtx.DeviationCost4) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity04, ipbf-ttImportVendCostMtx.LevelCostPerUOM04,ipbf-ttImportVendCostMtx.LevelSetup04,ipbf-ttImportVendCostMtx.DeviationCost4) .
        ELSE IF iCount EQ 5 AND ipbf-ttImportVendCostMtx.LevelQuantity05 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity05, ipbf-ttImportVendCostMtx.LevelCostPerUOM05,ipbf-ttImportVendCostMtx.LevelSetup05,ipbf-ttImportVendCostMtx.DeviationCost5) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity05, ipbf-ttImportVendCostMtx.LevelCostPerUOM05,ipbf-ttImportVendCostMtx.LevelSetup05,ipbf-ttImportVendCostMtx.DeviationCost5) .
        ELSE IF iCount EQ 6 AND ipbf-ttImportVendCostMtx.LevelQuantity06 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity06, ipbf-ttImportVendCostMtx.LevelCostPerUOM06,ipbf-ttImportVendCostMtx.LevelSetup06,ipbf-ttImportVendCostMtx.DeviationCost6) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity06, ipbf-ttImportVendCostMtx.LevelCostPerUOM06,ipbf-ttImportVendCostMtx.LevelSetup06,ipbf-ttImportVendCostMtx.DeviationCost6) .
        ELSE IF iCount EQ 7 AND ipbf-ttImportVendCostMtx.LevelQuantity07 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity07, ipbf-ttImportVendCostMtx.LevelCostPerUOM07,ipbf-ttImportVendCostMtx.LevelSetup07,ipbf-ttImportVendCostMtx.DeviationCost7) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity07, ipbf-ttImportVendCostMtx.LevelCostPerUOM07,ipbf-ttImportVendCostMtx.LevelSetup07,ipbf-ttImportVendCostMtx.DeviationCost7) .
        ELSE IF iCount EQ 8 AND ipbf-ttImportVendCostMtx.LevelQuantity08 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity08, ipbf-ttImportVendCostMtx.LevelCostPerUOM08,ipbf-ttImportVendCostMtx.LevelSetup08,ipbf-ttImportVendCostMtx.DeviationCost8) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity08, ipbf-ttImportVendCostMtx.LevelCostPerUOM08,ipbf-ttImportVendCostMtx.LevelSetup08,ipbf-ttImportVendCostMtx.DeviationCost8) .
        ELSE IF iCount EQ 9 AND ipbf-ttImportVendCostMtx.LevelQuantity09 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity09, ipbf-ttImportVendCostMtx.LevelCostPerUOM09,ipbf-ttImportVendCostMtx.LevelSetup09,ipbf-ttImportVendCostMtx.DeviationCost9) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity09, ipbf-ttImportVendCostMtx.LevelCostPerUOM09,ipbf-ttImportVendCostMtx.LevelSetup09,ipbf-ttImportVendCostMtx.DeviationCost9) .
        ELSE IF iCount EQ 10 AND ipbf-ttImportVendCostMtx.LevelQuantity10 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity10, ipbf-ttImportVendCostMtx.LevelCostPerUOM10,ipbf-ttImportVendCostMtx.LevelSetup10,ipbf-ttImportVendCostMtx.DeviationCost10) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity10, ipbf-ttImportVendCostMtx.LevelCostPerUOM10,ipbf-ttImportVendCostMtx.LevelSetup10,ipbf-ttImportVendCostMtx.DeviationCost10) .
    END.
               
-    FIND CURRENT vendItemCost NO-LOCK NO-ERROR .
+    FIND CURRENT bf-vendItemCost NO-LOCK NO-ERROR .
     
-    RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+    RUN RecalculateFromAndTo IN hVendorCostProcs (bf-vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
 
-    RELEASE vendItemCostLevel.
-    RELEASE vendItemCost .
+    RELEASE bf-vendItemCostLevel.
+    RELEASE bf-vendItemCost .
     DELETE OBJECT hVendorCostProcs.
 
 END PROCEDURE.                                                                                                                 

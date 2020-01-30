@@ -124,28 +124,29 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
 
-    FIND FIRST itemfg EXCLUSIVE-LOCK 
-        WHERE itemfg.company EQ ipbf-ttImportFG.Company
-        AND itemfg.i-no EQ ipbf-ttImportFG.FGItemID
+    FIND FIRST bf-itemfg EXCLUSIVE-LOCK 
+        WHERE bf-itemfg.company EQ ipbf-ttImportFG.Company
+        AND bf-itemfg.i-no EQ ipbf-ttImportFG.FGItemID
         NO-ERROR.
 
-    IF NOT AVAILABLE itemfg THEN 
+    IF NOT AVAILABLE bf-itemfg THEN 
     DO:
         ASSIGN 
             iopiAdded = iopiAdded + 1.
-        CREATE itemfg.
+        CREATE bf-itemfg.
         ASSIGN 
-            itemfg.company   = ipbf-ttImportFG.Company
-            itemfg.loc       = ipbf-ttImportFG.Location
-            itemfg.i-no      = ipbf-ttImportFG.FGItemID
-            itemfg.part-no   = IF ipbf-ttImportFG.PartID EQ "" THEN itemfg.i-no ELSE ipbf-ttImportFG.PartID
+            bf-itemfg.company   = ipbf-ttImportFG.Company
+            bf-itemfg.loc       = ipbf-ttImportFG.Location
+            bf-itemfg.i-no      = ipbf-ttImportFG.FGItemID
+            bf-itemfg.part-no   = IF ipbf-ttImportFG.PartID EQ "" THEN bf-itemfg.i-no ELSE ipbf-ttImportFG.PartID
         
-            /*Refactor - Default values should come from rules in create.trg for itemfg*/
-            itemfg.stat      = "A"
-            itemfg.sell-uom  = "M"
-            itemfg.curr-code = "USD"
-            itemfg.type-code = "O"
+            /*Refactor - Default values should come from rules in create.trg for bf-itemfg*/
+            bf-itemfg.stat      = "A"
+            bf-itemfg.sell-uom  = "M"
+            bf-itemfg.curr-code = "USD"
+            bf-itemfg.type-code = "O"
             .
     END.
     IF ipbf-ttImportFG.UnitCount EQ 0 AND NOT iplIgnoreBlanks THEN
@@ -154,78 +155,78 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN ipbf-ttImportFG.UnitsPerPallet = 1 .
         
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportFG.CustomerID, YES, INPUT-OUTPUT itemfg.cust-no).
-    RUN pAssignValueC (ipbf-ttImportFG.PartID, YES, INPUT-OUTPUT itemfg.part-no).
-    RUN pAssignValueC (ipbf-ttImportFG.PartName, iplIgnoreBlanks, INPUT-OUTPUT itemfg.i-name).
-    RUN pAssignValueC (ipbf-ttImportFG.PartDescription1, iplIgnoreBlanks, INPUT-OUTPUT itemfg.part-dscr1). 
-    RUN pAssignValueC (ipbf-ttImportFG.PartDescription2, iplIgnoreBlanks, INPUT-OUTPUT itemfg.part-dscr2). 
-    RUN pAssignValueC (ipbf-ttImportFG.PartDescription3, iplIgnoreBlanks, INPUT-OUTPUT itemfg.part-dscr3).  
-    RUN pAssignValueC (ipbf-ttImportFG.FGItemGroup, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-char-1).
-    RUN pAssignValueC (ipbf-ttImportFG.Style, iplIgnoreBlanks, INPUT-OUTPUT itemfg.style).
-    RUN pAssignValueC (ipbf-ttImportFG.DieID, iplIgnoreBlanks, INPUT-OUTPUT itemfg.die-no).
-    RUN pAssignValueC (ipbf-ttImportFG.CadID, iplIgnoreBlanks, INPUT-OUTPUT itemfg.cad-no).
-    RUN pAssignValueC (ipbf-ttImportFG.PlateID, iplIgnoreBlanks, INPUT-OUTPUT itemfg.plate-no).        
-    RUN pAssignValueC (ipbf-ttImportFG.QCID, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spc-no).    
-    RUN pAssignValueC (ipbf-ttImportFG.UPCID, iplIgnoreBlanks, INPUT-OUTPUT itemfg.upc-no).     
-    RUN pAssignValueC (ipbf-ttImportFG.Category, YES, INPUT-OUTPUT itemfg.procat).
-    RUN pAssignValueCToL (ipbf-ttImportFG.ExemptFromDiscount, "Y", iplIgnoreBlanks, INPUT-OUTPUT itemfg.exempt-disc).
-    RUN pAssignValueCToL (ipbf-ttImportFG.Taxable, "Y", iplIgnoreBlanks, INPUT-OUTPUT itemfg.taxable).
-    RUN pAssignValueC (ipbf-ttImportFG.Varied, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-char-2).
-    RUN pAssignValueI (ipbf-ttImportFG.ReleaseSequence, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-int-2).
-    RUN pAssignValueC (ipbf-ttImportFG.ActiveStatus, YES, INPUT-OUTPUT itemfg.stat).
-    RUN pAssignValueCToL (ipbf-ttImportFG.Purchased, "P", iplIgnoreBlanks, INPUT-OUTPUT itemfg.pur-man).      
-    RUN pAssignValueCToL (ipbf-ttImportFG.ShipByCas, "C", iplIgnoreBlanks, INPUT-OUTPUT itemfg.ship-meth).
-    RUN pAssignValueC (ipbf-ttImportFG.StockItem, YES, INPUT-OUTPUT itemfg.i-code).
-    RUN pAssignValueD (ipbf-ttImportFG.SellPrice, iplIgnoreBlanks, INPUT-OUTPUT itemfg.sell-price).
-    RUN pAssignValueC (ipbf-ttImportFG.SellPriceUOM, YES, INPUT-OUTPUT itemfg.sell-uom).
-    RUN pAssignValueC (ipbf-ttImportFG.Currency, YES, INPUT-OUTPUT itemfg.curr-code[1]).
-    RUN pAssignValueC (ipbf-ttImportFG.OrderType, YES, INPUT-OUTPUT itemfg.type-code).
-    RUN pAssignValueC (ipbf-ttImportFG.Warehouse, YES, INPUT-OUTPUT itemfg.def-loc).
-    RUN pAssignValueC (ipbf-ttImportFG.Bin, YES, INPUT-OUTPUT itemfg.def-loc-bin).
-    RUN pAssignValueC (ipbf-ttImportFG.InventoryClass, iplIgnoreBlanks, INPUT-OUTPUT itemfg.class).
-    RUN pAssignValueC (ipbf-ttImportFG.CycleCountCode, iplIgnoreBlanks, INPUT-OUTPUT itemfg.cc-code).
-    RUN pAssignValueI (ipbf-ttImportFG.UnitCount, YES, INPUT-OUTPUT itemfg.case-count).
-    RUN pAssignValueI (ipbf-ttImportFG.UnitsPerPallet, YES, INPUT-OUTPUT itemfg.case-pall).
-    RUN pAssignValueC (ipbf-ttImportFG.ProductionCode, iplIgnoreBlanks, INPUT-OUTPUT itemfg.prod-code).
-    RUN pAssignValueD (ipbf-ttImportFG.LbsPer100, iplIgnoreBlanks, INPUT-OUTPUT itemfg.weight-100).   
-    RUN pAssignValueC (ipbf-ttImportFG.PackingNote, iplIgnoreBlanks, INPUT-OUTPUT itemfg.prod-notes).
-    RUN pAssignValueD (ipbf-ttImportFG.StdCostMaterial, YES, INPUT-OUTPUT itemfg.std-mat-cost).
-    RUN pAssignValueD (ipbf-ttImportFG.StdCostLabor, YES, INPUT-OUTPUT itemfg.std-lab-cost).         
-    RUN pAssignValueD (ipbf-ttImportFG.StdCostVariableOverhead, YES, INPUT-OUTPUT itemfg.std-var-cost).
-    RUN pAssignValueD (ipbf-ttImportFG.StdCostFixedOverhead, YES, INPUT-OUTPUT itemfg.std-fix-cost).
-    RUN pAssignValueD (ipbf-ttImportFG.StdCostFull, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-dec-1).
-    RUN pAssignValueC (ipbf-ttImportFG.StdCostUOM, YES, INPUT-OUTPUT itemfg.prod-uom).
-    RUN pAssignValueCToL (ipbf-ttImportFG.Stocked, "Y", iplIgnoreBlanks, INPUT-OUTPUT itemfg.stocked).
-    RUN pAssignValueD (ipbf-ttImportFG.LengthBox, iplIgnoreBlanks, INPUT-OUTPUT itemfg.l-score[50]).
-    RUN pAssignValueD (ipbf-ttImportFG.WidthBox, iplIgnoreBlanks, INPUT-OUTPUT itemfg.w-score[50]).
-    RUN pAssignValueD (ipbf-ttImportFG.DepthBox, iplIgnoreBlanks, INPUT-OUTPUT itemfg.d-score[50]).
-    RUN pAssignValueD (ipbf-ttImportFG.LengthBlank, iplIgnoreBlanks, INPUT-OUTPUT itemfg.t-len).
-    RUN pAssignValueD (ipbf-ttImportFG.WidthBlank, iplIgnoreBlanks, INPUT-OUTPUT itemfg.t-wid).
-    RUN pAssignValueC (ipbf-ttImportFG.SalesRepID, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-char-3).
-    RUN pAssignValueCToL (ipbf-ttImportFG.FactorInvoice, "Y", iplIgnoreBlanks, INPUT-OUTPUT itemfg.factored).
-    RUN pAssignValueCToL (ipbf-ttImportFG.ReorderPoint, "Y", iplIgnoreBlanks, INPUT-OUTPUT itemfg.ord-policy).
-    RUN pAssignValueI (ipbf-ttImportFG.ReorderLevel, iplIgnoreBlanks, INPUT-OUTPUT itemfg.ord-level).
-    RUN pAssignValueI (ipbf-ttImportFG.OrderMinimum, iplIgnoreBlanks, INPUT-OUTPUT itemfg.ord-min).
-    RUN pAssignValueI (ipbf-ttImportFG.OrderMaximum, iplIgnoreBlanks, INPUT-OUTPUT itemfg.ord-max).
-    RUN pAssignValueC (ipbf-ttImportFG.PurchasedQuantityUOM, YES, INPUT-OUTPUT itemfg.pur-uom).
-    RUN pAssignValueI (ipbf-ttImportFG.LeadTimeDays, iplIgnoreBlanks, INPUT-OUTPUT itemfg.lead-days).
-    RUN pAssignValueDate (ipbf-ttImportFG.BeginningDate, iplIgnoreBlanks, INPUT-OUTPUT itemfg.beg-date).  
+    RUN pAssignValueC (ipbf-ttImportFG.CustomerID, YES, INPUT-OUTPUT bf-itemfg.cust-no).
+    RUN pAssignValueC (ipbf-ttImportFG.PartID, YES, INPUT-OUTPUT bf-itemfg.part-no).
+    RUN pAssignValueC (ipbf-ttImportFG.PartName, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.i-name).
+    RUN pAssignValueC (ipbf-ttImportFG.PartDescription1, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.part-dscr1). 
+    RUN pAssignValueC (ipbf-ttImportFG.PartDescription2, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.part-dscr2). 
+    RUN pAssignValueC (ipbf-ttImportFG.PartDescription3, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.part-dscr3).  
+    RUN pAssignValueC (ipbf-ttImportFG.FGItemGroup, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-1).
+    RUN pAssignValueC (ipbf-ttImportFG.Style, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.style).
+    RUN pAssignValueC (ipbf-ttImportFG.DieID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.die-no).
+    RUN pAssignValueC (ipbf-ttImportFG.CadID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.cad-no).
+    RUN pAssignValueC (ipbf-ttImportFG.PlateID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.plate-no).        
+    RUN pAssignValueC (ipbf-ttImportFG.QCID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spc-no).    
+    RUN pAssignValueC (ipbf-ttImportFG.UPCID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.upc-no).     
+    RUN pAssignValueC (ipbf-ttImportFG.Category, YES, INPUT-OUTPUT bf-itemfg.procat).
+    RUN pAssignValueCToL (ipbf-ttImportFG.ExemptFromDiscount, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.exempt-disc).
+    RUN pAssignValueCToL (ipbf-ttImportFG.Taxable, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.taxable).
+    RUN pAssignValueC (ipbf-ttImportFG.Varied, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-2).
+    RUN pAssignValueI (ipbf-ttImportFG.ReleaseSequence, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-int-2).
+    RUN pAssignValueC (ipbf-ttImportFG.ActiveStatus, YES, INPUT-OUTPUT bf-itemfg.stat).
+    RUN pAssignValueCToL (ipbf-ttImportFG.Purchased, "P", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.pur-man).      
+    RUN pAssignValueCToL (ipbf-ttImportFG.ShipByCas, "C", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ship-meth).
+    RUN pAssignValueC (ipbf-ttImportFG.StockItem, YES, INPUT-OUTPUT bf-itemfg.i-code).
+    RUN pAssignValueD (ipbf-ttImportFG.SellPrice, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.sell-price).
+    RUN pAssignValueC (ipbf-ttImportFG.SellPriceUOM, YES, INPUT-OUTPUT bf-itemfg.sell-uom).
+    RUN pAssignValueC (ipbf-ttImportFG.Currency, YES, INPUT-OUTPUT bf-itemfg.curr-code[1]).
+    RUN pAssignValueC (ipbf-ttImportFG.OrderType, YES, INPUT-OUTPUT bf-itemfg.type-code).
+    RUN pAssignValueC (ipbf-ttImportFG.Warehouse, YES, INPUT-OUTPUT bf-itemfg.def-loc).
+    RUN pAssignValueC (ipbf-ttImportFG.Bin, YES, INPUT-OUTPUT bf-itemfg.def-loc-bin).
+    RUN pAssignValueC (ipbf-ttImportFG.InventoryClass, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.class).
+    RUN pAssignValueC (ipbf-ttImportFG.CycleCountCode, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.cc-code).
+    RUN pAssignValueI (ipbf-ttImportFG.UnitCount, YES, INPUT-OUTPUT bf-itemfg.case-count).
+    RUN pAssignValueI (ipbf-ttImportFG.UnitsPerPallet, YES, INPUT-OUTPUT bf-itemfg.case-pall).
+    RUN pAssignValueC (ipbf-ttImportFG.ProductionCode, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.prod-code).
+    RUN pAssignValueD (ipbf-ttImportFG.LbsPer100, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.weight-100).   
+    RUN pAssignValueC (ipbf-ttImportFG.PackingNote, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.prod-notes).
+    RUN pAssignValueD (ipbf-ttImportFG.StdCostMaterial, YES, INPUT-OUTPUT bf-itemfg.std-mat-cost).
+    RUN pAssignValueD (ipbf-ttImportFG.StdCostLabor, YES, INPUT-OUTPUT bf-itemfg.std-lab-cost).         
+    RUN pAssignValueD (ipbf-ttImportFG.StdCostVariableOverhead, YES, INPUT-OUTPUT bf-itemfg.std-var-cost).
+    RUN pAssignValueD (ipbf-ttImportFG.StdCostFixedOverhead, YES, INPUT-OUTPUT bf-itemfg.std-fix-cost).
+    RUN pAssignValueD (ipbf-ttImportFG.StdCostFull, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-dec-1).
+    RUN pAssignValueC (ipbf-ttImportFG.StdCostUOM, YES, INPUT-OUTPUT bf-itemfg.prod-uom).
+    RUN pAssignValueCToL (ipbf-ttImportFG.Stocked, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.stocked).
+    RUN pAssignValueD (ipbf-ttImportFG.LengthBox, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.l-score[50]).
+    RUN pAssignValueD (ipbf-ttImportFG.WidthBox, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.w-score[50]).
+    RUN pAssignValueD (ipbf-ttImportFG.DepthBox, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.d-score[50]).
+    RUN pAssignValueD (ipbf-ttImportFG.LengthBlank, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.t-len).
+    RUN pAssignValueD (ipbf-ttImportFG.WidthBlank, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.t-wid).
+    RUN pAssignValueC (ipbf-ttImportFG.SalesRepID, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-3).
+    RUN pAssignValueCToL (ipbf-ttImportFG.FactorInvoice, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.factored).
+    RUN pAssignValueCToL (ipbf-ttImportFG.ReorderPoint, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-policy).
+    RUN pAssignValueI (ipbf-ttImportFG.ReorderLevel, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-level).
+    RUN pAssignValueI (ipbf-ttImportFG.OrderMinimum, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-min).
+    RUN pAssignValueI (ipbf-ttImportFG.OrderMaximum, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ord-max).
+    RUN pAssignValueC (ipbf-ttImportFG.PurchasedQuantityUOM, YES, INPUT-OUTPUT bf-itemfg.pur-uom).
+    RUN pAssignValueI (ipbf-ttImportFG.LeadTimeDays, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.lead-days).
+    RUN pAssignValueDate (ipbf-ttImportFG.BeginningDate, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.beg-date).  
 
-    RUN pAssignValueC (ipbf-ttImportFG.FrtClass, iplIgnoreBlanks, INPUT-OUTPUT itemfg.frt-class).
-    RUN pAssignValueC (ipbf-ttImportFG.FrtClassDscr, iplIgnoreBlanks, INPUT-OUTPUT itemfg.frt-class-dscr).
-    RUN pAssignValueC (ipbf-ttImportFG.TrNo, iplIgnoreBlanks, INPUT-OUTPUT itemfg.trno).
-    RUN pAssignValueC (ipbf-ttImportFG.Zone, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-char-4).
-    RUN pAssignValueI (ipbf-ttImportFG.StackHeight, iplIgnoreBlanks, INPUT-OUTPUT itemfg.stackHeight).
-    RUN pAssignValueD (ipbf-ttImportFG.PalletLen, iplIgnoreBlanks, INPUT-OUTPUT itemfg.unitLength).
-    RUN pAssignValueD (ipbf-ttImportFG.PalletWid, iplIgnoreBlanks, INPUT-OUTPUT itemfg.unitWidth).
-    RUN pAssignValueD (ipbf-ttImportFG.PalletDep, iplIgnoreBlanks, INPUT-OUTPUT itemfg.unitHeight).
-    RUN pAssignValueD (ipbf-ttImportFG.StdPalletVol, iplIgnoreBlanks, INPUT-OUTPUT itemfg.palletVolume).
+    RUN pAssignValueC (ipbf-ttImportFG.FrtClass, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.frt-class).
+    RUN pAssignValueC (ipbf-ttImportFG.FrtClassDscr, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.frt-class-dscr).
+    RUN pAssignValueC (ipbf-ttImportFG.TrNo, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.trno).
+    RUN pAssignValueC (ipbf-ttImportFG.Zone, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-4).
+    RUN pAssignValueI (ipbf-ttImportFG.StackHeight, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.stackHeight).
+    RUN pAssignValueD (ipbf-ttImportFG.PalletLen, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitLength).
+    RUN pAssignValueD (ipbf-ttImportFG.PalletWid, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitWidth).
+    RUN pAssignValueD (ipbf-ttImportFG.PalletDep, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitHeight).
+    RUN pAssignValueD (ipbf-ttImportFG.StdPalletVol, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.palletVolume).
     
     /*Recalculate derived values*/
     ASSIGN 
-        itemfg.std-tot-cost = itemfg.std-mat-cost + itemfg.std-lab-cost + itemfg.std-var-cost + itemfg.std-fix-cost
-        itemfg.t-sqin       = itemfg.t-len * itemfg.t-wid
-        itemfg.t-sqft       = itemfg.t-sqin / 144
+        bf-itemfg.std-tot-cost = bf-itemfg.std-mat-cost + bf-itemfg.std-lab-cost + bf-itemfg.std-var-cost + bf-itemfg.std-fix-cost
+        bf-itemfg.t-sqin       = bf-itemfg.t-len * bf-itemfg.t-wid
+        bf-itemfg.t-sqft       = bf-itemfg.t-sqin / 144
         .
         
     IF ipbf-ttImportFG.Category NE "" THEN 
@@ -235,21 +236,21 @@ PROCEDURE pProcessRecord PRIVATE:
             AND fgcat.procat EQ ipbf-ttImportFG.Category
             NO-ERROR.
         IF AVAILABLE fgcat THEN 
-            itemfg.procat-desc = fgcat.dscr.
+            bf-itemfg.procat-desc = fgcat.dscr.
     END.    
 
     IF ipbf-ttImportFG.SpecNote1Note NE "" THEN 
-        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote1Note, ipbf-ttImportFG.SpecNote1Title, ipbf-ttImportFG.SpecNote1Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote1Note, ipbf-ttImportFG.SpecNote1Title, ipbf-ttImportFG.SpecNote1Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote2Note NE "" THEN 
-        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote2Note, ipbf-ttImportFG.SpecNote2Title, ipbf-ttImportFG.SpecNote2Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote2Note, ipbf-ttImportFG.SpecNote2Title, ipbf-ttImportFG.SpecNote2Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote3Note NE "" THEN 
-        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote3Note, ipbf-ttImportFG.SpecNote3Title, ipbf-ttImportFG.SpecNote3Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote3Note, ipbf-ttImportFG.SpecNote3Title, ipbf-ttImportFG.SpecNote3Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote4Note NE "" THEN 
-        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote4Note, ipbf-ttImportFG.SpecNote4Title, ipbf-ttImportFG.SpecNote4Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote4Note, ipbf-ttImportFG.SpecNote4Title, ipbf-ttImportFG.SpecNote4Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote5Note NE "" THEN 
-        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote5Note, ipbf-ttImportFG.SpecNote5Title, ipbf-ttImportFG.SpecNote5Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote5Note, ipbf-ttImportFG.SpecNote5Title, ipbf-ttImportFG.SpecNote5Group, "S", OUTPUT riNote).
     
-
+   RELEASE bf-itemfg .
     
 END PROCEDURE.
 

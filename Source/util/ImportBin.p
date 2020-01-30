@@ -163,62 +163,65 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportBin FOR ttImportBin.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-fg-bin FOR fg-bin .
+    DEFINE BUFFER bf-rm-bin FOR rm-bin .
+    DEFINE BUFFER bf-wip-bin FOR wip-bin .
      
     IF AVAILABLE ipbf-ttImportBin THEN DO: 
 
         IF ipbf-ttImportBin.BinType = "FG" THEN DO:
-            FIND FIRST fg-bin EXCLUSIVE-LOCK
-                WHERE fg-bin.company EQ ipbf-ttImportBin.company
-                AND fg-bin.loc EQ ipbf-ttImportBin.Location
-                AND fg-bin.loc-bin EQ ipbf-ttImportBin.BinLoc
+            FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-ttImportBin.company
+                AND bf-fg-bin.loc EQ ipbf-ttImportBin.Location
+                AND bf-fg-bin.loc-bin EQ ipbf-ttImportBin.BinLoc
                 NO-ERROR.  
-            IF NOT AVAILABLE fg-bin THEN 
+            IF NOT AVAILABLE bf-fg-bin THEN 
             DO:
                 iopiAdded = iopiAdded + 1.
-                CREATE fg-bin.
+                CREATE bf-fg-bin.
             END.
             ASSIGN
-            fg-bin.company     = ipbf-ttImportBin.company
-            fg-bin.loc         = ipbf-ttImportBin.Location
-            fg-bin.loc-bin     = ipbf-ttImportBin.BinLoc 
-            fg-bin.ACTIVE      = LOGICAL(ipbf-ttImportBin.BinAct)      .
+            bf-fg-bin.company     = ipbf-ttImportBin.company
+            bf-fg-bin.loc         = ipbf-ttImportBin.Location
+            bf-fg-bin.loc-bin     = ipbf-ttImportBin.BinLoc 
+            bf-fg-bin.ACTIVE      = LOGICAL(ipbf-ttImportBin.BinAct)      .
         END.
         ELSE IF ipbf-ttImportBin.BinType = "RM" THEN DO:
-            FIND FIRST rm-bin EXCLUSIVE-LOCK
-                WHERE rm-bin.company EQ ipbf-ttImportBin.company
-                AND rm-bin.loc EQ ipbf-ttImportBin.Location
-                AND rm-bin.loc-bin EQ ipbf-ttImportBin.BinLoc
+            FIND FIRST bf-rm-bin EXCLUSIVE-LOCK
+                WHERE bf-rm-bin.company EQ ipbf-ttImportBin.company
+                AND bf-rm-bin.loc EQ ipbf-ttImportBin.Location
+                AND bf-rm-bin.loc-bin EQ ipbf-ttImportBin.BinLoc
                 NO-ERROR.  
-            IF NOT AVAILABLE rm-bin THEN 
+            IF NOT AVAILABLE bf-rm-bin THEN 
             DO:
                 iopiAdded = iopiAdded + 1.
-                CREATE rm-bin.
+                CREATE bf-rm-bin.
             END.
             ASSIGN
-            rm-bin.company     = ipbf-ttImportBin.company
-            rm-bin.loc         = ipbf-ttImportBin.Location
-            rm-bin.loc-bin     = ipbf-ttImportBin.BinLoc.
+            bf-rm-bin.company     = ipbf-ttImportBin.company
+            bf-rm-bin.loc         = ipbf-ttImportBin.Location
+            bf-rm-bin.loc-bin     = ipbf-ttImportBin.BinLoc.
         END.
         ELSE DO:
-            FIND FIRST wip-bin EXCLUSIVE-LOCK
-                WHERE wip-bin.company EQ ipbf-ttImportBin.company
-                AND wip-bin.loc EQ ipbf-ttImportBin.Location
-                AND wip-bin.loc-bin EQ ipbf-ttImportBin.BinLoc
+            FIND FIRST bf-wip-bin EXCLUSIVE-LOCK
+                WHERE bf-wip-bin.company EQ ipbf-ttImportBin.company
+                AND bf-wip-bin.loc EQ ipbf-ttImportBin.Location
+                AND bf-wip-bin.loc-bin EQ ipbf-ttImportBin.BinLoc
                 NO-ERROR.  
-            IF NOT AVAILABLE wip-bin THEN 
+            IF NOT AVAILABLE bf-wip-bin THEN 
             DO:
                 iopiAdded = iopiAdded + 1.
-                CREATE wip-bin.
+                CREATE bf-wip-bin.
             END.
             ASSIGN
-            wip-bin.company     = ipbf-ttImportBin.company
-            wip-bin.loc         = ipbf-ttImportBin.Location
-            wip-bin.loc-bin     = ipbf-ttImportBin.BinLoc.
+            bf-wip-bin.company     = ipbf-ttImportBin.company
+            bf-wip-bin.loc         = ipbf-ttImportBin.Location
+            bf-wip-bin.loc-bin     = ipbf-ttImportBin.BinLoc.
         END.
         RELEASE loc .
-        RELEASE fg-bin .
-        RELEASE rm-bin .
-        RELEASE wip-bin .
+        RELEASE bf-fg-bin .
+        RELEASE bf-rm-bin .
+        RELEASE bf-wip-bin .
     END.
     
 END PROCEDURE.
