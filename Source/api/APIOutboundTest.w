@@ -136,7 +136,7 @@ DEFINE VARIABLE edEndpoint AS CHARACTER
      FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE edErrorMessage AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL LARGE
      SIZE 133 BY 2.91
      FGCOLOR 1  NO-UNDO.
 
@@ -700,62 +700,66 @@ DO:
         WHEN "SendCustomer" THEN DO:
             FIND FIRST cust NO-LOCK
                  WHERE cust.company EQ cCompany
-                   AND cust.cust-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
+                   AND cust.cust-no EQ fiPrimaryKey:SCREEN-VALUE
+                 NO-ERROR.
             IF NOT AVAILABLE cust THEN DO:    
                 MESSAGE "Invalid Customer record" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
             
             RUN pCreateArgs (
-                "ROWID",
-                "cust",
-                STRING(ROWID(cust))
+                INPUT "ROWID",
+                INPUT "cust",
+                INPUT STRING(ROWID(cust))
                 ).
         END.
         WHEN "SendVendor" THEN DO:
             FIND FIRST vend NO-LOCK
                  WHERE vend.company EQ cCompany
-                   AND vend.vend-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
+                   AND vend.vend-no EQ fiPrimaryKey:SCREEN-VALUE
+                 NO-ERROR.
             IF NOT AVAILABLE vend THEN DO:    
                 MESSAGE "Invalid Vendor Number" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
 
             RUN pCreateArgs (
-                "ROWID",
-                "vend",
-                STRING(ROWID(vend))
+                INPUT "ROWID",
+                INPUT "vend",
+                INPUT STRING(ROWID(vend))
                 ).
         END.
         WHEN "SendFinishedGood" THEN DO:
             FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ cCompany
-                   AND itemfg.i-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
+                   AND itemfg.i-no EQ fiPrimaryKey:SCREEN-VALUE 
+                 NO-ERROR.
             IF NOT AVAILABLE itemfg THEN DO:    
                 MESSAGE "Invalid Item Number" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
 
             RUN pCreateArgs (
-                "ROWID",
-                "itemfg",
-                STRING(ROWID(itemfg))
+                INPUT "ROWID",
+                INPUT "itemfg",
+                INPUT STRING(ROWID(itemfg))
                 ).
         END.
         WHEN "SendPurchaseOrder" OR
         WHEN "SendPurchaseOrderStatus" THEN DO:
             FIND FIRST po-ord NO-LOCK
                  WHERE po-ord.company EQ cCompany
-                   AND po-ord.po-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
+                   AND po-ord.po-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                 NO-ERROR.
             IF NOT AVAILABLE po-ord THEN DO:    
                 MESSAGE "Invalid Purchase Order Number" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
 
             RUN pCreateArgs (
-                "ROWID",
-                "po-ord",
-                STRING(ROWID(po-ord))
+                INPUT "ROWID",
+                INPUT "po-ord",
+                INPUT STRING(ROWID(po-ord))
                 ).
         END.
         WHEN "SendPurchaseOrderLineStatus" THEN DO:
@@ -764,16 +768,16 @@ DO:
                      WHERE po-ordl.company EQ cCompany
                        AND po-ordl.po-no   EQ INTEGER(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
                        AND po-ordl.line    EQ INTEGER(ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))
-                       NO-ERROR.
+                     NO-ERROR.
                 IF NOT AVAILABLE po-ordl THEN DO:    
                     MESSAGE "Invalid Purchase Order Number and Line" VIEW-AS ALERT-BOX ERROR.
                     RETURN.
                 END.
 
                 RUN pCreateArgs (
-                    "ROWID",
-                    "po-ordl",
-                    STRING(ROWID(po-ordl))
+                    INPUT "ROWID",
+                    INPUT "po-ordl",
+                    INPUT STRING(ROWID(po-ordl))
                     ).
             END.
             ELSE DO:
@@ -784,16 +788,33 @@ DO:
         WHEN "SendRelease" THEN DO:
             FIND FIRST oe-relh NO-LOCK
                 WHERE oe-relh.company  EQ cCompany
-                  AND oe-relh.release# EQ INT(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
+                  AND oe-relh.release# EQ INT(fiPrimaryKey:SCREEN-VALUE)
+                NO-ERROR.
             IF NOT AVAILABLE oe-relh THEN DO:
                 MESSAGE "Invalid Release Number" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
 
             RUN pCreateArgs (
-                "ROWID",
-                "oe-relh",
-                STRING(ROWID(oe-relh))
+                INPUT "ROWID",
+                INPUT "oe-relh",
+                INPUT STRING(ROWID(oe-relh))
+                ).
+        END.
+        WHEN "SendAdvancedShipNotice" THEN DO:
+            FIND FIRST oe-bolh NO-LOCK
+                WHERE oe-bolh.company EQ cCompany
+                  AND oe-bolh.bol-no  EQ INT(fiPrimaryKey:SCREEN-VALUE)
+                NO-ERROR.
+            IF NOT AVAILABLE oe-bolh THEN DO:
+                MESSAGE "Invalid BOL Number" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "oe-bolh",
+                INPUT STRING(ROWID(oe-bolh))
                 ).
         END.
     END CASE.

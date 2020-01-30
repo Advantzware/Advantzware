@@ -229,6 +229,11 @@ PROCEDURE pReadResponse PRIVATE:
         END.
         WHEN "XML" THEN DO:
             /* XML processing goes here */
+            RUN VALUE(gcResponseHandler) (
+                INPUT  iplcReponseData,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).  
         END.
         OTHERWISE DO:
             ASSIGN 

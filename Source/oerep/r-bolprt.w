@@ -123,6 +123,11 @@ DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -879,9 +884,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Print Bills of Lading */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -939,7 +946,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2784,6 +2794,16 @@ PROCEDURE build-work :
     DO:
        CREATE tt-post.
        tt-post.row-id = ROWID(oe-bolh).
+
+        /* Trigger Outbound API to send BOL data */        
+        RUN pCallOutboundAPI(
+            INPUT oe-bolh.company,
+            INPUT shipTo.loc,
+            INPUT oe-bolh.cust-no,
+            INPUT oe-bolh.bol-no,
+            INPUT oe-bolh.printed,
+            INPUT ROWID(oe-bolh)
+            ) NO-ERROR.       
     END.
 
     IF tb_barcode:CHECKED IN FRAME {&frame-name} AND
@@ -3738,6 +3758,71 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
+PROCEDURE pCallOutboundAPI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Calls Outbound APIs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiBOLID    AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER iplPrinted  AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID     NO-UNDO.
+
+DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bf-cust FOR cust.
+
+FIND FIRST bf-cust NO-LOCK 
+     WHERE bf-cust.company EQ ipcCompany
+       AND bf-cust.cust-no EQ ipcCustID
+     NO-ERROR.
+     
+IF AVAILABLE bf-cust AND bf-cust.ASNClientID NE "" THEN DO: 
+    IF iplPrinted THEN 
+        cTriggerID = "RePrintBillOfLading".
+    ELSE 
+        cTriggerID = "PrintBillOfLading".
+    
+    ASSIGN  
+        cAPIId       = "SendAdvancedShipNotice"
+        cPrimaryID   = STRING(ipiBOLID)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-bolprt.w for BOL: " + cPrimaryID
+        .
+
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  ipcCompany,                 /* Company Code (Mandatory) */
+        INPUT  ipcLocation,                /* Location Code (Mandatory) */
+        INPUT  cAPIID,                     /* API ID (Mandatory) */
+        INPUT  bf-cust.ASNClientID,        /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+        INPUT  "oe-bolh",                  /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ipriOeBolh),         /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,               /* Event's description (Optional) */
+        OUTPUT lSuccess,                   /* Success/Failure flag */
+        OUTPUT cMessage                    /* Status message */
+        ).
+    
+    RUN Outbound_ResetContext IN hdOutboundProcs.        
+END.
+
+RELEASE bf-cust.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPostDate C-Win 
 PROCEDURE pCheckPostDate PRIVATE :
