@@ -896,6 +896,8 @@ PROCEDURE pGetParamValue :
                                              + STRING(ttDynParamValue.recordLimit) + "|"
                                              + STRING(ttDynParamValue.paramValueID)
                                              .
+        IF ttDynParamValue.outputFormat EQ "" THEN
+        ttDynParamValue.outputFormat = "Grid".
         IF NOT CAN-DO(filterDescrip:LIST-ITEMS,ttDynParamValue.paramDescription) THEN
         filterDescrip:ADD-LAST(ttDynParamValue.paramDescription).
         IF NOT CAN-DO(filterModule:LIST-ITEMS,ttDynParamValue.module) THEN
