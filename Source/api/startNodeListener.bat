@@ -29,21 +29,32 @@ SET API_APPSERVER_REQUEST_ROUTER=api/inbound/APIRequestRouterAS.p
 SET API_IP_ADDRESS=!apiIPAddress!
 SET API_PORT=!apiPort!
 
-ECHO Running node listeners...Ctrl-Break to exit
-if exist ./programs/api/node/InboundAPIStart.js (
-    SET LogDir=..\..\..\CustFiles\Node
-    SET API_JAVA_LOGS_DIR=!LogDir!
-    CD ./programs/api/node
-    ) else (
-    if exist ./api/node/InboundAPIStart.js (
-        CD ./api/node
-        ) else (
-            CD ./node
-            )
-        )
-    )
+::ECHO Running node listeners...Ctrl-Break to exit
 
-start /min node InboundAPIStart.js >> %LogDir%\node.server.log 2>> %LogDir%\node.server.error.log
+:: I'm in /programs/api/node -  move up
+if exist ./InboundAPIStart.js ( 
+CD .. 
+)
+
+:: I'm in /programs/api -  move up
+if exist ./node/InboundAPIStart.js ( 
+CD .. 
+)
+
+:: I'm in /programs -  move up
+if exist ./api/node/InboundAPIStart.js ( 
+CD .. 
+)
+
+:: I'm in the environment dir, can set log from here
+SET LogDir=%CD%\CustFiles\Node
+SET API_JAVA_LOGS_DIR=!LogDir!
+
+:: Go back to node dir
+CD programs/api/node 
+
+start /b node InboundAPIStart.js >> !LogDir!\node.server.log 2>> !LogDir!\node.server.error.log
 :QUIT
 :: This leaves a command window open; that's a good thing
 EXIT
+

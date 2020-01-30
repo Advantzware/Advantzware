@@ -509,8 +509,8 @@ DO:
                may prompt for additional details in console */ 
             IF serverResource.resourceType EQ "Node" THEN
                 ASSIGN
-                    lSilent = FALSE
-                    lNoWait = FALSE
+                    lSilent = TRUE 
+                    lNoWait = TRUE
                     .
             /* Set Silent to false for starting ASI Monitors, as command 
                may suppress any visual objects in windows opened */
