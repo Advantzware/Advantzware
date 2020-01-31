@@ -697,12 +697,12 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/   
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    RUN pUpdateAPI.
-            
+                
     {custom/usrprint.i}
     
     APPLY "LEAVE" TO fiRequestURL.
+
+    RUN pUpdateAPI.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
