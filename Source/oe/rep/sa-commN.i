@@ -76,7 +76,7 @@
           assign
            tt-report.key-01  = v-slsm[1]
            tt-report.key-02  = cust.cust-no
-           tt-report.key-03  = string(ar-inv.inv-no,"999999")
+           tt-report.key-03  = string(ar-inv.inv-no,"9999999")
            tt-report.key-10  = "ar-invl"
            tt-report.rec-id  = recid(ar-invl)
            tt-report.row-id  = ROWID(ar-invl).
@@ -159,7 +159,7 @@
             CREATE tt-report.
             ASSIGN
              tt-report.key-01 = v-slsm[1]
-             tt-report.key-03 = STRING(b-ar-invl.inv-no,"999999")
+             tt-report.key-03 = STRING(b-ar-invl.inv-no,"9999999")
              tt-report.row-id = ROWID(b-ar-invl)
              tt-report.key-02 = cust.cust-no
              tt-report.key-10 = "ar-cashl"
@@ -178,7 +178,7 @@
             create tt-report.
             assign
              tt-report.key-01 = cust.sman
-             tt-report.key-03 = string(ar-cashl.inv-no,"999999").
+             tt-report.key-03 = string(ar-cashl.inv-no,"9999999").
           end.
 
           if avail tt-report then
