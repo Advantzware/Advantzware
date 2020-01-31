@@ -120,7 +120,8 @@ PROCEDURE pGetNodeStatus PRIVATE:
 
     opcStatus = cResourceStatusStopped. 
 
-    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS". 
+/*    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS".*/
+    cCommand = "netstat -an -p tcp".
 
     RUN OS_RunCommand IN hdOSProcs (
         INPUT  cCommand,             /* Command string to run */
@@ -139,9 +140,12 @@ PROCEDURE pGetNodeStatus PRIVATE:
     INPUT FROM VALUE(cPathDataFile).
     REPEAT:
         IMPORT UNFORMATTED cLine.
-        IF cLine MATCHES "*node*" THEN
+
+        IF cLine MATCHES "*:" + ipcNodePort + "*" AND cLine MATCHES "*LISTENING*" THEN
            opcStatus = cResourceStatusRunning.
     END.
+    INPUT CLOSE.
+    
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
@@ -158,6 +162,7 @@ PROCEDURE AdvantzwareMonitor_UpdateResourceStatus:
             INPUT ROWID(serverResource)
             ).
     END.
+    PAUSE 2.
     FOR EACH serverResource 
         WHERE serverResource.resourceType EQ cResourceTypeAppServer AND 
         serverResource.isActive NO-LOCK:
@@ -165,6 +170,7 @@ PROCEDURE AdvantzwareMonitor_UpdateResourceStatus:
             INPUT ROWID(serverResource)
             ).
     END.
+    PAUSE 2.
     FOR EACH serverResource 
         WHERE serverResource.resourceType EQ cResourceTypeNameServer AND 
         serverResource.isActive NO-LOCK:
@@ -172,6 +178,7 @@ PROCEDURE AdvantzwareMonitor_UpdateResourceStatus:
             INPUT ROWID(serverResource)
             ).
     END.
+    PAUSE 2.
     FOR EACH serverResource 
         WHERE serverResource.resourceType EQ cResourceTypeAdminServer AND 
         serverResource.isActive NO-LOCK:
@@ -179,6 +186,7 @@ PROCEDURE AdvantzwareMonitor_UpdateResourceStatus:
             INPUT ROWID(serverResource)
             ).
     END.
+    PAUSE 2.
     FOR EACH serverResource 
         WHERE serverResource.resourceType EQ cResourceTypeASI AND 
         serverResource.isActive NO-LOCK:
