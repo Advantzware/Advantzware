@@ -85,7 +85,7 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
 &Scoped-define INTERNAL-TABLES ttAPIInboundEvent
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent ttAPIInboundEvent.apiRoute ttAPIInboundEvent.requestDateTime ttAPIInboundEvent.success ttAPIInboundEvent.requestedby ttAPIInboundEvent.apiInboundEventID   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent ttAPIInboundEvent.apiRoute ttAPIInboundEvent.requestDateTime ttAPIInboundEvent.success ttAPIInboundEvent.requestedby ttAPIInboundEvent.apiInboundEventID ttAPIInboundEvent.errorMessage   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttAPIInboundEvent
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttAPIInboundEvent
@@ -613,8 +613,11 @@ DO:
         BUFFER-COPY APIInboundEvent TO ttAPIInboundEvent.
         ASSIGN
             ttAPIInboundEvent.eventRowID   = ROWID(APIInboundEvent) 
-            ttAPIInboundEvent.errorMessage = ENTRY(NUM-ENTRIES(REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~"),REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~")
-            . 
+            ttAPIInboundEvent.errorMessage = IF ttAPIInboundEvent.errorMessage NE "" THEN
+                                                 ENTRY(NUM-ENTRIES(REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~"),REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~")
+                                             ELSE
+                                                 ""
+            NO-ERROR. 
    
     END.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
