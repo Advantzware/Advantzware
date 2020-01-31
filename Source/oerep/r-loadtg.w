@@ -983,8 +983,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Loadtag Creation */
 DO:
+   /*
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
        RUN system/userLogOut.p (NO, 0).
+    */
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1255,9 +1257,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p (NO, 0).
-   apply "close" to this-procedure.
+/*    
+    DO ictr = 1 TO 15:
+        IF INDEX(program-name(ictr),"mainmenu") <> 0 THEN DO:
+            RUN system/userLogOut.p (NO, 0).
+            LEAVE.
+        END.
+    END.
+ */
+   APPLY "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7114,7 +7122,9 @@ PROCEDURE ok-button :
   IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
      IF program-name(1) matches "*r-loadtg.*"
         and not program-name(2) matches "*persist*" THEN DO:
+         /*
          RUN system/userLogOut.p (NO, 0).
+         */
      END.
       APPLY "close" TO THIS-PROCEDURE.
   END.
