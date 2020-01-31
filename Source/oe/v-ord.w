@@ -3372,7 +3372,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   END. /* each oe-ordl */
 
   /*task 07221004*/
-  IF INDEX("NAH",oe-ord.stat) GT 0 THEN
+  IF INDEX("NAHW",oe-ord.stat) GT 0 THEN
   FOR EACH oe-ordl OF oe-ord:
     DELETE oe-ordl.
   END.
