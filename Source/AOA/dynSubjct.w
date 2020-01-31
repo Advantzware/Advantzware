@@ -4895,6 +4895,7 @@ PROCEDURE pQueryDesign :
             BUFFER-COPY dynSubjectWhere TO ttSubjectWhere
                 ASSIGN ttSubjectWhere.tableRowID = ROWID(dynSubjectWhere).
         END. /* for each */
+        RUN pSaveSubject.
         APPLY "VALUE-CHANGED":U TO BROWSE subjectBrowse.
     END. /* if save */
 
