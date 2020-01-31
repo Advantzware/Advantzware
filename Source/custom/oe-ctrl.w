@@ -137,7 +137,7 @@ DEFINE VARIABLE fNextRFIDNum AS CHARACTER FORMAT "x(24)"
 DEFINE VARIABLE n-ord LIKE oe-ctrl.n-ord
      LABEL "Next Order Number" 
      VIEW-AS FILL-IN 
-     SIZE 10.4 BY 1
+     SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tgCreateSSBol AS LOGICAL INITIAL no 
@@ -178,9 +178,9 @@ DEFINE FRAME oe-ctrl
      fiOptions AT ROW 6.24 COL 3 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      tgCreateSSBol AT ROW 10.43 COL 13 WIDGET-ID 8
      ar-ctrl.last-inv AT ROW 1.24 COL 31 COLON-ALIGNED
-          LABEL "Last Invoice Number"
+          LABEL "Last Invoice Number" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 14 BY 1
           BGCOLOR 7 FGCOLOR 15 
      n-ord AT ROW 2.43 COL 31 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
@@ -288,7 +288,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fNextRFIDNum IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.last-inv IN FRAME oe-ctrl
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN oe-ctrl.n-bol IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN n-ord IN FRAME oe-ctrl
