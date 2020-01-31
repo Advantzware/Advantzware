@@ -62,7 +62,7 @@ def NEW SHARED temp-table tt-inv no-undo
   field inv-date as date
   field sort-fld as char
   field trans-date as date
-  field inv-no like ar-inv.inv-no
+  field inv-no like ar-inv.inv-no FORMAT ">>>>>>9"
   field type as char format 'x(4)'
   field description as char format 'x(15)'
   field amount  as dec format '->>,>>>,>>>.99'
@@ -1641,7 +1641,7 @@ form
 form
   tt-inv.trans-date 
   tt-inv.type FORM "x(3)"
-  tt-inv.inv-no      
+  tt-inv.inv-no FORMAT ">>>>>>9"
   tt-inv.description FORM "x(25)"
   tt-inv.old-day format ">>>9"
   tt-inv.amount      
@@ -1673,7 +1673,7 @@ form
 form
   tt-inv.trans-date
   tt-inv.type
-  tt-inv.inv-no 
+  tt-inv.inv-no FORMAT ">>>>>>9"
   tt-inv.DESCRIPTION FORM "x(25)"
   tt-inv.amount
   v-balance
@@ -2540,7 +2540,7 @@ form
 form
   tt-inv.trans-date 
   tt-inv.type   FORM "x(3)"  
-  tt-inv.inv-no  
+  tt-inv.inv-no FORMAT ">>>>>>9"
   tt-inv.description FORM "x(25)"
   tt-inv.old-day format ">>>9"
   tt-inv.amount      
@@ -2550,7 +2550,7 @@ form
 form
   tt-inv.trans-date 
   tt-inv.type FORM "x(3)"
-  tt-inv.inv-no      
+  tt-inv.inv-no FORMAT ">>>>>>9"
   tt-inv.description FORM "x(20)"
   tt-inv.old-day format ">>>9"
   tt-inv.amount      
@@ -2592,7 +2592,7 @@ form
 form
   tt-inv.trans-date
   tt-inv.type
-  tt-inv.inv-no
+  tt-inv.inv-no FORMAT ">>>>>>9"
   tt-inv.DESCRIPTION FORM "x(25)"
   tt-inv.amount
   v-balance
