@@ -74,6 +74,7 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cSlsList AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
 
 /*DEF VAR cSelectedList AS cha NO-UNDO.*/
 
@@ -1580,7 +1581,7 @@ IF tb_excel THEN DO:
                              &END_cust=end_cust-no
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
-                             &mail-file=fi_file }  
+                             &mail-file=cFileName }  
 END.
 ELSE DO:
     {custom/asimailr.i &TYPE = "Customer"
@@ -1779,7 +1780,6 @@ DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE lShipTotal AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
