@@ -653,7 +653,8 @@ DO:
 
       when "loc-bin" then do:
           run rm/l-locbin.w (gcompany,prep.loc:screen-value, output char-val).
-          if char-val <> "" then assign prep.loc:screen-value  = entry(1,char-val).                  
+          IF char-val <> "" THEN
+              ASSIGN prep.loc-bin:SCREEN-VALUE = ENTRY(1,char-val).                  
 
       END.
       when "fgcat" then do:
