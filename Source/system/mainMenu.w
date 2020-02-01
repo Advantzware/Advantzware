@@ -68,6 +68,7 @@ END.
 
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDebug            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEulaFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEulaVersion      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFound            AS CHARACTER NO-UNDO.
@@ -1332,19 +1333,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         .
     RUN enable_UI.
     RUN system/checkExpiredLicense.p.
-    RUN sys/ref/nk1look.p (
-        g_company,"DynTaskTicker","L",NO,NO,"","",
-        OUTPUT cFound,OUTPUT lFound
-        ).
-    IF lFound AND cFound EQ "yes" THEN DO:    
-        RUN sys/ref/nk1look.p (
-            g_company,"DynTaskTicker","I",NO,NO,"","",
-            OUTPUT cTickerInterval,OUTPUT lFound
-            ).
-        IF lfound THEN
-        iTickerInterval = INTEGER(cTickerInterval).
-    END. /* if found */
-    chCtrlFrame:PSTimer:Interval = iTickerInterval * 1000.
     {methods/enhance.i}
     users_user_id = USERID(LDBNAME(1)).
     DISPLAY users_user_id
@@ -1365,7 +1353,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     menuTreeMsg:HIDDEN = YES.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
     {system/runCueCard.i}
-    chCtrlFrame:PSTimer:Interval = 1000.
+    RUN sys/ref/nk1look.p (
+        g_company,"DynTaskTicker","L",NO,NO,"","",
+        OUTPUT cFound,OUTPUT lFound
+        ).
+    IF lFound AND cFound EQ "yes" THEN DO:    
+        RUN sys/ref/nk1look.p (
+            g_company,"DynTaskTicker","I",NO,NO,"","",
+            OUTPUT cTickerInterval,OUTPUT lFound
+            ).
+        IF lfound THEN
+        iTickerInterval = INTEGER(cTickerInterval).
+    END. /* if found */
+    IF iTickerInterval EQ 0 THEN
+    iTickerInterval = 1.
+    RUN spGetSessionParam ("Debug", OUTPUT cDebug).
+    chCtrlFrame:PSTimer:Interval = IF cDebug NE "" THEN 0
+                                   ELSE iTickerInterval * 1000.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
