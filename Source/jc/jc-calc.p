@@ -627,27 +627,27 @@ DO:
                 (job-hdr.ord-no EQ 0 AND
                 NOT AVAILABLE oe-rel    AND
                 ll-new-job-hdr) THEN
-            DO:
-                IF NOT gvlNoPrompt THEN
-                    RUN jc/jobHdrQty.w ("Please enter job qty for FG#/Form#/Blank#: " +
-                        TRIM(job-hdr.i-no) + "/" +
-                        STRING(job-hdr.frm,"99") + "/" +
-                        STRING(job-hdr.blank-no,"99") + "...",
-                        INPUT-OUTPUT job-hdr.qty).
-           
-                IF ll-jqcust EQ YES AND NOT AVAILABLE oe-ordl THEN
-                DO:
-                    FIND FIRST cust WHERE
-                        cust.company EQ job-hdr.company AND
-                        cust.cust-no EQ job-hdr.cust-no
-                        NO-LOCK NO-ERROR.
-           
-                    IF AVAILABLE cust THEN
-                    DO:
-                        job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
-                  {sys/inc/roundup.i job-hdr.qty}
-                    END.
+            DO: 
+
+                IF NOT gvlNoPrompt AND (LAST(xeb.blank-no) OR xeb.form-no EQ 0) THEN do:
+                    RUN jc/dUpdJobQty.w(ROWID(job),ll-jqcust) .
                 END.
+                ELSE IF gvlNoPrompt THEN DO:
+                    IF ll-jqcust EQ YES AND NOT AVAILABLE oe-ordl THEN
+                    DO:
+                        FIND FIRST cust WHERE
+                            cust.company EQ job-hdr.company AND
+                            cust.cust-no EQ job-hdr.cust-no
+                            NO-LOCK NO-ERROR.
+               
+                        IF AVAILABLE cust THEN
+                        DO:
+                            job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
+                            {sys/inc/roundup.i job-hdr.qty}
+                        END.
+                    END.
+                END. /* IF gvlNoPrompt*/
+
             END.
 
             RUN util/upditmfg.p (ROWID(job-hdr), 1).
