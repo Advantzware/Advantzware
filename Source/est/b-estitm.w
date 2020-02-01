@@ -469,19 +469,20 @@ DO:
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
-              RUN AOA/dynLookup/70.p ("style," + STRING(ROWID(style)), OUTPUT char-val).
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               ASSIGN
                 ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val)
                 ef.cal:SCREEN-VALUE   IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "cal",  char-val)
                 .
               APPLY "ENTRY":U TO ef.board.
            END. /* if foam */
-           else run windows/l-board1.w (eb.company,lv-ind,focus:screen-value, output lv-rowid).
-           FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN 
-              assign ef.board:screen-value in browse {&browse-name} = item.i-no
-                     ef.cal:screen-value in browse {&browse-name}   = string(item.cal).
-
+           ELSE DO:
+               run windows/l-board1.w (eb.company,lv-ind,focus:screen-value, output lv-rowid).
+               FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+               IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN 
+                  assign ef.board:screen-value in browse {&browse-name} = item.i-no
+                         ef.cal:screen-value in browse {&browse-name}   = string(item.cal).
+           END.
            return no-apply.   
        end.
        when "cust-no" then do:

@@ -715,16 +715,18 @@ DO:
            IF AVAIL style THEN lv-ind = style.industry.
            ELSE lv-ind = "".  
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
-              RUN AOA/dynLookup/70.p ("style," + STRING(ROWID(style)), OUTPUT char-val).
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
-              APPLY "ENTRY":U TO ef.board.
               RUN new-board.
+              APPLY "ENTRY":U TO ef.board.
            END. /* if foam */
-           ELSE RUN windows/l-board1.w (eb.company,lv-ind,lw-focus:SCREEN-VALUE, OUTPUT lv-rowid).
-           FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
-             ef.board:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no.
-             RUN new-board.                       
+           ELSE DO:
+               RUN windows/l-board1.w (eb.company,lv-ind,lw-focus:SCREEN-VALUE, OUTPUT lv-rowid).
+               FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+               IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
+                 ef.board:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no.
+                 RUN new-board.                       
+               END.
            END.  
      END.
      WHEN "leaf" THEN DO:

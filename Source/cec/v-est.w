@@ -891,7 +891,7 @@ DO:
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
            if avail style and style.type = "f" then DO: /* foam */
-             RUN AOA/dynLookup/70.p ("style," + STRING(ROWID(style)), OUTPUT char-val).
+             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
              IF char-val NE "" THEN DO:
                ASSIGN
                     lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val)
