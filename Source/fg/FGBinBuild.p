@@ -14,13 +14,24 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{inventory/ttInventory.i "NEW SHARED"}
 {fg/ttFGBins.i "SHARED"}
+{fg/ttInventoryTables.i}
+
 DEFINE STREAM sExport1.
 DEFINE STREAM sExport2.
-DEFINE VARIABLE gcOutputFile1 AS CHARACTER.
-DEFINE VARIABLE gcOutputFile2 AS CHARACTER.
-DEFINE VARIABLE gcDefaultExportPath AS CHARACTER INITIAL "C:\Temp".
- 
+DEFINE VARIABLE gcOutputFile1       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcOutputFile2       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcDefaultExportPath AS CHARACTER NO-UNDO INITIAL "C:\Temp".
+DEFINE VARIABLE gcEmptyTagPrefix    AS CHARACTER NO-UNDO INITIAL "id:".
+DEFINE VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE iInventoryStockSeq        AS INTEGER NO-UNDO.
+DEFINE VARIABLE iInventoryTransactionSeq  AS INTEGER NO-UNDO.
+DEFINE VARIABLE iInventoryStockAliasSeq   AS INTEGER NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -128,6 +139,349 @@ FOR EACH ttFGBins
 
 END.
 
+END PROCEDURE.
+
+PROCEDURE CreateInventoryFromTTInventory:
+    /*------------------------------------------------------------------------------
+     Purpose: Create Inventory tables from ttFGBins table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    /*RUN pValidateTTInventory.*/
+    
+    FOR EACH ttInventoryStock       
+        ON ERROR UNDO, NEXT:         
+        CREATE inventoryStock.
+        BUFFER-COPY ttInventoryStock EXCEPT rec_key inventoryStockID 
+            TO inventoryStock.
+        
+        inventoryStock.inventoryStockID = DYNAMIC-FUNCTION (
+                                              "fGetNextStockID" IN hdInventoryProcs,
+                                               ttInventoryStock.itemType
+                                               ).
+                                               
+        IF inventoryStock.stockIDAlias EQ "" THEN
+            inventoryStock.stockIDAlias = gcEmptyTagPrefix + inventoryStock.inventoryStockID.
+        
+        FOR EACH ttInventoryTransaction
+            WHERE ttInventoryTransaction.inventoryStockID EQ ttInventoryStock.inventoryStockID
+              AND ttInventoryTransaction.valid:
+            CREATE inventoryTransaction.
+            BUFFER-COPY ttInventoryTransaction EXCEPT rec_key inventoryStockID inventoryTransactionID stockIDAlias 
+                TO inventoryTransaction.
+
+            ASSIGN
+                inventoryTransaction.inventoryStockID       = inventoryStock.inventoryStockID
+                inventoryTransaction.stockIDAlias           = inventoryStock.stockIDAlias
+                inventoryTransaction.inventoryTransactionID = DYNAMIC-FUNCTION (
+                                                                  "fGetNextTransactionID" IN hdInventoryProcs
+                                                                  )
+                .
+        END.
+        
+        FOR EACH ttInventoryStockAlias
+            WHERE ttInventoryStockAlias.inventoryStockID EQ ttInventoryStock.inventoryStockID
+              AND ttInventoryStockAlias.valid:
+            CREATE inventoryStockAlias.
+            BUFFER-COPY ttInventoryStockAlias EXCEPT rec_key inventoryStockID inventoryStockAliasID stockIDAlias
+                TO inventoryStockAlias.
+            
+            ASSIGN
+                inventoryStockAlias.inventoryStockID      = inventoryStock.inventoryStockID
+                inventoryStockAlias.stockIDAlias          = REPLACE(inventoryStock.stockIDAlias,gcEmptyTagPrefix,"")
+                inventoryStockAlias.inventoryStockAliasID = DYNAMIC-FUNCTION (
+                                                                "fGetNextStockAliasID" IN hdInventoryProcs
+                                                                )
+                .  
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE BuildTTInventoryForItem:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a FG Item, builds inventory 
+     Notes: This procedure creates Inventory temp-tables which is modelled on the 
+            logic used to update fg-bin records when "Recalculate Qtys" button is 
+            clicked in I-F-1 screen  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipriItemFG           AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdtAsOf             AS DATE      NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCountOfProcessed AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+
+    EMPTY TEMP-TABLE ttInventoryStock.
+    EMPTY TEMP-TABLE ttInventoryStockAlias.
+    EMPTY TEMP-TABLE ttInventoryTransaction.
+    
+    FIND FIRST itemfg NO-LOCK
+        WHERE ROWID(itemfg) EQ ipriItemFG
+        NO-ERROR.
+    IF AVAILABLE itemfg THEN 
+    DO:
+        FOR EACH fg-rcpth NO-LOCK
+            WHERE fg-rcpth.company    EQ itemfg.company
+              AND fg-rcpth.i-no       EQ itemfg.i-no          
+            USE-INDEX tran,
+            EACH fg-rdtlh NO-LOCK
+            WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            BY fg-rcpth.trans-date
+            BY fg-rdtlh.trans-time
+            BY fg-rcpth.r-no:
+            
+            iopiCountOfProcessed = iopiCountOfProcessed + 1.
+
+            FIND FIRST ttInventoryStock
+                 WHERE ttInventoryStock.company      EQ fg-rcpth.company
+                   AND ttInventoryStock.fgItemID     EQ fg-rcpth.i-no
+                   AND ttInventoryStock.stockIDAlias EQ fg-rdtlh.tag
+                   AND ttInventoryStock.jobID        EQ fg-rcpth.job-no
+                   AND ttInventoryStock.jobID2       EQ fg-rcpth.job-no2
+                   AND ttInventoryStock.warehouseID  EQ fg-rdtlh.loc
+                   AND ttInventoryStock.locationID   EQ fg-rdtlh.loc-bin
+                   AND ttInventoryStock.customerID   EQ fg-rdtlh.cust-no
+                 NO-ERROR.
+            IF NOT AVAILABLE ttInventoryStock THEN DO:            
+                iInventoryStockSeq = iInventoryStockSeq + 1.
+                CREATE ttInventoryStock.
+                ASSIGN
+                    ttInventoryStock.company                    = fg-rcpth.company
+                    ttInventoryStock.jobID                      = fg-rcpth.job-no
+                    ttInventoryStock.jobID2                     = fg-rcpth.job-no2
+                    ttInventoryStock.warehouseID                = fg-rdtlh.loc
+                    ttInventoryStock.locationID                 = fg-rdtlh.loc-bin
+                    ttInventoryStock.customerID                 = fg-rdtlh.cust-no
+                    ttInventoryStock.fgItemID                   = fg-rcpth.i-no
+                    ttInventoryStock.quantityUOM                = gcFGUOM
+                    ttInventoryStock.itemType                   = gcItemTypeFG
+                    ttInventoryStock.lot                        = fg-rdtlh.stack-code
+                    ttInventoryStock.createdTime                = DATETIME(fg-rcpth.trans-date, fg-rdtlh.trans-time)
+                    ttInventoryStock.createdBy                  = fg-rcpth.create-by
+                    ttInventoryStock.lastTransBy                = fg-rcpth.update-by
+                    ttInventoryStock.dimEachUOM                 = gcUOMInches
+                    ttInventoryStock.inventoryStockUOM          = gcUOMInches
+                    ttInventoryStock.basisWeightUOM             = gcUOMWeightBasis
+                    ttInventoryStock.weightUOM                  = gcUOMWeight
+                    ttInventoryStock.costStandardMat            = fg-rdtlh.std-mat-cost
+                    ttInventoryStock.costStandardLab            = fg-rdtlh.std-lab-cost
+                    ttInventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
+                    ttInventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
+                    ttInventoryStock.sourceID                   = STRING(fg-rdtlh.r-no)
+                    ttInventoryStock.sourceType                 = gcInventorySourceTypeFG
+                    ttInventoryStock.inventoryStatus            = gcStatusStockInitial
+                    ttInventoryStock.primaryID                  = ttInventoryStock.fgItemID
+                    ttInventoryStock.inventoryStockID           = STRING(iInventoryStockSeq)
+                    ttInventoryStock.stockIDAlias               = fg-rdtlh.tag
+                    ttInventoryStock.poLine                     = IF ttInventoryStock.poID NE 0 THEN
+                                                                      ttInventoryStock.poID
+                                                                  ELSE
+                                                                      1
+                    ttInventoryStock.quantityOriginal           = fg-rdtlh.qty
+                    ttInventoryStock.quantityPartialOriginal    = fg-rdtlh.partial
+                    ttInventoryStock.quantityOfSubUnitsOriginal = fg-rdtlh.qty-case
+                    ttInventoryStock.quantitySubUnitsPerUnit    = fg-rdtlh.stacks-unit
+                    ttInventoryStock.quantityOfUnitsOriginal    = TRUNC((fg-rdtlh.qty - fg-rdtlh.partial) / fg-rdtlh.qty-case,0)
+                    ttInventoryStock.quantityOfSubUnits         = fg-rdtlh.qty-case
+                    .
+
+                ttInventoryStock.poID = INTEGER(fg-rcpth.po-no) NO-ERROR.
+
+                FIND FIRST fg-bin NO-LOCK
+                     WHERE fg-bin.company EQ ttInventoryStock.company
+                       AND fg-bin.po-no   EQ fg-rcpth.po-no
+                       AND fg-bin.i-no    EQ ttInventoryStock.fgItemID
+                       AND fg-bin.tag     EQ ttInventoryStock.stockIDAlias
+                       AND fg-bin.job-no  EQ ttInventoryStock.jobID
+                       AND fg-bin.job-no2 EQ ttInventoryStock.jobID2
+                       AND fg-bin.loc     EQ ttInventoryStock.warehouseID
+                       AND fg-bin.loc-bin EQ ttInventoryStock.locationID
+                       AND fg-bin.cust-no EQ ttInventoryStock.customerID
+                     NO-ERROR.
+                IF AVAILABLE fg-bin THEN
+                    ASSIGN
+                        ttInventoryStock.costStandardMat = fg-bin.std-mat-cost
+                        ttInventoryStock.costStandardLab = fg-bin.std-lab-cost
+                        ttInventoryStock.costStandardVOH = fg-bin.std-var-cost
+                        ttInventoryStock.costStandardFOH = fg-bin.std-fix-cost
+                        ttInventoryStock.costUOM         = fg-bin.pur-uom
+                        .
+
+                ASSIGN
+                    ttInventoryStock.dimEachLen        = itemfg.t-len
+                    ttInventoryStock.dimEachWid        = itemfg.t-wid
+                    ttInventoryStock.dimEachDep        = itemfg.t-dep
+                    ttInventoryStock.inventoryStockLen = itemfg.unitLength
+                    ttInventoryStock.inventoryStockWid = itemfg.unitWidth
+                    ttInventoryStock.inventoryStockDep = itemfg.unitHeight
+                    ttInventoryStock.basisWeight       = itemfg.weight-100
+                    ttInventoryStock.costUOM           = itemfg.prod-uom
+                    .
+
+                FIND FIRST bf-oe-bolh NO-LOCK
+                     WHERE bf-oe-bolh.company EQ fg-rdtlh.company
+                       AND bf-oe-bolh.b-no    EQ fg-rcpth.b-no
+                     NO-ERROR.
+                IF AVAILABLE bf-oe-bolh THEN
+                    ttInventoryStock.bolID = STRING(bf-oe-bolh.bol-no).
+            END.
+
+            IF ttInventoryStock.poID EQ 0 AND fg-rcpth.po-no NE "" THEN
+                ttInventoryStock.poID = INTEGER(fg-rcpth.po-no) NO-ERROR.
+                            
+            /* Create InventoryStockAlias for the stockIDAlias */ 
+            FIND FIRST ttInventoryStockAlias NO-LOCK
+                 WHERE ttInventoryStockAlias.stockIDAlias EQ ttInventoryStock.stockIDAlias
+                   NO-ERROR.
+            IF NOT AVAILABLE ttInventoryStockAlias THEN
+            DO:
+                iInventoryStockAliasSeq = iInventoryStockAliasSeq + 1.
+                CREATE ttInventoryStockAlias.
+                ASSIGN
+                    ttInventoryStockAlias.inventoryStockAliasID = iInventoryStockAliasSeq
+                    ttInventoryStockAlias.company               = ttInventoryStock.company
+                    ttInventoryStockAlias.inventoryStockID      = ttInventoryStock.inventoryStockID
+                    ttInventoryStockAlias.uniquePrefix          = ttInventoryStock.primaryID
+                    ttInventoryStockAlias.stockIDAlias          = ttInventoryStock.stockIDAlias
+                    .
+            END.
+
+            CREATE ttInventoryTransaction.
+            ASSIGN
+                ttInventoryTransaction.company           = ttInventoryStock.company
+                ttInventoryTransaction.createdBy         = ttInventoryStock.createdBy
+                ttInventoryTransaction.createdTime       = ttInventoryStock.createdTime
+                ttInventoryTransaction.scannedBy         = ttInventoryStock.lastTransBy
+                ttInventoryTransaction.scannedTime       = DATETIME(fg-rcpth.upd-date, fg-rdtlh.upd-time)
+                ttInventoryTransaction.postedBy          = ttInventoryStock.lastTransBy
+                ttInventoryTransaction.postedTime        = DATETIME(fg-rcpth.upd-date, fg-rdtlh.upd-time)
+                ttInventoryTransaction.quantityChange    = fg-rdtlh.qty
+                ttInventoryTransaction.quantityUOM       = ttInventoryStock.quantityUOM
+                ttInventoryTransaction.warehouseID       = ttInventoryStock.warehouseID
+                ttInventoryTransaction.locationID        = ttInventoryStock.locationID
+                ttInventoryTransaction.transactionTime   = DATETIME(fg-rcpth.trans-date, fg-rdtlh.trans-time)
+                ttInventoryTransaction.transactionStatus = gcStatusTransactionPosted
+                ttInventoryTransaction.inventoryStockID  = ttInventoryStock.inventoryStockID
+                ttInventoryTransaction.stockIDAlias      = ttInventoryStock.stockIDAlias
+                .
+            
+            CASE fg-rcpth.rita-code:
+                WHEN "R" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeReceive.
+                WHEN "T" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeTransfer.
+                WHEN "A" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeAdjustQty.
+                WHEN "I" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeConsume.
+                WHEN "S" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeShip.
+                WHEN "C" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeCompare.
+                WHEN "E" THEN
+                    ttInventoryTransaction.transactionType = gcTransactionTypeReturns.
+                OTHERWISE
+                    ttInventoryTransaction.transactionType = fg-rcpth.rita-code.
+            END CASE.
+
+            IF INDEX("RACT",fg-rcpth.rita-code) GT 0 THEN DO:
+                IF fg-rdtlh.qty-case GT 0 AND
+                  (ttInventoryStock.quantityOfSubUnits LE 0 OR ttInventoryStock.quantity EQ 0 OR INDEX("AC",fg-rcpth.rita-code) GT 0) THEN
+                    ttInventoryStock.quantityOfSubUnits = fg-rdtlh.qty-case.
+
+                IF ttInventoryStock.quantitySubUnitsPerUnit GT 0 AND
+                  (ttInventoryStock.quantityOfSubUnits LE 0 OR ttInventoryStock.quantity EQ 0 OR INDEX("AC",fg-rcpth.rita-code) GT 0) THEN
+                    ttInventoryStock.quantityOfSubUnits = fg-rdtlh.stacks-unit.
+            END.
+
+            IF fg-rcpth.rita-code EQ "C" THEN /* Physical Count */
+                ASSIGN
+                    ttInventoryStock.quantity        = fg-rdtlh.qty
+                    ttInventoryStock.quantityPartial = fg-rdtlh.partial
+                    .
+            ELSE IF INDEX("RATE",fg-rcpth.rita-code) NE 0 THEN
+                ttInventoryStock.quantity = fg-rdtlh.qty + ttInventoryStock.quantity.
+            ELSE
+                ttInventoryStock.quantity = ttInventoryStock.quantity - fg-rdtlh.qty.
+
+            IF fg-rcpth.rita-code NE "C" THEN DO:
+                FIND FIRST fg-rctd NO-LOCK
+                     WHERE fg-rctd.r-no EQ fg-rcpth.r-no
+                     NO-ERROR.
+                IF AVAILABLE fg-rctd AND fg-rctd.partial NE 0 THEN
+                    ttInventoryStock.quantityPartial = ttInventoryStock.quantityPartial +
+                                                      (fg-rctd.partial * IF INDEX("TS",fg-rcpth.rita-code) GT 0 THEN -1 ELSE 1).
+                ELSE IF fg-rdtlh.qty-case NE 0 THEN
+                    ttInventoryStock.quantityPartial = ttInventoryStock.quantityPartial +
+                                                       ((fg-rdtlh.qty - (fg-rdtlh.cases * fg-rdtlh.qty-case)) *
+                                                         IF INDEX("TS",fg-rcpth.rita-code) GT 0 THEN -1 ELSE 1).
+            END.
+
+            ttInventoryStock.quantityOfUnits = TRUNC((fg-rdtlh.qty - fg-rdtlh.partial) / fg-rdtlh.qty-case,0).
+
+            IF ttInventoryStock.quantity EQ 0 THEN
+                ASSIGN
+                    ttInventoryStock.consumedTime    = DATETIME(fg-rcpth.trans-date, fg-rdtlh.trans-time)
+                    ttInventoryStock.quantityOfUnits = 0
+                    ttInventoryStock.quantityPartial = 0
+                    .
+            ELSE DO:
+                IF ttInventoryStock.quantityOfSubUnits GT 0 THEN
+                    ttInventoryStock.quantityPartial = IF ttInventoryStock.quantityPartial LT 0 AND ttInventoryStock.quantity GT ttInventoryStock.quantityPartial * -1 THEN
+                                                           ttInventoryStock.quantity - (TRUNC(ttInventoryStock.quantity / ttInventoryStock.quantityOfSubUnits,0) * ttInventoryStock.quantityOfSubUnits)
+                                                       ELSE
+                                                           ttInventoryStock.quantity - (TRUNC((ttInventoryStock.quantity - ttInventoryStock.quantityPartial) / ttInventoryStock.quantityOfSubUnits,0) * ttInventoryStock.quantityOfSubUnits).
+
+                IF ttInventoryStock.quantityOfSubUnits LE 0 OR
+                  (ttInventoryStock.quantity LT ttInventoryStock.quantityOfSubUnits AND ttInventoryStock.quantity GT 0) THEN
+                    ASSIGN
+                        ttInventoryStock.quantityOfSubUnits = ttInventoryStock.quantity
+                        ttInventoryStock.quantityPartial    = 0
+                        .
+            END.
+
+            ttInventoryStock.lastTransTime = DATETIME(fg-rcpth.trans-date, fg-rdtlh.trans-time).
+
+            RELEASE ttInventoryStockAlias.
+            RELEASE ttInventoryTransaction.
+            RELEASE ttInventoryStock.
+        END.
+    END.
+    RELEASE bf-oe-bolh.        
+END PROCEDURE.
+
+PROCEDURE pValidateTTInventory PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to create Inventory Stock table records from ttFGBins table 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    FOR EACH ttInventoryStock:
+        IF ttInventoryStock.company EQ "" THEN DO:
+            ASSIGN
+                ttInventoryStock.valid   = FALSE
+                ttInventoryStock.comment = "Empty company"
+                .                
+            NEXT.
+        END.
+        
+        FIND FIRST company NO-LOCK
+             WHERE company.company EQ ttInventoryStock.company
+             NO-ERROR.
+        IF NOT AVAILABLE company THEN DO:
+            ASSIGN
+                ttInventoryStock.valid   = FALSE
+                ttInventoryStock.comment = "Invalid company"
+                .                
+            NEXT.        
+        END.
+
+        IF ttInventoryStock.fgItemID EQ "" THEN DO:
+            ASSIGN
+                ttInventoryStock.valid   = FALSE
+                ttInventoryStock.comment = "Empty Item number"
+                .                
+            NEXT.
+        END.
+    END.
 END PROCEDURE.
 
 PROCEDURE pBuildBinsForItem PRIVATE:

@@ -123,6 +123,11 @@ DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -271,7 +276,7 @@ tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
 tb_print-binstags rd_bol-sort fi_specs tb_print-spec rd_bolcert ~
 tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
 tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no td-show-parm ~
-tb_post-bol run_format btn-ok btn-cancel 
+tb_post-bol run_format btn-ok btn-cancel tb_suppress-name
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
@@ -279,7 +284,8 @@ tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
 tb_print-binstags lbl_bolsort rd_bol-sort fi_specs tb_print-spec ~
 lbl_bolcert rd_bolcert tb_per-bol-line tb_EMailAdvNotice rd-dest ~
 tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_post-bol run_format 
+lines-per-page lv-font-no lv-font-name td-show-parm tb_post-bol run_format ~
+tb_suppress-name
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -451,6 +457,11 @@ DEFINE VARIABLE tb_footer AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_freight-bill AS LOGICAL INITIAL no 
      LABEL "Print Freight Bill / Logo?" 
      VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO. 
+
+DEFINE VARIABLE tb_suppress-name AS LOGICAL INITIAL no 
+     LABEL "Suppress Name" 
+     VIEW-AS TOGGLE-BOX
      SIZE 28 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_MailBatchMode AS LOGICAL INITIAL no 
@@ -581,6 +592,7 @@ DEFINE FRAME FRAME-A
      tb_MailBatchMode AT ROW 17.57 COL 54.6 RIGHT-ALIGNED
      tb_ComInvoice AT ROW 18.48 COL 59.6 RIGHT-ALIGNED
      tb_freight-bill AT ROW 19.38 COL 56.6 RIGHT-ALIGNED
+     tb_suppress-name AT ROW 20.29 COL 56.6 RIGHT-ALIGNED
      tb_footer AT ROW 20.29 COL 56.6 RIGHT-ALIGNED
      lv-ornt AT ROW 21.1 COL 29.6 NO-LABEL
      lines-per-page AT ROW 21.1 COL 83 COLON-ALIGNED
@@ -766,6 +778,12 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm". 
+
+/* SETTINGS FOR TOGGLE-BOX tb_suppress-name IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_suppress-name:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_MailBatchMode IN FRAME FRAME-A
@@ -866,9 +884,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Print Bills of Lading */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+    /* This event will close the window and terminate the procedure.  */
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -926,7 +946,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1584,14 +1607,20 @@ DO:
   
   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
       ASSIGN tb_per-bol-line:SENSITIVE = NO .
-      IF tb_freight-bill THEN
+      IF tb_freight-bill THEN do:
           run_format:SCREEN-VALUE = vcDefaultBOLX .
-      ELSE
+          IF vcDefaultBOLX EQ "BOLFMTX15" THEN
+            tb_suppress-name:HIDDEN = NO .
+      END.
+      ELSE do:
           run_format:SCREEN-VALUE = vcDefaultForm.
+          tb_suppress-name:HIDDEN = YES .
+      END.
   END.
   ELSE do: 
       ASSIGN tb_per-bol-line:SENSITIVE = YES
           run_format:SCREEN-VALUE = v-def-coc-fmt.
+          tb_suppress-name:HIDDEN = YES .
   END.
 END.
 
@@ -1718,12 +1747,20 @@ DO:
   assign {&self-name}.
 
   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
-      IF tb_freight-bill THEN
+      IF tb_freight-bill THEN do:
           run_format:SCREEN-VALUE = vcDefaultBOLX .
-      ELSE
+          IF vcDefaultBOLX EQ "BOLFMTX15" THEN
+            tb_suppress-name:HIDDEN = NO .
+      END.
+      ELSE do:
           run_format:SCREEN-VALUE = vcDefaultForm.
+          tb_suppress-name:HIDDEN = YES .
+      END.
   END.
-  ELSE run_format:SCREEN-VALUE = v-def-coc-fmt.
+  ELSE do:
+      run_format:SCREEN-VALUE = v-def-coc-fmt.
+      tb_suppress-name:HIDDEN = YES .
+  END.
 
 END.
 
@@ -2002,6 +2039,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
 
     tb_freight-bill:SCREEN-VALUE = "NO".
+    tb_suppress-name:HIDDEN = YES .
 
     IF NOT PROGRAM-NAME(1) BEGINS "listobjs/oe-boll_." OR llBlockPost THEN
       ASSIGN
@@ -2019,7 +2057,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     tb_EMailAdvNotice:SENSITIVE = YES.
     APPLY 'value-changed':u TO rd-dest.
-    APPLY "VALUE-CHANGED":U TO tb_post-bol.
   END.
 
 
@@ -2050,7 +2087,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          RUN_format:HIDDEN IN FRAME FRAME-A = YES .
      ELSE 
          RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
-
+         
+  APPLY "VALUE-CHANGED":U TO tb_post-bol IN FRAME {&FRAME-NAME}.
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2755,6 +2794,16 @@ PROCEDURE build-work :
     DO:
        CREATE tt-post.
        tt-post.row-id = ROWID(oe-bolh).
+
+        /* Trigger Outbound API to send BOL data */        
+        RUN pCallOutboundAPI(
+            INPUT oe-bolh.company,
+            INPUT shipTo.loc,
+            INPUT oe-bolh.cust-no,
+            INPUT oe-bolh.bol-no,
+            INPUT oe-bolh.printed,
+            INPUT ROWID(oe-bolh)
+            ) NO-ERROR.       
     END.
 
     IF tb_barcode:CHECKED IN FRAME {&frame-name} AND
@@ -3076,7 +3125,7 @@ PROCEDURE enable_UI :
           rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
           tb_per-bol-line tb_EMailAdvNotice rd-dest tb_MailBatchMode 
           tb_ComInvoice tb_freight-bill tb_footer lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_post-bol run_format 
+          lv-font-no lv-font-name td-show-parm tb_post-bol run_format tb_suppress-name
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
@@ -3085,7 +3134,7 @@ PROCEDURE enable_UI :
          rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line 
          tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
          tb_freight-bill tb_footer lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_post-bol run_format btn-ok btn-cancel 
+         td-show-parm tb_post-bol run_format btn-ok btn-cancel tb_suppress-name
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3710,6 +3759,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
+PROCEDURE pCallOutboundAPI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Calls Outbound APIs
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiBOLID    AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER iplPrinted  AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID     NO-UNDO.
+
+DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bf-cust FOR cust.
+
+FIND FIRST bf-cust NO-LOCK 
+     WHERE bf-cust.company EQ ipcCompany
+       AND bf-cust.cust-no EQ ipcCustID
+     NO-ERROR.
+     
+IF AVAILABLE bf-cust AND bf-cust.ASNClientID NE "" THEN DO: 
+    IF iplPrinted THEN 
+        cTriggerID = "RePrintBillOfLading".
+    ELSE 
+        cTriggerID = "PrintBillOfLading".
+    
+    ASSIGN  
+        cAPIId       = "SendAdvancedShipNotice"
+        cPrimaryID   = STRING(ipiBOLID)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-bolprt.w for BOL: " + cPrimaryID
+        .
+
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  ipcCompany,                 /* Company Code (Mandatory) */
+        INPUT  ipcLocation,                /* Location Code (Mandatory) */
+        INPUT  cAPIID,                     /* API ID (Mandatory) */
+        INPUT  bf-cust.ASNClientID,        /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+        INPUT  "oe-bolh",                  /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ipriOeBolh),         /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,               /* Event's description (Optional) */
+        OUTPUT lSuccess,                   /* Success/Failure flag */
+        OUTPUT cMessage                    /* Status message */
+        ).
+    
+    RUN Outbound_ResetContext IN hdOutboundProcs.        
+END.
+
+RELEASE bf-cust.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPostDate C-Win 
 PROCEDURE pCheckPostDate PRIVATE :
 /*------------------------------------------------------------------------------
@@ -3897,7 +4011,10 @@ PROCEDURE post-bol :
     END.
   END.
 
-  RUN oe/oe-bolp3.p (v-term).
+  RUN oe/oe-bolp3.p(
+         INPUT v-term,
+         INPUT fiPostDate
+         ).
 
   /* close transfer order here */
   RUN oe/closchk.p (0).
@@ -4176,6 +4293,13 @@ PROCEDURE pRunFormatValueChanged :
    ELSE
        ASSIGN
         tb_print-DetPage:HIDDEN = YES .
+
+     IF tb_freight-bill:SCREEN-VALUE EQ "Yes" THEN do:
+         IF vcDefaultBOLX EQ "BOLFMTX15" THEN
+             tb_suppress-name:HIDDEN = NO .
+         ELSE tb_suppress-name:HIDDEN = YES .
+     END.
+
     END.
 END PROCEDURE.
 
@@ -4211,7 +4335,8 @@ PROCEDURE run-packing-list :
     v-print-unassembled = tb_print-unassemble-component
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line
-    lPrintDetailPage    = tb_print-DetPage .
+    lPrintDetailPage    = tb_print-DetPage
+    lSuppressName       = tb_suppress-name .
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -4400,7 +4525,8 @@ PROCEDURE run-report :
     v-print-unassembled = tb_print-unassemble-component 
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line
-    lPrintDetailPage    = tb_print-DetPage .
+    lPrintDetailPage    = tb_print-DetPage
+    lSuppressName       = tb_suppress-name.
 
   /*IF lAsiUser THEN DO:
      ASSIGN v-print-fmt = run_format
@@ -4628,7 +4754,8 @@ assign
   v-print-unassembled = tb_print-unassemble-component
   v-footer            = tb_footer
   lPerBolLine         = tb_per-bol-line
-  lPrintDetailPage    = tb_print-DetPage .
+  lPrintDetailPage    = tb_print-DetPage
+  lSuppressName       = tb_suppress-name .
 
 IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
    ASSIGN
@@ -4896,7 +5023,8 @@ PROCEDURE run-report-mail :
     v-print-unassembled = tb_print-unassemble-component
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line
-    lPrintDetailPage    = tb_print-DetPage .
+    lPrintDetailPage    = tb_print-DetPage
+    lSuppressName       = tb_suppress-name .
 
   IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN

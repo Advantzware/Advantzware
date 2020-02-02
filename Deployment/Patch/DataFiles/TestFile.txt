@@ -1,9 +1,0 @@
-APIInbound
-APIInboundDetail
-APIOutbound
-APIOutboundDetail
-APIOutboundTrigger
-ServerResource
-Sys-crtl
-Sys-Crtl-shipto
-emailConfig

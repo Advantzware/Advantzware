@@ -1436,7 +1436,7 @@ FOR EACH tt-comm-calc,
          SPACE(2)
          tt-comm-calc.cust-no  WHEN FIRST-OF(tt-comm-calc.cust-no)
          cust.name         WHEN FIRST-OF(tt-comm-calc.cust-no) FORMAT "x(22)"
-         tt-comm-calc.inv-no
+         tt-comm-calc.inv-no FORMAT ">>>>>>9"
          tt-comm-calc.i-no
          tt-comm-calc.procat
          tt-comm-calc.qty              FORMAT "->>,>>>,>>9"

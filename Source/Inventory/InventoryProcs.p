@@ -30,20 +30,20 @@ DEFINE VARIABLE giIDTemp                   AS INTEGER. /*TESTING ONLY DELETE BEF
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
 	(ipcInventoryStockID AS CHARACTER) FORWARD.
 
-FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
+FUNCTION fGetNextStockAliasID RETURNS INTEGER 
     (  ) FORWARD.
 
 FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
-FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
+FUNCTION fGetNextStockIDAlias RETURNS CHARACTER 
     (ipcCompany AS CHARACTER,
     ipcUniquePrefix AS CHARACTER) FORWARD.
 
-FUNCTION fGetNextStockID RETURNS CHARACTER PRIVATE
+FUNCTION fGetNextStockID RETURNS CHARACTER 
     (ipcType AS CHARACTER) FORWARD.
 
-FUNCTION fGetNextTransactionID RETURNS INTEGER PRIVATE
+FUNCTION fGetNextTransactionID RETURNS INTEGER
     (  ) FORWARD.
 
 FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
@@ -3833,7 +3833,7 @@ FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL
 
 END FUNCTION.
 
-FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
+FUNCTION fGetNextStockAliasID RETURNS INTEGER 
     (  ):
     /*------------------------------------------------------------------------------
      Purpose: Returns the next stockAliasID
@@ -3857,7 +3857,7 @@ FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
 		
 END FUNCTION.
 
-FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
+FUNCTION fGetNextStockIDAlias RETURNS CHARACTER 
     ( ipcCompany AS CHARACTER , ipcUniquePrefix AS CHARACTER ):
 
     /*------------------------------------------------------------------------------
@@ -3908,7 +3908,7 @@ FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
 		
 END FUNCTION.
 
-FUNCTION fGetNextStockID RETURNS CHARACTER PRIVATE
+FUNCTION fGetNextStockID RETURNS CHARACTER 
     (ipcType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose: Returns the next stock ID
@@ -3921,7 +3921,7 @@ FUNCTION fGetNextStockID RETURNS CHARACTER PRIVATE
 		
 END FUNCTION.
 
-FUNCTION fGetNextTransactionID RETURNS INTEGER PRIVATE
+FUNCTION fGetNextTransactionID RETURNS INTEGER
     (  ):
     /*------------------------------------------------------------------------------
      Purpose: Returns the next transaction ID
@@ -4042,6 +4042,8 @@ END FUNCTION.
 
 FUNCTION fCalculateQuantityUnits RETURNS INTEGER
     (ipdQuantitySubUnits AS DECIMAL, ipdQuantitySubUnitsPerUnit AS DECIMAL, ipdQuantityPartialSubUnit AS DECIMAL):
+     IF ipdQuantitySubUnitsPerUnit EQ 0 THEN
+         ipdQuantitySubUnitsPerUnit = 1.
      RETURN INTEGER(TRUNC(ipdQuantitySubUnits / ipdQuantitySubUnitsPerUnit, 0)) +
             INTEGER((ipdQuantitySubUnits MODULO ipdQuantitySubUnitsPerUnit) NE 0) + 
             INTEGER(ipdQuantityPartialSubUnit GT 0).

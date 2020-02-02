@@ -75,4 +75,9 @@ router.post('/createinventorycount', (req,res) => {
 router.post('/createvendorinvoice', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This will update itemfg records
+router.post('/updateitem', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;

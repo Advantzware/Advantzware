@@ -1994,7 +1994,7 @@ PROCEDURE create-from-po :
                 fg-rctd.std-cost
                 fg-rctd.ext-cost
                 fg-rctd.frt-cost
-                . 
+                    WITH FRAME {&FRAME-NAME}.
             IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
             DO:
                 RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).

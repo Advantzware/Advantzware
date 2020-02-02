@@ -2078,7 +2078,10 @@ FOR EACH report WHERE report.term-id EQ v-term,
   DELETE report.
 END.
 
-RUN oe/oe-bolp3.p (v-term).
+RUN oe/oe-bolp3.p(
+    INPUT v-term,
+    INPUT TODAY
+    ).
 
 FIND CURRENT oe-relh NO-LOCK NO-ERROR.
 FIND CURRENT oe-rell NO-LOCK NO-ERROR.

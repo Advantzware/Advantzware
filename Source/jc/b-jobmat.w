@@ -82,6 +82,14 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
+DEFINE NEW SHARED TEMP-TABLE tt-job-item 
+    FIELD tt-rowid    AS ROWID
+    FIELD frm         LIKE job-mat.frm
+    FIELD blank-no    LIKE job-mat.blank-no
+    FIELD rm-i-no     AS CHARACTER 
+    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+    .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1068,17 +1076,11 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll AS LOG NO-UNDO.
-
-
+  DEFINE BUFFER bf-job-mat FOR job-mat.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN DO:
     RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).
-
-    IF ll THEN DO:
-      {custom/askdel.i}
-    END.
-
-    ELSE
+   
     IF ll EQ ? THEN DO:
       ll = NO.
       MESSAGE "Material has been Allocated, delete anyway?"
@@ -1086,7 +1088,7 @@ PROCEDURE local-delete-record :
           UPDATE ll.
     END.
 
-    ELSE
+    ELSE IF NOT ll THEN
       MESSAGE "Sorry, this RM has been processed for this job " +
               "and may not be deleted..."
           VIEW-AS ALERT-BOX ERROR.
@@ -1098,8 +1100,23 @@ PROCEDURE local-delete-record :
   RUN jc/jc-all.p (ROWID(job-mat), -1, INPUT-OUTPUT job.stat).
   FIND CURRENT job NO-LOCK.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+  IF AVAIL job-mat THEN
+      RUN jc/JobItemPop.w(job.job-no,job.job-no2,ROWID(job-mat),"Job-mat") .
+
+  FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
+      FOR EACH bf-job-mat EXCLUSIVE-LOCK 
+          WHERE bf-job-mat.company EQ cocode AND 
+          ROWID(bf-job-mat) EQ tt-job-item.tt-rowid :
+            DELETE bf-job-mat .
+      END.
+  END.
+
+  RUN dispatch ("open-query").
+ 
+  APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+
+   /* Dispatch standard ADM method.                             */
+  /*RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .*/
 
   /* Code placed here will execute AFTER standard behavior.    */
 

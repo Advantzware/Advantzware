@@ -127,18 +127,3 @@ ELSE
     ASSIGN
         oplcResponseData = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'
         .
-
-/* Log the request to APIInboundEvent */
-RUN api\CreateAPIInboundEvent.p (
-    INPUT  ipcRoute,
-    INPUT  iplcRequestData,
-    INPUT  oplcResponseData,
-    INPUT  oplSuccess,
-    INPUT  opcMessage,
-    INPUT  NOW,
-    INPUT  ipcRequestedBy,
-    INPUT  ipcRecordSource,
-    INPUT  ipcNotes,
-    INPUT  "", /* PayloadID */
-    OUTPUT opcAPIInboundEvent
-    ).

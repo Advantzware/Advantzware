@@ -21,9 +21,9 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD ind-type             AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Industry Type" HELP "Required - Size: Corrugated or Folding" 
     FIELD i-no                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item#" HELP "Required - Size:10" 
     FIELD i-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Name" HELP "Optional - Size:30"
-    FIELD i-dscr               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "DESC" HELP "Optional - - Size:30"
-    FIELD est-dscr             AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Est.DESC" HELP "Optional - Size:30"
-    FIELD i-code               AS CHARACTER FORMAT "x(14)" COLUMN-LABEL "Item Code" HELP "Optional - Size: RM Stocked or Estimated Mat'1"
+    FIELD i-dscr               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Desc" HELP "Optional - - Size:30"
+    FIELD est-dscr             AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Est.Desc" HELP "Optional - Size:30"
+    FIELD i-code               AS CHARACTER FORMAT "x(14)" COLUMN-LABEL "Item Code" HELP "Optional - RM Stocked or Estimated Mat'l"
     FIELD tax-rcpt             AS CHARACTER FORMAT "x" COLUMN-LABEL "Taxable" HELP "Optional - Y or N (blank=N)"
     FIELD mat-type             AS CHARACTER FORMAT "x" COLUMN-LABEL "Mat'l Type" HELP "Required - Size:1"
     FIELD cost-type            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost Type" HELP "Required - Size:3"
@@ -78,7 +78,9 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD linin-lb             AS DECIMAL   FORMAT ">>>,>>9" COLUMN-LABEL "Lin In/UOM" HELP "Optional - Decimal"    
     FIELD loc                  AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse" HELP "Optional - Size:5"               
     FIELD loc-bin              AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Bin" HELP "Optional - Size:12"                  
-    FIELD q-onh                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty On Hand" HELP "Optional - Decimal"                  
+    FIELD q-onh                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty On Hand" HELP "Optional - Decimal"
+    FIELD pur-uom              AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Purchase UOM" HELP "Required - Size: 5"
+    FIELD cons-uom             AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Consumption UOM" HELP "Required - Size: 5"                  
 
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
@@ -105,89 +107,95 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-item FOR ITEM.
 
-    FIND FIRST ITEM EXCLUSIVE-LOCK 
-        WHERE ITEM.company EQ ipbf-ttImportItem.Company
-        AND ITEM.i-no EQ ipbf-ttImportItem.i-no
+    FIND FIRST bf-item EXCLUSIVE-LOCK 
+        WHERE bf-item.company EQ ipbf-ttImportItem.Company
+        AND bf-item.i-no EQ ipbf-ttImportItem.i-no
         NO-ERROR.
 
-    IF NOT AVAILABLE ITEM THEN 
+    IF NOT AVAILABLE bf-item THEN 
     DO:
         ASSIGN 
             iopiAdded = iopiAdded + 1.
-        CREATE ITEM.
+        CREATE bf-item.
         ASSIGN 
-            ITEM.company   = ipbf-ttImportItem.Company
-            ITEM.loc       = ipbf-ttImportItem.Location
-            item.industry  = IF ipbf-ttImportItem.ind-type EQ "Corrugated" THEN "2" ELSE "1" 
-            ITEM.i-no      = ipbf-ttImportItem.i-no .
+            bf-item.company   = ipbf-ttImportItem.Company
+            bf-item.loc       = ipbf-ttImportItem.Location
+            bf-item.industry  = IF ipbf-ttImportItem.ind-type EQ "Corrugated" THEN "2" ELSE "1" 
+            bf-item.i-no      = ipbf-ttImportItem.i-no .
     END.
         
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
-    RUN pAssignValueC (ipbf-ttImportItem.i-name , YES, INPUT-OUTPUT item.i-name).                                                   
-    RUN pAssignValueC (ipbf-ttImportItem.i-dscr, YES, INPUT-OUTPUT item.i-dscr).                                                   
-    RUN pAssignValueC (ipbf-ttImportItem.est-dscr, iplIgnoreBlanks, INPUT-OUTPUT item.est-dscr).                               
-    RUN pAssignValueC (ipbf-ttImportItem.i-code, YES, INPUT-OUTPUT item.i-code).                                                   
-    RUN pAssignValueC (ipbf-ttImportItem.tax-rcpt, YES, INPUT-OUTPUT item.tax-rcpt).                                                   
-    RUN pAssignValueC (ipbf-ttImportItem.mat-type, iplIgnoreBlanks, INPUT-OUTPUT item.mat-type).                                       
-    RUN pAssignValueC (ipbf-ttImportItem.cost-type, iplIgnoreBlanks, INPUT-OUTPUT item.cost-type).                                         
-    RUN pAssignValueC (ipbf-ttImportItem.procat, iplIgnoreBlanks, INPUT-OUTPUT item.procat).                      
-    RUN pAssignValueD (ipbf-ttImportItem.q-ptd, iplIgnoreBlanks, INPUT-OUTPUT item.q-ptd).                                 
-    RUN pAssignValueD (ipbf-ttImportItem.q-ytd, iplIgnoreBlanks, INPUT-OUTPUT item.q-ytd).                                     
-    RUN pAssignValueD (ipbf-ttImportItem.q-lyr, YES, INPUT-OUTPUT item.q-lyr).                                                 
-    RUN pAssignValueC (ipbf-ttImportItem.ink-type, iplIgnoreBlanks, INPUT-OUTPUT item.ink-type).                   
-    RUN pAssignValueC (ipbf-ttImportItem.press-type, iplIgnoreBlanks, INPUT-OUTPUT item.press-type).                                         
-    RUN pAssignValueD (ipbf-ttImportItem.min-lbs, iplIgnoreBlanks, INPUT-OUTPUT item.min-lbs).                                 
-    RUN pAssignValueI (ipbf-ttImportItem.yield, iplIgnoreBlanks, INPUT-OUTPUT item.yield).                                       
-    RUN pAssignValueD (ipbf-ttImportItem.weight-100, iplIgnoreBlanks, INPUT-OUTPUT item.weight-100).                                 
-    RUN pAssignValueD (ipbf-ttImportItem.cal, iplIgnoreBlanks, INPUT-OUTPUT item.cal).                                   
-    RUN pAssignValueD (ipbf-ttImportItem.shrink, iplIgnoreBlanks, INPUT-OUTPUT item.shrink).                             
-    RUN pAssignValueD (ipbf-ttImportItem.basis-w, iplIgnoreBlanks, INPUT-OUTPUT item.basis-w).                                 
-    RUN pAssignValueD (ipbf-ttImportItem.s-wid, iplIgnoreBlanks, INPUT-OUTPUT item.s-wid).                             
-    RUN pAssignValueD (ipbf-ttImportItem.s-dep, iplIgnoreBlanks, INPUT-OUTPUT item.s-dep).                                 
-    RUN pAssignValueD (ipbf-ttImportItem.s-len, YES, INPUT-OUTPUT item.s-len).                                          
-    RUN pAssignValueD (ipbf-ttImportItem.density, YES, INPUT-OUTPUT item.density).                                         
-    RUN pAssignValueD (ipbf-ttImportItem.r-wid, YES, INPUT-OUTPUT item.r-wid).                         
-    RUN pAssignValueC (ipbf-ttImportItem.color-1, iplIgnoreBlanks, INPUT-OUTPUT item.color-1).                                 
-    RUN pAssignValueI (ipbf-ttImportItem.ect, YES, INPUT-OUTPUT item.ect).                                          
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name1, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[1]).                                     
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name2, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[2]).                             
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name3, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[3]).                                           
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name4, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[4]).                                                 
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name5, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[5]).                             
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name6, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[6]).                             
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name7, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[7]).                             
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name8, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[8]).                                           
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name9, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[9]).                                                 
-    RUN pAssignValueC (ipbf-ttImportItem.dept-name10, iplIgnoreBlanks, INPUT-OUTPUT item.dept-name[10]).                                         
-    RUN pAssignValueI (ipbf-ttImportItem.speed%1, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[1]).                     
-    RUN pAssignValueI (ipbf-ttImportItem.speed%2, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[2]).                                           
-    RUN pAssignValueI (ipbf-ttImportItem.speed%3, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[3]).                         
-    RUN pAssignValueI (ipbf-ttImportItem.speed%4, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[4]).                 
-    RUN pAssignValueI (ipbf-ttImportItem.speed%5, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[5]).                         
-    RUN pAssignValueI (ipbf-ttImportItem.speed%6, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[6]).                                       
-    RUN pAssignValueI (ipbf-ttImportItem.speed%7, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[7]).                         
-    RUN pAssignValueI (ipbf-ttImportItem.speed%8, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[8]).                                 
-    RUN pAssignValueI (ipbf-ttImportItem.speed%9, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[9]).                                   
-    RUN pAssignValueI (ipbf-ttImportItem.speed%10, iplIgnoreBlanks, INPUT-OUTPUT item.speed%[10]).                     
-    RUN pAssignValueD (ipbf-ttImportItem.case-l, iplIgnoreBlanks, INPUT-OUTPUT item.case-l).                                           
-    RUN pAssignValueD (ipbf-ttImportItem.case-w, iplIgnoreBlanks, INPUT-OUTPUT item.case-w).                         
-    RUN pAssignValueD (ipbf-ttImportItem.case-d, iplIgnoreBlanks, INPUT-OUTPUT item.case-d).                 
-    RUN pAssignValueD (ipbf-ttImportItem.avg-w, iplIgnoreBlanks, INPUT-OUTPUT item.avg-w).                         
-    RUN pAssignValueI (ipbf-ttImportItem.box-case, YES, INPUT-OUTPUT item.box-case).                                       
-    RUN pAssignValueI (ipbf-ttImportItem.case-pall, iplIgnoreBlanks, INPUT-OUTPUT item.case-pall).                         
-    RUN pAssignValueC (ipbf-ttImportItem.flute, iplIgnoreBlanks, INPUT-OUTPUT item.flute).
-    RUN pAssignValueC (ipbf-ttImportItem.reg-no, iplIgnoreBlanks, INPUT-OUTPUT item.reg-no).                     
-    RUN pAssignValueD (ipbf-ttImportItem.sqin-lb, YES, INPUT-OUTPUT item.sqin-lb).                                           
-    RUN pAssignValueD (ipbf-ttImportItem.linin-lb, iplIgnoreBlanks, INPUT-OUTPUT item.linin-lb).                         
-    RUN pAssignValueC (ipbf-ttImportItem.loc, iplIgnoreBlanks, INPUT-OUTPUT item.loc).                 
-    RUN pAssignValueC (ipbf-ttImportItem.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT item.loc-bin).                         
-    RUN pAssignValueD (ipbf-ttImportItem.q-onh, YES, INPUT-OUTPUT item.q-onh).                                       
+    RUN pAssignValueC (ipbf-ttImportItem.i-name , YES, INPUT-OUTPUT bf-item.i-name).                                                   
+    RUN pAssignValueC (ipbf-ttImportItem.i-dscr, YES, INPUT-OUTPUT bf-item.i-dscr).                                                   
+    RUN pAssignValueC (ipbf-ttImportItem.est-dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-item.est-dscr).                               
+    RUN pAssignValueC (ipbf-ttImportItem.i-code, YES, INPUT-OUTPUT bf-item.i-code).                                                   
+    RUN pAssignValueC (ipbf-ttImportItem.tax-rcpt, YES, INPUT-OUTPUT bf-item.tax-rcpt).                                                   
+    RUN pAssignValueC (ipbf-ttImportItem.mat-type, iplIgnoreBlanks, INPUT-OUTPUT bf-item.mat-type).                                       
+    RUN pAssignValueC (ipbf-ttImportItem.cost-type, iplIgnoreBlanks, INPUT-OUTPUT bf-item.cost-type).                                         
+    RUN pAssignValueC (ipbf-ttImportItem.procat, iplIgnoreBlanks, INPUT-OUTPUT bf-item.procat).                      
+    RUN pAssignValueD (ipbf-ttImportItem.q-ptd, iplIgnoreBlanks, INPUT-OUTPUT bf-item.q-ptd).                                 
+    RUN pAssignValueD (ipbf-ttImportItem.q-ytd, iplIgnoreBlanks, INPUT-OUTPUT bf-item.q-ytd).                                     
+    RUN pAssignValueD (ipbf-ttImportItem.q-lyr, YES, INPUT-OUTPUT bf-item.q-lyr).                                                 
+    RUN pAssignValueC (ipbf-ttImportItem.ink-type, iplIgnoreBlanks, INPUT-OUTPUT bf-item.ink-type).                   
+    RUN pAssignValueC (ipbf-ttImportItem.press-type, iplIgnoreBlanks, INPUT-OUTPUT bf-item.press-type).                                         
+    RUN pAssignValueD (ipbf-ttImportItem.min-lbs, iplIgnoreBlanks, INPUT-OUTPUT bf-item.min-lbs).                                 
+    RUN pAssignValueI (ipbf-ttImportItem.yield, iplIgnoreBlanks, INPUT-OUTPUT bf-item.yield).                                       
+    RUN pAssignValueD (ipbf-ttImportItem.weight-100, iplIgnoreBlanks, INPUT-OUTPUT bf-item.weight-100).                                 
+    RUN pAssignValueD (ipbf-ttImportItem.cal, iplIgnoreBlanks, INPUT-OUTPUT bf-item.cal).                                   
+    RUN pAssignValueD (ipbf-ttImportItem.shrink, iplIgnoreBlanks, INPUT-OUTPUT bf-item.shrink).                             
+    RUN pAssignValueD (ipbf-ttImportItem.basis-w, iplIgnoreBlanks, INPUT-OUTPUT bf-item.basis-w).                                 
+    RUN pAssignValueD (ipbf-ttImportItem.s-wid, iplIgnoreBlanks, INPUT-OUTPUT bf-item.s-wid).                             
+    RUN pAssignValueD (ipbf-ttImportItem.s-dep, iplIgnoreBlanks, INPUT-OUTPUT bf-item.s-dep).                                 
+    RUN pAssignValueD (ipbf-ttImportItem.s-len, YES, INPUT-OUTPUT bf-item.s-len).                                          
+    RUN pAssignValueD (ipbf-ttImportItem.density, YES, INPUT-OUTPUT bf-item.density).                                         
+    RUN pAssignValueD (ipbf-ttImportItem.r-wid, YES, INPUT-OUTPUT bf-item.r-wid).                         
+    RUN pAssignValueC (ipbf-ttImportItem.color-1, iplIgnoreBlanks, INPUT-OUTPUT bf-item.color-1).                                 
+    RUN pAssignValueI (ipbf-ttImportItem.ect, YES, INPUT-OUTPUT bf-item.ect).                                          
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name1, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[1]).                                     
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name2, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[2]).                             
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name3, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[3]).                                           
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name4, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[4]).                                                 
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name5, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[5]).                             
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name6, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[6]).                             
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name7, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[7]).                             
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name8, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[8]).                                           
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name9, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[9]).                                                 
+    RUN pAssignValueC (ipbf-ttImportItem.dept-name10, iplIgnoreBlanks, INPUT-OUTPUT bf-item.dept-name[10]).                                         
+    RUN pAssignValueI (ipbf-ttImportItem.speed%1, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[1]).                     
+    RUN pAssignValueI (ipbf-ttImportItem.speed%2, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[2]).                                           
+    RUN pAssignValueI (ipbf-ttImportItem.speed%3, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[3]).                         
+    RUN pAssignValueI (ipbf-ttImportItem.speed%4, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[4]).                 
+    RUN pAssignValueI (ipbf-ttImportItem.speed%5, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[5]).                         
+    RUN pAssignValueI (ipbf-ttImportItem.speed%6, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[6]).                                       
+    RUN pAssignValueI (ipbf-ttImportItem.speed%7, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[7]).                         
+    RUN pAssignValueI (ipbf-ttImportItem.speed%8, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[8]).                                 
+    RUN pAssignValueI (ipbf-ttImportItem.speed%9, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[9]).                                   
+    RUN pAssignValueI (ipbf-ttImportItem.speed%10, iplIgnoreBlanks, INPUT-OUTPUT bf-item.speed%[10]).                     
+    RUN pAssignValueD (ipbf-ttImportItem.case-l, iplIgnoreBlanks, INPUT-OUTPUT bf-item.case-l).                                           
+    RUN pAssignValueD (ipbf-ttImportItem.case-w, iplIgnoreBlanks, INPUT-OUTPUT bf-item.case-w).                         
+    RUN pAssignValueD (ipbf-ttImportItem.case-d, iplIgnoreBlanks, INPUT-OUTPUT bf-item.case-d).                 
+    RUN pAssignValueD (ipbf-ttImportItem.avg-w, iplIgnoreBlanks, INPUT-OUTPUT bf-item.avg-w).                         
+    RUN pAssignValueI (ipbf-ttImportItem.box-case, YES, INPUT-OUTPUT bf-item.box-case).                                       
+    RUN pAssignValueI (ipbf-ttImportItem.case-pall, iplIgnoreBlanks, INPUT-OUTPUT bf-item.case-pall).                         
+    RUN pAssignValueC (ipbf-ttImportItem.flute, iplIgnoreBlanks, INPUT-OUTPUT bf-item.flute).
+    RUN pAssignValueC (ipbf-ttImportItem.reg-no, iplIgnoreBlanks, INPUT-OUTPUT bf-item.reg-no).                     
+    RUN pAssignValueD (ipbf-ttImportItem.sqin-lb, YES, INPUT-OUTPUT bf-item.sqin-lb).                                           
+    RUN pAssignValueD (ipbf-ttImportItem.linin-lb, iplIgnoreBlanks, INPUT-OUTPUT bf-item.linin-lb).                         
+    RUN pAssignValueC (ipbf-ttImportItem.loc, iplIgnoreBlanks, INPUT-OUTPUT bf-item.loc).                 
+    RUN pAssignValueC (ipbf-ttImportItem.loc-bin, iplIgnoreBlanks, INPUT-OUTPU bf-item.loc-bin).
+    RUN pAssignValueC (ipbf-ttImportItem.pur-uom, iplIgnoreBlanks, INPUT-OUTPUT bf-item.pur-uom).
+    RUN pAssignValueC (ipbf-ttImportItem.cons-uom, iplIgnoreBlanks, INPUT-OUTPUT bf-item.cons-uom).                         
+    RUN pAssignValueD (ipbf-ttImportItem.q-onh, YES, INPUT-OUTPUT bf-item.q-onh).                                       
     
     
     /*IF ipbf-ttImportItem.ml EQ "M" THEN
-        ASSIGN item.ml = YES.
-    ELSE item.ml = NO .*/
+        ASSIGN bf-item.ml = YES.
+    ELSE bf-item.ml = NO .*/
+    
+    RELEASE bf-item.
                                                                                                                                
 END PROCEDURE.                                                                                                                 
                                                                                                                                
@@ -233,7 +241,8 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Cost Type is Blank".
     END.  
-     IF oplValid THEN 
+    
+    IF oplValid THEN 
     DO:
         IF ipbf-ttImportItem.procat EQ '' THEN 
             ASSIGN 
@@ -241,12 +250,36 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Category is Blank".
     END. 
     
-     IF oplValid THEN 
+    IF oplValid THEN 
     DO:
         IF ipbf-ttImportItem.ind-type EQ '' THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Industry Type Type is Blank".
+                opcNote  = "Industry Type is Blank".
+    END.
+    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.i-code EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Item Code is Blank.".
+    END.    
+    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.pur-uom EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Purchase UOM is Blank".
+    END.
+    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportItem.cons-uom EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Consumption UOM is Blank".
     END.
     
     /*Check for Duplicate Import Record and Ignore It*/ 
@@ -298,7 +331,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList IN hdValidator ("Industry Type", ipbf-ttImportItem.ind-type, "Corrugated,Folding", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportItem.i-code NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportItem.i-code, "RM Stocked,Estimated Mat'1", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportItem.i-code, "RM Stocked,Estimated Mat'l", OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportItem.flute NE "" THEN 
             RUN pIsValidFlute IN hdValidator (ipbf-ttImportItem.flute, NO, ipbf-ttImportItem.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -448,7 +481,7 @@ PROCEDURE pValidate PRIVATE:
     
     IF ipbf-ttImportItem.i-code EQ "RM Stocked" THEN 
         ipbf-ttImportItem.i-code = "R".
-    ELSE IF ipbf-ttImportItem.i-code EQ "Estimated Mat'1" THEN 
+    ELSE IF ipbf-ttImportItem.i-code EQ "Estimated Mat'l" THEN 
         ipbf-ttImportItem.i-code = "E".
 
     IF ipbf-ttImportItem.ink-type EQ "Ink" THEN 

@@ -1021,7 +1021,7 @@ DEF VAR v-gp        AS   DEC FORMAT ">>9.99".
 DEF VAR v-slsm      LIKE ar-invl.sman EXTENT 1.
 DEF VAR v-slsc      LIKE ar-invl.s-comm EXTENT 1.
 DEF VAR v-slsp      LIKE ar-invl.s-pct EXTENT 1.
-DEF VAR v-inv-no    LIKE ar-invl.inv-no.
+DEF VAR v-inv-no    LIKE ar-invl.inv-no FORMAT ">>>>>>9".
 DEF VAR v-qty       AS   DEC.
 DEF VAR v-amt       LIKE ar-invl.amt.
 DEF VAR v-amtp      LIKE ar-invl.amt.

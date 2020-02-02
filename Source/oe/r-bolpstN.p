@@ -533,7 +533,8 @@ DO:
   run check-date.
   if v-invalid then return no-apply.
 
-  IF month(tran-date) NE MONTH(TODAY) THEN DO:
+  IF month(tran-date) NE MONTH(TODAY) OR
+     YEAR(tran-date)  NE YEAR(TODAY)THEN DO:
       MESSAGE "The BOL posting date is not in the current month - " SKIP 
           " Are you sure you want to post using this date ?" 
           VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL  UPDATE lcheckflg as LOGICAL .
@@ -1527,7 +1528,10 @@ DO TRANSACTION.
     delete tt-fg-bin.
   end.
 
-  run oe/oe-bolp3.p (v-term).
+  run oe/oe-bolp3.p (
+         INPUT v-term,
+         INPUT tran-date
+         ).
 
 
 end. /* post-blok*/

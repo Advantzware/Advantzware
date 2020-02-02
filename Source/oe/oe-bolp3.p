@@ -13,7 +13,8 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE INPUT PARAMETER v-term AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER v-term       AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipdtPostDate AS DATE      NO-UNDO.
 
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
@@ -381,7 +382,7 @@ PROCEDURE ipCreateInvHead:
         inv-head.stat         = ""
         inv-head.deleted      = NO
         inv-head.posted       = NO
-        inv-head.inv-date     = IF invdate-chr EQ "Current" THEN TODAY
+        inv-head.inv-date     = IF invdate-chr EQ "Current" THEN TODAY ELSE IF invdate-chr EQ "User Date" THEN ipdtPostDate
                            ELSE bf-oe-bolh.bol-date
         oprInvHeadRow         = ROWID(inv-head)  
         .

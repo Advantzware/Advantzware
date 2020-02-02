@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -104,14 +104,14 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     inv-head.inv-no AT ROW 1.71 COL 22 COLON-ALIGNED
+     inv-head.inv-no AT ROW 1.71 COL 22 COLON-ALIGNED FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      inv-head.inv-date AT ROW 1.71 COL 53 COLON-ALIGNED
@@ -123,10 +123,10 @@ DEFINE FRAME F-Main
      inv-head.cust-name AT ROW 1.71 COL 100 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     RECT-1 AT ROW 1.24 COL 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
+     RECT-1 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -183,11 +183,13 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN inv-head.inv-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

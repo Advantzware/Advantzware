@@ -39,7 +39,7 @@ def shared buffer xest for est.
 def shared buffer xef for ef.
 def shared buffer xeb for eb.
 def shared buffer xqty for est-qty.
-
+DEFINE BUFFER bf-estPacking FOR estPacking .
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED}
@@ -920,8 +920,35 @@ PROCEDURE UpdateSetUnitize :
             eb.casNoCharge = bf-eb.casNoCharge
             eb.trNoCharge = bf-eb.trNoCharge
             eb.inkNoCharge = bf-eb.inkNoCharge
+            eb.layer-pad = bf-eb.layer-pad
+            eb.lp-len = bf-eb.lp-len
+            eb.lp-wid = bf-eb.lp-wid
+            eb.lp-up = bf-eb.lp-up
+            eb.divider = bf-eb.divider
+            eb.div-len = bf-eb.div-len
+            eb.div-wid = bf-eb.div-wid
+            eb.div-up = bf-eb.div-up
             .
+     FOR EACH estPacking NO-LOCK
+         WHERE estPacking.company = cocode 
+         AND estPacking.estimateNo = bf-eb.est-no  
+         AND estPacking.FormNo = bf-eb.form-no 
+         AND estPacking.BlankNo = bf-eb.blank-No  :
 
+         FIND FIRST bf-estPacking NO-LOCK
+             WHERE bf-estPacking.company EQ cocode 
+             AND bf-estPacking.estimateNo = eb.est-no  
+             AND bf-estPacking.FormNo = eb.form-no 
+             AND bf-estPacking.BlankNo = eb.blank-No  NO-ERROR .
+         IF NOT AVAIL bf-estPacking THEN do:
+
+             CREATE bf-estPacking .
+             BUFFER-COPY estPacking EXCEPT rec_key FormNo BlankNo TO bf-estPacking .
+             ASSIGN 
+                 bf-estPacking.FormNo       = eb.form-no
+                 bf-estPacking.BlankNo      = eb.blank-No. 
+         END.
+     END.  /* FOR EACH estPacking*/
 
   END.
   ELSE DO:

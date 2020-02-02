@@ -598,20 +598,21 @@ FOR EACH job-hdr NO-LOCK
       altResSeq = job-mch.line
       customVal = ''
       dimFormat = '>>>9.99999'
-      dueDate = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
-      jobSort = job-mch.job-no + '-'
-              + STRING(job-mch.job-no2,'99')
-              + '.' + STRING(job-mch.frm,'99')
+      dueDate   = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
+      prodDate  = ?
+      jobSort   = job-mch.job-no + '-'
+                + STRING(job-mch.job-no2,'99')
+                + '.' + STRING(job-mch.frm,'99')
       jobNumber = LEFT-TRIM(job-mch.job-no + '-'
                 + STRING(job-mch.job-no2)
                 + '.' + STRING(job-mch.frm))
       jobStatus = useSalesRep
-      resSeq = resSeq + 1
+      resSeq    = resSeq + 1
       resourceDescription = mach.m-dscr
       salesRepFound = NO
       startDate = job-mch.start-date-su
       startTime = fixTime(job-mch.start-time-su)
-      strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch)) + ',' + job-mch.est-op_rec_key
+      strRowID  = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch)) + ',' + job-mch.est-op_rec_key
       keyValues = job-mch.company + ','
                 + STRING(job-mch.line) + ','
                 + job-mch.m-code + ','

@@ -1637,9 +1637,9 @@ PROCEDURE pSetUserSettings :
                 .
             CASE users.showCueCard:
                 WHEN NO THEN
-                RUN spInactivateCueCards ("System").
+                RUN spInactivateCueCards ("System", users.user_id).
                 WHEN YES THEN
-                RUN spActivateCueCards.
+                RUN spActivateCueCards (users.user_id).
             END CASE.
             FIND FIRST userLanguage NO-LOCK
                  WHERE userLanguage.languageIdx EQ iLanguage

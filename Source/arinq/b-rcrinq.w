@@ -219,7 +219,7 @@ DEFINE BROWSE Browser-Table
       ar-cash.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 13 LABEL-BGCOLOR 14
       cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U WIDTH 40 LABEL-BGCOLOR 14
-      ar-cashl.inv-no FORMAT ">>>>>>":U WIDTH 11 LABEL-BGCOLOR 14
+      ar-cashl.inv-no FORMAT ">>>>>>>":U WIDTH 13.2 LABEL-BGCOLOR 14
       ar-cash.check-no COLUMN-LABEL "Check#" FORMAT ">>>>>>>>>>":U
             WIDTH 15 LABEL-BGCOLOR 14
       ar-cash.check-date FORMAT "99/99/9999":U WIDTH 15 LABEL-BGCOLOR 14
@@ -340,7 +340,7 @@ ASSIGN
      _FldNameList[2]   > ASI.cust.name
 "cust.name" "Name" ? "character" ? ? ? 14 ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.ar-cashl.inv-no
-"ar-cashl.inv-no" ? ">>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cashl.inv-no" ? ">>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-cash.check-no
 "ar-cash.check-no" "Check#" ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.ar-cash.check-date

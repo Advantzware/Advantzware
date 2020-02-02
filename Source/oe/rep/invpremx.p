@@ -64,7 +64,7 @@ DEF VAR v-inv-qtys AS DEC NO-UNDO.
 def var v-ship-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.99999" no-undo.
+def var v-price as dec format ">>>>9.999999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like inv-line.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
@@ -731,7 +731,7 @@ END.
             IF ip-print-s THEN
                 PUT v-inv-qtys  format "->>9.99" SPACE(2).
             ELSE PUT v-ship-qty  format "->>>>>9" SPACE(2).
-            PUT v-price  format ">>>,>>9.99999"                
+            PUT v-price  format ">>>,>>9.999999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no SPACE(10)
@@ -1041,7 +1041,7 @@ END.
        v-inv-freight = v-inv-freight + b-inv-head.t-inv-freight.
     END.
    
-    PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
+    PUT "<R58><C59><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
         "<=8><R+2> " cTaxCode FORMAT "x(9)" "    :" inv-head.t-inv-tax FORM "->>,>>9.99"

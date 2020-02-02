@@ -308,7 +308,8 @@ IF AVAIL eb AND eb.k-wid EQ 0 AND eb.k-len EQ 0 THEN
   lNoScores = TRUE.
 ELSE 
   lNoScores = FALSE.
-  
+
+
 RELEASE oe-ordl.
 RELEASE oe-ord.
 
@@ -338,8 +339,8 @@ SUBSTRING(download-record1,24,6) = IF job-hdr.due-date <> ? THEN (SUBSTRING(STRI
                                  + STRING(MONTH(job-hdr.due-date),"99")
                                  + STRING(DAY(job-hdr.due-date),"99"))
                                  ELSE "      "
-v-len = {sys/inc/k16.i ef.nsh-len} * 100                                 
-v-wid = {sys/inc/k16.i ef.nsh-wid} * 100
+v-len = {sys/inc/k16.i ef.gsh-len} * 100                                 
+v-wid = {sys/inc/k16.i ef.gsh-wid} * 100
 SUBSTRING(download-record1,30,10) = /*string(jobNumber,"x(10)")*/
    (IF LENGTH(TRIM(job-hdr.job-no)) < 6 THEN FILL(" ", 6 - length(job-hdr.job-no))
            ELSE "") + trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") + string(ef.form-no,"99")
@@ -352,10 +353,14 @@ SUBSTRING(download-record1,92,10) = "          "   /* download-item*/
 v-sheets = 0.
 /*SUBSTRING(download-record1,102,6) = string(job-hdr.qty)  /*download-quantity*/ */
 IF lNetQty THEN DO:
+    // Including the job field in the join affects the sort order
     FOR EACH job-mat NO-LOCK 
         WHERE job-mat.company EQ job-hdr.company
+          AND job-mat.job EQ job-hdr.job
           AND job-mat.job-no EQ job-hdr.job-no
           AND job-mat.job-no2 EQ job-hdr.job-no2
+          BY job-mat.frm 
+          BY job-mat.blank-no
         :
         FIND ITEM NO-LOCK 
             WHERE item.company EQ job-hdr.company
@@ -363,9 +368,9 @@ IF lNetQty THEN DO:
             NO-ERROR.
 
             /* #56309 - correction for when more than 1 up */
-            IF AVAIL eb AND eb.num-up GT 1 THEN DO:
+            IF AVAIL eb AND eb.num-up GT 1 THEN DO:              
               for each job-mch no-lock
-                where job-mch.company eq job-hdr.company
+                where job-mch.company eq job-hdr.company                 
                   and job-mch.job-no eq job-hdr.job-no
                   and job-mch.job-no2 eq job-hdr.job-no2
                   by job-mch.frm 

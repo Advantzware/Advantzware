@@ -15,8 +15,6 @@ DEFINE BUFFER xoe-boll     FOR oe-boll.
 DEFINE BUFFER xitemfg      FOR itemfg.
 DEFINE BUFFER xxreport     FOR report.
 
-{oe/rep/oe-lad.i}
-
 DEFINE VARIABLE v-salesman          AS   CHARACTER FORMAT "x(26)".
 DEFINE VARIABLE v-fob               AS   CHARACTER FORMAT "x(12)".
 DEFINE VARIABLE v-tot-cases         AS   INTEGER FORMAT "->,>>>,>>9".
@@ -348,8 +346,7 @@ FOR EACH w-fg-rctd
      
      
      /*{oe/rep/bolxprnt.i}*/
-
-    v-last-page = PAGE-NUMBER.
+    
 
   /*IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.*/
 

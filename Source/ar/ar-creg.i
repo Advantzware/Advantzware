@@ -59,7 +59,7 @@
          break by ar-cashl.inv-no with frame a2{2} no-box no-labels width 200:
 
          if ar-cashl.inv-no ne 0 then do:
-            put ar-cashl.inv-no at 70 format ">>>>>9".
+            put ar-cashl.inv-no at 70 format ">>>>>>9".
             find first ar-inv where ar-inv.company = ar-cashl.company and
                                     ar-inv.inv-no  = ar-cashl.inv-no
                                     use-index inv-no no-lock no-error.

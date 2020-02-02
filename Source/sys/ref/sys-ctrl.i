@@ -45,7 +45,7 @@ ASSIGN
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
                 "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
-		        "invprint 21" 
+		        "invprint 21,CCCACH" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
@@ -148,7 +148,7 @@ ASSIGN
  str-init[57] = "Matrix,LastPric"
  str-init[58] = ""
  str-init[59] = "Complete,OnHand=0"
- str-init[60] = "BOL,Current"    
+ str-init[60] = "BOL,Current,User Date"    
  str-init[61] = "Current,Release"
  str-init[62] = "NonStock,LotCntrl,Avail<0,Any"
  str-init[63] = "SouthPak,Xprint,APC,StClair"  /* quosheet */

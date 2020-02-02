@@ -45,6 +45,7 @@ DEFINE VARIABLE lReTrigger           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdOutputProcs        AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdAPIInboundTestWin  AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdAPIInboundTestProc AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdInboundProcs       AS HANDLE  NO-UNDO.
 
 DEFINE TEMP-TABLE ttAPIInboundEvent NO-UNDO
     FIELDS retryEvent AS LOGICAL
@@ -54,6 +55,7 @@ DEFINE TEMP-TABLE ttAPIInboundEvent NO-UNDO
     FIELDS success AS LOGICAL
     FIELDS apiInboundEventID AS INTEGER
     FIELDS eventRowID AS ROWID
+    FIELDS errorMessage AS CHARACTER
     .
 
 DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
@@ -83,7 +85,7 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
 &Scoped-define INTERNAL-TABLES ttAPIInboundEvent
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent ttAPIInboundEvent.apiRoute ttAPIInboundEvent.requestDateTime ttAPIInboundEvent.success ttAPIInboundEvent.requestedby ttAPIInboundEvent.apiInboundEventID   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent ttAPIInboundEvent.apiRoute ttAPIInboundEvent.requestDateTime ttAPIInboundEvent.success ttAPIInboundEvent.requestedby ttAPIInboundEvent.apiInboundEventID ttAPIInboundEvent.errorMessage   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttAPIInboundEvent
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttAPIInboundEvent
@@ -100,7 +102,7 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-26 btTest btExit btFilter fieventID ~
-btAPIIDLookup cbSuccess fiAPIId btExport btBeginRequestDateCal ~
+btAPIIDLookup cbSuccess fiAPIId btExport btRestart btBeginRequestDateCal ~
 fiBeginRequestDate fiEndRequestDate btEndRequestDateCal BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fieventID fiSuccessLabel ~
 cbSuccess fiAPIIdLabel fiAPIId fiBeginRequestDatelabel fiBeginRequestDate ~
@@ -229,20 +231,22 @@ DEFINE BROWSE BROWSE-2
       ttAPIInboundEvent.retryEvent COLUMN-LABEL "[ ] All" 
             WIDTH 8 VIEW-AS TOGGLE-BOX
       ttAPIInboundEvent.apiRoute COLUMN-LABEL "API Route" FORMAT "x(30)":U
-            WIDTH 40
+            WIDTH 30
       ttAPIInboundEvent.requestDateTime COLUMN-LABEL "Request Date" FORMAT "99/99/9999 HH:MM:SS":U
             WIDTH 27
       ttAPIInboundEvent.success COLUMN-LABEL "Success" FORMAT "SUCCESS/FAILED":U
-            WIDTH 27
+            WIDTH 10
       ttAPIInboundEvent.requestedby COLUMN-LABEL "Requested By" FORMAT "x(8)":U
-            WIDTH 27
+            WIDTH 17
       ttAPIInboundEvent.apiInboundEventID COLUMN-LABEL "Event ID" FORMAT "->,>>>,>>9":U
-            WIDTH 27
+            WIDTH 10
+      ttAPIInboundEvent.errorMessage COLUMN-LABEL "Response Result" FORMAT "x(256)":U
+            WIDTH 100
       ENABLE ttAPIInboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 157.6 BY 21.91
-         FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
+         FONT 34 ROW-HEIGHT-CHARS .9.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -326,11 +330,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB BROWSE-2 btEndRequestDateCal DEFAULT-FRAME */
 ASSIGN 
        BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
-
-/* SETTINGS FOR BUTTON btRestart IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-ASSIGN 
-       btRestart:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR FILL-IN fiAPIIdLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
@@ -486,6 +485,9 @@ DO:
     IF VALID-HANDLE(hdOutputProcs) THEN
         DELETE PROCEDURE hdOutputProcs.
 
+    IF VALID-HANDLE(hdInboundProcs) THEN
+        DELETE PROCEDURE hdInboundProcs.
+        
     IF VALID-HANDLE(hdAPIInboundTestWin) THEN
         APPLY "WINDOW-CLOSE" TO hdAPIInboundTestWin.
 
@@ -609,7 +611,14 @@ DO:
         BY APIInboundEvent.requestDateTime DESCENDING:
         CREATE ttAPIInboundEvent.
         BUFFER-COPY APIInboundEvent TO ttAPIInboundEvent.
-        ttAPIInboundEvent.eventRowID = ROWID(APIInboundEvent).        
+        ASSIGN
+            ttAPIInboundEvent.eventRowID   = ROWID(APIInboundEvent) 
+            ttAPIInboundEvent.errorMessage = IF ttAPIInboundEvent.errorMessage NE "" THEN
+                                                 ENTRY(NUM-ENTRIES(REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~"),REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~")
+                                             ELSE
+                                                 ""
+            NO-ERROR. 
+   
     END.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
 END.
@@ -622,6 +631,60 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRestart C-Win
 ON CHOOSE OF btRestart IN FRAME DEFAULT-FRAME /* Restart */
 DO: 
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTotalEvents   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSuccessEvents AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFailureEvents AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER buf_ttAPIInboundEvent FOR ttAPIInboundEvent.
+         
+    FIND FIRST buf_ttAPIInboundEvent
+         WHERE buf_ttAPIInboundEvent.retryEvent
+           AND NOT buf_ttAPIInboundEvent.success
+         NO-ERROR.
+         
+    IF NOT AVAILABLE buf_ttAPIInboundEvent THEN
+        RETURN.
+     
+    SESSION:SET-WAIT-STATE("GENERAL").
+
+    FOR EACH buf_ttAPIInboundEvent
+        WHERE buf_ttAPIInboundEvent.retryEvent
+         BY buf_ttAPIInboundEvent.requestDateTime:
+        ASSIGN
+            buf_ttAPIInboundEvent.retryEvent = FALSE
+            .
+  
+        IF buf_ttAPIInboundEvent.success THEN
+            NEXT.
+ 
+        RUN Inbound_ReTrigger IN hdInboundProcs (
+            INPUT  buf_ttAPIInboundEvent.apiInboundEventID,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ) NO-ERROR.
+
+        FIND FIRST APIInboundEvent EXCLUSIVE-LOCK
+             WHERE ROWID(APIInboundEvent) EQ buf_ttAPIInboundEvent.eventRowID NO-ERROR.
+        IF AVAILABLE APIInboundEvent THEN
+            buf_ttAPIInboundEvent.success = APIInboundEvent.success.
+        
+        iTotalEvents = iTotalEvents + 1.
+  
+        IF buf_ttAPIInboundEvent.success THEN
+            iSuccessEvents = iSuccessEvents + 1.
+        ELSE
+            iFailureEvents = iFailureEvents + 1.
+    END.
+    SESSION:SET-WAIT-STATE("").
+     
+    MESSAGE "Inbound Event(s) updated" SKIP
+            "Total Records attempted:" iTotalEvents SKIP
+            "Total Success Records:" iSuccessEvents SKIP
+            "Total Failed Records:" iFailureEvents
+       VIEW-AS ALERT-BOX INFORMATION.
+    
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
 END.
 
@@ -721,7 +784,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "CHOOSE" TO btFilter.
     
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-    
+    RUN api/InboundProcs.p  PERSISTENT SET hdInboundProcs.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -767,7 +830,7 @@ PROCEDURE enable_UI :
           fiEndRequestDate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-26 btTest btExit btFilter fieventID btAPIIDLookup cbSuccess 
-         fiAPIId btExport btBeginRequestDateCal fiBeginRequestDate 
+         fiAPIId btExport btRestart btBeginRequestDateCal fiBeginRequestDate 
          fiEndRequestDate btEndRequestDateCal BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}

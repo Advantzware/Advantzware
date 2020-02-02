@@ -155,9 +155,9 @@ DEFINE RECTANGLE RECT-16
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME ar-ctrl
-     ar-ctrl.last-inv AT ROW 1.24 COL 24 COLON-ALIGNED
+     ar-ctrl.last-inv AT ROW 1.24 COL 24 COLON-ALIGNED FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 12 BY 1
           BGCOLOR 15 
      ar-ctrl.receivables-dscr AT ROW 2.43 COL 53 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
@@ -287,10 +287,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME ar-ctrl
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME ar-ctrl     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FILL-IN ar-ctrl.cash-act IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
@@ -349,7 +348,7 @@ ASSIGN
        ar-ctrl.freight-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
 
 /* SETTINGS FOR FILL-IN ar-ctrl.last-inv IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN ar-ctrl.onac IN FRAME ar-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN ar-ctrl.onac-dscr IN FRAME ar-ctrl
@@ -394,7 +393,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME ar-ctrl */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
