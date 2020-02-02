@@ -1,4 +1,4 @@
-"smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "This will be filled in" "clayhorsley@gmail.com" "" "" "Last machine was completed" "" "" "" ? yes 1 "" 587 "SB Last Machine Complete" no
+"smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "This report was sent to you by the Advantzware DAOA application.  Please see the attached report." "" "" "" "You have received  report from ASI's DAOA application." "" "" "" ? yes 1 "" 587 "DAOA Report Config" no
 "smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "(Ignore this email, testing in process)
 
 At this time API transactions are not being processed.
@@ -13,7 +13,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 This is the notification for when the Task Monitor has stopped processing.
 And I was able to use the <enter> key!!!
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." "clay.horsley@advantzware.com" "" "" "Attention!!!  The Task Monitor has stopped!!!" "" "201912105374504515929" "clayA" 2019-12-10T14:55:45.282 yes 7 "" 587 "DAOA Task Monitor Stop" yes
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." "ron.stark@advantzware.com" "" "" "Attention!!!  The Task Monitor has stopped!!!" "" "201912105374504515929" "clayA" 2019-12-10T14:55:45.282 yes 7 "" 587 "DAOA Task Monitor Stop" yes
 "smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "(Ignore this email, testing in progress)
  cXML Monitor is stopped" "clay.horsley@advantzware.com" "" "" "Attention!!! cXML Monitor is stopped" "" "201912131120704519032" "user1" 2019-12-13T03:06:47.435 no 8 "" 587 "cXML Monitor stopped" no
 "smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "(Ignore this email, testing in progress)
@@ -29,10 +29,10 @@ PSC
 filename=emailConfig
 records=0000000000011
 ldbname=ASI
-timestamp=2019/12/27-15:01:30
+timestamp=2020/01/31-13:36:30
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
 cpstream=IBM850
 .
-0000004687
+0000004760

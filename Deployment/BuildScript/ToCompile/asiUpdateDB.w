@@ -553,7 +553,9 @@ PROCEDURE ipBackupDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3).
         
     IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
-    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi" AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
+    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi"
+        AND LENGTH(fiDbName:{&SV}) EQ 11 
+        AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList).
     ELSE ASSIGN 

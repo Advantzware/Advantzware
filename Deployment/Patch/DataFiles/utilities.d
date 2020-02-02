@@ -1,3 +1,12 @@
+"dupRMtagLoc.r" "RM" "" "Find duplicate RM tag locations" "This utility will find all duplicate tags for RM items that may have been entered or counted in multiple locations" 900
+"FGForceCommission.r" "OE" "OU1" "FG Forced Commission allows for the sales commis" "FG Forced Commission allows for the sales commission to be based on the FG item so this utility update all custpart records(Forced Commission feld on IF1 'Total/CP#' Tab) .
+
+This requires turning on N-K-1 = FGForcedCommission" 900
+"ordPurge.r" "OE" "" "Purge Orders Utility" "Utility to purge orders from the system.  Prompts for a date to include to purge orders up to a date, a range of order numbers to purge and the ability to purge related invoices and create a recovery file or not." 900
+"fghispur.w" "UTIL" "IF1" "FG History Purge by Job" "This utility will delete all FG detail records for a given range of item number, date, type, and job number.
+
+Note that this function does NOT create summary transactions; use with EXTREME caution." 900
+"updQuoteExp.r" "EQ" "EQ" "Update Quote Expiration" "This utility will find any quotes for a customer and part number that has a more current effective date and set expiration date for quotes that are no longer needed." 900
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900
@@ -78,18 +87,14 @@ Note: No prompt will be provided, so running this will execute immediately." 900
 "fxactlyo.r" "GL" "" "Update last year opening balance" "Reset the Opening period balances of all GL accounts for last year using the GL account file setting the current year - current period balance.
 
 Note: No prompt will be provided, so running this will execute immediately." 900
-"FXBOLPOST.r" "ASI" "OS1" "Restore Bill of Lading to Non Posted Status" "** Needs Discussion **
-
-Seems to just change satus - Is this viable?  Program was deleted so want to know if it makes sense to let people use this." 1000
-"Fxestqty.r" "ASI" "E" "Restore Estimate Not Displaying" "** Needs Discussion **
-
-Seems to restore estimate - Was deleted." 900
-"FxIvOnly.r" "ASI" "OS1" "Invoice Only Missing Invoice Fix" "** Needs Discussion **" 1000
+"Fxestqty.r" "ASI" "E" "Restore Estimate Not Displaying" "If the estimate has lost its quantities, then this will reset the quantity as it only updates the estimate quantity." 1000
+"FxIvOnly.r" "ASI" "OS1" "Invoice Only Missing Invoice Fix" "Validates the order, gets first posted BOL line for that order, find the first release line for that BOL, it will delete the BOL line if there is a BOL and sets the release to unposted so they can ost it again." 1000
 "FxMnote.r" "JC" "JU1" "Restore Job Machine Notes" "Restores the machine notes on the job from the estimate.  Asks begin and end job number." 900
 "fxoeretl.r" "FG" "IF" "Returns should reduce the ship quantity" "No prompt!  This utility will automatiaclly recalulcate the shipped quantity by adding all shipments and reducing that by all returns." 900
-"fxoeship.r" "OP" "OU1" "Update Order Browsers Ship Quantity" "Warning No Prompt!  Recalculates the ship quantity of all orders based on the quantity shipped.
+"fxoeship.r" "OP" "OU1" "Update Order Browsers Ship Quantity" "Warning No Prompt!  Runs for all companies.  Recalculates the ship and invoice quantities of all orders based on the sum of all the invoices and all the BOLs and updates the order quantities.
 
-** Needs discussion - Looks like sets ship qty twice rather than ship and invoiced? **" 1000
+Fixing orders will take a while to run.
+" 900
 "FxOpened.r" "JC" "JU" "Fix Open Orders, Jobs and PO Status" "Runs (3) other utilities together - FxOpnord, FxopnJob, FxopnPO together." 900
 "fxordcst.r" "OP" "OU1" "Fix Order Cost/Margin" "Fix an order cost and margin - User askes for order number, then displays the FG item and cost / margin for each and allows editing." 900
 "fxorinvq.r" "OP" "OU1" "Update Order Line Item's Invoiced Qty" "From order to order number with begin and end FG item.  Reads invoices and updates the order inveoiced quantity." 900
@@ -113,70 +118,87 @@ Seems to restore estimate - Was deleted." 900
 Will be deleted after 16.15.00 release." 1000
 "oepostgl.r" "OP" "OB4" "Post OE Invoices to G/L" "Post OE Invoices to G/L accounts." 900
 "ohshiped.r" "FG" "IF1" "Show FG Tag # Shipped and Also On Hand Qty" "Based on item number rangt, set tag number that shippe and alsoupdate quntity on hand." 900
-"palletissues.r" "SA" "NR" "Update the number of pallets" "" 900
-"poreccst.r" "RM" "MF" "Fix Raw Material Invalid  Costs (Task 12270406)" "" 900
-"Prodcode.r" "FG" "IF1" "Update the Items Production Code as New / Repeat" "" 900
-"PurgeActMchBlankNo.r" "JC" "JQ1" "Purge Blank Number on Sheet Fed Transactions" "" 900
-"purgeLO.r" "SA" "NR" "Purge Invalid List Objects" "" 900
-"PurgeMU2.r" "RM" "MU2" "Delete UnPosted Raw Material Issues by Date Rang" "" 900
-"purgeorders.r" "OP" "OU1" "Purge Orders without Customer and without F.G. items" "" 900
-"PurgeOrphanSetParts.r" "FG" "IU1" "Remove Unposted Components Receipts not linked to Set" "" 900
-"PurgeTags.r" "SS" "S" "Purge SS Load Tags" "" 900
-"purgnote.r" "FG" "IF" "Purge Finished Goods Spec Notes Range" "" 900
-"r-ordpst.r" "OP" "OU3" "Order Post/Purge Deleted" "" 900
-"rctdpurg.r" "SA" "NR" "Purge FG Transactions by Type" "" 900
+"palletissues.r" "SA" "NR" "Update the number of pallets" "Updates the quantity and cost of the pallets on a job if the cost or quantity per pallet are changed." 900
+"poreccst.r" "RM" "MF" "Fix Raw Material Invalid  Costs" "Prompts for PO number range and receipt date and updates Raw Material cost from the PO for the range specified." 900
+"Prodcode.r" "FG" "IF1" "Update the Items Prod Code as New / Repeat" "Updates the Order Line Production code from the FG Item.
+
+Another utility will update the FG Item from the job - Same program but in fg directory to set the FG item to New or Repeat." 900
+"PurgeActMchBlankNo.r" "JC" "JQ1" "Purge Blank Number on Sheet Fed Transactions" "Prompts for job number range and if job machine is Sheet fed or Roll fed, removes the blank number record from the job-mach table.
+
+Destructive delete." 1000
+"PurgeMU2.r" "RM" "MU2" "Delete UnPosted RM Issues by Date Range" "Deletes unposted RM issues to a job that have not been posted in date range." 900
+"purgeorders.r" "OP" "OU1" "Purge Orders with no Customer or Order Lines" "* Warning No Prompt! * - Deletes all orders with no customer and no line items." 900
+"PurgeOrphanSetParts.r" "FG" "IU1" "Count or Delete Unposted Components Receipts" "Count and/or Delete orphaned set component receipts that were not posted.  Fixes an old defect to clear old data.
+
+Can count the number of records as well as option to delete them.  They can also just be posted." 900
+"PurgeTags.r" "SS" "S" "Purge SS Load Tags" "No audit logs created.  This procedure deletes load tags from the load tag file for a range of dates and can be limited to closed jobs, closed orders or jut case labels.
+
+Used to clear load tags from the load tag file." 1000
+"purgnote.r" "FG" "IF" "Purge FG Spec Notes Range" "Askes for a Spec note type and will delete all spec notes of that type from all FG items." 900
+"rctdpurg.r" "SA" "NR" "Purge FG Transactions by Type" "Allows for mass delete of FG transactions." 900
 "reopenyr.r" "GL" "" "Reopen year after closing" "Re-opens last year after closing and resets balances.
 
 It should be run if you want to reopen the year and once open will require closing each period again." 900
-"replacecad.r" "CE" "EB8" "Replace CAD# and File# in Prep Code" "" 900
-"replacestyle.r" "" "" "Replace Style & Recalc for Customer" "" 900
-"rmbin.r" "MF" "" "Auto Create R/M Bins" "" 900
-"rmtagsoh.r" "RM" "MF1" "Show Issued Tags with Neg or On Hand Balance" "" 900
-"SetEbOrd.r" "CE" "E" "Update Estimate Order Number" "" 900
-"SetEbScores.r" "CE" "EC" "Increase Panels from 20 to 30" "" 900
-"setestink.r" "CE" "EF" "Update RM Ink Name & Descriptionto All Estimates" "" 900
-"Setfgia.r" "FG" "IF" "Set Inactive Items to Inactive Status" "" 900
-"SetImage.r" "FG" "IF1" "Set FG Item Image to NK1 GRAPHIC and FG Item #.jpg" "" 900
-"SetInk.r" "RM" "MF" "Ink Setting for Yield, Press, Ink Type and Press Type" "" 900
-"SetJobMat.r" "JC" "JQ" "Fix Real Job Materials" "" 900
-"setjobstart.r" "JC" "JU" "Set Job Start and Close Dates" "" 900
-"Setposcores.r" "CE" "" "Move Estimate Scores to Purchase Order" "" 900
-"setpruom.r" "RM" "MF" "Set Purchase FG & RM Purchase UOM via Last Purchase Order" "" 900
-"Show-Neg-Jobs.r" "JC" "JU" "Find negative job quantity on Job Routing" "" 900
-"unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "" 900
-"upd-box.r" "CE" "EB" "Update Box Design Disk Drive Letter" "" 900
+"replacecad.r" "CE" "EB8" "Replace CAD# in Prep Code" "Utilitiy used to replace one cad# in  he prep file with a replacement or updated cad #." 900
+"replacestyle.r" "CE" "" "Replace Style & Recalc for Customer" "Replace style and recalculate for each customer box design with new style." 900
+"rmbin.r" "MF" "MF1" "Auto Create R/M Bins" "Create RM Bins for a location to allow for location based quantity." 900
+"rmtagsoh.r" "RM" "MF1" "Show Issued Tags with Neg or On Hand Balance" "* Warning - No Prompt *
+
+Display tags issued to a job where the quantity <> 0 and produces a list that can then be zeroed out." 900
+"SetEbOrd.r" "CE" "" "Update Estimate Order Number" "* Warning - No Prompt *
+
+Sets eb order number from estimate order number." 900
+"setestink.r" "CE" "EF" "Update RM Ink Name & Description to Estimates" "Update estimates with new RM Ink Name and description.
+
+Prompted for range of RM ink # and RM type and Material Type." 900
+"Setfgia.r" "FG" "IF1" "Set Inactive Items to Inactive Status" "Find FG items that have not been used for some time and set them to inactive.  Prompts for criteria provided." 900
+"SetImage.r" "FG" "IF1" "Set FG Item Image to NK1 GRAPHIC and FG Item #.j" "Set all images to point to new path or directory based on the NK1 value." 900
+"SetInk.r" "RM" "MF" "Ink Setting for Yield, Press, Ink Type and Press" "For a range of RM item #, set the yield and minimum by ink and press type." 900
+"SetJobMat.r" "JC" "JQ" "Fix Real Job Materials(If Issued or Diff vs Est)" "If the RM on the job is different from the estimate, or the RM was issued to the job, this updates job for information and to not replace the material on rebuild.  This fixes any of these it can find.   " 900
+"setjobstart.r" "JC" "JU" "Set Job Start and Close Dates" "*WARNING - No Prompt *
+
+Updates all job start and close dates  - if blank and updates from the FG receipt date." 900
+"Setposcores.r" "CE" "" "Move Estimate Scores to Purchase Order" "* Warning - No Prompt *
+
+Moves estimate scores to the PO lines." 900
+"setpruom.r" "RM" "MF" "Set Purchase FG & RM Purchase UOM via Last Purch" "* Warning - No Prompt *
+
+Sets the FG item purchase uom based on the last PO line that ordered the item." 900
+"Show-Neg-Jobs.r" "JC" "JU1" "Find negative job quantity on Job Routing" "* Warning - No Prompt *
+
+Display all job material quantities that are less than zero." 900
+"unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 900
+"upd-box.r" "CE" "EB" "Update Box Design Disk Drive Letter" "Update the box design drive or path." 900
 "updappay.r" "AP" "" "Update check date of Posted Checks" "Update date of a posted AP check." 900
 "updarcal.r" "AR" "" "Update line item of OP/AR invoice" "Update invoice line details." 900
-"UpdateEstNo.r" "CE" "NR" "Update Estimate Number" "" 900
-"updateFG.r" "FG" "IF1" "Upload a CSV of FG Item Master changes" "" 900
-"UpdateFGCounts.r" "FG" "IF1" "UpdateFGCounts" "" 900
-"Updateimagepath.r" "CE" "E" "Update Attachments Disk Drive or Folder" "" 900
+"UpdateEstNo.r" "CE" "NR" "Update Estimate Number" "Prompt for estimate number and allows a new number to be assigned." 900
+"Updateimagepath.r" "CE" "E" "Update Attachments Disk Drive or Folder" "Update attachment path for CAD dor Die in a range of estimates." 900
 "UpdateShiptoZones.r" "AR" "AF1" "Update Shipto Zones" "Update ship from warehouse, carrier and delivery zone for a range of customers." 900
-"UpdBinPO.r" "FG" "IF1" "Update Vendor PO# on I-F-1 Bin/Jobs Tab" "" 900
-"UpdBnPOR.r" "RM" "MF1" "Update Vendor PO# on M-F-1 Bin/Jobs Tab" "" 900
+"UpdBinPO.r" "FG" "IF1" "Update Vendor PO# on I-F-1 Bin/Jobs Tab" "Update bins with a vendor PO# for a range of item numbers." 900
+"UpdBnPOR.r" "RM" "MF1" "Update Vendor PO# on M-F-1 Bin/Jobs Tab" "Update the vendor PO#  on RM bins." 900
 "updcust.r" "AR" "AF1" "Update Customer Fields" "Mass update of customer records to set credit limit and other fields with a rnge of customers." 900
-"updestink.r" "CE" "E" "Update Estimate Inks via Raw Goods" "" 900
-"updFgShp.r" "FG" "IF" "Ship Method Default by Case or Pallet" "" 900
-"UpdFlute.r" "CE" "EC" "To Replace Flute Code throughout System" "" 900
-"UpdHistUnitQty.r" "FG" "IF1" "Update History Unit Qty UpdHistUntQty.r" "" 900
-"updovun.r" "OP" "OU1" "Underrun/Overrun Transfer to Line Item via Header" "" 900
+"updestink.r" "CE" "E" "Update Estimate Inks via Raw Goods" "Replace one estimate ink with a new ink for a range of estimates or customers." 900
+"updFgShp.r" "FG" "IF1" "Ship Method Default by Case or Pallet" "Mass update of FG items to default to be by case or pallet." 900
+"UpdFlute.r" "CE" "EC" "To Replace Flute Code throughout System" "Mass update of one flute with a new flute." 900
+"updovun.r" "OP" "OU1" "Underrun/Overrun to Line Item via Header" "Sets the line item overs based on the header values." 900
 "updvend#.r" "AP" "" "Update/Change Vendor Number" "Update or Change a vendor number." 900
-"upmstest.r" "CE" "EF" "Folding Estimates as Master Tandem Estimates" "" 900
-"w-arhead.r" "SA" "NR" "Restore Invoice Purged via N-F-13" "" 900
-"w-hrms-x.r" "RM" "MF" "HRMS Board Cross Reference File Utiltiy" "" 900
-"w-prdnot.r" "OP" "OU1" "Case Label Colors / Notes" "" 900
-"w-updsmn.r" "AF" "AF" "Update Salesman on Estimate,Quotes and Order from Customer" "" 900
+"upmstest.r" "CE" "EF" "Folding Estimates as Master Tandem Estimates" "Allows the entry of estimate numbers to convert to a master tandem estimate." 900
+"w-arhead.r" "SA" "NR" "Restore Invoice Purged via N-F-13" "Utility to restore purged invoices that were purged in error." 900
+"w-hrms-x.r" "RM" "MF" "HRMS Board Cross Reference File Utiltiy" "File maintenance to allow board cross reference.  Basically a file maintenance." 900
+"w-updsmn.r" "AF" "AF" "Update Salesman on Estimate,Quotes and Order fro" "Allows update of salesperson on estimates, quotes, orders and invoices." 900
 "warinvrestore.r" "AR" "NF#" "Restores Purged Invoices via N-F-13" "Retore invoices purges with N-F-13" 1000
-"XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust Group Field." "" 900
-"ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" "" 900
-"updship#.r" "MN" "MN" "Update/Fix Ship To Number" "" 900
+"XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust G" "Utility to copy the customer type into a permanent field." 1000
+"ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" "Zero out set parts and make bins equal zero for overruns of sets." 900
+"updship#.r" "MN" "AF1" "Update/Fix Ship To Number" "Utility from A-F-1 that allows for consolidating ship to's and change ship to numbers throughout system." 900
 "delAllFgRctd.r" "FG" "IU1" "Delete Unposted FG transactions" "Utility is used to delete FG transactions before they are posted.  Asks type and clears all transactions within the date range specified." 900
-"module.r" "" "" "License Modules" "License File - Restricted to ASI user only" 1000
+"module.r" "00" "" "License Modules" "License File - Restricted to ASI user only" 1000
 "ImpMaster.r" "IMP" "" "Import Master" "Import master that allows access to all the imports licensed." 900
 "delDupOrds.r" "OE" "OW" "Delete Duplicate Web Orders" "Searches orders for duplicate orders with matching PO numbers based on a customer and order date.  Can search to find or delete duplicates." 900
 "colorchg.r" "00" "" "Advantzware Color Changer" "Utility to change the default color palette for colors in the system." 900
-"unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "If a BOL is marked as posted but did not post to inventory or otherwise did not post correctly." 900
-"run-xprint.r" "" "" "run xprint" "" 900
+"unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "If a BOL is marked as posted but did not post to inventory or otherwise did not post correctly.
+
+If no invoice, it will set BOL to unposted as well as all lines." 900
+"run-xprint.r" "" "" "run xprint" "Test of xPrint program to print a test page.  Used to test installation of xPrint on a workstation or server." 900
 "invLnChck.r" "OP" "" "Invoice Line Check" "Searches based on date to determine if there are any invoices without line items.  Opton to export to a test file." 900
 "autoCloseOrder.r" "OE" "" "Auto Close Order" "Close orders automatically based on a parameter settings used." 800
 "FGHistoryPurge.r" "FG" "IF1" "FG History Purge/Consolidation" "This allows user to run a purge of FG History up to a date.  It will summarize all transactions up to that date and create an Inventory Count for each bin as of the date that represents all the previous transaction summary detail. 
@@ -191,14 +213,15 @@ It also provides for the ability to change the date of a BOL." 900
 " 900
 "ftpTester.r" "EDI" "FF" "Ftp Tester" "FTP Test utility to test sending using FTP." 900
 "ItemLocInvRecon.r" "FG" "" "Inventory Allocated Reconciliation Program" "This utility compares the quantity fields allocated by location to that of the FG item as a whole and exposes differences that can be corrected by running the Recalculation, but help find issues in code to correct." 900
-"TranMon.r" "UTIL" "" "Transaction Monitor Utility" "" 1000
 "updPriceMtxFlg.r" "OE" "" "Update online flag on price matrix(OF3)" "This utility allows for a user to update only the online flag on the price matrix and not allow them to change any other data." 900
-"setTaxStat.r" "AR" "" "Set Tax Status Globally" "Allows for setting the customer ship to taxable flags, pdating order lines, invoice lines and such for proper sales tax processing." 900
+"setTaxStat.r" "AR" "" "Set Tax Status Globally" "Allows for setting the customer ship to taxable flags, updates order lines, invoice lines and such for proper sales tax processing.
+
+Prompt for customer range, a default tax group which if entered, will default all items to a single tax group." 900
 "fghispur.r" "UTIL" "IF1" "FG History Purge by Job" "This utility will delete all FG detail records for a given range of item number, date, type, and job number.
 
 Note that this function does NOT create summary transactions; use with EXTREME caution." 900
-"wLockTransMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 0
-"recalcJobs.r" "SA" "NR" "Recalc Jobs" "" 900
+"wLockTransMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
+"recalcJobs.r" "SA" "NR" "Recalc Jobs" "Utility to recalculate job standard costs with updates to the estimated rates in the machine files for jobs that have not started production (No production quantity)." 900
 "VendorCostConv.r" "FG" "" "Vendor Cost Table Conversion" "This program converts RM Vendor costs, FG Vendor costs as well as Estimating Farm costs to the new cost table format.
 
 This utility should be used to verify and clean up data before upgrading.

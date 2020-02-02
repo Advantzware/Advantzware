@@ -67,7 +67,7 @@
 "cust-part" yes yes yes yes
 "cust-prod-sales" yes yes yes yes
 "custype" yes yes yes yes
-"cxml" no no no no
+"cxml" yes yes yes yes
 "db-ctrl" yes yes yes yes
 "dep-table" yes yes yes yes
 "dept" yes yes yes yes
@@ -254,7 +254,7 @@
 "monthly" yes yes yes yes
 "mstd" yes yes yes yes
 "noteLink" yes yes yes yes
-"notes" no no no no
+"notes" yes yes yes yes
 "nrf-color" yes yes yes yes
 "nrf-size" yes yes yes yes
 "oe-bolh" yes yes yes yes
@@ -272,6 +272,8 @@
 "oe-retl" yes yes yes yes
 "oe-ship" yes yes yes yes
 "optconfg" yes yes yes yes
+"panelDetail" yes yes yes no
+"panelHeader" yes yes yes no
 "parmfile" yes yes yes yes
 "patchhst" yes yes yes yes
 "payment-type" yes yes yes yes
@@ -411,8 +413,8 @@
 "vend-whse-item" yes yes yes yes
 "vend-whse-trans" yes yes yes yes
 "vend-whse-trans-hist" yes yes yes yes
-"vendItemCost" no no no no
-"vendItemCostLevel" no no no no
+"vendItemCost" yes yes yes yes
+"vendItemCostLevel" yes yes yes yes
 "ventype" yes yes yes yes
 "view-dtl" yes yes yes yes
 "view-hdr" yes yes yes yes
