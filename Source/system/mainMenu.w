@@ -1367,7 +1367,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END. /* if found */
     IF iTickerInterval EQ 0 THEN
     iTickerInterval = 1.
-    RUN spGetSessionParam ("Debug", OUTPUT cDebug).
+    RUN spGetSessionParam ("PSTimer", OUTPUT cDebug).
     chCtrlFrame:PSTimer:Interval = IF cDebug NE "" THEN 0
                                    ELSE iTickerInterval * 1000.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
