@@ -1344,7 +1344,8 @@ PROCEDURE local-assign-record :
      fg-rctd.cost-uom = fg-bin.pur-uom
      fg-rctd.std-cost = fg-bin.std-tot-cost
      fg-rctd.units-pallet = fg-bin.units-pallet
-     fg-rctd.cases-unit   = fg-bin.cases-unit.
+     fg-rctd.cases-unit   = fg-bin.cases-unit
+     fg-rctd.tot-wt       = fg-bin.tot-wt .
 
   ld = fg-rctd.std-cost.
 
