@@ -64,6 +64,7 @@ DEFINE NEW SHARED TEMP-TABLE tt-job-item
     FIELD frm         LIKE job-mat.frm
     FIELD blank-no    LIKE job-mat.blank-no
     FIELD rm-i-no     AS CHARACTER 
+    FIELD mach-id     AS CHARACTER
     FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
     .
 
