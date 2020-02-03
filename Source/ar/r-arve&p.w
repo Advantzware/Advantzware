@@ -72,7 +72,7 @@ DEF VAR lorow AS INT NO-UNDO INIT 21.
 DEF VAR v-post-ok AS LOG NO-UNDO.
 def var total-msf like ar-invl.amt-msf NO-UNDO.
 def var v-s-inv-no like inv-head.inv-no init 0 no-undo.
-def var v-e-inv-no like v-s-inv-no init 999999 NO-UNDO.
+def var v-e-inv-no like v-s-inv-no init 9999999 NO-UNDO.
 def var v-s-date   like inv-head.inv-date format "99/99/9999"
                                           init 01/01/0001 no-undo.
 def var v-e-date   like v-s-date init TODAY NO-UNDO.
@@ -1105,7 +1105,7 @@ do transaction on error undo with width 255:
         AND CAN-FIND(FIRST ar-invl WHERE ar-invl.x-no = ar-inv.x-no )
       on error undo post-1, leave post-1:
 
-    put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>9") .
+    put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>>9") .
 
     assign
      ar-inv.period = tran-period
@@ -1358,11 +1358,11 @@ IF cust.factored THEN
        END.
    END.
 
-    put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>9") .
+    put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>>9") .
     if first-of(cust.cust-no) then put cust.cust-no space(1) cust.name.
 
 
-    PUT ar-inv.inv-no   TO 47
+    PUT ar-inv.inv-no   TO 47 FORM ">>>>>>9"
         ar-inv.inv-date AT 49 FORM "99/99/99"
         ar-inv.net      AT 58.
 

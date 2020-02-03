@@ -105,7 +105,7 @@ FOR EACH tt-report,
 
   tt-report.curr-amt = (ap-inv.net + ap-inv.freight) * tt-report.ex-rate.
   
-  PUT ap-inv.inv-no         TO 55
+  PUT ap-inv.inv-no         TO 55 FORMAT ">>>>>>9"
       ap-inv.inv-date       AT 60 FORMAT "99/99/99"
       ap-inv.due-date       AT 71 FORMAT "99/99/99"                       
       tt-report.curr-amt    TO 94 FORMAT "->,>>>,>>9.99".
@@ -249,7 +249,7 @@ ASSIGN
 page.
 
 form header
-     "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#    "
+     "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#     "
      "LINE DESCRIPTION              QTY    UNIT PRICE       AMOUNT" skip
      fill("_",132) format "x(132)"
   
@@ -315,7 +315,7 @@ for each tt-report,
     
     put ap-inv.inv-date at 41 FORMAT "99/99/99"       space(1)
         ap-inv.vend-no              space(1)
-        ap-inv.inv-no               space(6)
+        ap-inv.inv-no FORMAT ">>>>>>9" space(6)
         "Freight"    format "x(18)" space(7)
         1.0          format "9.9"   space(1)
         ap-inv.freight              to 118
@@ -349,7 +349,7 @@ FOR EACH tt-ap-tax,
     
   PUT ap-inv.inv-date at 41 FORMAT "99/99/99"       SPACE(1)
       ap-inv.vend-no              SPACE(1)
-      ap-inv.inv-no               SPACE(6)
+      ap-inv.inv-no FORMAT ">>>>>>9" SPACE(6)
       "Tax"        FORMAT "x(18)" SPACE(7)
       1.0          FORMAT "9.9"   SPACE(1)
       tt-ap-tax.amt               TO 118
@@ -399,7 +399,7 @@ for each tt-report,
       space(1)
       ap-inv.vend-no
       space(1)
-      ap-inv.inv-no
+      ap-inv.inv-no         FORMAT ">>>>>>9"
       space(1)
       {ap/invlline.i -1}    format ">>>>"
       space(1)
@@ -447,7 +447,7 @@ for each tt-report WHERE tt-report.actnum NE "",
       space(1)
       ap-inv.vend-no
       space(1)
-      ap-inv.inv-no
+      ap-inv.inv-no FORMAT ">>>>>>9"
       space(51)
       tt-report.curr-amt - (ap-inv.net + ap-inv.freight)
       space(1)
