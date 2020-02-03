@@ -177,7 +177,7 @@ DEFINE VARIABLE fiToDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/2099
      SIZE 18 BY 1 NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
-     FILENAME "N:/Repository/Resources/Graphics/16x16/magnifying_glass.gif":U
+     FILENAME "Graphics/16x16/magnifying_glass.gif":U
      SIZE 5 BY .71.
 
 DEFINE VARIABLE slCompanyList AS CHARACTER 
