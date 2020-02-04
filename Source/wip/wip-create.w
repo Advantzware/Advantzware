@@ -855,7 +855,7 @@ DO:
         RUN pInit IN hdJobDetails (
             INPUT ipcCompany,
             INPUT ipcLocation,
-            INPUT ls-jobno:SCREEN-VALUE,
+            INPUT cFormattedJobno,
             INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
             INPUT INTEGER(cb-formno:SCREEN-VALUE),
             INPUT INTEGER(cb-blankno:SCREEN-VALUE)
