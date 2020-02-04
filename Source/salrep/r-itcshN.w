@@ -1831,7 +1831,7 @@ form w-data.i-no
      cust.cust-no
      v-name
      tt-report.key-03     format "x(8)"
-     w-data.inv-no
+     w-data.inv-no        FORMAT ">>>>>>9"
      v-date               FORMAT "99/99/99"
      v-ord                format ">>>>>>"
      v-est                format "x(8)"
