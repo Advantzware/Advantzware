@@ -59,14 +59,8 @@ DEF VAR lv-start-time-su AS cha COLUMN-LABEL "Setup!Start" NO-UNDO FORMAT 'X(5)'
 DEF VAR lv-end-time-su AS cha COLUMN-LABEL "Setup!End" NO-UNDO FORMAT 'X(5)'.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEFINE VARIABLE cEstMachine AS CHARACTER LABEL "Est Mach" NO-UNDO.
-DEFINE NEW SHARED TEMP-TABLE tt-job-item 
-    FIELD tt-rowid    AS ROWID
-    FIELD frm         LIKE job-mat.frm
-    FIELD blank-no    LIKE job-mat.blank-no
-    FIELD rm-i-no     AS CHARACTER 
-    FIELD mach-id     AS CHARACTER
-    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
-    .
+
+{jc/ttJobItem.i NEW SHARED}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

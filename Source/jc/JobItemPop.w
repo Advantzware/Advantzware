@@ -36,14 +36,9 @@ DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO .
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
-DEFINE SHARED TEMP-TABLE tt-job-item 
-    FIELD tt-rowid    AS ROWID
-    FIELD frm         LIKE job-mat.frm
-    FIELD blank-no    LIKE job-mat.blank-no
-    FIELD rm-i-no     AS CHARACTER  COLUMN-LABEL "Item ID" 
-    FIELD mach-id     AS CHARACTER  COLUMN-LABEL "Machine ID" 
-    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
-    .
+
+{jc/ttJobItem.i SHARED}
+
 DEFINE VARIABLE ll-secure AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO .
 ASSIGN 
@@ -429,7 +424,7 @@ PROCEDURE build-table :
         FOR EACH job-mat NO-LOCK
             WHERE job-mat.company = cocode
             AND job-mat.job-no = ipcJobNo 
-            AND job-mat.job-no2 = ipiJobNo2 USE-INDEX seq-idx
+            AND job-mat.job-no2 = ipiJobNo2 
             BY job-mat.frm BY job-mat.blank-no :
        
             FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mat)
@@ -449,7 +444,7 @@ PROCEDURE build-table :
         FOR EACH job-mch NO-LOCK
             WHERE job-mch.company = cocode
             AND job-mch.job-no = ipcJobNo 
-            AND job-mch.job-no2 = ipiJobNo2 USE-INDEX line-idx
+            AND job-mch.job-no2 = ipiJobNo2 
             BY job-mch.frm BY job-mch.blank-no :
        
             FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mch)

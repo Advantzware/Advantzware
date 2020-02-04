@@ -82,14 +82,8 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
-DEFINE NEW SHARED TEMP-TABLE tt-job-item 
-    FIELD tt-rowid    AS ROWID
-    FIELD frm         LIKE job-mat.frm
-    FIELD blank-no    LIKE job-mat.blank-no
-    FIELD rm-i-no     AS CHARACTER 
-    FIELD mach-id     AS CHARACTER
-    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
-    .
+{jc/ttJobItem.i NEW SHARED}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
