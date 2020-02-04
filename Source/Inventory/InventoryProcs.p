@@ -132,6 +132,27 @@ PROCEDURE BuildRMInventoryStockForItem:
             ).    
 END PROCEDURE.
 
+PROCEDURE CreateItemFGLoc:
+/*------------------------------------------------------------------------------
+ Purpose: To Create record in itemfg-loc table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItem      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
+    
+    CREATE bf-itemfg-loc.
+    ASSIGN
+        bf-itemfg-loc.company = ipcCompany
+        bf-itemfg-loc.i-no   = ipcItem
+        bf-itemfg-loc.loc    = ipcLocation
+        .
+    RELEASE bf-itemfg-loc.
+
+END PROCEDURE.
+
 PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a FG Item, build bins - will purge and export too 

@@ -33,13 +33,16 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
     cocode = g_company
     locode = g_loc
     .
-DEFINE VARIABLE ll-show-zero-bins AS LOG       NO-UNDO.
+DEFINE VARIABLE ll-show-zero-bins AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lc-pass-loc       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUnspecified      AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE lFirst            AS LOGICAL   NO-UNDO INIT YES.
 {sys/inc/oeinq.i}
  
 DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
@@ -87,6 +90,8 @@ DEFINE VARIABLE cFGBinInquiry  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+
 RUN sys/ref/nk1look.p (INPUT cocode, "FGDefaultQtyDisplay", "I" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -121,6 +126,7 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs .
 
 &SCOPED-DEFINE for-each1    ~
     FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND cPrintAvailQty EQ "2" ) ~
@@ -694,7 +700,8 @@ PROCEDURE build-table :
     DEFINE VARIABLE iTotAlloc   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotReOrder   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotReOrder AS INTEGER NO-UNDO.
+    lUnspecified = NO.
     
     EMPTY TEMP-TABLE w-jobs.
     EMPTY TEMP-TABLE w-job.
@@ -760,6 +767,9 @@ PROCEDURE build-table :
         OR iTotOnOrder NE itemfg.q-ono
         OR iTotBack NE itemfg.q-back
         OR iTotAvail NE itemfg.q-avail THEN DO:
+          
+        lUnspecified = YES.
+    
         CREATE w-jobs.
         ASSIGN 
             w-jobs.i-no         = itemfg.i-no
@@ -953,11 +963,42 @@ PROCEDURE local-open-query :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
 /* Code placed here will execute AFTER standard behavior.    */
+    IF lFirst AND lUnspecified THEN DO: 
+         RUN pDisplayRecalculateMsg.  
+         lFirst = NO.  
+    END. 
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win
+PROCEDURE local-view:
+/*------------------------------------------------------------------------------
+ Purpose: If unspecified location exists then show unspecified location pop up message
+          after displaying the records
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF NOT lFirst AND lUnspecified THEN DO: 
+      RUN pDisplayRecalculateMSg.
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ).
+  END.
+  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE override-qty B-table-Win 
 PROCEDURE override-qty :
@@ -970,6 +1011,117 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalculateQty B-table-Win
+PROCEDURE pCalculateQty PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To recalculate the quantity of an item using history records
+ Notes:
+------------------------------------------------------------------------------*/
+    FOR EACH fg-rcpth NO-LOCK
+        WHERE fg-rcpth.company   EQ cocode
+          AND fg-rcpth.i-no      EQ itemfg.i-no       
+          USE-INDEX tran,
+        EACH fg-rdtlh NO-LOCK
+        WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
+        BREAK BY fg-rcpth.loc
+              BY fg-rcpth.po-no
+              BY fg-rcpth.job-no:
+               
+        IF FIRST-OF(fg-rcpth.loc) 
+            AND fg-rcpth.loc NE "" 
+            AND NOT CAN-FIND (FIRST itemfg-loc 
+                 WHERE itemfg-loc.company EQ fg-rcpth.company 
+                   AND itemfg-loc.i-no    EQ itemfg.i-no 
+                   AND itemfg-loc.loc     EQ fg-rcpth.loc) THEN  
+                                
+            RUN CreateItemFGLoc IN hdInventoryProcs(
+                INPUT cocode,
+                INPUT fg-rcpth.i-no,
+                INPUT fg-rcpth.loc
+                ).
+               
+                
+        IF FIRST-OF(fg-rcpth.po-no) AND fg-rcpth.loc NE "" THEN DO: 
+            FIND FIRST po-ord NO-LOCK 
+                 WHERE po-ord.company EQ cocode
+                   AND po-ord.po-no   EQ INT(fg-rcpth.po-no)
+                   NO-ERROR.
+                   
+            IF AVAILABLE po-ord 
+                AND po-ord.loc NE "" 
+                AND NOT CAN-FIND(FIRST itemfg-loc 
+                    WHERE itemfg-loc.company EQ cocode
+                      AND  itemfg-loc.i-no    EQ fg-rcpth.i-no 
+                      AND  itemfg-loc.loc     EQ po-ord.loc) THEN
+                              
+                RUN CreateItemFGLoc IN hdInventoryProcs(
+                    INPUT cocode,
+                    INPUT fg-rcpth.i-no,
+                    INPUT po-ord.loc
+                    ).                                          
+        END. 
+        
+        IF FIRST-OF(fg-rcpth.job-no) AND fg-rcpth.loc NE "" THEN DO: 
+            FIND FIRST job-hdr NO-LOCK 
+                 WHERE job-hdr.company EQ cocode
+                   AND job-hdr.i-no    EQ fg-rcpth.i-no
+                   AND job-hdr.job-no  EQ fg-rcpth.job-no
+                   AND job-hdr.job-no2 EQ fg-rcpth.job-no2
+                   NO-ERROR.
+                   
+            IF AVAILABLE job-hdr 
+                AND job-hdr.loc NE "" 
+                AND NOT CAN-FIND(FIRST itemfg-loc
+                    WHERE itemfg-loc.company EQ cocode
+                      AND itemfg-loc.i-no    EQ fg-rcpth.i-no
+                      AND itemfg-loc.loc     EQ job-hdr.loc) THEN
+                               
+                RUN CreateItemFGLoc IN hdInventoryProcs(
+                    INPUT cocode,
+                    INPUT fg-rcpth.i-no,
+                    INPUT job-hdr.loc
+                    ). 
+        END.                                 
+    END. 
+    RUN fg/fg-calcbcst.p(
+        INPUT ROWID(itemfg)
+        ).
+    RUN fg/fg-mkbin.p(
+        INPUT RECID(itemfg)
+        ).
+    RUN fg/fg-reset.p(
+        INPUT RECID(itemfg)
+        ).            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayRecalculateMsg B-table-Win
+PROCEDURE pDisplayRecalculateMsg PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To Display a message box to recalculate the quantity
+ Notes:
+------------------------------------------------------------------------------*/
+    MESSAGE "Unspecified Locations exist for the item " itemfg.i-no "." SKIP 
+        "Do you want to recalulate the quantity?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL  
+        UPDATE lUnspecified as LOGICAL . 
+    IF lUnspecified THEN DO:
+        RUN pCalculateQty.
+        RUN build-table. 
+    END.    
+      
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
