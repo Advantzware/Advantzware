@@ -109,10 +109,10 @@ DEF VAR iConvList AS INT NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tbMergeBal eInstructions fiConvFileLoc ~
+&Scoped-Define ENABLED-OBJECTS rsBalances eInstructions fiConvFileLoc ~
 fiFromDate fiToDate tbNoDate slCompanyList tbAllCompanies bSelectAll ~
 bSimulate bConvert IMAGE-1 
-&Scoped-Define DISPLAYED-OBJECTS tbMergeBal eInstructions fiConvFileLoc ~
+&Scoped-Define DISPLAYED-OBJECTS rsBalances eInstructions fiConvFileLoc ~
 fiText-1 fiFromDate fiToDate tbNoDate slCompanyList tbAllCompanies ~
 bSelectAll tbFile-1 tbFile-2 tbFile-3 tbFile-4 tbFile-5 tbFile-6 tbFile-7 ~
 tbFile-8 tbFile-9 tbFile-10 tbFile-11 tbFile-12 tbFile-13 tbFile-14 ~
@@ -120,7 +120,7 @@ tbFile-15 tbFile-16 tbFile-17 tbFile-18 tbFile-19 tbFile-20 tbFile-21 ~
 tbFile-22 tbFile-23 tbFile-24 tbFile-25 tbFile-26 tbFile-27 tbFile-28 ~
 tbFile-29 tbFile-30 tbFile-31 tbFile-32 tbFile-33 tbFile-34 tbFile-35 ~
 tbFile-36 tbFile-37 tbFile-38 tbFile-39 tbFile-40 tbFile-41 tbFile-42 ~
-tbFile-43 tbFile-44 tbFile-45 fiCompany fiText-2 
+tbFile-43 tbFile-44 tbFile-45 fiCompany fiText-2 fiBalances 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -151,6 +151,10 @@ DEFINE VARIABLE eInstructions AS CHARACTER INITIAL "These are the instructions/w
      SIZE 152 BY 7.38
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
+DEFINE VARIABLE fiBalances AS CHARACTER FORMAT "X(256)":U INITIAL "For any balances in account table (GF2):" 
+     VIEW-AS FILL-IN 
+     SIZE 40 BY .95 NO-UNDO.
+
 DEFINE VARIABLE fiCompany AS CHARACTER FORMAT "X(256)":U INITIAL "Select companies to convert:" 
      VIEW-AS FILL-IN 
      SIZE 30 BY .95 NO-UNDO.
@@ -179,8 +183,16 @@ DEFINE VARIABLE fiToDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/2099
      SIZE 18 BY 1 NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
-     FILENAME "N:/Repository/Resources/Graphics/16x16/magnifying_glass.gif":U
+     FILENAME "Graphics/16x16/magnifying_glass.gif":U
      SIZE 5 BY .71.
+
+DEFINE VARIABLE rsBalances AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Move", "Move",
+"Merge", "Merge",
+"Ignore", "Ignore"
+     SIZE 30 BY .95 NO-UNDO.
 
 DEFINE VARIABLE slCompanyList AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -421,11 +433,6 @@ DEFINE VARIABLE tbFile-9 AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 38 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbMergeBal AS LOGICAL INITIAL no 
-     LABEL "Merge balances in account table (GF2)" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 47 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tbNoDate AS LOGICAL INITIAL no 
      LABEL "Ignore dates, convert all records" 
      VIEW-AS TOGGLE-BOX
@@ -435,7 +442,7 @@ DEFINE VARIABLE tbNoDate AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     tbMergeBal AT ROW 11.95 COL 46
+     rsBalances AT ROW 11.95 COL 46 NO-LABEL
      eInstructions AT ROW 1 COL 1 NO-LABEL NO-TAB-STOP 
      fiConvFileLoc AT ROW 8.62 COL 44 COLON-ALIGNED
      fiText-1 AT ROW 13.38 COL 4 NO-LABEL NO-TAB-STOP 
@@ -494,6 +501,7 @@ DEFINE FRAME DEFAULT-FRAME
      bSimulate AT ROW 24.1 COL 132
      bConvert AT ROW 26.71 COL 132
      fiText-2 AT ROW 10.76 COL 3 NO-LABEL NO-TAB-STOP 
+     fiBalances AT ROW 11.95 COL 2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      IMAGE-1 AT ROW 8.86 COL 139
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -549,6 +557,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN 
        eInstructions:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiBalances IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiBalances:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
 /* SETTINGS FOR FILL-IN fiCompany IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 ASSIGN 
@@ -566,184 +579,273 @@ ASSIGN
 
 /* SETTINGS FOR TOGGLE-BOX tbFile-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-1:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-10 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-10:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-11 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-11:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-12 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-12:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-13 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-13:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-14 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-14:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-15 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-15:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-16 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-16:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-17 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-17:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-18 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-18:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-19 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-19:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-2:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-20 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-20:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-21 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-21:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-22 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-22:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-23 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-23:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-24 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-24:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-25 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-25:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-26 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-26:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-27 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-27:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-28 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-28:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-29 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-29:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-3 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-3:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-30 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-30:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-31 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-31:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-32 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-32:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-33 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-33:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-34 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-34:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-35 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-35:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-36 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-36:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-37 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-37:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-38 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-38:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-39 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-39:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-4 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-4:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-40 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-40:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-41 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-41:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-42 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-42:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-43 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-43:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-44 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-44:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-45 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-45:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-5 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-5:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-6 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-6:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-7 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-7:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-8 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+       tbFile-8:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
+
 /* SETTINGS FOR TOGGLE-BOX tbFile-9 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 ASSIGN 
-    tbFile-1:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-2:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-3:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-4:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-5:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-6:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-7:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-8:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-9:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-10:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-11:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-12:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-13:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-14:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-15:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-16:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-17:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-18:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-19:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-20:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-21:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-22:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-23:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-24:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-25:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-26:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-27:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-28:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-29:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-30:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-31:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-32:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-33:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-34:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-35:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-36:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-37:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-38:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-39:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-40:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-41:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-42:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-43:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-44:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
-ASSIGN 
-    tbFile-45:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+       tbFile-9:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "|".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -857,7 +959,7 @@ DO:
     PUT UNFORMATTED "   CSV file used to convert: " + fiConvFileLoc:SCREEN-VALUE + CHR(10).
     PUT UNFORMATTED "   Date range: FROM " + fiFromDate:SCREEN-VALUE + " TO " + fiToDate:SCREEN-VALUE + CHR(10).
     PUT UNFORMATTED "   Ignore dates: " + STRING(tbNoDate:CHECKED) + CHR(10).
-    PUT UNFORMATTED "   Merge account balances: " + STRING(tbMergeBal:CHECKED) + CHR(10) + CHR(10). 
+    PUT UNFORMATTED "   GL account balances action: " + rsBalances:SCREEN-VALUE + CHR(10) + CHR(10). 
     PUT UNFORMATTED "Selected Companies:" + CHR(10).
     DO ictr = 1 TO NUM-ENTRIES(slCompanyList:SCREEN-VALUE):
         PUT UNFORMATTED "   " + ENTRY(iCtr,slCompanyList:SCREEN-VALUE) + CHR(10).
@@ -925,13 +1027,9 @@ DO:
             (IF tbFile-43:CHECKED THEN tbFile-43:PRIVATE-DATA  + ","  ELSE "") +
             (IF tbFile-44:CHECKED THEN tbFile-44:PRIVATE-DATA  + ","  ELSE "") +
             (IF tbFile-45:CHECKED THEN tbFile-45:PRIVATE-DATA  + ","  ELSE "").
-MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
         cTablesToConvert = REPLACE(cTablesToConvert,"|","").
-MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
         cTablesToConvert = REPLACE(cTablesToConvert,",,",",").
-MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
     cTablesToConvert = TRIM(cTablesToConvert,",").
-    MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
         
     FOR EACH ttFullTableList:
         IF CAN-DO(cTablesToConvert,ttFullTableList.cTable) THEN ASSIGN 
@@ -961,7 +1059,7 @@ MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.
         PUT UNFORMATTED "   " + STRING(ttAccountConv.cOldAcct,"x(22)") + "   " +  STRING(ttAccountConv.cNewAcct,"x(22)") + CHR(10). 
     END.
     OUTPUT CLOSE.
-    /*
+    
     FOR EACH ttTablesWithMergeFields WHERE 
         ttTablesWithMergeFields.cFieldType = "Account":
         FIND FIRST ttFullTableList WHERE 
@@ -972,25 +1070,31 @@ MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.
             RUN pConvertAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName, ttFullTableList.cDateField).
     END.
     
-    IF tbMergeBal:CHECKED EQ TRUE THEN 
+    IF rsBalances:SCREEN-VALUE EQ "Move"
+    OR rsBalances:SCREEN-VALUE EQ "Merge" THEN 
         RUN pMergeAccountBalances.
-    */
+    
     OUTPUT TO c:\tmp\GLConversionReport.txt APPEND.
-    PUT UNFORMATTED 
-        "Table Name" + "," +
-        "Total Records" + "," +
-        "Co. not selected" + "," +
-        "Outside date range" + "," +
-        "Account not listed" + "," +
-        "Converted records" + CHR(10).
+    PUT UNFORMATTED CHR(10) + CHR(10).
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
+    PUT UNFORMATTED "Conversion Summary:" + CHR(10).
+    PUT  
+        "Table Name"            AT 1
+        "Total Records"         TO 25
+        "Co. not selected"      TO 44
+        "Outside date range"    TO 66
+        "Account not listed"    TO 86
+        "Converted records"     TO 105
+        SKIP.
     FOR EACH ttConvResults:
-        PUT UNFORMATTED 
-            ttConvResults.cTable + "," +
-            STRING(ttConvResults.iTotRecs) + "," +
-            STRING(ttConvResults.iExclCompany) + "," +
-            STRING(ttConvResults.iExclDate) + "," +
-            STRING(ttConvResults.iExclAcct) + "," +
-            STRING(ttConvResults.iTotConv) + CHR(10).
+        PUT 
+            ttConvResults.cTable        AT 1
+            ttConvResults.iTotRecs      TO 25
+            ttConvResults.iExclCompany  TO 44
+            ttConvResults.iExclDate     TO 66
+            ttConvResults.iExclAcct     TO 86
+            ttConvResults.iTotConv      TO 105
+            SKIP.
     END.
     PUT UNFORMATTED CHR(10) + CHR(10).
     PUT UNFORMATTED FILL("-",80) + CHR(10).
@@ -1236,7 +1340,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tbMergeBal eInstructions fiConvFileLoc fiText-1 fiFromDate fiToDate 
+  DISPLAY rsBalances eInstructions fiConvFileLoc fiText-1 fiFromDate fiToDate 
           tbNoDate slCompanyList tbAllCompanies bSelectAll tbFile-1 tbFile-2 
           tbFile-3 tbFile-4 tbFile-5 tbFile-6 tbFile-7 tbFile-8 tbFile-9 
           tbFile-10 tbFile-11 tbFile-12 tbFile-13 tbFile-14 tbFile-15 tbFile-16 
@@ -1244,9 +1348,9 @@ PROCEDURE enable_UI :
           tbFile-24 tbFile-25 tbFile-26 tbFile-27 tbFile-28 tbFile-29 tbFile-30 
           tbFile-31 tbFile-32 tbFile-33 tbFile-34 tbFile-35 tbFile-36 tbFile-37 
           tbFile-38 tbFile-39 tbFile-40 tbFile-41 tbFile-42 tbFile-43 tbFile-44 
-          tbFile-45 fiCompany fiText-2 
+          tbFile-45 fiCompany fiText-2 fiBalances 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE tbMergeBal eInstructions fiConvFileLoc fiFromDate fiToDate tbNoDate 
+  ENABLE rsBalances eInstructions fiConvFileLoc fiFromDate fiToDate tbNoDate 
          slCompanyList tbAllCompanies bSelectAll bSimulate bConvert IMAGE-1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1563,19 +1667,53 @@ PROCEDURE pMergeAccountBalances :
             FIND FIRST baccount WHERE 
                 baccount.company EQ ENTRY(iCtr,cCompanyList) AND 
                 baccount.actnum EQ ttAccountConv.cNewAcct
-                NO-LOCK NO-ERROR.
+                EXCLUSIVE NO-ERROR.
             IF NOT AVAIL baccount THEN NEXT.
-            ASSIGN 
-                baccount.cyr-open = baccount.cyr-open + account.cyr-open
-                baccount.lyr-open = baccount.lyr-open + account.lyr-open
-                iMergedAccts = iMergedAccts + 1.
-            DO jctr = 1 TO 13:
+            IF baccount.cyr-open EQ account.cyr-open THEN NEXT.
+            IF baccount.lyr-open EQ account.lyr-open THEN NEXT.
+            IF rsBalances:SCREEN-VALUE IN FRAME {&frame-name} EQ "Merge" THEN DO:
                 ASSIGN 
-                    baccount.cyr[jctr] = baccount.cyr[jctr] + account.cyr[jctr]
-                    baccount.lyr[jctr] = baccount.lyr[jctr] + account.lyr[jctr]
-                    baccount.bud[jctr] = baccount.bud[jctr] + account.bud[jctr]
-                    baccount.ly-bud[jctr] = baccount.ly-bud[jctr] + account.ly-bud[jctr]
-                    baccount.ny-bud[jctr] = baccount.ny-bud[jctr] + account.ny-bud[jctr].
+                    baccount.cyr-open = baccount.cyr-open + account.cyr-open
+                    baccount.lyr-open = baccount.lyr-open + account.lyr-open
+                    account.cyr-open = 0
+                    account.lyr-open = 0
+                    iMergedAccts = iMergedAccts + 1.
+                DO jctr = 1 TO 13:
+                    ASSIGN 
+                        baccount.cyr[jctr] = baccount.cyr[jctr] + account.cyr[jctr]
+                        baccount.lyr[jctr] = baccount.lyr[jctr] + account.lyr[jctr]
+                        baccount.bud[jctr] = baccount.bud[jctr] + account.bud[jctr]
+                        baccount.ly-bud[jctr] = baccount.ly-bud[jctr] + account.ly-bud[jctr]
+                        baccount.ny-bud[jctr] = baccount.ny-bud[jctr] + account.ny-bud[jctr]
+                        account.cyr[jctr] = 0
+                        account.lyr[jctr] = 0
+                        account.bud[jctr] = 0
+                        account.ly-bud[jctr] = 0 
+                        account.ny-bud[jctr] = 0
+                        .
+                END.
+            END.
+            ELSE IF rsBalances:SCREEN-VALUE IN FRAME {&frame-name} EQ "Move" THEN DO:
+                ASSIGN 
+                    baccount.cyr-open = account.cyr-open
+                    baccount.lyr-open = account.lyr-open
+                    account.cyr-open = 0
+                    account.lyr-open = 0
+                    iMergedAccts = iMergedAccts + 1.
+                DO jctr = 1 TO 13:
+                    ASSIGN 
+                        baccount.cyr[jctr] = account.cyr[jctr]
+                        baccount.lyr[jctr] = account.lyr[jctr]
+                        baccount.bud[jctr] = account.bud[jctr]
+                        baccount.ly-bud[jctr] = account.ly-bud[jctr]
+                        baccount.ny-bud[jctr] = account.ny-bud[jctr]
+                        account.cyr[jctr] = 0
+                        account.lyr[jctr] = 0
+                        account.bud[jctr] = 0
+                        account.ly-bud[jctr] = 0 
+                        account.ny-bud[jctr] = 0
+                        .
+                END.
             END.
         END.
     END.
