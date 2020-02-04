@@ -21,6 +21,7 @@ DEFINE VARIABLE cCostUOM{3}    AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lError{3}      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage{3}    AS CHARACTER NO-UNDO.
+/*DEF VAR lv-setup-{3} LIKE e-item-vend.setup NO-UNDO.*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -59,8 +60,11 @@ RUN GetVendorCost(vendItemCost.company,
     OUTPUT lError{3}, 
     OUTPUT cMessage{3}).  
     
-{2} = dCostTotal{3} + dCostSetup{3}.
-
+  /* output value dCostTotal already included setup charge from vendorCostProcs.p */
+    
+assign {2} = dCostPerUOM{3}  
+       lv-setup-{3} = dCostSetup{3}
+       . 
 END.
 
 /* **********************  Internal Procedures  *********************** */

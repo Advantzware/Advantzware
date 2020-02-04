@@ -140,19 +140,11 @@ REPEAT:
                 ELSE
                     v-qty = med-qty * item.basis-w.
                     
-        IF lNewVendorItemCost THEN 
-        DO:
-           {est/getVendCost.i v-qty mfl$ medium}  
-        END.
-        ELSE 
-        DO:
-           {est/matcost.i v-qty mfl$ medium}
-           
-        END.
+        {est/matcost.i v-qty mfl$ medium}     
         CREATE w-brd.
         ASSIGN 
-            b-msh          = mfl$            
-            mfl$           = (b-msh * v-qty) + lv-setup-medium
+            b-msh = mfl$            
+            mfl$  = (b-msh * v-qty) + lv-setup-medium
             w-brd.form-no  = xef.form-no
             w-brd.blank-no = 1
             w-brd.i-no     = item-bom.i-no
@@ -257,17 +249,9 @@ REPEAT:
                 ELSE
                     v-qty = med-qty * item.basis-w.
                     
-        IF lNewVendorItemCost THEN 
-        DO:
-           {est/getVendCost.i v-qty mfl$ flute}  
-        END.
-        ELSE 
-        DO: 
-           {est/matcost.i v-qty mfl$ flute}
-           
-        END.
+        {est/matcost.i v-qty mfl$ flute}
         ASSIGN
-            b-msh = mfl$
+            b-msh = mfl$            
             mfl$  = (b-msh * v-qty) + lv-setup-flute
             .
 

@@ -161,15 +161,9 @@ for each flm by flm.snum by flm.bnum with no-labels no-box:
    for each xflm where xflm.i-no eq flm.i-no:
        t-qty = t-qty + xflm.qty.
    end.
-   IF lNewVendorItemCost THEN 
-   DO:
-     {est/getVendCost.i t-qty flm.cost flm}  
-   END.
-   ELSE 
-   DO:
-      {est/matcost.i t-qty flm.cost flm}
-      flm.cost = (flm.cost * flm.qty) + lv-setup-flm .
-   END.
+   {est/matcost.i t-qty flm.cost flm}
+   flm.cost = (flm.cost * flm.qty) + lv-setup-flm .
+   
    ASSIGN    
     qqq      = 0.
      

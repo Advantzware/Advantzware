@@ -121,18 +121,11 @@ do with no-box no-labels frame med1  stream-io :
    ELSE
      v-qty = med-qty * item.basis-w.
      
-   IF lNewVendorItemCost THEN 
-   DO:
-      {est/getVendCost.i v-qty mfl$ medium}  
-   END.
-   ELSE 
-   DO:
-      {est/matcost.i v-qty mfl$ medium}
-       mfl$  = (b-msh * v-qty) + lv-setup-medium.
-   END.
+   {est/matcost.i v-qty mfl$ medium}
+   
    ASSIGN
-    b-msh = mfl$.
-    
+    b-msh = mfl$
+    mfl$  = (b-msh * v-qty) + lv-setup-medium.
 
    /*find first brd where brd.form-no = xef.form-no and
                         brd.i-no    = item-bom.i-no
@@ -236,20 +229,12 @@ do with no-box no-labels frame flute  stream-io :
      v-qty = med-qty.
    ELSE
      v-qty = med-qty * item.basis-w.
-     
-   IF lNewVendorItemCost THEN 
-   DO:
-      {est/getVendCost.i v-qty mfl$ flute}  
-   END.
-   ELSE 
-   DO:
-     {est/matcost.i v-qty mfl$ flute}
-     mfl$  = (b-msh * v-qty) + lv-setup-flute.
-   END.
-   
+        
+   {est/matcost.i v-qty mfl$ flute}
+       
    ASSIGN
-    b-msh = mfl$. 
-    
+    b-msh = mfl$
+    mfl$  = (b-msh * v-qty) + lv-setup-flute.
 
    create w-brd.
    assign w-brd.form-no  = xef.form-no

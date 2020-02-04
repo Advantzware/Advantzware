@@ -345,18 +345,10 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
    IF xeb.casNoCharge THEN cas.cost = 0.
    ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
-       IF lNewVendorItemCost THEN 
-       DO:
-           {est/getVendCost.i cas.t-qty cas.cost 2}  
-       END.
-       ELSE 
-       DO:
-           {est/matcost.i cas.t-qty cas.cost 2}
-           cas.cost = (cas.cost * cas.qty) + lv-setup-2. 
-       END.
-
-     ASSIGN     
-      v-setup  = lv-setup-2.
+     {est/matcost.i cas.t-qty cas.cost 2}                  
+       
+     ASSIGN cas.cost = (cas.cost * cas.qty) + lv-setup-2.     
+            v-setup  = lv-setup-2.
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */

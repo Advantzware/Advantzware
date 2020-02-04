@@ -2,6 +2,12 @@
 DEF VAR lv-setup-{3} LIKE e-item-vend.setup NO-UNDO.
 DEF VAR ll-est-found-{3} AS LOG NO-UNDO.
 
+
+IF lNewVendorItemCost THEN DO:
+   {est/getVendCost.i {1} {2} {3} }
+   RETURN.    
+END.
+
 DEF TEMP-TABLE tt-e-i-v-{3} NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20
