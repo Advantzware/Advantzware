@@ -86,4 +86,7 @@ DEFINE {1} SHARED TEMP-TABLE w-po NO-UNDO
   FIELD vend-name LIKE vend.NAME 
   FIELD overrun-qty AS INT
   FIELD add-setup AS LOG  
+  FIELD case-l as DECIMAL
+  FIELD case-w as DECIMAL
+  FIELD case-d AS DECIMAL  
   INDEX po IS PRIMARY po-no ASC line ASC.
