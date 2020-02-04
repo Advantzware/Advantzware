@@ -12,6 +12,7 @@
   ----------------------------------------------------------------------*/
 DEFINE INPUT  PARAMETER iplReTrigger        AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiInboundEventID   AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRoute            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData     AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER iplcReponseData     AS LONGCHAR  NO-UNDO.
@@ -54,6 +55,7 @@ END.
 ELSE DO:
     CREATE APIInboundEvent.
     ASSIGN
+        APIInboundEvent.company         = ipcCompany
         APIInboundEvent.apiRoute        = ipcRoute
         APIInboundEvent.requestData     = iplcRequestData
         APIInboundEvent.responseData    = iplcReponseData

@@ -136,6 +136,7 @@ PROCEDURE Inbound_ReTrigger:
     DEFINE VARIABLE cRequestVerb            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcResponseData          AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lRetrigger              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCompany                AS CHARACTER NO-UNDO.
     
     lRetrigger = YES.
     
@@ -179,6 +180,7 @@ PROCEDURE Inbound_ReTrigger:
         RUN api\CreateAPIInboundEvent.p (
             INPUT  lRetrigger,
             INPUT  ipiAPIInboundEventID,
+            INPUT  cCompany,            
             INPUT  bf-APIInboundEvent.apiRoute,
             INPUT  lcRequestData,
             INPUT  lcResponseData,
