@@ -570,7 +570,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME vendItemCost.itemID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemID V-table-Win
 ON LEAVE OF vendItemCost.itemID IN FRAME F-Main /* Item ID */
@@ -630,6 +629,23 @@ DO:
     END.
 
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME vendItemCost.vendorUOM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.vendorUOM V-table-Win
+ON ENTRY OF vendItemCost.vendorUOM IN FRAME F-Main /* Cost and Quantity UOM */
+    DO:
+        IF vendItemCost.ItemID:SCREEN-VALUE = "" THEN DO:
+           MESSAGE "Item ID is blank. Enter Item ID first!"           
+             VIEW-AS ALERT-BOX error.
+           APPLY "ENTRY" TO vendItemCost.ItemID.   
+           RETURN NO-APPLY.
+        END.
+
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
