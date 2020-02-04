@@ -131,30 +131,31 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportReOrdLevel FOR ttImportReOrdLevel.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
      
-    FIND FIRST itemfg-loc EXCLUSIVE-LOCK
-        WHERE itemfg-loc.company EQ ipbf-ttImportReOrdLevel.Company
-        AND itemfg-loc.i-no EQ ipbf-ttImportReOrdLevel.cFGItem
-        AND itemfg-loc.loc EQ ipbf-ttImportReOrdLevel.cLoc
+    FIND FIRST bf-itemfg-loc EXCLUSIVE-LOCK
+        WHERE bf-itemfg-loc.company EQ ipbf-ttImportReOrdLevel.Company
+        AND bf-itemfg-loc.i-no EQ ipbf-ttImportReOrdLevel.cFGItem
+        AND bf-itemfg-loc.loc EQ ipbf-ttImportReOrdLevel.cLoc
         NO-ERROR.  
-    IF NOT AVAILABLE itemfg-loc THEN 
+    IF NOT AVAILABLE bf-itemfg-loc THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE itemfg-loc.
+        CREATE bf-itemfg-loc.
         ASSIGN 
-            itemfg-loc.company = ipbf-ttImportReOrdLevel.Company
-            itemfg-loc.i-no = ipbf-ttImportReOrdLevel.cFGItem
-            itemfg-loc.loc = ipbf-ttImportReOrdLevel.cLoc
+            bf-itemfg-loc.company = ipbf-ttImportReOrdLevel.Company
+            bf-itemfg-loc.i-no = ipbf-ttImportReOrdLevel.cFGItem
+            bf-itemfg-loc.loc = ipbf-ttImportReOrdLevel.cLoc
             .
     END.
 
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iReorderLevel, YES, INPUT-OUTPUT itemfg-loc.ord-level).
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMinimum, YES, INPUT-OUTPUT itemfg-loc.ord-min).
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMaximum, YES, INPUT-OUTPUT itemfg-loc.ord-max).
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iLeadTime, YES, INPUT-OUTPUT itemfg-loc.lead-days).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iReorderLevel, YES, INPUT-OUTPUT bf-itemfg-loc.ord-level).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMinimum, YES, INPUT-OUTPUT bf-itemfg-loc.ord-min).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMaximum, YES, INPUT-OUTPUT bf-itemfg-loc.ord-max).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iLeadTime, YES, INPUT-OUTPUT bf-itemfg-loc.lead-days).
      
-    RELEASE itemfg-loc.
+    RELEASE bf-itemfg-loc.
     
     
 END PROCEDURE.

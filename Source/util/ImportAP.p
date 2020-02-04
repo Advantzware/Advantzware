@@ -180,16 +180,17 @@ PROCEDURE pCreateNewInvoice:
     DEFINE INPUT PARAMETER ipcInvoice AS CHARACTER.
     DEFINE INPUT PARAMETER ipdtInvDate AS DATE.
     DEFINE OUTPUT PARAMETER opriAPInv AS ROWID.
-    
-    CREATE ap-inv.
+    DEFINE BUFFER bf-ap-inv FOR ap-inv .
+
+    CREATE bf-ap-inv.
     ASSIGN
-        ap-inv.company  = ipcCompany
-        ap-inv.inv-no   = ipcInvoice
-        ap-inv.inv-date = TODAY
-        ap-inv.vend-no  = ipcVendor
+        bf-ap-inv.company  = ipcCompany
+        bf-ap-inv.inv-no   = ipcInvoice
+        bf-ap-inv.inv-date = TODAY
+        bf-ap-inv.vend-no  = ipcVendor
         .
     IF ipdtInvDate NE ? THEN 
-        ap-inv.inv-date = DATE(ipdtInvDate).                     
+        bf-ap-inv.inv-date = DATE(ipdtInvDate).                     
     FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ ipcCompany
         AND vend.vend-no EQ ipcVendor
@@ -197,9 +198,9 @@ PROCEDURE pCreateNewInvoice:
     IF AVAILABLE vend THEN 
     DO:
         ASSIGN
-            ap-inv.disc-%    = vend.disc-%
-            ap-inv.disc-days = vend.disc-days
-            ap-inv.tax-gr    = vend.tax-gr
+            bf-ap-inv.disc-%    = vend.disc-%
+            bf-ap-inv.disc-days = vend.disc-days
+            bf-ap-inv.tax-gr    = vend.tax-gr
             .  
         
         FIND FIRST currency NO-LOCK  
@@ -216,27 +217,27 @@ PROCEDURE pCreateNewInvoice:
                 NO-ERROR.
         IF AVAILABLE currency THEN
             ASSIGN 
-                ap-inv.ex-rate      = currency.ex-rate
-                ap-inv.curr-code[1] = currency.c-code
+                bf-ap-inv.ex-rate      = currency.ex-rate
+                bf-ap-inv.curr-code[1] = currency.c-code
                 .
         ELSE 
             ASSIGN 
-                ap-inv.ex-rate      = 1
-                ap-inv.curr-code[1] = 'USD'
+                bf-ap-inv.ex-rate      = 1
+                bf-ap-inv.curr-code[1] = 'USD'
                 .                        
         
         FIND FIRST terms WHERE terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
         IF AVAILABLE terms THEN
             ASSIGN
-                ap-inv.disc-%    = terms.disc-rate
-                ap-inv.disc-days = terms.disc-days
+                bf-ap-inv.disc-%    = terms.disc-rate
+                bf-ap-inv.disc-days = terms.disc-days
                 .
-        ap-inv.due-date = IF AVAILABLE terms THEN terms.net-day + ap-inv.inv-date
-        ELSE ap-inv.inv-date.
+        bf-ap-inv.due-date = IF AVAILABLE terms THEN terms.net-day + bf-ap-inv.inv-date
+        ELSE bf-ap-inv.inv-date.
                                                    
     END.
-    opriAPInv = ROWID(ap-inv).
-    RELEASE ap-inv.
+    opriAPInv = ROWID(bf-ap-inv).
+    RELEASE bf-ap-inv.
 
 
 END PROCEDURE.
@@ -306,26 +307,27 @@ PROCEDURE pProcessRecord PRIVATE:
 
     DEFINE VARIABLE riAPInv  AS ROWID. 
     DEFINE VARIABLE riAPInvl AS ROWID. 
-    
+    DEFINE BUFFER bf-ap-inv FOR ap-inv .
+    DEFINE BUFFER bf-ap-invl FOR ap-invl .
        
     iopiAdded = iopiAdded + 1.
     /*if found, add another line to existing header - otherwise, create a new header*/
-    FIND FIRST ap-inv NO-LOCK
-        WHERE ap-inv.company EQ ipbf-ttImportAP.Company
-        AND ap-inv.inv-no EQ ipbf-ttImportAP.InvoiceNo
-        AND ap-inv.vend-no EQ ipbf-ttImportAP.VendorID
+    FIND FIRST bf-ap-inv NO-LOCK
+        WHERE bf-ap-inv.company EQ ipbf-ttImportAP.Company
+        AND bf-ap-inv.inv-no EQ ipbf-ttImportAP.InvoiceNo
+        AND bf-ap-inv.vend-no EQ ipbf-ttImportAP.VendorID
         NO-ERROR.
-    IF NOT AVAILABLE ap-inv THEN /*create a new one*/
+    IF NOT AVAILABLE bf-ap-inv THEN /*create a new one*/
     DO:
         RUN pCreateNewInvoice (ipbf-ttImportAP.Company, ipbf-ttImportAP.VendorID, ipbf-ttImportAP.InvoiceNo, ipbf-ttImportAP.InvoiceDate, OUTPUT riApInv).
-        FIND ap-inv EXCLUSIVE-LOCK
-            WHERE ROWID(ap-inv) EQ riAPInv
+        FIND bf-ap-inv EXCLUSIVE-LOCK
+            WHERE ROWID(bf-ap-inv) EQ riAPInv
             NO-ERROR.
-        IF NOT AVAILABLE ap-inv THEN NEXT.    
+        IF NOT AVAILABLE bf-ap-inv THEN NEXT.    
                     
         /*Override defaults with imported values for header*/
         IF ipbf-ttImportAP.InvoiceDate NE ?THEN 
-            ap-inv.inv-date =  ipbf-ttImportAP.InvoiceDate.
+            bf-ap-inv.inv-date =  ipbf-ttImportAP.InvoiceDate.
         IF ipbf-ttImportAP.TaxGroup NE "" THEN  
         DO:
             FIND FIRST stax NO-LOCK 
@@ -333,58 +335,60 @@ PROCEDURE pProcessRecord PRIVATE:
                 AND stax.tax-group EQ ipbf-ttImportAP.TaxGroup
                 NO-ERROR.
             IF AVAILABLE stax THEN 
-                ap-inv.tax-gr = ipbf-ttImportAP.TaxGroup.
+                bf-ap-inv.tax-gr = ipbf-ttImportAP.TaxGroup.
         END.
         IF ipbf-ttImportAP.DueDate NE ? THEN 
-            ap-inv.due-date = ipbf-ttImportAP.DueDate.
+            bf-ap-inv.due-date = ipbf-ttImportAP.DueDate.
         IF ipbf-ttImportAP.DiscountDays NE 0 THEN 
-            ap-inv.disc-days = ipbf-ttImportAP.DiscountDays.
+            bf-ap-inv.disc-days = ipbf-ttImportAP.DiscountDays.
         IF ipbf-ttImportAP.Discount NE 0 THEN 
-            ap-inv.disc-% = ipbf-ttImportAP.Discount.
+            bf-ap-inv.disc-% = ipbf-ttImportAP.Discount.
         /* Set receiver-no eq 0 so VU# won't try to create a manual check - 54241 - MYT */
         ASSIGN 
-            ap-inv.receiver-no = "0".
+            bf-ap-inv.receiver-no = "0".
     
-    END. /*not available ap-inv*/
-    RUN pCreateNewInvoiceLine (ROWID(ap-inv), OUTPUT riAPInvl).
-    FIND ap-invl EXCLUSIVE-LOCK 
-        WHERE ROWID(ap-invl) EQ riAPInvl
+    END. /*not available bf-ap-inv*/
+    RUN pCreateNewInvoiceLine (ROWID(bf-ap-inv), OUTPUT riAPInvl).
+    FIND bf-ap-invl EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-ap-invl) EQ riAPInvl
         NO-ERROR.
-    IF NOT AVAILABLE ap-invl THEN NEXT.
+    IF NOT AVAILABLE bf-ap-invl THEN NEXT.
                 
     /*Override defaults with imported values for line*/ 
     ASSIGN 
-        ap-invl.tax = ipbf-ttImportAP.LineTax
-        ap-invl.amt = ipbf-ttImportAP.LineAmount
+        bf-ap-invl.tax = ipbf-ttImportAP.LineTax
+        bf-ap-invl.amt = ipbf-ttImportAP.LineAmount
         .
     IF ipbf-ttImportAP.LineQuantity NE 0 THEN 
-        ap-invl.qty = ipbf-ttImportAP.LineQuantity.
+        bf-ap-invl.qty = ipbf-ttImportAP.LineQuantity.
     ELSE 
-        ap-invl.qty = 1.
+        bf-ap-invl.qty = 1.
     IF ipbf-ttImportAP.LineQuantityUom NE "" THEN 
-        ap-invl.cons-uom = ipbf-ttImportAP.LineQuantityUOM.
+        bf-ap-invl.cons-uom = ipbf-ttImportAP.LineQuantityUOM.
     ELSE 
-        ap-invl.cons-uom = "EA".
+        bf-ap-invl.cons-uom = "EA".
     IF ipbf-ttImportAP.LinePrice NE 0 THEN 
-        ap-invl.unit-pr = ipbf-ttImportAP.LinePrice.
+        bf-ap-invl.unit-pr = ipbf-ttImportAP.LinePrice.
     ELSE 
-        ap-invl.unit-pr = ap-invl.amt.
+        bf-ap-invl.unit-pr = bf-ap-invl.amt.
     IF ipbf-ttImportAP.LinePriceUom NE "" THEN 
-        ap-invl.pr-qty-uom = ipbf-ttImportAP.LinePriceUom.
+        bf-ap-invl.pr-qty-uom = ipbf-ttImportAP.LinePriceUom.
     ELSE 
-        ap-invl.pr-qty-uom = "EA".
+        bf-ap-invl.pr-qty-uom = "EA".
     IF ipbf-ttImportAP.LinePONumber NE 0 THEN 
     DO:
-        ap-invl.po-no = ipbf-ttImportAP.LinePONumber.
-        RUN pUpdateInvoiceLineFromPO(ROWID(ap-inv)).
+        bf-ap-invl.po-no = ipbf-ttImportAP.LinePONumber.
+        RUN pUpdateInvoiceLineFromPO(ROWID(bf-ap-inv)).
     END.
     IF ipbf-ttImportAP.LinePOLine NE 0 THEN
-        ap-invl.po-line = ipbf-ttImportAP.LinePOLine.
+        bf-ap-invl.po-line = ipbf-ttImportAP.LinePOLine.
     IF ipbf-ttImportAP.LineAccount NE "" THEN 
-        ap-invl.actnum = ipbf-ttImportAP.LineAccount.
+        bf-ap-invl.actnum = ipbf-ttImportAP.LineAccount.
                                                             
-    RUN pRecalculateInvoiceHeader (ROWID(ap-inv), NO).   
+    RUN pRecalculateInvoiceHeader (ROWID(bf-ap-inv), NO).   
 
+    RELEASE bf-ap-inv .
+    RELEASE bf-ap-invl .
 END PROCEDURE.
 
 PROCEDURE pRecalculateInvoiceHeader:

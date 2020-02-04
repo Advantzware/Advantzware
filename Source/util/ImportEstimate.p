@@ -1093,6 +1093,11 @@ PROCEDURE pProcessRecord PRIVATE:
     END. 
     IF ipbf-ttImportEstimate.ImageBoxDesign NE "" THEN 
         RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
+
+    RELEASE est.
+    RELEASE est-qty.
+    RELEASE ef.
+    RELEASE eb.
     
 END PROCEDURE.
 

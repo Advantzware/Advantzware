@@ -110,50 +110,51 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCarrierMtx FOR ttImportCarrierMtx.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
      
-    FIND FIRST carr-mtx EXCLUSIVE-LOCK
-        WHERE carr-mtx.company EQ ipbf-ttImportCarrierMtx.Company
-        AND carr-mtx.carrier EQ ipbf-ttImportCarrierMtx.carrier
-        AND carr-mtx.del-zone EQ ipbf-ttImportCarrierMtx.del-zone
+    FIND FIRST bf-carr-mtx EXCLUSIVE-LOCK
+        WHERE bf-carr-mtx.company EQ ipbf-ttImportCarrierMtx.Company
+        AND bf-carr-mtx.carrier EQ ipbf-ttImportCarrierMtx.carrier
+        AND bf-carr-mtx.del-zone EQ ipbf-ttImportCarrierMtx.del-zone
         NO-ERROR.  
-    IF NOT AVAILABLE carr-mtx THEN 
+    IF NOT AVAILABLE bf-carr-mtx THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE carr-mtx.
+        CREATE bf-carr-mtx.
         ASSIGN 
-            carr-mtx.company = ipbf-ttImportCarrierMtx.Company
-            carr-mtx.carrier = ipbf-ttImportCarrierMtx.carrier
-            carr-mtx.del-zone = ipbf-ttImportCarrierMtx.del-zone .
+            bf-carr-mtx.company = ipbf-ttImportCarrierMtx.Company
+            bf-carr-mtx.carrier = ipbf-ttImportCarrierMtx.carrier
+            bf-carr-mtx.del-zone = ipbf-ttImportCarrierMtx.del-zone .
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportCarrierMtx.carrier, iplIgnoreBlanks, INPUT-OUTPUT carr-mtx.carrier).
-    RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-zone, iplIgnoreBlanks, INPUT-OUTPUT carr-mtx.del-zone).
-    RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-dscr, iplIgnoreBlanks, INPUT-OUTPUT carr-mtx.del-dscr).
-    RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-zip, iplIgnoreBlanks, INPUT-OUTPUT carr-mtx.del-zip).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.min-rate, YES, INPUT-OUTPUT carr-mtx.min-rate).
+    RUN pAssignValueC (ipbf-ttImportCarrierMtx.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.carrier).
+    RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-zone, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-zone).
+    RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-dscr).
+    RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-zip, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-zip).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.min-rate, YES, INPUT-OUTPUT bf-carr-mtx.min-rate).
 
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight1, YES, INPUT-OUTPUT carr-mtx.weight[1]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight2, YES, INPUT-OUTPUT carr-mtx.weight[2]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight3, YES, INPUT-OUTPUT carr-mtx.weight[3]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight4, YES, INPUT-OUTPUT carr-mtx.weight[4]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight5, YES, INPUT-OUTPUT carr-mtx.weight[5]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight6, YES, INPUT-OUTPUT carr-mtx.weight[6]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight7, YES, INPUT-OUTPUT carr-mtx.weight[7]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight8, YES, INPUT-OUTPUT carr-mtx.weight[8]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight9, YES, INPUT-OUTPUT carr-mtx.weight[9]).
-    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight10, YES, INPUT-OUTPUT carr-mtx.weight[10]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight1, YES, INPUT-OUTPUT bf-carr-mtx.weight[1]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight2, YES, INPUT-OUTPUT bf-carr-mtx.weight[2]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight3, YES, INPUT-OUTPUT bf-carr-mtx.weight[3]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight4, YES, INPUT-OUTPUT bf-carr-mtx.weight[4]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight5, YES, INPUT-OUTPUT bf-carr-mtx.weight[5]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight6, YES, INPUT-OUTPUT bf-carr-mtx.weight[6]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight7, YES, INPUT-OUTPUT bf-carr-mtx.weight[7]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight8, YES, INPUT-OUTPUT bf-carr-mtx.weight[8]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight9, YES, INPUT-OUTPUT bf-carr-mtx.weight[9]).
+    RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight10, YES, INPUT-OUTPUT bf-carr-mtx.weight[10]).
 
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate1, YES, INPUT-OUTPUT carr-mtx.rate[1]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate2, YES, INPUT-OUTPUT carr-mtx.rate[2]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate3, YES, INPUT-OUTPUT carr-mtx.rate[3]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate4, YES, INPUT-OUTPUT carr-mtx.rate[4]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate5, YES, INPUT-OUTPUT carr-mtx.rate[5]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate6, YES, INPUT-OUTPUT carr-mtx.rate[6]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate7, YES, INPUT-OUTPUT carr-mtx.rate[7]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate8, YES, INPUT-OUTPUT carr-mtx.rate[8]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate9, YES, INPUT-OUTPUT carr-mtx.rate[9]).
-    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate10, YES, INPUT-OUTPUT carr-mtx.rate[10]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate1, YES, INPUT-OUTPUT bf-carr-mtx.rate[1]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate2, YES, INPUT-OUTPUT bf-carr-mtx.rate[2]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate3, YES, INPUT-OUTPUT bf-carr-mtx.rate[3]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate4, YES, INPUT-OUTPUT bf-carr-mtx.rate[4]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate5, YES, INPUT-OUTPUT bf-carr-mtx.rate[5]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate6, YES, INPUT-OUTPUT bf-carr-mtx.rate[6]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate7, YES, INPUT-OUTPUT bf-carr-mtx.rate[7]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate8, YES, INPUT-OUTPUT bf-carr-mtx.rate[8]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate9, YES, INPUT-OUTPUT bf-carr-mtx.rate[9]).
+    RUN pAssignValueD (ipbf-ttImportCarrierMtx.rate10, YES, INPUT-OUTPUT bf-carr-mtx.rate[10]).
     
-    RELEASE carr-mtx.
+    RELEASE bf-carr-mtx.
     
 END PROCEDURE.

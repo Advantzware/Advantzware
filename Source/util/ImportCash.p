@@ -353,55 +353,56 @@ PROCEDURE pProcessRecord PRIVATE:
 
     DEFINE VARIABLE riCash  AS ROWID. 
     DEFINE VARIABLE riCashl AS ROWID. 
-    
-
+    DEFINE BUFFER bf-ar-cash FOR ar-cash .
+    DEFINE BUFFER bf-ar-cashl FOR ar-cashl .
                 
     iopiAdded = iopiAdded + 1.
         
     /*if found, add another line to existing header - otherwise, create a new header*/
-    FIND FIRST ar-cash NO-LOCK
-        WHERE ar-cash.company EQ ipbf-ttImportCash.Company
-        AND ar-cash.check-date EQ ipbf-ttImportCash.CheckDate
-        AND ar-cash.check-no EQ ipbf-ttImportCash.CheckNo
-        AND ar-cash.cust-no EQ ipbf-ttImportCash.CustomerID
+    FIND FIRST bf-ar-cash NO-LOCK
+        WHERE bf-ar-cash.company EQ ipbf-ttImportCash.Company
+        AND bf-ar-cash.check-date EQ ipbf-ttImportCash.CheckDate
+        AND bf-ar-cash.check-no EQ ipbf-ttImportCash.CheckNo
+        AND bf-ar-cash.cust-no EQ ipbf-ttImportCash.CustomerID
         NO-ERROR.
-    IF NOT AVAILABLE ar-cash THEN /*create a new one*/
+    IF NOT AVAILABLE bf-ar-cash THEN /*create a new one*/
     DO:
         RUN pCreateNewCashHeader (ipbf-ttImportCash.Company, ipbf-ttImportCash.CustomerID, ipbf-ttImportCash.CheckNo, OUTPUT riCash).
-        FIND ar-cash EXCLUSIVE-LOCK
-            WHERE ROWID(ar-cash) EQ riCash
+        FIND bf-ar-cash EXCLUSIVE-LOCK
+            WHERE ROWID(bf-ar-cash) EQ riCash
             NO-ERROR.
-        IF NOT AVAILABLE ar-cash THEN NEXT.    
+        IF NOT AVAILABLE bf-ar-cash THEN NEXT.    
                     
         /*Override defaults with imported values for header*/
         IF ipbf-ttImportCash.CheckDate NE ? THEN 
-            ar-cash.check-date =  ipbf-ttImportCash.CheckDate.
+            bf-ar-cash.check-date =  ipbf-ttImportCash.CheckDate.
         IF ipbf-ttImportCash.BankCode NE "" THEN 
-            ar-cash.bank-code = ipbf-ttImportCash.BankCode. 
+            bf-ar-cash.bank-code = ipbf-ttImportCash.BankCode. 
             
-        ar-cash.check-amt = ipbf-ttImportCash.CheckAmount.
+        bf-ar-cash.check-amt = ipbf-ttImportCash.CheckAmount.
             
-    END. /*not available ar-cash*/
-    RUN pCreateNewCashLine (ROWID(ar-cash), ipbf-ttImportCash.InvoiceNo, OUTPUT riCashl).
-    FIND ar-cashl EXCLUSIVE-LOCK 
-        WHERE ROWID(ar-cashl) EQ riCashl
+    END. /*not available bf-ar-cash*/
+    RUN pCreateNewCashLine (ROWID(bf-ar-cash), ipbf-ttImportCash.InvoiceNo, OUTPUT riCashl).
+    FIND bf-ar-cashl EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-ar-cashl) EQ riCashl
         NO-ERROR.
-    IF NOT AVAILABLE ar-cashl THEN NEXT.
+    IF NOT AVAILABLE bf-ar-cashl THEN NEXT.
                 
     /*Override defaults with imported values for line*/ 
     ASSIGN 
-        ar-cashl.amt-disc = ipbf-ttImportCash.InvoiceDiscount
+        bf-ar-cashl.amt-disc = ipbf-ttImportCash.InvoiceDiscount
         .       
         
     IF ipbf-ttImportCash.InvoiceApplied EQ 0 THEN 
-        ar-cashl.amt-paid = ipbf-ttImportCash.CheckAmount + ar-cashl.amt-disc.
+        bf-ar-cashl.amt-paid = ipbf-ttImportCash.CheckAmount + bf-ar-cashl.amt-disc.
     ELSE 
-        ar-cashl.amt-paid = ipbf-ttImportCash.InvoiceApplied.
+        bf-ar-cashl.amt-paid = ipbf-ttImportCash.InvoiceApplied.
         
 
     IF ipbf-ttImportCash.AccountNumber NE "" THEN 
-        ar-cashl.actnum = ipbf-ttImportCash.AccountNumber.
+        bf-ar-cashl.actnum = ipbf-ttImportCash.AccountNumber.
                                                             
-
+      RELEASE bf-ar-cashl.
+      RELEASE bf-ar-cash.
 END PROCEDURE.
 

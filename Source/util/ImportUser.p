@@ -192,53 +192,54 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE BUFFER bf-usercomp FOR usercomp.
     DEFINE VARIABLE cDefaultComp AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDefaultLoc  AS CHARACTER NO-UNDO.
-    
-    FIND FIRST users EXCLUSIVE-LOCK
-        WHERE users.user_id EQ ipbf-ttImportUsers.cUserId
+    DEFINE BUFFER bf-users FOR users.
+
+    FIND FIRST bf-users EXCLUSIVE-LOCK
+        WHERE bf-users.user_id EQ ipbf-ttImportUsers.cUserId
         NO-ERROR.  
-    IF NOT AVAILABLE users THEN 
+    IF NOT AVAILABLE bf-users THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE users.
+        CREATE bf-users.
         ASSIGN 
-            users.user_id = ipbf-ttImportUsers.cUserId
+            bf-users.user_id = ipbf-ttImportUsers.cUserId
             .
     END.
     
     
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportUsers.cUserName, iplIgnoreBlanks, INPUT-OUTPUT users.user_name).
-    RUN pAssignValueC (ipbf-ttImportUsers.cAlias, iplIgnoreBlanks, INPUT-OUTPUT  users.userAlias).
-    RUN pAssignValueC (ipbf-ttImportUsers.cEmail, iplIgnoreBlanks, INPUT-OUTPUT users.image_filename).
-    RUN pAssignValueC (ipbf-ttImportUsers.cPhoneCountry, iplIgnoreBlanks, INPUT-OUTPUT users.phone-cnty).
-    RUN pAssignValueC ((ipbf-ttImportUsers.cPhoneArea + ipbf-ttImportUsers.cPhone) , iplIgnoreBlanks, INPUT-OUTPUT users.phone).
-    RUN pAssignValueC (ipbf-ttImportUsers.cFaxCountry, iplIgnoreBlanks, INPUT-OUTPUT users.fax-cnty).
-    RUN pAssignValueC ((ipbf-ttImportUsers.cFaxArea + ipbf-ttImportUsers.cFax) , iplIgnoreBlanks, INPUT-OUTPUT users.fax).
-    RUN pAssignValueI (ipbf-ttImportUsers.iSecurityLevel, YES, INPUT-OUTPUT users.securityLevel).
+    RUN pAssignValueC (ipbf-ttImportUsers.cUserName, iplIgnoreBlanks, INPUT-OUTPUT bf-users.user_name).
+    RUN pAssignValueC (ipbf-ttImportUsers.cAlias, iplIgnoreBlanks, INPUT-OUTPUT  bf-users.userAlias).
+    RUN pAssignValueC (ipbf-ttImportUsers.cEmail, iplIgnoreBlanks, INPUT-OUTPUT bf-users.image_filename).
+    RUN pAssignValueC (ipbf-ttImportUsers.cPhoneCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-users.phone-cnty).
+    RUN pAssignValueC ((ipbf-ttImportUsers.cPhoneArea + ipbf-ttImportUsers.cPhone) , iplIgnoreBlanks, INPUT-OUTPUT bf-users.phone).
+    RUN pAssignValueC (ipbf-ttImportUsers.cFaxCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-users.fax-cnty).
+    RUN pAssignValueC ((ipbf-ttImportUsers.cFaxArea + ipbf-ttImportUsers.cFax) , iplIgnoreBlanks, INPUT-OUTPUT bf-users.fax).
+    RUN pAssignValueI (ipbf-ttImportUsers.iSecurityLevel, YES, INPUT-OUTPUT bf-users.securityLevel).
     IF ipbf-ttImportUsers.cUserType EQ "" THEN
         ipbf-ttImportUsers.cUserType = "Full User".
-    RUN pAssignValueC (ipbf-ttImportUsers.cUserType, iplIgnoreBlanks, INPUT-OUTPUT users.userType).
-    RUN pAssignValueC (ipbf-ttImportUsers.cImageViewer, iplIgnoreBlanks, INPUT-OUTPUT users.user_program[1]).
-    RUN pAssignValueC (ipbf-ttImportUsers.cReportPath, iplIgnoreBlanks, INPUT-OUTPUT  users.user_program[2]).
-    RUN pAssignValueC (ipbf-ttImportUsers.cDocumentPath, iplIgnoreBlanks, INPUT-OUTPUT   users.user_program[3]).
-    RUN pAssignValueC (ipbf-ttImportUsers.cIsDeveloper, YES, INPUT-OUTPUT users.developer).
-    RUN pAssignValueC (ipbf-ttImportUsers.cTrackUsage, YES, INPUT-OUTPUT users.track_usage).
-    RUN pAssignValueC (ipbf-ttImportUsers.cUserDefinedColors, YES, INPUT-OUTPUT users.use_colors).
-    RUN pAssignValueC (ipbf-ttImportUsers.cUserDefinedFonts, YES, INPUT-OUTPUT users.use_fonts).
-    RUN pAssignValueC (ipbf-ttImportUsers.cModes, iplIgnoreBlanks, INPUT-OUTPUT   users.modeList).
-    RUN pAssignValueC (ipbf-ttImportUsers.cEnvironments, iplIgnoreBlanks, INPUT-OUTPUT users.envList).
-    RUN pAssignValueC (ipbf-ttImportUsers.cDatabases, iplIgnoreBlanks, INPUT-OUTPUT users.dbList).
+    RUN pAssignValueC (ipbf-ttImportUsers.cUserType, iplIgnoreBlanks, INPUT-OUTPUT bf-users.userType).
+    RUN pAssignValueC (ipbf-ttImportUsers.cImageViewer, iplIgnoreBlanks, INPUT-OUTPUT bf-users.user_program[1]).
+    RUN pAssignValueC (ipbf-ttImportUsers.cReportPath, iplIgnoreBlanks, INPUT-OUTPUT  bf-users.user_program[2]).
+    RUN pAssignValueC (ipbf-ttImportUsers.cDocumentPath, iplIgnoreBlanks, INPUT-OUTPUT   bf-users.user_program[3]).
+    RUN pAssignValueC (ipbf-ttImportUsers.cIsDeveloper, YES, INPUT-OUTPUT bf-users.developer).
+    RUN pAssignValueC (ipbf-ttImportUsers.cTrackUsage, YES, INPUT-OUTPUT bf-users.track_usage).
+    RUN pAssignValueC (ipbf-ttImportUsers.cUserDefinedColors, YES, INPUT-OUTPUT bf-users.use_colors).
+    RUN pAssignValueC (ipbf-ttImportUsers.cUserDefinedFonts, YES, INPUT-OUTPUT bf-users.use_fonts).
+    RUN pAssignValueC (ipbf-ttImportUsers.cModes, iplIgnoreBlanks, INPUT-OUTPUT   bf-users.modeList).
+    RUN pAssignValueC (ipbf-ttImportUsers.cEnvironments, iplIgnoreBlanks, INPUT-OUTPUT bf-users.envList).
+    RUN pAssignValueC (ipbf-ttImportUsers.cDatabases, iplIgnoreBlanks, INPUT-OUTPUT bf-users.dbList).
 
     FIND FIRST _user EXCLUSIVE WHERE
-        _user._userid = users.user_id
+        _user._userid = bf-users.user_id
         NO-ERROR.
     IF NOT AVAILABLE _user THEN 
     DO:
         CREATE _user.
         ASSIGN
-            _user._userid    = users.user_id
+            _user._userid    = bf-users.user_id
             _user._password  = ENCODE(ipbf-ttImportUsers.cPassword)
-            _user._user-name = users.user_name.
+            _user._user-name = bf-users.user_name.
     END.
     ELSE 
     DO:
@@ -254,14 +255,14 @@ PROCEDURE pProcessRecord PRIVATE:
         cDefaultComp = IF AVAILABLE bf-usercomp THEN bf-usercomp.company ELSE "001".
      
     FIND FIRST usercomp NO-LOCK
-        WHERE  usercomp.USER_id = users.user_id
+        WHERE  usercomp.USER_id = bf-users.user_id
         AND usercomp.company = cDefaultComp
         AND usercomp.loc = "" NO-ERROR.
     IF NOT AVAILABLE usercomp THEN 
     DO:
         CREATE usercomp.
         ASSIGN 
-            usercomp.user_id         = users.user_id
+            usercomp.user_id         = bf-users.user_id
             usercomp.company         = IF AVAILABLE bf-usercomp THEN bf-usercomp.company ELSE "001"
             usercomp.loc             = ""
             usercomp.company_default = YES.
@@ -275,25 +276,25 @@ PROCEDURE pProcessRecord PRIVATE:
         cDefaultLoc = IF AVAILABLE bf-usercomp THEN bf-usercomp.loc ELSE "MAIN".
     
     FIND FIRST usercomp NO-LOCK
-        WHERE  usercomp.user_id = users.user_id
+        WHERE  usercomp.user_id = bf-users.user_id
         AND usercomp.company = cDefaultComp 
         AND usercomp.loc = cDefaultLoc NO-ERROR.
     IF NOT AVAILABLE usercomp THEN 
     DO:
         CREATE usercomp.
         ASSIGN 
-            usercomp.user_id     = users.user_id
+            usercomp.user_id     = bf-users.user_id
             usercomp.company     = IF AVAILABLE bf-usercomp THEN bf-usercomp.company ELSE "001"
             usercomp.loc         = IF AVAILABLE bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
             usercomp.loc_DEFAULT = YES.
     END.
     
-    FIND FIRST usr WHERE usr.uid EQ users.user_id NO-ERROR.
+    FIND FIRST usr WHERE usr.uid EQ bf-users.user_id NO-ERROR.
     IF NOT AVAILABLE usr THEN 
     DO:
         CREATE usr.
         ASSIGN
-            usr.uid      = users.user_id
+            usr.uid      = bf-users.user_id
             usr.usr-lang = "English"
             usr.last-chg = TODAY.
     END.
@@ -303,5 +304,10 @@ PROCEDURE pProcessRecord PRIVATE:
                 usr.usr-lang = "English".
         usr.last-chg = today.
     END.
+
+    RELEASE bf-users.
+    RELEASE usercomp.
+    RELEASE usr.
+    RELEASE _user.
     
 END PROCEDURE.

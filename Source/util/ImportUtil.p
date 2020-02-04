@@ -120,24 +120,26 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportUtil FOR ttImportUtil.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-utilities FOR utilities.
      
-    FIND FIRST utilities EXCLUSIVE-LOCK
-        WHERE utilities.programName EQ ipbf-ttImportUtil.cProgramName
+    FIND FIRST bf-utilities EXCLUSIVE-LOCK
+        WHERE bf-utilities.programName EQ ipbf-ttImportUtil.cProgramName
         NO-ERROR.  
-    IF NOT AVAILABLE utilities THEN 
+    IF NOT AVAILABLE bf-utilities THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE utilities.
+        CREATE bf-utilities.
         ASSIGN 
-            utilities.programName = ipbf-ttImportUtil.cProgramName
+            bf-utilities.programName = ipbf-ttImportUtil.cProgramName
             .
     END.
 
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportUtil.cModule, iplIgnoreBlanks, INPUT-OUTPUT utilities.module).
-    RUN pAssignValueC (ipbf-ttImportUtil.cHotKey, iplIgnoreBlanks, INPUT-OUTPUT utilities.hotkey).
-    RUN pAssignValueC (ipbf-ttImportUtil.cDesc, iplIgnoreBlanks, INPUT-OUTPUT utilities.description).
-    RUN pAssignValueC (ipbf-ttImportUtil.cNotes, iplIgnoreBlanks, INPUT-OUTPUT utilities.notes).
-    RUN pAssignValueI (ipbf-ttImportUtil.iSecLev, iplIgnoreBlanks, INPUT-OUTPUT utilities.securityLevel).
+    RUN pAssignValueC (ipbf-ttImportUtil.cModule, iplIgnoreBlanks, INPUT-OUTPUT bf-utilities.module).
+    RUN pAssignValueC (ipbf-ttImportUtil.cHotKey, iplIgnoreBlanks, INPUT-OUTPUT bf-utilities.hotkey).
+    RUN pAssignValueC (ipbf-ttImportUtil.cDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-utilities.description).
+    RUN pAssignValueC (ipbf-ttImportUtil.cNotes, iplIgnoreBlanks, INPUT-OUTPUT bf-utilities.notes).
+    RUN pAssignValueI (ipbf-ttImportUtil.iSecLev, iplIgnoreBlanks, INPUT-OUTPUT bf-utilities.securityLevel).
 
+    RELEASE bf-utilities.
 END PROCEDURE.

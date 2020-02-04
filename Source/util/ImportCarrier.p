@@ -111,34 +111,35 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCarrier FOR ttImportCarrier.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-carrier FOR carrier .
     
-    FIND FIRST carrier EXCLUSIVE-LOCK
-        WHERE carrier.company EQ ipbf-ttImportCarrier.Company
-        AND carrier.carrier EQ ipbf-ttImportCarrier.carrier
-        AND carrier.loc EQ ipbf-ttImportCarrier.Loc
+    FIND FIRST bf-carrier EXCLUSIVE-LOCK
+        WHERE bf-carrier.company EQ ipbf-ttImportCarrier.Company
+        AND bf-carrier.carrier EQ ipbf-ttImportCarrier.carrier
+        AND bf-carrier.loc EQ ipbf-ttImportCarrier.Loc
         NO-ERROR.  
-    IF NOT AVAILABLE carrier THEN 
+    IF NOT AVAILABLE bf-carrier THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE carrier.
+        CREATE bf-carrier.
         ASSIGN 
-            carrier.company = ipbf-ttImportCarrier.Company
-            carrier.carrier = ipbf-ttImportCarrier.carrier
-            carrier.loc = ipbf-ttImportCarrier.Loc
+            bf-carrier.company = ipbf-ttImportCarrier.Company
+            bf-carrier.carrier = ipbf-ttImportCarrier.carrier
+            bf-carrier.loc = ipbf-ttImportCarrier.Loc
             .
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportCarrier.carrier, iplIgnoreBlanks, INPUT-OUTPUT carrier.carrier).
-    RUN pAssignValueC (ipbf-ttImportCarrier.dscr, iplIgnoreBlanks, INPUT-OUTPUT carrier.dscr).
-    RUN pAssignValueC (ipbf-ttImportCarrier.loc, iplIgnoreBlanks, INPUT-OUTPUT carrier.loc).
-    RUN pAssignValueC (substring(ipbf-ttImportCarrier.chg-method,1,1), iplIgnoreBlanks, INPUT-OUTPUT carrier.chg-method).
+    RUN pAssignValueC (ipbf-ttImportCarrier.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.carrier).
+    RUN pAssignValueC (ipbf-ttImportCarrier.dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.dscr).
+    RUN pAssignValueC (ipbf-ttImportCarrier.loc, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.loc).
+    RUN pAssignValueC (substring(ipbf-ttImportCarrier.chg-method,1,1), iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.chg-method).
     IF ipbf-ttImportCarrier.Inactive EQ "Yes" THEN DO:
-        RUN AddTagInactive(carrier.rec_key,"carrier"). 
+        RUN AddTagInactive(bf-carrier.rec_key,"carrier"). 
     END.
     ELSE if ipbf-ttImportCarrier.Inactive EQ "No" THEN DO: 
-        RUN ClearTagsInactive(carrier.rec_key).
+        RUN ClearTagsInactive(bf-carrier.rec_key).
     END.                                    
 
-    RELEASE carrier.
+    RELEASE bf-carrier.
     
 END PROCEDURE.

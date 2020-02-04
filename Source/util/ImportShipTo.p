@@ -215,69 +215,70 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportShipto FOR ttImportShipTo.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-shipto FOR shipto.
 
-    FIND FIRST shipto EXCLUSIVE-LOCK 
-        WHERE shipto.company EQ ipbf-ttImportShipTo.Company
-        AND shipto.cust-no EQ ipbf-ttImportShipTo.CustomerID
-        AND shipto.ship-id EQ ipbf-ttImportShipTo.ShipToID
+    FIND FIRST bf-shipto EXCLUSIVE-LOCK 
+        WHERE bf-shipto.company EQ ipbf-ttImportShipTo.Company
+        AND bf-shipto.cust-no EQ ipbf-ttImportShipTo.CustomerID
+        AND bf-shipto.ship-id EQ ipbf-ttImportShipTo.ShipToID
         NO-ERROR.
-    IF NOT AVAILABLE shipto THEN 
+    IF NOT AVAILABLE bf-shipto THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE shipto.
+        CREATE bf-shipto.
         ASSIGN
-            shipto.company = ipbf-ttImportShipTo.Company
-            shipto.cust-no = ipbf-ttImportShipTo.CustomerID
-            shipto.ship-id = ipbf-ttImportShipTo.ShipToID
-            shipto.ship-no = fGetNextShipNo(shipto.company,shipto.cust-no)
+            bf-shipto.company = ipbf-ttImportShipTo.Company
+            bf-shipto.cust-no = ipbf-ttImportShipTo.CustomerID
+            bf-shipto.ship-id = ipbf-ttImportShipTo.ShipToID
+            bf-shipto.ship-no = fGetNextShipNo(shipto.company,shipto.cust-no)
             . 
     END.
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipName, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-name).
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipAddress1, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-addr[1]).
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipAddress2, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-addr[2]).
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-city).
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipState, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-state).
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCode, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-zip).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Contact, iplIgnoreBlanks, INPUT-OUTPUT shipto.contact).
-    RUN pAssignValueC (ipbf-ttImportShipTo.PhoneArea, iplIgnoreBlanks, INPUT-OUTPUT shipto.area-code).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Phone, iplIgnoreBlanks, INPUT-OUTPUT shipto.phone).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Fax, iplIgnoreBlanks, INPUT-OUTPUT shipto.fax).
-    RUN pAssignValueC (ipbf-ttImportShipTo.SalesRep, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-1).
-    RUN pAssignValueC (ipbf-ttImportShipTo.TaxCode, iplIgnoreBlanks, INPUT-OUTPUT shipto.tax-code).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Warehouse, iplIgnoreBlanks, INPUT-OUTPUT shipto.loc).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Bin, iplIgnoreBlanks, INPUT-OUTPUT shipto.loc-bin).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Carrier, YES, INPUT-OUTPUT shipto.carrier).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Zone, YES, INPUT-OUTPUT shipto.dest-code).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Pallet, iplIgnoreBlanks, INPUT-OUTPUT shipto.pallet).
-    RUN pAssignValueC (ipbf-ttImportShipTo.ShipperID, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-4).
-    RUN pAssignValueC (ipbf-ttImportShipTo.MemberID, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-5).
-    RUN pAssignValueC (ipbf-ttImportShipTo.cExportId, iplIgnoreBlanks, INPUT-OUTPUT shipto.exportCustID).
-    RUN pAssignValueC (ipbf-ttImportShipTo.DockID, iplIgnoreBlanks, INPUT-OUTPUT shipto.dock-loc).
-    RUN pAssignValueC (ipbf-ttImportShipTo.DockHours, iplIgnoreBlanks, INPUT-OUTPUT shipto.dock-hour).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Charge, iplIgnoreBlanks, INPUT-OUTPUT shipto.del-chg).
-    RUN pAssignValueC (ipbf-ttImportShipTo.DaysTransit, iplIgnoreBlanks, INPUT-OUTPUT shipto.del-time).
-    RUN pAssignValueI (ipbf-ttImportShipTo.DaysSamples, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-1).
-    RUN pAssignValueI (ipbf-ttImportShipTo.DaysDockAppt, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-2).
-    RUN pAssignValueI (ipbf-ttImportShipTo.DaysEarliestAllowed, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-3).
-    RUN pAssignValueI (ipbf-ttImportShipTo.DaysLatestAllowed, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-4).
-    RUN pAssignValueCToL (ipbf-ttImportShipTo.ShipByCaseAllowed,"Y",iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-meth).
-    RUN pAssignValueCToL (ipbf-ttImportShipTo.Billable,"Y",iplIgnoreBlanks, INPUT-OUTPUT shipto.bill).
-    RUN pAssignValueCToL (ipbf-ttImportShipTo.Broker,"Y",iplIgnoreBlanks, INPUT-OUTPUT shipto.broker).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Note1, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[1]).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Note2, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[2]).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Note3, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[3]).
-    RUN pAssignValueC (ipbf-ttImportShipTo.Note4, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[4]).
-    RUN pAssignValueC (ipbf-ttImportShipTo.cManTax, YES, INPUT-OUTPUT shipto.tax-mandatory).
-    IF ipbf-ttImportShipTo.cInactive EQ "I" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
-     RUN AddTagInactive(shipto.rec_key,"shipto").
-     shipto.statusCode = "I".
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipName, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-name).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipAddress1, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-addr[1]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipAddress2, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-addr[2]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-city).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipState, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-state).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCode, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-zip).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Contact, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.contact).
+    RUN pAssignValueC (ipbf-ttImportShipTo.PhoneArea, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.area-code).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Phone, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.phone).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Fax, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.fax).
+    RUN pAssignValueC (ipbf-ttImportShipTo.SalesRep, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-char-1).
+    RUN pAssignValueC (ipbf-ttImportShipTo.TaxCode, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.tax-code).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Warehouse, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.loc).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Bin, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.loc-bin).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Carrier, YES, INPUT-OUTPUT bf-shipto.carrier).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Zone, YES, INPUT-OUTPUT bf-shipto.dest-code).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Pallet, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.pallet).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipperID, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-char-4).
+    RUN pAssignValueC (ipbf-ttImportShipTo.MemberID, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-char-5).
+    RUN pAssignValueC (ipbf-ttImportShipTo.cExportId, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.exportCustID).
+    RUN pAssignValueC (ipbf-ttImportShipTo.DockID, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.dock-loc).
+    RUN pAssignValueC (ipbf-ttImportShipTo.DockHours, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.dock-hour).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Charge, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.del-chg).
+    RUN pAssignValueC (ipbf-ttImportShipTo.DaysTransit, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.del-time).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysSamples, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-int-1).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysDockAppt, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-int-2).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysEarliestAllowed, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-int-3).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysLatestAllowed, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.spare-int-4).
+    RUN pAssignValueCToL (ipbf-ttImportShipTo.ShipByCaseAllowed,"Y",iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-meth).
+    RUN pAssignValueCToL (ipbf-ttImportShipTo.Billable,"Y",iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.bill).
+    RUN pAssignValueCToL (ipbf-ttImportShipTo.Broker,"Y",iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.broker).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note1, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[1]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note2, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[2]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note3, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[3]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note4, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[4]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.cManTax, YES, INPUT-OUTPUT bf-shipto.tax-mandatory).
+    IF ipbf-ttImportShipTo.cInactive EQ "I" AND DYNAMIC-FUNCTION("IsActive",bf-shipto.rec_key) THEN DO:
+     RUN AddTagInactive(bf-shipto.rec_key,"shipto").
+     bf-shipto.statusCode = "I".
     END.
-    ELSE IF ipbf-ttImportShipTo.cInactive EQ "" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
-     RUN ClearTagsInactive(shipto.rec_key).
-     shipto.statusCode = "".
+    ELSE IF ipbf-ttImportShipTo.cInactive EQ "" AND NOT DYNAMIC-FUNCTION("IsActive",bf-shipto.rec_key) THEN DO: 
+     RUN ClearTagsInactive(bf-shipto.rec_key).
+     bf-shipto.statusCode = "".
     END.
-    RUN pAssignValueC (ipbf-ttImportShipTo.siteID, YES, INPUT-OUTPUT shipto.siteID).
-    RELEASE shipto.
+    RUN pAssignValueC (ipbf-ttImportShipTo.siteID, YES, INPUT-OUTPUT bf-shipto.siteID).
+    RELEASE bf-shipto.
 END PROCEDURE.
 
 
