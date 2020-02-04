@@ -91,6 +91,8 @@ DEF VAR cTablesToConvert AS CHAR NO-UNDO.
 DEF VAR hTBhandle AS HANDLE NO-UNDO.
 DEF VAR lCount AS LOG NO-UNDO.
 DEF VAR lConvert AS LOG NO-UNDO.
+DEF VAR iMergedAccts AS INT NO-UNDO.
+DEF VAR iConvList AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -107,18 +109,18 @@ DEF VAR lConvert AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS eInstructions fiConvFileLoc fiStartDate ~
-fiToDate tbNoDate slCompanyList tbAllCompanies bSelectAll bSimulate ~
-bConvert IMAGE-1 
-&Scoped-Define DISPLAYED-OBJECTS eInstructions fiConvFileLoc fiText-1 ~
-fiStartDate fiToDate tbNoDate slCompanyList tbAllCompanies bSelectAll ~
-tbFile-1 tbFile-2 tbFile-3 tbFile-4 tbFile-5 tbFile-6 tbFile-7 tbFile-8 ~
-tbFile-9 tbFile-10 tbFile-11 tbFile-12 tbFile-13 tbFile-14 tbFile-15 ~
-tbFile-16 tbFile-17 tbFile-18 tbFile-19 tbFile-20 tbFile-21 tbFile-22 ~
-tbFile-23 tbFile-24 tbFile-25 tbFile-26 tbFile-27 tbFile-28 tbFile-29 ~
-tbFile-30 tbFile-31 tbFile-32 tbFile-33 tbFile-34 tbFile-35 tbFile-36 ~
-tbFile-37 tbFile-38 tbFile-39 tbFile-40 tbFile-41 tbFile-42 tbFile-43 ~
-tbFile-44 tbFile-45 fiCompany fiText-2 
+&Scoped-Define ENABLED-OBJECTS tbMergeBal eInstructions fiConvFileLoc ~
+fiFromDate fiToDate tbNoDate slCompanyList tbAllCompanies bSelectAll ~
+bSimulate bConvert IMAGE-1 
+&Scoped-Define DISPLAYED-OBJECTS tbMergeBal eInstructions fiConvFileLoc ~
+fiText-1 fiFromDate fiToDate tbNoDate slCompanyList tbAllCompanies ~
+bSelectAll tbFile-1 tbFile-2 tbFile-3 tbFile-4 tbFile-5 tbFile-6 tbFile-7 ~
+tbFile-8 tbFile-9 tbFile-10 tbFile-11 tbFile-12 tbFile-13 tbFile-14 ~
+tbFile-15 tbFile-16 tbFile-17 tbFile-18 tbFile-19 tbFile-20 tbFile-21 ~
+tbFile-22 tbFile-23 tbFile-24 tbFile-25 tbFile-26 tbFile-27 tbFile-28 ~
+tbFile-29 tbFile-30 tbFile-31 tbFile-32 tbFile-33 tbFile-34 tbFile-35 ~
+tbFile-36 tbFile-37 tbFile-38 tbFile-39 tbFile-40 tbFile-41 tbFile-42 ~
+tbFile-43 tbFile-44 tbFile-45 fiCompany fiText-2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -158,7 +160,7 @@ DEFINE VARIABLE fiConvFileLoc AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\tmp~\G
      VIEW-AS FILL-IN 
      SIZE 92 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStartDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/1900 
+DEFINE VARIABLE fiFromDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/1900 
      LABEL "For date-specific tables, convert from date" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
@@ -177,7 +179,7 @@ DEFINE VARIABLE fiToDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/2099
      SIZE 18 BY 1 NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
-     FILENAME "Graphics/16x16/magnifying_glass.gif":U
+     FILENAME "N:/Repository/Resources/Graphics/16x16/magnifying_glass.gif":U
      SIZE 5 BY .71.
 
 DEFINE VARIABLE slCompanyList AS CHARACTER 
@@ -419,6 +421,11 @@ DEFINE VARIABLE tbFile-9 AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 38 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tbMergeBal AS LOGICAL INITIAL no 
+     LABEL "Merge balances in account table (GF2)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbNoDate AS LOGICAL INITIAL no 
      LABEL "Ignore dates, convert all records" 
      VIEW-AS TOGGLE-BOX
@@ -428,10 +435,11 @@ DEFINE VARIABLE tbNoDate AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     tbMergeBal AT ROW 11.95 COL 46
      eInstructions AT ROW 1 COL 1 NO-LABEL NO-TAB-STOP 
      fiConvFileLoc AT ROW 8.62 COL 44 COLON-ALIGNED
      fiText-1 AT ROW 13.38 COL 4 NO-LABEL NO-TAB-STOP 
-     fiStartDate AT ROW 9.81 COL 44 COLON-ALIGNED
+     fiFromDate AT ROW 9.81 COL 44 COLON-ALIGNED
      fiToDate AT ROW 9.81 COL 72 COLON-ALIGNED
      tbNoDate AT ROW 11 COL 46
      slCompanyList AT ROW 10.76 COL 111 NO-LABEL
@@ -646,6 +654,97 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbFile-9 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+ASSIGN 
+    tbFile-1:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-2:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-3:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-4:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-5:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-6:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-7:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-8:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-9:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-10:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-11:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-12:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-13:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-14:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-15:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-16:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-17:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-18:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-19:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-20:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-21:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-22:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-23:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-24:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-25:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-26:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-27:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-28:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-29:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-30:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-31:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-32:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-33:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-34:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-35:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-36:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-37:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-38:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-39:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-40:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-41:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-42:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-43:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-44:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+ASSIGN 
+    tbFile-45:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "|".
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -748,6 +847,23 @@ OR CHOOSE OF bConvert
 DO:
     DEF VAR lError AS LOG NO-UNDO.
     
+    STATUS DEFAULT "Reading settings and options...".
+    STATUS INPUT "Reading settings and options...".
+    OUTPUT TO c:\tmp\GLConversionReport.txt.
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
+    PUT UNFORMATTED "Beginning GL Account Conversion on " + STRING(TODAY) + " at " + STRING(time,"HH:MM:SS AM") + CHR(10).
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
+    PUT UNFORMATTED "Options selected:" + CHR(10).
+    PUT UNFORMATTED "   CSV file used to convert: " + fiConvFileLoc:SCREEN-VALUE + CHR(10).
+    PUT UNFORMATTED "   Date range: FROM " + fiFromDate:SCREEN-VALUE + " TO " + fiToDate:SCREEN-VALUE + CHR(10).
+    PUT UNFORMATTED "   Ignore dates: " + STRING(tbNoDate:CHECKED) + CHR(10).
+    PUT UNFORMATTED "   Merge account balances: " + STRING(tbMergeBal:CHECKED) + CHR(10) + CHR(10). 
+    PUT UNFORMATTED "Selected Companies:" + CHR(10).
+    DO ictr = 1 TO NUM-ENTRIES(slCompanyList:SCREEN-VALUE):
+        PUT UNFORMATTED "   " + ENTRY(iCtr,slCompanyList:SCREEN-VALUE) + CHR(10).
+    END.
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
+    
     IF SELF:NAME EQ "bSimulate" THEN ASSIGN 
         lConvert = NO.
     ELSE IF SELF:NAME EQ "bConvert" THEN ASSIGN 
@@ -808,16 +924,44 @@ DO:
             (IF tbFile-42:CHECKED THEN tbFile-42:PRIVATE-DATA  + ","  ELSE "") +
             (IF tbFile-43:CHECKED THEN tbFile-43:PRIVATE-DATA  + ","  ELSE "") +
             (IF tbFile-44:CHECKED THEN tbFile-44:PRIVATE-DATA  + ","  ELSE "") +
-            (IF tbFile-45:CHECKED THEN tbFile-45:PRIVATE-DATA  + ","  ELSE "")
-        cTablesToConvert = TRIM(cTablesToConvert,",").
+            (IF tbFile-45:CHECKED THEN tbFile-45:PRIVATE-DATA  + ","  ELSE "").
+MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
+        cTablesToConvert = REPLACE(cTablesToConvert,"|","").
+MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
+        cTablesToConvert = REPLACE(cTablesToConvert,",,",",").
+MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
+    cTablesToConvert = TRIM(cTablesToConvert,",").
+    MESSAGE cTablesToConvert VIEW-AS ALERT-BOX.        
+        
     FOR EACH ttFullTableList:
         IF CAN-DO(cTablesToConvert,ttFullTableList.cTable) THEN ASSIGN 
             ttFullTableList.lConvert = TRUE.
     END.   
+    PUT UNFORMATTED "Tables/fields selected for conversion:" + CHR(10).
+    FOR EACH ttFullTableList WHERE 
+        ttFullTableList.lConvert EQ TRUE
+        BY ttFullTableList.cTable:
+        FIND FIRST ttTablesWithMergeFields WHERE 
+            ttTablesWithMergeFields.cFieldType EQ "Account" AND 
+            ttTablesWithMergeFields.cTableName EQ ttFullTableList.cTable
+            NO-ERROR.
+        PUT UNFORMATTED "   " + ttFullTableList.cTable + " - " + ttFullTableList.cTableDesc + CHR(10).
+        IF AVAIL ttTablesWithMergeFields THEN 
+            PUT UNFORMATTED "      " + ttTablesWithMergeFields.cFieldName + CHR(10).
+    END.    
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
     
+    STATUS DEFAULT "Reading CoA conversion file...".
+    STATUS INPUT "Reading CoA conversion file...".
     RUN pLoadCoAFromCsv (INPUT fiConvFileLoc:SCREEN-VALUE, OUTPUT lError).
     IF lError THEN RETURN NO-APPLY.
-    
+    PUT UNFORMATTED "List of accounts to convert:" + CHR(10).
+    PUT UNFORMATTED "   Old Account No.          New Account No." + CHR(10). 
+    FOR EACH ttAccountConv:
+        PUT UNFORMATTED "   " + STRING(ttAccountConv.cOldAcct,"x(22)") + "   " +  STRING(ttAccountConv.cNewAcct,"x(22)") + CHR(10). 
+    END.
+    OUTPUT CLOSE.
+    /*
     FOR EACH ttTablesWithMergeFields WHERE 
         ttTablesWithMergeFields.cFieldType = "Account":
         FIND FIRST ttFullTableList WHERE 
@@ -828,7 +972,10 @@ DO:
             RUN pConvertAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName, ttFullTableList.cDateField).
     END.
     
-    OUTPUT TO c:\tmp\GLConversionReport.csv.
+    IF tbMergeBal:CHECKED EQ TRUE THEN 
+        RUN pMergeAccountBalances.
+    */
+    OUTPUT TO c:\tmp\GLConversionReport.txt APPEND.
     PUT UNFORMATTED 
         "Table Name" + "," +
         "Total Records" + "," +
@@ -846,6 +993,10 @@ DO:
             STRING(ttConvResults.iTotConv) + CHR(10).
     END.
     PUT UNFORMATTED CHR(10) + CHR(10).
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
+    PUT UNFORMATTED "Total accounts in conversion table = " + STRING(iConvList) + CHR(10).
+    PUT UNFORMATTED "Total accounts with merged balances = " + STRING(iMergedAccts) + CHR(10).
+    PUT UNFORMATTED CHR(10) + CHR(10).
     PUT UNFORMATTED "OLD accounts with invalid account numbers" + CHR(10).
     FOR EACH ttBadAccounts WHERE 
         ttBadAccounts.cOldNew EQ "OLD":
@@ -856,6 +1007,9 @@ DO:
         ttBadAccounts.cOldNew EQ "NEW":
         PUT UNFORMATTED ttBadAccounts.cAcctNo + CHR(10).
     END.
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
+    PUT UNFORMATTED "Ending GL Account Conversion on " + STRING(TODAY) + " at " + STRING(time,"HH:MM:SS AM") + CHR(10).
+    PUT UNFORMATTED FILL("-",80) + CHR(10).
     OUTPUT CLOSE.
     
     STATUS DEFAULT "Conversion complete.".
@@ -910,13 +1064,13 @@ ON VALUE-CHANGED OF tbNoDate IN FRAME DEFAULT-FRAME /* Ignore dates, convert all
 DO:
     IF SELF:CHECKED THEN ASSIGN 
         lIgnoreDates = TRUE 
-        fiStartDate:SENSITIVE = FALSE  
+        fiFromDate:SENSITIVE = FALSE  
         fiToDate:SENSITIVE = FALSE
-        fiStartDate:SCREEN-VALUE = "01/01/1900"
+        fiFromDate:SCREEN-VALUE = "01/01/1900"
         fiToDate:SCREEN-VALUE = "12/31/2099".
     ELSE ASSIGN 
         lIgnoreDates = FALSE  
-        fiStartDate:SENSITIVE = TRUE  
+        fiFromDate:SENSITIVE = TRUE  
         fiToDate:SENSITIVE = TRUE.
       
 END.
@@ -984,6 +1138,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     iCtr = 0.
     FOR EACH ttFullTableList:
+        IF INDEX(ttFullTableList.cTableDesc,"(del)") NE 0 THEN NEXT.
         iCtr = iCtr + 1.
         CASE iCtr:
             WHEN 1 THEN ASSIGN hTBhandle = tbFile-1:HANDLE.
@@ -1037,10 +1192,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             hTBhandle:SENSITIVE = TRUE
             hTBhandle:PRIVATE-DATA = ttFullTableList.cTable
             hTBhandle:FONT = IF ttFullTableList.lHasDate THEN 6 ELSE ?
-            hTBhandle:TOOLTIP = STRING(ttFullTableList.iRecordCount). 
+            hTBhandle:TOOLTIP = "(" + ttFullTableList.cTable + ") " + STRING(ttFullTableList.iRecordCount). 
     END.
     SESSION:SET-WAIT-STATE (""). 
-    
     
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1082,17 +1236,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY eInstructions fiConvFileLoc fiText-1 fiStartDate fiToDate tbNoDate 
-          slCompanyList tbAllCompanies bSelectAll tbFile-1 tbFile-2 tbFile-3 
-          tbFile-4 tbFile-5 tbFile-6 tbFile-7 tbFile-8 tbFile-9 tbFile-10 
-          tbFile-11 tbFile-12 tbFile-13 tbFile-14 tbFile-15 tbFile-16 tbFile-17 
-          tbFile-18 tbFile-19 tbFile-20 tbFile-21 tbFile-22 tbFile-23 tbFile-24 
-          tbFile-25 tbFile-26 tbFile-27 tbFile-28 tbFile-29 tbFile-30 tbFile-31 
-          tbFile-32 tbFile-33 tbFile-34 tbFile-35 tbFile-36 tbFile-37 tbFile-38 
-          tbFile-39 tbFile-40 tbFile-41 tbFile-42 tbFile-43 tbFile-44 tbFile-45 
-          fiCompany fiText-2 
+  DISPLAY tbMergeBal eInstructions fiConvFileLoc fiText-1 fiFromDate fiToDate 
+          tbNoDate slCompanyList tbAllCompanies bSelectAll tbFile-1 tbFile-2 
+          tbFile-3 tbFile-4 tbFile-5 tbFile-6 tbFile-7 tbFile-8 tbFile-9 
+          tbFile-10 tbFile-11 tbFile-12 tbFile-13 tbFile-14 tbFile-15 tbFile-16 
+          tbFile-17 tbFile-18 tbFile-19 tbFile-20 tbFile-21 tbFile-22 tbFile-23 
+          tbFile-24 tbFile-25 tbFile-26 tbFile-27 tbFile-28 tbFile-29 tbFile-30 
+          tbFile-31 tbFile-32 tbFile-33 tbFile-34 tbFile-35 tbFile-36 tbFile-37 
+          tbFile-38 tbFile-39 tbFile-40 tbFile-41 tbFile-42 tbFile-43 tbFile-44 
+          tbFile-45 fiCompany fiText-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE eInstructions fiConvFileLoc fiStartDate fiToDate tbNoDate 
+  ENABLE tbMergeBal eInstructions fiConvFileLoc fiFromDate fiToDate tbNoDate 
          slCompanyList tbAllCompanies bSelectAll bSimulate bConvert IMAGE-1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1166,6 +1320,8 @@ PROCEDURE pConvertAccountTable :
     
     IF lConvert THEN STATUS DEFAULT "Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList.
     ELSE STATUS DEFAULT "Reviewing Fields in Table - " + ipcTableName + " - " + ipcFieldList.
+    IF lConvert THEN STATUS INPUT "Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList.
+    ELSE STATUS INPUT "Reviewing Fields in Table - " + ipcTableName + " - " + ipcFieldList.
 
     CREATE BUFFER hBuffer FOR TABLE ipcTableName.
     CREATE QUERY hQuery.
@@ -1211,7 +1367,7 @@ PROCEDURE pConvertAccountTable :
         /* If date checking is on and the record falls outside the specified date range, skip it */
         IF NOT tbNoDate:CHECKED IN FRAME {&frame-name}  
         AND hDateField:NAME NE ?
-        AND (hDateField:BUFFER-VALUE LT DATE(fiStartDate:SCREEN-VALUE)
+        AND (hDateField:BUFFER-VALUE LT DATE(fiFromDate:SCREEN-VALUE)
             OR hDateField:BUFFER-VALUE GT DATE(fiToDate:SCREEN-VALUE)) THEN DO: 
             ASSIGN 
                 iExclDate = iExclDate + 1.
@@ -1345,6 +1501,7 @@ PROCEDURE pLoadCoAFromCsv :
         OR ENTRY(iNewCol,cLine,",") EQ "" THEN NEXT.
         CREATE ttAccountConv.
         ASSIGN 
+            iConvList = iConvList + 1
             ttAccountConv.cOldAcct = ENTRY(iOldCol,cLine,",")
             ttAccountConv.cNewAcct = ENTRY(iNewCol,cLine,",").
         IF NOT CAN-FIND(FIRST account WHERE account.actnum EQ ttAccountConv.cOldAcct)
@@ -1384,6 +1541,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMergeAccountBalances C-Win 
+PROCEDURE pMergeAccountBalances :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF BUFFER baccount FOR account.
+    DEF VAR jctr AS INT NO-UNDO.
+    
+    STATUS DEFAULT "Merging CoA account balances...".
+    STATUS INPUT "Merging CoA account balances...".
+
+    DO ictr = 1 TO NUM-ENTRIES(cCompanyList):
+        FOR EACH ttAccountConv:
+            FIND FIRST account WHERE 
+                account.company EQ ENTRY(iCtr,cCompanyList) AND 
+                account.actnum EQ ttAccountConv.cOldAcct
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL account THEN NEXT.   
+            FIND FIRST baccount WHERE 
+                baccount.company EQ ENTRY(iCtr,cCompanyList) AND 
+                baccount.actnum EQ ttAccountConv.cNewAcct
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL baccount THEN NEXT.
+            ASSIGN 
+                baccount.cyr-open = baccount.cyr-open + account.cyr-open
+                baccount.lyr-open = baccount.lyr-open + account.lyr-open
+                iMergedAccts = iMergedAccts + 1.
+            DO jctr = 1 TO 13:
+                ASSIGN 
+                    baccount.cyr[jctr] = baccount.cyr[jctr] + account.cyr[jctr]
+                    baccount.lyr[jctr] = baccount.lyr[jctr] + account.lyr[jctr]
+                    baccount.bud[jctr] = baccount.bud[jctr] + account.bud[jctr]
+                    baccount.ly-bud[jctr] = baccount.ly-bud[jctr] + account.ly-bud[jctr]
+                    baccount.ny-bud[jctr] = baccount.ny-bud[jctr] + account.ny-bud[jctr].
+            END.
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScanDbForTablesWithAccountField C-Win 
 PROCEDURE pScanDbForTablesWithAccountField :
 /*------------------------------------------------------------------------------
@@ -1393,11 +1593,15 @@ PROCEDURE pScanDbForTablesWithAccountField :
     DEFINE BUFFER b_field FOR _field.
     DEFINE BUFFER c_field FOR _field.
     
+    STATUS DEFAULT "Building lists of tables/fields to convert...".
+    STATUS INPUT "Building lists of tables/fields to convert...".
+
     DEF VAR hQuery AS HANDLE NO-UNDO.
     
     FOR EACH _field NO-LOCK WHERE 
         _field._field-name = "actnum" OR
         _field._field-name MATCHES "acct*" OR 
+        _field._field-name EQ "check-act" OR 
         _field._field-name MATCHES "*acct*" OR 
         _field._label MATCHES "*Account*" OR
         _field._label MATCHES "*Acct*" OR
@@ -1449,7 +1653,7 @@ PROCEDURE pScanDbForTablesWithAccountField :
             CREATE ttFullTableList.
             ASSIGN 
                 ttFullTableList.cTable     = _file._file-name
-                ttFullTableList.cTableDesc = REPLACE(REPLACE(_file._desc,","," "),CHR(10)," ")
+                ttFullTableList.cTableDesc = REPLACE(REPLACE(_file._file-label,","," "),CHR(10)," ")
                 .
             FOR EACH _index NO-LOCK OF _file:
                 FOR EACH _index-field OF _index NO-LOCK,
