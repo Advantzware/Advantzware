@@ -2055,6 +2055,10 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
     IF ipiLevel GE 6 THEN
     cWebString = REPLACE(cWebString,"~\",IF ipcType EQ "Web" THEN "~\~\"    ELSE "").
     IF ipiLevel GE 7 THEN
+    cWebString = REPLACE(cWebString,CHR(10)," ").
+    IF ipiLevel GE 8 THEN
+    cWebString = REPLACE(cWebString,CHR(13)," ").
+    IF ipiLevel GE 9 THEN
     cWebString = REPLACE(cWebString,"~/",IF ipcType EQ "Web" THEN "~/~/"    ELSE "").
 
 	RETURN cWebString.
