@@ -101,7 +101,7 @@ REPEAT:
     FIND FIRST ttBins
          WHERE ttBins.company EQ inventoryStock.company
            AND ttBins.i-no    EQ inventoryStock.fgItemID
-           AND ttBins.tag     EQ inventoryStock.stockIDAlias           
+           AND ttBins.tag     EQ inventoryStock.tag           
            AND ttBins.loc     EQ inventoryStock.warehouseID
            AND ttBins.loc-bin EQ inventoryStock.locationID
            AND ttBins.cust-no EQ inventoryStock.customerID
@@ -111,7 +111,7 @@ REPEAT:
         ASSIGN
             ttBins.company = inventoryStock.company
             ttBins.i-no    = inventoryStock.fgItemID
-            ttBins.tag     = inventoryStock.stockIDAlias
+            ttBins.tag     = inventoryStock.tag
             ttBins.loc     = inventoryStock.warehouseID
             ttBins.loc-bin = inventoryStock.locationID
             ttBins.cust-no = inventoryStock.customerID

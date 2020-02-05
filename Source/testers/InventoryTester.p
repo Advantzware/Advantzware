@@ -76,7 +76,7 @@ FOR EACH ttInventoryStockLoadtag:
 /*        ttInventoryStockLoadtag.QuantityOfSubUnits         */
 /*        ttInventoryStockLoadtag.QuantityOfUnits            */
 /*        ttInventoryStockLoadtag.QuantityPartial            */
-/*        ttInventoryStockLoadtag.StockIDAlias FORMAT "x(30)"*/
+/*        ttInventoryStockLoadtag.tag          FORMAT "x(30)"*/
 /*        lCreated                                           */
 /*        cMessage                                           */
 /*        .                                                  */
@@ -92,13 +92,10 @@ FOR EACH InventoryTransaction NO-LOCK:
 END.
 
 
-FOR EACH InventoryStock NO-LOCK,
-FIRST InventoryStockAlias NO-LOCK
-    WHERE InventoryStockAlias.Company EQ InventoryStock.Company
-    AND InventoryStockAlias.InventoryStockID EQ InventoryStock.InventoryStockID:
+FOR EACH InventoryStock NO-LOCK:
     DISPLAY
         InventoryStock.InventoryStockID FORMAT "x(30)"
-        InventoryStockAlias.StockIDAlias FORMAT "x(30)"
+        InventoryStock.tag              FORMAT "x(30)"
         InventoryStock.Quantity
         InventoryStock.QuantityOriginal
 /*        InventoryStock.QuantityPerSubUnit     */
@@ -118,13 +115,10 @@ FOR EACH InventoryTransaction NO-LOCK:
     DISPLAY InventoryTransaction.
 END.
 
-FOR EACH InventoryStock NO-LOCK,
-FIRST InventoryStockAlias NO-LOCK
-    WHERE InventoryStockAlias.Company EQ InventoryStock.Company
-    AND InventoryStockAlias.InventoryStockID EQ InventoryStock.InventoryStockID:
+FOR EACH InventoryStock NO-LOCK:
     DISPLAY
         InventoryStock.InventoryStockID FORMAT "x(30)"
-        InventoryStockAlias.StockIDAlias FORMAT "x(30)"
+        InventoryStock.tag              FORMAT "x(30)"
         InventoryStock.Quantity
         InventoryStock.QuantityOriginal
         InventoryStock.WarehouseID
@@ -144,15 +138,12 @@ FIND FIRST InventoryStock NO-LOCK
     NO-ERROR.
 
 IF AVAILABLE InventoryStock THEN     
-    RUN CreateTransactionTransfer IN hdInventoryProcs (InventoryStock.Company, InventoryStock.StockIDAlias, "MAIN", "A-100", "YES", OUTPUT lCreated, OUTPUT cMessage).
+    RUN CreateTransactionTransfer IN hdInventoryProcs (InventoryStock.Company, InventoryStock.tag, "MAIN", "A-100", "YES", OUTPUT lCreated, OUTPUT cMessage).
 
-FOR EACH InventoryStock NO-LOCK,
-FIRST InventoryStockAlias NO-LOCK
-    WHERE InventoryStockAlias.Company EQ InventoryStock.Company
-    AND InventoryStockAlias.InventoryStockID EQ InventoryStock.InventoryStockID:
+FOR EACH InventoryStock NO-LOCK:
     DISPLAY
         InventoryStock.InventoryStockID FORMAT "x(30)"
-        InventoryStockAlias.StockIDAlias FORMAT "x(30)"
+        InventoryStock.tag              FORMAT "x(30)"
         InventoryStock.Quantity
         InventoryStock.QuantityOriginal
         InventoryStock.WarehouseID

@@ -110,7 +110,7 @@ DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory     WHERE ttBrowseInventory.inventoryStatus NE "Created"       AND (IF cFilterBy EQ "" THEN                TRUE            ELSE                ttBrowseInventory.inventoryStatus EQ cFilterBy)     ~{&SORTBY-PHRASE}
@@ -296,7 +296,7 @@ DEFINE BROWSE br-table
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand"
       ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original"      
       ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-      ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+      ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
       ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
@@ -507,7 +507,7 @@ END.
 ON DEFAULT-ACTION OF br-table IN FRAME F-Main
 DO:
     IF AVAILABLE ttBrowseInventory THEN DO:
-        fiTag:SCREEN-VALUE = ttBrowseInventory.stockIDAlias.
+        fiTag:SCREEN-VALUE = ttBrowseInventory.tag.
         
         APPLY "LEAVE" TO fiTag.
     END.  
@@ -1128,7 +1128,7 @@ END.
 {methods/sortByProc.i "pByQuantity" "ttBrowseInventory.quantity"}
 {methods/sortByProc.i "pByQuantityOriginal" "ttBrowseInventory.quantityOriginal"}
 {methods/sortByProc.i "pByLocationID" "ttBrowseInventory.locationID"}
-{methods/sortByProc.i "pByStockIDAlias" "ttBrowseInventory.stockIDAlias"}
+{methods/sortByProc.i "pByTag" "ttBrowseInventory.tag"}
 {methods/sortByProc.i "pByJobID" "ttBrowseInventory.jobID"}
 {methods/sortByProc.i "pByInventoryStatus" "ttBrowseInventory.inventoryStatus"}
 
@@ -1581,8 +1581,8 @@ PROCEDURE pReOpenBrowse :
             RUN pByQuantityOriginal.
         WHEN "locationID" THEN
             RUN pByLocationID.
-        WHEN "stockIDAlias" THEN
-            RUN pByStockIDAlias.
+        WHEN "tag" THEN
+            RUN pByTag.
         WHEN "jobID" THEN
             RUN pByJobID.
         WHEN "inventoryStatus" THEN
@@ -1634,7 +1634,8 @@ PROCEDURE pTagScan :
   
     IF lValidInv THEN DO:
         FIND FIRST ttInventoryStockDetails
-             WHERE ttInventoryStockDetails.stockIDAlias EQ ipcTag NO-ERROR.
+             WHERE ttInventoryStockDetails.tag EQ ipcTag
+			 NO-ERROR.
         IF AVAILABLE ttInventoryStockDetails THEN
             ASSIGN
                 cJobNo   = ttInventoryStockDetails.jobID
@@ -1692,7 +1693,7 @@ PROCEDURE pTagScan :
                         OUTPUT cMessage
                         ).
 
-                    cMessage = "Tag '" + ttInventoryStockDetails.stockIDAlias + "' moved to 'On-hand' status.".
+                    cMessage = "Tag '" + ttInventoryStockDetails.tag + "' moved to 'On-hand' status.".
                     RUN pUpdateMessageText (
                         cMessage,    /* Message Text */
                         FALSE,       /* Error */
@@ -1713,7 +1714,7 @@ PROCEDURE pTagScan :
                     OUTPUT cMessage
                     ).
 
-                cMessage = "Tag '" + ttInventoryStockDetails.stockIDAlias + "' moved to 'Consumed' status.".
+                cMessage = "Tag '" + ttInventoryStockDetails.tag + "' moved to 'Consumed' status.".
                 RUN pUpdateMessageText (
                     cMessage,    /* Message Text */
                     FALSE,       /* Error */

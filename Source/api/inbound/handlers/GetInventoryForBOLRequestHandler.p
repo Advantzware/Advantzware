@@ -132,7 +132,7 @@ PROCEDURE pProcessInputs:
         RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"InventoryStockID", ttBOLLine.InventoryStockID) NO-ERROR.
         RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"Quantity",STRING(ttBOLLine.Quantity,"->>>>>>>>9.9<<<<<")) NO-ERROR.
         RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"ItemType", ttBOLLine.ItemType) NO-ERROR.
-        RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StockIDAlias", ttBOLLine.StockIDAlias) NO-ERROR.
+        RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StockIDAlias", ttBOLLine.tag) NO-ERROR.
         RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityUOM", ttBOLLine.QuantityUOM) NO-ERROR.
         RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityPerSubUnit", STRING(ttBOLLine.QuantityPerSubUnit)) NO-ERROR.
         RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantitySubUnitsPerUnit", STRING(ttBOLLine.QuantitySubUnitsPerUnit)) NO-ERROR.
