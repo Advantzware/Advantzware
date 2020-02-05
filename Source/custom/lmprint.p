@@ -151,11 +151,11 @@ IF  lLabelMatrixLock THEN DO:
 END.
 
 RUN pGetExecutionPath(OUTPUT cPath). /*Gets the LMPrint.exe execution path*/
-
- IF iLMReanalyze EQ 0 THEN
+ 
      cFileName = "/L=" + ipcLabelFile.
- ELSE
-     cFileName = "/Z=" + STRING(iLMReanalyze) + ipcLabelFile.
+
+     IF iLMReanalyze NE 0 THEN
+         cFileName = "/Z=" + trim(STRING(iLMReanalyze)) .
 
 /* Specify a "lock" file for LM to remove when done printing */
 IF lLabelMatrixLock THEN DO:
