@@ -39,9 +39,7 @@ IF AVAILABLE APIInboundEvent THEN DO:
        APIInboundEvent.success         = iplSuccess
        APIInboundEvent.requestDateTime = ipcDateTime
        lcNotes                         = APIInboundEvent.errorMessage
-       APIInboundEvent.errorMessage    = lcNotes
-                                         + "~n"
-                                         + STRING(ipcDateTime, "99/99/9999 HH:MM:SS.SSS")
+       APIInboundEvent.errorMessage    = STRING(ipcDateTime, "99/99/9999 HH:MM:SS.SSS")
                                          + " - "
                                          + USERID("ASI")
                                          + " - "
@@ -50,6 +48,8 @@ IF AVAILABLE APIInboundEvent THEN DO:
                                          + STRING(iplSuccess, "SUCCESS/FAILURE")
                                          + " - "
                                          + ipcMessage
+                                         + "@@@"
+                                         + lcNotes
        .
 END.     
 ELSE DO:

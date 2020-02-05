@@ -568,6 +568,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFilter C-Win
 ON CHOOSE OF btFilter IN FRAME DEFAULT-FRAME /* Filter */
 DO:
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    
     IF fiBeginRequestDate:SCREEN-VALUE NE ?  AND
        fiBeginRequestDate:SCREEN-VALUE NE "" AND
        fiBeginRequestDate:SCREEN-VALUE NE "/  /" AND
@@ -609,14 +611,21 @@ DO:
                ELSE
                    APIInboundEvent.success = FALSE)
         BY APIInboundEvent.requestDateTime DESCENDING:
+        cErrorMessage = IF APIInboundEvent.errorMessage EQ "" THEN
+                            ""
+                        ELSE IF INDEX(APIInboundEvent.errorMessage, "@@@") EQ 0 THEN
+                            ENTRY(NUM-ENTRIES(REPLACE(APIInboundEvent.errorMessage," - ","~~"),"~~"),REPLACE(APIInboundEvent.errorMessage," - ","~~"),"~~")
+                        ELSE IF INDEX(APIInboundEvent.errorMessage, "@@@") GT 1 THEN
+                            ENTRY(NUM-ENTRIES(REPLACE(SUBSTRING(APIInboundEvent.errorMessage,1, INDEX(APIInboundEvent.errorMessage, "@@@") - 1)," - ","~~"),"~~"),REPLACE(SUBSTRING(APIInboundEvent.errorMessage,1, INDEX(APIInboundEvent.errorMessage, "@@@") - 1)," - ","~~"),"~~")
+                        ELSE
+                            APIInboundEvent.errorMessage
+                        .
+                            
         CREATE ttAPIInboundEvent.
         BUFFER-COPY APIInboundEvent TO ttAPIInboundEvent.
         ASSIGN
             ttAPIInboundEvent.eventRowID   = ROWID(APIInboundEvent) 
-            ttAPIInboundEvent.errorMessage = IF ttAPIInboundEvent.errorMessage NE "" THEN
-                                                 ENTRY(NUM-ENTRIES(REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~"),REPLACE(ttAPIInboundEvent.errorMessage," - ","~~"),"~~")
-                                             ELSE
-                                                 ""
+            ttAPIInboundEvent.errorMessage = cErrorMessage
             NO-ERROR. 
    
     END.
@@ -685,7 +694,7 @@ DO:
             "Total Failed Records:" iFailureEvents
        VIEW-AS ALERT-BOX INFORMATION.
     
-    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    APPLY "CHOOSE" TO btFilter.
 END.
 
 /* _UIB-CODE-BLOCK-END */
