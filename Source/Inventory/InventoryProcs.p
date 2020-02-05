@@ -30,9 +30,6 @@ DEFINE VARIABLE giIDTemp                   AS INTEGER. /*TESTING ONLY DELETE BEF
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
 	(ipcInventoryStockID AS CHARACTER) FORWARD.
 
-FUNCTION fGetNextStockAliasID RETURNS INTEGER 
-    (  ) FORWARD.
-
 FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
@@ -3804,18 +3801,6 @@ FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL
                     WHERE inventoryStock.inventoryStockID EQ ipcInventoryStockID
                       AND inventoryStock.inventoryStatus  EQ "Created").	
 
-END FUNCTION.
-
-FUNCTION fGetNextStockAliasID RETURNS INTEGER 
-    (  ):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the next stockAliasID
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    
-    giIDTemp = NEXT-VALUE(invaliasid_seq).
-    RETURN giIDTemp.
-		
 END FUNCTION.
 
 FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
