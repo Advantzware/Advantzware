@@ -6,6 +6,8 @@ PROCEDURE pGetDynParamValue:
     DEFINE INPUT PARAMETER ipcPrgmName     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER   NO-UNDO.
     
+    IF ipcUserID   EQ "" THEN ipcUserID   = "_default".
+    IF ipcPrgmName EQ "" THEN ipcPrgmName = "dynSubjct.".
     FIND FIRST dynParamValue NO-LOCK
          WHERE dynParamValue.subjectID    EQ ipiSubjectID
            AND dynParamValue.user-id      EQ ipcUserID

@@ -70,6 +70,9 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
         .
 {system/ttPermissions.i}
 {system/ttSysCtrlUsage.i}
+{AOA/includes/pGetDynParamValue.i}
+{AOA/includes/pInitDynParamValue.i}
+{AOA/includes/pSetDynParamValue.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -117,6 +120,20 @@ FUNCTION fMessageText RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageTitle Procedure
 FUNCTION fMessageTitle RETURNS CHARACTER 
   (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfDynLookupValue Procedure
+FUNCTION sfDynLookupValue RETURNS CHARACTER 
+  (ipcField AS CHARACTER,
+   ipcLookupValue AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -368,8 +385,8 @@ PROCEDURE displayMessage:
                 VIEW-AS ALERT-BOX WARNING 
                 TITLE fMessageTitle().
             OTHERWISE
-                MESSAGE 
-                    (IF zMessage.currMessage NE "" THEN zMessage.currMessage ELSE zMessage.defaultMsg)  + " (" + ipcMessageID + ")" SKIP(2)
+                MESSAGE
+                    fMessageText(ipcMessageID) SKIP(2)
                     "NOTE: Message type for this record is not correct." SKIP 
                     "Please correct using NZ@ or contact ASI Support."
                 VIEW-AS ALERT-BOX WARNING 
@@ -451,6 +468,105 @@ END PROCEDURE.
 &ANALYZE-RESUME
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pDynPrgrmsPage) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDynPrgrmsPage Procedure
+PROCEDURE pDynPrgrmsPage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiSubjectID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTableRowID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPrgmName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPageTab    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iphThisProc   AS HANDLE    NO-UNDO.
+    
+    DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRowID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hBuffer      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bDynPrgrmsPage FOR dynPrgrmsPage.
+
+    FOR EACH bDynPrgrmsPage
+        WHERE bDynPrgrmsPage.prgmName  EQ ipcPrgmName
+          AND bDynPrgrmsPage.pageTab   EQ ipiPageTab
+          AND bDynPrgrmsPage.subjectID EQ ipiSubjectID
+        BREAK BY bDynPrgrmsPage.tableName
+        :
+        IF FIRST-OF(bDynPrgrmsPage.tableName) THEN DO:
+            IF bDynPrgrmsPage.tableName NE "" THEN DO:
+                IF VALID-HANDLE(iphThisProc) THEN DO:
+                    RUN send-records IN iphThisProc (bDynPrgrmsPage.tableName, OUTPUT cRowID).
+                    IF ERROR-STATUS:ERROR THEN RETURN. /* getting rowid failed */
+                END. /* if valid-handle */
+                ELSE IF ipcTableRowID NE "" THEN DO:
+                    ASSIGN
+                        idx    = LOOKUP(bDynPrgrmsPage.tableName, ipcTableRowID)
+                        cRowID = ENTRY(idx + 1,ipcTableRowID)
+                        .
+                END. /* else */
+                ELSE RETURN.
+                IF cRowID NE "?":U THEN DO:
+                    CREATE QUERY hQuery.
+                    CREATE BUFFER hBuffer FOR TABLE bDynPrgrmsPage.tableName.
+                    hQuery:ADD-BUFFER(hBuffer).
+                    hQuery:QUERY-PREPARE(
+                        "FOR EACH " + bDynPrgrmsPage.tableName + " NO-LOCK " +
+                        "WHERE ROWID(" + bDynPrgrmsPage.tableName + ") EQ TO-ROWID(~"" +
+                        cRowID + "~")"
+                        ).
+                    hQuery:QUERY-OPEN().
+                    hQuery:GET-FIRST().
+                    hTable = hQuery:GET-BUFFER-HANDLE(bDynPrgrmsPage.tableName).
+                END. /* if crowid */
+            END. /* if tablename */
+            FOR EACH dynPrgrmsPage NO-LOCK
+                WHERE dynPrgrmsPage.prgmName  EQ bDynPrgrmsPage.prgmName
+                  AND dynPrgrmsPage.pageTab   EQ bDynPrgrmsPage.pageTab
+                  AND dynPrgrmsPage.subjectID EQ bDynPrgrmsPage.subjectID
+                  AND dynPrgrmsPage.tableName EQ bDynPrgrmsPage.tableName
+                :
+                IF dynPrgrmsPage.tableName EQ "" THEN
+                cBufferValue = dynPrgrmsPage.paramInitValue.
+                ELSE
+                cBufferValue = hTable:BUFFER-FIELD(dynPrgrmsPage.fieldName):BUFFER-VALUE().
+                ASSIGN
+                    cParamList  = cParamList  + dynPrgrmsPage.paramName + "|"
+                    cParamValue = cParamValue + cBufferValue + "|"
+                    .
+            END. /* each dynprgrmspage */
+        END. /* if first-of */
+        IF VALID-HANDLE(hQuery) THEN
+        DELETE OBJECT hQuery.
+        IF VALID-HANDLE(hTable) THEN
+        DELETE OBJECT hTable.
+    END. /* each bdynpargrmspage */
+    ASSIGN
+        cParamList  = TRIM(cParamList,"|")
+        cParamValue = TRIM(cParamValue,"|")
+        .
+    IF cParamList NE "" THEN
+    RUN pInitDynParamValue (
+        ipiSubjectID,
+        USERID("ASI"),
+        ipcPrgmName,
+        0,
+        cParamList,
+        cParamValue
+        ).
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
@@ -461,7 +577,7 @@ PROCEDURE spActivateCueCards:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
-    
+
     DO TRANSACTION:
         FOR EACH xCueCard EXCLUSIVE-LOCK
             WHERE xCueCard.user_id EQ ipcUserID
@@ -1822,9 +1938,29 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfDynLookupValue Procedure
+FUNCTION sfDynLookupValue RETURNS CHARACTER 
+  ( ipcField AS CHARACTER, ipcLookupValue AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    idx = LOOKUP(ipcField, ipcLookupValue, "|").
+    
+    RETURN IF idx NE 0 THEN ENTRY(idx + 1,ipcLookupValue, "|") ELSE "".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
 
@@ -1919,6 +2055,10 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
     IF ipiLevel GE 6 THEN
     cWebString = REPLACE(cWebString,"~\",IF ipcType EQ "Web" THEN "~\~\"    ELSE "").
     IF ipiLevel GE 7 THEN
+    cWebString = REPLACE(cWebString,CHR(10)," ").
+    IF ipiLevel GE 8 THEN
+    cWebString = REPLACE(cWebString,CHR(13)," ").
+    IF ipiLevel GE 9 THEN
     cWebString = REPLACE(cWebString,"~/",IF ipcType EQ "Web" THEN "~/~/"    ELSE "").
 
 	RETURN cWebString.

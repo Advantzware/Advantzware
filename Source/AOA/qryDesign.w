@@ -69,6 +69,7 @@ DEFINE TEMP-TABLE ttQuery NO-UNDO
     FIELD objDataType  AS CHARACTER
     FIELD objCalcProc  AS CHARACTER
     FIELD objCalcParam AS CHARACTER
+    FIELD objFormula   AS CHARACTER
         INDEX ttWidget IS PRIMARY objWidget
         .
 
@@ -127,7 +128,8 @@ FUNCTION fCalcWidgetValues RETURNS LOGICAL
 FUNCTION fCreateTtQuery RETURNS LOGICAL
   (iphWidget   AS HANDLE,    ipdCol      AS DECIMAL,   ipdRow       AS DECIMAL,
    ipiType     AS INTEGER,   ipcValue    AS CHARACTER, ipcLabel     AS CHARACTER,
-   ipcDataType AS CHARACTER, ipcCalcProc AS CHARACTER, ipcCalcParam AS CHARACTER) FORWARD.
+   ipcDataType AS CHARACTER, ipcCalcProc AS CHARACTER, ipcCalcParam AS CHARACTER,
+   ipcFormula  AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -935,6 +937,7 @@ PROCEDURE pBuildQuery :
             "",
             "",
             "",
+            "",
             {&tableType},
             OUTPUT hWidget
             ).
@@ -954,6 +957,7 @@ PROCEDURE pBuildQuery :
                 dynSubjectWhere.dataType,
                 dynSubjectWhere.calcProc,
                 dynSubjectWhere.calcParam,
+                "",
                 iBGColor,
                 OUTPUT hWidget
                 ).
@@ -961,6 +965,7 @@ PROCEDURE pBuildQuery :
         IF dynSubjectTable.useIndex NE "" THEN
         RUN pCreateQryWidget (
             "USE-INDEX " + dynSubjectTable.useIndex,
+            "",
             "",
             "",
             "",
@@ -991,6 +996,7 @@ PROCEDURE pCalcField :
     DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldLabel  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormula     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamList   AS CHARACTER NO-UNDO.
 
     FOR EACH dynSubjectParamSet NO-LOCK
@@ -1012,6 +1018,7 @@ PROCEDURE pCalcField :
         cFieldLabel = ttQuery.objLabel
         cCalcProc   = ttQuery.objCalcProc
         cCalcParam  = ttQuery.objCalcParam
+        cFormula    = ttQuery.objFormula
         .
     cParamList = TRIM(cParamList,",").
     ASSIGN
@@ -1028,6 +1035,7 @@ PROCEDURE pCalcField :
         INPUT-OUTPUT cFieldFormat,
         INPUT-OUTPUT cCalcProc,
         INPUT-OUTPUT cCalcParam,
+        INPUT-OUTPUT cFormula,
         ?,
         cParamList,
         OUTPUT oplCancel
@@ -1037,6 +1045,7 @@ PROCEDURE pCalcField :
         ttQuery.objLabel     = cFieldLabel
         ttQuery.objCalcProc  = cCalcProc
         ttQuery.objCalcParam = cCalcParam
+        ttQuery.objFormula   = cFormula
         .
 
 END PROCEDURE.
@@ -1084,7 +1093,7 @@ PROCEDURE pCreateNewAdd :
         OTHERWISE
         cValue = hNewAdd:TOOLTIP.
     END.
-    RUN pCreateQryWidget (cValue, "", "", "", "", iBGColor, OUTPUT hWidget).
+    RUN pCreateQryWidget (cValue, "", "", "", "", "", iBGColor, OUTPUT hWidget).
     CASE hNewAdd:TOOLTIP:
         WHEN "CalcField" THEN
         RUN pCalcField (hWidget, OUTPUT lCancel).
@@ -1135,6 +1144,7 @@ PROCEDURE pCreateQryWidget :
     DEFINE INPUT  PARAMETER ipcDataType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormula   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBGColor   AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER ophWidget    AS HANDLE    NO-UNDO.
     
@@ -1184,7 +1194,8 @@ PROCEDURE pCreateQryWidget :
         ipcLabel,
         ipcDataType,
         ipcCalcProc,
-        ipcCalcParam
+        ipcCalcParam,
+        ipcFormula
         ).
     dCol = dCol + ophWidget:WIDTH.
 
@@ -1804,7 +1815,8 @@ END FUNCTION.
 FUNCTION fCreateTtQuery RETURNS LOGICAL
   (iphWidget   AS HANDLE,    ipdCol      AS DECIMAL,   ipdRow       AS DECIMAL,
    ipiType     AS INTEGER,   ipcValue    AS CHARACTER, ipcLabel     AS CHARACTER,
-   ipcDataType AS CHARACTER, ipcCalcProc AS CHARACTER, ipcCalcParam AS CHARACTER):
+   ipcDataType AS CHARACTER, ipcCalcProc AS CHARACTER, ipcCalcParam AS CHARACTER,
+   ipcFormula  AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1823,6 +1835,7 @@ FUNCTION fCreateTtQuery RETURNS LOGICAL
         ttQuery.objDataType  = ipcDataType
         ttQuery.objCalcProc  = ipcCalcProc
         ttQuery.objCalcParam = ipcCalcParam
+        ttQuery.objFormula   = ipcFormula
         .
     RETURN TRUE.
 

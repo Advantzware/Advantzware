@@ -11,6 +11,8 @@ PROCEDURE pInitDynParamValue:
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
     
+    IF ipcUserID   EQ "" THEN ipcUserID   = "_default".
+    IF ipcPrgmName EQ "" THEN ipcPrgmName = "dynSubjct.".
     RUN pGetDynParamValue (ipiSubjectID, ipcUserID, ipcPrgmName, ipiParamValueID).
     IF NOT AVAILABLE dynParamValue THEN RETURN.
     DO TRANSACTION:

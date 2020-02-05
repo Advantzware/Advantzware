@@ -891,10 +891,14 @@ DO:
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
            if avail style and style.type = "f" then DO: /* foam */
-             run windows/l-boardf.w (cocode,lv-ind,ls-cur-val,output char-val).
-             if char-val <> "" then
-               ASSIGN lw-focus:screen-value =  entry(1,char-val)
-                      ef.brd-dscr:screen-value in frame {&frame-name} =  entry(3,char-val).       
+             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+             IF char-val NE "" THEN DO:
+               ASSIGN
+                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val)
+                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                    .       
+               APPLY "ENTRY":U TO lw-focus.
+             END.
            END.
            else do:
              run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).

@@ -768,15 +768,24 @@ DO:
                             no-lock no-error.   
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
-           if avail style and style.type = "f" then  /* foam */
-                 run windows/l-boardf.w (cocode,lv-ind,ls-cur-val,output char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
-           FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM THEN DO:
-             ASSIGN 
-              ef.board:screen-value in frame {&frame-name} = item.i-no
-              ef.brd-dscr:screen-value in frame {&frame-name} = item.i-name.
-             IF ITEM.i-no NE lw-focus:SCREEN-VALUE THEN RUN new-board.
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+              ASSIGN
+                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                .
+              RUN new-board.
+              APPLY "ENTRY":U TO ef.board.
+           END. /* if foam */
+           else DO:
+               run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
+               FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+               IF AVAIL ITEM THEN DO:
+                 ASSIGN 
+                  ef.board:screen-value in frame {&frame-name} = item.i-no
+                  ef.brd-dscr:screen-value in frame {&frame-name} = item.i-name.
+                 IF ITEM.i-no NE lw-focus:SCREEN-VALUE THEN RUN new-board.
+               END.
            END.  
        end.
        when "cust-no" then do:

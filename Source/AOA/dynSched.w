@@ -559,7 +559,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      Task.module AT ROW 3.62 COL 124 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
-          LIST-ITEMS "AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","SS","TS" 
+          LIST-ITEMS "","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","TS" 
           DROP-DOWN-LIST
           SIZE 8.2 BY 1
           BGCOLOR 15 
@@ -593,6 +593,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek5 AT ROW 6 COL 94 WIDGET-ID 496
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfWeek6 AT ROW 6 COL 110 WIDGET-ID 498
           VIEW-AS TOGGLE-BOX
           SIZE 10 BY .81
@@ -603,10 +605,6 @@ DEFINE FRAME viewFrame
           LABEL "1"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[2] AT ROW 7.43 COL 36 WIDGET-ID 526
-          LABEL "2"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -615,12 +613,14 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[2] AT ROW 7.43 COL 36 WIDGET-ID 526
+          LABEL "2"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[3] AT ROW 7.43 COL 44 WIDGET-ID 528
           LABEL "3"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[4] AT ROW 7.43 COL 52 WIDGET-ID 530
           LABEL "4"
           VIEW-AS TOGGLE-BOX
@@ -681,6 +681,8 @@ DEFINE FRAME viewFrame
           LABEL "18"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.dayOfMonth[19] AT ROW 9.33 COL 60 WIDGET-ID 554
           LABEL "19"
           VIEW-AS TOGGLE-BOX
@@ -689,8 +691,6 @@ DEFINE FRAME viewFrame
           LABEL "20"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      Task.dayOfMonth[21] AT ROW 9.33 COL 76 WIDGET-ID 560
           LABEL "21"
           VIEW-AS TOGGLE-BOX
@@ -703,10 +703,6 @@ DEFINE FRAME viewFrame
           LABEL "23"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
-          LABEL "24"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -715,6 +711,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
+          LABEL "24"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[25] AT ROW 10.29 COL 52 WIDGET-ID 566
           LABEL "25"
           VIEW-AS TOGGLE-BOX
@@ -774,32 +774,30 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
-     btnCancel AT ROW 19.86 COL 55 HELP
-          "Cancel" WIDGET-ID 28
+     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 125 BY 2.14
+          BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -808,12 +806,14 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
+     btnCancel AT ROW 19.86 COL 55 HELP
+          "Cancel" WIDGET-ID 28
      btnCopy AT ROW 19.86 COL 31 HELP
           "Copy" WIDGET-ID 24
-     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 125 BY 2.14
-          BGCOLOR 15 
      btnDelete AT ROW 19.86 COL 39 HELP
           "Delete" WIDGET-ID 26
      btnReset AT ROW 19.86 COL 47 HELP
@@ -2144,8 +2144,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure C-Win
-PROCEDURE pDeleteProcedure:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure C-Win 
+PROCEDURE pDeleteProcedure :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2156,7 +2156,7 @@ PROCEDURE pDeleteProcedure:
    DELETE PROCEDURE hJasper.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
