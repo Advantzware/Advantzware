@@ -2991,12 +2991,12 @@ PROCEDURE Reset_Field_Colors :
       waste-qty:FGCOLOR = 15
       waste-qty:BGCOLOR = 0
       .
-    IF tskey-log EQ NO THEN
-       ASSIGN time-hour:SENSITIVE = NO
-              time-minute:SENSITIVE = NO
-              run-qty:SENSITIVE = NO
-              waste-qty:SENSITIVE = NO
-              .
+/*    IF tskey-log EQ NO THEN             */
+/*       ASSIGN time-hour:SENSITIVE = NO  */
+/*              time-minute:SENSITIVE = NO*/
+/*              run-qty:SENSITIVE = NO    */
+/*              waste-qty:SENSITIVE = NO  */
+/*              .                         */
   END.
 
 END PROCEDURE.
@@ -3019,11 +3019,11 @@ PROCEDURE Set_Field_Colors :
         h_field:BGCOLOR = 3 /* tiel */
         .
     
-     IF tskey-log EQ NO THEN
-     DO:
+/*     IF tskey-log EQ NO THEN*/
+/*     DO:                    */
         h_field:SENSITIVE = YES.
         APPLY "ENTRY":U TO h_field.
-     END.
+/*     END.*/
   END.
 
 END PROCEDURE.
