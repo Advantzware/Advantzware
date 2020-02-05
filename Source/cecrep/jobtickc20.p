@@ -26,7 +26,6 @@ DEFINE        VARIABLE lv-part-name     AS cha     FORM "x(30)" NO-UNDO.
 DEFINE        VARIABLE lv-fg-name       AS cha     NO-UNDO.
 DEFINE        VARIABLE tb_app-unprinted AS LOG     NO-UNDO.
 DEFINE        VARIABLE iset-qty         AS INTEGER NO-UNDO.
-DEFINE        VARIABLE lPrintScores     AS LOGICAL NO-UNDO.
 DEFINE        VARIABLE  cCustName       AS CHARACTER NO-UNDO.
 
 {jcrep/r-ticket.i "shared"}
@@ -77,7 +76,10 @@ DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
-DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
+DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO . 
+DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -98,6 +100,12 @@ DEFINE NEW SHARED WORKFILE wrk-ink
 DO TRANSACTION:
     {sys/inc/tspostfg.i}
 END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCardPrintScores", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR. 
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
@@ -303,8 +311,7 @@ DO v-local-loop = 1 TO v-local-copies:
             .
             IF print-box AND AVAILABLE xest THEN 
           DO:
-              lPrintScores = NO.
-            
+              
               FIND FIRST box-design-hdr NO-LOCK
                   WHERE box-design-hdr.company EQ xeb.company
                   AND box-design-hdr.design-no EQ 0
@@ -312,17 +319,8 @@ DO v-local-loop = 1 TO v-local-copies:
                   AND box-design-hdr.form-no   EQ xeb.form-no
                   AND box-design-hdr.blank-no  EQ xeb.blank-no
                   NO-ERROR.
-              IF AVAILABLE xeb AND AVAILABLE xstyle THEN 
-              DO:
-                  FIND FIRST bf-box-design-hdr NO-LOCK
-                      WHERE bf-box-design-hdr.design-no EQ xstyle.design-no
-                      NO-ERROR.
-                  IF AVAILABLE bf-box-design-hdr AND AVAILABLE box-design-hdr
-                      AND bf-box-design-hdr.box-image EQ box-design-hdr.box-image THEN
-                      lPrintScores = YES.
-
-              END.
-              IF lPrintScores THEN 
+              
+              IF lJobCardPrntScor-Log THEN 
               DO:
                   PUT SKIP(1)
                       "<=BoxImageStart>"   .
