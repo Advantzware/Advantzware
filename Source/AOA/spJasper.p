@@ -872,7 +872,6 @@ PROCEDURE pJasperJSON:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cColumns     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE fieldName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFullName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iColumn      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
@@ -933,10 +932,9 @@ PROCEDURE pJasperJSON:
                 :
                 ASSIGN
                     cFullName    = ttColumn.ttField
-                    fieldName    = IF INDEX(cFullName,"[") EQ 0 THEN cFullName
-                                   ELSE SUBSTRING(cFullName,1,INDEX(cFullName,"[") - 1)
-                    cBufferValue = fFormatValue(hTable, fieldName)
-                    cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
+                    cBufferValue = fFormatValue(hTable, cFullName)
+                    cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
+                    cFullName    = ttColumn.ttTable + "__" + cFullName
                     cFullName    = REPLACE(cFullName,"[","")
                     cFullName    = REPLACE(cFullName,"]","")
                     .
@@ -1355,6 +1353,14 @@ PROCEDURE pJasperStarter :
             TaskResult.folderFile   = opcJastFile
             .
     END. /* if not can-do */
+    /* log jasperstarter command for debug purposes if needed */
+    OUTPUT TO VALUE(cUserFolder + "JasperStarter.log").
+    PUT UNFORMATTED
+        REPLACE(
+        REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
+        REPLACE(cUserFolder,"/","~\"),"")
+        SKIP.
+    OUTPUT CLOSE.
     OS-DELETE VALUE(cJasperFile[3]).
     OS-COMMAND NO-WAIT start VALUE(cJasperStarter).
 
