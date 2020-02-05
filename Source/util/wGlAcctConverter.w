@@ -1662,7 +1662,7 @@ PROCEDURE pMergeAccountBalances :
             FIND FIRST account WHERE 
                 account.company EQ ENTRY(iCtr,cCompanyList) AND 
                 account.actnum EQ ttAccountConv.cOldAcct
-                NO-LOCK NO-ERROR.
+                EXCLUSIVE NO-ERROR.
             IF NOT AVAIL account THEN NEXT.   
             FIND FIRST baccount WHERE 
                 baccount.company EQ ENTRY(iCtr,cCompanyList) AND 
