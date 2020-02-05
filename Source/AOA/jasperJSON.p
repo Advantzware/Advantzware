@@ -66,10 +66,8 @@ REPEAT:
         ASSIGN
             hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))
             cFieldName   = ENTRY(2,dynParamValue.colName[idx],".")
-            cFieldName   = IF INDEX(cFieldName,"[") EQ 0 THEN cFieldName
-                           ELSE SUBSTRING(cFieldName,1,INDEX(cFieldName,"[") - 1)
             cBufferValue = fFormatValue(hQueryBuf, cFieldName)
-            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
+            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
             cFullName    = REPLACE(dynParamValue.colName[idx],".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
