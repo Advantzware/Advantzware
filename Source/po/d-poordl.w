@@ -976,7 +976,8 @@ DO:
        FIND po-ordl EXCLUSIVE-LOCK WHERE RECID(po-ordl) = lv-item-recid  NO-ERROR.
        IF AVAILABLE po-ordl THEN DELETE po-ordl.
     END.
-    APPLY 'WINDOW-CLOSE' TO FRAME Dialog-Frame.
+   
+   APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
