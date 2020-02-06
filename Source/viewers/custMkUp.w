@@ -914,6 +914,7 @@ PROCEDURE local-update-record :
 
 /* Code placed here will execute AFTER standard behavior.    */
    adm-adding-record = NO .
+   adm-new-record = NO .
 
 
 END PROCEDURE.
