@@ -1112,7 +1112,7 @@ PROCEDURE procCreateAfter:
           ASSIGN vendItemCost.itemID:SCREEN-VALUE = cVendItemCostItem#
               vendItemCost.vendorID:SCREEN-VALUE = cVendItemCostVendor
               vendItemCost.customer:SCREEN-VALUE = cVendItemCostCustomer
-              vendItemCost.Estimate:SCREEN-VALUE = cVendItemCostEst#
+              vendItemCost.EstimateNo:SCREEN-VALUE = cVendItemCostEst#
               vendItemCost.FormNo:SCREEN-VALUE = STRING(cVendItemCostForm#)
               vendItemCost.BlankNo:SCREEN-VALUE = STRING(cVendItemCostBlank#)
               .     
@@ -1122,7 +1122,15 @@ PROCEDURE procCreateAfter:
     DO WITH FRAME {&frame-name}:
             DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
                 venditemCost.blankNo 
-                /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+            /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
+        ASSIGN 
+            vendItemCost.itemID:SCREEN-VALUE = cVendItemCostItem#
+            vendItemCost.vendorID:SCREEN-VALUE = cVendItemCostVendor
+            vendItemCost.customer:SCREEN-VALUE = cVendItemCostCustomer
+            vendItemCost.EstimateNo:SCREEN-VALUE = cVendItemCostEst#
+            vendItemCost.FormNo:SCREEN-VALUE = STRING(cVendItemCostForm#)
+            vendItemCost.BlankNo:SCREEN-VALUE = STRING(cVendItemCostBlank#)
+            .         
     END.  
 
 END PROCEDURE.
