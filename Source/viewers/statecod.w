@@ -284,16 +284,6 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  FIND FIRST state WHERE state.state = statecod.statecod NO-ERROR.
-  IF NOT AVAIL state THEN DO:
-     CREATE state.
-     ASSIGN state.state = statecod.statecod
-            state.NAME = statecod.DESCRIPTION.
-  END.
-  ELSE IF state.NAME <> statecod.DESCRIPTION AND
-       NOT CAN-FIND(FIRST state WHERE 
-       state.NAME EQ statecod.DESCRIPTION) THEN
-       state.NAME = statecod.DESCRIPTION.
 
 END PROCEDURE.
 

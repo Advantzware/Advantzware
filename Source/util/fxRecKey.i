@@ -210,7 +210,6 @@ PROCEDURE fixTables:
   RUN fixSMAN.
   RUN fixSMAN-MTX.
   RUN fixSOLDTO.
-  RUN fixSTATE.
   RUN fixSTAX.
   RUN fixSTAX-GROUP.
   RUN fixSTD-CODE.
@@ -3604,22 +3603,6 @@ PROCEDURE fixSOLDTO:
       soldto.rec_key = nextRecKey()
       i = i + 1.
     RUN createRecKey (soldto.rec_key,'soldto').
-  END.
-  RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
-END PROCEDURE.
- 
-PROCEDURE fixSTATE:
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  DISABLE TRIGGERS FOR LOAD OF state.
- 
-  IF NOT CAN-FIND(FIRST state WHERE state.rec_key EQ '') THEN RETURN.
-  RUN msg ('Processing state ... ').
-  FOR EACH state EXCLUSIVE-LOCK WHERE state.rec_key EQ '':
-    ASSIGN
-      state.rec_key = nextRecKey()
-      i = i + 1.
-    RUN createRecKey (state.rec_key,'state').
   END.
   RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
 END PROCEDURE.

@@ -958,7 +958,7 @@ DO:
         return no-apply.
      end.                                     
      if cust.state:screen-value <> "" and
-        not can-find(first state where state.state = cust.state:screen-value )
+        not can-find(first statecod where statecod.statecod = cust.state:screen-value )
      then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        apply "entry" to cust.state.
@@ -1527,7 +1527,7 @@ END.
 ON LEAVE OF cust.state IN FRAME D-Dialog /* State */
 DO:
     if lastkey <> -1 and cust.state:screen-value <> "" and
-       not can-find(first state where state.state = cust.state:screen-value )
+       not can-find(first statecod where statecod.statecod = cust.state:screen-value )
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
@@ -2344,7 +2344,7 @@ PROCEDURE validate-cust :
         return error.
      end.                                     
      if cust.state:screen-value <> "" and
-        not can-find(first state where state.state = cust.state:screen-value )
+        not can-find(first statecod where statecod.statecod = cust.state:screen-value )
      then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        apply "entry" to cust.state.

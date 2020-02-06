@@ -3,12 +3,9 @@
 &scop cust-notes
 &scop user_groups 
 &scop users 
-&scop statecod
 
 &if defined(cust) = 0 &then
 run cust-notes.
-&elseif defined(statecod) = 0 &then
-run statecod.
 &elseif defined(user_groups) = 0 &then
 run user_groups.
 &elseif defined(users) = 0 &then
@@ -42,18 +39,6 @@ procedure cust-notes:
 end procedure.
 /* ************************************************************************** */
 
-/* ********* STATE CODES **************************************************** */
-
-procedure statecod:
-  for each state no-lock:
-    if can-find(statecod where statecod.statecod = state.state) then
-    next.
-    create statecod.
-    assign
-      statecod.statecod = state.state
-      statecod.description = state.name.
-  end.
-end procedure.
 /* ************************************************************************** */
 
 /* ********* USER GROUPS **************************************************** */

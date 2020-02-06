@@ -1370,8 +1370,8 @@ PROCEDURE valid-ship-state :
   DO WITH FRAME {&FRAME-NAME}:
     shipto.ship-state:SCREEN-VALUE = CAPS(shipto.ship-state:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST state
-                    WHERE state.state EQ shipto.ship-state:SCREEN-VALUE) THEN DO:
+    IF NOT CAN-FIND(FIRST statecod
+                    WHERE statecod.statecod EQ shipto.ship-state:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO shipto.ship-state.
       RETURN ERROR.

@@ -2011,17 +2011,6 @@ procedure stack-size_rec_key:
       rec_key.table_name = "stack-size".
   end.
 end procedure.
-run state_rec_key.
-procedure state_rec_key:
-  for each state exclusive:
-    create rec_key.
-    assign
-      state.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-
-      rec_key.rec_key = state.rec_key
-      rec_key.table_name = "state".
-  end.
-end procedure.
 run stax_rec_key.
 procedure stax_rec_key:
   for each stax exclusive:
