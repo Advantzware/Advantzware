@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
-  File: viewerid/<table>.w
+  File: viewers/itemUOM.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -30,17 +30,22 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&Scoped-define enable-proc enable-proc
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/gcompany.i}
+{custom/gloc.i}
+{custom/globdefs.i}
+{sys/inc/VAR.i NEW SHARED}
 
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -51,33 +56,36 @@ DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES itemfg
-&Scoped-define FIRST-EXTERNAL-TABLE itemfg
+&Scoped-define EXTERNAL-TABLES ItemUOM
+&Scoped-define FIRST-EXTERNAL-TABLE ItemUOM
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR itemfg.
+DEFINE QUERY external_tables FOR ItemUOM.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr 
-&Scoped-define ENABLED-TABLES itemfg
-&Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define ENABLED-OBJECTS btnFirst btnPrevious btnNext btnLast 
-&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.i-dscr 
-&Scoped-define DISPLAYED-TABLES itemfg
-&Scoped-define FIRST-DISPLAYED-TABLE itemfg
+&Scoped-Define ENABLED-FIELDS itemUoM.descr itemUoM.convFactor ~
+itemUoM.isStock itemUoM.canPurchase itemUoM.canSell ~
+itemUoM.isDefaultPurchaseUoM itemUoM.isDefaultSellUoM itemUoM.inactive 
+&Scoped-define ENABLED-TABLES itemUoM
+&Scoped-define FIRST-ENABLED-TABLE itemUoM
+&Scoped-Define DISPLAYED-FIELDS itemUoM.UOM itemUoM.descr ~
+itemUoM.convFactor itemUoM.isStock itemUoM.canPurchase itemUoM.canSell ~
+itemUoM.isDefaultPurchaseUoM itemUoM.isDefaultSellUoM itemUoM.inactive ~
+itemUoM.createdBy itemUoM.createdDtTm itemUoM.updatedBy itemUoM.updatedDtTm 
+&Scoped-define DISPLAYED-TABLES itemUoM
+&Scoped-define FIRST-DISPLAYED-TABLE itemUoM
 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,navButton,List-5,F1 */
-&Scoped-define navButton btnFirst btnPrevious btnNext btnLast 
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
+&Scoped-define ADM-CREATE-FIELDS itemUoM.UOM 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -100,71 +108,77 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ***********************  Control Definitions  ********************** */
 
-
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "adm2\image\first.bmp":U
-     LABEL "&First" 
-     SIZE 4.8 BY 1.14 TOOLTIP "First".
-
-DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "adm2/image/last.bmp":U
-     LABEL "&Last" 
-     SIZE 4.8 BY 1.14 TOOLTIP "Last".
-
-DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "adm2/image/next.bmp":U
-     LABEL "&Next" 
-     SIZE 4.8 BY 1.14 TOOLTIP "Next".
-
-DEFINE BUTTON btnPrevious 
-     IMAGE-UP FILE "adm2/image/prev.bmp":U
-     LABEL "&Previous" 
-     SIZE 4.8 BY 1.14 TOOLTIP "Previous".
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 170 BY 1.67.
-
+     SIZE 50 BY 17.38.
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnFirst AT ROW 1.48 COL 150
-     btnPrevious AT ROW 1.48 COL 155
-     btnNext AT ROW 1.48 COL 160
-     btnLast AT ROW 1.48 COL 165
-     itemfg.i-no AT ROW 1.71 COL 11 COLON-ALIGNED
+     itemUoM.UOM AT ROW 1.24 COL 14 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-          BGCOLOR 15 FGCOLOR 1 
-     itemfg.i-name AT ROW 1.71 COL 51 COLON-ALIGNED
+          SIZE 12.2 BY 1
+          BGCOLOR 15 
+     itemUoM.descr AT ROW 2.43 COL 14 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Description"
           VIEW-AS FILL-IN 
-          SIZE 40 BY 1
-          BGCOLOR 15 FGCOLOR 1 
-     itemfg.i-dscr AT ROW 1.71 COL 100 COLON-ALIGNED
+          SIZE 34 BY 1
+          BGCOLOR 15 
+     itemUoM.convFactor AT ROW 3.62 COL 14 COLON-ALIGNED WIDGET-ID 28
           VIEW-AS FILL-IN 
-          SIZE 40 BY 1
-          BGCOLOR 15 FGCOLOR 1 
-     "Reference Information" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1 COL 3
-          FONT 1
-     RECT-1 AT ROW 1.24 COL 1
+          SIZE 21.6 BY 1
+          BGCOLOR 15 
+     itemUoM.isStock AT ROW 4.81 COL 16 WIDGET-ID 18
+          VIEW-AS TOGGLE-BOX
+          SIZE 16 BY .81
+     itemUoM.canPurchase AT ROW 5.76 COL 16 WIDGET-ID 20
+          VIEW-AS TOGGLE-BOX
+          SIZE 17 BY .81
+     itemUoM.canSell AT ROW 6.71 COL 16 WIDGET-ID 22
+          VIEW-AS TOGGLE-BOX
+          SIZE 12 BY .81
+     itemUoM.isDefaultPurchaseUoM AT ROW 7.67 COL 16 WIDGET-ID 24
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY .81
+     itemUoM.isDefaultSellUoM AT ROW 8.62 COL 16 WIDGET-ID 26
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY .81
+     itemUoM.inactive AT ROW 9.57 COL 16 WIDGET-ID 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 12 BY .81
+     itemUoM.createdBy AT ROW 13.62 COL 14 COLON-ALIGNED WIDGET-ID 30
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
+     itemUoM.createdDtTm AT ROW 14.81 COL 4.8 WIDGET-ID 32
+          LABEL "Date/Time"
+          VIEW-AS FILL-IN 
+          SIZE 34.2 BY 1
+          BGCOLOR 15 
+     itemUoM.updatedBy AT ROW 16 COL 14 COLON-ALIGNED WIDGET-ID 36
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+          BGCOLOR 15 
+     itemUoM.updatedDtTm AT ROW 17.19 COL 4.8 WIDGET-ID 38
+          LABEL "Date/Time"
+          VIEW-AS FILL-IN 
+          SIZE 34.2 BY 1
+          BGCOLOR 15 
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
+         FGCOLOR 1 .
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.itemfg
+   External Tables: ASI.ItemUOM
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -186,8 +200,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 1.91
-         WIDTH              = 170.
+         HEIGHT             = 17.38
+         WIDTH              = 50.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -196,12 +210,10 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
+{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -209,24 +221,27 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON btnFirst IN FRAME F-Main
-   4                                                                    */
-/* SETTINGS FOR BUTTON btnLast IN FRAME F-Main
-   4                                                                    */
-/* SETTINGS FOR BUTTON btnNext IN FRAME F-Main
-   4                                                                    */
-/* SETTINGS FOR BUTTON btnPrevious IN FRAME F-Main
-   4                                                                    */
+/* SETTINGS FOR FILL-IN itemUoM.createdBy IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN itemUoM.createdDtTm IN FRAME F-Main
+   NO-ENABLE ALIGN-L EXP-LABEL                                          */
+/* SETTINGS FOR FILL-IN itemUoM.descr IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN itemUoM.UOM IN FRAME F-Main
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN itemUoM.updatedBy IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN itemUoM.updatedDtTm IN FRAME F-Main
+   NO-ENABLE ALIGN-L EXP-LABEL                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
 
 /* Setting information for Queries and Browse Widgets fields            */
 
@@ -237,72 +252,49 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
-
-
-
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btnFirst
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst V-table-Win
-ON CHOOSE OF btnFirst IN FRAME F-Main /* First */
+&Scoped-define SELF-NAME itemUoM.UOM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemUoM.UOM V-table-Win
+ON LEAVE OF itemUoM.UOM IN FRAME F-Main /* UOM */
 DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "changeRecord" "('first')"}
+    IF LASTKEY NE -1 AND
+       CAN-FIND(FIRST ItemUOM
+                WHERE ItemUOM.company  EQ ItemUOM.company
+                  AND ItemUOM.itemType EQ ItemUOM.itemType
+                  AND ItemUOM.itemID     EQ ItemUOM.itemID
+                  AND ItemUOM.UOM  EQ ItemUOM.UOM:SCREEN-VALUE) THEN DO:
+        MESSAGE
+            "UOM" ItemUOM.UOM:SCREEN-VALUE "for Item" ItemUOM.itemID "already exits!"
+        VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO SELF.
+        RETURN NO-APPLY.
+    END.
+    IF ItemUOM.descr:SCREEN-VALUE EQ "" THEN DO:
+        FIND FIRST uom NO-LOCK
+             WHERE uom.uom EQ ItemUOM.UOM:SCREEN-VALUE
+             NO-ERROR.
+        ItemUOM.descr:SCREEN-VALUE = uom.dscr.
+    END. /* if descr */
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnLast
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast V-table-Win
-ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "changeRecord" "('last')"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnNext
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext V-table-Win
-ON CHOOSE OF btnNext IN FRAME F-Main /* Next */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "changeRecord" "('next')"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnPrevious
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrevious V-table-Win
-ON CHOOSE OF btnPrevious IN FRAME F-Main /* Previous */
-DO:
-  {methods/run_link.i "CONTAINER-SOURCE" "changeRecord" "('prev')"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
-
 
 /* ***************************  Main Block  *************************** */
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -320,13 +312,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "itemfg"}
+  {src/adm/template/row-list.i "ItemUOM"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "itemfg"}
+  {src/adm/template/row-find.i "ItemUOM"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -355,8 +347,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view V-table-Win 
-PROCEDURE local-view :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/viewers/assign/itemUOM.i}
+  DO WITH FRAME {&FRAME-NAME}:
+      DISPLAY
+          ItemUOM.updatedBy
+          ItemUOM.updatedDtTm
+          .
+  END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
+PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
@@ -365,15 +383,19 @@ PROCEDURE local-view :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DEFINE VARIABLE containerName AS CHARACTER NO-UNDO.
-
-  {methods/run_link.i "CONTAINER-SOURCE" "containerName" "(OUTPUT containerName)"}
-  IF INDEX(containerName,'w-ordfg') NE 0 THEN DO WITH FRAME {&FRAME-NAME}:
-    HIDE {&navButton} NO-PAUSE.
-  END.
+  {methods/viewers/create/itemUOM.i}
+  {methods/viewers/assign/itemUOM.i}
+  DO WITH FRAME {&FRAME-NAME}:
+      DISPLAY
+          ItemUOM.createdBy
+          ItemUOM.createdDtTm
+          ItemUOM.updatedBy
+          ItemUOM.updatedDtTm
+          .
+  END. /* with frame */
 
 END PROCEDURE.
 
@@ -392,7 +414,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "itemfg"}
+  {src/adm/template/snd-list.i "ItemUOM"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -421,4 +443,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

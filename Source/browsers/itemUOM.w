@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/bank.w
+  File:  browsers/itemUOM.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
@@ -47,7 +47,6 @@ CREATE WIDGET-POOL.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -61,24 +60,34 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES itemfg
+&Scoped-define FIRST-EXTERNAL-TABLE itemfg
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR itemfg.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES bank
+&Scoped-define INTERNAL-TABLES ItemUOM
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table bank.bank-code bank.bank-name ~
-bank.phone bank.actnum 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ItemUOM.UOM ItemUOM.descr ~
+itemUoM.convFactor itemUoM.isStock itemUoM.canPurchase itemUoM.canSell ~
+itemUoM.isDefaultPurchaseUoM itemUoM.isDefaultSellUoM itemUoM.inactive 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH bank WHERE ~{&KEY-PHRASE} ~
-      AND bank.company = gcompany NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH ItemUOM WHERE ~{&KEY-PHRASE} ~
+      AND ItemUOM.company EQ itemfg.company AND ~
+ASI.itemUOM.itemID EQ itemfg.i-no NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH bank WHERE ~{&KEY-PHRASE} ~
-      AND bank.company = gcompany NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH ItemUOM WHERE ~{&KEY-PHRASE} ~
+      AND ItemUOM.company EQ itemfg.company AND ~
+ASI.itemUOM.itemID EQ itemfg.i-no NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table bank
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table bank
+&Scoped-define TABLES-IN-QUERY-Browser-Table ItemUOM
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table ItemUOM
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -94,10 +103,7 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 /* ***********************  Control Definitions  ********************** */
-
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Clear_Find 
@@ -108,67 +114,81 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 27 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 51 BY 1 NO-UNDO.
+     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
+DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 99 BY 1.43.
+     SIZE 119 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      bank
-    FIELDS(bank.bank-code
-      bank.bank-name
-      bank.phone
-      bank.actnum) SCROLLING.
+      ItemUOM
+    FIELDS(ItemUOM.UOM
+      ItemUOM.descr
+      itemUoM.convFactor
+      itemUoM.isStock
+      itemUoM.canPurchase
+      itemUoM.canSell
+      itemUoM.isDefaultPurchaseUoM
+      itemUoM.isDefaultSellUoM
+      itemUoM.inactive) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      bank.bank-code FORMAT "x(8)":U
-      bank.bank-name FORMAT "x(20)":U
-      bank.phone FORMAT "x(12)":U
-      bank.actnum COLUMN-LABEL "G/L Account" FORMAT "x(25)":U
+      ItemUOM.UOM FORMAT "x(3)":U
+      ItemUOM.descr FORMAT "x(24)":U
+      itemUoM.convFactor FORMAT ">>>,>>>,>>9.99<<<<":U
+      itemUoM.isStock COLUMN-LABEL "Stock" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      itemUoM.canPurchase COLUMN-LABEL "Purch" FORMAT "yes/no":U
+            VIEW-AS TOGGLE-BOX
+      itemUoM.canSell COLUMN-LABEL "Sell" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      itemUoM.isDefaultPurchaseUoM COLUMN-LABEL "DefPur" FORMAT "yes/no":U
+            VIEW-AS TOGGLE-BOX
+      itemUoM.isDefaultSellUoM COLUMN-LABEL "DefSell" FORMAT "yes/no":U
+            VIEW-AS TOGGLE-BOX
+      itemUoM.inactive COLUMN-LABEL "Inactive" FORMAT "yes/no":U
+            VIEW-AS TOGGLE-BOX
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 99 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 119 BY 21.67
          FONT 2.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
+     browse-order AT ROW 22.91 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 67 COLON-ALIGNED HELP
+     auto_find AT ROW 22.91 COL 77 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 86 HELP
+     Btn_Clear_Find AT ROW 22.91 COL 106 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+          SIZE 4 BY 1 AT ROW 22.91 COL 2
+     RECT-1 AT ROW 22.67 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
-
+         BGCOLOR 8 FGCOLOR 1 .
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
+   External Tables: ASI.itemfg
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -190,8 +210,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 99.
+         HEIGHT             = 23.1
+         WIDTH              = 119.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -206,9 +226,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -216,34 +233,45 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2".
+                "12".
 
-/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
 
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.bank"
+     _TblList          = "ASI.ItemUOM"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "bank.company = gcompany"
-     _FldNameList[1]   = ASI.bank.bank-code
-     _FldNameList[2]   = ASI.bank.bank-name
-     _FldNameList[3]   = ASI.bank.phone
-     _FldNameList[4]   > ASI.bank.actnum
-"bank.actnum" "G/L Account" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Where[1]         = "ASI.ItemUOM.company EQ itemfg.company AND
+ASI.itemUOM.itemID EQ itemfg.i-no"
+     _FldNameList[1]   = ASI.ItemUOM.UOM
+     _FldNameList[2]   > ASI.ItemUOM.descr
+"ItemUOM.descr" ? "x(24)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   = ASI.itemUoM.convFactor
+     _FldNameList[4]   > ASI.itemUoM.isStock
+"itemUoM.isStock" "Stock" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[5]   > ASI.itemUoM.canPurchase
+"itemUoM.canPurchase" "Purch" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[6]   > ASI.itemUoM.canSell
+"itemUoM.canSell" "Sell" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[7]   > ASI.itemUoM.isDefaultPurchaseUoM
+"itemUoM.isDefaultPurchaseUoM" "DefPur" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[8]   > ASI.itemUoM.isDefaultSellUoM
+"itemUoM.isDefaultSellUoM" "DefSell" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[9]   > ASI.itemUoM.inactive
+"itemUoM.inactive" "Inactive" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -254,10 +282,6 @@ ASSIGN
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
-
- 
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -273,7 +297,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
@@ -284,7 +307,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
@@ -298,11 +320,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
-
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
@@ -314,7 +334,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -330,6 +349,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "itemfg"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "itemfg"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -353,6 +381,25 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Values B-table-Win 
+PROCEDURE Get-Values :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemNo  AS CHARACTER NO-UNDO.
+  
+    ASSIGN
+        opcCompany = itemfg.company
+        opcItemNo  = itemfg.i-no
+        .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -390,7 +437,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "bank"}
+  {src/adm/template/snd-list.i "itemfg"}
+  {src/adm/template/snd-list.i "ItemUOM"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -419,4 +467,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
