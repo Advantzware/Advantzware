@@ -148,7 +148,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>9":U WIDTH 11.2
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
             LABEL-BGCOLOR 14
       ar-inv.cust-no COLUMN-LABEL "Cust.#" FORMAT "x(8)":U WIDTH 14.2
             LABEL-BGCOLOR 14
@@ -269,19 +269,19 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "ASI.ar-inv.company = g_company"
      _FldNameList[1]   > ASI.ar-inv.inv-no
-"ar-inv.inv-no" "Invoice#" ? "integer" ? ? ? 14 ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-inv.cust-no
-"ar-inv.cust-no" "Cust.#" ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-no" "Cust.#" ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-inv.cust-name
-"ar-inv.cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no "32.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no "32.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-inv.inv-date
-"ar-inv.inv-date" "Inv Date" ? "date" ? ? ? 14 ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-date" "Inv Date" ? "date" ? ? ? 14 ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.ar-inv.gross
-"ar-inv.gross" "Inv Amount" ? "decimal" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"gross" "Inv Amount" ? "decimal" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.ar-inv.paid
-"ar-inv.paid" ? ? "decimal" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"paid" ? ? "decimal" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ar-inv.due
-"ar-inv.due" "Balance Due" ? "decimal" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"due" "Balance Due" ? "decimal" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -467,7 +467,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
