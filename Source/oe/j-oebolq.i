@@ -46,8 +46,7 @@ ELSE
 IF fi_po-no NE "" THEN DO:
   &SCOPED-DEFINE open-query          ~
       OPEN QUERY {&browse-name}      ~
-        {&for-each1}                 ~
-            USE-INDEX po-no NO-LOCK, ~
+        {&for-each1} NO-LOCK,        ~
             {&for-each2},            ~
             {&for-each3}
   
@@ -59,8 +58,7 @@ ELSE
 IF fi_i-no NE "" THEN DO:
   &SCOPED-DEFINE open-query         ~
       OPEN QUERY {&browse-name}     ~
-        {&for-each1}                ~
-            USE-INDEX i-no NO-LOCK, ~
+        {&for-each1} NO-LOCK,       ~
             {&for-each2},           ~
             {&for-each3}
   
@@ -72,8 +70,7 @@ ELSE
 IF fi_cust-no NE "" THEN DO:
   &SCOPED-DEFINE open-query         ~
       OPEN QUERY {&browse-name}     ~
-        {&for-each1}                ~
-            USE-INDEX cust NO-LOCK, ~
+        {&for-each1} NO-LOCK,       ~
             {&for-each2},           ~
             {&for-each3} 
 
@@ -87,17 +84,15 @@ ELSE DO:
   DO:
      &SCOPED-DEFINE open-query     ~
          OPEN QUERY {&browse-name} ~
-           {&for-each11}            ~
-               NO-LOCK,            ~
-               {&for-each21},       ~
+           {&for-each11} NO-LOCK,  ~
+               {&for-each21},      ~
                {&for-each31} 
   END.
   ELSE
   DO:
      &SCOPED-DEFINE open-query     ~
          OPEN QUERY {&browse-name} ~
-           {&for-each11}           ~
-               NO-LOCK,            ~
+           {&for-each11} NO-LOCK,  ~
                {&for-each21},      ~
                {&for-each3} 
   END.

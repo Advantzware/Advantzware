@@ -48,7 +48,7 @@ DEF SHARED VAR g_period AS INT NO-UNDO.
 
 DEF TEMP-TABLE tt-arinq NO-UNDO
   FIELD ref-num AS CHAR FORM "x(15)" LABEL "Ck/Cr/Dr/Po#"
-  FIELD inv-no LIKE ar-inv.inv-no LABEL "Invoice#"
+  FIELD inv-no LIKE ar-inv.inv-no FORMAT ">>>>>>9" LABEL "Invoice#"
   FIELD tr-date AS DATE FORM "99/99/9999" LABEL "Date"
   FIELD tr-dscr LIKE gltrans.tr-dscr LABEL "Description"
   FIELD tr-damt LIKE gltrans.tr-amt LABEL "Debits"
@@ -506,7 +506,7 @@ FORM SKIP(1)
            TITLE "  C U S T O M E R   A C T I V I T Y  ".
 
 format tt-arinq.ref-num format "X(12)"          column-label "Ck/Cr/Dr#"
-       tt-arinq.inv-no  format "zzzzzz"         column-label "Inv. #"
+       tt-arinq.inv-no  format "zzzzzzz"        column-label "Inv. #"
        tt-arinq.tr-date format "99/99/99"       column-label "Date"
        tt-arinq.tr-dscr format "X(11)"          column-label "Descr."
        tt-arinq.ageapp                          column-label "Appl"
@@ -517,7 +517,7 @@ format tt-arinq.ref-num format "X(12)"          column-label "Ck/Cr/Dr#"
     with no-box no-attr-space frame a2-1 row 8 12 down stream-io width 132 centered.
 
 format tt-arinq.ref-num format "X(12)"          column-label "Ck/Cr/Dr#/PO"
-       tt-arinq.inv-no  format "zzzzzz"         column-label "Inv. #"
+       tt-arinq.inv-no  format "zzzzzzz"        column-label "Inv. #"
        tt-arinq.tr-date format "99/99/99"       column-label "Date"
        tt-arinq.tr-dscr format "X(11)"          column-label "Descr."
        tt-arinq.ageapp                          column-label "Age App"

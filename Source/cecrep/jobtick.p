@@ -57,7 +57,19 @@ DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
 DEFINE  SHARED VARIABLE v-dept-codes AS CHAR NO-UNDO.
 DEFINE  SHARED VAR v-dept-log AS LOG NO-UNDO.
+DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cImagePath AS CHARACTER NO-UNDO .
+
 DEFINE BUFFER bf-itemfg         FOR itemfg .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCardPrintScores", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR.
+
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -626,11 +638,27 @@ do v-local-loop = 1 to v-local-copies:
                 skip(1)
             with no-box no-labels frame m8 width 132 no-attr-space STREAM-IO.
    
-        if print-box and avail xest then do:            
-            run cec/desprnt3csc.p (recid(xef),
+        if print-box and avail xest then do: 
+            IF lJobCardPrntScor-Log THEN do:
+                run cec/desprnt3csc.p (recid(xef),
                                    input-output v-lines,
                                    recid(xest),
                                    IF AVAIL xeb THEN ROWID(xeb) ELSE ?).
+            END.
+            ELSE DO:
+                 FIND FIRST box-design-hdr NO-LOCK
+                  WHERE box-design-hdr.company EQ xeb.company
+                  AND box-design-hdr.design-no EQ 0
+                  AND box-design-hdr.est-no    EQ xeb.est-no
+                  AND box-design-hdr.form-no   EQ xeb.form-no
+                  AND box-design-hdr.blank-no  EQ xeb.blank-no
+                  NO-ERROR.
+                 IF AVAILABLE box-design-hdr THEN DO:
+                      cImagePath = box-design-hdr.box-image.
+                      PUT UNFORMATTED "<R46><C5><#2><R66><C80><IMAGE#2=" cImagePath ">".
+                      PAGE.
+                 END.
+            END.
         end.
         ELSE PAGE.
 

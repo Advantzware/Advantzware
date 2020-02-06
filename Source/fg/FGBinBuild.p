@@ -159,39 +159,23 @@ PROCEDURE CreateInventoryFromTTInventory:
                                                ttInventoryStock.itemType
                                                ).
                                                
-        IF inventoryStock.stockIDAlias EQ "" THEN
-            inventoryStock.stockIDAlias = gcEmptyTagPrefix + inventoryStock.inventoryStockID.
+        IF inventoryStock.tag EQ "" THEN
+            inventoryStock.tag = gcEmptyTagPrefix + inventoryStock.inventoryStockID.
         
         FOR EACH ttInventoryTransaction
             WHERE ttInventoryTransaction.inventoryStockID EQ ttInventoryStock.inventoryStockID
               AND ttInventoryTransaction.valid:
             CREATE inventoryTransaction.
-            BUFFER-COPY ttInventoryTransaction EXCEPT rec_key inventoryStockID inventoryTransactionID stockIDAlias 
+            BUFFER-COPY ttInventoryTransaction EXCEPT rec_key inventoryStockID inventoryTransactionID tag 
                 TO inventoryTransaction.
 
             ASSIGN
                 inventoryTransaction.inventoryStockID       = inventoryStock.inventoryStockID
-                inventoryTransaction.stockIDAlias           = inventoryStock.stockIDAlias
+                inventoryTransaction.tag                    = inventoryStock.tag
                 inventoryTransaction.inventoryTransactionID = DYNAMIC-FUNCTION (
                                                                   "fGetNextTransactionID" IN hdInventoryProcs
                                                                   )
                 .
-        END.
-        
-        FOR EACH ttInventoryStockAlias
-            WHERE ttInventoryStockAlias.inventoryStockID EQ ttInventoryStock.inventoryStockID
-              AND ttInventoryStockAlias.valid:
-            CREATE inventoryStockAlias.
-            BUFFER-COPY ttInventoryStockAlias EXCEPT rec_key inventoryStockID inventoryStockAliasID stockIDAlias
-                TO inventoryStockAlias.
-            
-            ASSIGN
-                inventoryStockAlias.inventoryStockID      = inventoryStock.inventoryStockID
-                inventoryStockAlias.stockIDAlias          = REPLACE(inventoryStock.stockIDAlias,gcEmptyTagPrefix,"")
-                inventoryStockAlias.inventoryStockAliasID = DYNAMIC-FUNCTION (
-                                                                "fGetNextStockAliasID" IN hdInventoryProcs
-                                                                )
-                .  
         END.
     END.
 END PROCEDURE.
@@ -210,7 +194,6 @@ PROCEDURE BuildTTInventoryForItem:
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
 
     EMPTY TEMP-TABLE ttInventoryStock.
-    EMPTY TEMP-TABLE ttInventoryStockAlias.
     EMPTY TEMP-TABLE ttInventoryTransaction.
     
     FIND FIRST itemfg NO-LOCK
@@ -234,7 +217,7 @@ PROCEDURE BuildTTInventoryForItem:
             FIND FIRST ttInventoryStock
                  WHERE ttInventoryStock.company      EQ fg-rcpth.company
                    AND ttInventoryStock.fgItemID     EQ fg-rcpth.i-no
-                   AND ttInventoryStock.stockIDAlias EQ fg-rdtlh.tag
+                   AND ttInventoryStock.tag          EQ fg-rdtlh.tag
                    AND ttInventoryStock.jobID        EQ fg-rcpth.job-no
                    AND ttInventoryStock.jobID2       EQ fg-rcpth.job-no2
                    AND ttInventoryStock.warehouseID  EQ fg-rdtlh.loc
@@ -271,7 +254,7 @@ PROCEDURE BuildTTInventoryForItem:
                     ttInventoryStock.inventoryStatus            = gcStatusStockInitial
                     ttInventoryStock.primaryID                  = ttInventoryStock.fgItemID
                     ttInventoryStock.inventoryStockID           = STRING(iInventoryStockSeq)
-                    ttInventoryStock.stockIDAlias               = fg-rdtlh.tag
+                    ttInventoryStock.tag                        = fg-rdtlh.tag
                     ttInventoryStock.poLine                     = IF ttInventoryStock.poID NE 0 THEN
                                                                       ttInventoryStock.poID
                                                                   ELSE
@@ -290,7 +273,7 @@ PROCEDURE BuildTTInventoryForItem:
                      WHERE fg-bin.company EQ ttInventoryStock.company
                        AND fg-bin.po-no   EQ fg-rcpth.po-no
                        AND fg-bin.i-no    EQ ttInventoryStock.fgItemID
-                       AND fg-bin.tag     EQ ttInventoryStock.stockIDAlias
+                       AND fg-bin.tag     EQ ttInventoryStock.tag
                        AND fg-bin.job-no  EQ ttInventoryStock.jobID
                        AND fg-bin.job-no2 EQ ttInventoryStock.jobID2
                        AND fg-bin.loc     EQ ttInventoryStock.warehouseID
@@ -328,23 +311,6 @@ PROCEDURE BuildTTInventoryForItem:
             IF ttInventoryStock.poID EQ 0 AND fg-rcpth.po-no NE "" THEN
                 ttInventoryStock.poID = INTEGER(fg-rcpth.po-no) NO-ERROR.
                             
-            /* Create InventoryStockAlias for the stockIDAlias */ 
-            FIND FIRST ttInventoryStockAlias NO-LOCK
-                 WHERE ttInventoryStockAlias.stockIDAlias EQ ttInventoryStock.stockIDAlias
-                   NO-ERROR.
-            IF NOT AVAILABLE ttInventoryStockAlias THEN
-            DO:
-                iInventoryStockAliasSeq = iInventoryStockAliasSeq + 1.
-                CREATE ttInventoryStockAlias.
-                ASSIGN
-                    ttInventoryStockAlias.inventoryStockAliasID = iInventoryStockAliasSeq
-                    ttInventoryStockAlias.company               = ttInventoryStock.company
-                    ttInventoryStockAlias.inventoryStockID      = ttInventoryStock.inventoryStockID
-                    ttInventoryStockAlias.uniquePrefix          = ttInventoryStock.primaryID
-                    ttInventoryStockAlias.stockIDAlias          = ttInventoryStock.stockIDAlias
-                    .
-            END.
-
             CREATE ttInventoryTransaction.
             ASSIGN
                 ttInventoryTransaction.company           = ttInventoryStock.company
@@ -361,7 +327,7 @@ PROCEDURE BuildTTInventoryForItem:
                 ttInventoryTransaction.transactionTime   = DATETIME(fg-rcpth.trans-date, fg-rdtlh.trans-time)
                 ttInventoryTransaction.transactionStatus = gcStatusTransactionPosted
                 ttInventoryTransaction.inventoryStockID  = ttInventoryStock.inventoryStockID
-                ttInventoryTransaction.stockIDAlias      = ttInventoryStock.stockIDAlias
+                ttInventoryTransaction.tag               = ttInventoryStock.tag
                 .
             
             CASE fg-rcpth.rita-code:
@@ -441,7 +407,6 @@ PROCEDURE BuildTTInventoryForItem:
 
             ttInventoryStock.lastTransTime = DATETIME(fg-rcpth.trans-date, fg-rdtlh.trans-time).
 
-            RELEASE ttInventoryStockAlias.
             RELEASE ttInventoryTransaction.
             RELEASE ttInventoryStock.
         END.

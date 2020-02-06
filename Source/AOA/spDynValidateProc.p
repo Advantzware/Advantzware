@@ -8,6 +8,10 @@
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.~
 ~
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
+&Scoped-define checkRange ~
+    RUN dynValReturn (iphWidget,~
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR~
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
 
 DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSessionParam AS CHARACTER NO-UNDO.
@@ -118,9 +122,7 @@ END PROCEDURE.
 
 PROCEDURE dynValBoxDesign:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST box-design-hdr
                  WHERE box-design-hdr.company EQ cCompany
                  AND box-design-hdr.design-no <> 0
@@ -130,9 +132,7 @@ END PROCEDURE.
 
 PROCEDURE dynValCarrier:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST carrier
                  WHERE carrier.company EQ cCompany
                    AND carrier.carrier EQ iphWidget:SCREEN-VALUE)
@@ -141,9 +141,7 @@ END PROCEDURE.
 
 PROCEDURE dynValCompany:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST company
                  WHERE company.company EQ iphWidget:SCREEN-VALUE)
         ).
@@ -151,9 +149,7 @@ END PROCEDURE.
 
 PROCEDURE dynValCust:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST cust
                  WHERE cust.company EQ cCompany
                    AND cust.cust-no EQ iphWidget:SCREEN-VALUE)
@@ -162,9 +158,7 @@ END PROCEDURE.
 
 PROCEDURE dynValCustype:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST custype
                  WHERE custype.company EQ cCompany
                    AND custype.custype EQ iphWidget:SCREEN-VALUE)
@@ -173,9 +167,7 @@ END PROCEDURE.
 
 PROCEDURE dynValFGItem:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST itemfg
                  WHERE itemfg.company EQ cCompany
                    AND itemfg.i-no    EQ iphWidget:SCREEN-VALUE)
@@ -184,9 +176,7 @@ END PROCEDURE.
 
 PROCEDURE dynValFlute:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST flute
                  WHERE flute.company EQ cCompany
                    AND flute.CODE    EQ iphWidget:SCREEN-VALUE)
@@ -195,9 +185,7 @@ END PROCEDURE.
 
 PROCEDURE dynValLoc:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST loc
                  WHERE loc.company EQ cCompany
                    AND loc.loc     EQ iphWidget:SCREEN-VALUE)
@@ -206,9 +194,7 @@ END PROCEDURE.
 
 PROCEDURE dynValMachine:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST mach
                  WHERE mach.company EQ cCompany
                    AND mach.m-code  EQ iphWidget:SCREEN-VALUE)
@@ -217,9 +203,7 @@ END PROCEDURE.
 
 PROCEDURE dynValMat:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST mat
                  WHERE mat.mat EQ iphWidget:SCREEN-VALUE)
         ).
@@ -227,9 +211,7 @@ END PROCEDURE.
 
 PROCEDURE dynValPrep:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST prep
                  WHERE prep.company EQ cCompany
                    AND prep.CODE    EQ iphWidget:SCREEN-VALUE)
@@ -324,9 +306,7 @@ END PROCEDURE.
 
 PROCEDURE dynValProCat:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST procat
                  WHERE procat.company EQ cCompany
                    AND procat.procat  EQ iphWidget:SCREEN-VALUE)
@@ -336,9 +316,7 @@ END PROCEDURE.
 
 PROCEDURE dynValRMItem:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST item
                  WHERE item.company EQ cCompany
                    AND item.i-no    EQ iphWidget:SCREEN-VALUE)
@@ -347,9 +325,7 @@ END PROCEDURE.
 
 PROCEDURE dynValSalesRep:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST sman
                  WHERE sman.company EQ cCompany
                    AND sman.sman    EQ iphWidget:SCREEN-VALUE)
@@ -377,9 +353,7 @@ END PROCEDURE.
 
 PROCEDURE dynValScoreType:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST scoreType
                  WHERE scoreType.company   EQ cCompany
                    AND scoreType.scoreType EQ iphWidget:SCREEN-VALUE)
@@ -388,9 +362,7 @@ END PROCEDURE.
 
 PROCEDURE dynValStackPatterns:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST stackPattern
                  WHERE  stackPattern.stackCode     EQ iphWidget:SCREEN-VALUE)
         ).
@@ -398,9 +370,7 @@ END PROCEDURE.
 
 PROCEDURE dynValStyle:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST style
                  WHERE style.company EQ cCompany
                    AND style.style   EQ iphWidget:SCREEN-VALUE)
@@ -425,9 +395,7 @@ END PROCEDURE.
 PROCEDURE dynValUser:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST users
                  WHERE users.user_id EQ iphWidget:SCREEN-VALUE)
         ).
@@ -435,9 +403,7 @@ END PROCEDURE.
 
 PROCEDURE dynValVendor:
     {&defInputParam}
-    RUN dynValReturn (iphWidget,
-        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
-        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+    {&checkRange}
         CAN-FIND(FIRST vend
                  WHERE vend.company EQ cCompany
                    AND vend.vend-no EQ iphWidget:SCREEN-VALUE)
@@ -463,14 +429,3 @@ PROCEDURE pGetWidgetByName PRIVATE:
     END. /* do while */
     ophWidget = hWidget.
 END PROCEDURE.
-
-
-
-
-
-
-
-
-
-
-

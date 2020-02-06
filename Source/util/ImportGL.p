@@ -118,22 +118,25 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportGL FOR ttImportGL.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-account FOR account.
 
-    FIND FIRST account EXCLUSIVE-LOCK 
-        WHERE account.company EQ ipbf-ttImportGL.Company
-        AND account.actnum EQ ipbf-ttImportGL.AccountNo
+    FIND FIRST bf-account EXCLUSIVE-LOCK 
+        WHERE bf-account.company EQ ipbf-ttImportGL.Company
+        AND bf-account.actnum EQ ipbf-ttImportGL.AccountNo
         NO-ERROR.
-    IF NOT AVAILABLE account THEN DO:
+    IF NOT AVAILABLE bf-account THEN DO:
         iopiAdded = iopiAdded + 1.
-        CREATE account.
+        CREATE bf-account.
         ASSIGN
-            account.company = ipbf-ttImportGL.Company
-            account.actnum = ipbf-ttImportGL.AccountNo
-            account.type = "A". 
+            bf-account.company = ipbf-ttImportGL.Company
+            bf-account.actnum = ipbf-ttImportGL.AccountNo
+            bf-account.type = "A". 
     END.
-    RUN pAssignValueC (ipbf-ttImportGL.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT account.dscr).
-    RUN pAssignValueC (ipbf-ttImportGL.AccountType, YES, INPUT-OUTPUT account.type).   
-    RUN pAssignValueCToL (ipbf-ttImportGL.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT account.Inactive).
+    RUN pAssignValueC (ipbf-ttImportGL.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT bf-account.dscr).
+    RUN pAssignValueC (ipbf-ttImportGL.AccountType, YES, INPUT-OUTPUT bf-account.type).   
+    RUN pAssignValueCToL (ipbf-ttImportGL.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.Inactive).
+    
+    RELEASE bf-account.
 
 END PROCEDURE.
 

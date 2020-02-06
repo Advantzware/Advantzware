@@ -26,3 +26,5 @@
 26 "EstimateNo" "System" "Estimate Number" "Character" "x(8)" "Fill-In" "" "" 1 11 0 "" "" "" ? "" "201910255766204353519"
 27 "ItemID" "System" "Item ID" "Character" "x(20)" "Fill-In" "" "" 1 24 0 "" "" "" ? "" "201910255798504353524"
 28 "CorrectData" "System" "Correct Data" "Logical" "yes/no" "Toggle-Box" "" "yes" 1 16 0 "" "" "" ? "" "201911064450004355512"
+29 "Location" "System" "Location" "Character" "x(5)" "Fill-In" "" "" 1 11 0 "" "dynValLoc" "dynDescripLoc" ? "" "201911223481304359160"
+31 "APIStatus" "System" "API Status" "Logical" "yes/no" "Radio-Set" "All,?,Success,Yes,Failure,No" "yes" 1 34 0 "" "" "" "HORIZONTAL" "" "202001234577904610545"

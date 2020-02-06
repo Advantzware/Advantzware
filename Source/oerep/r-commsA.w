@@ -1112,7 +1112,7 @@ def var v-gp        as   dec format ">>9.99" NO-UNDO.
 def var v-slsm      like ar-invl.sman extent 1 NO-UNDO.
 def var v-slsc      like ar-invl.s-comm extent 1 NO-UNDO.
 def var v-slsp      like ar-invl.s-pct extent 1 NO-UNDO.
-def var v-inv-no    like ar-invl.inv-no NO-UNDO.
+def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>9".
 /*BV - 01071303*/
 def var v-inv-date    like ar-invl.inv-date NO-UNDO.
 

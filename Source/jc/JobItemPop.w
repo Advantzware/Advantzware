@@ -36,13 +36,9 @@ DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO .
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
-DEFINE SHARED TEMP-TABLE tt-job-item 
-    FIELD tt-rowid    AS ROWID
-    FIELD frm         LIKE job-mat.frm
-    FIELD blank-no    LIKE job-mat.blank-no
-    FIELD rm-i-no     AS CHARACTER  COLUMN-LABEL " Item#" 
-    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
-    .
+
+{jc/ttJobItem.i SHARED}
+
 DEFINE VARIABLE ll-secure AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO .
 ASSIGN 
@@ -68,7 +64,7 @@ ASSIGN
 &Scoped-define INTERNAL-TABLES tt-job-item
 
 /* Definitions for BROWSE BROWSE-3                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED tt-job-item.frm tt-job-item.blank-no tt-job-item.rm-i-no 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED tt-job-item.frm tt-job-item.blank-no tt-job-item.rm-i-no tt-job-item.mach-id
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED  
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tt-job-item
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tt-job-item
@@ -83,7 +79,8 @@ ASSIGN
     ~{&OPEN-QUERY-BROWSE-3}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 BROWSE-3 btn-process btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-17 BROWSE-3 btn-Select-all btn-process ~
+btn-Deselect-all btn-cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -102,12 +99,20 @@ ASSIGN
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY
     LABEL "Ca&ncel" 
-    SIZE 18 BY 1.14.
+    SIZE 14 BY 1.14.
 
 DEFINE BUTTON btn-process  
     LABEL "Delete" 
-    SIZE 15 BY 1.14
+    SIZE 14 BY 1.14
     BGCOLOR 8 .
+
+DEFINE BUTTON btn-Deselect-all 
+     LABEL "Deselect All" 
+     SIZE 12.5 BY 1.14.
+
+DEFINE BUTTON btn-Select-all 
+     LABEL "Select All" 
+     SIZE 11 BY 1.14.
 
 DEFINE RECTANGLE RECT-17
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -124,9 +129,10 @@ DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
     QUERY BROWSE-3 NO-LOCK DISPLAY
     tt-job-item.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-job-item.frm FORMAT ">>>" COLUMN-LABEL "S" WIDTH 12
-    tt-job-item.blank-no FORMAT ">>>" COLUMN-LABEL "B" 
+    tt-job-item.frm FORMAT ">>>" COLUMN-LABEL "S" WIDTH 7
+    tt-job-item.blank-no FORMAT ">>>" COLUMN-LABEL "B" WIDTH 7
     tt-job-item.rm-i-no FORMAT "X(20)" 
+    tt-job-item.mach-id FORMAT "x(20)"
     
       ENABLE tt-job-item.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
@@ -139,8 +145,10 @@ DEFINE BROWSE BROWSE-3
 
 DEFINE FRAME Dialog-Frame
     BROWSE-3 AT ROW 1.44 COL 2
-    btn-process AT ROW 12.22 COL 25
-    btn-cancel AT ROW 12.22 COL 50.4
+    btn-Select-all AT ROW 12.24 COL 2.8 WIDGET-ID 2
+     btn-Deselect-all AT ROW 12.24 COL 14.2 WIDGET-ID 4
+    btn-process AT ROW 12.24 COL 37.2
+    btn-cancel AT ROW 12.24 COL 54.8
     RECT-17 AT ROW 1.19 COL 1.6
     SPACE(1.99) SKIP(0.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -170,7 +178,11 @@ ASSIGN
     FRAME Dialog-Frame:SCROLLABLE = FALSE
     FRAME Dialog-Frame:HIDDEN     = TRUE.
 
-   /*tt-job-item.rm-i-no:COLUMN-LABEL = "Machine".*/
+IF ipcType EQ "job-mch" THEN DO:
+    tt-job-item.rm-i-no:VISIBLE IN BROWSE BROWSE-3 = FALSE .
+END.
+ELSE tt-job-item.mach-id:VISIBLE IN BROWSE BROWSE-3 = FALSE .
+
 
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -188,14 +200,16 @@ and oe-ord.stat = ""D"""
      _FldNameList[1]   >  tt-job-item.IS-SELECTED
 " tt-job-item.IS-SELECTED" ? ? "logical" ? ? ? ? ? ? no ? no no "7.6" yes no no "U" "" ""
      _FldNameList[2]   > tt-job-item.frm
-"tt-job-item.frm" ? ? "Integer" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
+"tt-job-item.frm" ? ? "Integer" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" ""
      _FldNameList[3]   > tt-job-item.blank-no
-"tt-job-item.blank-no" ? ? "integer" ? ? ? ? ? ? no ? no no "33" yes no no "U" "" ""
+"tt-job-item.blank-no" ? ? "integer" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" ""
      _FldNameList[4]   > tt-job-item.rm-i-no
 "tt-job-item.rm-i-no" ? ? "Character" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
+     _FldNameList[5]   > tt-job-item.mach-id
+"tt-job-item.mach-id" ? ? "Character" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
-&ANALYZE-RESUME
+&ANALYZE-RESUME 
 
  
 
@@ -285,6 +299,36 @@ ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Delete */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btn-Deselect-all
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Deselect-all Dialog-Frame
+ON CHOOSE OF btn-Deselect-all IN FRAME Dialog-Frame /* Deselect All */
+DO:
+       FOR EACH tt-job-item:
+        tt-job-item.IS-SELECTED = FALSE.
+       END.
+
+       RUN open-query .
+       
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btn-Select-all
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Select-all Dialog-Frame
+ON CHOOSE OF btn-Select-all IN FRAME Dialog-Frame /* Select All */
+DO:
+       FOR EACH tt-job-item:
+        tt-job-item.IS-SELECTED = TRUE.
+       END.
+
+       RUN open-query .
+      
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -358,7 +402,7 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    ENABLE BROWSE-3 btn-process btn-cancel RECT-17
+    ENABLE BROWSE-3 btn-process btn-cancel RECT-17 btn-Select-all btn-Deselect-all
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
 /*{&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}*/
@@ -380,7 +424,7 @@ PROCEDURE build-table :
         FOR EACH job-mat NO-LOCK
             WHERE job-mat.company = cocode
             AND job-mat.job-no = ipcJobNo 
-            AND job-mat.job-no2 = ipiJobNo2 USE-INDEX seq-idx
+            AND job-mat.job-no2 = ipiJobNo2 
             BY job-mat.frm BY job-mat.blank-no :
        
             FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mat)
@@ -400,7 +444,7 @@ PROCEDURE build-table :
         FOR EACH job-mch NO-LOCK
             WHERE job-mch.company = cocode
             AND job-mch.job-no = ipcJobNo 
-            AND job-mch.job-no2 = ipiJobNo2 USE-INDEX line-idx
+            AND job-mch.job-no2 = ipiJobNo2 
             BY job-mch.frm BY job-mch.blank-no :
        
             FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mch)
@@ -412,11 +456,30 @@ PROCEDURE build-table :
                     tt-job-item.tt-rowid = ROWID(job-mch)
                     tt-job-item.frm      = job-mch.frm  
                     tt-job-item.blank-no = job-mch.blank-no
-                    tt-job-item.rm-i-no   = job-mch.m-code .
+                    tt-job-item.rm-i-no   = job-mch.m-code
+                    tt-job-item.mach-id   = job-mch.m-code .
             END.
         END.
       END. /* ipcType EQ "job-mch"*/
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open-query Dialog-Frame 
+PROCEDURE open-query :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+------------------------------------------------------------------------------*/
+    
+    CLOSE QUERY BROWSE-3.
+    OPEN QUERY BROWSE-3 FOR EACH tt-job-item
+        NO-LOCK BY tt-job-item.frm.
 
 END PROCEDURE.
 

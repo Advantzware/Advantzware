@@ -7,7 +7,6 @@ DEFINE VARIABLE itemCount        AS INTEGER NO-UNDO.
 DEFINE VARIABLE itemLimitToLoad  AS INTEGER NO-UNDO INITIAL 10. /* Modify the limit as necessary */
  
 DISABLE TRIGGERS FOR LOAD OF inventoryStock.
-DISABLE TRIGGERS FOR LOAD OF inventoryStockAlias.
 
 RUN inventory/inventoryProcs.p PERSISTENT SET hdInventoryProcs.
 

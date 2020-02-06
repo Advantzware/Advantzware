@@ -113,23 +113,35 @@ PROCEDURE spDynCalcField:
     DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cField AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hField AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParam  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStr    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iExtent AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hField  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable  AS HANDLE    NO-UNDO.
     
     /* parse parameter string, replace fields with actual values */
     DO idx = 1 TO NUM-ENTRIES(ipcCalcParam,"|"):
         cParam = ENTRY(idx,ipcCalcParam,"|").
         IF INDEX(cParam,".") NE 0 THEN DO:
             ASSIGN
-                cTable = ENTRY(1,cParam,".")
-                cField = ENTRY(2,cParam,".")
+                cTable  = ENTRY(1,cParam,".")
+                cField  = ENTRY(2,cParam,".")
+                iExtent = 0
+                .
+            IF INDEX(cField,"[") NE 0 THEN
+            ASSIGN
+                cStr    = SUBSTRING(cField,INDEX(cField,"[") + 1)
+                cStr    = REPLACE(cStr,"]","")
+                iExtent = INTEGER(cStr)
+                cField  = SUBSTRING(cField,1,INDEX(cField,"[") - 1)
+                .
+            ASSIGN 
                 hTable = iphQuery:GET-BUFFER-HANDLE(cTable)
-                cValue = hTable:BUFFER-FIELD(cField):BUFFER-VALUE()
+                cValue = hTable:BUFFER-FIELD(cField):BUFFER-VALUE(iExtent)
                 ENTRY(idx,ipcCalcParam,"|") = TRIM(cValue)
                 .
         END. /* if database field */

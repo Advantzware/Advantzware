@@ -329,6 +329,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE iFirstReleaseOfItem AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cCustNo             LIKE cust.cust-no NO-UNDO.
 
+    DEFINE BUFFER bff-oe-rel FOR oe-rel.
     DEFINE BUFFER bf-oe-rel FOR oe-rel.
     DEFINE BUFFER bf-cust   FOR cust.
 
@@ -350,25 +351,25 @@ PROCEDURE pProcessRecord PRIVATE:
             AND oe-ordl.i-no EQ ipbf-ttImportRelease.cItemID NO-ERROR.
     
     IF AVAILABLE oe-ordl THEN
-        FIND FIRST oe-rel EXCLUSIVE-LOCK
-            WHERE oe-rel.company EQ oe-ord.company
-            AND oe-rel.ord-no EQ oe-ordl.ord-no
-            AND oe-rel.i-no EQ oe-ordl.i-no 
-            AND oe-rel.LINE EQ oe-ordl.LINE NO-ERROR.
+        FIND FIRST bf-oe-rel EXCLUSIVE-LOCK
+            WHERE bf-oe-rel.company EQ oe-ord.company
+            AND bf-oe-rel.ord-no EQ oe-ordl.ord-no
+            AND bf-oe-rel.i-no EQ oe-ordl.i-no 
+            AND bf-oe-rel.LINE EQ oe-ordl.LINE NO-ERROR.
     
     iopiAdded = iopiAdded + 1.
           
     RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT inextRelNo).
-    CREATE oe-rel.
+    CREATE bf-oe-rel.
     ASSIGN
-        oe-rel.company  = ipbf-ttImportRelease.Company
-        oe-rel.loc      = ipbf-ttImportRelease.Location
-        oe-rel.r-no     = inextRelNo
-        oe-rel.ord-no   = oe-ordl.ord-no
-        oe-rel.i-no     = oe-ordl.i-no
-        oe-rel.cust-no  = oe-ord.cust-no
-        oe-rel.rel-date = TODAY
-        oe-rel.line     = oe-ordl.line. 
+        bf-oe-rel.company  = ipbf-ttImportRelease.Company
+        bf-oe-rel.loc      = ipbf-ttImportRelease.Location
+        bf-oe-rel.r-no     = inextRelNo
+        bf-oe-rel.ord-no   = oe-ordl.ord-no
+        bf-oe-rel.i-no     = oe-ordl.i-no
+        bf-oe-rel.cust-no  = oe-ord.cust-no
+        bf-oe-rel.rel-date = TODAY
+        bf-oe-rel.line     = oe-ordl.line. 
     
     FIND FIRST bf-cust NO-LOCK
         WHERE bf-cust.cust-no EQ oe-ord.cust-no NO-ERROR.
@@ -380,11 +381,11 @@ PROCEDURE pProcessRecord PRIVATE:
     IF AVAILABLE(bf-cust) AND bf-cust.ACTIVE EQ "X" AND ipbf-ttImportRelease.cShipTo GT "" THEN
         cShipId = ipbf-ttImportRelease.cShipTo.
 
-    FIND FIRST bf-oe-rel NO-LOCK
-        WHERE bf-oe-rel.company EQ oe-ord.company
-        AND bf-oe-rel.ord-no EQ oe-ord.ord-no
-        AND bf-oe-rel.i-no EQ oe-ordl.i-no
-        AND bf-oe-rel.LINE EQ oe-ordl.LINE NO-ERROR.
+    FIND FIRST bff-oe-rel NO-LOCK
+        WHERE bff-oe-rel.company EQ oe-ord.company
+        AND bff-oe-rel.ord-no EQ oe-ord.ord-no
+        AND bff-oe-rel.i-no EQ oe-ordl.i-no
+        AND bff-oe-rel.LINE EQ oe-ordl.LINE NO-ERROR.
 
     cFirstShipId = ipbf-ttImportRelease.cShipTo.
     
@@ -418,7 +419,7 @@ PROCEDURE pProcessRecord PRIVATE:
             FOR EACH shipto NO-LOCK
                 WHERE shipto.company  EQ ipbf-ttImportRelease.Company
                 AND shipto.cust-no EQ (IF cCustNo NE "" AND
-                oe-rel.s-code EQ "T" THEN cCustNo
+                bf-oe-rel.s-code EQ "T" THEN cCustNo
                 ELSE oe-ord.cust-no)
                 BREAK BY shipto.ship-no DESCENDING:
 
@@ -427,109 +428,110 @@ PROCEDURE pProcessRecord PRIVATE:
             END.
      
         IF cCarrier EQ "" AND AVAILABLE shipto THEN cCarrier = shipto.carrier.
-        FIND FIRST bf-oe-rel NO-LOCK
-            WHERE bf-oe-rel.company EQ ipbf-ttImportRelease.Company
-            AND bf-oe-rel.ord-no EQ oe-ord.ord-no
-            AND bf-oe-rel.i-no EQ oe-ordl.i-no
-            AND ROWID(bf-oe-rel) NE ROWID(oe-rel) NO-ERROR.
+        FIND FIRST bff-oe-rel NO-LOCK
+            WHERE bff-oe-rel.company EQ ipbf-ttImportRelease.Company
+            AND bff-oe-rel.ord-no EQ oe-ord.ord-no
+            AND bff-oe-rel.i-no EQ oe-ordl.i-no
+            AND ROWID(bff-oe-rel) NE ROWID(bf-oe-rel) NO-ERROR.
     
-        iFirstReleaseOfItem = IF AVAILABLE bf-oe-rel THEN NO ELSE YES.  
+        iFirstReleaseOfItem = IF AVAILABLE bff-oe-rel THEN NO ELSE YES.  
 
         ASSIGN 
-            oe-rel.i-no         = ipbf-ttImportRelease.cItemID 
-            oe-rel.cust-no      = oe-ord.cust-no
-            oe-rel.qty          = 0 
-            oe-rel.fob-code     = ipbf-ttImportRelease.cFOB
-            oe-rel.frt-pay      = ipbf-ttImportRelease.cFreightPay
-            oe-rel.zeroPrice    = IF ipbf-ttImportRelease.lSellPriceIsZero THEN 1.0 ELSE 0.0
-            oe-rel.sell-price   = ipbf-ttImportRelease.dSellPrice
-            oe-rel.lot-no       = ipbf-ttImportRelease.cCustomerLot
-            oe-rel.rel-date     = ipbf-ttImportRelease.dReleaseDate
-            oe-rel.tot-qty      = ipbf-ttImportRelease.dQuantityScheduled
-            oe-rel.po-no        = ipbf-ttImportRelease.cCustomerPO
-            oe-rel.s-code       = ipbf-ttImportRelease.cReleaseType
-            oe-rel.s-comm[1]    = oe-ord.s-comm[1]
-            oe-rel.s-comm[2]    = oe-ord.s-comm[2]
-            oe-rel.s-comm[3]    = oe-ord.s-comm[3]
-            oe-rel.s-name[1]    = oe-ord.sname[1]
-            oe-rel.s-name[2]    = oe-ord.sname[2]
-            oe-rel.s-name[3]    = oe-ord.sname[3]
-            oe-rel.s-pct[1]     = oe-ord.s-pct[1]
-            oe-rel.s-pct[2]     = oe-ord.s-pct[2]
-            oe-rel.s-pct[3]     = oe-ord.s-pct[3]
-            oe-rel.sman[1]      = oe-ord.sman[1]
-            oe-rel.sman[2]      = oe-ord.sman[2]
-            oe-rel.sman[3]      = oe-ord.sman[3]
-            oe-rel.sold-no      = oe-ord.sold-no
-            oe-rel.carrier      = cCarrier
-            oe-rel.ship-id      = cShipId
-            oe-rel.spare-char-1 = ipbf-ttImportRelease.cShipFrom.
+            bf-oe-rel.i-no         = ipbf-ttImportRelease.cItemID 
+            bf-oe-rel.cust-no      = oe-ord.cust-no
+            bf-oe-rel.qty          = 0 
+            bf-oe-rel.fob-code     = ipbf-ttImportRelease.cFOB
+            bf-oe-rel.frt-pay      = ipbf-ttImportRelease.cFreightPay
+            bf-oe-rel.zeroPrice    = IF ipbf-ttImportRelease.lSellPriceIsZero THEN 1.0 ELSE 0.0
+            bf-oe-rel.sell-price   = ipbf-ttImportRelease.dSellPrice
+            bf-oe-rel.lot-no       = ipbf-ttImportRelease.cCustomerLot
+            bf-oe-rel.rel-date     = ipbf-ttImportRelease.dReleaseDate
+            bf-oe-rel.tot-qty      = ipbf-ttImportRelease.dQuantityScheduled
+            bf-oe-rel.po-no        = ipbf-ttImportRelease.cCustomerPO
+            bf-oe-rel.s-code       = ipbf-ttImportRelease.cReleaseType
+            bf-oe-rel.s-comm[1]    = oe-ord.s-comm[1]
+            bf-oe-rel.s-comm[2]    = oe-ord.s-comm[2]
+            bf-oe-rel.s-comm[3]    = oe-ord.s-comm[3]
+            bf-oe-rel.s-name[1]    = oe-ord.sname[1]
+            bf-oe-rel.s-name[2]    = oe-ord.sname[2]
+            bf-oe-rel.s-name[3]    = oe-ord.sname[3]
+            bf-oe-rel.s-pct[1]     = oe-ord.s-pct[1]
+            bf-oe-rel.s-pct[2]     = oe-ord.s-pct[2]
+            bf-oe-rel.s-pct[3]     = oe-ord.s-pct[3]
+            bf-oe-rel.sman[1]      = oe-ord.sman[1]
+            bf-oe-rel.sman[2]      = oe-ord.sman[2]
+            bf-oe-rel.sman[3]      = oe-ord.sman[3]
+            bf-oe-rel.sold-no      = oe-ord.sold-no
+            bf-oe-rel.carrier      = cCarrier
+            bf-oe-rel.ship-id      = cShipId
+            bf-oe-rel.spare-char-1 = ipbf-ttImportRelease.cShipFrom.
         .
         IF ipbf-ttImportRelease.cCustomerPO EQ "" THEN
-            oe-rel.po-no = IF oe-ordl.po-no NE "" THEN oe-ordl.po-no 
+            bf-oe-rel.po-no = IF oe-ordl.po-no NE "" THEN oe-ordl.po-no 
             ELSE oe-ord.po-no.
         IF ipbf-ttImportRelease.cReleaseType EQ "" THEN
-            oe-rel.s-code  = "B".
+            bf-oe-rel.s-code  = "B".
         IF ipbf-ttImportRelease.dReleaseDate EQ ? THEN
-            oe-rel.rel-date     = TODAY.
+            bf-oe-rel.rel-date     = TODAY.
 
         IF iFirstReleaseOfItem THEN 
-            oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
+            bf-oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
       
                                   
-        IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
+        IF bf-oe-rel.qty LT 0 THEN bf-oe-rel.qty = 0.
 
         IF AVAILABLE shipto THEN DO:
             ASSIGN
-                oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                oe-rel.ship-city    = shipto.ship-city
-                oe-rel.ship-state   = shipto.ship-state
-                oe-rel.ship-zip     = shipto.ship-zip
-                oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-id      = IF cFirstShipId NE "" THEN cFirstShipId ELSE shipto.ship-id
-                oe-rel.ship-i[1]    = shipto.notes[1]
-                oe-rel.ship-i[2]    = shipto.notes[2]
-                oe-rel.ship-i[3]    = shipto.notes[3]
-                oe-rel.ship-i[4]    = shipto.notes[4].
-            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                bf-oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                bf-oe-rel.ship-city    = shipto.ship-city
+                bf-oe-rel.ship-state   = shipto.ship-state
+                bf-oe-rel.ship-zip     = shipto.ship-zip
+                bf-oe-rel.ship-no      = shipto.ship-no
+                bf-oe-rel.ship-id      = IF cFirstShipId NE "" THEN cFirstShipId ELSE shipto.ship-id
+                bf-oe-rel.ship-i[1]    = shipto.notes[1]
+                bf-oe-rel.ship-i[2]    = shipto.notes[2]
+                bf-oe-rel.ship-i[3]    = shipto.notes[3]
+                bf-oe-rel.ship-i[4]    = shipto.notes[4].
+            RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
         END.
         ELSE 
             ASSIGN 
-                oe-rel.ship-no   = oe-ord.sold-no
-                oe-rel.ship-id   = IF cFirstShipId NE "" THEN cFirstShipId ELSE oe-ord.sold-id
-                oe-rel.ship-i[1] = oe-ord.ship-i[1]
-                oe-rel.ship-i[2] = oe-ord.ship-i[2]
-                oe-rel.ship-i[3] = oe-ord.ship-i[3]
-                oe-rel.ship-i[4] = oe-ord.ship-i[4].
+                bf-oe-rel.ship-no   = oe-ord.sold-no
+                bf-oe-rel.ship-id   = IF cFirstShipId NE "" THEN cFirstShipId ELSE oe-ord.sold-id
+                bf-oe-rel.ship-i[1] = oe-ord.ship-i[1]
+                bf-oe-rel.ship-i[2] = oe-ord.ship-i[2]
+                bf-oe-rel.ship-i[3] = oe-ord.ship-i[3]
+                bf-oe-rel.ship-i[4] = oe-ord.ship-i[4].
 
         IF NOT CAN-FIND(FIRST shipto 
             WHERE shipto.company EQ ipbf-ttImportRelease.Company
-            AND shipto.ship-id EQ oe-rel.ship-id) THEN 
+            AND shipto.ship-id EQ bf-oe-rel.ship-id) THEN 
         DO:
             
             FOR EACH shipto NO-LOCK
                 WHERE shipto.company EQ ipbf-ttImportRelease.Company
-                AND shipto.cust-no EQ oe-rel.cust-no
+                AND shipto.cust-no EQ bf-oe-rel.cust-no
                 BY shipto.ship-id:
 
                 IF AVAILABLE shipto THEN DO:
                     ASSIGN 
-                        oe-rel.ship-id      = shipto.ship-id
-                        oe-rel.ship-addr[1] = shipto.ship-addr[1]
-                        oe-rel.ship-city    = shipto.ship-city
-                        oe-rel.ship-state   = shipto.ship-state
-                        oe-rel.ship-zip     = shipto.ship-zip
-                        oe-rel.ship-no      = shipto.ship-no
-                        oe-rel.ship-i[1]    = shipto.notes[1]
-                        oe-rel.ship-i[2]    = shipto.notes[2]
-                        oe-rel.ship-i[3]    = shipto.notes[3]
-                        oe-rel.ship-i[4]    = shipto.notes[4].
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                        bf-oe-rel.ship-id      = shipto.ship-id
+                        bf-oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                        bf-oe-rel.ship-city    = shipto.ship-city
+                        bf-oe-rel.ship-state   = shipto.ship-state
+                        bf-oe-rel.ship-zip     = shipto.ship-zip
+                        bf-oe-rel.ship-no      = shipto.ship-no
+                        bf-oe-rel.ship-i[1]    = shipto.notes[1]
+                        bf-oe-rel.ship-i[2]    = shipto.notes[2]
+                        bf-oe-rel.ship-i[3]    = shipto.notes[3]
+                        bf-oe-rel.ship-i[4]    = shipto.notes[4].
+                    RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
                 END.
                 LEAVE .
             END.
         END.
     END.
+    RELEASE bf-oe-rel.
 END PROCEDURE.
 
 PROCEDURE CopyShipNote PRIVATE:

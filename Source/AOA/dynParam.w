@@ -77,7 +77,7 @@ iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults 
+&Scoped-Define ENABLED-OBJECTS btnErrorCheck btnRestoreDefaults 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -99,6 +99,11 @@ DEFINE VARIABLE h_paramSet AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_paramSetDtl AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnErrorCheck 
+     IMAGE-UP FILE "Graphics/16x16/save.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "E" 
+     SIZE 4.4 BY 1.05.
+
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Defaults" 
@@ -108,6 +113,7 @@ DEFINE BUTTON btnRestoreDefaults
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnErrorCheck AT ROW 1.1 COL 71 WIDGET-ID 294
      btnRestoreDefaults AT ROW 1.1 COL 67 HELP
           "Restore Defaults" WIDGET-ID 42
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -227,6 +233,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnErrorCheck
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnErrorCheck W-Win
+ON CHOOSE OF btnErrorCheck IN FRAME F-Main /* E */
+DO:
+    RUN pErrorCheck.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnRestoreDefaults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults W-Win
 ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
@@ -292,9 +309,6 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_paramSet ( 2.43 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 26.95 , 158.00 ) */
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_paramSet ,
-             h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -305,9 +319,6 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_paramSetDtl ( 2.43 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 26.95 , 158.00 ) */
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_paramSetDtl ,
-             h_folder , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -319,8 +330,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 26.95 , 158.00 ) */
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_param ,
-             h_folder , 'AFTER':U ).
     END. /* Page 3 */
 
   END CASE.
@@ -385,7 +394,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnRestoreDefaults 
+  ENABLE btnErrorCheck btnRestoreDefaults 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -429,6 +438,140 @@ PROCEDURE local-exit :
        
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pErrorCheck W-Win
+PROCEDURE pErrorCheck:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCalcProc        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescriptionProc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInitializeProc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValidateProc    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hDynamicProc     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lErrors          AS LOGICAL   NO-UNDO.
+    
+    RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynamicProc.
+    cDescriptionProc = hDynamicProc:INTERNAL-ENTRIES + ",".
+    DELETE PROCEDURE hDynamicProc.
+    RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynamicProc.
+    cInitializeProc = hDynamicProc:INTERNAL-ENTRIES + ",".
+    DELETE PROCEDURE hDynamicProc.
+    RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynamicProc.
+    cValidateProc = hDynamicProc:INTERNAL-ENTRIES + ",".
+    DELETE PROCEDURE hDynamicProc.
+    RUN AOA/spDynCalcField.p       PERSISTENT SET hDynamicProc.
+    cCalcProc = hDynamicProc:INTERNAL-ENTRIES + ",".
+    DELETE PROCEDURE hDynamicProc.
+    
+    OUTPUT TO c:\tmp\DynParamErrors.txt.
+    FOR EACH dynParam NO-LOCK
+        WITH FRAME fDynParam WIDTH 170 TITLE "*** Dynamic Parameter ***" STREAM-IO
+        :
+        IF NOT CAN-DO(cDescriptionProc, dynParam.descriptionProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynParam.paramID
+                dynParam.paramName
+                dynParam.descriptionProc
+                .
+        END. /* if can-do */
+        IF NOT CAN-DO(cInitializeProc, dynParam.initializeProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynParam.paramID
+                dynParam.paramName
+                dynParam.initializeProc
+                .
+        END. /* if can-do */
+        IF NOT CAN-DO(cValidateProc, dynParam.validateProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynParam.paramID
+                dynParam.paramName
+                dynParam.validateProc
+                .
+        END. /* if can-do */
+    END. /* each dynparam */
+    FOR EACH dynParamSetDtl NO-LOCK
+        WITH FRAME fDynParamSetDtl WIDTH 170 TITLE "*** Dynamic Parameter Set Detail ***" STREAM-IO
+        :
+        IF NOT CAN-DO(cDescriptionProc, dynParamSetDtl.descriptionProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynParamSetDtl.paramSetID
+                dynParamSetDtl.paramID
+                dynParamSetDtl.paramName
+                dynParamSetDtl.descriptionProc
+                .
+        END. /* if can-do */
+        IF NOT CAN-DO(cInitializeProc, dynParamSetDtl.initializeProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynParamSetDtl.paramSetID
+                dynParamSetDtl.paramID
+                dynParamSetDtl.paramName
+                dynParamSetDtl.initializeProc
+                .
+        END. /* if can-do */
+        IF NOT CAN-DO(cValidateProc, dynParamSetDtl.validateProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynParamSetDtl.paramSetID
+                dynParamSetDtl.paramID
+                dynParamSetDtl.paramName
+                dynParamSetDtl.validateProc
+                .
+        END. /* if can-do */
+    END. /* each dynparam */
+    FOR EACH dynSubjectColumn NO-LOCK
+        WITH FRAME fDynSubjectColumn WIDTH 100 TITLE "*** Dynamic Subject Column ***" STREAM-IO
+        :
+        IF NOT CAN-DO(cCalcProc, dynSubjectColumn.calcProc) THEN DO:
+            lErrors = YES.
+            DISPLAY
+                dynSubjectColumn.subjectID
+                dynSubjectColumn.sortOrder
+                dynSubjectColumn.fieldName
+                dynSubjectColumn.fieldLabel
+                dynSubjectColumn.calcProc
+                .
+        END. /* if can-do */
+    END. /* each dynsubjectcolumn */
+    FOR EACH dynParamValue NO-LOCK
+        WITH FRAME fDynPAramValue WIDTH 170 TITLE "*** Dynamic Parameter Value ***" STREAM-IO
+        :
+        DO idx = 1 TO EXTENT(dynParamValue.calcProc):
+            IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+            IF NOT CAN-DO(cCalcProc, dynParamValue.calcProc[idx]) THEN DO:
+                lErrors = YES.
+                DISPLAY
+                    dynParamValue.subjectID
+                    dynParamValue.user-id
+                    dynParamValue.paramValueID
+                    dynParamValue.paramDescription
+                    idx
+                    dynParamValue.colName[idx]
+                    dynParamValue.colLabel[idx]
+                    dynParamValue.calcProc[idx]
+                    .
+            END. /* if can-do */
+        END. /* do idx */
+    END. /* each dynsubjectcolumn */
+    OUTPUT CLOSE.
+    MESSAGE 
+        CAPS(STRING(lErrors)) "Errors Found, View Report?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+    UPDATE lErrors.
+    IF lErrors THEN
+    OS-COMMAND NO-WAIT notepad.exe c:\tmp\DynParamErrors.txt.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

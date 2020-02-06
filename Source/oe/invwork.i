@@ -20,7 +20,7 @@ def {1} shared TEMP-TABLE work-job NO-UNDO
 def {1} shared TEMP-TABLE tmp-work-job NO-UNDO
   field actnum   like account.actnum
   field amt      like inv-line.t-price
-  field inv-no   like inv-line.inv-no
+  field inv-no   like inv-line.inv-no FORMAT ">>>>>>9"
   field i-no     like inv-line.i-no
   field weight   as dec
   field fg       as log.

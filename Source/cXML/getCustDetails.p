@@ -20,6 +20,7 @@ DEFINE INPUT        PARAMETER ipcIdentity     AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcShipToID    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCompany     AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcWarehouseID AS CHARACTER NO-UNDO.  
+DEFINE INPUT        PARAMETER ipcOrderID      AS CHARACTER NO-UNDO.
 DEFINE OUTPUT       PARAMETER opcCustomerID   AS CHARACTER NO-UNDO. 
 DEFINE OUTPUT       PARAMETER oplSuccess      AS LOGICAL   NO-UNDO. 
 DEFINE OUTPUT       PARAMETER opcMessage      AS CHARACTER NO-UNDO. 
@@ -138,7 +139,7 @@ FIND FIRST obf-shipto NO-LOCK
      WHERE obf-shipto.ship-id EQ iopcShipToID NO-ERROR.
 IF NOT AVAILABLE obf-shipto THEN DO:
     ASSIGN
-        opcMessage = "AddressID (" + iopcShipToID + ") is not valid."
+        opcMessage = "AddressID (" + iopcShipToID + ") is not valid : PO# " + ipcOrderID 
         oplSuccess = NO
         .
         

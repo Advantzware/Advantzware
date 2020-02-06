@@ -509,8 +509,8 @@ DO:
                may prompt for additional details in console */ 
             IF serverResource.resourceType EQ "Node" THEN
                 ASSIGN
-                    lSilent = FALSE
-                    lNoWait = FALSE
+                    lSilent = TRUE 
+                    lNoWait = TRUE
                     .
             /* Set Silent to false for starting ASI Monitors, as command 
                may suppress any visual objects in windows opened */
@@ -987,6 +987,7 @@ PROCEDURE pStoreHandles :
     DEFINE VARIABLE hdCurrColHdl AS HANDLE NO-UNDO.
     
     hdCurrColHdl = BROWSE {&BROWSE-NAME}:FIRST-COLUMN.
+    cColumnHandles = "".
     DO WHILE VALID-HANDLE(hdCurrColHdl):
         ASSIGN 
             cColumnHandles = IF cColumnHandles <> "":U THEN

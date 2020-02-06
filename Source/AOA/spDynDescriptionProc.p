@@ -265,30 +265,3 @@ PROCEDURE dynDescripVendor:
     IF AVAILABLE vend THEN
     iphWidgetTo:SCREEN-VALUE = vend.name.
 END PROCEDURE.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

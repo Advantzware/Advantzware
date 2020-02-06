@@ -14,6 +14,8 @@ PROCEDURE pSetDynParamValue:
     DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
     DEFINE BUFFER {1}SubjectColumn   FOR {1}SubjectColumn.
     
+    IF ipcUserID   EQ "" THEN ipcUserID   = "_default".
+    IF ipcPrgmName EQ "" THEN ipcPrgmName = "dynSubjct.".
     FIND FIRST dynParamValue NO-LOCK
          WHERE dynParamValue.subjectID    EQ ipiSubjectID
            AND dynParamValue.user-id      EQ ipcUserID
@@ -39,6 +41,7 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.externalForm     = dynSubject.externalForm
             dynParamValue.securityLevel    = dynSubject.securityLevel
             dynParamValue.recordLimit      = dynSubject.recordLimit
+            dynParamValue.isLookup         = dynSubject.isLookup
             .
         FOR EACH {1}SubjectParamSet NO-LOCK
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,
@@ -72,11 +75,15 @@ PROCEDURE pSetDynParamValue:
                 dynParamValue.sortCol[idx]        = {1}SubjectColumn.sortCol
                 dynParamValue.sortDescending[idx] = {1}SubjectColumn.sortDescending
                 dynParamValue.isGroup[idx]        = {1}SubjectColumn.isGroup
+                dynParamValue.isReturnValue[idx]  = {1}SubjectColumn.isReturnValue
+                dynParamValue.isSearchable[idx]   = {1}SubjectColumn.isSearchable
+                dynParamValue.isSortable[idx]     = {1}SubjectColumn.isSortable
                 dynParamValue.groupLabel[idx]     = {1}SubjectColumn.groupLabel
                 dynParamValue.groupCalc[idx]      = {1}SubjectColumn.groupCalc
                 dynParamValue.isCalcField[idx]    = {1}SubjectColumn.isCalcField
                 dynParamValue.calcProc[idx]       = {1}SubjectColumn.calcProc
                 dynParamValue.calcParam[idx]      = {1}SubjectColumn.calcParam
+                dynParamValue.calcFormula[idx]    = {1}SubjectColumn.calcFormula
                 .
         END. /* each {1}SubjectColumn */
         FOR EACH {1}SubjectParamSet NO-LOCK

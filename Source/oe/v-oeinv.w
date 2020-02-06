@@ -182,7 +182,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      inv-head.inv-no AT ROW 1.48 COL 16 COLON-ALIGNED
-          LABEL "Invoice#"
+          LABEL "Invoice#" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      inv-head.inv-date AT ROW 1.48 COL 45 COLON-ALIGNED
@@ -260,16 +260,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      inv-head.frt-pay AT ROW 11.24 COL 27 COLON-ALIGNED
-          LABEL "Freight Terms"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
      inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.t-inv-weight AT ROW 13.38 COL 41 COLON-ALIGNED
-          LABEL "Total Weight"
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -277,6 +272,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     inv-head.t-inv-weight AT ROW 13.38 COL 41 COLON-ALIGNED
+          LABEL "Total Weight"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
      inv-head.t-inv-tax AT ROW 13.38 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
@@ -379,7 +378,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inv-head.inv-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN inv-head.inv-no IN FRAME F-Main
-   NO-ENABLE 2 EXP-LABEL                                                */
+   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN inv-status IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN inv-head.printed IN FRAME F-Main
@@ -432,7 +431,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -960,10 +959,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE eventInvoicePrinted V-table-Win
-PROCEDURE eventInvoicePrinted:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE eventInvoicePrinted V-table-Win 
+PROCEDURE eventInvoicePrinted :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -975,11 +973,9 @@ PROCEDURE eventInvoicePrinted:
         RUN refreshBrowse IN WIDGET-HANDLE(char-hdl) NO-ERROR.
         
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-status V-table-Win 
 PROCEDURE get-status :
@@ -991,6 +987,28 @@ PROCEDURE get-status :
    DEF OUTPUT PARAMETER op-status AS CHAR NO-UNDO.
 
    op-status = inv-head.stat.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
+PROCEDURE hide-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEF INPUT PARAM ip-hidden AS LOG NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    inv-head.t-comm:HIDDEN = ip-hidden.
+
+    IF NOT ip-hidden THEN DISPLAY inv-head.t-comm.
+  END.
 
 END PROCEDURE.
 
@@ -1985,28 +2003,6 @@ PROCEDURE valid-terms :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
-PROCEDURE hide-comm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEF INPUT PARAM ip-hidden AS LOG NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    inv-head.t-comm:HIDDEN = ip-hidden.
-
-    IF NOT ip-hidden THEN DISPLAY inv-head.t-comm.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -116,7 +116,7 @@ ASSIGN
                 "TriLakes,TriLakes2,Spectrum,Michcor,CapCity,colonialPL," +
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
-                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10,HoneyCell,AtlanticBox,PkgAtlanta" 
+                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10,HoneyCell,AtlanticBox,PkgAtlanta,AmCarton" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean"
  str-init[34] = "Manual,Matrix"
@@ -199,7 +199,7 @@ ASSIGN
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
  str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
- str-init[111] = ",Positive Pay,Positive Pay-knight"
+ str-init[111] = ",Positive Pay,Positive Pay-knight,Positive Pay-Santander"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 
  str-init[114] = ",Overrun/Underrun"

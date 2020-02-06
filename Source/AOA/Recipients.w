@@ -418,6 +418,7 @@ PROCEDURE pSetRecipients :
     FOR EACH ttEmail
         WHERE ttEmail.isActive EQ YES
         :
+        IF LOOKUP(ttEmail.email,iopcRecipients) EQ 0 THEN
         iopcRecipients = iopcRecipients + ttEmail.email + ",".
     END. /* each ttemail */
     iopcRecipients = TRIM(iopcRecipients,",").

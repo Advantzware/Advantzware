@@ -41,7 +41,7 @@ DEFINE {1} TEMP-TABLE ttInventoryStockLoadtagWIP
 
 DEFINE {1} TEMP-TABLE ttPrintInventoryStock
     FIELD inventoryStockID AS CHARACTER LABEL "InventoryStockID"
-    FIELD stockIDAlias AS CHARACTER	LABEL "WIPTag"
+    FIELD tag AS CHARACTER	LABEL "WIPTag"
     FIELD wipItemID AS CHARACTER LABEL "WIPItemID"
     FIELD jobNumber AS CHARACTER LABEL "JobNumber"
     FIELD jobRunNumber AS INTEGER LABEL "JobRunNumber"
@@ -78,7 +78,7 @@ DEFINE {1} TEMP-TABLE ttBrowseInventory
 DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
     FIELD company                AS CHARACTER
     FIELD inventoryStockID       AS CHARACTER
-    FIELD stockIDAlias           AS CHARACTER
+    FIELD tag                    AS CHARACTER
     FIELD itemID                 AS CHARACTER
     FIELD quantity               AS DECIMAL
     FIELD origQuantity           AS DECIMAL
@@ -148,7 +148,7 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStockFG NO-UNDO
     FIELDS relLotNo           AS CHARACTER                      LABEL "RELLOTNO"
     FIELDS middleSexJobID     AS CHARACTER                      LABEL "MIDDLESEXJOBNUMBER"
     FIELDS middleSexCustPOID  AS CHARACTER                      LABEL "MIDDLESEXCUSTPONO"
-    FIELDS stockIDAlias       AS CHARACTER                      LABEL "TAG#"
+    FIELDS tag                AS CHARACTER                      LABEL "TAG#"
     FIELDS quantityPartial    AS INTEGER   FORMAT ">>>,>>9"     LABEL "PARTIAL"
     FIELDS caseID             AS CHARACTER                      LABEL "CASECODE"
     FIELDS sn                 AS CHARACTER                      LABEL "SN"                 EXTENT 8

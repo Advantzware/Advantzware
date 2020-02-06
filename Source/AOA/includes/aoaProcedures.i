@@ -115,7 +115,8 @@ PROCEDURE pCreateTempTableColumn :
                 hTable:BUFFER-FIELD(idx):DATA-TYPE,
                 hTable:BUFFER-FIELD(idx):FORMAT,
                 hTable:BUFFER-FIELD(idx):WIDTH,
-                MAX(hTable:BUFFER-FIELD(idx):WIDTH,LENGTH(hTable:BUFFER-FIELD(idx):LABEL))
+                MAX(hTable:BUFFER-FIELD(idx):WIDTH,LENGTH(hTable:BUFFER-FIELD(idx):LABEL)),
+                "" /* formula */
                 ).
         END. /* do idx */
         RUN pGetJasperUserPrint.
@@ -135,27 +136,29 @@ PROCEDURE pCreatettColumn:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcTable  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcField  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiOrder  AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER iplActive AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLabel  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdeWidth AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdeSize  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTable   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcField   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplActive  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLabel   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFormat  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeWidth  AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeSize   AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFormula AS CHARACTER NO-UNDO.
     
     CREATE ttColumn.
     ASSIGN
-        ttColumn.ttTable  = ipcTable
-        ttColumn.ttField  = ipcField
-        ttColumn.ttOrder  = ipiOrder
-        ttColumn.isActive = iplActive
-        ttColumn.ttLabel  = ipcLabel
-        ttColumn.ttType   = ipcType
-        ttColumn.ttFormat = ipcFormat
-        ttColumn.ttWidth  = ipdeWidth
-        ttColumn.ttSize   = ipdeSize
+        ttColumn.ttTable   = ipcTable
+        ttColumn.ttField   = ipcField
+        ttColumn.ttOrder   = ipiOrder
+        ttColumn.isActive  = iplActive
+        ttColumn.ttLabel   = ipcLabel
+        ttColumn.ttType    = ipcType
+        ttColumn.ttFormat  = ipcFormat
+        ttColumn.ttWidth   = ipdeWidth
+        ttColumn.ttSize    = ipdeSize
+        ttColumn.ttFormula = ipcFormula
         .
     IF ttColumn.ttOrder EQ 0 THEN
     ASSIGN

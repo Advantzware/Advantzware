@@ -26,13 +26,7 @@ DEFINE TEMP-TABLE ttInventoryTransaction NO-UNDO
     FIELD comment   AS CHARACTER
     FIELD processed AS LOGICAL
     .
-    
-DEFINE TEMP-TABLE ttInventoryStockAlias NO-UNDO
-    LIKE InventoryStockAlias
-    FIELD valid     AS LOGICAL   INITIAL TRUE  
-    FIELD comment   AS CHARACTER
-    FIELD processed AS LOGICAL
-    .
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 

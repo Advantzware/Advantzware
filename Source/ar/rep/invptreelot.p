@@ -737,6 +737,11 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
         "<=7><R+1.7><C40><P6> TO CASH DISCOUNT          AMOUNT            THIS DATE  "
         "<=7><R+2.4><C21><FROM><C+60><LINE>".
 
+    PUT "</B><FArial><R59.5><C4><#8><P10> Remit To:                                                  Credit  Card  payments  incur  2.5%  fee. " SKIP
+        "<=8><R+1> Peachtree  Packaging, Inc." SKIP
+        "<=8><R+2> PO BOX 536211" SKIP
+        "<=8><R+3> Atlanta, GA 30353" SKIP.
+
     PUT "<FArial><R61><C63><#9><P12><B> THANK YOU. </B> <P9> " SKIP
         "<=9><R-6>" v-notes[1]
         "<=9><R-5>" v-notes[2]

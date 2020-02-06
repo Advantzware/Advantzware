@@ -82,7 +82,7 @@ DEFINE VARIABLE edDescription AS CHARACTER
      FGCOLOR 9  NO-UNDO.
 
 DEFINE VARIABLE edErrorMessage AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 2.48
      FGCOLOR 9  NO-UNDO.
 
@@ -452,10 +452,7 @@ PROCEDURE pInit :
             edRequestData:SCREEN-VALUE  = lcData
             lcData                      = APIInboundEvent.responseData
             edResponseData:SCREEN-VALUE = lcData
-            edErrorMessage:SCREEN-VALUE = IF APIInboundEvent.success THEN
-                                              "SUCCESS:" + "~n" + APIInboundEvent.errorMessage
-                                          ELSE
-                                              "FAILURE:" + "~n" + APIInboundEvent.errorMessage
+            edErrorMessage:SCREEN-VALUE = APIInboundEvent.errorMessage
             edErrorMessage:FGCOLOR      = IF APIInboundEvent.success THEN
                                               2
                                           ELSE

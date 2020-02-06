@@ -533,14 +533,19 @@ DO:
                             no-lock no-error.   
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
-           if avail style and style.type = "f" then  /* foam */
-                 run windows/l-boardf.w (rfq.company,lv-ind,ls-cur-val,output char-val).
-           else run windows/l-board.w (rfq.company,lv-ind, ls-cur-val,output char-val).
-           if char-val <> "" then 
-              assign rfqitem.board:screen-value in browse {&browse-name} = entry(1,char-val)
-                     rfqitem.cal:screen-value in browse {&browse-name} = entry(2,char-val)
-                     .
-           return no-apply.   
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+                 RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+                 rfqitem.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                 APPLY "ENTRY":U TO rfqitem.board.
+           END.
+           else DO:
+               run windows/l-board.w (rfq.company,lv-ind, ls-cur-val,output char-val).
+               if char-val <> "" then 
+                  assign rfqitem.board:screen-value in browse {&browse-name} = entry(1,char-val)
+                         rfqitem.cal:screen-value in browse {&browse-name} = entry(2,char-val)
+                         .
+           END.   
+           return no-apply.
        end.
 
   end case.  

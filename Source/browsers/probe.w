@@ -3867,6 +3867,11 @@ PROCEDURE run-whatif :
       END.
 
   END.
+  ELSE IF est.est-type EQ 8 THEN DO:
+      RUN calc-fields.    
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+  END.
+
   RUN dispatch ('open-query').
   RUN dispatch ('open-query').     
 END PROCEDURE.

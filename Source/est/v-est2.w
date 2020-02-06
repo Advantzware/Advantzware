@@ -501,24 +501,33 @@ DO:
                             no-lock no-error.   
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
-           if avail style and style.type = "f" then  /* foam */
-                 run windows/l-boardf.w (eb.company,lv-ind,focus:screen-value,output char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,focus:screen-value, output lv-rowid).
-           FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN DO:
-              assign ef.board:screen-value in frame {&frame-name}    = item.i-no
-                     ef.cal:screen-value in frame {&frame-name}      = string(item.cal)
-                     ef.brd-dscr:screen-value in frame {&frame-name} = item.i-name.  
-             /*find item where item.company = eb.company and
-                              item.i-no = entry(1,char-val)
-                              no-lock no-error.
-              if avail item then assign ef.gsh-wid:screen-value = if item.r-wid <> 0 then string(item.r-wid) else string(item.s-wid)
-                                        ef.gsh-len:screen-value = string(item.s-len) 
-                                        ef.test:screen-value = item.reg-no
-                                        ef.flute:screen-value = item.flute
-                                        .
-              */                        
-           end.
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+              ASSIGN
+                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
+                ef.cal:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "cal",    char-val)
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                .
+              APPLY "ENTRY":U TO ef.board.
+           END. /* if foam */
+           ELSE DO:
+               run windows/l-board1.w (eb.company,lv-ind,focus:screen-value, output lv-rowid).
+               FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+               IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN DO:
+                  assign ef.board:screen-value in frame {&frame-name}    = item.i-no
+                         ef.cal:screen-value in frame {&frame-name}      = string(item.cal)
+                         ef.brd-dscr:screen-value in frame {&frame-name} = item.i-name.  
+                 /*find item where item.company = eb.company and
+                                  item.i-no = entry(1,char-val)
+                                  no-lock no-error.
+                  if avail item then assign ef.gsh-wid:screen-value = if item.r-wid <> 0 then string(item.r-wid) else string(item.s-wid)
+                                            ef.gsh-len:screen-value = string(item.s-len) 
+                                            ef.test:screen-value = item.reg-no
+                                            ef.flute:screen-value = item.flute
+                                            .
+                  */                        
+               end.
+           END.
            return no-apply.   
      end.
      when "leaf" then do:

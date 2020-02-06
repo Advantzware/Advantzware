@@ -509,13 +509,18 @@ DO:
                             NO-LOCK NO-ERROR.   
            IF AVAIL style THEN lv-ind = style.industry.
            ELSE lv-ind = "".  
-           IF AVAIL style AND style.type = "f" THEN  /* foam */
-                 RUN windows/l-boardf.w (gcompany,lv-ind,ls-cur-val,OUTPUT char-val).
-           ELSE RUN windows/l-board.w (gcompany,lv-ind, ls-cur-val,OUTPUT char-val).
-           IF char-val <> "" THEN 
-              ASSIGN ef.board:screen-value IN BROWSE {&browse-name} = ENTRY(1,char-val)
-                     ef.cal:screen-value IN BROWSE {&browse-name} = ENTRY(2,char-val)
-                     .
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+              APPLY "ENTRY":U TO ef.board.
+           END. /* if foam */
+           ELSE DO:
+               RUN windows/l-board.w (gcompany,lv-ind, ls-cur-val,OUTPUT char-val).
+               IF char-val <> "" THEN 
+                  ASSIGN ef.board:screen-value IN BROWSE {&browse-name} = ENTRY(1,char-val)
+                         ef.cal:screen-value IN BROWSE {&browse-name} = ENTRY(2,char-val)
+                         .
+           END.
            RETURN NO-APPLY.   
        END.
        WHEN "cust-no" THEN DO:

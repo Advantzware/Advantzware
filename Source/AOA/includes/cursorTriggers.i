@@ -1,0 +1,20 @@
+/* cursorTriggers.i - rstark - 1.24.2020 */
+
+&IF "{1}" EQ "ParamBuilder" &THEN
+ON CTRL-CURSOR-DOWN
+  PERSISTENT RUN pWidgetSize IN THIS-PROCEDURE (iphFrame, "Down").
+ON CTRL-CURSOR-LEFT
+  PERSISTENT RUN pWidgetSize IN THIS-PROCEDURE (iphFrame, "Left").
+ON CTRL-CURSOR-RIGHT
+  PERSISTENT RUN pWidgetSize IN THIS-PROCEDURE (iphFrame, "Right").
+ON CTRL-CURSOR-UP
+  PERSISTENT RUN pWidgetSize IN THIS-PROCEDURE (iphFrame, "Up").
+ON CURSOR-DOWN
+  PERSISTENT RUN pWidgetMove IN THIS-PROCEDURE (iphFrame, "Down").
+ON CURSOR-LEFT
+  PERSISTENT RUN pWidgetMove IN THIS-PROCEDURE (iphFrame, "Left").
+ON CURSOR-RIGHT
+  PERSISTENT RUN pWidgetMove IN THIS-PROCEDURE (iphFrame, "Right").
+ON CURSOR-UP
+  PERSISTENT RUN pWidgetMove IN THIS-PROCEDURE (iphFrame, "Up").
+&ENDIF

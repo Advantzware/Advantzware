@@ -389,6 +389,14 @@ DO:
           eb.set-is-assembled = rd_alloc
           eb.pur-man          = tb_unitize.
 
+         FIND FIRST bf-eb WHERE bf-eb.company EQ eb.company
+                           AND bf-eb.est-no  EQ eb.est-no
+                           AND bf-eb.form-no NE 0
+                           NO-LOCK NO-ERROR.
+         IF AVAIL bf-eb AND eb.cust-no = "" THEN eb.cust-no = bf-eb.cust-no.
+         IF eb.ship-id = "" THEN DO:
+            RUN pGetDefaultShipID (INPUT eb.cust-no, OUTPUT eb.ship-id).    
+         END.  
          RUN UpdateSetUnitize.
 
          IF eb.set-is-assembled NE ? THEN
@@ -845,6 +853,54 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefualtShipID d-updset
+PROCEDURE pGetDefaultShipID:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
+    
+    FIND cust NO-LOCK WHERE 
+        cust.company EQ cocode AND 
+        cust.cust-no EQ ipcCustNo
+        NO-ERROR.
+
+    IF AVAIL cust THEN 
+    DO:
+        FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ cocode AND 
+            shipto.cust-no EQ cust.cust-no AND 
+            shipto.isDefault EQ TRUE  
+            NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ cocode AND 
+                shipto.cust-no EQ cust.cust-no AND 
+                shipto.ship-id EQ cust.cust-no
+                NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ cocode AND 
+                shipto.cust-no EQ cust.cust-no
+                NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ cocode AND 
+                shipto.cust-no EQ cust.cust-no AND 
+                shipto.ship-no EQ 1
+                NO-ERROR.
+        IF AVAIL shipto THEN ASSIGN 
+                opcShipID = shipto.ship-id.
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE upd-2box d-updset 
 PROCEDURE upd-2box :
 /*------------------------------------------------------------------------------
@@ -943,7 +999,7 @@ PROCEDURE UpdateSetUnitize :
          IF NOT AVAIL bf-estPacking THEN do:
 
              CREATE bf-estPacking .
-             BUFFER-COPY estPacking EXCEPT FormNo BlankNo TO bf-estPacking .
+             BUFFER-COPY estPacking EXCEPT rec_key FormNo BlankNo TO bf-estPacking .
              ASSIGN 
                  bf-estPacking.FormNo       = eb.form-no
                  bf-estPacking.BlankNo      = eb.blank-No. 

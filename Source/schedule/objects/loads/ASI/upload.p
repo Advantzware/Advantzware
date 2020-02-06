@@ -669,7 +669,7 @@ PROCEDURE pHTMLPages:
             IF iJobs NE 0 THEN
             PUT UNFORMATTED
                 '<a href="JavaScript:newPopup(~''
-                htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 7, "Blank")
+                htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 9, "Blank")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
             ELSE PUT UNFORMATTED "~&nbsp".
@@ -789,7 +789,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 7, "Blank") + '.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 9, "Blank") + '.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
@@ -826,7 +826,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", pendingJob.resource, 7, "Blank") + 'Pending.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", pendingJob.resource, 9, "Blank") + 'Pending.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED

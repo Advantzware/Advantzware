@@ -96,7 +96,7 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory     WHERE ttBrowseInventory.itemType EQ rsValue     ~{&SORTBY-PHRASE}
@@ -302,7 +302,7 @@ DEFINE BROWSE br-table
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-Hand"
     ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original"
     ttBrowseInventory.locationID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
-    ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+    ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
     ttBrowseInventory.jobID WIDTH 20 COLUMN-LABEL "Job #" FORMAT "X(20)"
     ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
@@ -1234,7 +1234,7 @@ END.
 {methods/sortByProc.i "pByQuantity" "ttBrowseInventory.quantity"}
 {methods/sortByProc.i "pByQuantityOriginal" "ttBrowseInventory.quantityOriginal"}
 {methods/sortByProc.i "pByLocationID" "ttBrowseInventory.locationID"}
-{methods/sortByProc.i "pByStockIDAlias" "ttBrowseInventory.stockIDAlias"}
+{methods/sortByProc.i "pByTag" "ttBrowseInventory.tag"}
 {methods/sortByProc.i "pByJobID" "ttBrowseInventory.jobID"}
 {methods/sortByProc.i "pByInventoryStatus" "ttBrowseInventory.inventoryStatus"}
 

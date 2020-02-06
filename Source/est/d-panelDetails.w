@@ -1,0 +1,1113 @@
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
+&ANALYZE-RESUME
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
+/*------------------------------------------------------------------------
+
+  File: est/d-panelSizes.w
+
+  Description: Dialog box to display panel sizes
+
+  Input Parameters: 
+      <none>
+
+  Output Parameters:
+      <none>
+
+  Author: Mithun Porandla
+
+  Created: 12/31/2019
+------------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.       */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+{custom/globdefs.i}
+
+{sys/inc/VAR.i NEW SHARED}
+
+{system/FormulaProcs.i}
+
+/* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
+
+/* Local Variable Definitions ---                                       */
+DEFINE VARIABLE hdFormulaProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPanelTypeWidth  AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE cPanelTypeLength AS CHARACTER NO-UNDO INITIAL "L".
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+&Scoped-define PROCEDURE-TYPE Dialog-Box
+&Scoped-define DB-AWARE no
+
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
+&Scoped-define FRAME-NAME Dialog-Frame
+
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS fiPanel-1 cbType-1 fiPanel-2 cbType-2 ~
+fiPanel-3 cbType-3 fiPanel-4 cbType-4 fiPanel-5 cbType-5 fiPanel-6 cbType-6 ~
+fiPanel-7 cbType-7 fiPanel-8 cbType-8 fiPanel-9 cbType-9 fiPanel-10 ~
+cbType-10 fiPanel-11 cbType-11 fiPanel-12 cbType-12 fiPanel-13 cbType-13 ~
+fiPanel-14 cbType-14 fiPanel-15 cbType-15 fiPanel-16 cbType-16 fiPanel-17 ~
+cbType-17 fiPanel-18 cbType-18 fiPanel-19 cbType-19 cbType-20 fiPanel-20 ~
+btLoadLengthWidth Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiEstimate fiStyleCode fiPanel-1 cbType-1 ~
+fiFormula-1 fiScoreAllowance-1 fiPanel-2 cbType-2 fiFormula-2 ~
+fiScoreAllowance-2 fiPanel-3 cbType-3 fiFormula-3 fiScoreAllowance-3 ~
+fiPanel-4 cbType-4 fiFormula-4 fiScoreAllowance-4 fiPanel-5 cbType-5 ~
+fiFormula-5 fiScoreAllowance-5 fiPanel-6 cbType-6 fiFormula-6 ~
+fiScoreAllowance-6 fiPanel-7 cbType-7 fiFormula-7 fiScoreAllowance-7 ~
+fiPanel-8 cbType-8 fiFormula-8 fiScoreAllowance-8 fiPanel-9 cbType-9 ~
+fiFormula-9 fiScoreAllowance-9 fiPanel-10 cbType-10 fiFormula-10 ~
+fiScoreAllowance-10 fiPanel-11 cbType-11 fiFormula-11 fiScoreAllowance-11 ~
+fiPanel-12 cbType-12 fiFormula-12 fiScoreAllowance-12 fiPanel-13 cbType-13 ~
+fiFormula-13 fiScoreAllowance-13 fiPanel-14 cbType-14 fiFormula-14 ~
+fiScoreAllowance-14 fiPanel-15 cbType-15 fiFormula-15 fiScoreAllowance-15 ~
+fiPanel-16 cbType-16 fiFormula-16 fiScoreAllowance-16 fiPanel-17 cbType-17 ~
+fiFormula-17 fiScoreAllowance-17 fiPanel-18 cbType-18 fiFormula-18 ~
+fiScoreAllowance-18 fiPanel-19 cbType-19 fiFormula-19 fiScoreAllowance-19 ~
+cbType-20 fiFormula-20 fiScoreAllowance-20 fiPanel-20 fiShowing 
+
+/* Custom List Definitions                                              */
+/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+/* ***********************  Control Definitions  ********************** */
+
+/* Define a dialog box                                                  */
+
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON btLoadLengthWidth 
+     LABEL "Load Widths" 
+     SIZE 19 BY 1.14.
+
+DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     LABEL "Cancel" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
+
+DEFINE BUTTON Btn_OK AUTO-GO 
+     LABEL "OK" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
+
+DEFINE VARIABLE cbType-1 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-10 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-11 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-12 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-13 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-14 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-15 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-16 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-17 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-18 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-19 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-2 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-20 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-3 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-4 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-5 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-6 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-7 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-8 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbType-9 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 41 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiEstimate AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Estimate #" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiFormula-1 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-10 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-11 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-12 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-13 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-14 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-15 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-16 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-17 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-18 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-19 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-2 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-20 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-3 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-4 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-5 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-6 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-7 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-8 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiFormula-9 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiPanel-1 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 1" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-10 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 10" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-11 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 11" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-12 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 12" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-13 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 13" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-14 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 14" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-15 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 15" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-16 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 16" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-17 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 17" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-18 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 18" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-19 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 19" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-2 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 2" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-20 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 20" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-3 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 3" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-4 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 4" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-5 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 5" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-6 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 6" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-7 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 7" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-8 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 8" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPanel-9 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Panel 9" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-1 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-10 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-11 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-12 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-13 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-14 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-15 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-16 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-17 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-18 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-19 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-2 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-20 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-3 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-4 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-5 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-6 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-7 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-8 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiScoreAllowance-9 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiShowing AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Showing" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiStyleCode AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Style Code" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1 NO-UNDO.
+
+
+/* ************************  Frame Definitions  *********************** */
+
+DEFINE FRAME Dialog-Frame
+     fiEstimate AT ROW 1.57 COL 16.2 COLON-ALIGNED WIDGET-ID 172
+     fiStyleCode AT ROW 1.57 COL 51.8 COLON-ALIGNED WIDGET-ID 174
+     fiPanel-1 AT ROW 4.81 COL 12 COLON-ALIGNED WIDGET-ID 2
+     cbType-1 AT ROW 4.81 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiFormula-1 AT ROW 4.81 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiScoreAllowance-1 AT ROW 4.81 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiPanel-2 AT ROW 6 COL 12 COLON-ALIGNED WIDGET-ID 14
+     cbType-2 AT ROW 6 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fiFormula-2 AT ROW 6 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fiScoreAllowance-2 AT ROW 6 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     fiPanel-3 AT ROW 7.19 COL 12 COLON-ALIGNED WIDGET-ID 22
+     cbType-3 AT ROW 7.19 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiFormula-3 AT ROW 7.19 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fiScoreAllowance-3 AT ROW 7.19 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     fiPanel-4 AT ROW 8.33 COL 12 COLON-ALIGNED WIDGET-ID 30
+     cbType-4 AT ROW 8.33 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     fiFormula-4 AT ROW 8.33 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     fiScoreAllowance-4 AT ROW 8.33 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fiPanel-5 AT ROW 9.52 COL 12 COLON-ALIGNED WIDGET-ID 38
+     cbType-5 AT ROW 9.52 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     fiFormula-5 AT ROW 9.52 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fiScoreAllowance-5 AT ROW 9.52 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     fiPanel-6 AT ROW 10.71 COL 12 COLON-ALIGNED WIDGET-ID 46
+     cbType-6 AT ROW 10.71 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 42
+     fiFormula-6 AT ROW 10.71 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+     fiScoreAllowance-6 AT ROW 10.71 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fiPanel-7 AT ROW 11.91 COL 12 COLON-ALIGNED WIDGET-ID 54
+     cbType-7 AT ROW 11.91 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     fiFormula-7 AT ROW 11.91 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     fiScoreAllowance-7 AT ROW 11.91 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     fiPanel-8 AT ROW 13.1 COL 12 COLON-ALIGNED WIDGET-ID 62
+     cbType-8 AT ROW 13.1 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     fiFormula-8 AT ROW 13.1 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     fiScoreAllowance-8 AT ROW 13.1 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     fiPanel-9 AT ROW 14.29 COL 12 COLON-ALIGNED WIDGET-ID 70
+     cbType-9 AT ROW 14.29 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     fiFormula-9 AT ROW 14.29 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     fiScoreAllowance-9 AT ROW 14.29 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiPanel-10 AT ROW 15.48 COL 12 COLON-ALIGNED WIDGET-ID 78
+     cbType-10 AT ROW 15.48 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     fiFormula-10 AT ROW 15.48 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiScoreAllowance-10 AT ROW 15.48 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     fiPanel-11 AT ROW 16.71 COL 12 COLON-ALIGNED WIDGET-ID 86
+     cbType-11 AT ROW 16.71 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+     fiFormula-11 AT ROW 16.71 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 84
+     fiScoreAllowance-11 AT ROW 16.71 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Dialog-Frame
+     fiPanel-12 AT ROW 17.91 COL 12 COLON-ALIGNED WIDGET-ID 94
+     cbType-12 AT ROW 17.91 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     fiFormula-12 AT ROW 17.91 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     fiScoreAllowance-12 AT ROW 17.91 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     fiPanel-13 AT ROW 19.1 COL 12 COLON-ALIGNED WIDGET-ID 102
+     cbType-13 AT ROW 19.1 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     fiFormula-13 AT ROW 19.1 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     fiScoreAllowance-13 AT ROW 19.1 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiPanel-14 AT ROW 20.29 COL 12 COLON-ALIGNED WIDGET-ID 110
+     cbType-14 AT ROW 20.29 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     fiFormula-14 AT ROW 20.29 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+     fiScoreAllowance-14 AT ROW 20.29 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+     fiPanel-15 AT ROW 21.48 COL 12 COLON-ALIGNED WIDGET-ID 118
+     cbType-15 AT ROW 21.48 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     fiFormula-15 AT ROW 21.48 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 116
+     fiScoreAllowance-15 AT ROW 21.48 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 120
+     fiPanel-16 AT ROW 22.67 COL 12 COLON-ALIGNED WIDGET-ID 126
+     cbType-16 AT ROW 22.67 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 122
+     fiFormula-16 AT ROW 22.67 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 124
+     fiScoreAllowance-16 AT ROW 22.67 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiPanel-17 AT ROW 23.86 COL 12 COLON-ALIGNED WIDGET-ID 134
+     cbType-17 AT ROW 23.86 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 130
+     fiFormula-17 AT ROW 23.86 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 132
+     fiScoreAllowance-17 AT ROW 23.86 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 136
+     fiPanel-18 AT ROW 25.05 COL 12 COLON-ALIGNED WIDGET-ID 142
+     cbType-18 AT ROW 25.05 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 138
+     fiFormula-18 AT ROW 25.05 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 140
+     fiScoreAllowance-18 AT ROW 25.05 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 144
+     fiPanel-19 AT ROW 26.24 COL 12 COLON-ALIGNED WIDGET-ID 150
+     cbType-19 AT ROW 26.24 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
+     fiFormula-19 AT ROW 26.24 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 148
+     fiScoreAllowance-19 AT ROW 26.24 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 152
+     cbType-20 AT ROW 27.38 COL 27.6 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     fiFormula-20 AT ROW 27.38 COL 70.4 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     fiScoreAllowance-20 AT ROW 27.38 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 160
+     fiPanel-20 AT ROW 27.43 COL 12 COLON-ALIGNED WIDGET-ID 158
+     btLoadLengthWidth AT ROW 29 COL 41.4 WIDGET-ID 162
+     Btn_OK AT ROW 29 COL 73
+     Btn_Cancel AT ROW 29 COL 102
+     fiShowing AT ROW 29.1 COL 12 COLON-ALIGNED WIDGET-ID 176
+     "Scoring Allowance" VIEW-AS TEXT
+          SIZE 28.2 BY .62 AT ROW 4.05 COL 106.8 WIDGET-ID 170
+     "Type - Description" VIEW-AS TEXT
+          SIZE 41.2 BY .62 AT ROW 4.05 COL 29.8 WIDGET-ID 164
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Dialog-Frame
+     "Panel Size" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 4.05 COL 14 WIDGET-ID 166
+     "Formula" VIEW-AS TEXT
+          SIZE 12.6 BY .62 AT ROW 4.05 COL 72.4 WIDGET-ID 168
+     SPACE(53.19) SKIP(25.80)
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FONT 6
+         TITLE "Panel Sizes"
+         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: Dialog-Box
+   Allow: Basic,Browse,DB-Fields,Query
+   Other Settings: COMPILE
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
+
+&ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* SETTINGS FOR DIALOG-BOX Dialog-Frame
+   FRAME-NAME                                                           */
+ASSIGN 
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN fiEstimate IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-1 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-10 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-11 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-12 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-13 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-14 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-15 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-16 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-17 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-18 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-19 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-2 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-20 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-3 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-4 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-5 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-6 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-7 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-8 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFormula-9 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-1 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-10 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-11 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-12 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-13 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-14 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-15 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-16 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-17 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-18 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-19 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-2 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-20 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-3 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-4 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-5 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-6 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-7 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-8 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiScoreAllowance-9 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiShowing IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiStyleCode IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+ 
+
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Panel Sizes */
+DO:
+  APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btLoadLengthWidth
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btLoadLengthWidth Dialog-Frame
+ON CHOOSE OF btLoadLengthWidth IN FRAME Dialog-Frame /* Load Widths */
+DO:
+    DEFINE VARIABLE cPanelType AS CHARACTER NO-UNDO.
+    
+    IF SELF:LABEL EQ "Load Widths" THEN
+        ASSIGN
+            SELF:LABEL             = "Load Lengths"
+            cPanelType             = cPanelTypeWidth
+            fiShowing:SCREEN-VALUE = "Width"
+            .
+    ELSE
+        ASSIGN
+            SELF:LABEL             = "Load Widths"
+            cPanelType             = cPanelTypeLength
+            fiShowing:SCREEN-VALUE = "Length"
+            .
+
+    RUN pLoadlengthWidth (
+        INPUT cPanelType
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
+
+
+/* ***************************  Main Block  *************************** */
+
+/* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+
+
+/* Now enable the interface and wait for the exit condition.            */
+/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
+MAIN-BLOCK:
+DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    RUN enable_UI.
+    
+    RUN pInit.
+    
+    WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+END.
+RUN disable_UI.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
+PROCEDURE enable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fiEstimate fiStyleCode fiPanel-1 cbType-1 fiFormula-1 
+          fiScoreAllowance-1 fiPanel-2 cbType-2 fiFormula-2 fiScoreAllowance-2 
+          fiPanel-3 cbType-3 fiFormula-3 fiScoreAllowance-3 fiPanel-4 cbType-4 
+          fiFormula-4 fiScoreAllowance-4 fiPanel-5 cbType-5 fiFormula-5 
+          fiScoreAllowance-5 fiPanel-6 cbType-6 fiFormula-6 fiScoreAllowance-6 
+          fiPanel-7 cbType-7 fiFormula-7 fiScoreAllowance-7 fiPanel-8 cbType-8 
+          fiFormula-8 fiScoreAllowance-8 fiPanel-9 cbType-9 fiFormula-9 
+          fiScoreAllowance-9 fiPanel-10 cbType-10 fiFormula-10 
+          fiScoreAllowance-10 fiPanel-11 cbType-11 fiFormula-11 
+          fiScoreAllowance-11 fiPanel-12 cbType-12 fiFormula-12 
+          fiScoreAllowance-12 fiPanel-13 cbType-13 fiFormula-13 
+          fiScoreAllowance-13 fiPanel-14 cbType-14 fiFormula-14 
+          fiScoreAllowance-14 fiPanel-15 cbType-15 fiFormula-15 
+          fiScoreAllowance-15 fiPanel-16 cbType-16 fiFormula-16 
+          fiScoreAllowance-16 fiPanel-17 cbType-17 fiFormula-17 
+          fiScoreAllowance-17 fiPanel-18 cbType-18 fiFormula-18 
+          fiScoreAllowance-18 fiPanel-19 cbType-19 fiFormula-19 
+          fiScoreAllowance-19 cbType-20 fiFormula-20 fiScoreAllowance-20 
+          fiPanel-20 fiShowing 
+      WITH FRAME Dialog-Frame.
+  ENABLE fiPanel-1 cbType-1 fiPanel-2 cbType-2 fiPanel-3 cbType-3 fiPanel-4 
+         cbType-4 fiPanel-5 cbType-5 fiPanel-6 cbType-6 fiPanel-7 cbType-7 
+         fiPanel-8 cbType-8 fiPanel-9 cbType-9 fiPanel-10 cbType-10 fiPanel-11 
+         cbType-11 fiPanel-12 cbType-12 fiPanel-13 cbType-13 fiPanel-14 
+         cbType-14 fiPanel-15 cbType-15 fiPanel-16 cbType-16 fiPanel-17 
+         cbType-17 fiPanel-18 cbType-18 fiPanel-19 cbType-19 cbType-20 
+         fiPanel-20 btLoadLengthWidth Btn_OK Btn_Cancel 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit Dialog-Frame 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-eb    FOR eb.
+    DEFINE BUFFER bf-style FOR style.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    cCompany = g_company.
+    
+    FIND FIRST bf-eb NO-LOCK 
+         WHERE ROWID(bf-eb) EQ ipriEb
+         NO-ERROR.
+    IF NOT AVAILABLE bf-eb THEN
+        RETURN.
+    
+    FIND FIRST bf-style NO-LOCK 
+         WHERE bf-style.company EQ bf-eb.company
+           AND bf-style.style   EQ bf-eb.style
+         NO-ERROR.
+    IF NOT AVAILABLE bf-style THEN
+        RETURN.
+    
+    ASSIGN
+        fiEstimate:SCREEN-VALUE  = bf-eb.est-no
+        fiStyleCode:SCREEN-VALUE = bf-style.style
+        .
+
+    EMPTY TEMP-TABLE ttPanel.
+
+    RUN GetPanelDetailsForEstimate IN hdFormulaProcs (
+        INPUT  cCompany,
+        INPUT  bf-eb.est-no,
+        INPUT  bf-eb.form-no,
+        INPUT  bf-eb.blank-no,
+        OUTPUT TABLE ttPanel
+        ).
+    
+    IF NOT TEMP-TABLE ttPanel:HAS-RECORDS THEN DO:     
+        RUN ParsePanels IN hdFormulaProcs (
+            INPUT  bf-style.formula[1], 
+            INPUT  cPanelTypeWidth, /* Widths */
+            OUTPUT TABLE ttPanel
+            ).
+    
+        RUN ParsePanels IN hdFormulaProcs (
+            INPUT  bf-style.formula[2], 
+            INPUT  cPanelTypeLength,  /* Lengths */
+            OUTPUT TABLE ttPanel
+            ).
+    
+        RUN CalculatePanels IN hdFormulaProcs (
+            INPUT        ROWID(bf-eb),
+            INPUT-OUTPUT TABLE ttPanel
+            ).
+            
+       RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT cCompany,
+            INPUT bf-eb.est-no,
+            INPUT bf-eb.form-no,
+            INPUT bf-eb.blank-no,
+            INPUT TABLE ttPanel            
+            ).
+    END.
+    
+    RUN pUpdateComboBoxes.
+    
+    RUN pLoadLengthWidth (
+        INPUT cPanelTypeLength
+        ).
+
+    fiShowing:SCREEN-VALUE = "Length".
+
+    RELEASE bf-eb.
+    RELEASE bf-style.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadLengthWidth Dialog-Frame 
+PROCEDURE pLoadLengthWidth :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPanelType AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+        
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    DO iIndex = 1 TO 20:
+        RUN pUpdatePanel (
+            INPUT iIndex,
+            INPUT 0,
+            INPUT "",
+            INPUT "",
+            INPUT 0
+            ).
+    END.
+    
+    iIndex = 0.
+    FOR EACH ttPanel
+        WHERE ttPanel.cPanelType = ipcPanelType:
+        iIndex = iIndex  + 1.
+        
+        IF iIndex GT 20 THEN
+            LEAVE.
+            
+        RUN pUpdatePanel (
+            INPUT iIndex,
+            INPUT ttPanel.dPanelSize,
+            INPUT ttPanel.cScoreType,
+            INPUT ttPanel.cPanelFormula,
+            INPUT ttPanel.dScoringAllowance
+            ).        
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateComboBoxes Dialog-Frame 
+PROCEDURE pUpdateComboBoxes :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdWidget   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cScoreType AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-scoreType FOR scoreType.
+    
+    FOR EACH scoreType NO-LOCK 
+        WHERE scoreType.company EQ cCompany:
+        cScoreType = cScoreType
+                   + scoreType.scoreType + " - "
+                   + scoreType.description + ","
+                   + scoreType.scoreType + ","
+                   .
+    END.
+    
+    cScoreType = ",," + TRIM(cScoreType,",").
+            
+    hdWidget = FRAME DIALOG-FRAME:FIRST-CHILD:FIRST-CHILD.
+    
+    DO WHILE VALID-HANDLE(hdWidget):
+        IF hdWidget:NAME BEGINS "cbType-" THEN
+            hdWidget:LIST-ITEM-PAIRS = cScoreType.
+
+        hdWidget = hdWidget:NEXT-SIBLING.
+    END.
+    
+    RELEASE bf-scoreType.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdatePanel Dialog-Frame 
+PROCEDURE pUpdatePanel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPanelNumber    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdPanelSize      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFormula        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdScoreAllowance AS DECIMAL   NO-UNDO.     
+    
+    DEFINE VARIABLE hdWidget AS HANDLE    NO-UNDO.
+
+    hdWidget = FRAME DIALOG-FRAME:FIRST-CHILD:FIRST-CHILD.
+    DO WHILE VALID-HANDLE(hdWidget):
+        IF hdWidget:NAME = "fiPanel-" + STRING(ipiPanelNumber) THEN
+            hdWidget:SCREEN-VALUE = STRING(ipdPanelSize).
+        ELSE IF hdWidget:NAME = "cbType-" + STRING(ipiPanelNumber) THEN
+            hdWidget:SCREEN-VALUE = STRING(ipcType).        
+        ELSE IF hdWidget:NAME = "fiFormula-" + STRING(ipiPanelNumber) THEN
+            hdWidget:SCREEN-VALUE = STRING(ipcFormula).        
+        ELSE IF hdWidget:NAME = "fiScoreAllowance-" + STRING(ipiPanelNumber) THEN
+            hdWidget:SCREEN-VALUE = STRING(ipdScoreAllowance).        
+  
+        hdWidget = hdWidget:NEXT-SIBLING.
+    END.    
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

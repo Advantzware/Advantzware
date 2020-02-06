@@ -26,6 +26,6 @@ FOR EACH bttSubject{1}
        NOT AVAILABLE dynSubject{1} THEN
     CREATE dynSubject{1}.
     /* update record with temp-table values */
-    BUFFER-COPY bttSubject{1} TO dynSubject{1}.
+    BUFFER-COPY bttSubject{1} EXCEPT rec_key TO dynSubject{1}.
 END. /* each bttSubject{1} */
 RELEASE dynSubject{1}.

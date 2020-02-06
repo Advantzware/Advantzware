@@ -121,21 +121,6 @@
         OUTPUT oplcResponseData
         ) NO-ERROR.
 
-    /* Log the request to APIInboundEvent */
-    RUN api\CreateAPIInboundEvent.p (
-        INPUT ipcRoute,
-        INPUT iplcRequestData,
-        INPUT oplcResponseData,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT NOW,
-        INPUT ipcRequestedBy,
-        INPUT ipcRecordSource,
-        INPUT ipcNotes,
-        INPUT  "", /* PayloadID */
-        OUTPUT opcAPIInboundEvent
-        ).
-
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
     DELETE PROCEDURE hdJSONProcs.
 

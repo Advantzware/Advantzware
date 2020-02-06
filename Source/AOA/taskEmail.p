@@ -47,6 +47,8 @@ RUN spCreateAuditDtl (iAuditID, "Subject",    0, cSubject,    "", NO).
 RUN spCreateAuditDtl (iAuditID, "Body",       0, cBody,       "", NO).
 RUN spCreateAuditDtl (iAuditID, "Attachment", 0, cAttachment, "", NO).
 RUN spCreateAuditDtl (iAuditID, "Recipients", 0, cRecipients, "", NO).
+IF lSuccess EQ NO THEN
+RUN spCreateAuditDtl (iAuditID, "Error", 0, cMessage, "", NO).
 
 DELETE PROCEDURE hSession.
 

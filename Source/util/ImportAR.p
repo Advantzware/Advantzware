@@ -297,33 +297,35 @@ PROCEDURE pProcessRecord PRIVATE:
 
     DEFINE VARIABLE riARInv  AS ROWID .
     DEFINE VARIABLE riARInvl AS ROWID.
+    DEFINE BUFFER bf-ar-inv FOR ar-inv .
+    DEFINE BUFFER bf-ar-invl FOR ar-invl .
        
     IF ipbf-ttImportAR.CustNo EQ "" THEN NEXT.
     IF ipbf-ttImportAR.InvNo EQ 0 THEN NEXT.
 
-    FIND FIRST ar-inv NO-LOCK
-        WHERE ar-inv.company EQ ipbf-ttImportAR.Company
-        AND ar-inv.inv-no EQ ipbf-ttImportAR.InvNo
+    FIND FIRST bf-ar-inv NO-LOCK
+        WHERE bf-ar-inv.company EQ ipbf-ttImportAR.Company
+        AND bf-ar-inv.inv-no EQ ipbf-ttImportAR.InvNo
         NO-ERROR.
-    IF NOT AVAILABLE ar-inv THEN 
+    IF NOT AVAILABLE bf-ar-inv THEN 
     DO:
         iopiAdded = iopiAdded + 1.
         RUN pCreateNewInvoiceAR (ipbf-ttImportAR.Company,ipbf-ttImportAR.CustNo, ipbf-ttImportAR.InvDate, OUTPUT riARInv).
-        FIND ar-inv EXCLUSIVE-LOCK 
-            WHERE ROWID(ar-inv) EQ riARInv
+        FIND bf-ar-inv EXCLUSIVE-LOCK 
+            WHERE ROWID(bf-ar-inv) EQ riARInv
             NO-ERROR.
-        IF NOT AVAILABLE ar-inv THEN NEXT.
+        IF NOT AVAILABLE bf-ar-inv THEN NEXT.
         /*Override defaults with values from import*/
         IF ipbf-ttImportAR.InvNo NE 0 THEN 
-            ar-inv.inv-no = ipbf-ttImportAR.InvNo.
+            bf-ar-inv.inv-no = ipbf-ttImportAR.InvNo.
         IF ipbf-ttImportAR.InvDate NE ? THEN 
-            ar-inv.inv-date = ipbf-ttImportAR.InvDate.
+            bf-ar-inv.inv-date = ipbf-ttImportAR.InvDate.
         IF ipbf-ttImportAR.DueDate NE ? THEN 
-            ar-inv.due-date = ipbf-ttImportAR.DueDate.
+            bf-ar-inv.due-date = ipbf-ttImportAR.DueDate.
         IF ipbf-ttImportAR.ShipTo NE "" THEN 
-            ar-inv.ship-id = ipbf-ttImportAR.ShipTo.
+            bf-ar-inv.ship-id = ipbf-ttImportAR.ShipTo.
         IF ipbf-ttImportAR.PONum NE "" THEN 
-            ar-inv.po-no = ipbf-ttImportAR.PONum.
+            bf-ar-inv.po-no = ipbf-ttImportAR.PONum.
         IF ipbf-ttImportAR.TaxCode NE "" THEN
         DO:
             FIND FIRST stax NO-LOCK 
@@ -331,85 +333,88 @@ PROCEDURE pProcessRecord PRIVATE:
                 AND stax.tax-group EQ ipbf-ttImportAR.TaxCode
                 NO-ERROR.
             IF AVAILABLE stax THEN 
-                ar-inv.tax-code = ipbf-ttImportAR.TaxCode.
+                bf-ar-inv.tax-code = ipbf-ttImportAR.TaxCode.
         END.
         IF ipbf-ttImportAR.TermsCode NE "" THEN 
-            ar-inv.terms = ipbf-ttImportAR.TermsCode.
+            bf-ar-inv.terms = ipbf-ttImportAR.TermsCode.
         IF ipbf-ttImportAR.Discount NE 0 THEN 
-            ar-inv.disc-% = ipbf-ttImportAR.Discount.               
+            bf-ar-inv.disc-% = ipbf-ttImportAR.Discount.               
         IF ipbf-ttImportAR.DiscountDays NE 0 THEN 
-            ar-inv.disc-days = ipbf-ttImportAR.DiscountDays.
+            bf-ar-inv.disc-days = ipbf-ttImportAR.DiscountDays.
         IF ipbf-ttImportAR.Carrier NE "" THEN 
-            ar-inv.carrier = ipbf-ttImportAR.Carrier.
+            bf-ar-inv.carrier = ipbf-ttImportAR.Carrier.
         IF ipbf-ttImportAR.Freight NE 0 THEN 
-            ar-inv.freight = ipbf-ttImportAR.Freight.                                     
-    END. /*Not avail ar-inv*/
-    RUN pCreateNewInvoiceLineAR (ROWID(ar-inv),ipbf-ttImportAR.LineNo,ipbf-ttImportAR.LineItemNo, OUTPUT riARInvl).
-    FIND ar-invl EXCLUSIVE-LOCK 
-        WHERE ROWID(ar-invl) EQ riARInvl
+            bf-ar-inv.freight = ipbf-ttImportAR.Freight.                                     
+    END. /*Not avail bf-ar-inv*/
+    RUN pCreateNewInvoiceLineAR (ROWID(bf-ar-inv),ipbf-ttImportAR.LineNo,ipbf-ttImportAR.LineItemNo, OUTPUT riARInvl).
+    FIND bf-ar-invl EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-ar-invl) EQ riARInvl
         NO-ERROR.
-    IF NOT AVAILABLE ar-invl THEN NEXT.
+    IF NOT AVAILABLE bf-ar-invl THEN NEXT.
     /*Override defaults with values from import*/
     ASSIGN 
-        ar-invl.tax = ipbf-ttImportAR.LineTax EQ 'Y'
-        ar-invl.amt = ipbf-ttImportAR.LineAmount
+        bf-ar-invl.tax = ipbf-ttImportAR.LineTax EQ 'Y'
+        bf-ar-invl.amt = ipbf-ttImportAR.LineAmount
         .
     IF ipbf-ttImportAR.LineQuantity NE 0 THEN 
-        ar-invl.qty = ipbf-ttImportAR.LineQuantity.
+        bf-ar-invl.qty = ipbf-ttImportAR.LineQuantity.
     ELSE 
-        ar-invl.qty = 1.
-    ar-invl.inv-qty = ar-invl.qty.
+        bf-ar-invl.qty = 1.
+    bf-ar-invl.inv-qty = bf-ar-invl.qty.
     IF ipbf-ttImportAR.LineQuantityUom NE "" THEN 
-        ar-invl.cons-uom = ipbf-ttImportAR.LineQuantityUOM.
+        bf-ar-invl.cons-uom = ipbf-ttImportAR.LineQuantityUOM.
     ELSE 
-        ar-invl.cons-uom = "EA".
+        bf-ar-invl.cons-uom = "EA".
     
     IF ipbf-ttImportAR.LinePrice NE 0 THEN 
-        ar-invl.unit-pr = ipbf-ttImportAR.LinePrice.
+        bf-ar-invl.unit-pr = ipbf-ttImportAR.LinePrice.
     ELSE 
-        ar-invl.unit-pr = ar-invl.amt.
+        bf-ar-invl.unit-pr = bf-ar-invl.amt.
     IF ipbf-ttImportAR.LinePriceUom NE "" THEN 
-        ar-invl.pr-qty-uom = ipbf-ttImportAR.LinePriceUom.
+        bf-ar-invl.pr-qty-uom = ipbf-ttImportAR.LinePriceUom.
     ELSE 
-        ar-invl.pr-qty-uom = "EA".
+        bf-ar-invl.pr-qty-uom = "EA".
     IF ipbf-ttImportAR.LineAccount NE "" THEN 
-        ar-invl.actnum = ipbf-ttImportAR.LineAccount.
+        bf-ar-invl.actnum = ipbf-ttImportAR.LineAccount.
     IF ipbf-ttImportAR.LineNo NE 0 THEN 
-        ar-invl.line = ipbf-ttImportAR.LineNo.
+        bf-ar-invl.line = ipbf-ttImportAR.LineNo.
     IF ipbf-ttImportAR.LineItemNo NE "" THEN 
-        ar-invl.i-no = ipbf-ttImportAR.LineItemNo.
+        bf-ar-invl.i-no = ipbf-ttImportAR.LineItemNo.
     IF ipbf-ttImportAR.LineItemName NE "" THEN 
-        ar-invl.i-name = ipbf-ttImportAR.LineItemName.
+        bf-ar-invl.i-name = ipbf-ttImportAR.LineItemName.
     IF ipbf-ttImportAR.LineItemDescription NE "" THEN                                 
-        ar-invl.i-dscr = ipbf-ttImportAR.LineItemDescription.     
+        bf-ar-invl.i-dscr = ipbf-ttImportAR.LineItemDescription.     
     IF ipbf-ttImportAR.LineCustomerLotNo NE "" THEN 
-        ar-invl.lot-no = ipbf-ttImportAR.LineCustomerLotNo.
+        bf-ar-invl.lot-no = ipbf-ttImportAR.LineCustomerLotNo.
     IF ipbf-ttImportAR.LineDiscount NE 0 THEN                            
-        ar-invl.disc = ipbf-ttImportAR.LineDiscount.            
+        bf-ar-invl.disc = ipbf-ttImportAR.LineDiscount.            
     IF ipbf-ttImportAR.LineCost NE 0 THEN 
-        ar-invl.cost = ipbf-ttImportAR.LineCost.                
+        bf-ar-invl.cost = ipbf-ttImportAR.LineCost.                
     IF ipbf-ttImportAR.LineCostUom NE "" THEN 
-        ar-invl.cons-uom = ipbf-ttImportAR.LineCostUom.             
+        bf-ar-invl.cons-uom = ipbf-ttImportAR.LineCostUom.             
     IF ipbf-ttImportAR.LineSalesman1 NE "" THEN 
-        ar-invl.sman[1] = ipbf-ttImportAR.LineSalesman1.
+        bf-ar-invl.sman[1] = ipbf-ttImportAR.LineSalesman1.
     IF ipbf-ttImportAR.LineSalesman1Percent NE 0 THEN 
-        ar-invl.s-pct[1] = ipbf-ttImportAR.LineSalesman1Percent.
+        bf-ar-invl.s-pct[1] = ipbf-ttImportAR.LineSalesman1Percent.
     IF ipbf-ttImportAR.LineSalesman1Commission NE 0 THEN 
-        ar-invl.s-comm[1] = ipbf-ttImportAR.LineSalesman1Commission.
+        bf-ar-invl.s-comm[1] = ipbf-ttImportAR.LineSalesman1Commission.
     IF ipbf-ttImportAR.LineSalesman2 NE "" THEN 
-        ar-invl.sman[2] = ipbf-ttImportAR.LineSalesman2.
+        bf-ar-invl.sman[2] = ipbf-ttImportAR.LineSalesman2.
     IF ipbf-ttImportAR.LineSalesman2Percent NE 0 THEN 
-        ar-invl.s-pct[2] = ipbf-ttImportAR.LineSalesman2Percent.
+        bf-ar-invl.s-pct[2] = ipbf-ttImportAR.LineSalesman2Percent.
     IF ipbf-ttImportAR.LineSalesman2Commission NE 0 THEN 
-        ar-invl.s-comm[3] = ipbf-ttImportAR.LineSalesman3Commission.
+        bf-ar-invl.s-comm[3] = ipbf-ttImportAR.LineSalesman3Commission.
     IF ipbf-ttImportAR.LineSalesman3 NE "" THEN 
-        ar-invl.sman[3] = ipbf-ttImportAR.LineSalesman3.
+        bf-ar-invl.sman[3] = ipbf-ttImportAR.LineSalesman3.
     IF ipbf-ttImportAR.LineSalesman3Percent NE 0 THEN 
-        ar-invl.s-pct[3] = ipbf-ttImportAR.LineSalesman3Percent.
+        bf-ar-invl.s-pct[3] = ipbf-ttImportAR.LineSalesman3Percent.
     IF ipbf-ttImportAR.LineSalesman3Commission NE 0 THEN 
-        ar-invl.s-comm[3] = ipbf-ttImportAR.LineSalesman3Commission.
+        bf-ar-invl.s-comm[3] = ipbf-ttImportAR.LineSalesman3Commission.
                                 
-    RUN pRecalculateARInvoiceHeader(ROWID(ar-inv), ar-invl.amt).
+    RUN pRecalculateARInvoiceHeader(ROWID(bf-ar-inv), bf-ar-invl.amt).
+
+    RELEASE bf-ar-inv .
+    RELEASE bf-ar-invl.
 
 END PROCEDURE.
 

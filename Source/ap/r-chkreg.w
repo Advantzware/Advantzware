@@ -197,9 +197,9 @@ DEFINE VARIABLE fiTransmitFile AS CHARACTER FORMAT "X(100)"
      SIZE 54 BY .81
      BGCOLOR 15 FGCOLOR 9 .
 
-DEFINE VARIABLE fi_CheckFile AS CHARACTER FORMAT "X(50)" 
+DEFINE VARIABLE fi_CheckFile AS CHARACTER FORMAT "X(80)" 
      VIEW-AS FILL-IN 
-     SIZE 45 BY .81
+     SIZE 55 BY .81
      BGCOLOR 15 FGCOLOR 9 .
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-chkreg.csv" 
@@ -322,7 +322,7 @@ DEFINE FRAME FRAME-A
      tb_void AT ROW 7.67 COL 20
      rd_print-apfile AT ROW 8.86 COL 54 NO-LABEL WIDGET-ID 6
      tb_APcheckFile AT ROW 8.95 COL 20.2 WIDGET-ID 4
-     fi_CheckFile AT ROW 9.71 COL 45 COLON-ALIGNED HELP
+     fi_CheckFile AT ROW 9.71 COL 36 COLON-ALIGNED HELP
           "Enter File Name" NO-LABEL WIDGET-ID 2
      tbTransmitFile AT ROW 10.48 COL 20.2 WIDGET-ID 12
      fiTransmitFile AT ROW 10.67 COL 36 COLON-ALIGNED HELP
@@ -985,7 +985,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  LENGTH(sys-ctrl-shipto.char-fld) - 3 ,4) NE ".txt" 
          THEN DO:
 
-          ASSIGN fi_CheckFile = STRING(TODAY,"99999999") + 
+          IF v-fileFormat EQ "Positive Pay-Santander" THEN
+              ASSIGN fi_CheckFile = "PositivePay_" + STRING(year(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99")
+                               + "_" + STRING(TIME) + ".txt".
+          ELSE
+              ASSIGN fi_CheckFile = STRING(TODAY,"99999999") + 
                                 STRING(TIME) + ".txt".
 
           IF SUBSTR(sys-ctrl-shipto.char-fld,
@@ -1555,6 +1559,71 @@ IF tb_APcheckFile THEN DO:
            '"'  IF v-check-date NE ? THEN STRING(v-check-date,"99/99/9999") ELSE "00000000" FILL(" ",30)   '",'  /* Issue Date     */
                SKIP .
   END.
+END.
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay-Santander C-Win 
+PROCEDURE PositivePay-Santander :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes: 
+------------------------------------------------------------------------------*/
+
+IF tb_APcheckFile THEN DO:
+
+    FIND FIRST bank NO-LOCK
+        WHERE bank.company EQ cocode
+          AND bank.bank-code EQ ap-sel.bank-code /*"6017"*/ NO-ERROR.
+ IF rd_print-apfile EQ "Text" THEN do:
+   PUT STREAM checkFile UNFORMATTED
+    "6217    6017          "
+     STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999999")   /* Account Number */
+     STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
+     STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999") 
+                                                                 /* Amount         */ 
+     IF ap-sel.check-date NE ? 
+        THEN SUBstring(STRING(YEAR(ap-sel.check-date),"9999"),3,2) +  
+             STRING(MONTH(ap-sel.check-date),"99")  +     
+             STRING(DAY(ap-sel.check-date),"99")   
+        ELSE "000000"                                          /* Issue Date     */
+
+    
+     IF TRIM(vend.vend-no) NE ""
+       THEN
+        TRIM(vend.vend-no) + FILL(" ",(15 - LENGTH(TRIM(vend.vend-no))))
+       ELSE FILL(" ",15)                                         /* Payee NAME     */
+     FILL(" ",40)                                                /* Region/Dept Name */ 
+     IF TRIM(vend.name) NE ""
+       THEN
+        TRIM(vend.name) + FILL(" ",(80 - LENGTH(TRIM(vend.name))))
+       ELSE FILL(" ",80)                                         /* Payee NAME     */
+    SKIP.
+ END.
+ ELSE DO: /* excel output */
+
+      PUT STREAM ap-excel UNFORMATTED
+           '"' "D"     '",'  /* Bank Number    */
+           '"' STRING(INT(ap-sel.bank-code),"999")                     '",' /* Bank code */
+           '"' STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999") '",'  /* Account Number   */
+           '"' STRING(INT(ap-sel.check-no),"9999999999")   '",'  /* Check Number     */
+           '"' STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") '",'  /* Amount */
+           '"'  IF ap-sel.check-date NE ? THEN STRING(YEAR(ap-sel.check-date),"9999") + 
+                STRING(MONTH(ap-sel.check-date),"99")  + STRING(DAY(ap-sel.check-date),"99")  ELSE "00000000" 
+                FILL(" ",30)   '",'  /* Issue Date     */
+           '"' IF TRIM(vend.name) NE "" THEN TRIM(vend.name) + 
+               FILL(" ",(80 - LENGTH(TRIM(vend.name)))) ELSE FILL(" ",80)     '",'  /* Payee NAME    */
+           '"' IF ap-sel.vend-no EQ "VOID" THEN "V" ELSE FILL(" ",1)     '",'  /* Void Indicator    */
+
+               SKIP .
+ END.
+
 END.
 
 

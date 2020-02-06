@@ -99,7 +99,7 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
   IF cSortBy  EQ 'ediInvoice'    THEN STRING(inv-head.ediInvoice) ELSE ~
   IF cSortBy  EQ 'spare-char-5'  THEN STRING(inv-head.spare-char-5) ELSE ~
   IF cSortBy  EQ 'cFreight'      THEN frt-pay ELSE ~
-  STRING(inv-head.inv-no,'>>>>>9') ~  
+  STRING(inv-head.inv-no,'>>>>>>9') ~  
   
 &SCOPED-DEFINE sortby-phrase-asc ~
     {&sortby-log}                ~
@@ -261,7 +261,7 @@ DEFINE VARIABLE fiCustNumber AS CHARACTER FORMAT "X(8)":U
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fiInvoice AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
+DEFINE VARIABLE fiInvoice AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "Invoice #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -308,7 +308,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>9":U
+      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
             LABEL-BGCOLOR 14
       inv-head.cust-no COLUMN-LABEL "Cust #" FORMAT "x(8)":U WIDTH 10.6
             LABEL-BGCOLOR 14

@@ -47,7 +47,7 @@
       <tr class="shadedrow"><th>Dumpname </th>
                             <td> gl-jrn      </td></tr>
       <tr class="shadedrow"><th>Label    </th>     
-                            <td> GL Journal Header      </td></tr>
+                            <td> G/L Journal Header      </td></tr>
       <tr class="shadedrow"><th>Val.exp  </th>     
                             <td> ?      </td></tr>
       <tr class="shadedrow"><th>Val.msg  </th>     
@@ -471,6 +471,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>yr</td>
+    <td><a href="00-cross-y.html#yr"><small>X</small></a></td>
+    <td>Year</td>
+    <td>integer</td>
+    <td>9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 <div id=SortOrder  style="display:none;">
@@ -857,6 +868,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>yr</td>
+    <td><a href="00-cross-y.html#yr"><small>X</small></a></td>
+    <td>Year</td>
+    <td>integer</td>
+    <td>9999</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -928,6 +950,42 @@
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>orig-jnl (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="evenrow">
+    <td>iCoYrPrd</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>yr (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>period (+)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>iCoYrPrdDesc</td>
+    <td>        </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>yr (-)</td>
+    <td>integer</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>period (-)</td>
     <td>integer</td>
   </tr>
   <tr class="evenrow">
@@ -1037,19 +1095,9 @@
     <td>W = Wordindex</td>
   </tr>
 </table> 
-  <h2>Related tables</h2>
-  <table style="width:50%; float:left;">
-    <tr>
-      <th>Parent tables</th>
-    </tr>
-    <tr class="shadedrow">
-      <td><a href="job-hdr.html">job-hdr</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
-    </tr>
-  </table>
-<hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 15-11-2019 12:47</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 31-1-2020 13:33</small></i></td></tr>
 </table>
 </body>
 </html>

@@ -91,27 +91,29 @@ DO idx = 1 TO EXTENT(dynParamValue.colName):
     END. /* if iscalcfield */
     ELSE
     ASSIGN
-        cTableName = ENTRY(1,dynParamValue.colName[idx],".")
-        cFieldName = ENTRY(2,dynParamValue.colName[idx],".")
+        cTableName      = ENTRY(1,dynParamValue.colName[idx],".")
+        cFieldName      = ENTRY(2,dynParamValue.colName[idx],".")
+        cRequiredFields = cRequiredFields + cFieldName + ","
         .
     IF idx EQ 1 THEN
     ASSIGN
         cSourceTable = cTableName
         cSourceField = cFieldName
         .
-    ASSIGN
-        cRequiredFields = cRequiredFields + cFieldName + ","
-        cReturnFields   = cReturnFields   + cFieldName + ","
-        .
-    IF dynParamValue.isActive[idx] THEN
-    ASSIGN
-        cDisplayFields = cDisplayFields + cFieldName + ","
-        cFormats       = cFormats       + REPLACE(dynParamValue.colFormat[idx],",","") + ","
-        cLabels        = cLabels        + dynParamValue.colLabel[idx]  + ","
-        cSearchFields  = cSearchFields  + cFieldName + ","
-        cSortFields    = cSortFields    + cFieldName + ","
-        cWidths        = cWidths        + (IF dynParamValue.dataType[idx] EQ "Date" THEN "20" ELSE "") + ","
-        .
+    IF dynParamValue.isActive[idx] THEN DO:
+        ASSIGN
+            cDisplayFields = cDisplayFields + cFieldName + ","
+            cFormats       = cFormats       + REPLACE(dynParamValue.colFormat[idx],",","") + ","
+            cLabels        = cLabels        + dynParamValue.colLabel[idx] + ","
+            cWidths        = cWidths        + (IF dynParamValue.dataType[idx] EQ "Date" THEN "20" ELSE "") + ","
+            .
+        IF dynParamValue.isReturnValue[idx] THEN
+        cReturnFields = cReturnFields + cFieldName + ",".
+        IF dynParamValue.isSearchable[idx] THEN
+        cSearchFields = cSearchFields + cFieldName + ",".
+        IF dynParamValue.isSortable[idx] THEN
+        cSortFields   = cSortFields   + cFieldName + ",".
+    END. /* if isactive */
 END. /* do idx */
 ASSIGN
     cDisplayFields  = TRIM(cDisplayFields,",")

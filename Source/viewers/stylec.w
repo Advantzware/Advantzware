@@ -550,7 +550,6 @@ DO:
    DEF VAR lv-mat-type AS cha NO-UNDO.
    DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-
    CASE FOCUS:NAME :
         WHEN 'design-no' THEN DO:
              RUN windows/l-boxdes.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -584,26 +583,18 @@ DO:
                          ls-cur-val = FOCUS:SCREEN-VALUE.
                          IF AVAIL style THEN lv-ind = style.industry.
                          ELSE lv-ind = "".  
-                         IF AVAIL style AND style.type:screen-value = "f" THEN  /* foam */
-                            RUN windows/l-boardf.w (style.company,lv-ind,ls-cur-val,OUTPUT char-val).
-                         ELSE RUN windows/l-board1.w (cocode,lv-ind,FOCUS:SCREEN-VALUE, OUTPUT lv-rowid).
-                         FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-                         IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN
-                           ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no
-                            .
-                        RETURN NO-APPLY.                  
-                  END.
-                  WHEN 4 THEN DO:  /* adder */
-                    IF AVAIL style THEN ASSIGN lv-ind = style.industry
-                                               lv-foam = style.type:screen-value = "F" .
-                    ELSE ASSIGN lv-ind = ""
-                                lv-foam = NO.
-                    RUN windows/l-boarda.w (style.company,lv-ind, FOCUS:SCREEN-VALUE, OUTPUT char-val).
-                    IF char-val <> "" THEN 
-                        ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
-                      .
-                    RETURN NO-APPLY.
-
+                         IF AVAILABLE style AND style.type:SCREEN-VALUE EQ "f" THEN DO: /* foam */
+                            RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+                            style.material[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                            APPLY "ENTRY":U TO style.material[1].
+                         END. /* if foam */
+                         ELSE DO:
+                             RUN windows/l-board1.w (cocode,lv-ind,FOCUS:SCREEN-VALUE, OUTPUT lv-rowid).
+                             FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+                             IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN
+                             FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no.
+                         END. /* else */
+                         RETURN NO-APPLY.                  
                   END.
                   /*=====????
                   when 2 or when 5 or when 6 or when 7 then do:
@@ -638,6 +629,18 @@ DO:
                          ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
                          .
                      RETURN NO-APPLY.
+                  END.
+                  WHEN 4 THEN DO:  /* adder */
+                    IF AVAIL style THEN ASSIGN lv-ind = style.industry
+                                               lv-foam = style.type:screen-value = "F" .
+                    ELSE ASSIGN lv-ind = ""
+                                lv-foam = NO.
+                    RUN windows/l-boarda.w (style.company,lv-ind, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                        ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
+                      .
+                    RETURN NO-APPLY.
+
                   END.
                   WHEN 5 THEN DO:
                      IF AVAIL style THEN ASSIGN lv-ind = style.industry.

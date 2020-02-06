@@ -472,7 +472,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-    lv-search = STRING(INT(ip-cur-val),">>>>>>>>>>").
+    
+	IF ip-cur-val NE "" THEN DO:
+		lv-search = STRING(INT(ip-cur-val),">>>>>>>>>>") NO-ERROR.
+		IF ERROR-STATUS:ERROR THEN 
+			lv-search = ip-cur-val.
+	END.
 
     RELEASE itemfg.
     IF rd-sort:SCREEN-VALUE EQ "2" THEN DO: 

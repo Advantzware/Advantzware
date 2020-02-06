@@ -849,6 +849,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         "<=7><R+1.7><C40><P6> TO CASH DISCOUNT          AMOUNT            THIS DATE  "
         "<=7><R+2.4><C21><FROM><C+60><LINE>".
 
+    PUT "</B><FArial><R59.5><C4><#8><P10> Remit To:                                                  Credit  Card  payments  incur  2.5%  fee. " SKIP
+        "<=8><R+1> Peachtree  Packaging, Inc." SKIP
+        "<=8><R+2> PO BOX 536211" SKIP
+        "<=8><R+3> Atlanta, GA 30353" SKIP.
+    
     PUT "<FArial><R61><C63><P12><B> THANK YOU. </B> <P9> " SKIP.
 
     ASSIGN v-printline = v-printline + 6
