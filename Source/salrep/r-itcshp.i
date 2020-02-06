@@ -326,7 +326,7 @@
             xtt-report.key-07 =  if ar-invl.i-no ne "" then ar-invl.i-no ELSE "AR SALE"
             xtt-report.key-02  = tt-report.key-09
             xtt-report.key-03  = v-ship
-            xtt-report.key-04  = string(ar-invl.inv-no,"999999")
+            xtt-report.key-04  = string(ar-invl.inv-no,"9999999")
             xtt-report.key-05  = v-sman-no
             xtt-report.key-09  = tt-report.key-09.          
            if not v-sort1 then do:
@@ -355,7 +355,7 @@
        tt-report.key-01 = "MEMO"
        tt-report.key-02 = tt-report.key-09
        tt-report.key-03 = tt-report.key-09
-       tt-report.key-04 = string(ar-cashl.inv-no,"999999")
+       tt-report.key-04 = string(ar-cashl.inv-no,"9999999")
        tt-report.key-05 = cust.sman.
 
       RELEASE oe-reth.
@@ -700,7 +700,7 @@
               v-name        when ((not v-print1) and first-of(tt-report.key-01))
                                  or v-print1
               tt-report.key-03
-              w-data.inv-no
+              w-data.inv-no FORMAT ">>>>>>9"
               v-date
               v-ord
               v-est
