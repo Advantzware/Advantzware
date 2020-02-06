@@ -207,6 +207,7 @@ DEFINE VARIABLE chrBarcode AS CHARACTER FORM "x(15)" EXTENT 10 NO-UNDO.
 DEFINE VARIABLE chrDummy   AS CHARACTER  NO-UNDO.
 /* rdb 02/16/07 */
 DEFINE VARIABLE intLnCount AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cCheckMatrialItem AS CHARACTER NO-UNDO .
 
 DEF VAR v-num-of-fgitm AS INT NO-UNDO.
 DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
@@ -1941,7 +1942,7 @@ END FUNCTION.
 
           PUT  "<C1>Corrugated"  SKIP
             "<C1><u>RM Item #  </u>   <u>Description         </u>  <u> Length </u> <u> Width </u> <u> Depth </u> <u>   Qty </u>  <u> Case or Pallet Count </u>"  SKIP.
-        
+        cCheckMatrialItem = "" .
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
               AND xjob-mat.job     EQ job-hdr.job
@@ -2001,6 +2002,7 @@ END FUNCTION.
                 ELSE IF AVAIL bf-eb THEN
                     PUT STRING(bf-eb.cas-cnt,">>,>>9") .
                 PUT  SKIP.
+                cCheckMatrialItem = cCheckMatrialItem + item.i-no + "," .
           END.
           RELEASE b-oe-ordl .
            RELEASE bf-eb .
@@ -2063,6 +2065,7 @@ END FUNCTION.
                 " "
                 STRING(ld-qty-disp,">>,>>9")                                            
                 SKIP.
+            cCheckMatrialItem = cCheckMatrialItem + item.i-no + "," .
           END.
         END. /* xjob-mat */
         IF NOT v-pallet-log  THEN
@@ -2100,6 +2103,7 @@ END FUNCTION.
              ELSE 
                  PUT (lp-up * casqty) FORMAT ">>>>>>9"   SKIP .
              intLnCount = intLnCount + 1.
+             cCheckMatrialItem = cCheckMatrialItem + item.i-no + "," .
             END.
          END.
 
@@ -2184,7 +2188,7 @@ END FUNCTION.
 /*                 item.i-name                           */
 /*                 SKIP.                                 */
 /*         END. /* xjob-mat */                           */
-    
+   Main-EstPacking: 
    FOR EACH estPacking NO-LOCK
          WHERE estPacking.company  EQ cocode
          AND estPacking.estimateNo EQ eb.est-no
@@ -2202,6 +2206,8 @@ END FUNCTION.
              WHERE item.company  EQ cocode
              AND item.i-no     EQ estPacking.rmItemID
              NO-ERROR.
+
+         IF LOOKUP(item.i-no,cCheckMatrialItem) GT 0 THEN NEXT Main-EstPacking.
          IF FIRST-OF(estPacking.rmItemID) THEN ld-qty-disp = 0 .
             ld-qty-disp = ld-qty-disp + xjob-mat.qty .
             
