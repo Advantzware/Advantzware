@@ -46,7 +46,7 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 
 DEF TEMP-TABLE tt-inv FIELD selekt AS LOG LABEL "Selected"
                       FIELD row-id AS ROWID
-                      FIELD inv-no LIKE ar-inv.inv-no
+                      FIELD inv-no LIKE ar-inv.inv-no FORMAT ">>>>>>9"
                       FIELD inv-date LIKE ar-inv.inv-date
                       FIELD i-no LIKE ar-invl.i-no
                       FIELD actnum LIKE ar-invl.actnum
