@@ -1,5 +1,5 @@
 /* ----------------------------------------------  */
-/*  cecrep/jobtickc20.p  Corrugated factory ticket  for Xprint landscape */
+/*  cecrep/jobAmCarton.p  Corrugated factory ticket  for Xprint landscape */
 /* -------------------------------------------------------------------------- */
 
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
@@ -312,6 +312,7 @@ DO v-local-loop = 1 TO v-local-copies:
             IF print-box AND AVAILABLE xest THEN 
           DO:
               
+            
               FIND FIRST box-design-hdr NO-LOCK
                   WHERE box-design-hdr.company EQ xeb.company
                   AND box-design-hdr.design-no EQ 0
@@ -775,7 +776,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+11><#SpecNotes3>"
               "<=NotesStart><C+1><R+12><#SpecNotes4>"
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
-              "<=NotesStart><C+1><R+17><#SpecNotes6>"
+              "<=NotesStart><C+1><R+14><#SpecNotes6>"
              
               "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
@@ -791,10 +792,69 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
+             v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
+                        ELSE IF AVAILABLE xeb THEN xeb.ship-id
+                        ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
+                        ELSE "".
+
+             FIND FIRST shipto NO-LOCK
+                 WHERE shipto.company EQ cocode
+                 AND shipto.cust-no EQ job-hdr.cust-no
+                 AND shipto.ship-id EQ v-shipto NO-ERROR .
+             
+             IF AVAILABLE xeb  THEN
+                 FIND FIRST stackPattern NO-LOCK 
+                 WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
+            PUT
+             "<=Start><R+36><C64><#PageStart>"
+              "<=PageStart><#PackingStart>"
+              "<=PackingStart><C+25><#PackingTR>"
+              "<=PackingStart><R+14><#PackingBL>"
+              "<=PackingStart><C+25><R+13><#PackingEnd>"
+              "<=PackingTR><FROM><LINE#PackingEnd>"
+              "<=PackingStart><R+1><RIGHT=C+6>Pallet: <#Pallet>"
+              "<=PackingStart><R+2><RIGHT=C+6>Size: "
+              "<=PackingStart><R+2><C+9>L: <#PalletLength>"
+              "<=PackingStart><R+2><C+15>W: <#PalletWidth> "
+              "<=PackingStart><R+3><C+9>Per"
+              "<=PackingStart><R+3><C+15>Job Total"
+              "<=PackingStart><R+4><RIGHT=C+6>Per Case:"
+              "<=PackingStart><R+4><C+9><#CaseCount>"
+              "<=PackingStart><R+4><C+15><#JobCases>"
+              "<=PackingStart><R+5><RIGHT=C+6>Per Pallet:"
+              "<=PackingStart><R+5><C+9><#PalletCount>"
+              "<=PackingStart><R+5><C+15><#JobPallets>"
+              /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
+              "<=PackingStart><R+6><RIGHT=C+6>Layers: <#Layers>"
+              "<=PackingStart><R+7><RIGHT=C+6>Stacks: <#Stacks>"
+              "<=PackingStart><R+8><RIGHT=C+6>Pattern: <#PatternCode>"
+              "<=PackingStart><R+9><C+1><#Pattern>"
+              "<=PackingTR><#PatternImageStart>"
+              "<=PatternImageStart><C+19><#PatternImageTR>"
+              "<=PatternImageStart><R+10><#PatternImageBL>"
+              "<=PatternImageStart><C+19><R+12><#PatternImageEnd>"
+              "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
+              "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"
+
+               "<=Pallet>" IF AVAILABLE xeb THEN xeb.tr-no ELSE "" FORMAT "x(10)" 
+              "<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
+              "<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
+              "<B>"
+              "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" 
+              "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" 
+              "</B>"
+              "<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"
+              "<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"
+              "<=Layers>" IF AVAILABLE xeb THEN STRING(xeb.tr-cas) ELSE "" FORMAT "x(4)"
+              "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
+              "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
+              "<=Pattern>" IF AVAILABLE xeb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
+              "<R37.3><C62><P14><FROM><R37.3><C108><LINE>"
+                .
         
         PAGE.
 
-        v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
+        /*v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
                         ELSE IF AVAILABLE xeb THEN xeb.ship-id
                         ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
                         ELSE "".
@@ -935,9 +995,11 @@ DO v-local-loop = 1 TO v-local-copies:
             ls-fgitem-img = bf-itemfg.box-image.
 
             PUT UNFORMATTED "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
-            PAGE.
+            PAGE.*/
 
     END.  /* for each w-ef */
+
+    
     IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN 
     DO: /* print set header */
         i = 0.
@@ -1128,3 +1190,4 @@ PROCEDURE stackImage:
 END PROCEDURE.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
+
