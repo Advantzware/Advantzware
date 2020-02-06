@@ -1289,7 +1289,7 @@ form header
      "        "
      "Invoice"
      "Invoice"
-     " Order"
+     " Order "
      v-hdr[3]       format "x(8)"
      "            "
      "               "
@@ -1302,9 +1302,9 @@ form header
      v-hdr[2]       format "x(21)"
      "Ship-to "
      "Number "
-     "Date   "
+     "Date    "
      "Number"
-     " Number "
+     "  Number "
      " Qty Shipped"
      "   Unit Price"
      "UOM "
@@ -1316,7 +1316,7 @@ form header
      "---------------------"
      "--------"
      "-------"
-     "-------"
+     "--------"
      "------"
      "--------"
      "------------"
@@ -1330,7 +1330,7 @@ form w-data.i-no
      cust.cust-no
      v-name
      tt-report.key-03     format "x(8)"
-     w-data.inv-no
+     w-data.inv-no        FORMAT ">>>>>>9"
      v-date               FORMAT "99/99/99"
      v-ord                format ">>>>>>"
      v-est                format "x(8)"
