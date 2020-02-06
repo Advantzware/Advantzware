@@ -34,6 +34,7 @@ DEFINE VARIABLE cResult AS CHARACTER   NO-UNDO.
 {custom/windows.i}
 
 DEF VAR lLabelMatrixLock AS LOG NO-UNDO.
+DEFINE VARIABLE iLMReanalyze AS INTEGER NO-UNDO .
 DEF STREAM sLock.
 
 RUN sys/ref/nk1look.p (INPUT ipcCompany,
@@ -47,6 +48,13 @@ RUN sys/ref/nk1look.p (INPUT ipcCompany,
                        OUTPUT lFound).
 IF lFound THEN
   lLabelMatrixLock = LOGICAL(cResult).
+
+
+RUN sys/ref/nk1look.p (INPUT ipcCompany, "LMReanalyze", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cResult, OUTPUT lFound).
+IF lFound THEN
+    iLMReanalyze = integer(cResult) NO-ERROR. 
 /* Function Forwards          ----------------------------------------- */
 
 /* _UIB-CODE-BLOCK-END */
@@ -143,8 +151,11 @@ IF  lLabelMatrixLock THEN DO:
 END.
 
 RUN pGetExecutionPath(OUTPUT cPath). /*Gets the LMPrint.exe execution path*/
-  
-  cFileName = "/L=" + ipcLabelFile.
+ 
+     cFileName = "/L=" + ipcLabelFile.
+
+     IF iLMReanalyze NE 0 THEN
+         cFileName = "/Z=" + trim(STRING(iLMReanalyze)) .
 
 /* Specify a "lock" file for LM to remove when done printing */
 IF lLabelMatrixLock THEN DO:
