@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lv-got-shipto AS LOGICAL NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -4071,7 +4072,8 @@ PROCEDURE create-w-ord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-rel-date AS DATE NO-UNDO.
+   DEFINE VARIABLE lv-rel-date AS DATE      NO-UNDO.
+   DEFINE VARIABLE cRelStat    AS CHARACTER NO-UNDO.
    DEF BUFFER b-job FOR job.
    DEF BUFFER b-job-hdr FOR job-hdr.
 
@@ -4177,22 +4179,87 @@ PROCEDURE create-w-ord :
             RELEASE style.
          END.
       END.
-      IF v-ship-id EQ "" THEN v-ship-id = oe-ord.cust-no.
-      FIND FIRST shipto WHERE shipto.company eq cocode
-            AND shipto.cust-no eq oe-ord.cust-no
-            AND shipto.ship-id eq v-ship-id
-            USE-INDEX ship-id NO-LOCK NO-ERROR.
-      IF AVAIL shipto THEN
-         ASSIGN
-            w-ord.ship-code  = shipto.ship-id
-            w-ord.ship-name  = shipto.ship-name
-            w-ord.ship-add1  = shipto.ship-add[1]
-            w-ord.ship-add2  = shipto.ship-add[2]
-            w-ord.ship-city  = shipto.ship-city
-            w-ord.ship-state = shipto.ship-state
-            w-ord.ship-zip   = shipto.ship-zip
-            w-ord.broker     = shipto.broker.
-
+      FOR EACH w-shipto:
+        DELETE w-shipto.
+      END.
+      lv-got-shipto = NO.
+      IF AVAILABLE oe-ordl THEN DO:  
+          FOR EACH oe-rel NO-LOCK
+              WHERE oe-rel.company EQ oe-ordl.company
+                AND oe-rel.i-no    EQ oe-ordl.i-no
+                AND oe-rel.ord-no  EQ oe-ordl.ord-no
+                AND oe-rel.line    EQ oe-ordl.line:
+              IF NOT tb_ship-id THEN 
+                  v-ship-id = oe-rel.ship-id.
+                
+              RUN oe/custxship.p(
+                  INPUT oe-rel.company,
+                  INPUT oe-rel.cust-no,
+                  INPUT v-ship-id,
+                  BUFFER shipto
+                  ).
+              
+              IF AVAILABLE shipto THEN DO:
+                  RUN oe/rel-stat.p(
+                      INPUT ROWID(oe-rel), 
+                      OUTPUT cRelStat
+                      ).
+              
+                  CREATE w-shipto.
+                  BUFFER-COPY shipto EXCEPT rec_key TO w-shipto
+                  ASSIGN
+                      w-shipto.stat   = cRelStat
+                      w-shipto.row-id = ROWID(oe-rel).
+              END.
+          END.
+    
+          FOR EACH w-shipto,
+              FIRST oe-rel NO-LOCK 
+                  WHERE ROWID(oe-rel) EQ w-shipto.row-id
+                  BREAK BY oe-rel.rel-date
+                        BY oe-rel.po-no
+                        BY oe-rel.ship-no 
+                        BY oe-rel.qty:
+    
+              IF LOOKUP(w-shipto.stat , "L,S,I") > 0  OR
+                 LAST(oe-rel.rel-date) THEN DO:
+                  ASSIGN
+                      lv-got-shipto    = YES
+                      w-ord.ship-code  = w-shipto.ship-id
+                      w-ord.ship-name  = w-shipto.ship-name
+                      w-ord.ship-add1  = w-shipto.ship-add[1]
+                      w-ord.ship-add2  = w-shipto.ship-add[2]
+                      w-ord.ship-city  = w-shipto.ship-city
+                      w-ord.ship-state = w-shipto.ship-state
+                      w-ord.ship-ctry  = w-shipto.country
+                      w-ord.ship-zip   = w-shipto.ship-zip
+                      w-ord.broker     = w-shipto.broker.
+                  LEAVE.
+              END.
+          END.
+      END.
+                   
+      IF NOT lv-got-shipto THEN DO:
+          IF NOT tb_ship-id THEN 
+              v-ship-id = oe-ord.cust-no.
+              
+          FIND FIRST shipto NO-LOCK
+               WHERE shipto.company EQ cocode
+                 AND shipto.cust-no EQ oe-ord.cust-no
+                 AND shipto.ship-id EQ v-ship-id
+               USE-INDEX ship-id  
+               NO-ERROR.
+          IF AVAILABLE shipto THEN
+              ASSIGN
+                  w-ord.ship-code  = shipto.ship-id
+                  w-ord.ship-name  = shipto.ship-name
+                  w-ord.ship-add1  = shipto.ship-add[1]
+                  w-ord.ship-add2  = shipto.ship-add[2]
+                  w-ord.ship-city  = shipto.ship-city
+                  w-ord.ship-state = shipto.ship-state
+                  w-ord.ship-zip   = shipto.ship-zip
+                  w-ord.broker     = shipto.broker.    
+      END.  
           IF NOT AVAIL eb AND AVAIL itemfg AND itemfg.est-no NE "" THEN
           FIND FIRST eb
               WHERE eb.company  EQ itemfg.company
@@ -5073,7 +5140,6 @@ PROCEDURE from-ord :
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-  DEF VAR lv-got-shipto AS LOG NO-UNDO.
   DEF VAR lv-stat AS cha NO-UNDO.
   DEF VAR lv-over LIKE oe-ordl.over-pct NO-UNDO.
   DEF VAR lv-rel-date AS DATE NO-UNDO.
