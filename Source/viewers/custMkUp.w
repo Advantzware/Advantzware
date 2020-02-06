@@ -892,7 +892,7 @@ PROCEDURE local-update-record :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -905,14 +905,15 @@ PROCEDURE local-update-record :
     RUN valid-style NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-
+    RUN valid-custmkup(OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
 
     RUN pDisableAll.
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
 /* Code placed here will execute AFTER standard behavior.    */
-
+   adm-adding-record = NO .
 
 
 END PROCEDURE.
@@ -1136,6 +1137,42 @@ PROCEDURE valid-procat :
             RETURN ERROR.
         END.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custmkup V-table-Win 
+PROCEDURE valid-custmkup :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEFINE BUFFER bf-cust-markup FOR cust-markup .
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+   
+    FIND FIRST bf-cust-markup NO-LOCK
+        WHERE bf-cust-markup.company EQ g_company 
+          AND bf-cust-markup.cust-no EQ cust-markup.cust-no:SCREEN-VALUE
+          AND bf-cust-markup.procat EQ cust-markup.procat:SCREEN-VALUE
+          AND bf-cust-markup.style EQ cust-markup.style:SCREEN-VALUE
+          AND (ROWID(bf-cust-markup) NE ROWID(cust-markup) OR ( adm-new-record AND NOT adm-adding-record ))
+         NO-ERROR.
+
+        IF AVAIL bf-cust-markup THEN DO:
+            MESSAGE "Record already exist please adjust the entry.."
+                VIEW-AS ALERT-BOX INFO .
+            APPLY "entry" TO cust-markup.cust-no.
+            oplReturnError = YES .
+        END.
   END.
 
   {methods/lValidateError.i NO}
