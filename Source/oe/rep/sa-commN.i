@@ -636,7 +636,13 @@
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
-           cExcelVarValue = "".    
+           cExcelVarValue = "".   
+
+          IF AVAIL itemfg THEN do:
+              RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dMsfCalc). 
+              dMsfCalc = dMsfCalc * v-qty .
+          END.
+          ELSE dMsfCalc = 0 .
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
          cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -685,6 +691,7 @@
                  WHEN "inv-date" THEN cVarValue = string(v-inv-date,"99/99/9999") .
                  WHEN "ware-house" THEN cVarValue = IF cWhse NE "" THEN cWhse ELSE "".
                  WHEN "ship-id" THEN cVarValue = STRING(v-ship-id).
+                 WHEN "msf" THEN cVarValue = STRING(dMsfCalc,"->>>>>9.99<<<").
             END CASE.
             IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -801,7 +808,8 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "ship-id" THEN cVarValue = "".                       
+                 WHEN "ship-id" THEN cVarValue = "".   
+                 WHEN "msf" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -966,6 +974,7 @@
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".
+                 WHEN "msf" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1054,7 +1063,8 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "ship-id" THEN cVarValue = "".                  
+                 WHEN "ship-id" THEN cVarValue = "". 
+                 WHEN "msf" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1191,7 +1201,8 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "ship-id" THEN cVarValue = "".                   
+                 WHEN "ship-id" THEN cVarValue = "". 
+                 WHEN "msf" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
