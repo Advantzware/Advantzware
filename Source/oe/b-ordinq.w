@@ -104,7 +104,14 @@ ll-sort-asc = NO /*oeinq*/.
         WHERE {&key-phrase} ~
           AND ((LOOKUP(oe-ordl.cust-no,custcount) NE 0 ~
           AND oe-ordl.cust-no NE '') OR custcount EQ '')
-
+          
+&SCOPED-DEFINE for-eachblank2 ~
+    EACH oe-ordl ~
+        WHERE {&key-phrase} ~
+          and oe-ordl.ord-no eq oe-ord.ord-no ~
+          AND ((LOOKUP(oe-ordl.cust-no,custcount) NE 0 ~
+          AND oe-ordl.cust-no NE '') OR custcount EQ '')
+          
 &SCOPED-DEFINE for-each1 ~
     FOR EACH oe-ordl ~
         WHERE {&key-phrase} ~
@@ -149,6 +156,11 @@ ll-sort-asc = NO /*oeinq*/.
    (tb_web EQ NO and oe-ord.stat NE 'W') OR (tb_web AND oe-ord.stat EQ 'W') ~
    USE-INDEX ord-no NO-LOCK
 
+&SCOPED-DEFINE for-each4 for each oe-ord  WHERE ~
+    oe-ord.company eq cocode ~
+    and oe-ord.stat EQ 'W' ~
+   USE-INDEX ord-no NO-LOCK
+   
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ 'ord-no'    THEN STRING(oe-ordl.ord-no,'9999999999') ELSE ~
     IF lv-sort-by EQ 'cStatus'   THEN oe-ord.stat ELSE ~
@@ -1459,14 +1471,29 @@ PROCEDURE first-query :
   END.
 
   IF ll-initial THEN DO:
-     {&for-eachblank}
-     USE-INDEX opened NO-LOCK,
-       {&for-each3}
-       BREAK BY oe-ordl.ord-no DESC:
-       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-       lv-ord-no = oe-ordl.ord-no.
-       IF li GE sys-ctrl.int-fld THEN LEAVE.
-     END. /* each blank */
+    IF NOT tb_web THEN DO:
+          {&for-eachblank}
+           USE-INDEX opened NO-LOCK,
+             {&for-each3}
+           BREAK BY oe-ordl.ord-no DESC:
+             IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
+               lv-ord-no = oe-ordl.ord-no.
+             IF li GE sys-ctrl.int-fld THEN LEAVE.
+           END.
+      END. 
+      ELSE DO:
+          {&for-each4},
+            {&for-eachblank2}
+            USE-INDEX ord-no NO-LOCK       
+            BREAK BY oe-ordl.ord-no DESC:
+               
+           IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
+           lv-ord-no = oe-ordl.ord-no.
+           IF li GE sys-ctrl.int-fld THEN LEAVE.
+      END. /* each blank */
+    END.    
+        
+
 
      &SCOPED-DEFINE joinScop OUTER-JOIN
      &SCOPED-DEFINE open-query                  ~
