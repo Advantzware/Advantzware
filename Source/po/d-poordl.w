@@ -6906,7 +6906,8 @@ PROCEDURE check-cust-hold :
             WHERE bf-itemfg.company EQ cocode
             AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
         
-        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add"  THEN DO:
+        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add" AND
+            po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
             FIND FIRST cust NO-LOCK 
                 WHERE cust.company EQ cocode 
                 AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
