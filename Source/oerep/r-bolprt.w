@@ -31,6 +31,7 @@ def var list-name         as char no-undo.
 def var init-dir          as char no-undo.
 DEF VAR v-EDIBOLPost-log AS LOG NO-UNDO.
 DEF VAR v-EDIBOLPost-char AS CHAR FORMAT "X(200)" NO-UNDO.
+DEFINE VARIABLE lSingleBOL AS LOGICAL NO-UNDO.
 
 DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 
@@ -175,6 +176,20 @@ DEF TEMP-TABLE tt-ci-form NO-UNDO
 def NEW SHARED TEMP-TABLE w-comm-bol NO-UNDO
     field bol-no as INT
     INDEX bol-no bol-no.
+    
+/*** Temp Table to store Bols which will not post ***/   
+DEFINE TEMP-TABLE ttExceptionBOL NO-UNDO
+    FIELD ordNo   AS INTEGER   FORMAT ">>>>>9"
+    FIELD bolDate AS DATE      FORMAT "99/99/9999"
+    FIELD bolNo   AS INTEGER   FORMAT ">>>>>>9"
+    FIELD relNo   AS INTEGER   FORMAT ">>>>>9"
+    FIELD bOrdNo  AS INTEGER   FORMAT ">>9"
+    FIELD custNo  AS CHARACTER
+    FIELD poNo    AS CHARACTER FORMAT "X(15)"
+    FIELD iNo     AS CHARACTER FORMAT "X(15)"
+    FIELD iName   AS CHARACTER FORMAT "X(30)"
+    FIELD reason  AS CHARACTER FORMAT "x(50)"
+    .     
 
 /* Output selection for the report */
 DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
@@ -967,6 +982,7 @@ DO:
    /* Initilize temp-table */
    EMPTY TEMP-TABLE tt-filelist.
    EMPTY TEMP-TABLE tt-post.
+   EMPTY TEMP-TABLE ttExceptionBOL.
 
    IF tb_barcode:CHECKED THEN
       EMPTY TEMP-TABLE tt-packslip.
@@ -1003,7 +1019,9 @@ DO:
               END_bol#:SCREEN-VALUE = begin_bol#:SCREEN-VALUE.
    ELSE
        ASSIGN END_bol#.
-
+   IF begin_bol# EQ end_bol# THEN
+       lSingleBOL = TRUE.
+       
    IF rd_bolcert EQ "BOL" THEN
    DO:
       IF NOT tb_freight-bill THEN
@@ -1319,73 +1337,223 @@ DO:
    EMPTY TEMP-TABLE tt-email.
 
    ll = tb_post-bol AND NOT tb_posted.
-
-   IF ll AND oe-ctrl.u-inv AND v-check-qty THEN
-      FOR EACH tt-post,
-          FIRST oe-bolh NO-LOCK 
-          WHERE ROWID(oe-bolh) EQ tt-post.row-id:
-
-          RUN oe/bolcheck.p (ROWID(oe-bolh)).
-          FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no
-                              NO-LOCK NO-ERROR.
-          IF AVAIL(w-except) THEN DO:
-
-            MESSAGE "BOL has insufficient inventory and cannot be posted..."
-                 VIEW-AS ALERT-BOX ERROR.
-
-            lv-exception = YES.
-            MESSAGE "  Bill(s) of Lading have been found that do not have  "     skip
-                    "  sufficient inventory for posting to be completed.   "     skip
-                    "  Do you wish to print the exception report?          "
+ 
+   IF ll THEN DO: /* IF Post Bol is checked then check for the records which will not post */ 
+       MainBlock:
+       FOR EACH tt-post:
+           FIND FIRST oe-bolh NO-LOCK 
+                WHERE ROWID(oe-bolh) EQ tt-post.row-id
+                NO-ERROR.
+           IF NOT AVAILABLE oe-bolh THEN
+               NEXT MainBlock.
+               
+           IF oe-ctrl.u-inv AND v-check-qty THEN 
+               RUN oe/bolcheck.p(
+                   INPUT ROWID(oe-bolh)
+                   ). 
+                        
+           FOR EACH oe-boll NO-LOCK
+               WHERE oe-boll.company EQ oe-bolh.company
+                AND  oe-boll.b-no    EQ oe-bolh.b-no:
+         
+               IF oe-bolh.trailer EQ "HOLD"  OR  oe-bolh.stat EQ "H" THEN DO:
+                   IF lSingleBOL THEN
+                       MESSAGE "BOL " + STRING(oe-bolh.bol-no) + " is on HOLD Status"
+                           VIEW-AS ALERT-BOX ERROR.
+                   ELSE 
+                       RUN pCreatettExceptionBOL(
+                           INPUT "BOL is on Hold Status",
+                           INPUT ROWID(oe-boll)
+                           ).
+                   
+                   DELETE tt-post.
+                   NEXT mainblock.           
+               END.  
+           
+               FIND FIRST w-except NO-LOCK 
+                    WHERE w-except.bol-no EQ oe-bolh.bol-no 
+                    NO-ERROR. 
+               IF AVAILABLE w-except THEN DO:
+                   IF lSingleBOL THEN
+                       MESSAGE "BOL # " STRING(oe-bolh.bol-no) "cannot be processed because there is not enough inventory to be shipped." SKIP
+                           "Correct actual inventory available, select different tags or reduce the shipped quantity as your settings" SKIP
+                           "Do not allow this condition to be processed."
+                            VIEW-AS ALERT-BOX ERROR.
+                   ELSE 
+                       RUN pCreatettExceptionBOL(
+                           INPUT "Not Enough Quantity to be Shipped",
+                           INPUT ROWID(oe-boll)
+                           ). 
+                   DELETE tt-post.
+                   NEXT mainblock.       
+               END. 
+               IF NOT oe-bolh.deleted THEN DO:
+                   FIND FIRST oe-ord NO-LOCK
+                        WHERE oe-ord.company EQ oe-bolh.company 
+                          AND oe-ord.ord-no  EQ oe-boll.ord-no 
+                        NO-ERROR.
+                   IF NOT AVAILABLE oe-ord THEN DO:
+                       IF lSingleBOL THEN
+                       MESSAGE "Order Not Found for BOL# " + STRING(oe-bolh.bol-no)
+                           VIEW-AS ALERT-BOX ERROR.  
+                       ELSE 
+                           RUN pCreatettExceptionBOL(
+                               INPUT "Order Not Found for Bol",
+                               INPUT ROWID(oe-boll)
+                               ).
+                       DELETE tt-post.
+                       NEXT mainblock.
+                   END.
+             
+             /* If customer 'x' and shipto = shipfrom, don't post */
+                   FIND FIRST cust NO-LOCK
+                        WHERE cust.company EQ oe-bolh.company
+                          AND cust.cust-no EQ oe-bolh.cust-no 
+                        NO-ERROR.
+                        
+                   IF AVAILABLE cust AND cust.ACTIVE EQ "X"
+                       AND oe-bolh.ship-id EQ oe-boll.loc THEN DO:
+                       IF lSingleBOL THEN     
+                           MESSAGE "BOL " STRING(oe-bolh.bol-no) " Cannot Transfer to the same location " + oe-boll.loc 
+                               VIEW-AS ALERT-BOX ERROR.
+                       ELSE 
+                           RUN pCreatettExceptionBOL(
+                               INPUT "Cannot transfer to the same location",
+                               INPUT ROWID(oe-boll)
+                               ).
+                       DELETE tt-post.
+                       NEXT mainblock.
+                   END.
+               
+                   FIND FIRST oe-ordl NO-LOCK
+                        WHERE oe-ordl.company EQ oe-boll.company  
+                          AND oe-ordl.ord-no  EQ oe-boll.ord-no 
+                          AND oe-ordl.line    EQ oe-boll.line 
+                          NO-ERROR.
+                   IF NOT AVAILABLE oe-ordl THEN DO:
+                       IF lSingleBOL THEN
+                           MESSAGE "Order Lines Not Found for BOL # " STRING(oe-bolh.bol-no)
+                               VIEW-AS ALERT-BOX ERROR .  
+                       ELSE 
+                           RUN pCreatettExceptionBOL(
+                               INPUT "Order Lines Not Found",
+                               INPUT ROWID(oe-boll)
+                               ).
+                       DELETE tt-post.
+                       NEXT mainblock.
+                   END.
+                   
+                   FIND FIRST oe-rell NO-LOCK 
+                      WHERE oe-rell.company EQ oe-boll.company 
+                        AND oe-rell.r-no    EQ oe-boll.r-no 
+                        AND oe-rell.i-no    EQ oe-boll.i-no
+                        AND oe-rell.line    EQ oe-boll.line
+                        USE-INDEX r-no  NO-ERROR.
+                   IF NOT AVAILABLE oe-rell THEN DO:
+                       IF lSingleBOL THEN
+                           MESSAGE "Release Lines Not Found For BOL " + STRING(oe-bolh.bol-no)
+                               VIEW-AS ALERT-BOX ERROR.  
+                       ELSE 
+                           RUN pCreatettExceptionBOL(
+                               INPUT "Release Lines Not Found",
+                               INPUT ROWID(oe-boll)
+                               ).
+                       DELETE tt-post.
+                       NEXT mainblock.
+                   END.
+                   
+                   FIND FIRST itemfg NO-LOCK
+                        WHERE itemfg.company EQ oe-boll.company 
+                          AND itemfg.i-no    EQ oe-boll.i-no
+                          NO-ERROR.
+                   IF NOT AVAILABLE itemfg THEN DO:
+                       IF lSingleBOL THEN
+                           MESSAGE "Finish Good Item Not Found For BOL # " STRING(oe-bolh.bol-no) 
+                               VIEW-AS ALERT-BOX ERROR.  
+                        ELSE 
+                            RUN pCreatettExceptionBOL(
+                                INPUT "Finish Good Item Not Found",
+                                INPUT ROWID(oe-boll)
+                                ).
+                        DELETE tt-post.
+                        NEXT mainblock.
+                   END.
+                       
+                   IF oe-boll.loc EQ "" OR oe-boll.loc-bin EQ "" THEN DO:
+                       IF lSingleBOL THEN
+                           MESSAGE "Warehouse or Bin is Blank for BOL # " STRING(oe-bolh.bol-no) 
+                               VIEW-AS ALERT-BOX ERROR.
+                       ELSE 
+                           RUN pCreatettExceptionBOL(
+                               INPUT "Warehouse or Bin is Blank",
+                               INPUT ROWID(oe-boll)
+                               ).
+                       DELETE tt-post.
+                       NEXT mainblock.
+                   END.
+                   
+                   IF NOT CAN-FIND(FIRST bf-oe-boll
+                                   WHERE bf-oe-boll.company EQ oe-bolh.company
+                                     AND bf-oe-boll.b-no    EQ oe-bolh.b-no
+                                     AND bf-oe-boll.qty     NE 0)
+                   THEN DO:
+                       IF lSingleBOL THEN
+                           MESSAGE "Quantity is Zero for BOL # " STRING(oe-bolh.bol-no) 
+                               VIEW-AS ALERT-BOX ERROR.  
+                       ELSE 
+                           RUN pCreatettExceptionBOL(
+                               INPUT "BOL quantity is zero",
+                               INPUT  ROWID(oe-boll)
+                               ).
+                       DELETE tt-post.
+                       NEXT mainblock.
+                   END.
+               END.       
+           END. 
+       END. 
+   END. 
+   IF ll AND NOT lSingleBOL THEN DO: 
+       RUN pDisplayExceptionBol.
+       CASE rd-dest:
+           WHEN 1 THEN 
+               RUN output-exception-printer.
+           WHEN 2 THEN
+               RUN output-exception-screen.
+           WHEN 3 THEN 
+               RUN output-exception-file.
+       END CASE.
+   END. 
+  IF ll AND oe-ctrl.u-inv AND v-check-qty THEN DO: 
+      FIND FIRST w-except NO-LOCK
+      NO-ERROR.
+      IF AVAILABLE w-except THEN DO:
+          lv-exception = YES.
+          MESSAGE "  Bill(s) of Lading have been found that do not have  " SKIP
+                  "  sufficient inventory for posting to be completed.   " SKIP 
+                  "  Do you wish to print the exception report?          "
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE lv-exception.
-            IF lv-exception THEN do:
-              run exception-rpt.
-              case rd-dest:
-                when 1 then run output-exception-printer.
-                when 2 then run output-exception-screen.
-                when 3 then run output-exception-file.
-              end case.
-            END.
+              UPDATE lv-exception.
+          IF lv-exception THEN DO:
+              RUN exception-rpt.
+              CASE rd-dest:
+                  WHEN 1 THEN 
+                      RUN output-exception-printer.
+                  WHEN 2 THEN 
+                      RUN output-exception-screen.
+                  WHEN 3 THEN 
+                      RUN output-exception-file.
+              END CASE.
+          END. 
+      END.
+   END. 
 
-            ll = NO.
-            LEAVE.
-          END.
-   END.
-
-   IF ll THEN DO:
-       FOR EACH tt-post,
-           FIRST oe-bolh NO-LOCK 
-           WHERE ROWID(oe-bolh) EQ tt-post.row-id,
-           EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company
-                          AND oe-boll.bol-no  EQ oe-bolh.bol-no: 
-
-          IF oe-bolh.stat = "H" THEN DO:  
-            MESSAGE "BOL is on HOLD status, cannot post..."
-                    VIEW-AS ALERT-BOX ERROR.
-            ll = NO.
-            LEAVE.
-          END.
-
-          /* 04301302 - If customer 'x' and shipto = shipfrom, don't post */
-          FIND cust 
-            WHERE cust.company EQ oe-bolh.company
-              AND cust.cust-no EQ oe-bolh.cust-no 
-            NO-LOCK NO-ERROR.
-
-          IF AVAIL(cust) AND cust.ACTIVE EQ "X"
-              AND oe-bolh.ship-id = oe-boll.loc THEN DO:
-            MESSAGE "Cannot transfer to the same location..."
-                    VIEW-AS ALERT-BOX ERROR.
-            ll = NO.
-            LEAVE.
-          END.
-
-       END.
-   END.
-
-
-
+   FOR EACH w-except:
+      DELETE w-except.
+   END. 
+   
+   IF NOT TEMP-TABLE tt-post:HAS-RECORDS THEN 
+       ll = NO. /*If nothing is available for posting then set the flag to NO*/
+       
    IF ll THEN DO:
       ll = NO.
       MESSAGE "Post BOL?"
@@ -1400,6 +1568,10 @@ DO:
 
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
    END.
+   
+   ELSE IF tb_post-bol THEN 
+       MESSAGE "No BOLs Available For Posting"
+          VIEW-AS ALERT-BOX ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2686,10 +2858,22 @@ PROCEDURE build-work :
           oe-bolh.ship-id,
           BUFFER shipto).
           
-    IF NOT AVAILABLE shipto THEN 
-    DO:
-        MESSAGE "BOL has an invalid shipto."
-           VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    IF NOT AVAILABLE shipto THEN DO:
+        IF lSingleBOL THEN     
+            MESSAGE "BOL# " oe-bolh.bol-no "has an invalid shipto." 
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        ELSE DO:  
+            FIND FIRST oe-boll NO-LOCK
+                 WHERE oe-boll.company EQ oe-bolh.company
+                   AND oe-boll.b-no    EQ oe-bolh.b-no
+                   AND oe-boll.ord-no  GE v-s-ord
+                   AND oe-boll.ord-no  LE v-e-ord 
+                   NO-ERROR.     
+            RUN pCreatettExceptionBOL(
+                INPUT "Invalid Shipto Address",
+                INPUT ROWID(oe-boll)
+                ).
+        END.  
         NEXT build-work.            
     END. 
         
@@ -3822,8 +4006,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPostDate C-Win 
 PROCEDURE pCheckPostDate PRIVATE :
 /*------------------------------------------------------------------------------
@@ -3850,6 +4032,50 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatettExceptionBOL C-Win
+PROCEDURE pCreatettExceptionBOL PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To create record in the temp-table of the BOLS which will not post.
+ Notes:
+------------------------------------------------------------------------------*/
+
+    DEFINE INPUT PARAMETER ipcReason LIKE ttExceptionBOL.reason NO-UNDO.
+    DEFINE INPUT PARAMETER ipriBOL   AS   ROWID              NO-UNDO.
+
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ oe-boll.company
+           AND itemfg.i-no    EQ oe-boll.i-no
+         NO-ERROR.
+         
+    FIND FIRST oe-boll NO-LOCK
+         WHERE ROWID(oe-boll) EQ ipriBOL
+         NO-ERROR.
+    
+    IF NOT AVAILABLE oe-boll THEN 
+        RETURN.
+          
+    CREATE ttExceptionBOL.
+    ASSIGN
+       ttExceptionBOL.ordNo   = oe-boll.ord-no
+       ttExceptionBOL.iNo     = oe-boll.i-no
+       ttExceptionBOL.iName   = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "Not on File"
+       ttExceptionBOL.bolDate = oe-bolh.BOL-date
+       ttExceptionBOL.bolNo   = oe-bolh.BOL-no
+       ttExceptionBOL.relNo   = oe-boll.REL-no
+       ttExceptionBOL.bOrdNo  = oe-boll.b-ord-no
+       ttExceptionBOL.custNo  = oe-bolh.cust-no
+       ttExceptionBOL.poNo    = oe-boll.PO-NO
+       ttExceptionBOL.reason  = ipcReason.
+  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win 
 PROCEDURE pdfArchive :
@@ -3912,6 +4138,69 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayExceptionBOL C-Win
+PROCEDURE pDisplayExceptionBOL PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To display the Bols on screen  which will not post
+ Notes:
+------------------------------------------------------------------------------*/
+
+    {sys/form/r-top3w.f}
+
+    FORM HEADER SKIP(1) WITH FRAME r-top.
+ 
+
+    FIND first period NO-LOCK                   
+         where period.company eq gcompany
+           AND period.pst     le fiPostDate
+           AND period.pend    ge fiPostDate
+           NO-ERROR.
+
+    ASSIGN
+        str-tit2 = c-win:TITLE
+        {sys/inc/ctrtext.i str-tit2 112}
+ 
+        str-tit3 = "Period " + STRING(Month(fiPostDate),"99") + " - " +
+            IF AVAILABLE period THEN
+                (STRING(period.pst) + " to " + STRING(period.pend)) ELSE  "" 
+        {sys/inc/ctrtext.i str-tit3 132}.     
+        {sys/inc/print1.i}
+        {sys/inc/outprint.i value(lines-per-page)}
+        
+        DISPLAY WITH FRAME r-top.
+         PUT SKIP(1) "** Bills Of Lading Unable To Be Posted. **" 
+             SKIP.    
+           
+    FOR EACH ttExceptionBOL:      
+        DISPLAY 
+            ttExceptionBOL.bolNo     COLUMN-LABEL "BOL.#"
+            ttExceptionBOL.bolDate   COLUMN-LABEL "Date"
+            ttExceptionBOL.ordNo     COLUMN-LABEL "Order#"
+            STRING(ttExceptionBOL.relNo,">>>9") + "-" +
+            STRING(ttExceptionBOL.bOrdNo,"99")
+                                  COLUMN-LABEL "Rel#-BO#"  FORMAT "x(7)"
+            ttExceptionBOL.custNo    COLUMN-LABEL "Cust.#"
+            ttExceptionBOL.poNo      COLUMN-LABEL "PO#"
+            ttExceptionBOL.iNo       COLUMN-LABEL "Item"
+            ttExceptionBOL.iName     COLUMN-LABEL "Name"      FORMAT "x(20)"
+            ttExceptionBOL.reason    COLUMN-LABEL "Reason"    SKIP 
+            WITH DOWN STREAM-IO WIDTH 180 FRAME nopost2.
+            DOWN WITH FRAME nopost2.
+         
+         DELETE ttExceptionBOL. /*Delete the record after displaying it on screeen*/
+         END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bol C-Win 
 PROCEDURE post-bol :
