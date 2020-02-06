@@ -5,7 +5,7 @@ DEFINE TEMP-TABLE ttBOLLine NO-UNDO
     FIELD InventoryStockID         AS CHARACTER
     FIELD Quantity                 AS DECIMAL
     FIELD ItemType                 AS CHARACTER  
-    FIELD StockIDAlias             AS CHARACTER
+    FIELD tag                      AS CHARACTER
     FIELD QuantityUOM              AS CHARACTER
     FIELD QuantityPerSubUnit       AS INTEGER
     FIELD QuantitySubUnitsPerUnit  AS INTEGER

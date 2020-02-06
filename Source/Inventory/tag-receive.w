@@ -75,7 +75,7 @@ DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING
@@ -203,7 +203,7 @@ DEFINE BROWSE br-table
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand"
       ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original"      
       ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-      ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+      ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
       ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
@@ -683,7 +683,8 @@ PROCEDURE pSubmitScan :
     END.       
     
     FIND FIRST ttInventoryStockDetails
-         WHERE ttInventoryStockDetails.stockIDAlias EQ ipcTag NO-ERROR.
+         WHERE ttInventoryStockDetails.tag EQ ipcTag
+		 NO-ERROR.
     IF AVAILABLE ttInventoryStockDetails THEN DO:
         IF ttInventoryStockDetails.inventoryStatus EQ gcStatusStockInitial THEN DO:
             RUN PostReceivedInventory IN hdInventoryProcs (
@@ -692,7 +693,8 @@ PROCEDURE pSubmitScan :
                 ).
 
             FIND FIRST ttBrowseInventory
-                 WHERE ttBrowseInventory.stockIDAlias EQ ipcTag NO-ERROR.
+                 WHERE ttBrowseInventory.tag EQ ipcTag
+				 NO-ERROR.
             IF NOT AVAILABLE ttBrowseInventory THEN DO:
                 CREATE ttBrowseInventory.
                 BUFFER-COPY ttInventoryStockDetails EXCEPT ttInventoryStockDetails.locationID TO ttBrowseInventory.
@@ -772,7 +774,8 @@ PROCEDURE pTagScan :
     END.       
     
     FIND FIRST ttInventoryStockDetails
-         WHERE ttInventoryStockDetails.stockIDAlias EQ ipcTag NO-ERROR.
+         WHERE ttInventoryStockDetails.tag EQ ipcTag
+		 NO-ERROR.
     IF AVAILABLE ttInventoryStockDetails THEN DO:
          ASSIGN
              fiItemType:SCREEN-VALUE  = ttInventoryStockDetails.itemType + " " + "ID:" /* Concatenate ID: to item Type */

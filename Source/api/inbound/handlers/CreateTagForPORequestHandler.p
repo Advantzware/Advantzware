@@ -32,14 +32,14 @@ DEFINE VARIABLE cPrimaryID          AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType           AS CHARACTER  NO-UNDO. 
 DEFINE VARIABLE dQuantity           AS DECIMAL    NO-UNDO.
 DEFINE VARIABLE iQuantityPerSubUnit AS INTEGER    NO-UNDO.
-DEFINE VARIABLE cStockIDAlias       AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cTag                AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockID   AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cCreateReceipt      AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cWarehouseID        AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cLocationID         AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE lcTags              AS LONGCHAR   NO-UNDO.
 DEFINE VARIABLE cLoadtagFormat      AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE iTagCopies        AS INTEGER    NO-UNDO.
+DEFINE VARIABLE iTagCopies          AS INTEGER    NO-UNDO.
 
 {api/inbound/ttRequest.i}
 /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
@@ -87,15 +87,15 @@ THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
 DELETE PROCEDURE hdJSONProcs.
 
 PROCEDURE pProcessInputs:
-    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL    NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER  NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplcTags AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcTags   AS LONGCHAR  NO-UNDO.
     
-    DEFINE VARIABLE lRecFound            AS LOGICAL    NO-UNDO.
+    DEFINE VARIABLE lRecFound       AS LOGICAL    NO-UNDO.
     DEFINE VARIABLE iTagCounter     AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iIndex               AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iIndex          AS INTEGER    NO-UNDO.
     DEFINE VARIABLE iTagsFieldOrder AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iTopLevelParent      AS INTEGER    NO-UNDO  INITIAL 0.
+    DEFINE VARIABLE iTopLevelParent AS INTEGER    NO-UNDO  INITIAL 0.
 
     /* Fetch Requestor */          
     RUN JSON_GetFieldValueByName (
@@ -230,7 +230,7 @@ PROCEDURE pProcessInputs:
                 INPUT  cItemType,
                 INPUT  dQuantity,
                 INPUT  iQuantityPerSubUnit,
-                INPUT  cStockIDAlias,
+                INPUT  cTag,
                 INPUT  cWarehouseID,
                 INPUT  cLocationID,
                 INPUT  ipcUsername,

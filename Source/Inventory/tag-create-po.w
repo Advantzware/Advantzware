@@ -87,7 +87,7 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.quantityUOM ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.quantityPerSubUnit ttBrowseInventory.quantityOfUnits ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.quantityUOM ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.quantityPerSubUnit ttBrowseInventory.quantityOfUnits ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory     ~{&SORTBY-PHRASE}
@@ -318,7 +318,7 @@ DEFINE BROWSE br-table
     ttBrowseInventory.quantityOriginal WIDTH 20 COLUMN-LABEL "Qty Original"
     ttBrowseInventory.quantityUOM WIDTH 8 COLUMN-LABEL "UOM"
     ttBrowseInventory.locationID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
-    ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+    ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
     ttBrowseInventory.quantityPerSubUnit WIDTH 15 COLUMN-LABEL "Sub Unit"
     ttBrowseInventory.quantityOfUnits WIDTH 15 COLUMN-LABEL "Unit"    
     ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
@@ -640,12 +640,12 @@ DO:
 
         IF lValueReturned THEN DO:
             IF ttBrowseInventory.quantityOriginal EQ dTotalQuantity THEN DO:
-                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.stockIDAlias +
+                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.tag +
                         " is same as existing quantity" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
             
-            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.stockIDAlias +
+            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.tag +
                     " to " + STRING(dTotalQuantity) "?" VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
                     TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
@@ -1216,7 +1216,7 @@ END.
 {methods/sortByProc.i "pByQuantity" "ttBrowseInventory.quantity"}
 {methods/sortByProc.i "pByQuantityOriginal" "ttBrowseInventory.quantityOriginal"}
 {methods/sortByProc.i "pByLocationID" "ttBrowseInventory.locationID"}
-{methods/sortByProc.i "pByStockIDAlias" "ttBrowseInventory.stockIDAlias"}
+{methods/sortByProc.i "pByTag" "ttBrowseInventory.tag"}
 {methods/sortByProc.i "pByJobID" "ttBrowseInventory.jobID"}
 {methods/sortByProc.i "pByInventoryStatus" "ttBrowseInventory.inventoryStatus"}
 
@@ -1734,12 +1734,12 @@ PROCEDURE pTagScan :
     END.
 
     FIND FIRST ttInventoryStockDetails
-         WHERE ttInventoryStockDetails.company      EQ ipcCompany
-           AND ttInventoryStockDetails.stockIDAlias EQ ipcTag
+         WHERE ttInventoryStockDetails.company EQ ipcCompany
+           AND ttInventoryStockDetails.tag     EQ ipcTag
          NO-ERROR.
     IF AVAILABLE ttInventoryStockDetails THEN DO:
         IF ttInventoryStockDetails.inventoryStatus EQ gcStatusStockInitial THEN DO:
-            MESSAGE "Print and Receive Tag: " ttInventoryStockDetails.stockIDAlias "?"
+            MESSAGE "Print and Receive Tag: " ttInventoryStockDetails.tag "?"
                 VIEW-AS ALERT-BOX QUESTION
                 BUTTONS OK-CANCEL
                 UPDATE lPrintAndReceive.
@@ -1751,7 +1751,7 @@ PROCEDURE pTagScan :
                     ).
         END.
         ELSE
-            MESSAGE "Tag: " ttInventoryStockDetails.stockIDAlias " is already received."
+            MESSAGE "Tag: " ttInventoryStockDetails.tag " is already received."
                     "Re-print tag?"
                 VIEW-AS ALERT-BOX QUESTION
                 BUTTONS OK-CANCEL

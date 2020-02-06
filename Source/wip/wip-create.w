@@ -344,7 +344,7 @@ DEFINE BROWSE br-table
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-Hand"
     ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original"
     ttBrowseInventory.locationID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
-    ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+    ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
     ttBrowseInventory.jobID WIDTH 20 COLUMN-LABEL "Job #" FORMAT "X(20)"
     ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
@@ -644,12 +644,12 @@ DO:
 
         IF lValueReturned THEN DO:
             IF ttBrowseInventory.quantityOriginal EQ dTotalQuantity THEN DO:
-                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.stockIDAlias +
+                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.tag +
                         " is same as existing quantity" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
             
-            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.stockIDAlias +
+            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.tag +
                     " to " + STRING(dTotalQuantity) "?" VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
                     TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
@@ -1433,7 +1433,7 @@ END.
 {methods/sortByProc.i "pByQuantity" "ttBrowseInventory.quantity"}
 {methods/sortByProc.i "pByQuantityOriginal" "ttBrowseInventory.quantityOriginal"}
 {methods/sortByProc.i "pByLocationID" "ttBrowseInventory.locationID"}
-{methods/sortByProc.i "pByStockIDAlias" "ttBrowseInventory.stockIDAlias"}
+{methods/sortByProc.i "pByTag" "ttBrowseInventory.tag"}
 {methods/sortByProc.i "pByJobID" "ttBrowseInventory.jobID"}
 {methods/sortByProc.i "pByInventoryStatus" "ttBrowseInventory.inventoryStatus"}
 
@@ -1826,6 +1826,14 @@ PROCEDURE pDelete :
         
     END. /* if avail */
 
+    RUN rebuildTempTable(
+        ipcCompany,
+        cFormattedJobno,
+        cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
+        cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
