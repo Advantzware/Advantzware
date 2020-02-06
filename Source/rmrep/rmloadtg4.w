@@ -1336,7 +1336,10 @@ PROCEDURE createWPO :
      ASSIGN
         w-po.loc = item.loc
         w-po.loc-bin = item.loc-bin
-        w-po.cons-uom = item.cons-uom.
+        w-po.cons-uom = item.cons-uom
+        w-po.case-l = IF LOOKUP(ITEM.mat-type,"C,D") GT 0 THEN item.case-l ELSE 0 
+        w-po.case-w = IF LOOKUP(ITEM.mat-type,"C,D") GT 0 THEN item.case-w ELSE 0 
+        w-po.case-d = IF LOOKUP(ITEM.mat-type,"C,D") GT 0 THEN item.case-d ELSE 0 .
 
   ASSIGN
      v-overrun  = IF AVAIL po-ordl THEN po-ordl.over-pct
@@ -1417,6 +1420,9 @@ PROCEDURE createWPOfromItem :
       w-po.vend-no = item.vend-no
       w-po.cost = IF v-avgcost THEN ITEM.avg-cost ELSE ITEM.last-cost
       w-po.pr-uom = item.cons-uom
+      w-po.case-l = IF LOOKUP(ITEM.mat-type,"C,D") GT 0 THEN item.case-l ELSE 0 
+      w-po.case-w = IF LOOKUP(ITEM.mat-type,"C,D") GT 0 THEN item.case-w ELSE 0 
+      w-po.case-d = IF LOOKUP(ITEM.mat-type,"C,D") GT 0 THEN item.case-d ELSE 0
       num-rec = num-rec + 1.
 
     IF NOT checkWhsBin(cocode,w-po.loc,w-po.loc-bin) THEN
@@ -1828,7 +1834,10 @@ Vendor,~
 Zip Code,~
 First Machine,~
 First Internal Machine,~
-First Press' SKIP.
+First Press,~
+CasePalletLength,~
+CasePalletWidth,~
+CasePalletDepth' SKIP .
 
 END PROCEDURE.
 
@@ -1950,7 +1959,10 @@ PROCEDURE outputTagLine :
     '","' removeChars(v-mch-cod)   
     '","' removeChars(cFirstInternalMach)
     '","' removeChars(cFirstMachPress)
-    '"' SKIP.
+    '","' w-po.case-l
+    '","' w-po.case-w
+    '","' w-po.case-w 
+    '"' SKIP .
 
 END PROCEDURE.
 

@@ -52,6 +52,7 @@ DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF VAR ls-fax-file AS cha NO-UNDO.
 DEF VAR cSlsList AS CHAR NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD rec-id2 AS RECID.
 DEF BUFFER xtt-report FOR tt-report.
@@ -1278,7 +1279,6 @@ DEF VAR v-est LIKE est.est-no NO-UNDO.
 DEF VAR v-bol LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1451,7 +1451,7 @@ IF tb_excel THEN DO:
                              &END_cust=end_cust-no
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
-                             &mail-file=fi_file }   
+                             &mail-file=cFileName }   
 END.
 ELSE DO:
     {custom/asimailr.i &TYPE = "Customer"

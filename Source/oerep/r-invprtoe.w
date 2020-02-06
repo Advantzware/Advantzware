@@ -185,16 +185,15 @@ v-prgmname = ipcPrgmnameOverride.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
 begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
-tb_posted tb_setcomp tb_prt-inst tb_qty-all tb_open-inv rd_sort ~
-tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page ~
-lv-font-no tb_email-orig tb_override-email td-show-parm run_format btn-ok ~
-btn-cancel 
+tb_setcomp tb_prt-inst tb_qty-all tb_open-inv rd_sort tb_BatchMail ~
+tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
+tb_email-orig tb_override-email td-show-parm run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
-end_inv begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst ~
-tb_qty-all tb_open-inv lbl_sort rd_sort tb_BatchMail tb_HideDialog ~
-tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-tb_email-orig tb_override-email td-show-parm run_format tb_splitPDF ~
-fiEndDateLabel fiBeginDateLabel 
+end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst tb_qty-all ~
+tb_open-inv lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig ~
+tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel ~
+fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -487,8 +486,8 @@ DEFINE FRAME FRAME-A
      tb_collate AT ROW 7.48 COL 59.4
      tb_setcomp AT ROW 8.43 COL 59.2 WIDGET-ID 2
      tb_prt-inst AT ROW 9.1 COL 49 RIGHT-ALIGNED
-     tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
      tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
+     tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
      fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
      tb_qty-all AT ROW 10.14 COL 28 WIDGET-ID 28
@@ -519,11 +518,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 23.86 COL 56
      fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      fiBeginDateLabel AT ROW 4.57 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.38 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.43 COL 4
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.38 COL 4
      RECT-6 AT ROW 15.19 COL 1.4
      RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -720,7 +719,10 @@ ASSIGN
        tb_override-email:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tb_posted IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
+       tb_posted:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_posted:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -1562,8 +1564,15 @@ ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted Invoices? */
 DO:
     ASSIGN {&self-name}.
     IF tb_posted THEN 
-      ASSIGN tb_reprint              = YES
-             tb_reprint:SCREEN-VALUE = "YES".
+        ASSIGN 
+            tb_reprint              =  YES
+            tb_reprint:SCREEN-VALUE = "YES"
+            ipcInvoiceType          = "ar-inv"
+             .
+    ELSE 
+        ipcInvoiceType = "inv-head".  
+ 
+    
     IF VALID-HANDLE(hSuperProc) THEN DO:
        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
        DELETE OBJECT hSuperProc.
@@ -1971,6 +1980,8 @@ IF NOT lAsiUser THEN
     RUN_format:HIDDEN IN FRAME FRAME-A = YES .
 ELSE 
     RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
+    
+APPLY "VALUE-CHANGED":U TO tb_posted IN FRAME {&FRAME-NAME}.    
 
 IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -2071,16 +2082,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_inv end_inv begin_date end_date 
-          tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all tb_open-inv 
-          lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig 
-          tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel 
-          fiBeginDateLabel 
+          tb_reprint tb_setcomp tb_prt-inst tb_qty-all tb_open-inv lbl_sort 
+          rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email 
+          td-show-parm run_format tb_splitPDF fiEndDateLabel fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
-         end_inv begin_date end_date tb_reprint tb_posted tb_setcomp 
-         tb_prt-inst tb_qty-all tb_open-inv rd_sort tb_BatchMail tb_HideDialog 
-         tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
+         end_inv begin_date end_date tb_reprint tb_setcomp tb_prt-inst 
+         tb_qty-all tb_open-inv rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
+         rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
          tb_override-email td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -2202,7 +2212,7 @@ PROCEDURE pRunFormatValueChanged :
              ASSIGN rs_no_PN:HIDDEN    = TRUE
              rs_no_PN:SENSITIVE = FALSE.
 
-         IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+         IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES

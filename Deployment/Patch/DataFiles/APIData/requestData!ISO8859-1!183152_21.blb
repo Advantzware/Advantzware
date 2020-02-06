@@ -1,0 +1,11 @@
+{
+    "Requester": "[STRING-REQ]",
+    "Items": [{
+        "Company": "[STRING-REQ]",
+        "ItemID": "[STRING-REQ]",
+        "StackHeight": [INTEGER-OPT],
+        "PalletLength": [DECIMAL-OPT],
+        "PalletWidth": [DECIMAL-OPT],
+        "PalletHeight":[DECIMAL-OPT] 
+    }]
+}

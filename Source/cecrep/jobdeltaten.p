@@ -236,7 +236,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
             iover-run    = DECIMAL(cust.over-pct)
             .
     ASSIGN 
-        cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+        cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99"). 
     ASSIGN  
         cCustName = cust.NAME 
         {sys/inc/ctrtext.i cCustName 30}.
@@ -544,7 +544,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         AND job-mat.job     EQ job-hdr.job
         AND job-mat.frm     EQ xeb.form-no
         NO-LOCK,
-        FIRST item
+        FIRST ITEM NO-LOCK 
         {sys/look/itemivW.i}
                        and item.i-no eq job-mat.i-no:
                        
@@ -912,8 +912,16 @@ ls-fgitem-img = bf-itemfg.box-image.
 PUT UNFORMATTED 
     "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
              
-PUT "<R33.7><C1><FROM><R33.7><C62><LINE> " .
-        
+PUT "<R33.7><C1><FROM><R33.7><C61><LINE> " .
+
+PUT "<||><R23.5><C44><#8><FROM><R31><C61><RECT>" SKIP.
+PUT "<R26><C44><FROM><R26><C61><LINE> " .
+PUT "<R28.5><C44><FROM><R28.5><C61><LINE> " .
+PUT "<R23.5><C49.5><FROM><R31><C49.5><LINE> " .
+PUT "<R23.5><C55.5><FROM><R31><C55.5><LINE> " .
+PUT "<||><R31><C44><#9><FROM><R33.5><C61><RECT>" SKIP.
+PUT "<R31.1><C49.5>GRAND TOTAL" SKIP.
+
 PAGE.
 
 PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"  

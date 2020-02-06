@@ -47,7 +47,7 @@ PROCEDURE genOrderHeader:
                           ,INT(SUBSTR(ipcOrderDate,9,2))
                           ,INT(SUBSTR(ipcOrderDate,1,4)))
     oe-ord.ord-no = ipiNextOrderNumber
-    oe-ord.user-id = USERID('NoSweat')
+    oe-ord.user-id = USERID('asi')
     oe-ord.type = 'O'
     oe-ord.stat = 'W'
     oe-ord.due-code = 'ON'
@@ -180,6 +180,7 @@ PROCEDURE assignOrderHeader:
           oe-ord.sman[1]       = cust.sman
           oe-ord.s-pct[1]      = 100.00
           oe-ord.carrier       = cust.carrier
+          oe-ord.csrUser_id    = cust.csrUser_id
           oe-ord.cc-num        = paymentPCard
           oe-ord.cc-type       = IF paymentPCard BEGINS '3' THEN 'AMEX'
                             ELSE IF paymentPCard BEGINS '4' THEN 'VISA'
@@ -232,7 +233,6 @@ PROCEDURE assignOrderHeader:
         IF oe-ord.frt-pay = 'B' THEN oe-ord.f-bill = YES.
         ELSE oe-ord.f-bill = NO.
     
-        {custom/rec_key.i "oe-ord"}
         FIND FIRST sys-ctrl-shipto NO-LOCK
             WHERE sys-ctrl-shipto.company EQ cust.company
               AND sys-ctrl-shipto.NAME EQ 'cXMLShipToPrefix'

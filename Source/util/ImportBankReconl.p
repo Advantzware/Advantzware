@@ -130,7 +130,7 @@ PROCEDURE pProcessRecord PRIVATE:
 
    
     RELEASE ap-pay.
-    
+    RELEASE reconcile.
     
 END PROCEDURE.
 
@@ -215,5 +215,8 @@ PROCEDURE reconcile-file:
            END.
        END.
    END CASE.
+
+   RELEASE ar-cash .
+   RELEASE ar-mcash-ref .
 
 END PROCEDURE.

@@ -27,6 +27,9 @@ DEFINE VARIABLE cRequestedBy            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNotes                  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cErrorMessage           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPassword               AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRetrigger              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iAPIInboundEventID      AS INTEGER   NO-UNDO INITIAL ?.
+DEFINE VARIABLE cCompany                AS CHARACTER NO-UNDO.
 
 /* When this procedure is called from within ASI application 
    ( for offline load of queued requests, when the AppServer is down )
@@ -37,6 +40,44 @@ cPassword = IF ipcRecordSource EQ "offline" THEN
             ELSE
                 ENCODE(ipcPassword).
 
+/* API PROCESS */
+FIND APIInbound NO-LOCK
+     WHERE APIInbound.apiRoute     EQ ipcRoute 
+       AND APIInbound.requestVerb  EQ ipcVerb 
+       AND APIInbound.isActive
+     NO-ERROR.
+IF NOT AVAILABLE APIInbound THEN DO:
+    ASSIGN 
+        lSuccess         = NO
+        cMessage         = "Config for API route " + ipcRoute + " not Found!"
+        oplcResponseData = '~{ "response_code": 404, "response_message":"' + cMessage + '"}'
+        .
+        
+    RUN api\CreateAPIInboundEvent.p (
+        INPUT  lRetrigger,
+        INPUT  iAPIInboundEventID,
+        INPUT  cCompany,
+        INPUT  ipcRoute,
+        INPUT  iplcRequestData,
+        INPUT  oplcResponseData,
+        INPUT  lSuccess,
+        INPUT  cMessage,
+        INPUT  NOW,
+        INPUT  cRequestedBy,
+        INPUT  ipcRecordSource,
+        INPUT  cNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT opcAPIInboundEvent
+        ) NO-ERROR.
+        
+    RETURN.
+END.
+
+ASSIGN
+    cResponseDataStructure = APIInbound.responseData
+    cCompany               = APIInbound.company
+    .
+    
 /* User Validation */                
 RUN UserAuthenticationCheck (
     INPUT   ipcUsername,
@@ -51,8 +92,11 @@ IF ERROR-STATUS:ERROR THEN DO:
         cMessage         = "Internal Server Error at AppServer (#8) - " + cErrorMessage
         oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
         .
-     
+       
     RUN api\CreateAPIInboundEvent.p (
+        INPUT  lRetrigger,
+        INPUT  iAPIInboundEventID,
+        INPUT  cCompany,
         INPUT  ipcRoute,
         INPUT  iplcRequestData,
         INPUT  oplcResponseData,
@@ -74,6 +118,9 @@ IF NOT lSuccess THEN DO:
     oplcResponseData = '~{ "response_code": 401, "response_message":"' + cMessage + '"}'.
      
     RUN api\CreateAPIInboundEvent.p (
+        INPUT  lRetrigger,
+        INPUT  iAPIInboundEventID,
+        INPUT  cCompany,
         INPUT  ipcRoute,
         INPUT  iplcRequestData,
         INPUT  oplcResponseData,
@@ -90,20 +137,19 @@ IF NOT lSuccess THEN DO:
     RETURN.
 END.
 
-/* API PROCESS */
-FIND APIInbound NO-LOCK
-     WHERE APIInbound.apiRoute     EQ ipcRoute 
-       AND APIInbound.requestVerb  EQ ipcVerb 
-       AND APIInbound.isActive
-     NO-ERROR.
-IF NOT AVAILABLE APIInbound THEN DO:
+/* Verifying if the request handler in APIInbound configuration is available */
+IF SEARCH(APIInbound.requestHandler) EQ ? AND
+   SEARCH(REPLACE(APIInbound.requestHandler,".p",".r")) EQ ? THEN DO:
     ASSIGN 
         lSuccess         = NO
-        cMessage         = "Config for API route " + ipcRoute + " not Found!"
+        cMessage         = "Handler for API route " + ipcRoute + " not Found!"
         oplcResponseData = '~{ "response_code": 404, "response_message":"' + cMessage + '"}'
         .
         
     RUN api\CreateAPIInboundEvent.p (
+        INPUT  lRetrigger,
+        INPUT  iAPIInboundEventID,
+        INPUT  cCompany,
         INPUT  ipcRoute,
         INPUT  iplcRequestData,
         INPUT  oplcResponseData,
@@ -115,34 +161,6 @@ IF NOT AVAILABLE APIInbound THEN DO:
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
         OUTPUT opcAPIInboundEvent
-        ) NO-ERROR.
-        
-    RETURN.
-END.
-
-cResponseDataStructure = APIInbound.responseData.
-
-/* Verifying if the request handler in APIInbound configuration is available */
-IF SEARCH(APIInbound.requestHandler) EQ ? AND
-   SEARCH(REPLACE(APIInbound.requestHandler,".p",".r")) EQ ? THEN DO:
-    ASSIGN 
-        lSuccess         = NO
-        cMessage         = "Handler for API route " + ipcRoute + " not Found!"
-        oplcResponseData = '~{ "response_code": 404, "response_message":"' + cMessage + '"}'
-        .
-        
-    RUN api\CreateAPIInboundEvent.p (
-         INPUT  ipcRoute,
-         INPUT  iplcRequestData,
-         INPUT  oplcResponseData,
-         INPUT  lSuccess,
-         INPUT  cMessage,
-         INPUT  NOW,
-         INPUT  cRequestedBy,
-         INPUT  ipcRecordSource,
-         INPUT  cNotes,
-         INPUT  "", /* PayloadID */
-         OUTPUT opcAPIInboundEvent
          ) NO-ERROR. 
                  
     RETURN.
@@ -168,7 +186,7 @@ RUN VALUE(APIInbound.requestHandler)(
     OUTPUT opcAPIInboundEvent
     ) NO-ERROR.
 
- IF ERROR-STATUS:ERROR THEN DO:    
+ IF ERROR-STATUS:ERROR THEN    
     ASSIGN 
         cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
         lSuccess         = NO
@@ -176,22 +194,23 @@ RUN VALUE(APIInbound.requestHandler)(
         oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
         .
     
-    RUN api\CreateAPIInboundEvent.p (
-         INPUT  ipcRoute,
-         INPUT  iplcRequestData,
-         INPUT  oplcResponseData,
-         INPUT  lSuccess,
-         INPUT  cMessage + " " + cErrorMessage,
-         INPUT  NOW,
-         INPUT  cRequestedBy,
-         INPUT  ipcRecordSource,
-         INPUT  cNotes,
-         INPUT  "", /* PayloadID */
-         OUTPUT opcAPIInboundEvent
-         ) NO-ERROR.    
-    RETURN.
- END.
-
+RUN api\CreateAPIInboundEvent.p (
+    INPUT  lRetrigger,
+    INPUT  iAPIInboundEventID,
+    INPUT  cCompany,
+    INPUT  ipcRoute,
+    INPUT  iplcRequestData,
+    INPUT  oplcResponseData,
+    INPUT  lSuccess,
+    INPUT  cMessage + " " + cErrorMessage,
+    INPUT  NOW,
+    INPUT  cRequestedBy,
+    INPUT  ipcRecordSource,
+    INPUT  cNotes,
+    INPUT  "", /* PayloadID */
+    OUTPUT opcAPIInboundEvent
+    ) NO-ERROR.
+     
 /* This procedure checks whether username and password are valid or not */
 PROCEDURE UserAuthenticationCheck:
     DEFINE INPUT   PARAMETER ipcUsername    AS CHARACTER NO-UNDO.

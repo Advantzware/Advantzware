@@ -99,13 +99,13 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.ico":U NO-FOCUS
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
@@ -135,10 +135,10 @@ DEFINE FRAME paramFrame
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
-     btnSave AT ROW 1.48 COL 3 HELP
-          "Save" WIDGET-ID 6
      btnReset AT ROW 1.48 COL 11 HELP
           "Reset" WIDGET-ID 8
+     btnSave AT ROW 1.48 COL 3 HELP
+          "Save" WIDGET-ID 6
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -350,7 +350,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
-{AOA/includes/dynWidgets.i "dyn"}
+{AOA/includes/dynWidgets.i "dyn" "ParamBuilder"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

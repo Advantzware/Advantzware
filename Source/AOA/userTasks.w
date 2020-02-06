@@ -33,8 +33,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define prgmName userTasks.
 &Scoped-define defaultUser _default
+&Scoped-define program-id userTasks.
 
 /* Parameters Definitions ---                                           */
 
@@ -74,6 +74,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD externalForm     LIKE dynParamValue.externalForm
     FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
+    FIELD isLookup         LIKE dynParamValue.isLookup
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
         INDEX ttDynParamValue IS PRIMARY paramTitle user-id paramValueID
@@ -103,8 +104,8 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
-&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   AND ttDynParamValue.isLookup EQ NO  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   AND ttDynParamValue.isLookup EQ NO  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseParamValue ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseParamValue ttDynParamValue
 
@@ -223,7 +224,7 @@ DEFINE BROWSE browseParamValue
 ttDynParamValue.paramDescription LABEL-BGCOLOR 14
 ttDynParamValue.module LABEL-BGCOLOR 14
 ttDynParamValue.user-id LABEL-BGCOLOR 14
-ttDynParamValue.paramValueID LABEL-BGCOLOR 14
+ttDynParamValue.paramValueID
 ttDynParamValue.outputFormat
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
@@ -394,6 +395,7 @@ WHERE ttDynParamValue.securityLevel LE iSecurityLevel
   AND ttDynParamValue.module BEGINS cModule
   AND ttDynParamValue.user-id BEGINS cUserID
   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"
+  AND ttDynParamValue.isLookup EQ NO
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -699,13 +701,14 @@ END.
 
 {AOA/includes/pRunNow.i "tt"}
 
-{methods/sortByProc.i "pBymnemonic" "ttDynParamValue.mnemonic"}
+{methods/sortByProc.i "pByLastRunDateTime" "ttDynParamValue.lastRunDateTime"}
+{methods/sortByProc.i "pByModule" "ttDynParamValue.module"}
+{methods/sortByProc.i "pByMnemonic" "ttDynParamValue.mnemonic"}
 {methods/sortByProc.i "pByParamTitle" "ttDynParamValue.paramTitle"}
 {methods/sortByProc.i "pByPrgmName" "ttDynParamValue.prgmName"}
 {methods/sortByProc.i "pByProgTitle" "ttDynParamValue.paramDescription"}
 {methods/sortByProc.i "pByParamDescription" "ttDynParamValue.ParamDescription"}
 {methods/sortByProc.i "pByUserID" "ttDynParamValue.user-id"}
-{methods/sortByProc.i "pLastRunDateTime" "ttDynParamValue.lastRunDateTime"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -880,6 +883,7 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.securityLevel    = dynParamValue.securityLevel
             ttDynParamValue.externalForm     = dynParamValue.externalForm
             ttDynParamValue.lastRunDateTime  = dynParamValue.lastRunDateTime
+            ttDynParamValue.isLookup         = dynParamValue.isLookup
             ttDynParamValue.paramValueRowID  = ROWID(dynParamValue)
             ttDynParamValue.allData          = ttDynParamValue.mnemonic + "|"
                                              + ttDynParamValue.paramDescription + "|"
@@ -892,6 +896,8 @@ PROCEDURE pGetParamValue :
                                              + STRING(ttDynParamValue.recordLimit) + "|"
                                              + STRING(ttDynParamValue.paramValueID)
                                              .
+        IF ttDynParamValue.outputFormat EQ "" THEN
+        ttDynParamValue.outputFormat = "Grid".
         IF NOT CAN-DO(filterDescrip:LIST-ITEMS,ttDynParamValue.paramDescription) THEN
         filterDescrip:ADD-LAST(ttDynParamValue.paramDescription).
         IF NOT CAN-DO(filterModule:LIST-ITEMS,ttDynParamValue.module) THEN
@@ -940,7 +946,7 @@ PROCEDURE pGetSettings :
     
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ cCompany
-                      AND user-print.program-id EQ "{&programID}"
+                      AND user-print.program-id EQ "{&program-id}"
                       AND user-print.user-id    EQ "{&defaultUser}") THEN
     RUN pSaveSettings ("{&defaultUser}").
     FIND FIRST user-print NO-LOCK
@@ -978,9 +984,11 @@ PROCEDURE pReopenBrowse :
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
         WHEN "lastRunDateTime" THEN
-        RUN pLastRunDateTime.
+        RUN pByLastRunDateTime.
         WHEN "mnemonic" THEN
-        RUN pBymnemonic.
+        RUN pByMnemonic.
+        WHEN "module" THEN
+        RUN pByModule.
         WHEN "paramDescription" THEN
         RUN pByParamDescription.
         WHEN "prgmName" THEN

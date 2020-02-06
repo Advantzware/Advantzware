@@ -60,13 +60,13 @@ ELSE
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>          INVOICE#                    " ar-inv.inv-no
+    "<=#3>          INVOICE#                    " ar-inv.inv-no FORMAT ">>>>>>9"
     "<=#3><R+1>              DATE               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .
 
-PUT "<|10><R21><C1><#4><FROM><R24><C80><RECT>" SKIP
-    "<R22><C1><FROM><R22><C80><LINE>" SKIP    
+PUT "<|10><R21><C1><#4><FROM><R24><C81><RECT>" SKIP
+    "<R22><C1><FROM><R22><C81><LINE>" SKIP    
     "<R21><C11><FROM><R24><C11><LINE>" SKIP
     "<R21><C22><FROM><R24><C22><LINE>" SKIP
     "<R21><C38><FROM><R24><C38><LINE>" SKIP
@@ -96,7 +96,7 @@ PUT
    /* "<|10><R28><C1><#5><FROM><R28><C80><LINE>" SKIP     
     "<|10><R31><C1><#6><FROM><R31><C80><LINE>" SKIP 
    */
-    "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP    
+    "<|10><R25><C1><#5><FROM><R27><C81><RECT>" SKIP    
     "<R25><C13><FROM><R27><C13><LINE>" SKIP
     "<R25><C25><FROM><R27><C25><LINE>"     
     "<R25><C52><FROM><R27><C52><LINE>" SKIP

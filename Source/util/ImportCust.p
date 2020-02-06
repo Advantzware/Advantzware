@@ -377,157 +377,160 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-cust FOR cust .
+    DEFINE BUFFER bf-shipto FOR shipto .
+    DEFINE BUFFER bf-soldto FOR soldto .
      
-    FIND FIRST cust EXCLUSIVE-LOCK
-        WHERE cust.company EQ ipbf-ttImportCust.Company
-        AND cust.cust-no EQ ipbf-ttImportCust.CustNo
+    FIND FIRST bf-cust EXCLUSIVE-LOCK
+        WHERE bf-cust.company EQ ipbf-ttImportCust.Company
+        AND bf-cust.cust-no EQ ipbf-ttImportCust.CustNo
         NO-ERROR.  
-    IF NOT AVAILABLE cust THEN 
+    IF NOT AVAILABLE bf-cust THEN 
     DO:
         iopiAdded = iopiAdded + 1.
-        CREATE cust.
+        CREATE bf-cust.
         ASSIGN 
-            cust.company = ipbf-ttImportCust.Company
-            cust.cust-no = ipbf-ttImportCust.CustNo
+            bf-cust.company = ipbf-ttImportCust.Company
+            bf-cust.cust-no = ipbf-ttImportCust.CustNo
             .
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportCust.CustName, iplIgnoreBlanks, INPUT-OUTPUT cust.name).
-    RUN pAssignValueC (ipbf-ttImportCust.CustAdd1, iplIgnoreBlanks, INPUT-OUTPUT cust.addr[1]).
-    RUN pAssignValueC (ipbf-ttImportCust.CustAdd2, iplIgnoreBlanks, INPUT-OUTPUT cust.addr[2]).
-    RUN pAssignValueC (ipbf-ttImportCust.CustCity, iplIgnoreBlanks, INPUT-OUTPUT cust.city).
-    RUN pAssignValueC (ipbf-ttImportCust.CustState, iplIgnoreBlanks, INPUT-OUTPUT cust.state).
-    RUN pAssignValueC (ipbf-ttImportCust.CustCountry, iplIgnoreBlanks, INPUT-OUTPUT cust.fax-country).
-    RUN pAssignValueC (ipbf-ttImportCust.CustCountry, iplIgnoreBlanks, INPUT-OUTPUT cust.country).
-    RUN pAssignValueC (ipbf-ttImportCust.CustZip, iplIgnoreBlanks, INPUT-OUTPUT cust.zip).
-    RUN pAssignValueC (ipbf-ttImportCust.CustSman, iplIgnoreBlanks, INPUT-OUTPUT cust.sman).
-    RUN pAssignValueC (ipbf-ttImportCust.CustAreaCode, iplIgnoreBlanks, INPUT-OUTPUT cust.area-code).
-    RUN pAssignValueC (ipbf-ttImportCust.CustPhone, iplIgnoreBlanks, INPUT-OUTPUT cust.phone).  
-    RUN pAssignValueC (ipbf-ttImportCust.CustFax, iplIgnoreBlanks, INPUT-OUTPUT cust.fax).
-    RUN pAssignValueD (ipbf-ttImportCust.CreditLimit, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-lim).
-    RUN pAssignValueC (ipbf-ttImportCust.CustStatus, YES, INPUT-OUTPUT cust.active).
-    RUN pAssignValueC (ipbf-ttImportCust.CreditHold, YES, INPUT-OUTPUT cust.cr-hold).
-    RUN pAssignValueC (ipbf-ttImportCust.CustType, YES, INPUT-OUTPUT cust.type).
-    RUN pAssignValueC (ipbf-ttImportCust.Terms, YES, INPUT-OUTPUT cust.terms).
-    RUN pAssignValueC (ipbf-ttImportCust.FedID, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-id).
-    RUN pAssignValueC (ipbf-ttImportCust.Contact, iplIgnoreBlanks, INPUT-OUTPUT cust.contact). 
-    RUN pAssignValueC (ipbf-ttImportCust.CSRUser, YES, INPUT-OUTPUT cust.csrUser_id).
-    RUN pAssignValueCToDt (ipbf-ttImportCust.DateAdded, YES, INPUT-OUTPUT cust.date-field[1]).
-    RUN pAssignValueC (ipbf-ttImportCust.cCrUse, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-use).
-    RUN pAssignValueC (ipbf-ttImportCust.cCRating, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-rating).
-    RUN pAssignValueD (ipbf-ttImportCust.dOrderLimit, iplIgnoreBlanks, INPUT-OUTPUT cust.ord-lim).
-    RUN pAssignValueD (ipbf-ttImportCust.dDiscPct, iplIgnoreBlanks, INPUT-OUTPUT cust.disc).
-    RUN pAssignValueC (ipbf-ttImportCust.cCurrency, iplIgnoreBlanks, INPUT-OUTPUT cust.curr-code).
-    RUN pAssignValueC (ipbf-ttImportCust.cFinChrg, YES, INPUT-OUTPUT cust.fin-chg).
-    RUN pAssignValueC (ipbf-ttImportCust.cAutoPrc, YES, INPUT-OUTPUT cust.auto-reprice).
-    RUN pAssignValueC (ipbf-ttImportCust.cEdi, YES, INPUT-OUTPUT cust.an-edi-cust).
-    RUN pAssignValueC (ipbf-ttImportCust.cFactrd, YES, INPUT-OUTPUT cust.factored).
-    RUN pAssignValueI (ipbf-ttImportCust.iGraceDay, YES, INPUT-OUTPUT cust.cr-hold-invdays).
-    RUN pAssignValueD (ipbf-ttImportCust.dGraceDolr, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-hold-invdue).
-    RUN pAssignValueC (ipbf-ttImportCust.lInvPer, YES, INPUT-OUTPUT cust.inv-meth).
-    RUN pAssignValueC (ipbf-ttImportCust.cFrtPay, YES, INPUT-OUTPUT cust.frt-pay).
-    RUN pAssignValueC (ipbf-ttImportCust.cFOB, YES, INPUT-OUTPUT cust.fob-code).
-    RUN pAssignValueC (ipbf-ttImportCust.cLoc, iplIgnoreBlanks, INPUT-OUTPUT cust.loc).
-    RUN pAssignValueC (ipbf-ttImportCust.cCarrier, iplIgnoreBlanks, INPUT-OUTPUT cust.carrier).
-    RUN pAssignValueC (ipbf-ttImportCust.cDelZone, iplIgnoreBlanks, INPUT-OUTPUT cust.del-zone).
-    RUN pAssignValueC (ipbf-ttImportCust.cterr, iplIgnoreBlanks, INPUT-OUTPUT cust.terr).
-    RUN pAssignValueI (ipbf-ttImportCust.iPalletId, YES, INPUT-OUTPUT cust.spare-int-1).
-    RUN pAssignValueD (ipbf-ttImportCust.dUnderPct, iplIgnoreBlanks, INPUT-OUTPUT cust.under-pct).
-    RUN pAssignValueD (ipbf-ttImportCust.dOverPct, iplIgnoreBlanks, INPUT-OUTPUT cust.over-pct).
-    RUN pAssignValueC (ipbf-ttImportCust.cPallet, iplIgnoreBlanks, INPUT-OUTPUT cust.pallet).
-    RUN pAssignValueC (ipbf-ttImportCust.cCaseBundle, iplIgnoreBlanks, INPUT-OUTPUT cust.case-bundle).
-    RUN pAssignValueD (ipbf-ttImportCust.dMarkup, iplIgnoreBlanks, INPUT-OUTPUT cust.markup).
-    RUN pAssignValueI (ipbf-ttImportCust.iLablePerSkip, YES, INPUT-OUTPUT cust.int-field[1]).
-    RUN pAssignValueI (ipbf-ttImportCust.iWhsDay, YES, INPUT-OUTPUT cust.ship-days).
-    RUN pAssignValueI (ipbf-ttImportCust.iPalPos, YES, INPUT-OUTPUT cust.manf-day).
-    RUN pAssignValueC (ipbf-ttImportCust.cPoMand, YES, INPUT-OUTPUT cust.po-mandatory).
-    RUN pAssignValueC (ipbf-ttImportCust.cShwSet, YES, INPUT-OUTPUT cust.show-set).
-    RUN pAssignValueC (ipbf-ttImportCust.cPprLsInv, YES, INPUT-OUTPUT cust.log-field[1]).
-    RUN pAssignValueC (ipbf-ttImportCust.cPartialShp, YES, INPUT-OUTPUT cust.ship-part).
-    RUN pAssignValueC (ipbf-ttImportCust.cTaxable, YES, INPUT-OUTPUT cust.sort).
-    RUN pAssignValueC (ipbf-ttImportCust.cTaxPrepCode, iplIgnoreBlanks, INPUT-OUTPUT cust.spare-char-1).
-    RUN pAssignValueC (ipbf-ttImportCust.cTaxGr, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-gr).
-    RUN pAssignValueC (ipbf-ttImportCust.cTaxResale, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-id).
-    RUN pAssignValueCToDt (ipbf-ttImportCust.cExpDate, YES, INPUT-OUTPUT cust.date-field[2]).
+    RUN pAssignValueC (ipbf-ttImportCust.CustName, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.name).
+    RUN pAssignValueC (ipbf-ttImportCust.CustAdd1, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.addr[1]).
+    RUN pAssignValueC (ipbf-ttImportCust.CustAdd2, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.addr[2]).
+    RUN pAssignValueC (ipbf-ttImportCust.CustCity, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.city).
+    RUN pAssignValueC (ipbf-ttImportCust.CustState, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.state).
+    RUN pAssignValueC (ipbf-ttImportCust.CustCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.fax-country).
+    RUN pAssignValueC (ipbf-ttImportCust.CustCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.country).
+    RUN pAssignValueC (ipbf-ttImportCust.CustZip, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.zip).
+    RUN pAssignValueC (ipbf-ttImportCust.CustSman, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.sman).
+    RUN pAssignValueC (ipbf-ttImportCust.CustAreaCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.area-code).
+    RUN pAssignValueC (ipbf-ttImportCust.CustPhone, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.phone).  
+    RUN pAssignValueC (ipbf-ttImportCust.CustFax, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.fax).
+    RUN pAssignValueD (ipbf-ttImportCust.CreditLimit, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.cr-lim).
+    RUN pAssignValueC (ipbf-ttImportCust.CustStatus, YES, INPUT-OUTPUT bf-cust.active).
+    RUN pAssignValueC (ipbf-ttImportCust.CreditHold, YES, INPUT-OUTPUT bf-cust.cr-hold).
+    RUN pAssignValueC (ipbf-ttImportCust.CustType, YES, INPUT-OUTPUT bf-cust.type).
+    RUN pAssignValueC (ipbf-ttImportCust.Terms, YES, INPUT-OUTPUT bf-cust.terms).
+    RUN pAssignValueC (ipbf-ttImportCust.FedID, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-id).
+    RUN pAssignValueC (ipbf-ttImportCust.Contact, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.contact). 
+    RUN pAssignValueC (ipbf-ttImportCust.CSRUser, YES, INPUT-OUTPUT bf-cust.csrUser_id).
+    RUN pAssignValueCToDt (ipbf-ttImportCust.DateAdded, YES, INPUT-OUTPUT bf-cust.date-field[1]).
+    RUN pAssignValueC (ipbf-ttImportCust.cCrUse, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.cr-use).
+    RUN pAssignValueC (ipbf-ttImportCust.cCRating, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.cr-rating).
+    RUN pAssignValueD (ipbf-ttImportCust.dOrderLimit, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.ord-lim).
+    RUN pAssignValueD (ipbf-ttImportCust.dDiscPct, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.disc).
+    RUN pAssignValueC (ipbf-ttImportCust.cCurrency, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.curr-code).
+    RUN pAssignValueC (ipbf-ttImportCust.cFinChrg, YES, INPUT-OUTPUT bf-cust.fin-chg).
+    RUN pAssignValueC (ipbf-ttImportCust.cAutoPrc, YES, INPUT-OUTPUT bf-cust.auto-reprice).
+    RUN pAssignValueC (ipbf-ttImportCust.cEdi, YES, INPUT-OUTPUT bf-cust.an-edi-cust).
+    RUN pAssignValueC (ipbf-ttImportCust.cFactrd, YES, INPUT-OUTPUT bf-cust.factored).
+    RUN pAssignValueI (ipbf-ttImportCust.iGraceDay, YES, INPUT-OUTPUT bf-cust.cr-hold-invdays).
+    RUN pAssignValueD (ipbf-ttImportCust.dGraceDolr, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.cr-hold-invdue).
+    RUN pAssignValueC (ipbf-ttImportCust.lInvPer, YES, INPUT-OUTPUT bf-cust.inv-meth).
+    RUN pAssignValueC (ipbf-ttImportCust.cFrtPay, YES, INPUT-OUTPUT bf-cust.frt-pay).
+    RUN pAssignValueC (ipbf-ttImportCust.cFOB, YES, INPUT-OUTPUT bf-cust.fob-code).
+    RUN pAssignValueC (ipbf-ttImportCust.cLoc, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.loc).
+    RUN pAssignValueC (ipbf-ttImportCust.cCarrier, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.carrier).
+    RUN pAssignValueC (ipbf-ttImportCust.cDelZone, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.del-zone).
+    RUN pAssignValueC (ipbf-ttImportCust.cterr, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.terr).
+    RUN pAssignValueI (ipbf-ttImportCust.iPalletId, YES, INPUT-OUTPUT bf-cust.spare-int-1).
+    RUN pAssignValueD (ipbf-ttImportCust.dUnderPct, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.under-pct).
+    RUN pAssignValueD (ipbf-ttImportCust.dOverPct, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.over-pct).
+    RUN pAssignValueC (ipbf-ttImportCust.cPallet, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.pallet).
+    RUN pAssignValueC (ipbf-ttImportCust.cCaseBundle, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.case-bundle).
+    RUN pAssignValueD (ipbf-ttImportCust.dMarkup, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.markup).
+    RUN pAssignValueI (ipbf-ttImportCust.iLablePerSkip, YES, INPUT-OUTPUT bf-cust.int-field[1]).
+    RUN pAssignValueI (ipbf-ttImportCust.iWhsDay, YES, INPUT-OUTPUT bf-cust.ship-days).
+    RUN pAssignValueI (ipbf-ttImportCust.iPalPos, YES, INPUT-OUTPUT bf-cust.manf-day).
+    RUN pAssignValueC (ipbf-ttImportCust.cPoMand, YES, INPUT-OUTPUT bf-cust.po-mandatory).
+    RUN pAssignValueC (ipbf-ttImportCust.cShwSet, YES, INPUT-OUTPUT bf-cust.show-set).
+    RUN pAssignValueC (ipbf-ttImportCust.cPprLsInv, YES, INPUT-OUTPUT bf-cust.log-field[1]).
+    RUN pAssignValueC (ipbf-ttImportCust.cPartialShp, YES, INPUT-OUTPUT bf-cust.ship-part).
+    RUN pAssignValueC (ipbf-ttImportCust.cTaxable, YES, INPUT-OUTPUT bf-cust.sort).
+    RUN pAssignValueC (ipbf-ttImportCust.cTaxPrepCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.spare-char-1).
+    RUN pAssignValueC (ipbf-ttImportCust.cTaxGr, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-gr).
+    RUN pAssignValueC (ipbf-ttImportCust.cTaxResale, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-id).
+    RUN pAssignValueCToDt (ipbf-ttImportCust.cExpDate, YES, INPUT-OUTPUT bf-cust.date-field[2]).
    IF date(ipbf-ttImportCust.cExpDate) EQ TODAY THEN
-        cust.date-field[2] = ?.
-    RUN pAssignValueC (ipbf-ttImportCust.cEmail, iplIgnoreBlanks, INPUT-OUTPUT cust.email).
-    RUN pAssignValueC (ipbf-ttImportCust.cGroup, iplIgnoreBlanks, INPUT-OUTPUT cust.spare-char-2).
-    RUN pAssignValueD (ipbf-ttImportCust.dBrkComm, iplIgnoreBlanks, INPUT-OUTPUT cust.scomm).
-    RUN pAssignValueD (ipbf-ttImportCust.dFltComm, iplIgnoreBlanks, INPUT-OUTPUT cust.flatCommPct).
-    RUN pAssignValueC (ipbf-ttImportCust.cPrefix, iplIgnoreBlanks, INPUT-OUTPUT cust.fax-prefix).
-    RUN pAssignValueC (ipbf-ttImportCust.cCntPrice, YES, INPUT-OUTPUT cust.imported).
-    RUN pAssignValueC (ipbf-ttImportCust.BankAcct, YES, INPUT-OUTPUT cust.Bank-Acct).
-    RUN pAssignValueC (ipbf-ttImportCust.SwiftBIC, YES, INPUT-OUTPUT cust.SwiftBIC).
-    RUN pAssignValueC (ipbf-ttImportCust.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT cust.Bank-RTN).
+        bf-cust.date-field[2] = ?.
+    RUN pAssignValueC (ipbf-ttImportCust.cEmail, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.email).
+    RUN pAssignValueC (ipbf-ttImportCust.cGroup, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.spare-char-2).
+    RUN pAssignValueD (ipbf-ttImportCust.dBrkComm, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.scomm).
+    RUN pAssignValueD (ipbf-ttImportCust.dFltComm, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.flatCommPct).
+    RUN pAssignValueC (ipbf-ttImportCust.cPrefix, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.fax-prefix).
+    RUN pAssignValueC (ipbf-ttImportCust.cCntPrice, YES, INPUT-OUTPUT bf-cust.imported).
+    RUN pAssignValueC (ipbf-ttImportCust.BankAcct, YES, INPUT-OUTPUT bf-cust.Bank-Acct).
+    RUN pAssignValueC (ipbf-ttImportCust.SwiftBIC, YES, INPUT-OUTPUT bf-cust.SwiftBIC).
+    RUN pAssignValueC (ipbf-ttImportCust.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.Bank-RTN).
 
-    FIND FIRST shipto EXCLUSIVE-LOCK 
-        WHERE shipto.company EQ cust.company
-        AND shipto.cust-no EQ cust.cust-no
-        AND shipto.ship-id EQ cust.cust-no
+    FIND FIRST bf-shipto EXCLUSIVE-LOCK 
+        WHERE bf-shipto.company EQ bf-cust.company
+        AND bf-shipto.cust-no EQ bf-cust.cust-no
+        AND bf-shipto.ship-id EQ bf-cust.cust-no
         NO-ERROR.
-    IF NOT AVAILABLE shipto THEN 
+    IF NOT AVAILABLE bf-shipto THEN 
     DO:
-        CREATE shipto.
+        CREATE bf-shipto.
         ASSIGN 
-            shipto.company = cust.company
-            shipto.cust-no = cust.cust-no
-            shipto.ship-id = cust.cust-no
-            shipto.tax-code = cust.tax-gr
-            shipto.tax-mandatory = cust.sort EQ "Y"
+            bf-shipto.company = bf-cust.company
+            bf-shipto.cust-no = bf-cust.cust-no
+            bf-shipto.ship-id = bf-cust.cust-no
+            bf-shipto.tax-code = bf-cust.tax-gr
+            bf-shipto.tax-mandatory = bf-cust.sort EQ "Y"
             .
     END.
-    RUN pAssignValueC (ipbf-ttImportCust.ShipName, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-name).
-    RUN pAssignValueC (ipbf-ttImportCust.ShipAdd1, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-addr[1]).
-    RUN pAssignValueC (ipbf-ttImportCust.ShipAdd2, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-addr[2]).
-    RUN pAssignValueC (ipbf-ttImportCust.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-city).
-    RUN pAssignValueC (ipbf-ttImportCust.ShipState, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-state).
-    RUN pAssignValueC (ipbf-ttImportCust.ShipZip, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-zip).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipName, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-name).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipAdd1, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-addr[1]).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipAdd2, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-addr[2]).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-city).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipState, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-state).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipZip, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-zip).
         
-    FIND FIRST soldto EXCLUSIVE-LOCK 
-        WHERE soldto.company EQ cust.company
-        AND soldto.cust-no EQ cust.cust-no
-        AND soldto.sold-id EQ cust.cust-no
+    FIND FIRST bf-soldto EXCLUSIVE-LOCK 
+        WHERE bf-soldto.company EQ bf-cust.company
+        AND bf-soldto.cust-no EQ bf-cust.cust-no
+        AND bf-soldto.sold-id EQ bf-cust.cust-no
         NO-ERROR.
-    IF NOT AVAILABLE soldto THEN 
+    IF NOT AVAILABLE bf-soldto THEN 
     DO:
-        CREATE soldto.
+        CREATE bf-soldto.
         ASSIGN 
-            soldto.company      = cust.company
-            soldto.cust-no      = cust.cust-no
-            soldto.sold-id      = cust.cust-no
-            soldto.sold-name    = cust.name
-            soldto.sold-addr[1] = cust.addr[1]
-            soldto.sold-addr[2] = cust.addr[2]
-            soldto.sold-city    = cust.city
-            soldto.sold-state   = cust.state
-            soldto.sold-zip     = cust.zip
+            bf-soldto.company      = bf-cust.company
+            bf-soldto.cust-no      = bf-cust.cust-no
+            bf-soldto.sold-id      = bf-cust.cust-no
+            bf-soldto.sold-name    = bf-cust.name
+            bf-soldto.sold-addr[1] = bf-cust.addr[1]
+            bf-soldto.sold-addr[2] = bf-cust.addr[2]
+            bf-soldto.sold-city    = bf-cust.city
+            bf-soldto.sold-state   = bf-cust.state
+            bf-soldto.sold-zip     = bf-cust.zip
             .
     END.
             
-    RUN pAddNote (cust.rec_key,
+    RUN pAddNote (bf-cust.rec_key,
         ipbf-ttImportCust.Note1,
         "Misc Message 1",
         "",
         "C").
-    RUN pAddNote (cust.rec_key,
+    RUN pAddNote (bf-cust.rec_key,
         ipbf-ttImportCust.Note2,
         "Misc Message 2",
         "",
         "C").
-    RUN pAddNote (cust.rec_key,
+    RUN pAddNote (bf-cust.rec_key,
         ipbf-ttImportCust.Note3,
         "Mfg. Inst.",
         "",
         "C").
-    RUN pAddNote (cust.rec_key,
+    RUN pAddNote (bf-cust.rec_key,
         ipbf-ttImportCust.Note4,
         "B/L Message",
         "",
         "C"). 
-    RELEASE cust.
-    RELEASE shipto.
-    RELEASE soldto .
+    RELEASE bf-cust.
+    RELEASE bf-shipto.
+    RELEASE bf-soldto .
     
 END PROCEDURE.
 

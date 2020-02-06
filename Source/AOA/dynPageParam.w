@@ -32,15 +32,19 @@ DEFINE INPUT PARAMETER ipcPrgmName  AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiPageNo    AS INTEGER   NO-UNDO.
 DEFINE INPUT PARAMETER ipiSubjectID AS INTEGER   NO-UNDO.
 &else
-DEFINE VARIABLE ipcPrgmName  AS CHARACTER NO-UNDO INIT "vendCostMtx.".
-DEFINE VARIABLE ipiPageNo    AS INTEGER   NO-UNDO INIT 2.
-DEFINE VARIABLE ipiSubjectID AS INTEGER   NO-UNDO INIT 49.
+DEFINE VARIABLE ipcPrgmName  AS CHARACTER NO-UNDO INIT "".
+DEFINE VARIABLE ipiPageNo    AS INTEGER   NO-UNDO INIT 0.
+DEFINE VARIABLE ipiSubjectID AS INTEGER   NO-UNDO INIT 70.
 &endif
 
 /* Local Variable Definitions ---                                       */
 
 {methods/defines/sortByDefs.i}
 
+DEFINE TEMP-TABLE ttTable NO-UNDO
+    FIELD tableName LIKE dynSubjectTable.tableName
+        INDEX ttTable IS PRIMARY tableName
+        .
 DEFINE TEMP-TABLE ttField NO-UNDO
     FIELD tableName AS CHARACTER
     FIELD fieldName AS CHARACTER FORMAT "x(40)" LABEL "Field Name"
@@ -64,7 +68,7 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES dynSubjectParamSet dynParamSetDtl ttField ~
-dynPrgrmsPage dynSubjectTable
+dynPrgrmsPage ttTable
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -94,8 +98,8 @@ dynParamSetDtl.paramLabel NE "" NO-LOCK ~
 &Scoped-define FIELDS-IN-QUERY-fieldsBrowse ttField.fieldName   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-fieldsBrowse   
 &Scoped-define SELF-NAME fieldsBrowse
-&Scoped-define QUERY-STRING-fieldsBrowse FOR EACH ttField     WHERE ttField.tableName EQ dynSubjectTable.tableName
-&Scoped-define OPEN-QUERY-fieldsBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttField     WHERE ttField.tableName EQ dynSubjectTable.tableName.
+&Scoped-define QUERY-STRING-fieldsBrowse FOR EACH ttField     WHERE ttField.tableName EQ ttTable.tableName
+&Scoped-define OPEN-QUERY-fieldsBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttField     WHERE ttField.tableName EQ ttTable.tableName.
 &Scoped-define TABLES-IN-QUERY-fieldsBrowse ttField
 &Scoped-define FIRST-TABLE-IN-QUERY-fieldsBrowse ttField
 
@@ -120,16 +124,13 @@ ASI.dynPrgrmsPage.subjectID EQ ipiSubjectID NO-LOCK ~
 
 
 /* Definitions for BROWSE tableBrowse                                   */
-&Scoped-define FIELDS-IN-QUERY-tableBrowse dynSubjectTable.tableName 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-tableBrowse 
-&Scoped-define QUERY-STRING-tableBrowse FOR EACH dynSubjectTable ~
-      WHERE dynSubjectTable.subjectID EQ ipiSubjectID NO-LOCK ~
-    BY dynSubjectTable.tableName INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-tableBrowse OPEN QUERY tableBrowse FOR EACH dynSubjectTable ~
-      WHERE dynSubjectTable.subjectID EQ ipiSubjectID NO-LOCK ~
-    BY dynSubjectTable.tableName INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-tableBrowse dynSubjectTable
-&Scoped-define FIRST-TABLE-IN-QUERY-tableBrowse dynSubjectTable
+&Scoped-define FIELDS-IN-QUERY-tableBrowse ttTable.tableName   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-tableBrowse   
+&Scoped-define SELF-NAME tableBrowse
+&Scoped-define QUERY-STRING-tableBrowse FOR EACH ttTable INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-tableBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttTable INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-tableBrowse ttTable
+&Scoped-define FIRST-TABLE-IN-QUERY-tableBrowse ttTable
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -175,7 +176,7 @@ DEFINE QUERY pageParam FOR
       dynPrgrmsPage SCROLLING.
 
 DEFINE QUERY tableBrowse FOR 
-      dynSubjectTable SCROLLING.
+      ttTable SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -211,9 +212,9 @@ DEFINE BROWSE pageParam
          TITLE "Double-Click to DELETE".
 
 DEFINE BROWSE tableBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS tableBrowse Dialog-Frame _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS tableBrowse Dialog-Frame _FREEFORM
   QUERY tableBrowse NO-LOCK DISPLAY
-      dynSubjectTable.tableName FORMAT "x(20)":U
+      ttTable.tableName FORMAT "x(20)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 25 BY 16.91
@@ -291,7 +292,7 @@ dynParamSetDtl.paramLabel NE """""
 /* Query rebuild information for BROWSE fieldsBrowse
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttField
-    WHERE ttField.tableName EQ dynSubjectTable.tableName.
+    WHERE ttField.tableName EQ ttTable.tableName.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE fieldsBrowse */
@@ -316,11 +317,12 @@ ASI.dynPrgrmsPage.subjectID EQ ipiSubjectID"
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE tableBrowse
 /* Query rebuild information for BROWSE tableBrowse
-     _TblList          = "ASI.dynSubjectTable"
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttTable INDEXED-REPOSITION.
+     _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _OrdList          = "ASI.dynSubjectTable.tableName|yes"
      _Where[1]         = "ASI.dynSubjectTable.subjectID EQ ipiSubjectID"
-     _FldNameList[1]   = ASI.dynSubjectTable.tableName
      _Query            is OPENED
 */  /* BROWSE tableBrowse */
 &ANALYZE-RESUME
@@ -491,10 +493,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetFields.
   RUN enable_UI.
   FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE
-                       + " - Program: "
-                       + ipcPrgmName + " - Page: "
-                       + STRING(ipiPageNo) + " - Subject ID: "
-                       + STRING(ipiSubjectID)
+                       + (IF ipcPrgmName EQ "" THEN "" ELSE " - Program: " + ipcPrgmName)
+                       + (IF ipiPageNo EQ 0 THEN "" ELSE " - Page: " + STRING(ipiPageNo))
+                       + " - Subject ID: " + STRING(ipiSubjectID)
                        .
   IF AVAILABLE dynPrgrmsPage THEN
   APPLY "VALUE-CHANGED":U TO BROWSE pageParam.
@@ -615,18 +616,39 @@ PROCEDURE pGetFields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    IF ipcPrgmName EQ "" AND ipiPageNo EQ 0 THEN
+    FOR EACH ASI._file NO-LOCK
+        WHERE ASI._file._Tbl-type EQ "T"
+        :
+        CREATE ttTable.
+        ttTable.tableName = ASI._file._file-name.
+        FOR EACH ASI._field OF ASI._file NO-LOCK
+            WHERE ASI._field._extent EQ 0
+            :
+            CREATE ttField.
+            ASSIGN
+                ttField.tableName = ASI._file._file-name
+                ttField.fieldName = ASI._field._field-name
+                .
+        END. /* each _field */
+    END. /* each _file */
+    ELSE
     FOR EACH dynSubjectTable NO-LOCK
         WHERE dynSubjectTable.subjectID EQ ipiSubjectID,
         FIRST ASI._file NO-LOCK
-        WHERE ASI._file._file-name EQ dynSubjectTable.tableName,
-        EACH ASI._field OF ASI._file NO-LOCK
-        WHERE ASI._field._extent EQ 0
+        WHERE ASI._file._file-name EQ dynSubjectTable.tableName
         :
-        CREATE ttField.
-        ASSIGN
-            ttField.tableName = dynSubjectTable.tableName
-            ttField.fieldName = ASI._field._field-name
-            .
+        CREATE ttTable.
+        ttTable.tableName = dynSubjectTable.tableName.
+        FOR EACH ASI._field OF ASI._file NO-LOCK
+            WHERE ASI._field._extent EQ 0
+            :
+            CREATE ttField.
+            ASSIGN
+                ttField.tableName = dynSubjectTable.tableName
+                ttField.fieldName = ASI._field._field-name
+                .
+        END. /* each _field */
     END. /* each dynsubjecttable */
 
 END PROCEDURE.

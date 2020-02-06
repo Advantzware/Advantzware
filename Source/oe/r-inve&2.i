@@ -29,7 +29,7 @@
 
         display tt-report.key-02       @ account.actnum
                 v-dscr
-                int(tt-report.key-03)  @ inv-head.inv-no
+                int(tt-report.key-03)  @ inv-head.inv-no FORMAT ">>>>>>9"
                 tt-report.key-04       @ inv-line.i-no
                 v-tmp-amt
                 ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 

@@ -33,27 +33,27 @@
  PUT  "<FArial>".
    PUT "<FArial><R2><C2><B><p7> STRAIGHT BILL OF LADING - SHORT FORM - <p6> Original - Not Negotlable <c60><p6>  BOL#: " oe-bolh.bol-no "</B>"  SKIP.
    PUT "<FArial><R3><C2><B><p7> RECEIVED,subject to the classifications and tariffs in effect on the date of issue of this Origional Bill of Lading." 
-       "<R2.5><c60><p6>   Date: " oe-bolh.bol-date "</B>"  SKIP.
+       "<R2.5><c60><p6>   Date: " oe-bolh.bol-date "</B>"   .
    PUT "<FArial><R4><C2><B><p8> " ( IF AVAIL carrier THEN carrier.dscr ELSE "") FORMAT "x(20)" "<c40><p7> Carrier <R3><c60><p6>   Page: 1 of 1 </B>" SKIP.
-   PUT  SKIP(3)"<R5><c2><FROM><R5><C77><LINE>" SKIP.
+   PUT  SKIP(3)"<R5><c2><FROM><R5><C77><LINE>"  .
    PUT "<FArial><R5.5><C2><B><p5> the property described below, in apparent good order, except as noted (contents and condition of contents of packages unknown),marked, consigned,"
-       " and destined as indicated below, which said carrier (the word </B>" SKIP.
+       " and destined as indicated below, which said carrier (the word </B>"  .
    PUT "<FArial><R6><C2><B><p5> carrier being understood throughout this contract as meaning any person or corporation in possession of the property under the contract)agrees " 
-       "to carry to its usual place of delivery as said destination, if on its </B>" SKIP.
+       "to carry to its usual place of delivery as said destination, if on its </B>"  .
    PUT "<FArial><R6.5><C2><B><p5> route, otherwise to deliver to another carrier on the route to said destinaton. It is mutually agreed, as to each carrier of all or any of said"  
-       "property over all or any portion of said route to destination, and as to each </B>" SKIP.
+       "property over all or any portion of said route to destination, and as to each </B>"  .
    PUT "<FArial><R7><C2><B><p5> party at any time interested in all or any of said property, that every service to be performed her under shall be subject to all the terms and" 
-       "condition of the UnIform Domestic Straight Bill of Lading set forth </B>"  SKIP.
+       "condition of the UnIform Domestic Straight Bill of Lading set forth </B>"   .
    PUT "<FArial><R7.5><C2><B><p5> (1) in the Uniform Freight Classification in effect on the date hereof, if this is a rail, or a rail-water shipment, or (2) In the applicable major" 
-       "carrier classification or tariff if this is a motor carrier shipment. Shipper </B>" SKIP.
+       "carrier classification or tariff if this is a motor carrier shipment. Shipper </B>"  .
    PUT "<FArial><R8><C2><B><p5> hereby certifies that he is familliar with all the terms and conditions of said bill of lading, including those on the attachment thereof, set forth" 
-       "in the classification or tarriff which governs the transportation of this </B>" SKIP. 
+       "in the classification or tarriff which governs the transportation of this </B>" . 
    PUT "<FArial><R8.5><C2><B><p5> shipment, and the said terms and conditions are hereby agreed to by the shipper and accepted for himself and his assigns. </B>" SKIP.  
-   PUT "<||><R9.5><C2><FROM><R10.5><C77><RECT>" "<R9.5><c2><B><p8> SHIPPER (FORM)  </B>"  SKIP.
+   PUT "<||><R9.5><C2><FROM><R10.5><C77><RECT>" "<R9.5><c2><B><p8> SHIPPER (FORM)  </B>"   .
    PUT "<FArial><R11><C2><B><p7> " lv-comp-name FORMAT "x(30)" " <c45> PRO #: " (IF AVAIL tt-temp-report THEN tt-temp-report.key-01 ELSE "") FORMAT "x(30)"  " </B>" SKIP.
-   PUT "<FArial><R12><C2><B><p7> " v-comp-add1 FORMAT "x(30)"  "</B>" SKIP.
-   PUT "<FArial><R13><C2><B><p7> " v-comp-add2  FORMAT "x(30)"  "</B>" SKIP.
-   PUT "<FArial><R14><C2><B><p7> " v-comp-add3  FORMAT "x(30)"  "</B>" SKIP.
+   PUT "<FArial><R12><C2><B><p7> " v-comp-add1 FORMAT "x(30)"  "</B>" .
+   PUT "<FArial><R13><C2><B><p7> " v-comp-add2  FORMAT "x(30)"  "</B>" .
+   PUT "<FArial><R14><C2><B><p7> " v-comp-add3  FORMAT "x(30)"  "</B>" .
 
    
    FIND FIRST bf-oe-boll NO-LOCK
@@ -69,12 +69,12 @@
         and oe-ord.ord-no  eq bf-oe-boll.ord-no 
       NO-ERROR.
 
-   PUT "<||><R15><C2><FROM><R16><C77><RECT>" "<R15><C2><B><p8> CONSIGNEE (SHIP TO) </B>" SKIP.
-   PUT "<FArial><R16.4><C2><B><p7> " v-ship-name FORMAT "x(30)" "</B>" SKIP.
+   PUT "<||><R15><C2><FROM><R16><C77><RECT>" "<R15><C2><B><p8> CONSIGNEE (SHIP TO) </B>" .
+   PUT "<FArial><R16.4><C2><B><p7> " v-ship-name FORMAT "x(30)" "</B>"  .
    /*PUT "<FArial><R17.5><C2><B><p7> ATTN:" (IF AVAIL oe-ord THEN oe-ord.contact ELSE "") FORMAT "x(20)" "</B>" SKIP.*/
-   PUT "<FArial><R17.3><C2><B><p7> " v-ship-addr[1] FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R18.2><C2><B><p7> " v-ship-addr[2] FORMAT "x(30)" "</B>" SKIP.
-   PUT "<FArial><R19.1><C2><B><p7> " v-ship-addr3 FORMAT "x(30)" "</B>" SKIP.
+   PUT "<FArial><R17.3><C2><B><p7> " v-ship-addr[1] FORMAT "x(30)" "</B>"  .
+   PUT "<FArial><R18.2><C2><B><p7> " v-ship-addr[2] FORMAT "x(30)" "</B>"  .
+   PUT "<FArial><R19.1><C2><B><p7> " v-ship-addr3 FORMAT "x(30)" "</B>"  .
    PUT  SKIP(3) "<R20><C2><FROM><R20><C77><LINE>" SKIP.
 
    
@@ -83,10 +83,10 @@
              " <c45> OUR ORDER#: "   (IF AVAIL bf-oe-boll THEN bf-oe-boll.ord-no ELSE 0) FORMAT ">>>>>>>>" "</B>" SKIP.
    
    PUT "<FArial><R21.2><C2><B><p7> Special Instructions: </B>"   SKIP.  
-   PUT "<FArial><R22.0><C2><B><p7> </B>" oe-bolh.ship-i[1] FORMAT "x(200)" SKIP .
-   PUT "<FArial><R22.8><C2><B><p7> </B>" oe-bolh.ship-i[2] FORMAT "x(200)" SKIP . 
-   PUT "<FArial><R23.5><C2><B><p7> </B>" oe-bolh.ship-i[3] FORMAT "x(200)" SKIP .
-   PUT "<FArial><R24.2><C2><B><p7> </B>" oe-bolh.ship-i[4] FORMAT "x(200)" SKIP .
+   PUT "<FArial><R22.0><C2><B><p7> </B>" oe-bolh.ship-i[1] FORMAT "x(200)"  .
+   PUT "<FArial><R22.8><C2><B><p7> </B>" oe-bolh.ship-i[2] FORMAT "x(200)"  . 
+   PUT "<FArial><R23.5><C2><B><p7> </B>" oe-bolh.ship-i[3] FORMAT "x(200)"  .
+   PUT "<FArial><R24.2><C2><B><p7> </B>" oe-bolh.ship-i[4] FORMAT "x(200)"  .
    PUT "<||><R25><C2><FROM><R32><C42><RECT>" "<R25><C2><B><p8> THIRD PARTY FREIGHT CHARGES BILL TO </B>"
        "<||><R25><C42><FROM><R32><C60><RECT>" "<R25><C43><B><p8> Freight charges are: </B>" SKIP.
    PUT "<||><R25><C42><FROM><R32><C77><RECT>"  SKIP. 
@@ -140,7 +140,7 @@
 
    
    
-   PUT "<||><R49><C2><FROM><R50><C77><RECT>" "<FArial><R49><C3><B><p8>" iUnitCount   "<c60>"  STRING(string(dWeightCount) + " " + "LBS")   "<c70> TOTALS </B>" SKIP.
+   PUT "<||><R49><C2><FROM><R50><C77><RECT>" "<FArial><R49><C3><B><p8>"  oe-bolh.tot-pallet   "<c60>"  STRING(string(dWeightCount) + " " + "LBS")   "<c70> TOTALS </B>" SKIP.
    PUT "<FArial><R50><C2><B><p7> If the shipment moves between two ports by a carrier by water, the law requires that the bill of lading" 
          " shall state whether it is carrier's or shipper's weight. </B>" SKIP.                                                              
    PUT "<FArial><R51><C2><B><p7> NOTE - Where the rate is dependent on value, shippers are required to state specificelly in writing"

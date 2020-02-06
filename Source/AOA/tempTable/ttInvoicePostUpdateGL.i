@@ -3,7 +3,7 @@
 /* Invoice Post Update GL.rpa */
 DEFINE TEMP-TABLE ttInvoicePostUpdateGL
     {aoa/tempTable/ttFields.i}
-    FIELD invNo             AS INTEGER   LABEL "Invoice Num"   FORMAT ">>>>>9"     
+    FIELD invNo             AS INTEGER   LABEL "Invoice Num"   FORMAT ">>>>>>9"     
     FIELD invDate           AS DATE      LABEL "Invoice Dt"    FORMAT "99/99/99"
     FIELD custNo            AS CHARACTER LABEL "Cust Num"      FORMAT "x(8)"
     FIELD custName          AS CHARACTER LABEL "Cust Name"     FORMAT "x(25)"

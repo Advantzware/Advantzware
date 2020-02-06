@@ -1,18 +1,20 @@
 /* dynWidgets.i - rstark - 2.22.20109 */
 
-DEFINE VARIABLE cAction       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInitialItems AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInitialValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParamLabel   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParamName    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dParamHeight  AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dParamWidth   AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lIsVisible    AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE lMovable      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lResizable    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lSelectable   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lSensitive    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lShowLabel    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAction         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInitialItems   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInitialValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamLabel     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamName      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dParamHeight    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dParamWidth     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lIsVisible      AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lMovable        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lResizable      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSelectable     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSensitive      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowLabel      AS LOGICAL   NO-UNDO.
+
+/* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pButtonCalendar:
     DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
@@ -111,6 +113,7 @@ PROCEDURE pComboBox:
         RESIZABLE = lResizable
         SELECTABLE = lSelectable
     TRIGGERS:
+      {AOA/includes/cursorTriggers.i "{2}"}
       ON START-MOVE
         PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
       ON START-RESIZE
@@ -512,12 +515,13 @@ PROCEDURE pEditor:
             RESIZABLE = lResizable
             SELECTABLE = lSelectable
         TRIGGERS:
+          {AOA/includes/cursorTriggers.i "{2}"}
           ON START-MOVE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON LEAVE
-            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget).
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
@@ -566,12 +570,13 @@ PROCEDURE pFillIn:
             RESIZABLE = lResizable
             SELECTABLE = lSelectable
         TRIGGERS:
+          {AOA/includes/cursorTriggers.i "{2}"}
           ON START-MOVE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON LEAVE
-            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget).
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
@@ -612,6 +617,20 @@ PROCEDURE pFrame:
             FGCOLOR = IF iplIsVisible THEN ? ELSE 15
             HIDDEN = YES
         TRIGGERS:
+          &IF "{2}" EQ "SubjectBuilder" &THEN
+          ON CURSOR-DOWN
+            PERSISTENT RUN pFrameMove IN THIS-PROCEDURE (iphFrame, "Down").
+          ON CURSOR-LEFT
+            PERSISTENT RUN pFrameMove IN THIS-PROCEDURE (iphFrame, "Left").
+          ON CURSOR-RIGHT
+            PERSISTENT RUN pFrameMove IN THIS-PROCEDURE (iphFrame, "Right").
+          ON CURSOR-UP
+            PERSISTENT RUN pFrameMove IN THIS-PROCEDURE (iphFrame, "Up").
+          &ENDIF
+          &IF "{2}" EQ "ParamBuilder" &THEN
+          ON MOUSE-SELECT-DBLCLICK
+            PERSISTENT RUN pMouseSelectDBLClick IN THIS-PROCEDURE (ophWidget).
+          &ENDIF
           ON END-RESIZE
             PERSISTENT RUN pFrameResize IN THIS-PROCEDURE (ophWidget).
           ON START-MOVE
@@ -622,6 +641,75 @@ PROCEDURE pFrame:
         IF iplResizable THEN
         ophWidget:TITLE = ipcTitle.
 END PROCEDURE.
+
+&IF "{2}" EQ "SubjectBuilder" &THEN
+PROCEDURE pFrameMove:
+    DEFINE INPUT PARAMETER iphFrame  AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMove   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    
+    ASSIGN
+        hWidget = iphFrame:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:SELECTED THEN
+        CASE ipcMove:
+            WHEN "Down"  THEN
+                IF hWidget:ROW + hWidget:HEIGHT + iphFrame:GRID-UNIT-HEIGHT-CHARS - 1 LT iphFrame:HEIGHT THEN
+                hWidget:ROW = hWidget:ROW + iphFrame:GRID-UNIT-HEIGHT-CHARS.
+            WHEN "Left"  THEN
+                IF hWidget:COL - iphFrame:GRID-UNIT-WIDTH-CHARS GE 1 THEN
+                hWidget:COL = hWidget:COL - iphFrame:GRID-UNIT-WIDTH-CHARS.
+            WHEN "Right" THEN
+                IF hWidget:COL + hWidget:WIDTH + iphFrame:GRID-UNIT-WIDTH-CHARS - 1 LT iphFrame:WIDTH THEN
+                hWidget:COL = hWidget:COL + iphFrame:GRID-UNIT-WIDTH-CHARS.
+            WHEN "Up"    THEN
+                IF hWidget:ROW - iphFrame:GRID-UNIT-HEIGHT-CHARS GE 1 THEN
+                hWidget:ROW = hWidget:ROW - iphFrame:GRID-UNIT-HEIGHT-CHARS.
+        END CASE.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+    RUN pSetSaveReset (YES).
+
+END PROCEDURE.
+&ENDIF
+
+&IF "{2}" EQ "ParamBuilder" &THEN
+PROCEDURE pMouseSelectDBLClick:
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    
+    ASSIGN
+        hWidget = iphFrame:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:TYPE NE "RECTANGLE" THEN DO:
+            IF hWidget:ROW + hWidget:HEIGHT GT dHeight THEN
+            dHeight = hWidget:ROW + hWidget:HEIGHT.
+            IF hWidget:COL + hWidget:WIDTH  GT dWidth  THEN
+            dWidth  = hWidget:COL + hWidget:WIDTH.
+        END. /* if ne rectangle */
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+    ASSIGN
+        iphFrame:VIRTUAL-HEIGHT = dHeight + .38
+        iphFrame:HEIGHT         = iphFrame:VIRTUAL-HEIGHT
+        iphFrame:VIRTUAL-WIDTH  = dWidth  + 1
+        iphFrame:WIDTH          = iphFrame:VIRTUAL-WIDTH
+        .
+    RUN pFrameResize (iphFrame).
+
+END PROCEDURE.
+&ENDIF
 
 PROCEDURE pPickList:
     DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
@@ -697,12 +785,13 @@ PROCEDURE pRadioSet:
             RESIZABLE = lResizable
             SELECTABLE = lSelectable
         TRIGGERS:
+          {AOA/includes/cursorTriggers.i "{2}"}
           ON START-MOVE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
-            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget).
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
@@ -774,12 +863,13 @@ PROCEDURE pSelectionList:
         RESIZABLE = lResizable
         SELECTABLE = lSelectable
     TRIGGERS:
-          ON START-MOVE
-            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
-          ON START-RESIZE
-            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
-          ON VALUE-CHANGED
-            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+      {AOA/includes/cursorTriggers.i "{2}"}
+      ON START-MOVE
+        PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+      ON START-RESIZE
+        PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+      ON VALUE-CHANGED
+        PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget).
     END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
@@ -844,11 +934,111 @@ PROCEDURE pToggleBox:
             RESIZABLE = lResizable
             SELECTABLE = lSelectable
         TRIGGERS:
+          {AOA/includes/cursorTriggers.i "{2}"}
           ON START-MOVE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
-            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget).
         END TRIGGERS.
 END PROCEDURE.
+
+&IF "{2}" EQ "ParamBuilder" &THEN
+PROCEDURE pWidgetMove:
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMove  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    
+    ASSIGN
+        hWidget = iphFrame:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:SELECTED THEN
+        CASE ipcMove:
+            WHEN "Down"  THEN
+                IF hWidget:ROW + hWidget:HEIGHT + iphFrame:GRID-UNIT-HEIGHT-CHARS LT iphFrame:HEIGHT THEN
+                hWidget:ROW = hWidget:ROW + iphFrame:GRID-UNIT-HEIGHT-CHARS.
+            WHEN "Left"  THEN
+                IF hWidget:COL - iphFrame:GRID-UNIT-WIDTH-CHARS GE 1 THEN
+                hWidget:COL = hWidget:COL - iphFrame:GRID-UNIT-WIDTH-CHARS.
+            WHEN "Right" THEN
+                IF hWidget:COL + hWidget:WIDTH + iphFrame:GRID-UNIT-WIDTH-CHARS - 1 LT iphFrame:WIDTH THEN
+                hWidget:COL = hWidget:COL + iphFrame:GRID-UNIT-WIDTH-CHARS.
+            WHEN "Up"    THEN
+                IF hWidget:ROW - iphFrame:GRID-UNIT-HEIGHT-CHARS GE 1 THEN
+                hWidget:ROW = hWidget:ROW - iphFrame:GRID-UNIT-HEIGHT-CHARS.
+        END CASE.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+    RUN pSetSaveReset (YES).
+
+END PROCEDURE.
+&ENDIF
+
+&IF "{2}" EQ "ParamBuilder" &THEN
+PROCEDURE pWidgetSize:
+    DEFINE INPUT PARAMETER iphFrame AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMove  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    
+    IF iphFrame:SELECTED THEN DO:
+        CASE ipcMove:
+            WHEN "Down"  THEN
+            ASSIGN
+                iphFrame:VIRTUAL-HEIGHT = iphFrame:VIRTUAL-HEIGHT + iphFrame:GRID-UNIT-HEIGHT-CHARS
+                iphFrame:HEIGHT         = iphFrame:VIRTUAL-HEIGHT
+                .
+            WHEN "Left"  THEN
+            ASSIGN
+                iphFrame:VIRTUAL-WIDTH  = iphFrame:VIRTUAL-WIDTH  - iphFrame:GRID-UNIT-WIDTH-CHARS
+                iphFrame:WIDTH          = iphFrame:VIRTUAL-WIDTH
+                .
+            WHEN "Right" THEN
+            ASSIGN
+                iphFrame:VIRTUAL-WIDTH  = iphFrame:VIRTUAL-WIDTH  + iphFrame:GRID-UNIT-WIDTH-CHARS
+                iphFrame:WIDTH          = iphFrame:VIRTUAL-WIDTH
+                .
+            WHEN "Up"    THEN
+            ASSIGN
+                iphFrame:VIRTUAL-HEIGHT = iphFrame:VIRTUAL-HEIGHT - iphFrame:GRID-UNIT-HEIGHT-CHARS
+                iphFrame:HEIGHT         = iphFrame:VIRTUAL-HEIGHT
+                .
+        END CASE.
+        RUN pFrameResize (iphFrame).
+    END. /* if selected */
+    ELSE DO:
+        ASSIGN
+            hWidget = iphFrame:HANDLE
+            hWidget = hWidget:FIRST-CHILD
+            hWidget = hWidget:FIRST-CHILD
+            .
+        DO WHILE VALID-HANDLE(hWidget):
+            IF hWidget:SELECTED THEN
+            CASE ipcMove:
+                WHEN "Down"  THEN
+                    IF hWidget:ROW + hWidget:HEIGHT + iphFrame:GRID-UNIT-HEIGHT-CHARS LT iphFrame:HEIGHT THEN
+                    hWidget:HEIGHT = hWidget:HEIGHT + iphFrame:GRID-UNIT-HEIGHT-CHARS.
+                WHEN "Left"  THEN
+                    IF hWidget:WIDTH - iphFrame:GRID-UNIT-WIDTH-CHARS GE 1 THEN
+                    hWidget:WIDTH = hWidget:WIDTH - iphFrame:GRID-UNIT-WIDTH-CHARS.
+                WHEN "Right" THEN
+                    IF hWidget:COL + hWidget:WIDTH + iphFrame:GRID-UNIT-WIDTH-CHARS LT iphFrame:WIDTH THEN
+                    hWidget:WIDTH = hWidget:WIDTH + iphFrame:GRID-UNIT-WIDTH-CHARS.
+                WHEN "Up"    THEN
+                    IF hWidget:HEIGHT - iphFrame:GRID-UNIT-HEIGHT-CHARS GE 1 THEN
+                    hWidget:HEIGHT = hWidget:HEIGHT - iphFrame:GRID-UNIT-HEIGHT-CHARS.
+            END CASE.
+            hWidget = hWidget:NEXT-SIBLING.
+        END. /* do while */
+    END. /* else */
+    RUN pSetSaveReset (YES).
+
+END PROCEDURE.
+&ENDIF

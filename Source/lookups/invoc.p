@@ -25,7 +25,7 @@
 &Scoped-define font 3
 &Scoped-define height-size 19
 &Scoped-define width-size 60
-&Scoped-define show-fields inv-head.inv-no inv-head.bill-to inv-head.printed inv-head.bol-no
+&Scoped-define show-fields inv-head.inv-no FORMAT ">>>>>>9" inv-head.bill-to inv-head.printed inv-head.bol-no
 &Scoped-define show-fields-yellow inv-head.inv-no LABEL-BGCOLOR 14 inv-head.bill-to LABEL-BGCOLOR 14 inv-head.printed LABEL-BGCOLOR 14 inv-head.bol-no LABEL-BGCOLOR 14
 &Scoped-define frame-title 
 &Scoped-define top-include ~{sys/inc/varasgn.i}
@@ -44,7 +44,7 @@
 &Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
-&Global-define FORMAT-1 >>>>>9
+&Global-define FORMAT-1 >>>>>>9
 &Scoped-define FLDNAME1 inv-head.inv-no
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
 &Scoped-define DESCRIP1 Invoice Number

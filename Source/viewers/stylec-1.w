@@ -71,26 +71,26 @@ DEFINE QUERY external_tables FOR style, flute.
 &Scoped-Define ENABLED-FIELDS style.formula[1] style.formula[2] ~
 style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
 style.formula[7] style.formula[8] style.kdf-width style.kdf-length ~
-style.balecount style.formula[12] style.use-w[2] style.use-w[3] ~
-style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] ~
-style.use-w[9] style.use-w[10] style.use-w[11] style.use-w[12] ~
-style.use-w[13] style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] ~
-style.use-l[6] style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] style.sqft-len-trim ~
-style.sqft-wid-trim 
+style.formula[20] style.balecount style.sqft-len-trim style.sqft-wid-trim ~
+style.formula[12] style.use-w[2] style.use-w[3] style.use-w[4] ~
+style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
+style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
+style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
+style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
+style.use-l[11] style.use-l[12] style.use-l[13] 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-16 
 &Scoped-Define DISPLAYED-FIELDS style.formula[1] style.formula[2] ~
 style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
 style.formula[7] style.formula[8] style.kdf-width style.kdf-length ~
-style.balecount style.formula[12] style.use-w[2] style.use-w[3] ~
-style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] ~
-style.use-w[9] style.use-w[10] style.use-w[11] style.use-w[12] ~
-style.use-w[13] style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] ~
-style.use-l[6] style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] style.sqft-len-trim ~
-style.sqft-wid-trim 
+style.formula[20] style.balecount style.sqft-len-trim style.sqft-wid-trim ~
+style.formula[12] style.use-w[2] style.use-w[3] style.use-w[4] ~
+style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
+style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
+style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
+style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
+style.use-l[11] style.use-l[12] style.use-l[13] 
 &Scoped-define DISPLAYED-TABLES style
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-Define DISPLAYED-OBJECTS ld-box-fit 
@@ -142,58 +142,73 @@ DEFINE RECTANGLE RECT-16
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     style.formula[1] AT ROW 2.67 COL 18 COLON-ALIGNED
-          LABEL "Formula 1 W" FORMAT "x(80)"
+     style.formula[1] AT ROW 1.29 COL 24.6 COLON-ALIGNED
+          LABEL "Blank Formula 1 W" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 118 BY 1
+          SIZE 93 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[2] AT ROW 3.62 COL 18 COLON-ALIGNED
+     style.formula[2] AT ROW 2.24 COL 24.6 COLON-ALIGNED
           LABEL " L" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 118 BY 1
+          SIZE 93 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[3] AT ROW 4.57 COL 18 COLON-ALIGNED
-          LABEL "Formula 2 W" FORMAT "x(80)"
+     style.formula[3] AT ROW 3.19 COL 24.6 COLON-ALIGNED
+          LABEL "Blank Formula 2 W" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 118 BY 1
+          SIZE 93 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[4] AT ROW 5.52 COL 18 COLON-ALIGNED
+     style.formula[4] AT ROW 4.14 COL 24.6 COLON-ALIGNED
           LABEL "L" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 118 BY 1
+          SIZE 93 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[5] AT ROW 6.48 COL 18 COLON-ALIGNED
-          LABEL "Formula 3 W" FORMAT "x(80)"
+     style.formula[5] AT ROW 5.1 COL 24.6 COLON-ALIGNED
+          LABEL "Blank Formula 3 W" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 118 BY 1
+          SIZE 93 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[6] AT ROW 7.43 COL 18 COLON-ALIGNED
+     style.formula[6] AT ROW 6.05 COL 24.6 COLON-ALIGNED
           LABEL "L" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 118 BY 1
+          SIZE 93 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[7] AT ROW 8.62 COL 18 COLON-ALIGNED
+     style.formula[7] AT ROW 7.24 COL 24.4 COLON-ALIGNED
           LABEL "Square Feet W"
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
           BGCOLOR 15 FONT 4
-     style.formula[8] AT ROW 9.57 COL 18 COLON-ALIGNED
+     style.formula[8] AT ROW 8.19 COL 24.4 COLON-ALIGNED
           LABEL "L"
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
           BGCOLOR 15 FONT 4
-     style.kdf-width AT ROW 10.76 COL 18 COLON-ALIGNED
+     style.kdf-width AT ROW 9.33 COL 24.4 COLON-ALIGNED
           LABEL "KDF W"
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
-     style.kdf-length AT ROW 11.71 COL 18 COLON-ALIGNED
+          BGCOLOR 15 
+     style.kdf-length AT ROW 10.29 COL 24.4 COLON-ALIGNED
           LABEL "L"
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
-     ld-box-fit AT ROW 12.91 COL 18 COLON-ALIGNED
-     style.balecount AT ROW 12.91 COL 51 COLON-ALIGNED
+          BGCOLOR 15 
+     style.formula[20] AT ROW 11.48 COL 24.4 COLON-ALIGNED WIDGET-ID 6
+          LABEL "2 Up W"
+          VIEW-AS FILL-IN 
+          SIZE 36 BY 1
+          BGCOLOR 15 
+     ld-box-fit AT ROW 12.71 COL 24.4 COLON-ALIGNED
+     style.balecount AT ROW 12.71 COL 57.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
+     style.sqft-len-trim AT ROW 13.91 COL 24.4 COLON-ALIGNED HELP
+          "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2 FORMAT ">>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+     style.sqft-wid-trim AT ROW 13.91 COL 51.4 COLON-ALIGNED HELP
+          "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4 FORMAT ">>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
      style.formula[12] AT ROW 9.57 COL 77 COLON-ALIGNED
           LABEL "Die Rule" FORMAT "x(25)"
           VIEW-AS FILL-IN 
@@ -219,6 +234,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      style.use-w[7] AT ROW 11.48 COL 98 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -235,13 +257,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      style.use-w[11] AT ROW 11.48 COL 114 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -303,26 +318,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.sqft-len-trim AT ROW 14.1 COL 18 COLON-ALIGNED HELP
-          "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2 FORMAT ">>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-     style.sqft-wid-trim AT ROW 14.1 COL 45 COLON-ALIGNED HELP
-          "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4 FORMAT ">>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
      "5" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 93
-     "3" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 85
-     "7" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 101
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 124
-     "3" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 85
-     "6" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 97
+     "5" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 93
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 116
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -330,18 +333,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 112
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 81
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 120
-     "5" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 93
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 116
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 81
      "4" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 12.67 COL 89
      "# On Wid" VIEW-AS TEXT
@@ -354,8 +345,8 @@ DEFINE FRAME F-Main
           SIZE 13 BY .62 AT ROW 10.76 COL 67
      "8" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 12.67 COL 105
-     "LAYOUT FORMULAS" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 1.48 COL 5
+     "3" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 85
      "4" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 89
      "9" VIEW-AS TEXT
@@ -374,6 +365,20 @@ DEFINE FRAME F-Main
           SIZE 19 BY .62 AT ROW 8.62 COL 72
      "11" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 116
+     "7" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 101
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 124
+     "3" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 85
+     "6" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 97
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 112
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 81
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 120
      RECT-16 AT ROW 8.86 COL 65
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -441,6 +446,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[1] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN style.formula[20] IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.formula[2] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[3] IN FRAME F-Main
@@ -482,7 +489,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -499,7 +506,6 @@ DO:
    end.
    {&methods/lValidateError.i NO} 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -777,7 +783,6 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   disable ld-box-fit with frame {&frame-name}.
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

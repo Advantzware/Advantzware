@@ -181,7 +181,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-cashl.inv-no FORMAT ">>>>>9":U WIDTH 14.2
+      ar-cashl.inv-no FORMAT ">>>>>>9":U WIDTH 14.2
       ar-cashl.inv-date COLUMN-LABEL "Invoice Date" FORMAT "99/99/9999":U
             WIDTH 18.2
       ar-cashl.amt-due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
@@ -192,7 +192,7 @@ DEFINE BROWSE Browser-Table
       ar-cashl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
       display-account() @ account_dscr COLUMN-LABEL "Account Description"
       ar-cashl.dscr COLUMN-LABEL "Memo Description" FORMAT "x(45)":U
-      ar-cashl.rec_key COLUMN-LABEL "" FORMAT "X(20)":U
+      ar-cashl.rec_key COLUMN-LABEL "" FORMAT "X(21)":U
   ENABLE
       ar-cashl.inv-no
       ar-cashl.inv-date
@@ -280,7 +280,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -301,7 +301,7 @@ ASSIGN
      _TblOptList       = "USED,"
      _JoinCode[1]      = "ar-cashl.c-no eq ar-cash.c-no"
      _FldNameList[1]   > ASI.ar-cashl.inv-no
-"ar-cashl.inv-no" ? ? "integer" ? ? ? ? ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cashl.inv-no" ? ">>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cashl.inv-date
 "ar-cashl.inv-date" "Invoice Date" ? "date" ? ? ? ? ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cashl.amt-due

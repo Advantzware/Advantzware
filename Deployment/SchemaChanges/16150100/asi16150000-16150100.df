@@ -1,0 +1,335 @@
+ADD TABLE "panelDetail"
+  AREA "Data"
+  LABEL "Panel Detail"
+  DESCRIPTION "Panel Detail table to store score and panel size"
+  DUMP-NAME "paneldetail"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\panelDetail.p" CRC "39945" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\panelDetail.p" CRC "50034" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\panelDetail.p" CRC "63087" 
+
+ADD FIELD "rec_key" OF "panelDetail" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "rec_key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "rec_key"
+  ORDER 10
+
+ADD FIELD "company" OF "panelDetail" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company Code"
+  POSITION 3
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company Code"
+  ORDER 20
+
+ADD FIELD "panelHeaderID" OF "panelDetail" AS int64 
+  DESCRIPTION "Panel Header ID"
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Panel Header ID"
+  POSITION 4
+  MAX-WIDTH 8
+  COLUMN-LABEL "Panel Header ID"
+  ORDER 30
+
+ADD FIELD "panelType" OF "panelDetail" AS character 
+  DESCRIPTION "Panel Type"
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Panel Type"
+  POSITION 5
+  MAX-WIDTH 2
+  COLUMN-LABEL "Panel Type"
+  ORDER 40
+
+ADD FIELD "panelNo" OF "panelDetail" AS integer 
+  DESCRIPTION "Panel Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Panel Number"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Panel Number"
+  ORDER 50
+
+ADD FIELD "panelFormula" OF "panelDetail" AS character 
+  DESCRIPTION "Panel Formula"
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Panel Formula"
+  POSITION 7
+  MAX-WIDTH 100
+  COLUMN-LABEL "Panel Formula"
+  ORDER 60
+
+ADD FIELD "scoringAllowance" OF "panelDetail" AS decimal 
+  DESCRIPTION "Scoring Allowance"
+  FORMAT ">,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Scoring Allowance"
+  POSITION 8
+  MAX-WIDTH 21
+  COLUMN-LABEL "Scoring Allowance"
+  DECIMALS 6
+  ORDER 70
+
+ADD FIELD "scoreType" OF "panelDetail" AS character 
+  DESCRIPTION "Score Type"
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "Score Type"
+  POSITION 9
+  MAX-WIDTH 2
+  COLUMN-LABEL "Score Type"
+  ORDER 80
+
+ADD FIELD "panelSize" OF "panelDetail" AS decimal 
+  DESCRIPTION "Panel Size"
+  FORMAT ">>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Panel Size"
+  POSITION 10
+  MAX-WIDTH 21
+  COLUMN-LABEL "Panel Size"
+  DECIMALS 6
+  ORDER 90
+
+ADD FIELD "panelSizeFromFormula" OF "panelDetail" AS decimal 
+  DESCRIPTION "Panel Size From Formula"
+  FORMAT ">>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Panel Size From Formula"
+  POSITION 11
+  MAX-WIDTH 21
+  COLUMN-LABEL "Panel Size From Formula"
+  DECIMALS 6
+  ORDER 100
+
+ADD INDEX "panelHeaderType" ON "panelDetail" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "panelHeaderID" ASCENDING 
+  INDEX-FIELD "panelType" ASCENDING 
+  INDEX-FIELD "panelNo" ASCENDING 
+
+ADD INDEX "panelHeaderID" ON "panelDetail" 
+  AREA "Data"
+  INDEX-FIELD "panelHeaderID" ASCENDING 
+
+ADD INDEX "rec_key" ON "panelDetail" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "panelHeader"
+  AREA "Data"
+  LABEL "Panel Header"
+  DESCRIPTION "Panel Header master table"
+  DUMP-NAME "panelheader"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\panelHeader.p" CRC "8619" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\panelHeader.p" CRC "41120" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\panelHeader.p" CRC "49872" 
+
+ADD FIELD "rec_key" OF "panelHeader" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "rec_key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "rec_key"
+  ORDER 10
+
+ADD FIELD "company" OF "panelHeader" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company Code"
+  POSITION 3
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company Code"
+  ORDER 20
+
+ADD FIELD "panelHeaderID" OF "panelHeader" AS int64 
+  DESCRIPTION "Panel Header ID"
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Panel Header ID"
+  POSITION 4
+  MAX-WIDTH 8
+  COLUMN-LABEL "Panel Header ID"
+  ORDER 30
+
+ADD FIELD "linkType" OF "panelHeader" AS character 
+  DESCRIPTION "Link Type"
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "Link Type"
+  POSITION 5
+  MAX-WIDTH 2
+  COLUMN-LABEL "Link Type"
+  HELP "(P)urchase Order, (E)stimate, (S)tyle"
+  ORDER 40
+
+ADD FIELD "poID" OF "panelHeader" AS integer 
+  DESCRIPTION "Purchase Order Number"
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Purchase Order Number"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Purchase Order Number"
+  ORDER 50
+
+ADD FIELD "poLine" OF "panelHeader" AS integer 
+  DESCRIPTION "Purchase Order Line"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Purchase Order Line"
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL "Purchase Order Line"
+  ORDER 60
+
+ADD FIELD "estimateID" OF "panelHeader" AS character 
+  DESCRIPTION "Estimate #"
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 8
+  MAX-WIDTH 10
+  COLUMN-LABEL "Estimate #"
+  ORDER 70
+
+ADD FIELD "formNo" OF "panelHeader" AS integer 
+  DESCRIPTION "Form Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Form Number"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Form Number"
+  ORDER 80
+
+ADD FIELD "blankNo" OF "panelHeader" AS integer 
+  DESCRIPTION "Blank Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Blank Number"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Blank Number"
+  ORDER 90
+
+ADD FIELD "styleID" OF "panelHeader" AS character 
+  DESCRIPTION "Style Code"
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Style Code"
+  POSITION 11
+  MAX-WIDTH 12
+  COLUMN-LABEL "Style Code"
+  ORDER 100
+
+ADD FIELD "fluteID" OF "panelHeader" AS character 
+  DESCRIPTION "Flute ID"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Flute ID"
+  POSITION 12
+  MAX-WIDTH 6
+  COLUMN-LABEL "Flute ID"
+  ORDER 110
+
+ADD FIELD "scoreSetType" OF "panelHeader" AS character 
+  DESCRIPTION "Score Set Type"
+  FORMAT "x(2)"
+  INITIAL ""
+  LABEL "Score Set Type"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL "Score Set Type"
+  ORDER 120
+
+ADD INDEX "panelHeaderID" ON "panelHeader" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "panelHeaderID" ASCENDING 
+
+ADD INDEX "estimateID" ON "panelHeader" 
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "linkType" ASCENDING 
+  INDEX-FIELD "estimateID" ASCENDING 
+  INDEX-FIELD "formNo" ASCENDING 
+  INDEX-FIELD "blankNo" ASCENDING 
+
+ADD INDEX "poID" ON "panelHeader" 
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "linkType" ASCENDING 
+  INDEX-FIELD "poID" ASCENDING 
+  INDEX-FIELD "poLine" ASCENDING 
+
+ADD INDEX "rec_key" ON "panelHeader" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "styleID" ON "panelHeader" 
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "linkType" ASCENDING 
+  INDEX-FIELD "styleID" ASCENDING 
+  INDEX-FIELD "fluteID" ASCENDING 
+  INDEX-FIELD "scoreSetType" ASCENDING 
+
+ADD FIELD "repeatItem" OF "itemfg" AS logical
+  DESCRIPTION "This is a flag that the item will likely repeat, thus overs should be stocked and all sheets should be run.  This can be added to a custom job ticket if desired."
+  FORMAT "yes/no"
+  POSITION 225
+  INITIAL "no"
+  HELP "Assign if item is likely to be repeat ordered"
+  LABEL "Repeat Item"
+  COLUMN-LABEL "Repeat Item"
+  ORDER 2210
+  MAX-WIDTH 1
+
+UPDATE FIELD "price" OF "quoteitm"
+  DECIMALS 6
+
+UPDATE FIELD "price" OF "quoteqty"
+  DECIMALS 6
+
+ADD FIELD "siteID" OF "shipto" AS character
+  DESCRIPTION "Ship to site identifier"
+  FORMAT "x(16)"
+  POSITION 82
+  INITIAL ""
+  HELP "A unique ship to id site identifier"
+  LABEL "Site ID"
+  COLUMN-LABEL "Site ID"
+  ORDER 770
+  MAX-WIDTH 32
+
+ADD INDEX "iSiteID" ON "shipto"
+  AREA "Data"
+  INDEX-FIELD "siteID" ASCENDING
+
+ADD SEQUENCE "panelheaderID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000007936

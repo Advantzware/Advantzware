@@ -892,20 +892,29 @@ DO:
                             no-lock no-error.   
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
-           if avail style and style.type = "f" then  /* foam */
-                 run windows/l-boardf.w (eb.company,lv-ind,lw-focus:screen-value,output char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
-           IF lv-rowid NE ? THEN DO:
-             FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-             IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
-               ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = item.i-no.
-               RUN new-board.
-             END.
-           END.   
-           ELSE
-           IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
-             ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
-             RUN new-board. 
+           IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+              ASSIGN
+                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                .
+              APPLY "ENTRY":U TO ef.board.
+              RUN new-board.
+           END. /* if foam */
+           ELSE DO:
+               run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
+               IF lv-rowid NE ? THEN DO:
+                 FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+                 IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
+                   ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = item.i-no.
+                   RUN new-board.
+                 END.
+               END.   
+               ELSE
+               IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
+                 ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+                 RUN new-board. 
+               END.
            END.
            return no-apply.   
      end.

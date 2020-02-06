@@ -288,7 +288,7 @@ DEFINE QUERY BROWSE-3 FOR
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
   QUERY BROWSE-3 NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>9":U
+      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>9":U
       ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U
       ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U
       ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
@@ -399,7 +399,7 @@ ASSIGN
      _JoinCode[2]      = "asi.ar-inv.x-no = asi.ar-invl.x-no"
      _Where[2]         = "asi.ar-inv.posted"
      _FldNameList[1]   > asi.ar-invl.inv-no
-"ar-invl.inv-no" "Inv#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.inv-no" "Inv#" ">>>>>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.ar-invl.bol-no
 "ar-invl.bol-no" "BOL#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.ar-invl.cust-no
@@ -429,7 +429,7 @@ ASSIGN
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
 
-
+ 
 
 
 

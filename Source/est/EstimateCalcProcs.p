@@ -19,6 +19,7 @@
 
 DEFINE VARIABLE ghVendorCost                          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
@@ -80,6 +81,9 @@ FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     ipdProfitPercent AS DECIMAL,
     ipcPercentType AS CHARACTER) FORWARD.
 
+FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
+	(BUFFER ipbf-eb FOR eb) FORWARD.
+
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER,
     ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
@@ -108,7 +112,8 @@ ASSIGN
 /*THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).       */
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
-
+RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFormula).
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE CalculateEstimate:
@@ -545,16 +550,24 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.freightCostOverridePerCWT = ipbf-eb.fr-out-c
         opbf-estCostItem.freightCostOverridePerM   = ipbf-eb.fr-out-m
         opbf-estCostItem.isPurchased               = ipbf-eb.pur-man
+        opbf-estCostItem.blankWidth                = IF ipbf-eb.t-wid EQ 0 THEN ipbf-eb.wid ELSE ipbf-eb.t-wid
+        opbf-estCostItem.blankLength               = IF ipbf-eb.t-len EQ 0 THEN ipbf-eb.len ELSE ipbf-eb.t-len
+        opbf-estCostItem.blankDepth                = IF ipbf-eb.t-dep EQ 0 THEN ipbf-eb.dep ELSE ipbf-eb.t-dep
+        opbf-estCostItem.blankArea                 = IF ipbf-eb.t-sqin EQ 0 THEN opbf-estCostItem.blankLength * opbf-estCostItem.blankWidth ELSE ipbf-eb.t-sqin
+        opbf-estCostItem.dimLength                 = ipbf-eb.len
+        opbf-estCostItem.dimWidth                  = ipbf-eb.wid
+        opbf-estCostItem.dimDepth                  = ipbf-eb.dep
+        opbf-estCostItem.quantityPerSubUnit        = ipbf-eb.cas-cnt
+        opbf-estCostItem.quantitySubUnitsPerUnit   = ipbf-eb.cas-pal
+        /*Refactor - Calculate Windowing*/
+        opbf-estCostItem.blankAreaNetWindow      = opbf-estCostItem.blankArea                
+        /*Refactor - Hardcoded*/
+        opbf-estCostItem.areaUOM                 = "SQIN"
+        opbf-estCostItem.dimUOM                  = "IN"
+        opbf-estCostItem.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
         .
     
-    IF ipbf-eb.est-type LT 5 THEN
-        opbf-estCostItem.quantityPerSet     = ipbf-eb.cust-%. 
-    ELSE         
-        opbf-estCostItem.quantityPerSet     = ipbf-eb.quantityPerSet.
-    IF opbf-estCostItem.quantityPerSet LT 0 THEN 
-        opbf-estCostItem.quantityPerSet     = ABSOLUTE(1 / opbf-estCostItem.quantityPerSet). 
-    IF opbf-estCostItem.quantityPerSet EQ 0 THEN 
-        opbf-estCostItem.quantityPerSet     = 1 .
+
      
     IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN 
         ASSIGN 
@@ -1390,7 +1403,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         dQtyShipped = ipbf-estCostBlank.quantityRequired
                 
         /*REFACTOR - MSF assumed use blankAreaUOM*/
-        dMSFforEA   = ipbf-estCostBlank.blankAreaNetWindow / 144000  
+        dMSFforEA   = ipbf-estCostItem.blankArea / 144000  
                 
         /*REFACTOR - LBs assumed use weightUOM */
         dLBsforEA   = IF ipbf-estCostItem.freightWeightPerMOverride NE 0 
@@ -1679,13 +1692,17 @@ PROCEDURE pBuildProbe PRIVATE:
             bf-probe.probe-time   = INTEGER(MTIME(ipbf-estCostHeader.calcDateTime) / 1000)
             bf-probe.probe-user   = ipbf-estCostHeader.calculatedBy
             bf-probe.freight      = ipbf-estCostHeader.releaseCount             /* Holds Number of Releases */
-            bf-probe.tot-lbs      = ipbf-estCostHeader.weightTotal
             .
-        
+            
         FOR EACH estCostForm NO-LOCK 
             WHERE estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
             :
-            bf-probe.gsh-qty  = bf-probe.gsh-qty + estCostForm.grossQtyRequiredTotal.
+            ASSIGN 
+                bf-probe.gsh-qty  = bf-probe.gsh-qty + estCostForm.grossQtyRequiredTotal
+                
+                /*.tot-lbs is actually the MSF field*/
+                bf-probe.tot-lbs  = bf-probe.tot-lbs + estCostForm.grossQtyRequiredTotalArea * 1000 //Refactor - assumes Area is MSF
+                .
         END.    
     END.
     ASSIGN 
@@ -1694,9 +1711,13 @@ PROCEDURE pBuildProbe PRIVATE:
         bf-probe.gross-profit = ipbf-estCostHeader.profitPctGross
         bf-probe.net-profit   = ipbf-estCostHeader.profitPctNet 
         bf-probe.sell-price   = ipbf-estCostHeader.sellPrice / dQtyInM
-        bf-probe.spare-dec-1  = ipbf-estCostHeader.costTotalMaterial / dQtyInM           
+        bf-probe.spare-dec-1  = ipbf-estCostHeader.costTotalMaterial / dQtyInM
+        bf-probe.boardCostTotal = ipbf-estCostHeader.costTotalBoard
+        bf-probe.boardCostPerM = ipbf-estCostHeader.costTotalBoard / dQtyInM
         .
-        
+        IF ipbf-estCostHeader.sellPrice GT 0 THEN 
+            bf-probe.boardCostPct  = ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100.
+                    
     FOR EACH estCostItem NO-LOCK
         WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
         AND NOT estCostItem.isSet:
@@ -1750,6 +1771,7 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
     DEFINE BUFFER bf-eb                     FOR eb.
     
     DEFINE BUFFER bfFirstBlank-estCostBlank FOR estCostBlank.
+    DEFINE BUFFER bfComp-estCostBlank FOR estCostBlank.
     
     FIND FIRST bf-estCostHeader NO-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
@@ -1931,7 +1953,7 @@ PROCEDURE pCalculateHeader PRIVATE:
             bf-estCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-estCostHeader NO-LOCK.
         END.                            
-        RUN pCalculateWeights(bf-estCostHeader.estCostHeaderID).
+        RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -2266,12 +2288,12 @@ PROCEDURE pBuildItems PRIVATE:
     FOR EACH eb NO-LOCK 
         WHERE eb.company EQ ipbf-estCostHeader.company
         AND eb.est-no EQ ipbf-estCostHeader.estimateNo
-        BY eb.form-no: 
+        BY eb.form-no DESCENDING: 
         FIND FIRST bf-estCostItem EXCLUSIVE-LOCK
             WHERE bf-estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
             AND bf-estCostItem.customerPart EQ eb.part-no
             NO-ERROR.
-        IF NOT AVAILABLE bf-estCostItem THEN 
+        IF NOT AVAILABLE bf-estCostItem OR eb.form-no EQ 0 THEN 
         DO:
             RUN pAddEstItem(BUFFER eb, BUFFER ipbf-estCostHeader, BUFFER bf-estCostItem).
             IF eb.form-no EQ 0 THEN 
@@ -2290,6 +2312,10 @@ PROCEDURE pBuildItems PRIVATE:
                 END.
                 ASSIGN 
                     bf-estCostItem.isSet = YES
+                    bf-estCostItem.quantityPerSet = 0
+                    bf-estCostItem.blankArea = 0
+                    bf-estCostItem.blankAreaNetWindow = 0
+                    bf-estCostItem.blankAreaWindow = 0
                     iEstItemIDSetHeader  = bf-estCostItem.estCostItemID
                     .
                 RELEASE bf-estCostForm.
@@ -2302,6 +2328,7 @@ PROCEDURE pBuildItems PRIVATE:
             ASSIGN 
                 bf-estCostItem.quantityRequired = bf-estCostItem.quantityRequired + eb.bl-qty
                 bf-estCostItem.quantityYielded  = bf-estCostItem.quantityYielded + eb.yld-qty
+                bf-estCostItem.quantityPerSet   = bf-estCostItem.quantityPerSet + fGetQuantityPerSet(BUFFER eb).
                 .      
         RELEASE bf-estCostItem.
     END. /*Build EstItems*/
@@ -2361,7 +2388,7 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateWeights PRIVATE:
+PROCEDURE pCalculateWeightsAndSizes PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an estCostHeaderID, calculate weight for all blanks, items, forms
      and header based on weight of materials flagged for inclusion
@@ -2378,7 +2405,6 @@ PROCEDURE pCalculateWeights PRIVATE:
     DEFINE VARIABLE dWeightInDefaultUOM         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dBasisWeightInDefaultUOM    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dBlankAreaTotalInDefaultUOM AS DECIMAL NO-UNDO.
-    
     
     
     FOR EACH bf-estCostBlank NO-LOCK 
@@ -2408,7 +2434,7 @@ PROCEDURE pCalculateWeights PRIVATE:
                         //REFACTOR: convert basisweight
                     END.
                     ASSIGN         
-                        bf-estCostItem.weightNet   = bf-estCostItem.weightNet + bf-estCostMaterial.basisWeight * dBlankAreaTotalInDefaultUOM
+                        bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dBasisWeightInDefaultUOM * dBlankAreaTotalInDefaultUOM
                         bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + bf-estCostItem.weightNet
                         .
                     
@@ -2422,15 +2448,10 @@ PROCEDURE pCalculateWeights PRIVATE:
                     //REFACTOR: Convert to default weight UOM
                 END.
                 IF bf-estCostMaterial.addToWeightNet THEN 
-                    ASSIGN 
-                        bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dWeightInDefaultUOM
-                        bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + dWeightInDefaultUOM
-                        .
+                    bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dWeightInDefaultUOM.
                 IF bf-estCostMaterial.addToWeightTare THEN 
-                    ASSIGN 
-                        bf-estCostItem.weightTare  = bf-estCostItem.weightTare + dWeightInDefaultUOM
-                        bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + dWeightInDefaultUOM
-                        .
+                    bf-estCostItem.weightTare  = bf-estCostItem.weightTare + dWeightInDefaultUOM.
+                bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + dWeightInDefaultUOM.
             END.
         END.  /*Each material for blank*/       
     END. /*each blank for header*/
@@ -2439,8 +2460,8 @@ PROCEDURE pCalculateWeights PRIVATE:
     FOR FIRST bf-estCostHeader EXCLUSIVE-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID,
         EACH bf-estCostItem EXCLUSIVE-LOCK 
-        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-        AND NOT bf-estCostItem.isSet:
+        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
+
         ASSIGN 
             bf-estCostHeader.weightTotal = bf-estCostHeader.weightTotal + bf-estCostItem.weightTotal
             bf-estCostHeader.weightNet   = bf-estCostHeader.weightNet + bf-estCostItem.weightNet
@@ -2454,12 +2475,29 @@ PROCEDURE pCalculateWeights PRIVATE:
         FIRST bf-estCostItem EXCLUSIVE-LOCK 
         WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
         AND bf-estCostItem.isSet:
+
         ASSIGN 
             bf-estCostItem.weightTotal = bf-estCostHeader.weightTotal
             bf-estCostItem.weightNet   = bf-estCostHeader.weightNet
             bf-estCostItem.weightTare  = bf-estCostHeader.weightTare
             .
     END. 
+    /*Calc Total MSF for a Set*/
+    FOR FIRST bf-estCostHeader NO-LOCK
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
+        AND bf-estCostHeader.isUnitizedSet,
+        FIRST bfSet-estCostItem EXCLUSIVE-LOCK 
+        WHERE bfSet-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+        AND bfSet-estCostItem.isSet,
+        EACH bf-estCostItem NO-LOCK
+        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHEader.estCostHeaderID:
+            ASSIGN 
+                bfSet-estCostItem.blankArea = bfSet-estCostItem.blankArea + bf-estCostItem.blankArea * bf-estCostItem.quantityPerSet
+                bfSet-estCostItem.blankAreaNetWindow = bfSet-estCostItem.blankAreaNetWindow + bf-estCostItem.blankAreaNetWindow * bf-estCostItem.quantityPerSet
+                bfSet-estCostItem.blankAreaWindow = bfSet-estCostItem.blankAreaWindow + bf-estCostItem.blankAreaWindow * bf-estCostItem.quantityPerSet
+                .
+    END.
+    RELEASE bfSet-estCostItem.
     RELEASE bf-estCostItem.
     RELEASE bf-estCostHeader.
     
@@ -2647,7 +2685,7 @@ PROCEDURE pGetStrapping PRIVATE:
             cStrapUOM = IF stackPattern.strapUOM NE "" THEN stackPattern.strapUOM ELSE "MLI" /*Refactor to use stackPattern.strapUOM*/
             .
             
-        RUN system/FormulaProcs.p (ipbf-eb.company,  /*Company*/
+        RUN ProcessStyleFormula (ipbf-eb.company,  /*Company*/
             cFormula,  /*Formula*/
             ipbf-eb.tr-len,  /*Length*/
             ipbf-eb.tr-wid, /*Width*/
@@ -3340,13 +3378,13 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.handlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
         ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
         
-        ipbf-estCostHeader.special1MarkupPct           = bf-ce-ctrl.spec-%[1] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+        ipbf-estCostHeader.special1MarkupPct           = bf-ce-ctrl.spec-%[1] /*ctrl[4] - already a fraction?*/ 
         ipbf-estCostHeader.special1FlatValue           = 0 /*REFACTOR - treatment of Special Costs*/
         
-        ipbf-estCostHeader.special2MarkupPct           = bf-ce-ctrl.spec-%[2] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+        ipbf-estCostHeader.special2MarkupPct           = bf-ce-ctrl.spec-%[2] /*ctrl[4]*/
         ipbf-estCostHeader.special2FlatValue           = 0
         
-        ipbf-estCostHeader.special3MarkupPct           = bf-ce-ctrl.spec-%[3] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+        ipbf-estCostHeader.special3MarkupPct           = bf-ce-ctrl.spec-%[3] /*ctrl[4]*/ 
         ipbf-estCostHeader.special3FlatValue           = 0
         
         ipbf-estCostHeader.showCommissions             = bf-ce-ctrl.comm-add /*ctrl[5]*/
@@ -3614,7 +3652,7 @@ PROCEDURE pProcessPacking PRIVATE:
         
         ASSIGN  
             iPalletCount                               = IF ttPack.iCountPerUnit EQ 0 THEN ttPack.iCountSubUnitsPerUnit * iCaseCount ELSE ttPack.iCountPerUnit
-            dPalletsProRata                            = bf-estCostBlank.quantityRequired / iPalletCount
+            dPalletsProRata                            = IF iPalletCount NE 0 THEN bf-estCostBlank.quantityRequired / iPalletCount ELSE iPalletCount
             iPallets                                   = fRoundUp(dPalletsProRata * ttPack.dQtyMultiplier) 
             bf-estCostMaterial.addToWeightTare         = YES
             bf-estCostMaterial.quantityRequiredNoWaste = iPallets
@@ -4348,6 +4386,30 @@ FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
 
     RETURN dProfit.
     
+END FUNCTION.
+
+FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
+	(BUFFER ipbf-eb FOR eb):
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
+
+    IF ipbf-eb.est-type LT 5 THEN
+        dQuantityPerSet     = ipbf-eb.cust-%. 
+    ELSE         
+        dQuantityPerSet     = ipbf-eb.quantityPerSet.
+        
+    IF dQuantityPerSet LT 0 THEN 
+        dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
+    IF dQuantityPerSet EQ 0 THEN 
+        dQuantityPerSet     = 1 .
+
+    RETURN dQuantityPerSet.
+
+		
 END FUNCTION.
 
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE

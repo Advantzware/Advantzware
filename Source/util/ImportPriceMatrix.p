@@ -284,78 +284,79 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE dtEffDate AS DATE NO-UNDO.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     
     dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
     
-    FIND FIRST oe-prmtx EXCLUSIVE-LOCK
-        WHERE oe-prmtx.company EQ ipbf-ttImportPriceMatrix.Company
-        AND oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
-        AND oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
-        AND oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
-        AND oe-prmtx.i-no  EQ  ipbf-ttImportPriceMatrix.FGItemID 
-        AND oe-prmtx.eff-date EQ dtEffDate
+    FIND FIRST bf-oe-prmtx EXCLUSIVE-LOCK
+        WHERE bf-oe-prmtx.company EQ ipbf-ttImportPriceMatrix.Company
+        AND bf-oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
+        AND bf-oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
+        AND bf-oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
+        AND bf-oe-prmtx.i-no  EQ  ipbf-ttImportPriceMatrix.FGItemID 
+        AND bf-oe-prmtx.eff-date EQ dtEffDate
         NO-ERROR.
-    IF NOT AVAILABLE oe-prmtx THEN 
+    IF NOT AVAILABLE bf-oe-prmtx THEN 
     DO: 
         iopiAdded = iopiAdded + 1.
                 
-        CREATE oe-prmtx.
+        CREATE bf-oe-prmtx.
         ASSIGN 
-            oe-prmtx.company  = ipbf-ttImportPriceMatrix.Company
-            oe-prmtx.eff-date = dtEffDate
-            oe-prmtx.cust-no  = ipbf-ttImportPriceMatrix.CustomerID 
-            oe-prmtx.custype  = ipbf-ttImportPriceMatrix.CustomerType         
-            oe-prmtx.procat   = ipbf-ttImportPriceMatrix.Category     
-            oe-prmtx.i-no     = ipbf-ttImportPriceMatrix.FGItemID
-            oe-prmtx.meth     = YES         
+            bf-oe-prmtx.company  = ipbf-ttImportPriceMatrix.Company
+            bf-oe-prmtx.eff-date = dtEffDate
+            bf-oe-prmtx.cust-no  = ipbf-ttImportPriceMatrix.CustomerID 
+            bf-oe-prmtx.custype  = ipbf-ttImportPriceMatrix.CustomerType         
+            bf-oe-prmtx.procat   = ipbf-ttImportPriceMatrix.Category     
+            bf-oe-prmtx.i-no     = ipbf-ttImportPriceMatrix.FGItemID
+            bf-oe-prmtx.meth     = YES         
             .
     END. 
-    RUN pAssignValueDate (ipbf-ttImportPriceMatrix.ExpireDate, YES, INPUT-OUTPUT oe-prmtx.exp-date).
-    RUN pAssignValueCToL (ipbf-ttImportPriceMatrix.PriceBasis, "Price", YES, INPUT-OUTPUT oe-prmtx.meth).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.ShipTo, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.custShipID).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity1, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[1]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price1, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[1]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount1, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[1]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM1, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[1]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity2, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[2]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price2, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[2]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount2, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[2]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM2, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[2]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity3, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[3]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price3, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[3]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount3, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[3]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM3, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[3]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity4, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[4]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price4, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[4]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount4, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[4]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM4, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[4]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity5, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[5]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price5, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[5]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount5, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[5]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM5, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[5]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity6, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[6]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price6, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[6]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount6, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[6]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM6, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[6]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity7, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[7]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price7, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[7]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount7, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[7]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM7, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[7]).  
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity8, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[8]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price8, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[8]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount8, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[8]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM8, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[8]).
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity9, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[9]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price9, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[9]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount9, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[9]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM9, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[9]).
-    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.qty[10]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.price[10]).
-    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.discount[10]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM10, iplIgnoreBlanks, INPUT-OUTPUT oe-prmtx.uom[10]).
-    RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT oe-prmtx.online).
+    RUN pAssignValueDate (ipbf-ttImportPriceMatrix.ExpireDate, YES, INPUT-OUTPUT bf-oe-prmtx.exp-date).
+    RUN pAssignValueCToL (ipbf-ttImportPriceMatrix.PriceBasis, "Price", YES, INPUT-OUTPUT bf-oe-prmtx.meth).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.ShipTo, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.custShipID).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity1, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[1]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price1, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[1]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount1, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[1]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM1, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[1]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity2, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[2]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price2, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[2]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount2, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[2]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM2, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[2]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity3, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[3]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price3, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[3]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount3, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[3]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM3, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[3]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity4, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[4]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price4, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[4]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount4, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[4]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM4, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[4]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity5, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[5]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price5, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[5]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount5, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[5]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM5, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[5]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity6, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[6]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price6, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[6]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount6, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[6]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM6, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[6]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity7, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[7]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price7, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[7]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount7, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[7]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM7, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[7]).  
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity8, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[8]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price8, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[8]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount8, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[8]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM8, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[8]).
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity9, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[9]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price9, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[9]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount9, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[9]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM9, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[9]).
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.Quantity10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.qty[10]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Price10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.price[10]).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[10]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[10]).
+    RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT bf-oe-prmtx.online).
 
-    
+    RELEASE bf-oe-prmtx.
 END PROCEDURE.
 
 

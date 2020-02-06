@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define defaultUser _default
-&Scoped-define program-id tasksWin.
+&Scoped-define program-id dynTasks.
 
 /* Parameters Definitions ---                                           */
 
@@ -133,7 +133,6 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS

@@ -761,8 +761,9 @@ DO:
 
                  IF style.type = "f" THEN  /* foam */
                  DO:
-                    RUN windows/l-boardf.w (style.company,lv-ind,ls-cur-val,OUTPUT char-val).
-                    FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = char-val.
+                    RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+                    style.material[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                    APPLY "ENTRY":U TO style.material[1].
                  END.
                  ELSE
                  DO:

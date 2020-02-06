@@ -180,7 +180,7 @@
              tt-report.key-01  = "work-line"
              tt-report.key-02  = if avail fgcat and fgcat.glacc ne ""
                                  then fgcat.glacc else v-ar-sales
-             tt-report.key-03  = string(inv-head.inv-no,"999999")
+             tt-report.key-03  = string(inv-head.inv-no,"9999999")
              tt-report.key-04  = inv-line.i-no
              tt-report.weight  = w-inv-line.weight
              ld-temp-amt       = ld-temp-amt +
@@ -444,7 +444,7 @@
              tt-report.key-01  = "work-misc"
              tt-report.key-02  = IF inv-misc.actnum NE ""
                                  THEN inv-misc.actnum ELSE v-ar-sales
-             tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+             tt-report.key-03  = STRING(inv-head.inv-no,"9999999")
              tt-report.key-04  = inv-misc.charge
              tt-report.key-05  = STRING(inv-misc.amt *
                                         (IF AVAIL currency  THEN
@@ -549,7 +549,7 @@
           assign
            tt-report.term-id = ""
            tt-report.key-01  = "work-disc"
-           tt-report.key-02  = string(inv-head.inv-no,"999999")
+           tt-report.key-02  = string(inv-head.inv-no,"9999999")
            tt-report.key-05  = string(v-inv-disc)
            tt-report.weight  = v-inv-disc-w.
         END.
@@ -582,7 +582,7 @@
              tt-report.term-id = ""
              tt-report.key-01  = "work-tax"
              tt-report.key-02  = account.actnum
-             tt-report.key-03  = string(inv-head.inv-no,"999999")
+             tt-report.key-03  = string(inv-head.inv-no,"9999999")
              tt-report.key-05  = string(inv-head.t-inv-tax *
                                         (IF AVAIL currency  THEN
                                            currency.ex-rate ELSE 1))
@@ -711,7 +711,7 @@
           ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "work-freight"
-           tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+           tt-report.key-02  = STRING(inv-head.inv-no,"9999999")
            tt-report.key-05  = STRING(- ld-temp-amt)
            tt-report.weight  = - v-line-tot-w.
         END.
@@ -727,7 +727,7 @@
           ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "work-cash"
-           tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+           tt-report.key-02  = STRING(inv-head.inv-no,"9999999")
            tt-report.key-05  = STRING(inv-head.t-inv-rev)
            tt-report.weight  = v-line-tot-w.
         END.

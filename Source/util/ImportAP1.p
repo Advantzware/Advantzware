@@ -828,6 +828,8 @@ PROCEDURE pProcessRecord PRIVATE:
         INPUT ROWID(ap-inv), 
         INPUT NO
         ).   
+    FIND CURRENT ap-inv NO-LOCK NO-ERROR .
+    FIND CURRENT ap-invl NO-LOCK NO-ERROR .
 
 END PROCEDURE.
 

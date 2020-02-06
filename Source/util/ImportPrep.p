@@ -95,75 +95,76 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-prep FOR prep.
 
-    FIND FIRST prep EXCLUSIVE-LOCK 
-        WHERE prep.company EQ ipbf-ttImportPrep.Company
-        AND prep.CODE EQ ipbf-ttImportPrep.CODE
+    FIND FIRST bf-prep EXCLUSIVE-LOCK 
+        WHERE bf-prep.company EQ ipbf-ttImportPrep.Company
+        AND bf-prep.CODE EQ ipbf-ttImportPrep.CODE
         NO-ERROR.
 
-    IF NOT AVAILABLE prep THEN 
+    IF NOT AVAILABLE bf-prep THEN 
     DO:
         ASSIGN 
             iopiAdded = iopiAdded + 1.
-        CREATE prep.
+        CREATE bf-prep.
         ASSIGN 
-            prep.company   = ipbf-ttImportPrep.Company
-            prep.loc       = ipbf-ttImportPrep.Location
-            prep.CODE      = ipbf-ttImportPrep.CODE .
+            bf-prep.company   = ipbf-ttImportPrep.Company
+            bf-prep.loc       = ipbf-ttImportPrep.Location
+            bf-prep.CODE      = ipbf-ttImportPrep.CODE .
     END.
                                                                                                                                      
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
-    RUN pAssignValueC (ipbf-ttImportPrep.code, YES, INPUT-OUTPUT prep.code).                                                   
-    RUN pAssignValueC (ipbf-ttImportPrep.dscr, YES, INPUT-OUTPUT prep.dscr).                                                   
-    RUN pAssignValueC (ipbf-ttImportPrep.mat-type, iplIgnoreBlanks, INPUT-OUTPUT prep.mat-type).                               
-    RUN pAssignValueD (ipbf-ttImportPrep.mkup, YES, INPUT-OUTPUT prep.mkup).                                                   
-    RUN pAssignValueD (ipbf-ttImportPrep.cost, YES, INPUT-OUTPUT prep.cost).                                                   
-    RUN pAssignValueC (ipbf-ttImportPrep.amtz, iplIgnoreBlanks, INPUT-OUTPUT prep.amtz).                                       
-    RUN pAssignValueC (ipbf-ttImportPrep.uom, iplIgnoreBlanks, INPUT-OUTPUT prep.uom).                                         
-    RUN pAssignValueC (substring(ipbf-ttImportPrep.simon,1,1), iplIgnoreBlanks, INPUT-OUTPUT prep.simon).                      
-    RUN pAssignValueC (ipbf-ttImportPrep.taxable, iplIgnoreBlanks, INPUT-OUTPUT prep.taxable).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.fgcat, iplIgnoreBlanks, INPUT-OUTPUT prep.fgcat).                                     
-    RUN pAssignValueD (ipbf-ttImportPrep.price, YES, INPUT-OUTPUT prep.price).                                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.commissionable, iplIgnoreBlanks, INPUT-OUTPUT prep.commissionable).                   
-    RUN pAssignValueC (ipbf-ttImportPrep.loc, iplIgnoreBlanks, INPUT-OUTPUT prep.loc).                                         
-    RUN pAssignValueC (ipbf-ttImportPrep.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT prep.loc-bin).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.i-no, iplIgnoreBlanks, INPUT-OUTPUT prep.i-no).                                       
-    RUN pAssignValueC (ipbf-ttImportPrep.vend-no, iplIgnoreBlanks, INPUT-OUTPUT prep.vend-no).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.actnum, iplIgnoreBlanks, INPUT-OUTPUT prep.actnum).                                   
-    RUN pAssignValueC (ipbf-ttImportPrep.cost-type, iplIgnoreBlanks, INPUT-OUTPUT prep.cost-type).                             
-    RUN pAssignValueC (ipbf-ttImportPrep.cust-no, iplIgnoreBlanks, INPUT-OUTPUT prep.cust-no).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.cust-name, iplIgnoreBlanks, INPUT-OUTPUT prep.cust-name).                             
-    RUN pAssignValueC (ipbf-ttImportPrep.owner1, iplIgnoreBlanks, INPUT-OUTPUT prep.owner[1]).                                 
-    RUN pAssignValueI (ipbf-ttImportPrep.owner1%, YES, INPUT-OUTPUT prep.owner-%[1]).                                          
-    RUN pAssignValueI (ipbf-ttImportPrep.number-up, YES, INPUT-OUTPUT prep.number-up).                                         
-    RUN pAssignValueI (ipbf-ttImportPrep.no-of-impressions, YES, INPUT-OUTPUT prep.no-of-impressions).                         
-    RUN pAssignValueC (ipbf-ttImportPrep.owner2, iplIgnoreBlanks, INPUT-OUTPUT prep.owner[2]).                                 
-    RUN pAssignValueI (ipbf-ttImportPrep.owner2%, YES, INPUT-OUTPUT prep.owner-%[2]).                                          
-    RUN pAssignValueC (ipbf-ttImportPrep.cadNo, iplIgnoreBlanks, INPUT-OUTPUT prep.cadNo).                                     
-    RUN pAssignValueC (ipbf-ttImportPrep.cad-image, iplIgnoreBlanks, INPUT-OUTPUT prep.cad-image).                             
-    RUN pAssignValueD (ipbf-ttImportPrep.carton-w, YES, INPUT-OUTPUT prep.carton-w).                                           
-    RUN pAssignValueD (ipbf-ttImportPrep.die-w, YES, INPUT-OUTPUT prep.die-w).                                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.box-style, iplIgnoreBlanks, INPUT-OUTPUT prep.box-style).                             
-    RUN pAssignValueCToDt (ipbf-ttImportPrep.prep-date, iplIgnoreBlanks, INPUT-OUTPUT prep.prep-date).                             
-    RUN pAssignValueI (ipbf-ttImportPrep.prep-time, iplIgnoreBlanks, INPUT-OUTPUT prep.prep-time).                             
-    RUN pAssignValueD (ipbf-ttImportPrep.carton-l, YES, INPUT-OUTPUT prep.carton-l).                                           
-    RUN pAssignValueD (ipbf-ttImportPrep.die-l, YES, INPUT-OUTPUT prep.die-l).                                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.wood-type, YES, INPUT-OUTPUT prep.wood-type).                                         
-    RUN pAssignValueCToDt (ipbf-ttImportPrep.received-date, iplIgnoreBlanks, INPUT-OUTPUT prep.received-date).                     
-    RUN pAssignValueD (ipbf-ttImportPrep.carton-d, YES, INPUT-OUTPUT prep.carton-d).                                           
-    RUN pAssignValueCToDt (ipbf-ttImportPrep.last-date, iplIgnoreBlanks, INPUT-OUTPUT prep.last-date).                         
-    RUN pAssignValueCToDt (ipbf-ttImportPrep.disposal-date, iplIgnoreBlanks, INPUT-OUTPUT prep.disposal-date).                 
-    RUN pAssignValueC (ipbf-ttImportPrep.last-est-no, iplIgnoreBlanks, INPUT-OUTPUT prep.last-est-no).                         
-    RUN pAssignValueI (ipbf-ttImportPrep.last-order, YES, INPUT-OUTPUT prep.last-order).                                       
-    RUN pAssignValueC (ipbf-ttImportPrep.last-job-no, iplIgnoreBlanks, INPUT-OUTPUT prep.last-job-no).                         
-    RUN pAssignValueI (ipbf-ttImportPrep.last-job-no2, YES, INPUT-OUTPUT prep.last-job-no2).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.dfault, iplIgnoreBlanks, INPUT-OUTPUT prep.dfault).                                   
+    RUN pAssignValueC (ipbf-ttImportPrep.code, YES, INPUT-OUTPUT bf-prep.code).                                                   
+    RUN pAssignValueC (ipbf-ttImportPrep.dscr, YES, INPUT-OUTPUT bf-prep.dscr).                                                   
+    RUN pAssignValueC (ipbf-ttImportPrep.mat-type, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.mat-type).                               
+    RUN pAssignValueD (ipbf-ttImportPrep.mkup, YES, INPUT-OUTPUT bf-prep.mkup).                                                   
+    RUN pAssignValueD (ipbf-ttImportPrep.cost, YES, INPUT-OUTPUT bf-prep.cost).                                                   
+    RUN pAssignValueC (ipbf-ttImportPrep.amtz, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.amtz).                                       
+    RUN pAssignValueC (ipbf-ttImportPrep.uom, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.uom).                                         
+    RUN pAssignValueC (substring(ipbf-ttImportPrep.simon,1,1), iplIgnoreBlanks, INPUT-OUTPUT bf-prep.simon).                      
+    RUN pAssignValueC (ipbf-ttImportPrep.taxable, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.taxable).                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.fgcat, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.fgcat).                                     
+    RUN pAssignValueD (ipbf-ttImportPrep.price, YES, INPUT-OUTPUT bf-prep.price).                                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.commissionable, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.commissionable).                   
+    RUN pAssignValueC (ipbf-ttImportPrep.loc, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.loc).                                         
+    RUN pAssignValueC (ipbf-ttImportPrep.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.loc-bin).                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.i-no).                                       
+    RUN pAssignValueC (ipbf-ttImportPrep.vend-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.vend-no).                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.actnum, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.actnum).                                   
+    RUN pAssignValueC (ipbf-ttImportPrep.cost-type, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.cost-type).                             
+    RUN pAssignValueC (ipbf-ttImportPrep.cust-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.cust-no).                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.cust-name, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.cust-name).                             
+    RUN pAssignValueC (ipbf-ttImportPrep.owner1, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.owner[1]).                                 
+    RUN pAssignValueI (ipbf-ttImportPrep.owner1%, YES, INPUT-OUTPUT bf-prep.owner-%[1]).                                          
+    RUN pAssignValueI (ipbf-ttImportPrep.number-up, YES, INPUT-OUTPUT bf-prep.number-up).                                         
+    RUN pAssignValueI (ipbf-ttImportPrep.no-of-impressions, YES, INPUT-OUTPUT bf-prep.no-of-impressions).                         
+    RUN pAssignValueC (ipbf-ttImportPrep.owner2, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.owner[2]).                                 
+    RUN pAssignValueI (ipbf-ttImportPrep.owner2%, YES, INPUT-OUTPUT bf-prep.owner-%[2]).                                          
+    RUN pAssignValueC (ipbf-ttImportPrep.cadNo, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.cadNo).                                     
+    RUN pAssignValueC (ipbf-ttImportPrep.cad-image, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.cad-image).                             
+    RUN pAssignValueD (ipbf-ttImportPrep.carton-w, YES, INPUT-OUTPUT bf-prep.carton-w).                                           
+    RUN pAssignValueD (ipbf-ttImportPrep.die-w, YES, INPUT-OUTPUT bf-prep.die-w).                                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.box-style, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.box-style).                             
+    RUN pAssignValueCToDt (ipbf-ttImportPrep.prep-date, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.prep-date).                             
+    RUN pAssignValueI (ipbf-ttImportPrep.prep-time, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.prep-time).                             
+    RUN pAssignValueD (ipbf-ttImportPrep.carton-l, YES, INPUT-OUTPUT bf-prep.carton-l).                                           
+    RUN pAssignValueD (ipbf-ttImportPrep.die-l, YES, INPUT-OUTPUT bf-prep.die-l).                                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.wood-type, YES, INPUT-OUTPUT bf-prep.wood-type).                                         
+    RUN pAssignValueCToDt (ipbf-ttImportPrep.received-date, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.received-date).                     
+    RUN pAssignValueD (ipbf-ttImportPrep.carton-d, YES, INPUT-OUTPUT bf-prep.carton-d).                                           
+    RUN pAssignValueCToDt (ipbf-ttImportPrep.last-date, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.last-date).                         
+    RUN pAssignValueCToDt (ipbf-ttImportPrep.disposal-date, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.disposal-date).                 
+    RUN pAssignValueC (ipbf-ttImportPrep.last-est-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.last-est-no).                         
+    RUN pAssignValueI (ipbf-ttImportPrep.last-order, YES, INPUT-OUTPUT bf-prep.last-order).                                       
+    RUN pAssignValueC (ipbf-ttImportPrep.last-job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.last-job-no).                         
+    RUN pAssignValueI (ipbf-ttImportPrep.last-job-no2, YES, INPUT-OUTPUT bf-prep.last-job-no2).                                 
+    RUN pAssignValueC (ipbf-ttImportPrep.dfault, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.dfault).                                   
     IF ipbf-ttImportPrep.ml EQ "M" THEN
-        ASSIGN prep.ml = YES.
-    ELSE prep.ml = NO .
+        ASSIGN bf-prep.ml = YES.
+    ELSE bf-prep.ml = NO .
 
 
-
+   RELEASE bf-prep .
                                                                                                                                
                                                                                                                                
 END PROCEDURE.                                                                                                                 

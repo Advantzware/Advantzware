@@ -48,9 +48,9 @@ REPEAT:
         .
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
         IF dynParamValue.isCalcField[idx] THEN DO:
-            cFieldName = dynParamValue.colName[idx].
+            cFullName = dynParamValue.colName[idx].
+            IF dynParamValue.calcProc[idx] NE "" THEN
             RUN spDynCalcField IN hDynCalcField (
                 iphQuery:HANDLE,
                 dynParamValue.calcProc[idx],
@@ -59,15 +59,16 @@ REPEAT:
                 dynParamValue.colFormat[idx],
                 OUTPUT cBufferValue
                 ).
+            ELSE
+            IF dynParamValue.calcFormula[idx] NE "" THEN NEXT.
         END. /* if calc field */
         ELSE
         ASSIGN
             hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))
-            cFullName    = ENTRY(2,dynParamValue.colName[idx],".")
-            cFieldName   = IF INDEX(cFullName,"[") EQ 0 THEN cFullName
-                           ELSE SUBSTRING(cFullName,1,INDEX(cFullName,"[") - 1)
-            cBufferValue = fFormatValue(hQueryBuf, cFullName)
-            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 6, "Web")
+            cFieldName   = ENTRY(2,dynParamValue.colName[idx],".")
+            cBufferValue = fFormatValue(hQueryBuf, cFieldName)
+            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
+            cFullName    = REPLACE(dynParamValue.colName[idx],".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
             .

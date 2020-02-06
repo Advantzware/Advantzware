@@ -232,7 +232,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
             ttItem.InventoryStockID        = hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
             ttItem.Quantity                = hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE
             ttItem.ItemType                = ipcItemType
-            ttItem.StockIDAlias            = IF AVAILABLE loadtag THEN
+            ttItem.tag                     = IF AVAILABLE loadtag THEN
                                                   loadtag.misc-char[1]
                                               ELSE
                                                   ""
@@ -309,7 +309,7 @@ ELSE DO:
             ttItem.InventoryStockID        = hdBuffer:BUFFER-FIELD("tag"):BUFFER-VALUE
             ttItem.Quantity                = hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE
             ttItem.ItemType                = ipcItemType
-            ttItem.StockIDAlias            = IF AVAILABLE loadtag THEN
+            ttItem.tag                     = IF AVAILABLE loadtag THEN
                                                   loadtag.misc-char[1]
                                               ELSE
                                                   ""

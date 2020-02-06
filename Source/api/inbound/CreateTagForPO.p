@@ -23,7 +23,7 @@ DEFINE INPUT  PARAMETER ipcPrimaryID          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcItemType           AS CHARACTER NO-UNDO. 
 DEFINE INPUT  PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit AS DECIMAL   NO-UNDO.
-DEFINE INPUT  PARAMETER ipcStockIDAlias       AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTag                AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcWareHouseID        AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcLocationID         AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUsername           AS CHARACTER NO-UNDO.
@@ -372,7 +372,7 @@ DO TRANSACTION ON ERROR UNDO,LEAVE:
             INPUT  ipcItemType, 
             INPUT  ipdQuantity, 
             INPUT  ipdQuantityPerSubUnit, 
-            INPUT  ipcStockIDAlias, 
+            INPUT  ipcTag, 
             INPUT  iTagNo,
             INPUT  ROWID(po-ordl), 
             OUTPUT opcInventoryStockID
@@ -579,7 +579,7 @@ PROCEDURE pCreateLoadTagForFGItem PRIVATE :
     DEFINE INPUT  PARAMETER ipcItemType           AS CHARACTER NO-UNDO. 
     DEFINE INPUT  PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcStockIDAlias       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag                AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTagNo              AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipriPOOrdl            AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER opcInventoryStockID   AS CHARACTER NO-UNDO.
@@ -619,7 +619,7 @@ PROCEDURE pCreateLoadTagForFGItem PRIVATE :
         loadtag.sts           = "Printed"  
         loadtag.tag-date      = TODAY
         loadtag.tag-time      = TIME
-        loadtag.misc-char[1]  = ipcStockIDAlias
+        loadtag.misc-char[1]  = ipcTag
         loadtag.po-no         = INT(ipiPONo)
         loadtag.line          = ipiPOLine
         loadtag.loc           = ipcWarehouseID

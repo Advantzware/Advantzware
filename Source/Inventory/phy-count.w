@@ -76,7 +76,7 @@ DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttPhysicalBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttPhysicalBrowseInventory.stockIDAlias ttPhysicalBrowseInventory.itemID ttPhysicalBrowseInventory.quantity ttPhysicalBrowseInventory.origQuantity ttPhysicalBrowseInventory.location ttPhysicalBrowseInventory.origLocation ttPhysicalBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttPhysicalBrowseInventory.tag ttPhysicalBrowseInventory.itemID ttPhysicalBrowseInventory.quantity ttPhysicalBrowseInventory.origQuantity ttPhysicalBrowseInventory.location ttPhysicalBrowseInventory.origLocation ttPhysicalBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttPhysicalBrowseInventory BY ttPhysicalBrowseInventory.lastTransTime DESCENDING
@@ -264,7 +264,7 @@ DEFINE QUERY br-table FOR
 DEFINE BROWSE br-table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-table W-Win _FREEFORM
   QUERY br-table DISPLAY
-      ttPhysicalBrowseInventory.stockIDAlias WIDTH 45 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+      ttPhysicalBrowseInventory.tag WIDTH 45 COLUMN-LABEL "Tag #" FORMAT "X(30)"
 ttPhysicalBrowseInventory.itemID WIDTH 35 COLUMN-LABEL "Item" FORMAT "X(15)"
 ttPhysicalBrowseInventory.quantity WIDTH 23 COLUMN-LABEL "Qty"
 ttPhysicalBrowseInventory.origQuantity WIDTH 23 COLUMN-LABEL "Original Qty"
@@ -574,18 +574,18 @@ DO:
     
         IF lReturned THEN DO:
             IF ttPhysicalBrowseInventory.quantity EQ lValue THEN DO:
-                MESSAGE "Adjusted quantity for tag " + ttPhysicalBrowseInventory.stockIDAlias +
+                MESSAGE "Adjusted quantity for tag " + ttPhysicalBrowseInventory.tag +
                         " is same as existing quantity" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
             
-            MESSAGE "Adjust quantity of tag " + ttPhysicalBrowseInventory.stockIDAlias +
+            MESSAGE "Adjust quantity of tag " + ttPhysicalBrowseInventory.tag +
                     " to " + STRING(lValue) "?" VIEW-AS ALERT-BOX QUESTION
                     TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
             IF lContinue THEN
                 RUN pAdjustQuantity (
                     ipcCompany,
-                    ttPhysicalBrowseInventory.stockIDAlias,
+                    ttPhysicalBrowseInventory.tag,
                     lValue
                     ).                     
         END.
@@ -1076,7 +1076,7 @@ PROCEDURE pDelete :
         IF lDelete THEN DO:
             FIND FIRST inventoryTransaction NO-LOCK
                  WHERE inventoryTransaction.company         EQ ttPhysicalBrowseInventory.company
-                   AND inventoryTransaction.stockIDAlias    EQ ttPhysicalBrowseInventory.stockIDAlias
+                   AND inventoryTransaction.tag             EQ ttPhysicalBrowseInventory.tag
                    AND inventoryTransaction.transactionType EQ gcTransactionTypeCompare 
                    NO-ERROR.
             IF AVAILABLE inventoryTransaction THEN
@@ -1238,8 +1238,8 @@ PROCEDURE pSubmitScan :
     END.
     
     FIND FIRST ttPhysicalBrowseInventory NO-LOCK
-         WHERE ttPhysicalBrowseInventory.company         EQ ipcCompany
-           AND ttPhysicalBrowseInventory.stockIDAlias    EQ ipcTag NO-ERROR.
+         WHERE ttPhysicalBrowseInventory.company EQ ipcCompany
+           AND ttPhysicalBrowseInventory.tag     EQ ipcTag NO-ERROR.
     IF AVAILABLE ttPhysicalBrowseInventory THEN        
         ASSIGN
             fiLocation:SCREEN-VALUE      = ttPhysicalBrowseInventory.location
@@ -1279,22 +1279,14 @@ PROCEDURE pTagScan :
         .
 
     FIND FIRST ttPhysicalBrowseInventory NO-LOCK
-         WHERE ttPhysicalBrowseInventory.company         EQ ipcCompany
-           AND ttPhysicalBrowseInventory.stockIDAlias    EQ ipcTag NO-ERROR.
+         WHERE ttPhysicalBrowseInventory.company EQ ipcCompany
+           AND ttPhysicalBrowseInventory.tag     EQ ipcTag 
+		 NO-ERROR.
 
     FIND FIRST inventoryStockSnapshot NO-LOCK
-         WHERE inventoryStockSnapshot.company      EQ ipcCompany
-           AND inventoryStockSnapshot.stockIDAlias EQ ipcTag  NO-ERROR.
-           
-    IF NOT AVAILABLE inventoryStockSnapshot THEN DO:
-        FIND FIRST inventoryStockAlias NO-LOCK
-             WHERE inventoryStockAlias.company      EQ ipcCompany
-               AND inventoryStockAlias.stockIDAlias EQ ipcTag NO-ERROR.
-        IF AVAILABLE inventoryStockAlias THEN
-            FIND FIRST inventoryStockSnapshot NO-LOCK
-                 WHERE inventoryStockSnapshot.inventoryStockID EQ inventoryStockAlias.inventoryStockID
-                 NO-ERROR.             
-    END.
+         WHERE inventoryStockSnapshot.company EQ ipcCompany
+           AND inventoryStockSnapshot.tag     EQ ipcTag
+		 NO-ERROR.
     
     IF AVAILABLE ttPhysicalBrowseInventory THEN DO:
         ASSIGN
@@ -1326,7 +1318,17 @@ PROCEDURE pTagScan :
     END. 
     ELSE DO:        
         FIND FIRST loadtag NO-LOCK
-             WHERE loadtag.tag-no = ipcTag NO-ERROR.
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ YES
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+        IF NOT AVAILABLE loadtag THEN
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company   EQ ipcCompany
+                   AND loadtag.item-type EQ NO
+                   AND loadtag.tag-no    EQ ipcTag
+                 NO-ERROR.
+                 
         IF NOT AVAILABLE loadtag THEN DO:
             MESSAGE "Invalid Tag" VIEW-AS ALERT-BOX ERROR.
             fiTagMessage:SCREEN-VALUE = "* Tag Not Found".

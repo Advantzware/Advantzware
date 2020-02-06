@@ -146,7 +146,7 @@ DEFINE VARIABLE FI-industrial AS DECIMAL FORMAT "->>>9.99":U INITIAL 0
      SIZE 14 BY 1
      FGCOLOR 1  NO-UNDO.
 
-DEFINE VARIABLE FI-inv-no AS DECIMAL FORMAT ">>>>>9":U INITIAL 0 
+DEFINE VARIABLE FI-inv-no AS DECIMAL FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "Invoice No." 
       VIEW-AS TEXT 
      SIZE 10.4 BY .62 NO-UNDO.
@@ -213,7 +213,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 DISPLAY
       tt-comm-calc.slsm[1]                                COLUMN-LABEL "SMan"
 tt-comm-calc.cust-no                FORMAT "X(10)"  COLUMN-LABEL "Customer" 
-tt-comm-calc.inv-no                 FORMAT ">>>>>9" COLUMN-LABEL "Invoice!Number"
+tt-comm-calc.inv-no                 FORMAT ">>>>>>9" COLUMN-LABEL "Invoice!Number"
 tt-comm-calc.i-no                   
 tt-comm-calc.procat
 tt-comm-calc.set-sales-price     * tt-comm-calc.set-sell-price-qty  FORMAT "->>,>>>,>>9.99" COLUMN-LABEL "Set!Sales Price"

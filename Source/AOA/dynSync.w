@@ -65,11 +65,14 @@ DEFINE TEMP-TABLE ttDynSync NO-UNDO
             valueAction
             .
 DEFINE TEMP-TABLE ttDefaultValue NO-UNDO
-    FIELD colName   AS CHARACTER
-    FIELD colLabel  AS CHARACTER
-    FIELD colFormat AS CHARACTER
-    FIELD extentIdx AS INTEGER
-    FIELD found     AS LOGICAL
+    FIELD colName       AS CHARACTER
+    FIELD colLabel      AS CHARACTER
+    FIELD colFormat     AS CHARACTER
+    FIELD isReturnValue AS CHARACTER
+    FIELD isSearchable  AS CHARACTER
+    FIELD isSortable    AS CHARACTER
+    FIELD extentIdx     AS INTEGER
+    FIELD found         AS LOGICAL
     .
 {methods/lockWindowUpdate.i}
 
@@ -559,10 +562,13 @@ PROCEDURE pGetSync :
                 LEAVE.
                 CREATE ttDefaultValue.
                 ASSIGN
-                    ttDefaultValue.colName   = dynParamValue.colName[idx]
-                    ttDefaultValue.colLabel  = dynParamValue.colLabel[idx]
-                    ttDefaultValue.colFormat = dynParamValue.colFormat[idx]
-                    ttDefaultValue.extentIdx = idx
+                    ttDefaultValue.colName       = dynParamValue.colName[idx]
+                    ttDefaultValue.colLabel      = dynParamValue.colLabel[idx]
+                    ttDefaultValue.colFormat     = dynParamValue.colFormat[idx]
+                    ttDefaultValue.isReturnValue = STRING(dynParamValue.isReturnValue[idx])
+                    ttDefaultValue.isSearchable  = STRING(dynParamValue.isSearchable[idx])
+                    ttDefaultValue.isSortable    = STRING(dynParamValue.isSortable[idx])
+                    ttDefaultValue.extentIdx     = idx
                     .
             END. /* do idx */
             FOR EACH bDynParamValue NO-LOCK
@@ -583,7 +589,7 @@ PROCEDURE pGetSync :
                          NO-ERROR.
                     IF AVAILABLE ttDefaultValue THEN
                     ttDefaultValue.found = YES.
-                    DO jdx = 1 TO 3:
+                    DO jdx = 1 TO 6:
                         CASE jdx:
                             WHEN 1 THEN DO:
                                 IF AVAILABLE ttDefaultValue THEN
@@ -607,6 +613,30 @@ PROCEDURE pGetSync :
                                 ASSIGN
                                     cCurrentValue = bDynParamValue.colFormat[idx]
                                     cValueType    = "Format"
+                                    .
+                            END.
+                            WHEN 4 THEN DO:
+                                IF AVAILABLE ttDefaultValue THEN
+                                cDefaultValue = ttDefaultValue.isReturnValue.
+                                ASSIGN
+                                    cCurrentValue = STRING(bDynParamValue.isReturnValue[idx])
+                                    cValueType    = "ReturnValue"
+                                    .
+                            END.
+                            WHEN 5 THEN DO:
+                                IF AVAILABLE ttDefaultValue THEN
+                                cDefaultValue = ttDefaultValue.isSearchable.
+                                ASSIGN
+                                    cCurrentValue = STRING(bDynParamValue.isSearchable[idx])
+                                    cValueType    = "Searchable"
+                                    .
+                            END.
+                            WHEN 6 THEN DO:
+                                IF AVAILABLE ttDefaultValue THEN
+                                cDefaultValue = ttDefaultValue.isSortable.
+                                ASSIGN
+                                    cCurrentValue = STRING(bDynParamValue.isSortable[idx])
+                                    cValueType    = "Sortable"
                                     .
                             END.
                         END CASE.
@@ -797,6 +827,7 @@ PROCEDURE pSync :
                      NO-ERROR.
                 IF AVAILABLE bDynParamValue THEN
                 ASSIGN
+                    dynParamValue.calcFormula[idx]    = bDynParamValue.calcFormula[ttDynSync.extentIdx]
                     dynParamValue.calcParam[idx]      = bDynParamValue.calcParam[ttDynSync.extentIdx]
                     dynParamValue.calcProc[idx]       = bDynParamValue.calcProc[ttDynSync.extentIdx]
                     dynParamValue.colFormat[idx]      = bDynParamValue.colFormat[ttDynSync.extentIdx]
@@ -809,6 +840,9 @@ PROCEDURE pSync :
                     dynParamValue.isActive[idx]       = NO
                     dynParamValue.isCalcField[idx]    = bDynParamValue.isCalcField[ttDynSync.extentIdx]
                     dynParamValue.isGroup[idx]        = bDynParamValue.isGroup[ttDynSync.extentIdx]
+                    dynParamValue.isReturnValue[jdx]  = bDynParamValue.isReturnValue[ttDynSync.extentIdx]
+                    dynParamValue.isSearchable[jdx]   = bDynParamValue.isSearchable[ttDynSync.extentIdx]
+                    dynParamValue.isSortable[jdx]     = bDynParamValue.isSortable[ttDynSync.extentIdx]
                     dynParamValue.isVisible[idx]      = bDynParamValue.isVisible[ttDynSync.extentIdx]
                     dynParamValue.paramDataType[idx]  = bDynParamValue.paramDataType[ttDynSync.extentIdx]
                     dynParamValue.paramFormat[idx]    = bDynParamValue.paramFormat[ttDynSync.extentIdx]
@@ -828,6 +862,7 @@ PROCEDURE pSync :
                 IF dynParamValue.colName[idx] EQ ttDynSync.colName THEN
                 DO jdx = idx TO EXTENT(dynParamValue.colName) - 1:
                     ASSIGN
+                        dynParamValue.calcFormula[jdx]    = bDynParamValue.calcFormula[jdx + 1]
                         dynParamValue.calcParam[jdx]      = dynParamValue.calcParam[jdx + 1]
                         dynParamValue.calcProc[jdx]       = dynParamValue.calcProc[jdx + 1]
                         dynParamValue.colFormat[jdx]      = dynParamValue.colFormat[jdx + 1]
@@ -840,6 +875,9 @@ PROCEDURE pSync :
                         dynParamValue.isActive[jdx]       = dynParamValue.isActive[jdx + 1]
                         dynParamValue.isCalcField[jdx]    = dynParamValue.isCalcField[jdx + 1]
                         dynParamValue.isGroup[jdx]        = dynParamValue.isGroup[jdx + 1]
+                        dynParamValue.isReturnValue[jdx]  = dynParamValue.isReturnValue[jdx + 1]
+                        dynParamValue.isSearchable[jdx]   = dynParamValue.isSearchable[jdx + 1]
+                        dynParamValue.isSortable[jdx]     = dynParamValue.isSortable[jdx + 1]
                         dynParamValue.isVisible[jdx]      = dynParamValue.isVisible[jdx + 1]
                         dynParamValue.paramDataType[jdx]  = dynParamValue.paramDataType[jdx + 1]
                         dynParamValue.paramFormat[jdx]    = dynParamValue.paramFormat[jdx + 1]
@@ -859,9 +897,15 @@ PROCEDURE pSync :
                 IF dynParamValue.colName[idx] EQ ttDynSync.colName THEN
                 CASE ttDynSync.valueType:
                     WHEN "Format" THEN
-                    dynParamValue.colFormat[idx] = ttDynSync.defaultValue.
+                    dynParamValue.colFormat[idx]     = ttDynSync.defaultValue.
                     WHEN "Label" THEN
-                    dynParamValue.colLabel[idx]  = ttDynSync.defaultValue.
+                    dynParamValue.colLabel[idx]      = ttDynSync.defaultValue.
+                    WHEN "ReturnValue" THEN
+                    dynParamValue.isReturnValue[idx] = ttDynSync.defaultValue EQ "YES".
+                    WHEN "Searchable" THEN
+                    dynParamValue.isSearchable[idx]  = ttDynSync.defaultValue EQ "YES".
+                    WHEN "Sortable" THEN
+                    dynParamValue.isSortable[idx]    = ttDynSync.defaultValue EQ "YES".
                 END CASE.
             END. /* do idx */
         END CASE.

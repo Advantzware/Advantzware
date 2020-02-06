@@ -57,24 +57,9 @@ RUN ReadRequestData IN hdJSONProcs (
     OUTPUT TABLE ttRequest
     ).
 
-IF NOT oplSuccess THEN DO:   
+IF NOT oplSuccess THEN DO:
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.
-    /* Log the request to APIInboundEvent */
-    RUN api\CreateAPIInboundEvent.p (
-        INPUT  ipcRoute,
-        INPUT  iplcRequestData,
-        INPUT  oplcResponseData,
-        INPUT  oplSuccess,
-        INPUT  opcMessage,
-        INPUT  NOW,
-        INPUT  ipcRequestedBy,
-        INPUT  ipcRecordSource,
-        INPUT  ipcNotes,
-        INPUT  "", /* PayloadID */
-        OUTPUT opcAPIInboundEvent
-        ).
-
-   RETURN.
+    RETURN.
 END.
 
 RUN pProcessInputs (
@@ -95,21 +80,6 @@ ELSE
         opcMessage = "Success"
         .
         
-/* Log the request to APIInboundEvent */
-RUN api\CreateAPIInboundEvent.p (
-    INPUT ipcRoute,
-    INPUT iplcRequestData,
-    INPUT oplcResponseData,
-    INPUT oplSuccess,
-    INPUT opcMessage,
-    INPUT NOW,
-    INPUT ipcRequestedBy,
-    INPUT ipcRecordSource,
-    INPUT ipcNotes,
-    INPUT  "", /* PayloadID */
-    OUTPUT opcAPIInboundEvent
-    ).
-    
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdJSONProcs).
 DELETE PROCEDURE hdJSONProcs.
 
@@ -194,25 +164,7 @@ PROCEDURE pProcessInputs:
         ).
  
     IF NOT oplSuccess THEN
-    DO:
-        oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
-        /* Log the request to APIInboundEvent */
-        RUN api\CreateAPIInboundEvent.p (
-            INPUT  ipcRoute,
-            INPUT  iplcRequestData,
-            INPUT  oplcResponseData,
-            INPUT  oplSuccess,
-            INPUT  opcMessage,
-            INPUT  NOW,
-            INPUT  ipcRequestedBy,
-            INPUT  ipcRecordSource,
-            INPUT  ipcNotes,
-            INPUT  "", /* PayloadID */
-            OUTPUT opcAPIInboundEvent
-            ).
-   
-        RETURN.  
-    END.
+        RETURN.
     
     /* Prepares response using response data from API Inbound configuration*/
     FOR EACH ttItem NO-LOCK:
@@ -224,7 +176,7 @@ PROCEDURE pProcessInputs:
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"InventoryStockID", ttItem.InventoryStockID) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"Quantity",STRING(ttItem.Quantity,"->>>>>>>>9.9<<<<<")) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"ItemType", ttItem.ItemType) NO-ERROR.
-            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StockIDAlias", ttItem.StockIDAlias) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StockIDAlias", ttItem.tag) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityUOM", ttItem.QuantityUOM) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantityPerSubUnit", STRING(ttItem.QuantityPerSubUnit)) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"QuantitySubUnitsPerUnit", STRING(ttItem.QuantitySubUnitsPerUnit)) NO-ERROR.

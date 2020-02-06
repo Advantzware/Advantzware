@@ -332,7 +332,7 @@ DEF BUFFER io-oe-retl FOR oe-retl.
                                  "AR SALE" 
             xtt-report.key-02  = tt-report.key-09
             xtt-report.key-03  = v-ship
-            xtt-report.key-04  = string(ar-invl.inv-no,"999999")
+            xtt-report.key-04  = string(ar-invl.inv-no,"9999999")
             xtt-report.key-05  = v-sman-no
             xtt-report.key-09  = tt-report.key-09.          
            if not v-sort1 then do:
@@ -361,7 +361,7 @@ DEF BUFFER io-oe-retl FOR oe-retl.
        tt-report.key-01 = "MEMO"
        tt-report.key-02 = tt-report.key-09
        tt-report.key-03 = tt-report.key-09
-       tt-report.key-04 = string(ar-cashl.inv-no,"999999")
+       tt-report.key-04 = string(ar-cashl.inv-no,"9999999")
        tt-report.key-05 = cust.sman.
 
       RELEASE oe-reth.

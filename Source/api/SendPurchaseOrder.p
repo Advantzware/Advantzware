@@ -99,6 +99,7 @@
     DEFINE VARIABLE cJobIDFormNo       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineStatus      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityReceived  AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
@@ -262,7 +263,7 @@
                 lcLineData            = STRING(APIOutboundDetail.data)
                 lcConcatLineAdderData = ""
                 cPoLine               = STRING(po-ordl.line)
-                cQuantityOrdered      = STRING(po-ordl.ord-qty)
+                cQuantityOrdered      = STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<")
                 cQuantityUOM          = STRING(po-ordl.pr-qty-uom)
                 cItemType             = STRING(po-ordl.item-type)
                 cItemID               = STRING(po-ordl.i-no)
@@ -270,16 +271,16 @@
                 cItemDesc1            = STRING(po-ordl.dscr[1])
                 cItemDesc2            = STRING(po-ordl.dscr[2])
                 cItemIDVendor         = STRING(po-ordl.vend-i-no)
-                cOverPct              = STRING(po-ordl.over-pct)
-                cUnderPct             = STRING(po-ordl.under-pct)
+                cOverPct              = STRING(po-ordl.over-pct,">>9.99")
+                cUnderPct             = STRING(po-ordl.under-pct,">>9.99")
                 cPoLineDueDate        = STRING(po-ordl.due-date)
-                cItemWidth            = STRING(po-ordl.s-wid)
-                cItemLength           = STRING(po-ordl.s-len)
-                cItemDepth            = STRING(po-ordl.s-dep)
+                cItemWidth            = STRING(po-ordl.s-wid,">>9.9999")
+                cItemLength           = STRING(po-ordl.s-len,">>9.9999")
+                cItemDepth            = STRING(po-ordl.s-dep,">>9.9999")
                 cCostPerUOM           = STRING(po-ordl.cost,"->>>>>>9.99<<<<")
                 cCostUOM              = STRING(po-ordl.pr-uom)
                 cCostSetup            = STRING(po-ordl.setup)
-                cCostDiscount         = STRING(po-ordl.disc)
+                cCostDiscount         = STRING(po-ordl.disc,"->>>>>9.99")
                 cCustomerID           = STRING(po-ordl.cust-no)
                 cOrderNo              = STRING(po-ordl.ord-no)
                 cPoLineStatus         = STRING(po-ordl.stat)
@@ -295,6 +296,7 @@
                 cJobID2               = STRING(po-ordl.job-no2)
                 cJobIDFormNo          = STRING(po-ordl.s-num)
                 cJobIDBlankNo         = STRING(po-ordl.b-num)
+                cQuantityReceived     = STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<")
                 .
 
             FIND FIRST itemfg NO-LOCK
@@ -356,7 +358,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobIDBlankNo", cJobIDBlankNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "whscode", cWhsCode).                
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "unitsperpack", cQtyPerPack).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "purchaseunit", cPurchaseUnit).            
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "purchaseunit", cPurchaseUnit).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityReceived", cQuantityReceived).
                         
             IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
                 /* Fetch adder details for the purchase order line */

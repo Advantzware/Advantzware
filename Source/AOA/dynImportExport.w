@@ -115,11 +115,11 @@ DEFINE TEMP-TABLE ttPrgrms             NO-UNDO
     ~{&OPEN-QUERY-subjectBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectBrowse paramSetBrowse btnExit ~
-lExportSubject btnExport lExportParamSet cImportExportFolder ~
+&Scoped-Define ENABLED-OBJECTS subjectBrowse btnExit paramSetBrowse ~
+lExportSubject btnExport lExportParamSet cImportExportFolder lDefaultOnly ~
 lExportDynLookup lExportDynPageParams btnImport 
 &Scoped-Define DISPLAYED-OBJECTS lExportSubject lExportParamSet ~
-cImportExportFolder lExportDynLookup lExportDynPageParams 
+cImportExportFolder lDefaultOnly lExportDynLookup lExportDynPageParams 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -156,12 +156,17 @@ DEFINE BUTTON btnImport
 DEFINE VARIABLE cImportExportFolder AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\tmp" 
      LABEL "Import/Export Folder" 
      VIEW-AS FILL-IN 
-     SIZE 38 BY 1 NO-UNDO.
+     SIZE 22 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE portRect
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 62 BY 3.57
      BGCOLOR 8 .
+
+DEFINE VARIABLE lDefaultOnly AS LOGICAL INITIAL yes 
+     LABEL "Default Only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lExportDynLookup AS LOGICAL INITIAL no 
      LABEL "Export Dynamic Lookup Table" 
@@ -226,15 +231,16 @@ ttDynSubject.exportSubject
 
 DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 1 COL 2 WIDGET-ID 200
-     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      btnExit AT ROW 27.43 COL 118 HELP
           "Exit Design Layout Window" WIDGET-ID 32
+     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      lExportSubject AT ROW 1.24 COL 55 WIDGET-ID 2
      btnExport AT ROW 27.43 COL 102 HELP
           "Export" WIDGET-ID 26
      lExportParamSet AT ROW 1.24 COL 118 WIDGET-ID 38
      cImportExportFolder AT ROW 26.24 COL 86 COLON-ALIGNED HELP
           "Enter Import~\Export Folder" WIDGET-ID 4
+     lDefaultOnly AT ROW 26.24 COL 111 WIDGET-ID 42
      lExportDynLookup AT ROW 27.43 COL 66 WIDGET-ID 36
      lExportDynPageParams AT ROW 28.38 COL 66 WIDGET-ID 40
      btnImport AT ROW 27.43 COL 110 HELP
@@ -300,7 +306,7 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB subjectBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse subjectBrowse DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse btnExit DEFAULT-FRAME */
 ASSIGN 
        paramSetBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -419,6 +425,17 @@ DO:
         cImportExportFolder:SCREEN-VALUE = cFolder
         cImportExportFolder
         .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lDefaultOnly
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lDefaultOnly C-Win
+ON VALUE-CHANGED OF lDefaultOnly IN FRAME DEFAULT-FRAME /* Default Only */
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -572,11 +589,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lExportSubject lExportParamSet cImportExportFolder lExportDynLookup 
-          lExportDynPageParams 
+  DISPLAY lExportSubject lExportParamSet cImportExportFolder lDefaultOnly 
+          lExportDynLookup lExportDynPageParams 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE subjectBrowse paramSetBrowse btnExit lExportSubject btnExport 
-         lExportParamSet cImportExportFolder lExportDynLookup 
+  ENABLE subjectBrowse btnExit paramSetBrowse lExportSubject btnExport 
+         lExportParamSet cImportExportFolder lDefaultOnly lExportDynLookup 
          lExportDynPageParams btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -645,8 +662,9 @@ PROCEDURE pExport :
                 WHEN "dynParamValue" THEN
                 FOR EACH dynParamValue NO-LOCK
                     WHERE dynParamValue.subjectID EQ bDynSubject.subjectID
-                      AND dynParamValue.user-id   EQ "_default"
                     :
+                    IF lDefaultOnly AND dynParamValue.user-id NE "_default" THEN
+                    NEXT.
                     EXPORT dynParamValue.
                 END. /* each dynParamValue */
             END CASE.

@@ -31,6 +31,7 @@ DEFINE INPUT-OUTPUT PARAMETER iopcDataType    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldFormat AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCalcProc    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCalcParam   AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcCalcFormula AS CHARACTER NO-UNDO.
 DEFINE INPUT        PARAMETER ipcFieldList    AS CHARACTER NO-UNDO.
 DEFINE INPUT        PARAMETER ipcParamList    AS CHARACTER NO-UNDO.
 DEFINE       OUTPUT PARAMETER oplSave         AS LOGICAL   NO-UNDO.
@@ -56,14 +57,16 @@ RUN AOA/spDynCalcField.p PERSISTENT SET iphDynCalcField.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnOK btnAddParameter btnCancel cFieldLabel ~
-cDataType cFieldFormat cCalcParam cParamList cAvailFields cAvailCalcProc 
+cDataType cFieldFormat cCalcParam cParamList cAvailFields cFieldType ~
+cAvailCalcProc cCalcFormula 
 &Scoped-Define DISPLAYED-OBJECTS cFieldName cFieldLabel cDataType ~
-cFieldFormat cCalcParam cParamList cAvailFields cCalcProc cAvailCalcProc 
+cFieldFormat cCalcParam cParamList cAvailFields cFieldType cCalcProc ~
+cAvailCalcProc cCalcFormula 
 
 /* Custom List Definitions                                              */
 /* calcFields,List-2,List-3,List-4,List-5,List-6                        */
 &Scoped-define calcFields cFieldName cFieldLabel cFieldFormat cCalcParam ~
-cCalcProc 
+cCalcProc cCalcFormula 
 &Scoped-define List-3 btnAddParameter 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -107,6 +110,10 @@ DEFINE VARIABLE cParamList AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 36 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cCalcFormula AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 87 BY 7.38 NO-UNDO.
+
 DEFINE VARIABLE cCalcProc AS CHARACTER FORMAT "X(256)":U 
      LABEL "Calc Procedure" 
      VIEW-AS FILL-IN 
@@ -129,13 +136,21 @@ DEFINE VARIABLE cFieldName AS CHARACTER FORMAT "X(256)":U INITIAL "Calc"
      SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE cFieldType AS CHARACTER INITIAL "Formula" 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Calc Params", "Parameter",
+"Calc Formula", "Formula"
+     SIZE 18 BY 2.14 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 17.8 BY 2.38.
 
 DEFINE VARIABLE cAvailCalcProc AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 87 BY 27.14 TOOLTIP "Available Calculated Procedures" NO-UNDO.
+     VIEW-AS SELECTION-LIST SINGLE SORT 
+     SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL 
+     SIZE 87 BY 19.52 TOOLTIP "Available Calculated Procedures" NO-UNDO.
 
 DEFINE VARIABLE cAvailFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
@@ -149,26 +164,34 @@ DEFINE VARIABLE cCalcParam AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnOK AT ROW 9.57 COL 56
+     btnOK AT ROW 27.43 COL 56
      btnAddParameter AT ROW 11.95 COL 54 WIDGET-ID 208
-     btnCancel AT ROW 9.57 COL 64
      cFieldName AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 4
+     btnCancel AT ROW 27.43 COL 64
      cFieldLabel AT ROW 2.43 COL 16 COLON-ALIGNED WIDGET-ID 6
      cDataType AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 210
      cFieldFormat AT ROW 4.81 COL 16 COLON-ALIGNED WIDGET-ID 8
      cCalcParam AT ROW 6 COL 18 NO-LABEL WIDGET-ID 16
      cParamList AT ROW 11.95 COL 16 COLON-ALIGNED WIDGET-ID 24
      cAvailFields AT ROW 13.14 COL 18 NO-LABEL WIDGET-ID 22
+     cFieldType AT ROW 14.33 COL 55 NO-LABEL WIDGET-ID 216
      cCalcProc AT ROW 1.24 COL 72 COLON-ALIGNED WIDGET-ID 10
      cAvailCalcProc AT ROW 2.43 COL 74 NO-LABEL WIDGET-ID 12
-     "Available Fields:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 13.14 COL 2 WIDGET-ID 20
+     cCalcFormula AT ROW 22.19 COL 74 NO-LABEL WIDGET-ID 212
+     "Free Form" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 22.19 COL 61 WIDGET-ID 222
+     "Calc Formula:" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 23.14 COL 61 WIDGET-ID 214
      "Avail Calc Proc:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 2.43 COL 59 WIDGET-ID 14
+     "Available Fields:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 13.14 COL 2 WIDGET-ID 20
      "Calc Params:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 6 COL 5 WIDGET-ID 18
-     RECT-1 AT ROW 9.33 COL 55 WIDGET-ID 2
-     SPACE(88.20) SKIP(17.86)
+     "Copy Field To:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 13.38 COL 55 WIDGET-ID 220
+     RECT-1 AT ROW 27.19 COL 55 WIDGET-ID 2
+     SPACE(88.20) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 
@@ -201,6 +224,8 @@ ASSIGN
 ASSIGN 
        btnAddParameter:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
+/* SETTINGS FOR EDITOR cCalcFormula IN FRAME Dialog-Frame
+   1                                                                    */
 /* SETTINGS FOR SELECTION-LIST cCalcParam IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR FILL-IN cCalcProc IN FRAME Dialog-Frame
@@ -275,11 +300,14 @@ DO:
         APPLY "ENTRY":U TO cFieldFormat.
         RETURN NO-APPLY.
     END. /* if cfieldlabel */
-    IF cCalcProc EQ "" THEN DO:
+    IF cCalcProc EQ "" AND cCalcFormula EQ "" THEN DO:
         MESSAGE
-            "Calculation Procedure cannot be Blank"
+            "Calculation " + cFieldType + " cannot be Blank"
         VIEW-AS ALERT-BOX ERROR.
+        IF cFieldType EQ "Parameter" THEN
         APPLY "ENTRY":U TO cAvailCalcProc.
+        ELSE
+        APPLY "ENTRY":U TO cCalcFormula.
         RETURN NO-APPLY.
     END. /* if cfieldlabel */
     ASSIGN
@@ -289,6 +317,7 @@ DO:
         iopcFieldFormat = cFieldFormat
         iopcCalcProc    = cCalcProc
         iopcCalcParam   = cCalcParam:LIST-ITEMS
+        iopcCalcFormula = cCalcFormula
         oplSave         = YES
         .
 END.
@@ -301,7 +330,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cAvailCalcProc Dialog-Frame
 ON DEFAULT-ACTION OF cAvailCalcProc IN FRAME Dialog-Frame
 DO:
-    cCalcProc:SCREEN-VALUE = ENTRY(1,SELF:SCREEN-VALUE," ").
+    ASSIGN
+        cCalcProc:SCREEN-VALUE = ENTRY(1,SELF:SCREEN-VALUE," ")
+        cCalcProc
+        .
+    IF cCalcProc EQ "<None>" THEN
+    cCalcProc:SCREEN-VALUE = "". 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,9 +346,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cAvailFields Dialog-Frame
 ON DEFAULT-ACTION OF cAvailFields IN FRAME Dialog-Frame
 DO:
-    IF INDEX(cCalcParam:LIST-ITEMS,SELF:SCREEN-VALUE) EQ 0 OR
-       cCalcParam:LIST-ITEMS EQ ? THEN
-    cCalcParam:ADD-LAST(SELF:SCREEN-VALUE).
+    CASE cFieldType:
+        WHEN "Parameter" THEN
+        IF INDEX(cCalcParam:LIST-ITEMS,SELF:SCREEN-VALUE) EQ 0 OR
+           cCalcParam:LIST-ITEMS EQ ? THEN
+        cCalcParam:ADD-LAST(SELF:SCREEN-VALUE).
+        WHEN "Formula" THEN
+        cCalcFormula:INSERT-STRING("$F~{" + REPLACE(SELF:SCREEN-VALUE,".","__") + "}").
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cCalcFormula
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCalcFormula Dialog-Frame
+ON ENTRY OF cCalcFormula IN FRAME Dialog-Frame
+DO:
+    ASSIGN
+        cFieldType:SCREEN-VALUE = "Formula"
+        cFieldType
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,6 +379,19 @@ END.
 ON DEFAULT-ACTION OF cCalcParam IN FRAME Dialog-Frame
 DO:
     SELF:DELETE(SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCalcParam Dialog-Frame
+ON ENTRY OF cCalcParam IN FRAME Dialog-Frame
+DO:
+    ASSIGN
+        cFieldType:SCREEN-VALUE = "Parameter"
+        cFieldType
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,6 +420,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cFieldType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFieldType Dialog-Frame
+ON VALUE-CHANGED OF cFieldType IN FRAME Dialog-Frame
+DO:
+    ASSIGN {&SELF-NAME}.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cParamList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cParamList Dialog-Frame
 ON VALUE-CHANGED OF cParamList IN FRAME Dialog-Frame /* Parameters */
@@ -373,7 +450,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 /* Now enable the interface and wait for the exit condition.            */
@@ -383,6 +460,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN pGetCalcProc.
   RUN enable_UI.
+  IF cCalcProc NE "" THEN
+  ASSIGN
+    cFieldType:SCREEN-VALUE = "Parameter"
+    cFieldType
+    .
   APPLY "VALUE-CHANGED":U TO cFieldName.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -423,10 +505,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cFieldName cFieldLabel cDataType cFieldFormat cCalcParam cParamList 
-          cAvailFields cCalcProc cAvailCalcProc 
+          cAvailFields cFieldType cCalcProc cAvailCalcProc cCalcFormula 
       WITH FRAME Dialog-Frame.
   ENABLE btnOK btnAddParameter btnCancel cFieldLabel cDataType cFieldFormat 
-         cCalcParam cParamList cAvailFields cAvailCalcProc 
+         cCalcParam cParamList cAvailFields cFieldType cAvailCalcProc 
+         cCalcFormula 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -459,9 +542,10 @@ PROCEDURE pGetCalcProc :
             cCalcParam:LIST-ITEMS      = iopcCalcParam
             cAvailFields:LIST-ITEMS    = ipcFieldList
             cAvailCalcProc:DELIMITER   = "|"
-            cAvailCalcProc:LIST-ITEMS  = ?
+            cAvailCalcProc:LIST-ITEMS  = "<None>"
             cParamList:LIST-ITEM-PAIRS = ipcParamList
             cCalcProcList              = iphDynCalcField:INTERNAL-ENTRIES
+            cCalcFormula               = iopcCalcFormula
             .
         IF cParamList:NUM-ITEMS GT 0 THEN
         ASSIGN

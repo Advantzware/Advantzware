@@ -50,8 +50,8 @@ PUT "<|10><R23><C1><#5><FROM><R25><C80><RECT>" SKIP
   "<R23><C45><FROM><R25><C45><LINE>" SKIP
   "<R23><C56><FROM><R25><C56><LINE>" SKIP
   "<R23><C63><FROM><R25><C63><LINE>" SKIP
-  "<R23><C72><FROM><R25><C72><LINE>" SKIP
+  "<R23><C74><FROM><R25><C74><LINE>" SKIP
 .
 
-PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity      Release             Price         UOM " SKIP(1).
+PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity      Release             Price             UOM " SKIP(1).
 PUT "<FCourier New>".

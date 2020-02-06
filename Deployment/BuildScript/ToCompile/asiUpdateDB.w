@@ -553,7 +553,9 @@ PROCEDURE ipBackupDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3).
         
     IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
-    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi" AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
+    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi"
+        AND LENGTH(fiDbName:{&SV}) EQ 11 
+        AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList).
     ELSE ASSIGN 
@@ -1120,14 +1122,18 @@ PROCEDURE ipUpgradeDBs :
         .
 
     IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
-    OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi" AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
+        OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi"
+        AND LENGTH(fiDbName:{&SV}) EQ 11 
+        AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList)
-        cThisPort = ENTRY(iListEntry,cDbPortList).
+        cThisPort = ENTRY(iListEntry,cDbPortList)
+        cPrefix = "asi".
     ELSE ASSIGN 
-        iListEntry = LOOKUP(fiDbName:{&SV},cAudDbList)
+        iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cAudDirList)
-        cThisPort = ENTRY(iListEntry,cAudPortList).
+        cThisPort = ENTRY(iListEntry,cAudPortList)
+        cPrefix = "aud".
 
     IF cPrefix = "asi" 
     AND ipiPatchDbVer LE ipiCurrDbVer THEN DO:

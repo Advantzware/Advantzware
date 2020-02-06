@@ -152,65 +152,66 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportLoadtag FOR ttImportLoadtag.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-loadtag FOR loadtag.
      
     IF AVAILABLE ipbf-ttImportLoadtag THEN DO: 
-        FIND FIRST loadtag EXCLUSIVE-LOCK
-            WHERE loadtag.company EQ ipbf-ttImportLoadtag.company
-            AND loadtag.item-type EQ (IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE)
-            AND loadtag.tag-no EQ ipbf-ttImportLoadtag.tag-no
+        FIND FIRST bf-loadtag EXCLUSIVE-LOCK
+            WHERE bf-loadtag.company EQ ipbf-ttImportLoadtag.company
+            AND bf-loadtag.item-type EQ (IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE)
+            AND bf-loadtag.tag-no EQ ipbf-ttImportLoadtag.tag-no
             NO-ERROR.  
-        IF NOT AVAILABLE loadtag THEN 
+        IF NOT AVAILABLE bf-loadtag THEN 
         DO:
             iopiAdded = iopiAdded + 1.
-            CREATE loadtag.
+            CREATE bf-loadtag.
             
             ASSIGN 
-                loadtag.company      = ipbf-ttImportLoadtag.company
-                loadtag.item-type    = IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE 
-                loadtag.tag-no       = IF SUBSTRING(ipbf-ttImportLoadtag.tag-no,1,1) EQ "#" THEN SUBSTRING(ipbf-ttImportLoadtag.tag-no,2) ELSE ipbf-ttImportLoadtag.tag-no 
-                loadtag.i-name       = ipbf-ttImportLoadtag.i-name
-                loadtag.i-no         = ipbf-ttImportLoadtag.i-no
-                loadtag.tag-time     = IF ipbf-ttImportLoadtag.tag-date NE ? THEN 0 ELSE ?
+                bf-loadtag.company      = ipbf-ttImportLoadtag.company
+                bf-loadtag.item-type    = IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE 
+                bf-loadtag.tag-no       = IF SUBSTRING(ipbf-ttImportLoadtag.tag-no,1,1) EQ "#" THEN SUBSTRING(ipbf-ttImportLoadtag.tag-no,2) ELSE ipbf-ttImportLoadtag.tag-no 
+                bf-loadtag.i-name       = ipbf-ttImportLoadtag.i-name
+                bf-loadtag.i-no         = ipbf-ttImportLoadtag.i-no
+                bf-loadtag.tag-time     = IF ipbf-ttImportLoadtag.tag-date NE ? THEN 0 ELSE ?
                 .
         END.
         
-        RUN pAssignValueC (ipbf-ttImportloadtag.cost-uom, iplIgnoreBlanks, INPUT-OUTPUT loadtag.cost-uom). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.crew, iplIgnoreBlanks, INPUT-OUTPUT loadtag.crew). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.cust-po-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.cust-po-no). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.job-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.job-no).
-        RUN pAssignValueC (ipbf-ttImportloadtag.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT loadtag.loc-bin).
-        RUN pAssignValueC (ipbf-ttImportloadtag.location, iplIgnoreBlanks, INPUT-OUTPUT loadtag.loc).
-        RUN pAssignValueC (ipbf-ttImportloadtag.lot-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-char[2]). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.pallet-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.pallet-no). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.shift, iplIgnoreBlanks, INPUT-OUTPUT loadtag.shift). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.sts, iplIgnoreBlanks, INPUT-OUTPUT loadtag.sts). 
-        RUN pAssignValueC (ipbf-ttImportloadtag.vend-tag, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-char[1]). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.blank-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.blank-no). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.case-bundle, iplIgnoreBlanks, INPUT-OUTPUT loadtag.case-bundle). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.form-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.form-no). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.job-no2, iplIgnoreBlanks, INPUT-OUTPUT loadtag.job-no2). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.line, iplIgnoreBlanks, INPUT-OUTPUT loadtag.line). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.ord-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.ord-no). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.pallet-count, iplIgnoreBlanks, INPUT-OUTPUT loadtag.pallet-count). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.partial, iplIgnoreBlanks, INPUT-OUTPUT loadtag.partial). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.po-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.po-no). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.qty-case, iplIgnoreBlanks, INPUT-OUTPUT loadtag.qty-case). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.tot-cases, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tot-cases). 
-        RUN pAssignValueD (ipbf-ttImportloadtag.unit-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[1]). 
-        RUN pAssignValueD (ipbf-ttImportloadtag.tare-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[2]). 
-        RUN pAssignValueD (ipbf-ttImportloadtag.gross-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[3]). 
-        RUN pAssignValueD (ipbf-ttImportloadtag.qty, iplIgnoreBlanks, INPUT-OUTPUT loadtag.qty). 
-        RUN pAssignValueD (ipbf-ttImportloadtag.std-cost, iplIgnoreBlanks, INPUT-OUTPUT loadtag.std-cost). 
-        RUN pAssignValueCToL (ipbf-ttImportloadtag.completed, "Y", iplIgnoreBlanks, INPUT-OUTPUT loadtag.completed). 
-        RUN pAssignValueCToL (ipbf-ttImportloadtag.is-case-tag, "R", iplIgnoreBlanks, INPUT-OUTPUT loadtag.is-case-tag). 
-        RUN pAssignValueDate (ipbf-ttImportloadtag.tag-date, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tag-date). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.cost-uom, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.cost-uom). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.crew, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.crew). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.cust-po-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.cust-po-no). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.job-no).
+        RUN pAssignValueC (ipbf-ttImportloadtag.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.loc-bin).
+        RUN pAssignValueC (ipbf-ttImportloadtag.location, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.loc).
+        RUN pAssignValueC (ipbf-ttImportloadtag.lot-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.misc-char[2]). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.pallet-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.pallet-no). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.shift, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.shift). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.sts, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.sts). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.vend-tag, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.misc-char[1]). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.blank-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.blank-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.case-bundle, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.case-bundle). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.form-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.form-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.job-no2, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.job-no2). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.line, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.line). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.ord-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.pallet-count, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.pallet-count). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.partial, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.partial). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.po-no, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.po-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.qty-case, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.qty-case). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.tot-cases, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.tot-cases). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.unit-wt, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.misc-dec[1]). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.tare-wt, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.misc-dec[2]). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.gross-wt, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.misc-dec[3]). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.qty, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.qty). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.std-cost, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.std-cost). 
+        RUN pAssignValueCToL (ipbf-ttImportloadtag.completed, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.completed). 
+        RUN pAssignValueCToL (ipbf-ttImportloadtag.is-case-tag, "R", iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.is-case-tag). 
+        RUN pAssignValueDate (ipbf-ttImportloadtag.tag-date, iplIgnoreBlanks, INPUT-OUTPUT bf-loadtag.tag-date). 
 
         ASSIGN
-            loadtag.upd-date     = today
-            loadtag.upd-time     = time
+            bf-loadtag.upd-date     = today
+            bf-loadtag.upd-time     = time
             .
             
-        RELEASE loadtag.
+        RELEASE bf-loadtag.
     END.
     
 END PROCEDURE.

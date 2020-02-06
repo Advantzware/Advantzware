@@ -92,7 +92,7 @@ DEFINE VARIABLE cValidateJobNo      AS         CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory WHERE ttBrowseInventory.inventoryStatus EQ "On-Hand" BY ttBrowseInventory.LastTransTime DESCENDING
@@ -281,7 +281,7 @@ DEFINE BROWSE br-table
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand"
       ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original"      
 ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-ttBrowseInventory.stockIDAlias WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
 ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
 ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
@@ -1282,7 +1282,7 @@ PROCEDURE locationScan :
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWarehouseID  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStockIDAlias AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag          AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lValidLoc            AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lValidInventoryStock AS LOGICAL NO-UNDO.
@@ -1296,8 +1296,9 @@ PROCEDURE locationScan :
 
     FIND FIRST ttBrowseInventory NO-LOCK
          WHERE ttBrowseInventory.company         EQ ipcCompany
-           AND ttBrowseInventory.stockIDAlias    EQ ipcStockIDAlias 
-           AND ttBrowseInventory.inventoryStatus EQ gcStatusStockReceived NO-ERROR.
+           AND ttBrowseInventory.tag             EQ ipcTag 
+           AND ttBrowseInventory.inventoryStatus EQ gcStatusStockReceived
+		 NO-ERROR.
     IF NOT AVAILABLE ttBrowseInventory THEN DO:
         MESSAGE "Tag is not in On-Hand status." 
             VIEW-AS ALERT-BOX ERROR.
@@ -1318,7 +1319,7 @@ PROCEDURE locationScan :
 
     RUN pCanFindInventoryStock IN hdInventoryProcs (
         ipcCompany,
-        ipcStockIDAlias,
+        ipcTag,
         OUTPUT lValidInventoryStock
         ).
             
@@ -1330,7 +1331,7 @@ PROCEDURE locationScan :
 
     RUN pCanFindInventoryStockLocation IN hdInventoryProcs (
         ipcCompany,
-        ipcStockIDAlias,
+        ipcTag,
         ipcWarehouseID,
         ipcLocationID,
         OUTPUT lValidInvStockLoc
@@ -1344,7 +1345,7 @@ PROCEDURE locationScan :
 
     RUN CreateTransactionTransfer IN hdInventoryProcs (
         ipcCompany, 
-        ipcStockIDAlias, 
+        ipcTag, 
         ipcWarehouseID, 
         ipcLocationID, 
         "YES", 
@@ -1478,8 +1479,8 @@ PROCEDURE tagScan :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStockIDAlias  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag     AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMachine    AS CHARACTER NO-UNDO.
@@ -1492,14 +1493,14 @@ PROCEDURE tagScan :
     END.
     
     ASSIGN
-        ls-tag:SCREEN-VALUE      = ipcStockIDAlias
+        ls-tag:SCREEN-VALUE      = ipcTag
         ls-location:SCREEN-VALUE = ""
         cMessage                 = ""
         .
     
     RUN pGetInventoryStockJobDetails IN hdInventoryProcs (
         ipcCompany,
-        ipcStockIDAlias,
+        ipcTag,
         OUTPUT cJobNo,
         OUTPUT iJobNo2,
         OUTPUT iFormNo,
@@ -1542,8 +1543,9 @@ PROCEDURE tagScan :
         cFormattedJobno = cJobNo.
         
         FIND FIRST ttBrowseInventory NO-LOCK
-             WHERE ttBrowseInventory.company      = ipcCompany
-               AND ttBrowseInventory.stockIDAlias = ipcStockIDAlias NO-ERROR.
+             WHERE ttBrowseInventory.company EQ ipcCompany
+               AND ttBrowseInventory.tag     EQ ipcTag
+			 NO-ERROR.
         IF AVAILABLE ttBrowseInventory THEN        
             ASSIGN
                 ls-wipitemid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ttBrowseInventory.wipItemID
