@@ -3775,14 +3775,18 @@ PROCEDURE valid-i-no :
                 IF NOT AVAILABLE job-mat THEN v-msg = "This RM does not exist on Job, try help".
             END.
 
-            ELSE 
-            DO:
-                FIND FIRST ITEM
-                    WHERE ITEM.company EQ cocode
-                    AND ITEM.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                    AND ITEM.i-code  EQ "R"
-                    NO-LOCK NO-ERROR.
-                IF NOT AVAILABLE item THEN v-msg = "This item does not exist in RM file, try help".
+            ELSE DO:
+                IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
+                    v-msg = "Blank item not allowed, please re-enter".
+                ELSE DO:  
+                    FIND FIRST ITEM
+                        WHERE ITEM.company EQ cocode
+                        AND ITEM.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                        AND ITEM.i-code  EQ "R"
+                        NO-LOCK NO-ERROR.
+                        
+                    IF NOT AVAILABLE item THEN v-msg = "This item does not exist in RM file, try help".
+                END.   
             END.
 
         IF v-msg NE "" THEN 
