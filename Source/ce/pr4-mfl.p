@@ -123,18 +123,14 @@ do  WITH STREAM-IO no-box no-labels frame med1:
    END.
    IF b-uom EQ "TON" THEN med-qty = med-qty * item.basis-w / 2000.
 
-   IF lNewVendorItemCost THEN 
-   DO:
-      {est/getVendCost.i med-qty mfl$ medium}  
-   END.
-   ELSE 
-   DO: 
-      {est/matcost.i med-qty mfl$ medium}
-      mfl$ = (mfl$ * med-qty) + lv-setup-medium.
-   END.
-   
+   {est/matcost.i med-qty mfl$ medium}      
+
+   assign b-msh = mfl$            
+          mfl$  = (b-msh * med-qty) + lv-setup-medium
+          .
+        
    ASSIGN    
-    b-msh     = mfl$ / med-qty
+/*    b-msh     = mfl$ / med-qty*/
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty ) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))
     dm-tot[4] = dm-tot[4] + ((mfl$ / mqty) * m-waste) / (qty / 1000)
@@ -247,19 +243,14 @@ do WITH STREAM-IO no-box no-labels frame flute:
     END.   
 
    IF b-uom EQ "TON" THEN med-qty = med-qty * item.basis-w / 2000.
-
-   IF lNewVendorItemCost THEN 
-   DO:
-      {est/getVendCost.i med-qty mfl$ flute}  
-   END.
-   ELSE 
-   DO:
-      {est/matcost.i med-qty mfl$ flute}
-      mfl$ = (mfl$ * med-qty) + lv-setup-flute .
-   END.
    
+   {est/matcost.i med-qty mfl$ flute}      
+
+   ASSIGN b-msh = mfl$            
+          mfl$  = (b-msh * med-qty) + lv-setup-flute
+          .
    ASSIGN   
-    b-msh     = mfl$ / med-qty
+/*    b-msh     = mfl$ / med-qty*/
     dm-tot[3] = dm-tot[3] + ((mfl$ / mqty) * m-waste)
     dm-tot[4] = dm-tot[4] + (mfl$ / (qty / 1000))
     dm-tot[4] = dm-tot[4] + ((mfl$ / mqty) * m-waste) / (qty / 1000)

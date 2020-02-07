@@ -124,16 +124,10 @@ for each ink where ink.snum EQ 0 AND ink.bnum eq 0 by ink.i-code by ink.i-dscr:
   if not avail item then next.
   find first e-item of item no-lock no-error.
   if ink.i-qty lt item.min-lbs then ink.i-qty = item.min-lbs.
-
-  IF lNewVendorItemCost THEN 
-  DO:
-     {est/getVendCost.i ink.i-qty ink.i-cost ink}  
-  END.
-  ELSE 
-  DO:
-     {est/matcost.i ink.i-qty ink.i-cost ink}
-      ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink.
-  END.
+  
+  {est/matcost.i ink.i-qty ink.i-cost ink}      
+ 
+  ink.i-cost = (ink.i-cost * ink.i-qty) + lv-setup-ink.
   
   for each ink2
       where ink2.i-code eq ink.i-code
@@ -247,17 +241,10 @@ for each glu break by glu.i-code /*BY glu.snum*/ with frame abc down no-labels n
    for each xglu where xglu.i-code = glu.i-code /* AND xglu.snum EQ glu.snum*/:
       gqty = gqty + xglu.i-qty.   /* total pounds */
    end.
+      
+   {est/matcost.i gqty gcost glue}       
    
-   IF lNewVendorItemCost THEN 
-   DO:
-     {est/getVendCost.i gqty gcost glue}  
-   END.
-   ELSE 
-   DO: 
-      {est/matcost.i gqty gcost glue}
-       gcost     = (gcost * gqty) + lv-setup-glue.
-   END.
-   
+   gcost = (gcost * gqty) + lv-setup-glue.
    ASSIGN    
     dm-tot[5] = dm-tot[5] + gcost.
 

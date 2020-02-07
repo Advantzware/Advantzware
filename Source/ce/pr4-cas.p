@@ -77,14 +77,9 @@ ELSE
 
       IF xeb.casNoCharge THEN c-cost = 0.
       ELSE IF xeb.cas-cost GT 0 THEN c-cost = xeb.cas-cost * c-qty.      
-      ELSE DO:
-        IF lNewVendorItemCost THEN DO:
-          {est/getVendCost.i c-qty c-cost case}  
-        END.
-        ELSE DO:
-          {est/matcost.i c-qty c-cost case}
-          c-cost = (c-cost * c-qty) + lv-setup-case.
-        END.
+      ELSE DO:        
+        {est/matcost.i c-qty c-cost case}
+        c-cost = (c-cost * c-qty) + lv-setup-case.        
       END.
 
       ASSIGN 
@@ -144,15 +139,9 @@ ELSE
 
       {sys/inc/roundup.i li-qty}      
 
-       IF lNewVendorItemCost THEN 
-       DO:
-          {est/getVendCost.i li-qty p-cost layer-pad}  
-       END.
-       ELSE 
-       DO:
-           {est/matcost.i li-qty p-cost layer-pad}
-           p-cost = (p-cost * li-qty) + lv-setup-layer-pad.     
-       END.    
+      {est/matcost.i li-qty p-cost layer-pad}
+      p-cost = (p-cost * li-qty) + lv-setup-layer-pad.     
+    
       ASSIGN
        dm-tot[4] = dm-tot[4] + (p-cost / (qty / 1000))
        dm-tot[5] = dm-tot[5] + p-cost.
@@ -202,16 +191,10 @@ ELSE
           li-qty = dCasesProRata * xeb.div-up. /*per case - DEFAULT*/
 
       {sys/inc/roundup.i li-qty}
-      
-      IF lNewVendorItemCost THEN 
-      DO:
-          {est/getVendCost.i li-qty p-cost divider}  
-      END.
-      ELSE 
-      DO:
-           {est/matcost.i li-qty p-cost divider}
-           ASSIGN p-cost = (p-cost * li-qty) + lv-setup-divider.
-      END. 
+
+      {est/matcost.i li-qty p-cost divider}
+      ASSIGN p-cost = (p-cost * li-qty) + lv-setup-divider.
+ 
       assign 
        dm-tot[4] = dm-tot[4] + (p-cost / (qty / 1000))
        dm-tot[5] = dm-tot[5] + p-cost.
@@ -272,14 +255,9 @@ ELSE
 
       IF xeb.trNoCharge THEN p-cost = 0.
       ELSE IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
-      ELSE DO:
-        IF lNewVendorItemCost THEN DO:            
-          {est/getVendCost.i p-qty p-cost pallet}                          
-        END.
-        ELSE DO:  
-          {est/matcost.i p-qty p-cost pallet}
-          p-cost = (p-cost * p-qty) + lv-setup-pallet.
-        END.
+      ELSE DO:       
+        {est/matcost.i p-qty p-cost pallet}
+        p-cost = (p-cost * p-qty) + lv-setup-pallet.      
       END.
 
       ASSIGN
@@ -337,15 +315,9 @@ ELSE
       
         IF estPacking.costOverridePerUOM NE 0 THEN 
             dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
-        ELSE DO:   
-            IF lNewVendorItemCost THEN 
-            DO:            
-               {est/getVendCost.i dPackQty dPackCostTotal estPacking}                          
-            END.
-            ELSE DO:
-              {est/matcost.i dPackQty dPackCostTotal estPacking}      
-              dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.
-            END.
+        ELSE DO:               
+           {est/matcost.i dPackQty dPackCostTotal estPacking}      
+           dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.            
         END.      
         ASSIGN
             dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
