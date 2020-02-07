@@ -1265,10 +1265,10 @@ FOR EACH job-hdr NO-LOCK
                                             AND xjob-mat.frm = wrk-op.s-num
                                             /*AND (xjob-mat.blank-no = job-hdr.blank-no
                                                  OR xjob-mat.blank-no = 0)*/  NO-LOCK,
-                                            FIRST ITEM WHERE ITEM.company = cocode AND
-                                            ITEM.i-no = xjob-mat.rm-i-no AND
-                                            ITEM.mat-type = SUBSTRING(wrk-op.dept,1,1) NO-LOCK :
-                                            v-mat-for-mach = ITEM.i-name + fill(" ", 30 - LENGTH(ITEM.i-name))  /*"       " */ +
+                                            FIRST bf-item WHERE bf-item.company = cocode AND
+                                            bf-item.i-no = xjob-mat.rm-i-no AND
+                                            bf-item.mat-type = SUBSTRING(wrk-op.dept,1,1) NO-LOCK :
+                                            v-mat-for-mach = bf-item.i-name + fill(" ", 30 - LENGTH(bf-item.i-name))  /*"       " */ +
                                                 string(STRING(xjob-mat.wid) + "x" + STRING(xjob-mat.len),"x(13)") +
                                                 " " + string(xjob-mat.qty).                   
                                             LEAVE.                 
@@ -1372,7 +1372,7 @@ FOR EACH job-hdr NO-LOCK
                               PUT v-fill SKIP  .
                               iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .
                               iEbTotalblQty  = eb.bl-qty  .
-                              iEbTotalOverQty = eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1) .
+                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE job-hdr.qty .
                               IF cSetFGItem NE "" THEN do:
                                   FIND FIRST fg-set WHERE fg-set.company = eb.company
                                       AND fg-set.set-no = cSetFGItem
@@ -1441,7 +1441,7 @@ FOR EACH job-hdr NO-LOCK
                                      k = K + 1 .
                                      iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .
                                      iEbTotalblQty  = bff-eb.bl-qty  .
-                                     iEbTotalOverQty =  bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1) .
+                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE job-hdr.qty .
                                      IF cSetFGItem NE "" THEN do:
                                          FIND FIRST fg-set WHERE fg-set.company = eb.company
                                              AND fg-set.set-no = cSetFGItem
@@ -1998,16 +1998,16 @@ PROCEDURE pPrintMiscItems :
         AND xjob-mat.job-no2 EQ job-hdr.job-no2
         AND xjob-mat.frm     EQ ipiForm
         AND (xjob-mat.blank-no EQ ipiBlank OR xjob-mat.blank-no EQ 0) ,
-        FIRST item NO-LOCK
-        WHERE item.company EQ xjob-mat.company
-        AND item.i-no    EQ xjob-mat.rm-i-no  
-        AND CAN-DO(ipcMatTypes, item.mat-type)
-        BREAK BY item.i-no :
+        FIRST bf-item NO-LOCK
+        WHERE bf-item.company EQ xjob-mat.company
+        AND bf-item.i-no    EQ xjob-mat.rm-i-no  
+        AND CAN-DO(ipcMatTypes, bf-item.mat-type)
+        BREAK BY bf-item.i-no :
         
-        IF LAST-OF(item.i-no) THEN do:
+        IF LAST-OF(bf-item.i-no) THEN do:
             PUT 
-                "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)  
-                "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+                "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  
+                "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
             
         END.
     END.
@@ -2020,14 +2020,14 @@ PROCEDURE pPrintMiscItems :
             AND estPacking.BlankNo    EQ ipiBlank
             BREAK BY estPacking.rmItemID:
     
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ cocode
-                AND item.i-no     EQ estPacking.rmItemID
+            FIND FIRST bf-item NO-LOCK
+                WHERE bf-item.company  EQ cocode
+                AND bf-item.i-no     EQ estPacking.rmItemID
                 NO-ERROR.
-            IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:
+            IF AVAIL bf-item AND LAST-OF(estPacking.rmItemID) THEN do:
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
-                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
     
             END.
         END.
@@ -2039,9 +2039,9 @@ PROCEDURE pPrintMiscItems :
             AND bf-eb.blank-no EQ 0
             NO-ERROR.
         IF AVAILABLE bf-eb AND bf-eb.divider NE "" THEN DO:
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ bf-eb.company
-                AND item.i-no     EQ bf-eb.divider
+            FIND FIRST bf-item NO-LOCK
+                WHERE bf-item.company  EQ bf-eb.company
+                AND bf-item.i-no     EQ bf-eb.divider
                 NO-ERROR.
             FIND FIRST bf-job-mat NO-LOCK 
                 WHERE bf-job-mat.company EQ bf-eb.company
@@ -2052,15 +2052,15 @@ PROCEDURE pPrintMiscItems :
                 AND bf-job-mat.blank-no EQ 0
                 AND bf-job-mat.i-no EQ bf-eb.divider
                 NO-ERROR.
-            IF AVAILABLE ITEM AND NOT AVAILABLE bf-job-mat THEN 
+            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
-                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
         END.
         IF AVAILABLE bf-eb AND bf-eb.layer-pad NE "" THEN DO:
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ bf-eb.company
-                AND item.i-no     EQ bf-eb.layer-pad
+            FIND FIRST bf-item NO-LOCK
+                WHERE bf-item.company  EQ bf-eb.company
+                AND bf-item.i-no     EQ bf-eb.layer-pad
                 NO-ERROR.
             FIND FIRST bf-job-mat NO-LOCK 
                 WHERE bf-job-mat.company EQ bf-eb.company
@@ -2071,10 +2071,10 @@ PROCEDURE pPrintMiscItems :
                 AND bf-job-mat.blank-no EQ 0
                 AND bf-job-mat.i-no EQ bf-eb.layer-pad
                 NO-ERROR.    
-            IF AVAILABLE ITEM AND NOT AVAILABLE bf-job-mat THEN 
+            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(ITEM.i-no)
-                    "<C45><b>Desc: </b>" ITEM.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
         END.
     END.
                                  
