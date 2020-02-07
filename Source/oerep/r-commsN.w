@@ -87,11 +87,11 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
-                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To"  
+                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To,MSF"  
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
-                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id"
+                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id,msf"
 
-       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,10,8,8,8,12,9,8"
+       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,10,8,8,8,12,9,8,10"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1409,6 +1409,7 @@ DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER bar-inv FOR ar-inv.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE dMsfCalc AS DECIMAL NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
