@@ -23,7 +23,8 @@ def TEMP-TABLE w-bin
    field w-par like oe-ordl.part-dscr1
    field w-x   as   log
    FIELD w-i-no AS cha
-   FIELD w-po-no AS cha.
+   FIELD w-po-no AS cha
+   FIELD l-display AS LOGICAL  .
 
 def buffer b-cust  for cust.
 def buffer b-ship  for shipto.
@@ -96,6 +97,7 @@ DEF VAR lv-comp-unit AS INT NO-UNDO.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
+DEFINE VARIABLE lCheckRelQty AS LOGICAL NO-UNDO .
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -432,6 +434,22 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                v-print = no.
             end.
           end.
+          lCheckRelQty = NO . 
+          main-loop:
+          for each w-bin break by w-qty[2] desc by w-qty[1] desc:
+            IF v-rel-qty EQ w-qty[1] AND w-loc EQ  w-oe-rell.loc AND w-bin EQ  w-oe-rell.loc-bin THEN do:
+                l-display = YES .
+                lCheckRelQty = YES.
+                LEAVE main-loop.
+            END.
+          end.
+          IF lCheckRelQty EQ NO THEN DO:
+              main-loop:
+              for each w-bin break by w-qty[2] desc by w-qty[1] desc:
+                  l-display = YES .
+                  LEAVE main-loop.
+              END.
+          END.
           
           for each w-bin break by w-qty[2] desc by w-qty[1] desc:
             assign
@@ -458,6 +476,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                {oe/rep/relcardx2.i}
             END.
 
+            
             display {2}
                     w-oe-rell.ord-no    when first(w-qty[2])
                     w-par
@@ -466,12 +485,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     w-cas
                     w-c-c
                     w-qty[1]
-                    iRelPallet  when first(w-qty[2])
-                    iRelCase    when first(w-qty[2])
-                    v-rel-qty   when first(w-qty[2])
+                    iRelPallet WHEN l-display   /*when first(w-qty[2])*/
+                    iRelCase   WHEN l-display  /*when first(w-qty[2])*/
+                    v-rel-qty  WHEN l-display /* when first(w-qty[2])*/
                    
                 with frame rel-mid. 
 
+             
             v-printline = v-printline + 1.
             IF FIRST(w-qty[2]) THEN
                 iLineCount = 0 .
