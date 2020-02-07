@@ -619,7 +619,11 @@ DO:
   assign {&self-name}.
   if lastkey ne -1 then do:
     run check-date (NO).
-    if v-invalid then return no-apply.
+    if v-invalid then DO:
+        ASSIGN SELF:SCREEN-VALUE = "".
+        APPLY 'entry' TO tran-year.
+        return no-apply.
+    END.
   end.
 END.
 
@@ -663,37 +667,46 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
-
+    IF access-close THEN DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
   
-  tran-year = YEAR(TODAY) .
-  tran-period = (MONTH(TODAY))  .
+    tran-year = YEAR(TODAY) .
+    tran-period = (MONTH(TODAY))  .
+  
+    FIND company NO-LOCK WHERE 
+        company.company EQ cocode
+        NO-ERROR.
+    IF NOT AVAIL company THEN DO:
+        MESSAGE 
+            "Company " + cocode + " does not exist in the company file."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    if NOT company.yend-per then do:
+        MESSAGE 
+            "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    end.
+    FIND FIRST period NO-LOCK WHERE 
+        period.company EQ company.company AND
+        period.pstat EQ TRUE 
+        NO-ERROR.
+    IF AVAIL period THEN ASSIGN 
+        tran-year = period.yr
+        tran-period = period.pnum.
  
-  /*find first period where period.company eq cocode
-                      and period.pst     le tran-date
-                      and period.pend    ge tran-date
-                      no-lock no-error.
-  if avail period THEN  tran-period = (period.pnum).*/
-  
-  find first company NO-LOCK where company.company eq cocode NO-ERROR.
-  if not company.yend-per then do:
-     MESSAGE "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" VIEW-AS ALERT-BOX ERROR.
-     return.
-  end.
-
-
   RUN enable_UI.
 
-  {methods/nowait.i}
-      DO with frame {&frame-name}:
+    {methods/nowait.i}
+    DO with frame {&frame-name}:
+        APPLY "entry" TO tran-year.
+    END.
     
-    APPLY "entry" TO tran-period .
-END.
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
