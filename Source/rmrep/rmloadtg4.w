@@ -1961,7 +1961,7 @@ PROCEDURE outputTagLine :
     '","' removeChars(cFirstMachPress)
     '","' w-po.case-l
     '","' w-po.case-w
-    '","' w-po.case-w 
+    '","' w-po.case-d 
     '"' SKIP .
 
 END PROCEDURE.
