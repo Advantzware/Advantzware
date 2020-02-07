@@ -33,7 +33,7 @@ DEFINE TEMP-TABLE ttImportRmRctd
     FIELD poLine    AS INTEGER   FORMAT ">9" COLUMN-LABEL "PO Line" HELP "Optional - Integer"
     FIELD RmItem    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item#       " HELP "Required - Size:10"
     FIELD iName     AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Item Name   " HELP "Optional - Size:30"
-    FIELD purUom    AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Pur UOM" HELP "Optional - Size:3"
+    FIELD purUom    AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Qty UOM" HELP "Optional - Size:3"
     FIELD costUom   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost UOM" HELP "Optional - Size:3"
     FIELD rctDate   AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Receipt date" HELP "Optional - date"
     FIELD diameter  AS DECIMAL   FORMAT ">>>>>9.99<<<<" COLUMN-LABEL "Diameter" HELP "Optional - Decimal"
@@ -142,7 +142,9 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-loadtag.i-name    = ipbf-ttImportRmRctd.iName
             bf-loadtag.qty       = bf-rm-rctd.qty
             bf-loadtag.loc       = ipbf-ttImportRmRctd.loc
-            bf-loadtag.loc-bin   = ipbf-ttImportRmRctd.locBin  .
+            bf-loadtag.loc-bin   = ipbf-ttImportRmRctd.locBin  
+            bf-loadtag.misc-char[1] = ipbf-ttImportRmRctd.tag
+            .
 
     END.
     RELEASE bf-loadtag.
