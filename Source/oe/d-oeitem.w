@@ -1952,9 +1952,10 @@ DO:
               APPLY "entry" TO oe-ordl.pr-uom.
           ELSE 
               APPLY "entry" TO oe-ordl.disc.
+         RETURN NO-APPLY.
       END.
       
-      RETURN NO-APPLY.
+      
   END.
   IF SELF:screen-value EQ "" THEN
       ASSIGN SELF:screen-value = oe-ordl.i-no:SCREEN-VALUE .
