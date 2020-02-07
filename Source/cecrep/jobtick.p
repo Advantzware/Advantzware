@@ -254,7 +254,8 @@ do v-local-loop = 1 to v-local-copies:
               v-cus[4] AT 3 SKIP
             "<=#3><R-6><b> ORDER INFORMATION"
             "<=#3><R-5> PO #:" 
-            xoe-ord.po-no WHEN AVAIL xoe-ord
+            /*xoe-ord.po-no WHEN AVAIL xoe-ord*/
+            (IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE job-hdr.po-no) FORMAT "x(15)"
             "Set Qty:"
             trim(string(if avail xoe-ordl then xoe-ordl.qty
                                           else job-hdr.qty,">>>,>>9"))
