@@ -60,7 +60,7 @@ ELSE
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>             Citar#                       " ar-inv.inv-no
+    "<=#3>             Citar#                       " ar-inv.inv-no FORMAT ">>>>>>9"
     "<=#3><R+1>             Fecha               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .

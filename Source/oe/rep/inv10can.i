@@ -31,7 +31,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>9" "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Client/Customer            Contact"
     "<=#3><R+2> Telephone                        Fax" 
     "<=#3><R+4>  Bon De Commande        Facture/Invoice Date <FCourier New>"    
@@ -58,7 +58,7 @@ PUT "<FArial><=4><R+1>     Date De           Destination                       T
      v-shipvia FORM "x(30)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(1) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>,>>9" SPACE(1) 
-     xinv-head.bol-no FORMAT ">>>>>9"
+     xinv-head.bol-no FORMAT ">>>>>>9"
     SKIP.
 
 
