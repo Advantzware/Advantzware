@@ -14,6 +14,19 @@ DEFINE VARIABLE lSelectable     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSensitive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lShowLabel      AS LOGICAL   NO-UNDO.
 
+DEFINE TEMP-TABLE ttParamOrder NO-UNDO
+    FIELD paramRow      AS INTEGER
+    FIELD paramCol      AS INTEGER
+    FIELD paramName     AS CHARACTER
+    FIELD paramLabel    AS CHARACTER
+    FIELD paramValue    AS CHARACTER
+    FIELD paramDataType AS CHARACTER
+    FIELD paramFormat   AS CHARACTER
+        INDEX ttParamOrder IS PRIMARY
+            paramRow
+            paramCol
+            .
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pButtonCalendar:

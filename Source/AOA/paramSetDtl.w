@@ -730,6 +730,7 @@ DO:
         lAscending = NOT lAscending.
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
+        APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
     END.
     RETURN NO-APPLY.
 END.
@@ -949,9 +950,12 @@ PROCEDURE pCRUD :
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     RUN pClearView.
                     ASSIGN
-                        dynParamSetDtl.paramSetID:SCREEN-VALUE  = ""
-                        dynParamSetDtl.paramID:SCREEN-VALUE     = ""
-                        dynParamSetDtl.paramPrompt:SCREEN-VALUE = "yes"
+                        dynParamSetDtl.paramSetID:SCREEN-VALUE      = ""
+                        dynParamSetDtl.paramID:SCREEN-VALUE         = ""
+                        dynParamSetDtl.paramPrompt:SCREEN-VALUE     = "yes"
+                        dynParamSetDtl.initializeProc:SCREEN-VALUE  = ""
+                        dynParamSetDtl.validateProc:SCREEN-VALUE    = ""
+                        dynParamSetDtl.descriptionProc:SCREEN-VALUE = ""
                         .
                     DISABLE btnReset.
                 END. /* add */

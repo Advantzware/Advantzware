@@ -542,6 +542,7 @@ DO:
         lAscending = NOT lAscending.
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
+        APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
     END.
     RETURN NO-APPLY.
 END.

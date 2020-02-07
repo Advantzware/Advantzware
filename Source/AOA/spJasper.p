@@ -222,6 +222,7 @@ PROCEDURE pGetUserParamValue:
     DEFINE VARIABLE cField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTemp  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dSize  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
     DEFINE VARIABLE dWidth AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
@@ -285,6 +286,10 @@ PROCEDURE pGetUserParamValue:
         END. /* if table.field */
         ELSE
         cField = dynParamValue.colName[idx].
+        IF dynParamValue.dataType[idx] EQ "String" THEN
+        dSize = FONT-TABLE:GET-TEXT-WIDTH-CHARS(STRING(FILL("X",256),dynParamValue.colFormat[idx]),0).
+        ELSE
+        dSize = MAX(dWidth,LENGTH(dynParamValue.colLabel[idx])).
         RUN pCreatettColumn (
             cTable,
             cField,
@@ -294,16 +299,14 @@ PROCEDURE pGetUserParamValue:
             dynParamValue.dataType[idx],
             dynParamValue.colFormat[idx],
             dWidth,
-            MAX(dWidth,LENGTH(dynParamValue.colLabel[idx])),
+            dSize,
             dynParamValue.calcFormula[idx]
             ).
         ttColumn.isGroup = dynParamValue.isGroup[idx].
         IF dynParamValue.groupCalc[idx] NE "" THEN DO:
             DO jdx = 1 TO NUM-ENTRIES(dynParamValue.groupCalc[idx]) BY 2:
-                IF ENTRY(jdx,dynParamValue.groupCalc[idx]) EQ "Label" THEN DO:
-                    ttColumn.ttGroupLabel = ENTRY(jdx + 1,dynParamValue.groupCalc[idx]).
-                    NEXT.
-                END. /* if label */
+                IF dynParamValue.groupLabel[idx] NE "" THEN
+                ttColumn.ttGroupLabel = dynParamValue.groupLabel[idx].
                 CREATE ttGroupCalc.
                 ASSIGN 
                     ttGroupCalc.ttField    = cField
@@ -707,7 +710,7 @@ PROCEDURE pJasperGroupFooter :
         "                    <reportElement "
         "x=~"" 0 "~" "
         "y=~"" 0 "~" "
-        "width=~"" (LENGTH(ttColumn.ttLabel) + 6) * {&aoaJasper} "~" "
+        "width=~"" (LENGTH(cGroupLabel) + 6) * {&aoaJasper} "~" "
         "height=~"" 14 "~"/>" SKIP
         "                    <textElement>" SKIP
         "                        <font isBold=~"true~"/>" SKIP
@@ -726,6 +729,8 @@ PROCEDURE pJasperGroupFooter :
         :
         IF ENTRY(1,ttGroupCalc.ttCalcType,"|") EQ "Calculated" THEN
         cPattern = fJasperCalcPattern(ENTRY(3,ttGroupCalc.ttCalcType,"|")).
+        ELSE IF ttGroupCalc.ttCalcType EQ "Count" THEN
+        cPattern = "#,###,###,###".
         ELSE
         cPattern = fJasperPattern(bttColumn.ttFormat).
         PUT UNFORMATTED
@@ -742,7 +747,7 @@ PROCEDURE pJasperGroupFooter :
             "                        <font isBold=~"true~"/>" SKIP
             "                    </textElement>" SKIP
             "                    <textFieldExpression><![CDATA[$V~{"
-            (IF bttColumn.ttTable NE "" THEN bttColumn.ttTable + "__" ELSE "")
+/*            (IF bttColumn.ttTable NE "" THEN bttColumn.ttTable + "__" ELSE "")*/
             bttColumn.ttField "_" REPLACE(ttColumn.ttLabel," ","_") "_Group"
             "}]]></textFieldExpression>" SKIP
             "                </textField>" SKIP
@@ -822,6 +827,8 @@ PROCEDURE pJasperGroupType :
             .
         IF ENTRY(1,ttGroupCalc.ttCalcType,"|") EQ "Calculated" THEN
         cPattern = fJasperCalcPattern(ENTRY(3,ttGroupCalc.ttCalcType,"|")).
+        ELSE IF ttGroupCalc.ttCalcType EQ "Count" THEN
+        cPattern = "#,###,###,###".
         ELSE
         cPattern = fJasperPattern(ttColumn.ttFormat).
         PUT UNFORMATTED
@@ -1037,7 +1044,7 @@ PROCEDURE pJasperLastPageFooter :
                 IF dynParamValue.paramName[idx] BEGINS "svS" THEN NEXT.
                 ASSIGN
                     cParameter[iParameterRow] = IF dynParamValue.paramLabel[idx] EQ ? THEN REPLACE(dynParamValue.paramName[idx],"sv","")
-                                                ELSE dynParamValue.paramLabel[idx]
+                                                ELSE REPLACE(dynParamValue.paramLabel[idx],":","")
                     cParameter[iParameterRow] = cParameter[iParameterRow] + ": @@@"
                     cValue = IF dynParamValue.paramValue[idx] NE ? AND
                                 dynParamValue.paramValue[idx] NE CHR(254) THEN dynParamValue.paramValue[idx] ELSE ""
@@ -1465,6 +1472,8 @@ PROCEDURE pJasperVariableDeclarations :
         END CASE.
         cDataType = IF ENTRY(1,ttGroupCalc.ttGroup,"|") NE "Calculated" THEN cDataType
                     ELSE ENTRY(3,ttGroupCalc.ttGroup,"|").
+        IF ttGroupCalc.ttCalcType EQ "count" THEN
+        cDataType = "Integer".
         ASSIGN
             cResetGroup = REPLACE(REPLACE(ttGroupCalc.ttGroup,"[Group] ","")," ","_") + "_Group"
             cName       = ttGroupCalc.ttField + "_"

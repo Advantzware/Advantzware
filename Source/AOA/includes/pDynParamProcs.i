@@ -222,6 +222,7 @@ PROCEDURE pSaveDynParamValues :
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     
     DO TRANSACTION:
+        EMPTY TEMP-TABLE ttParamOrder.
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
             dynParamValue.outputFormat  = ipcOutputFormat
@@ -237,22 +238,31 @@ PROCEDURE pSaveDynParamValues :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
-            IF hWidget:TYPE NE "BUTTON"    AND
-               hWidget:TYPE NE "FRAME"     AND
-               hWidget:TYPE NE "RECTANGLE" AND
-               hWidget:TYPE NE "TEXT" THEN DO:
+            IF NOT CAN-DO("BUTTON,FRAME,RECTANGLE,TEXT",hWidget:TYPE) THEN DO:
+                CREATE ttParamOrder.
                 ASSIGN
-                    idx = idx + 1
-                    dynParamValue.paramName[idx]     = hWidget:NAME
-                    dynParamValue.paramLabel[idx]    = hWidget:LABEL
-                    dynParamValue.paramValue[idx]    = hWidget:SCREEN-VALUE
-                    dynParamValue.paramDataType[idx] = hWidget:DATA-TYPE
+                    ttParamOrder.paramRow      = hWidget:ROW
+                    ttParamOrder.paramCol      = hWidget:COL
+                    ttParamOrder.paramName     = hWidget:NAME
+                    ttParamOrder.paramLabel    = hWidget:LABEL
+                    ttParamOrder.paramValue    = hWidget:SCREEN-VALUE
+                    ttParamOrder.paramdataType = hWidget:DATA-TYPE
                     .
                 IF CAN-DO("COMBO-BOX,FILL-IN",hWidget:TYPE) THEN
-                dynParamValue.paramFormat[idx] = hWidget:FORMAT.
+                ttParamOrder.paramFormat = hWidget:FORMAT.
             END. /* if type */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+        FOR EACH ttParamOrder:
+            ASSIGN
+                idx = idx + 1
+                dynParamValue.paramName[idx]     = ttParamOrder.paramName
+                dynParamValue.paramLabel[idx]    = ttParamOrder.paramLabel
+                dynParamValue.paramValue[idx]    = ttParamOrder.paramValue
+                dynParamValue.paramDataType[idx] = ttParamOrder.paramdataType
+                dynParamValue.paramFormat[idx]   = ttParamOrder.paramFormat
+                .
+        END. /* each ttparamorder */
         ASSIGN
             hWidget = FRAME outputFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD

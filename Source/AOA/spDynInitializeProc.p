@@ -7,7 +7,31 @@ DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 
 /* **********************  Internal Functions  ************************ */
 
+FUNCTION sfGetUserControlFieldValue RETURNS CHARACTER PRIVATE
+    (ipcField AS CHARACTER):
+    DEFINE VARIABLE cFieldValue AS CHARACTER NO-UNDO.
+
+    FIND FIRST userControl NO-LOCK.
+    CASE ipcField:
+        WHEN "AdminEmailAddr" THEN
+        cFieldValue = userControl.adminEmailAddr.
+        WHEN "MaxAllowedUsers" THEN
+        cFieldValue = STRING(userControl.maxAllowedUsers).
+        WHEN "MaxSessionPerUser" THEN
+        cFieldValue = STRING(userControl.maxSessionsPerUser).
+        WHEN "NumLicensedUsers" THEN
+        cFieldValue = STRING(userControl.numLicensedUsers).
+        WHEN "NumUsersOverLimit" THEN
+        cFieldValue = STRING(userControl.numUsersOverLimit).
+    END CASE.
+    RETURN cFieldValue.
+END FUNCTION.
+
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE dynInitAdminEmailAddr:
+    RETURN sfGetUserControlFieldValue ("AdminEmailAddr").
+END PROCEDURE.
 
 PROCEDURE dynInitAuditDB:
     DEFINE VARIABLE cDBs AS CHARACTER NO-UNDO.
@@ -62,8 +86,24 @@ PROCEDURE dynInitLocation:
     RETURN cSessionValue.
 END PROCEDURE.
 
+PROCEDURE dynInitMaxAllowedUsers:
+    RETURN sfGetUserControlFieldValue ("MaxAllowedUsers").
+END PROCEDURE.
+
+PROCEDURE dynInitMaxSessionPerUser:
+    RETURN sfGetUserControlFieldValue ("MaxSessionPerUser").
+END PROCEDURE.
+
 PROCEDURE dynInitNO:
     RETURN "NO".
+END PROCEDURE.
+
+PROCEDURE dynInitNumLicensedUsers:
+    RETURN sfGetUserControlFieldValue ("NumLicensedUsers").
+END PROCEDURE.
+
+PROCEDURE dynInitNumUsersOverLimit:
+    RETURN sfGetUserControlFieldValue ("NumUsersOverLimit").
 END PROCEDURE.
 
 PROCEDURE dynInitSecure:
