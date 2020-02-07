@@ -23,10 +23,10 @@
                   PUT SPACE(5) cust.addr[2] shipto.ship-addr[2] AT 45 SKIP
                   SPACE(5) cust.city + " " + cust.state + " " + cust.zip FORM "x(30)"
                            shipto.ship-city + " " + shipto.ship-state + " " + shipto.ship-zip AT 45 FORM "x(30)"
-                           "Phone:  " + string(shipto.area-code,"(999)") + string(shipto.phone,"999-9999") AT 75 SKIP.
+                           "Phone:  " + string(shipto.area-code,"(999)") + string(shipto.phone,"999-9999") AT 75 FORM "x(20)" SKIP.
       ELSE PUT SPACE(5) cust.city + " " + cust.state + " " + cust.zip FORM "x(30)"
                         shipto.ship-city + " " + shipto.ship-state + " " + shipto.ship-zip AT 45 FORM "x(30)"
-                        "Phone:  " + string(shipto.area-code,"(999)") + string(shipto.phone,"999-9999") AT 75 SKIP(1).
+                        "Phone:  " + string(shipto.area-code,"(999)") + string(shipto.phone,"999-9999") AT 75 FORM "x(20)" SKIP(1).
 
       PUT
            "<R4><C50><#3>" SKIP
