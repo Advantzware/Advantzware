@@ -78,15 +78,15 @@ oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] ~
 oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] ~
 oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax ~
 oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 ~
-oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
+oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no oe-ordm.spare-int-4
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame oe-ordm.charge ~
 oe-ordm.amt oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no oe-ordm.cost ~
 oe-ordm.ord-i-no oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] ~
 oe-ordm.s-pct[1] oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] ~
 oe-ordm.s-comm[2] oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] ~
-oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 ~
+oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill ~
 oe-ordm.spare-char-2 oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no ~
-oe-ordm.ord-no 
+oe-ordm.spare-int-4
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame oe-ordm
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame oe-ordm
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH oe-ordm ~
@@ -104,8 +104,8 @@ oe-ordm.dscr oe-ordm.po-no oe-ordm.cost oe-ordm.ord-i-no oe-ordm.ord-line ~
 oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] oe-ordm.s-comm[1] ~
 oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] ~
 oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 ~
-oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no ~
-oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
+oe-ordm.bill oe-ordm.spare-char-2 oe-ordm.est-no ~
+oe-ordm.form-no oe-ordm.blank-no oe-ordm.spare-int-4
 &Scoped-define ENABLED-TABLES oe-ordm
 &Scoped-define FIRST-ENABLED-TABLE oe-ordm
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
@@ -115,7 +115,7 @@ oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] oe-ordm.s-comm[1] ~
 oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] ~
 oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 ~
 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no ~
-oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
+oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no oe-ordm.spare-int-4
 &Scoped-define DISPLAYED-TABLES oe-ordm
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordm
 
@@ -325,6 +325,12 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN
     SIZE 5 BY 1
     BGCOLOR 15 FONT 1
+
+    oe-ordm.spare-int-4 AT ROW 11.67 COL 102.8 COLON-ALIGNED
+    LABEL "Line Ref#" FORMAT ">>>>9"
+    VIEW-AS FILL-IN
+    SIZE 10 BY 1
+    BGCOLOR 15 FONT 1
     
     Btn_OK AT ROW 14.4 COL 110
     Btn_Done AT ROW 14.6 COL 112
@@ -376,7 +382,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordm.blank-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */ 
 /* SETTINGS FOR FILL-IN oe-ordm.ord-no IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */ 
+   EXP-LABEL EXP-FORMAT  NO-ENABLE                                       */ 
 /* SETTINGS FOR FILL-IN oe-ordm.charge IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordm.cost IN FRAME Dialog-Frame
@@ -418,9 +424,11 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordm.spare-char-2 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordm.spare-int-1 IN FRAME Dialog-Frame
-    EXP-FORMAT                                                          */
+    EXP-FORMAT NO-ENABLE                                                */
 /* SETTINGS FOR FILL-IN oe-ordm.tax IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN oe-ordm.spare-int-4 IN FRAME Dialog-Frame
+    EXP-FORMAT                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1250,7 +1258,8 @@ PROCEDURE create-item :
             ASSIGN
                 oe-ordm.spare-char-2 = bf-ordl.i-no 
                 oe-ordm.ord-i-no     = bf-ordl.job-no
-                oe-ordm.ord-line     = bf-ordl.job-no2 .
+                oe-ordm.ord-line     = bf-ordl.job-no2
+                oe-ordm.spare-int-1  = bf-ordl.LINE .
     END.
     ELSE 
     DO:
@@ -1371,7 +1380,7 @@ PROCEDURE display-item :
             oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] 
             oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax 
             oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 
-            oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
+            oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no oe-ordm.spare-int-4
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1411,16 +1420,15 @@ PROCEDURE enable_UI :
             oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] oe-ordm.s-pct[3] 
             oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill 
             oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no 
-            oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
+            oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no oe-ordm.spare-int-4
             WITH FRAME Dialog-Frame.
     ENABLE oe-ordm.charge oe-ordm.amt oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no 
         oe-ordm.cost oe-ordm.ord-i-no oe-ordm.ord-line oe-ordm.po-no-po 
         oe-ordm.s-man[1] oe-ordm.s-pct[1] oe-ordm.s-comm[1] oe-ordm.s-man[2] 
         oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] oe-ordm.s-pct[3] 
         oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill 
-        oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no 
-        oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no  
-         Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
+        oe-ordm.spare-char-2 oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no   
+        oe-ordm.spare-int-4 Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
     {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

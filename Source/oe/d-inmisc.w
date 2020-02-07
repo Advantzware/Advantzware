@@ -72,7 +72,7 @@ inv-misc.s-pct[1] inv-misc.s-comm[1] inv-misc.s-man[2] inv-misc.s-pct[2] ~
 inv-misc.s-comm[2] inv-misc.s-man[3] inv-misc.s-pct[3] inv-misc.s-comm[3] ~
 inv-misc.tax inv-misc.spare-char-1 inv-misc.bill inv-misc.spare-char-2 ~
 inv-misc.est-no inv-misc.spare-int-1 inv-misc.spare-int-2 inv-misc.ord-no ~
-inv-misc.spare-int-3 
+inv-misc.spare-int-3 inv-misc.spare-int-4
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame inv-misc.charge ~
 inv-misc.amt inv-misc.actnum inv-misc.dscr inv-misc.po-no inv-misc.cost ~
 inv-misc.inv-i-no inv-misc.inv-line inv-misc.po-no-po inv-misc.s-man[1] ~
@@ -80,7 +80,7 @@ inv-misc.s-pct[1] inv-misc.s-comm[1] inv-misc.s-man[2] inv-misc.s-pct[2] ~
 inv-misc.s-comm[2] inv-misc.s-man[3] inv-misc.s-pct[3] inv-misc.s-comm[3] ~
 inv-misc.tax inv-misc.spare-char-1 inv-misc.bill inv-misc.spare-char-2 ~
 inv-misc.est-no inv-misc.spare-int-1 inv-misc.spare-int-2 inv-misc.ord-no ~
-inv-misc.spare-int-3 
+inv-misc.spare-int-3 inv-misc.spare-int-4
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame inv-misc
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame inv-misc
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH inv-misc ~
@@ -100,7 +100,7 @@ inv-misc.s-comm[1] inv-misc.s-man[2] inv-misc.s-pct[2] inv-misc.s-comm[2] ~
 inv-misc.s-man[3] inv-misc.s-pct[3] inv-misc.s-comm[3] inv-misc.tax ~
 inv-misc.spare-char-1 inv-misc.bill inv-misc.spare-char-2 inv-misc.est-no ~
 inv-misc.spare-int-1 inv-misc.spare-int-2 inv-misc.ord-no ~
-inv-misc.spare-int-3 
+inv-misc.spare-int-3 inv-misc.spare-int-4
 &Scoped-define ENABLED-TABLES inv-misc
 &Scoped-define FIRST-ENABLED-TABLE inv-misc
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
@@ -111,7 +111,7 @@ inv-misc.s-pct[1] inv-misc.s-comm[1] inv-misc.s-man[2] inv-misc.s-pct[2] ~
 inv-misc.s-comm[2] inv-misc.s-man[3] inv-misc.s-pct[3] inv-misc.s-comm[3] ~
 inv-misc.tax inv-misc.spare-char-1 inv-misc.bill inv-misc.spare-char-2 ~
 inv-misc.est-no inv-misc.spare-int-1 inv-misc.spare-int-2 inv-misc.ord-no ~
-inv-misc.spare-int-3 
+inv-misc.spare-int-3 inv-misc.spare-int-4
 &Scoped-define DISPLAYED-TABLES inv-misc
 &Scoped-define FIRST-DISPLAYED-TABLE inv-misc
 
@@ -315,6 +315,11 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 5 BY 1
     BGCOLOR 15 FONT 1
+    inv-misc.spare-int-4 AT ROW 11.67 COL 102.8 COLON-ALIGNED FORMAT ">>>>>"
+    LABEL "Line Ref#"
+    VIEW-AS FILL-IN 
+    SIZE 10 BY 1
+    BGCOLOR 15 FONT 1
     Btn_OK AT ROW 14.38 COL 110
     Btn_Done AT ROW 14.62 COL 112
     Btn_Cancel AT ROW 14.38 COL 120
@@ -409,6 +414,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inv-misc.spare-int-3 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN inv-misc.tax IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN inv-misc.spare-int-4 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1256,6 +1263,7 @@ PROCEDURE display-item :
             inv-misc.s-man[3] inv-misc.s-pct[3] inv-misc.s-comm[3] inv-misc.tax 
             inv-misc.spare-char-1 inv-misc.bill inv-misc.spare-int-1 inv-misc.spare-char-2 
             inv-misc.est-no inv-misc.spare-int-1 inv-misc.spare-int-2 inv-misc.ord-no inv-misc.spare-int-3
+            inv-misc.spare-int-4
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1297,6 +1305,7 @@ PROCEDURE enable_UI :
             inv-misc.s-comm[3] inv-misc.tax inv-misc.spare-char-1 inv-misc.bill 
             inv-misc.spare-char-2 inv-misc.est-no inv-misc.spare-int-1 
             inv-misc.spare-int-2 inv-misc.ord-no inv-misc.spare-int-3 
+            inv-misc.spare-int-4
             WITH FRAME Dialog-Frame.
     ENABLE inv-misc.charge inv-misc.amt inv-misc.actnum inv-misc.dscr 
         inv-misc.po-no inv-misc.cost inv-misc.inv-i-no inv-misc.inv-line 
@@ -1305,8 +1314,8 @@ PROCEDURE enable_UI :
         inv-misc.s-comm[2] inv-misc.s-man[3] inv-misc.s-pct[3] 
         inv-misc.s-comm[3] inv-misc.tax inv-misc.spare-char-1 inv-misc.bill 
         inv-misc.spare-char-2 inv-misc.est-no inv-misc.spare-int-1 
-        inv-misc.spare-int-2 inv-misc.ord-no inv-misc.spare-int-3 Btn_OK 
-        Btn_Done Btn_Cancel RECT-21 RECT-38 
+        inv-misc.spare-int-2 inv-misc.ord-no inv-misc.spare-int-3
+        inv-misc.spare-int-4 Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
     {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

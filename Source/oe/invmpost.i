@@ -49,6 +49,7 @@ ASSIGN
   ar-invl.billable   = inv-misc.bill EQ "Y"
   ar-invl.spare-char-1 = inv-misc.spare-char-1
   ar-invl.posted     = YES
-  ar-invl.inv-date   = inv-head.inv-date.
+  ar-invl.inv-date   = inv-head.inv-date
+  ar-invl.e-num      = inv-misc.spare-int-4.
 
 IF NOT ar-invl.billable THEN ar-invl.amt = 0.

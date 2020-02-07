@@ -65,7 +65,7 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
 ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ~
@@ -73,7 +73,8 @@ ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ~
 ar-invl.amt-msf ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ~
 ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ~
 ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ~
-ar-invl.bol-no ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
+ar-invl.bol-no ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ~
+ar-invl.e-num
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH ar-invl ~
@@ -93,7 +94,7 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
 &Scoped-define ENABLED-TABLES ar-invl
 &Scoped-define FIRST-ENABLED-TABLE ar-invl
 &Scoped-Define ENABLED-OBJECTS fi_acc-desc Btn_OK Btn_Done Btn_Cancel ~
@@ -105,7 +106,7 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
 &Scoped-define DISPLAYED-TABLES ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-invl
 &Scoped-Define DISPLAYED-OBJECTS fi_acc-desc 
@@ -295,6 +296,10 @@ DEFINE FRAME Dialog-Frame
           LABEL "PO #" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     ar-invl.e-num AT ROW 14.39 COL 115.2 COLON-ALIGNED
+          LABEL "Line Ref#" FORMAT ">>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
      fi_acc-desc AT ROW 3.95 COL 29 COLON-ALIGNED
      Btn_OK AT ROW 17.05 COL 37
      Btn_Done AT ROW 17 COL 57
@@ -407,6 +412,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ar-invl.unit-pr IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN ar-invl.e-num IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1130,6 +1137,7 @@ PROCEDURE display-item :
                ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] 
                ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no
                ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc ar-invl.ship-qty 
+               ar-invl.e-num
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1168,7 +1176,7 @@ PROCEDURE enable_UI :
           ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] 
           ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
           ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
-          ar-invl.ord-no ar-invl.po-no  ar-invl.tax ar-invl.t-freight
+          ar-invl.ord-no ar-invl.po-no  ar-invl.tax ar-invl.t-freight ar-invl.e-num
       WITH FRAME Dialog-Frame.
   ENABLE ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
          ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
@@ -1178,7 +1186,7 @@ PROCEDURE enable_UI :
          ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
          ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
          ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc
-         Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
+         ar-invl.e-num Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

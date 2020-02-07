@@ -809,7 +809,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
             PUT  "<C2>" inv-misc.po-no  FORMAT "x(16)".
             IF AVAIL oe-ordm AND oe-ordm.spare-int-1 NE 0 THEN                   /*10011302*/
-                PUT "<C13>" oe-ordm.spare-int-1 FORMAT ">>9".
+                PUT "<C13>" oe-ordm.spare-int-4 FORMAT ">>>>9".
             IF inv-misc.dscr NE "" THEN
                PUT "<C18>" inv-misc.dscr   FORMAT "x(30)".
             ELSE

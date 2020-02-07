@@ -558,7 +558,7 @@ FOR each report
                   CREATE tt-inv-line.
                   ASSIGN 
                       tt-inv-line.po-no = v-po-no
-                      tt-inv-line.line-no = lv-line
+                      tt-inv-line.line-no = ar-invl.e-num
                       tt-inv-line.part-no = ar-invl.part-no
                       tt-inv-line.inv-qty = v-inv-qty
                       tt-inv-line.price = v-price
