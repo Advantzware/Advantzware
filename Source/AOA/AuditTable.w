@@ -38,10 +38,11 @@ DEFINE OUTPUT PARAMETER ophTable AS HANDLE    NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cTable      AS CHARACTER NO-UNDO EXTENT 20.
-DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO EXTENT 20.
-DEFINE VARIABLE iTableCount AS INTEGER   NO-UNDO.
-DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cMsgResponse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTable       AS CHARACTER NO-UNDO EXTENT 20.
+DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO EXTENT 20.
+DEFINE VARIABLE iTableCount  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -223,6 +224,17 @@ DO:
         opcTable = cTable[iAuditTables]
         ophTable = hTable[iAuditTables]
         .
+    IF NOT CAN-FIND(FIRST AuditTbl
+                    WHERE AuditTbl.AuditTable   EQ opcTable
+                      AND (AuditTbl.AuditCreate EQ YES
+                       OR  AuditTbl.AuditDelete EQ YES
+                       OR  AuditTbl.AuditUpdate EQ YES)) THEN DO:
+        RUN displayMessageQuestion ("17", OUTPUT cMsgResponse).
+        IF cMsgResponse EQ "no" THEN DO:
+            APPLY "CHOOSE":U TO btnExit.
+            RETURN NO-APPLY.
+        END. /* if no */
+    END. /* if audittble */
     APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
