@@ -297,7 +297,7 @@ for each ef
   END. /* no box image */
   ELSE DO:     
      FILE-INFO:FILE-NAME = box-design-hdr.box-image.
-     PUT unformatted "<C3><#30><R+25><C+50><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
+     PUT unformatted "<C3><#30><R+25><C+48><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
      PUT UNFORMATTED "<=30>" SKIP.
      FOR EACH box-design-line OF box-design-hdr NO-LOCK:
          PUT  /*space(6)  */

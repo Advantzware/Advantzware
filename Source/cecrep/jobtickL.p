@@ -340,7 +340,7 @@ do v-local-loop = 1 to v-local-copies:
 
         v-plate-loc = IF AVAIL xxprep THEN xxprep.loc-bin ELSE "".
 
-        DISP  v-cus[1] AT 2 "PO #:" AT 40 xoe-ord.po-no WHEN AVAIL xoe-ord 
+        DISP  v-cus[1] AT 2 "PO #:" AT 40 (IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE job-hdr.po-no) FORMAT "x(15)"
               "Set Qty:" trim(string(if avail xoe-ordl then xoe-ordl.qty
                                           else job-hdr.qty,">>>,>>9"))
                         when avail xeb and xeb.est-type eq 9    format "x(9)"
