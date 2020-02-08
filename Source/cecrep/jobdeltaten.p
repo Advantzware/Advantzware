@@ -236,7 +236,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
             iover-run    = DECIMAL(cust.over-pct)
             .
     ASSIGN 
-        cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99"). 
+        cBarCodeVal = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99"). 
     ASSIGN  
         cCustName = cust.NAME 
         {sys/inc/ctrtext.i cCustName 30}.
