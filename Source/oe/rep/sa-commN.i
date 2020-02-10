@@ -574,6 +574,8 @@
     /*  v-part-fg = IF rd_part-fg BEGINS "Cust" THEN v-cust-part ELSE v-i-no.*/
 
      /* If 'full cost' selected and history full cost > zero, then print history full cost. */
+     ASSIGN
+        deUseCost = 0.
      IF v-full-cost THEN DO:
          IF ar-invl.spare-dec-1 GT 0 THEN ASSIGN 
             deUseCost = ar-invl.spare-dec-1.
