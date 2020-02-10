@@ -1,10 +1,9 @@
 /*------------------------------------------------------------------------
     File        : api\inbound\handlers\SplitTagRequestHandler.p
-    Purpose     : Splits a tag and creates a new tag number for the given quantity
-
+    Purpose     : Splits a tag quantity and transfers split quantity to a new tag
     Syntax      :
 
-    Description : Splits a tag and creates a new tag number for the given quantity
+    Description : Splits a tag quantity and transfers split quantity to a new tag
 
     Author(s)   : Vishnu Vellanki
     Created     : Tue Feb 04 07:33:22 EDT 2020
@@ -32,8 +31,7 @@ DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInventoryStockID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrimaryID           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemType            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dQuantity            AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cNewInventoryStockID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dSplitQuantity       AS DECIMAL   NO-UNDO.
 
 {api/inbound/ttRequest.i}
 
@@ -121,7 +119,7 @@ PROCEDURE pProcessInputs:
     RUN JSON_GetFieldValueByName (
         INPUT  "SplitQuantity", 
         OUTPUT lRecFound, 
-        OUTPUT dQuantity
+        OUTPUT dSplitQuantity
         ) NO-ERROR.
                 
     /* Get the Notes */
@@ -136,7 +134,7 @@ PROCEDURE pProcessInputs:
         INPUT  cCompany, 
         INPUT  cInventoryStockID,
         INPUT  cPrimaryID,
-        INPUT  dQuantity,
+        INPUT  dSplitQuantity,
         INPUT  cItemType,
         INPUT  ipcUserName,
         OUTPUT oplSuccess,

@@ -24,15 +24,15 @@ DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE               FOR ttItem. 
 
-DEFINE VARIABLE hdInventoryProcs     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cItemTypeFG          AS CHARACTER NO-UNDO INITIAL "FG". /* Finished Good */
-DEFINE VARIABLE cTagItem             AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iTagNo               AS INTEGER   NO-UNDO.
-DEFINE VARIABLE riloadtag            AS ROWID     NO-UNDO.  
-DEFINE VARIABLE cTransfer            AS CHARACTER NO-UNDO INITIAL "T". /* Transfer */
-DEFINE VARIABLE lPromptForClose      AS LOGICAL   NO-UNDO. 
-DEFINE VARIABLE cStockIDAlias        AS CHARACTER NO-UNDO. 
-DEFINE VARIABLE cNewInventoryStockID AS CHARACTER NO-UNDO.  
+DEFINE VARIABLE hdInventoryProcs         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cItemTypeFG              AS CHARACTER NO-UNDO INITIAL "FG". /* Finished Good */
+DEFINE VARIABLE cTagItem                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTagNo                   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE riloadtag                AS ROWID     NO-UNDO.  
+DEFINE VARIABLE cTransactionTypeTransfer AS CHARACTER NO-UNDO INITIAL "T". /* Transfer */
+DEFINE VARIABLE lPromptForClose          AS LOGICAL   NO-UNDO. 
+DEFINE VARIABLE cStockIDAlias            AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cNewInventoryStockID     AS CHARACTER NO-UNDO.  
 
 /* This will eventually move to setsession approach */
 &SCOPED-DEFINE NEW NEW
@@ -64,6 +64,7 @@ IF NOT CAN-FIND(FIRST company NO-LOCK
         opcMessage = opcMessage + "Invalid Company (" + ipcCompany + ")" 
         oplSuccess = NO
         .
+        
     RETURN.
 END.
  
@@ -106,12 +107,13 @@ IF ipdSplitQuantity LE 0 THEN DO:
         
     RETURN.
 END.
-    
+
+/* Validates on-hand quantity for the given tag is available at bin or not */    
 FIND FIRST fg-bin NO-LOCK
      WHERE fg-bin.company EQ ipcCompany
        AND fg-bin.tag     EQ ipcInventoryStockID
        AND fg-bin.i-no    EQ ipcPrimaryID
-       AND fg-bin.qty     GE 0
+       AND fg-bin.qty     GT 0
      NO-ERROR.
 IF NOT AVAILABLE fg-bin THEN DO:
     ASSIGN 
@@ -177,7 +179,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
             OUTPUT riloadtag
             ) NO-ERROR.
     
-        /* Create new fgrctd records to transfer quantity from given tag to new tag */
+        /* Create new fgrctd records to transfer split quantity from given tag to new tag */
         RUN pFGReceiptCreation (
             INPUT  riloadtag,
             INPUT  cNewInventoryStockID,
@@ -189,43 +191,45 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
        /* Posts fg-rctd records */
        RUN PostFinishedGoodsForUser IN hdInventoryProcs(
            INPUT        ipcCompany,
-           INPUT        cTransfer,       /* Transfer */
+           INPUT        cTransactionTypeTransfer, /* Transfer */
            INPUT        ipcUsername,
            INPUT        lPromptForClose, /* Executes API closing orders logic */
            INPUT-OUTPUT oplSuccess,
            INPUT-OUTPUT opcMessage
            ) NO-ERROR.
 
-        /* Gets inventory details for the new tag */
-        RUN api\inbound\GetInventoryDetails.p (
-            INPUT  ipcCompany,       /* Company */
-            INPUT  "",               /* Location */
-            INPUT  "",               /* Bin */
-            INPUT  cNewInventoryStockID, /* Tag */
-            INPUT  ipcPrimaryID,     /* Primary ID */
-            INPUT  "",               /* Job Number */
-            INPUT  "",               /* Job Number2 */
-            INPUT  "",               /* Customer Number */
-            INPUT  cItemTypeFG ,     /* Item Type */
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage,
-            OUTPUT TABLE ttItem
-            ) NO-ERROR.
+       IF ERROR-STATUS:ERROR THEN
+           ASSIGN
+               oplSuccess=NO
+               opcMessage=ERROR-STATUS:GET-MESSAGE(1)
+               .
+    
+        IF oplSuccess THEN
+            /* Gets inventory details for the new tag */
+            RUN api\inbound\GetInventoryDetails.p (
+                INPUT  ipcCompany,           /* Company */
+                INPUT  "",                   /* Location */
+                INPUT  "",                   /* Bin */
+                INPUT  cNewInventoryStockID, /* Tag */
+                INPUT  ipcPrimaryID,         /* Primary ID */
+                INPUT  "",                   /* Job Number */
+                INPUT  "",                   /* Job Number2 */
+                INPUT  "",                   /* Customer Number */
+                INPUT  cItemTypeFG ,         /* Item Type */
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage,
+                OUTPUT TABLE ttItem
+                ) NO-ERROR.
          
-         IF NOT TEMP-TABLE ttItem:HAS-RECORDS THEN DO:
-             ASSIGN
-                 oplSuccess = NO
-                 opcMessage = "New tag is not posted"
-                 .
-         END.
+         IF oplSuccess AND NOT TEMP-TABLE ttItem:HAS-RECORDS THEN
+            ASSIGN
+                oplSuccess = NO
+                opcMessage = "Split tag is not posted"
+                .
 
-        IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
-            opcMessage = IF ERROR-STATUS:ERROR THEN 
-                            ERROR-STATUS:GET-MESSAGE(1)
-                         ELSE
-                            opcMessage.
+        IF NOT oplSuccess THEN
             UNDO,LEAVE.
-        END.
+
     END.
     
 END.
@@ -235,7 +239,7 @@ PROCEDURE pCreateNewTagForFGItem PRIVATE :
  Purpose:Creates new record in loadtag table for FG items
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcInventoryStockID    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdSplitQuantity       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTagNo               AS INTEGER   NO-UNDO.
@@ -359,7 +363,7 @@ PROCEDURE pFGReceiptCreation PRIVATE :
         fg-rctd.loc2         = fg-bin.loc
         fg-rctd.loc-bin2     = fg-bin.loc-bin
         fg-rctd.cust-no      = CAPS(fg-bin.cust-no)
-        fg-rctd.rita-code    = cTransfer
+        fg-rctd.rita-code    = cTransactionTypeTransfer
         fg-rctd.cases        = IF AVAILABLE fg-bin THEN 
                                    TRUNC((ipdSplitQuantity - fg-bin.partial-count) / fg-bin.case-count,0)
                                ELSE 
