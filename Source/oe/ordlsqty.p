@@ -17,7 +17,7 @@ IF AVAIL oe-ordl THEN DO:
         WHERE ar-invl.company  EQ oe-ordl.company
           AND ar-invl.ord-no   EQ oe-ordl.ord-no
           AND ar-invl.i-no     EQ oe-ordl.i-no
-/*           AND ar-invl.ord-line EQ oe-ordl.LINE*/ 
+/*           AND ar-invl.ord-line EQ oe-ordl.LINE */
         NO-LOCK:
         ASSIGN 
             lInvQty = YES
