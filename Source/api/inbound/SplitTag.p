@@ -34,24 +34,25 @@ DEFINE VARIABLE lPromptForClose          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cStockIDAlias            AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE cNewInventoryStockID     AS CHARACTER NO-UNDO.  
 
-/* This will eventually move to setsession approach */
+/* This will eventually move to setsession - START >>>*/
 &SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 
-DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdTags    AS HANDLE NO-UNDO.
 
 g_company=ipcCompany.
 
 RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
 RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 
-RUN system/session.p  PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
-RUN system/TagProcs.p PERSISTENT SET hTags.
-SESSION:ADD-SUPER-PROCEDURE (hTags).
+RUN system/session.p  PERSISTENT SET hdSession.
+SESSION:ADD-SUPER-PROCEDURE (hdSession).
+RUN system/TagProcs.p PERSISTENT SET hdTags.
+SESSION:ADD-SUPER-PROCEDURE (hdTags).
 {sys/inc/var.i "new shared"}
+/* END <<<*/
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -372,7 +373,7 @@ PROCEDURE pFGReceiptCreation PRIVATE :
                                    fg-bin.partial-count
                                ELSE 
                                    loadtag.partial 
-        fg-rctd.t-qty        = (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial
+        fg-rctd.t-qty        = ipdSplitQuantity
         fg-rctd.created-by   = ipcUsername
         fg-rctd.updated-by   = ipcUsername
         fg-rctd.pur-uom      = fg-bin.pur-uom
