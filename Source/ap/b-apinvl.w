@@ -266,7 +266,7 @@ DEFINE BROWSE Browser-Table
       ap-invl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
             LABEL-BGCOLOR 14
       get-actdscr() @ v-actdscr COLUMN-LABEL "Account Description" FORMAT "x(45)":U
-      ap-invl.qty FORMAT "->>>,>>9.9<<<<<":U WIDTH 12.4 LABEL-BGCOLOR 14
+      ap-invl.qty FORMAT "->>,>>>,>>9.9<<<<<":U WIDTH 17.4 LABEL-BGCOLOR 14
       ap-invl.cons-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 6.2
             LABEL-BGCOLOR 14
       ap-invl.unit-pr COLUMN-LABEL "Price" FORMAT "->,>>>,>>9.99<<<<":U
@@ -276,7 +276,7 @@ DEFINE BROWSE Browser-Table
       ap-invl.tax COLUMN-LABEL "Tax" FORMAT "Y/N":U WIDTH 5.2 LABEL-BGCOLOR 14
       ap-invl.sf-sht COLUMN-LABEL "SqFt" FORMAT ">>,>>9.9<<<":U
             WIDTH 14 LABEL-BGCOLOR 14
-      ap-invl.amt FORMAT "->>>>,>>9.99":U LABEL-BGCOLOR 14
+      ap-invl.amt FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
       ap-invl.amt-msf COLUMN-LABEL "Total MSF" FORMAT "->>,>>9.99":U
             WIDTH 12.4 LABEL-BGCOLOR 14
       display-item-no() @ lv-item-no COLUMN-LABEL "Item#" WIDTH 11
@@ -412,7 +412,7 @@ ASSIGN
      _FldNameList[4]   > "_<CALC>"
 "get-actdscr() @ v-actdscr" "Account Description" "x(45)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.ap-invl.qty
-"ap-invl.qty" ? "->>>,>>9.9<<<<<" "decimal" ? ? ? 14 ? ? yes ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-invl.qty" ? "->>,>>>,>>9.9<<<<<" "decimal" ? ? ? 14 ? ? yes ? no no "17.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.ap-invl.cons-uom
 "ap-invl.cons-uom" "UOM" ? "character" ? ? ? 14 ? ? yes ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ap-invl.unit-pr
@@ -424,7 +424,7 @@ ASSIGN
      _FldNameList[10]   > ASI.ap-invl.sf-sht
 "ap-invl.sf-sht" "SqFt" ">>,>>9.9<<<" "decimal" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.ap-invl.amt
-"ap-invl.amt" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-invl.amt" ? "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.ap-invl.amt-msf
 "ap-invl.amt-msf" "Total MSF" ? "decimal" ? ? ? 14 ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"

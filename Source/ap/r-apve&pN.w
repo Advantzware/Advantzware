@@ -1746,8 +1746,8 @@ time_stamp = string(time,"hh:mmam").
 
 form header
      "VENDOR#  Name                              INVOICE #       INV.DATE    DUE DATE         AMOUNT " 
-     "    G/L DISTRIBUTION" skip fill("_",130) format "x(130)"
-    with no-labels no-box no-underline frame f-top page-top width 132 STREAM-IO.
+     "    G/L DISTRIBUTION" skip fill("_",136) format "x(136)"
+    with no-labels no-box no-underline frame f-top page-top width 136 STREAM-IO.
 
 form v-disp-actnum label "G/L ACCOUNT NUMBER"
      v-dscr        label "DESCRIPTION"

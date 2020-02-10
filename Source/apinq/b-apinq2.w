@@ -233,9 +233,9 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       ap-inv.inv-date FORMAT "99/99/9999":U WIDTH 17.2 LABEL-BGCOLOR 14
       ap-inv.due-date FORMAT "99/99/9999":U WIDTH 16.2 LABEL-BGCOLOR 14
-      ap-inv.net FORMAT "->,>>>,>>9.99":U LABEL-BGCOLOR 14
-      ap-inv.paid FORMAT "->,>>>,>>9.99":U LABEL-BGCOLOR 14
-      ap-inv.due COLUMN-LABEL "Balance Due" FORMAT "->,>>>,>>9.99":U
+      ap-inv.net FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ap-inv.paid FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ap-inv.due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
             WIDTH 19.2 LABEL-BGCOLOR 14
       ap-inv.stat FORMAT "x":U LABEL-BGCOLOR 14
       ap-inv.user-id COLUMN-LABEL "User" FORMAT "x(8)":U LABEL-BGCOLOR 14
@@ -367,11 +367,11 @@ ASSIGN
      _FldNameList[4]   > ASI.ap-inv.due-date
 "ap-inv.due-date" ? ? "date" ? ? ? 14 ? ? yes ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.ap-inv.net
-"ap-inv.net" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.net" ? "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.ap-inv.paid
-"ap-inv.paid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.paid" ? "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ap-inv.due
-"ap-inv.due" "Balance Due" ? "decimal" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-inv.due" "Balance Due" "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ap-inv.stat
 "ap-inv.stat" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.ap-inv.user-id

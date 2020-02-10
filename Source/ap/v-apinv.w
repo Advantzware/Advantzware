@@ -195,19 +195,19 @@ DEFINE FRAME F-Main
      ap-inv.stat AT ROW 2.43 COL 71 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ap-inv.tax-amt AT ROW 1.48 COL 98 COLON-ALIGNED
+     ap-inv.tax-amt AT ROW 1.48 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 20.2 BY 1
-     ap-inv.net AT ROW 2.43 COL 98 COLON-ALIGNED
+     ap-inv.net AT ROW 2.43 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.paid AT ROW 3.43 COL 98 COLON-ALIGNED
+     ap-inv.paid AT ROW 3.43 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      ap-inv.freight AT ROW 4.43 COL 98 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ap-inv.due AT ROW 5.43 COL 98 COLON-ALIGNED
+     ap-inv.due AT ROW 5.43 COL 98 COLON-ALIGNED FORMAT "->>,>>>,>>9.99"
           LABEL "Balance Due"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -290,15 +290,15 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX cb_freq IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ap-inv.due IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL  Exp-Format                                      */
 /* SETTINGS FOR FILL-IN ap-inv.freight IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ap-inv.inv-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ap-inv.net IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE  Exp-Format                                                 */
 /* SETTINGS FOR FILL-IN ap-inv.paid IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE Exp-Format                                                  */
 /* SETTINGS FOR FILL-IN scr-manual-check-no IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN ap-inv.stat IN FRAME F-Main

@@ -928,10 +928,10 @@ ASSIGN
 FORM HEADER
  "                                                          Summary by Account " SKIP(2)
  "ACCOUNT CHECK#                      PO#   DATE   VENDOR#  INVOICE#    "
- "LINE DESCRIPTION              QTY    UNIT PRICE     AMT PAID" SKIP
+ "LINE DESCRIPTION                 QTY    UNIT PRICE     AMT PAID" SKIP
  "------- ----------------------- ------- -------- ------- ---------    "
- "---- --------------------- ------  ------ ------  ----------"
- WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top45 PAGE-TOP WIDTH 132 STREAM-IO.
+ "---- --------------------- ---------  ------ ------  ----------"
+ WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top45 PAGE-TOP WIDTH 135 STREAM-IO.
 
   DISPLAY "" WITH FRAME f-top45.
 
@@ -1078,7 +1078,7 @@ FOR EACH tt-report2,
         SPACE(1)
         ap-invl.dscr          FORMAT "x(18)"
         SPACE(1)
-        ap-invl.qty           FORMAT "->>,>>9.9<<"
+        ap-invl.qty           FORMAT "->,>>>,>>9.9<<"
         SPACE(1)
         ap-invl.unit-pr
         SPACE(1)

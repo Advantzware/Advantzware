@@ -1099,7 +1099,7 @@ PROCEDURE openQuery:
 &ELSEIF '{&yellowColumnsName}' EQ 'ap-invl' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
      IF sortColumn EQ 'PO Number'   THEN STRING(ap-invl.po-no) ELSE ~
-     IF sortColumn EQ 'Quantity'    THEN STRING(ap-invl.qty,'->>>,>>9.9<<<<<') ELSE ~
+     IF sortColumn EQ 'Quantity'    THEN STRING(ap-invl.qty,'->,>>>,>>9.9<<<<<') ELSE ~
      IF sortColumn EQ 'UOM'         THEN ap-invl.cons-uom ELSE ~
      IF sortColumn EQ 'Price'       THEN STRING(ap-invl.unit-pr, '->,>>>,>>9.99<<<<') ELSE ~
      IF sortColumn EQ 'UOM Price'   THEN ap-invl.pr-qty-uom ELSE ~
