@@ -573,22 +573,30 @@
 
     /*  v-part-fg = IF rd_part-fg BEGINS "Cust" THEN v-cust-part ELSE v-i-no.*/
 
-     /* If 'full cost' selected and history full cost > zero, 
-        then print history full cost. */
-     IF v-full-cost = YES AND ar-invl.spare-dec-1 > 0 THEN DO:
-/*          ASSIGN v-cost = ar-invl.spare-dec-1. */
-         IF ar-invl.dscr[1] EQ "M" OR
-            ar-invl.dscr[1] EQ "" THEN
-             v-cost = ar-invl.spare-dec-1 * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
-         ELSE /*EA*/
-             v-cost = ar-invl.spare-dec-1 * ar-invl.inv-qty * v-slsp[1] / 100.
-             
-             v-prof    = v-amt - v-cost.
-             IF v-prof EQ ? THEN v-prof = 0.
-             v-gp      = round(v-prof / v-amt * 100,2) .
-             if v-gp   eq ? then v-gp   = 0.
+     /* If 'full cost' selected and history full cost > zero, then print history full cost. */
+     ASSIGN
+        deUseCost = 0.
+     IF v-full-cost THEN DO:
+         IF ar-invl.spare-dec-1 GT 0 THEN ASSIGN 
+            deUseCost = ar-invl.spare-dec-1.
+         ELSE DO:
+             FIND c-itemfg NO-LOCK WHERE 
+                 c-itemfg.company EQ ar-invl.company AND 
+                 c-itemfg.i-no EQ ar-invl.i-no 
+                 NO-ERROR.
+             IF AVAIL c-itemfg THEN ASSIGN 
+                deUseCost = c-itemfg.spare-dec-1.
+         END.
+         IF ar-invl.dscr[1] EQ "M" 
+         OR ar-invl.dscr[1] EQ "" THEN ASSIGN 
+             v-cost = deUseCost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
+         ELSE ASSIGN /* EA */
+             v-cost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100
+             v-prof = v-amt - v-cost
+             v-prof = IF v-prof EQ ? THEN 0 ELSE v-prof
+             v-gp   = ROUND(v-prof / v-amt * 100,2)
+             v-gp    IF v-gp EQ ? 0 ELSE v-gp.
      END.
-        
 
      /* if not v-sumdet then DO:
          display tt-report.key-01       when first-of(tt-report.key-01)
