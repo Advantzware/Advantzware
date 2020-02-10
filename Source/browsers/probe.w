@@ -2224,7 +2224,7 @@ PROCEDURE import-price :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-price AS DECIMAL DECIMALS 10 NO-UNDO.
+  DEFINE VARIABLE dPriceQuote AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lv-subprice AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lv-subquantity AS DECIMAL DECIMALS 10 NO-UNDO.
   DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
@@ -2267,11 +2267,12 @@ PROCEDURE import-price :
          
           ASSIGN
            lv-changed = "S"
-           lv-price   = IF quoteqty.uom EQ "EA" THEN (quoteqty.price * 1000)
+           dPriceQuote   = DECIMAL( IF quoteqty.uom EQ "EA" THEN (quoteqty.price * 1000)
                         ELSE
                         IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / ROUND(quoteqty.qty / 1000,2))
-                        ELSE quoteqty.price
-           probe.sell-price:{&SVB} = STRING(lv-price).
+                        ELSE quoteqty.price)
+           probe.sell-price:{&SVB} = STRING(dPriceQuote).
+           lv-price = STRING(dPriceQuote) .
          
           RUN calc-fields NO-ERROR.
           IF ERROR-STATUS:ERROR THEN RETURN.
@@ -2296,11 +2297,12 @@ PROCEDURE import-price :
                  BY quoteqty.qty  DESCENDING:
 
           ASSIGN
-             lv-price = IF quoteqty.uom EQ "EA" THEN (quoteqty.price * 1000)
+             dPriceQuote = DECIMAL(IF quoteqty.uom EQ "EA" THEN (quoteqty.price * 1000)
                         ELSE
                         IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / ROUND(quoteqty.qty / 1000,2))
-                        ELSE quoteqty.price
-             lv-subprice = lv-subprice + (lv-price * quoteqty.qty)
+                        ELSE quoteqty.price)
+             lv-price = STRING(dPriceQuote) 
+             lv-subprice = lv-subprice + (decimal(dPriceQuote) * quoteqty.qty)
              lv-subquantity = lv-subquantity + quoteqty.qty.
 
           IF LAST-OF(quoteqty.q-no) THEN
