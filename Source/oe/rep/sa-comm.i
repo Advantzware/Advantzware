@@ -603,6 +603,27 @@
              v-gp      = round(v-prof / v-amt * 100,2) .
              if v-gp   eq ? then v-gp   = 0.
      END.
+    /* IF the full cost in the ar-invl has been set to zero, get the full cost from the itemfg record */
+    ELSE IF v-full-cost EQ YES AND ar-invl.spare-dec-1 EQ 0 THEN DO:
+        FIND c-itemfg NO-LOCK WHERE 
+            c-itemfg.company EQ ar-invl.company AND 
+            c-itemfg.i-no EQ ar-invl.i-no 
+            NO-ERROR.
+        IF AVAIL c-itemfg 
+            AND c-itemfg.spare-dec-1 NE 0 THEN 
+        DO:
+            IF ar-invl.dscr[1] EQ "M" OR
+                ar-invl.dscr[1] EQ "" THEN
+                v-cost = c-itemfg.spare-dec-1 * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
+            ELSE /*EA*/
+                v-cost = c-itemfg.spare-dec-1 * ar-invl.inv-qty * v-slsp[1] / 100.
+     
+            v-prof    = v-amt - v-cost.
+            IF v-prof EQ ? THEN v-prof = 0.
+            v-gp      = round(v-prof / v-amt * 100,2) .
+            if v-gp   eq ? then v-gp   = 0.
+        END.
+    END. 
         
 
       if not v-sumdet then DO:

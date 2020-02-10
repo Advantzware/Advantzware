@@ -54,6 +54,7 @@ DEF VAR v-calc-cat  AS   CHAR.
 DEF VAR cSlsList AS CHAR NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
+DEF BUFFER c-itemfg FOR itemfg.
 
 def TEMP-TABLE w-comm    no-undo
     FIELD sman    as   char
