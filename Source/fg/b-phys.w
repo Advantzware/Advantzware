@@ -691,9 +691,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-loc(OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -705,10 +706,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
-  /*IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. */
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc-bin(OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+  END. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1713,6 +1715,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
    
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-i-no NO-ERROR.
@@ -1724,11 +1727,11 @@ PROCEDURE local-update-record :
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-loc NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-loc(OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.
 
-  RUN valid-loc-bin NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-loc-bin(OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.
 
  
   RUN validate-tag(1) NO-ERROR.
@@ -2248,12 +2251,13 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
     IF NOT lActiveBin THEN DO:
       MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
-      RETURN NO-APPLY.
+      APPLY "entry" TO fg-rctd.loc .
+      oplReturnError = YES .
     END.
   END.
 
@@ -2269,14 +2273,20 @@ PROCEDURE valid-loc-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
       RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
           fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
           OUTPUT lActiveBin ).
-    IF NOT lActiveBin THEN DO:
+    IF NOT lActiveBin  THEN DO:
       MESSAGE "Invalid Bin#, try help..." VIEW-AS ALERT-BOX ERROR.
-      RETURN NO-APPLY.
+      APPLY "entry" TO fg-rctd.loc-bin .
+      oplReturnError = YES .
+    END.
+    ELSE IF fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""  THEN do:
+      MESSAGE "Please enter a valid Bin#, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO fg-rctd.loc-bin .
+      oplReturnError = YES .
     END.
   END.
 
