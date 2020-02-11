@@ -209,13 +209,13 @@
             assign
             v-head[2] =
                  "Rep Customer Name       Type     " +  STRING(rd_part-fg,"x(16)") +
-                 "Order#    Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
+                 "Order#    Inv#  Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
                  "mm Amt Comm Pct Ship To" .
         ELSE
             assign
             v-head[2] =
                  "Rep Customer Name       Group     " +  STRING(rd_part-fg,"x(16)") +
-                 "Order#    Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
+                 "Order#    Inv#  Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
                  "mm Amt Comm Pct Ship To" .
 
        v-head[3] = fill("-",143) /* 138/143 */ .
@@ -626,7 +626,7 @@
                 cust.TYPE               when first-of(tt-report.key-02) format "x(8)"
                 v-part-fg
                 v-ord-no
-                v-inv-no
+                v-inv-no FORMAT ">>>>>>9"
                 v-procat
                 v-qty                   format "->>>>>>>9"
                 v-amt                   format "->>>>>>>9.99"
@@ -670,7 +670,7 @@
                 cust.spare-char-2     when first-of(tt-report.key-02) format "x(8)" @ cust.TYPE    
                 v-part-fg
                 v-ord-no
-                v-inv-no
+                v-inv-no FORMAT ">>>>>>9"
                 v-procat
                 v-qty                   format "->>>>>>>9"
                 v-amt                   format "->>>>>>>9.99"
