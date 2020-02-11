@@ -2343,10 +2343,10 @@ IF tb_prt-acc THEN DO:
 
   FORM HEADER
        "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#    "
-       "LINE DESCRIPTION              QTY    UNIT PRICE     AMT PAID" SKIP
-       FILL("_",132) FORMAT "x(132)"
+       "LINE DESCRIPTION                 QTY    UNIT PRICE     AMT PAID" SKIP
+       FILL("_",135) FORMAT "x(135)"
 
-      WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top2 PAGE-TOP WIDTH 132 STREAM-IO.
+      WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top2 PAGE-TOP WIDTH 135 STREAM-IO.
 
   DISPLAY "" WITH FRAME f-top2.
 
@@ -2449,7 +2449,7 @@ IF tb_prt-acc THEN DO:
         SPACE(1)
         ap-invl.dscr          FORMAT "x(18)"
         SPACE(1)
-        ap-invl.qty           FORMAT "->>,>>9.9<<"
+        ap-invl.qty           FORMAT "->,>>>,>>9.9<<"
         SPACE(1)
         ap-invl.unit-pr
         SPACE(1)
