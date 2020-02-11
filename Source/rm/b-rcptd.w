@@ -4385,18 +4385,7 @@ FUNCTION display-adder RETURNS DECIMAL
                     WHERE item.company  EQ job-mat.company
                     AND item.i-no     EQ job-mat.i-no
                     AND item.mat-type EQ "A":
-         
-                    FIND FIRST e-item NO-LOCK
-                        WHERE e-item.company EQ rm-rctd.company
-                        AND e-item.i-no    EQ rm-rctd.i-no
-                        NO-ERROR.
-         
-                    FIND FIRST e-item-vend NO-LOCK
-                        WHERE e-item-vend.company EQ item.company
-                        AND e-item-vend.i-no    EQ item.i-no
-                        AND e-item-vend.vend-no EQ po-ord.vend-no
-                        NO-ERROR.
-         
+                    
                     ASSIGN 
                         v-len = display-dimension('L')
                         v-wid = display-dimension('W').
@@ -4410,60 +4399,7 @@ FUNCTION display-adder RETURNS DECIMAL
                         ASSIGN
                             v-basis-w = item-1.basis-w
                             v-dep     = item-1.s-dep.
-
-                    IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
-                    DO:
-                        IF rm-rctd.pur-uom EQ e-item.std-uom THEN
-                            v-qty-comp = rm-rctd.qty.
-                        ELSE
-                            RUN custom/convquom.p (cocode,
-                                rm-rctd.pur-uom, e-item.std-uom,
-                                v-basis-w, v-len, v-wid, v-dep,
-                                rm-rctd.qty,
-                                OUTPUT v-qty-comp).
-                        v-setup = 0.
-
-                        EMPTY TEMP-TABLE tt-eiv.
-                        CREATE tt-eiv.
-                        DO i = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[i]  = e-item-vend.run-qty[i]
-                                tt-eiv.run-cost[i] = e-item-vend.run-cost[i]
-                                tt-eiv.setups[i]   = e-item-vend.setups[i].
-                        END.
-         
-                        
-                        IF AVAILABLE e-item-vend THEN
-                        DO:                            
-          
-                            DO i = 1 TO 10:
-                                ASSIGN
-                                    tt-eiv.run-qty[i + 10]  = e-item-vend.runQtyXtra[i]
-                                    tt-eiv.run-cost[i + 10] = e-item-vend.runCostXtra[i]
-                                    tt-eiv.setups[i + 10]   = e-item-vend.setupsXtra[i].
-                            END.
-                        END.
-
-                        DO i = 1 TO 20:
-                            IF v-qty-comp LE tt-eiv.run-qty[i] THEN
-                                LEAVE.
-                        END.
-        
-                        ASSIGN
-                            v-setup = tt-eiv.setups[i]
-                            v-cost  = IF v-qty-comp NE 0 THEN ((tt-eiv.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp
-                     ELSE 0.
-
-                        /* This adds the Adder cost in */
-                        IF e-item.std-uom NE v-uom THEN
-                            RUN custom/convcuom.p (cocode,
-                                e-item.std-uom, v-uom, job-mat.basis-w,
-                                job-mat.len, job-mat.wid, v-dep,
-                                v-cost, OUTPUT v-cost).
-                    END.
-        
-                    ELSE 
-                    DO:
+                   
                         v-cost = job-mat.std-cost.
 
                         IF job-mat.sc-uom NE v-uom THEN
@@ -4471,7 +4407,6 @@ FUNCTION display-adder RETURNS DECIMAL
                                 job-mat.sc-uom, v-uom, job-mat.basis-w,
                                 job-mat.len, job-mat.wid, v-dep,
                                 job-mat.std-cost, OUTPUT v-cost).
-                    END.
          
                     v-add-cost = v-add-cost + v-cost.
                 END.
@@ -4560,17 +4495,6 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                     AND item.i-no     EQ job-mat.i-no
                     AND item.mat-type EQ "A":
          
-                    FIND FIRST e-item NO-LOCK
-                        WHERE e-item.company EQ rm-rctd.company
-                        AND e-item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-ERROR.
-         
-                    FIND FIRST e-item-vend NO-LOCK
-                        WHERE e-item-vend.company EQ item.company
-                        AND e-item-vend.i-no    EQ item.i-no
-                        AND e-item-vend.vend-no EQ po-ord.vend-no
-                        NO-ERROR.
-         
                     ASSIGN 
                         v-len = display-dimension-screen('L')
                         v-wid = display-dimension-screen('W').
@@ -4584,62 +4508,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                         ASSIGN
                             v-basis-w = item-1.basis-w
                             v-dep     = item-1.s-dep.
-
-                    IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
-                    DO:
-                        IF rm-rctd.pur-uom:SCREEN-VALUE EQ e-item.std-uom THEN
-                            v-qty-comp = DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
-                        ELSE
-                            RUN custom/convquom.p (cocode,
-                                rm-rctd.pur-uom:SCREEN-VALUE, e-item.std-uom,
-                                v-basis-w, v-len, v-wid, v-dep,
-                                DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                OUTPUT v-qty-comp).
-            
-        
-                        v-setup = 0.
-                        EMPTY TEMP-TABLE tt-eiv.
-                        CREATE tt-eiv.
-                        DO i = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[i]  = e-item-vend.run-qty[i]
-                                tt-eiv.run-cost[i] = e-item-vend.run-cost[i]
-                                tt-eiv.setups[i]   = e-item-vend.setups[i].
-                        END.
-          
-                        
-          
-                        IF AVAILABLE e-item-vend THEN
-                        DO:                            
-          
-                            DO i = 1 TO 10:
-                                ASSIGN
-                                    tt-eiv.run-qty[i + 10]  = e-item-vend.runQtyXtra[i]
-                                    tt-eiv.run-cost[i + 10] = e-item-vend.runCostXtra[i]
-                                    tt-eiv.setups[i + 10]   = e-item-vend.setupsXtra[i].
-                            END.
-                        END.
-
-                        DO i = 1 TO 20:
-                            IF v-qty-comp LE tt-eiv.run-qty[i] THEN
-                                LEAVE.
-                        END.
-        
-                        ASSIGN
-                            v-setup = tt-eiv.setups[i]
-                            v-cost  = IF v-qty-comp NE 0 THEN ((tt-eiv.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp
-                     ELSE 0.
-
-                        /* This adds the Adder cost in */
-                        IF e-item.std-uom NE v-uom THEN
-                            RUN custom/convcuom.p (cocode,
-                                e-item.std-uom, v-uom, job-mat.basis-w,
-                                job-mat.len, job-mat.wid, v-dep,
-                                v-cost, OUTPUT v-cost).
-                    END.
-        
-                    ELSE 
-                    DO:
+                   
                         v-cost = job-mat.std-cost.
 
                         IF job-mat.sc-uom NE v-uom THEN
@@ -4647,7 +4516,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                                 job-mat.sc-uom, v-uom, job-mat.basis-w,
                                 job-mat.len, job-mat.wid, v-dep,
                                 job-mat.std-cost, OUTPUT v-cost).
-                    END.
+                   
          
                     v-add-cost = v-add-cost + v-cost.
                 END.
