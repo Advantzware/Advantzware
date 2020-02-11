@@ -891,6 +891,7 @@ PROCEDURE post-rm:
          cost    = cost    + (v-r-qty * rm-bin.cost).
 
         IF cost EQ ? THEN cost = 0.
+	    IF v-i-qty EQ ? THEN v-i-qty = 0.
 
         if last(rm-bin.i-no) and v-i-qty ne 0 AND cost NE 0 THEN item.avg-cost = cost / v-i-qty.
 
