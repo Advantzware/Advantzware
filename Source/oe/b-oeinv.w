@@ -374,7 +374,8 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 8 FGCOLOR 0 
+         DEFAULT-BUTTON btGo.
 
 
 /* *********************** Procedure Settings ************************ */
