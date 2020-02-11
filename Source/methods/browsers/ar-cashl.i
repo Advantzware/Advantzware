@@ -19,7 +19,7 @@
 
 &Global-define FLDNAME1 ar-cashl.inv-no
 &Global-define DATATYP1 INTEGER
-&Global-define FORMAT-1 >>>>>9
+&Global-define FORMAT-1 >>>>>>9
 &Global-define SORTBY-1 BY ar-cashl.inv-no
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Invoice#
