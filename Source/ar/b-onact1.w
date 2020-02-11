@@ -642,7 +642,7 @@ PROCEDURE display-arinv :
 
   FIND ar-inv WHERE RECID(ar-inv) = ip-recid NO-LOCK NO-ERROR.
   IF AVAIL ar-inv THEN DO:
-     DISPLAY ar-inv.inv-no @ ar-cashl.inv-no 
+     DISPLAY ar-inv.inv-no @ ar-cashl.inv-no FORMAT ">>>>>>9"
              ar-inv.inv-date @ ar-cashl.inv-date
              ar-inv.due @ ar-cashl.amt-due
               WITH BROWSE {&browse-name}.
@@ -796,7 +796,7 @@ PROCEDURE local-create-record :
   */
   lv-new-recid = RECID(ar-cashl).
 
-  DISPLAY ar-cashl.inv-no ar-cashl.inv-date
+  DISPLAY ar-cashl.inv-no FORMAT ">>>>>>9" ar-cashl.inv-date
           ar-cashl.amt-paid WITH BROWSE {&browse-name}.
 
 
