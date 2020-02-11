@@ -595,7 +595,7 @@
              v-prof = v-amt - v-cost
              v-prof = IF v-prof EQ ? THEN 0 ELSE v-prof
              v-gp   = ROUND(v-prof / v-amt * 100,2)
-             v-gp    IF v-gp EQ ? 0 ELSE v-gp.
+             v-gp   = IF v-gp EQ ? THEN 0 ELSE v-gp.
      END.
 
      /* if not v-sumdet then DO:

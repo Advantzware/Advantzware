@@ -93,7 +93,7 @@ ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,I
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
                             "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id,msf"
 
-       cFieldLength = "4,8,19,8,15,15,6,6,9,10,12,12," + "9,10,8,8,8,12,9,8,10"
+       cFieldLength = "4,8,19,8,15,15,6,7,8,10,12,12," + "9,10,8,8,8,12,9,8,10"
        .
 
 {sys/inc/ttRptSel.i}
