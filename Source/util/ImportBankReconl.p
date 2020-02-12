@@ -112,17 +112,17 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportBankReconl FOR ttImportBankReconl.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
-    
+   
     IF NOT glInitialized THEN DO: 
         RUN ap/reconcil.p.
         glInitialized = YES.
     END.
+   
     FIND FIRST reconcile EXCLUSIVE-LOCK
-        WHERE reconcile.tt-number = ipbf-ttImportBankReconl.CheckJrl
+        WHERE reconcile.tt-number = STRING(INTEGER(ipbf-ttImportBankReconl.CheckJrl),"999999")
           AND reconcile.tt-amt = DEC(ipbf-ttImportBankReconl.Amount)  NO-ERROR.
-    
     IF AVAIL reconcile THEN DO:
-        
+       
         IF ipbf-ttImportBankReconl.Cleared EQ "Yes" THEN reconcile.tt-cleared = YES.
         
         RUN reconcile-file( BUFFER reconcile).
@@ -146,32 +146,28 @@ PROCEDURE reconcile-file:
    CASE ipbf-reconcile.tt-type:
        WHEN 1  THEN DO:
            FIND ap-pay WHERE ROWID(ap-pay) EQ ipbf-reconcile.tt-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ap-pay THEN
-               IF ap-pay.d-no NE 0  AND
-               NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no) 
-               THEN DO:
+           IF AVAIL ap-pay THEN DO:
+               IF ap-pay.d-no NE 0 
+               AND NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no) THEN 
                    FIND FIRST bf-ap-pay EXCLUSIVE-LOCK
                        WHERE bf-ap-pay.company   EQ ap-pay.company
                        AND bf-ap-pay.check-act EQ ap-pay.check-act
                        AND bf-ap-pay.check-no  EQ ap-pay.d-no  NO-ERROR.
-               END.
                ELSE 
                    FIND bf-ap-pay EXCLUSIVE-LOCK 
                        WHERE ROWID(bf-ap-pay) EQ ROWID(ap-pay) NO-ERROR.
 
-                   IF AVAIL bf-ap-pay THEN DO:
-                       
-                       bf-ap-pay.cleared = ipbf-reconcile.tt-cleared.
-                       
-                       FOR EACH ap-pay EXCLUSIVE-LOCK
-                           WHERE ap-pay.company EQ bf-ap-pay.company
-                           AND ap-pay.d-no    EQ bf-ap-pay.check-no
-                           AND NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no)             
-                           USE-INDEX d-no:
-
-                           ASSIGN ap-pay.cleared = bf-ap-pay.cleared.
-                       END.
+               IF AVAIL bf-ap-pay THEN DO:
+                   bf-ap-pay.cleared = ipbf-reconcile.tt-cleared.
+                   FOR EACH ap-pay EXCLUSIVE-LOCK
+                       WHERE ap-pay.company EQ bf-ap-pay.company
+                       AND ap-pay.d-no    EQ bf-ap-pay.check-no
+                       AND NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no)             
+                       USE-INDEX d-no:
+                       ASSIGN ap-pay.cleared = bf-ap-pay.cleared.
                    END.
+               END.
+           END.
 
        END. /*tt-type eq 1*/     
 
