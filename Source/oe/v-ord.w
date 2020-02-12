@@ -124,6 +124,7 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cShipFromLoc AS CHARACTER NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -1067,8 +1068,8 @@ DO:
               RUN windows/l-stax.w (g_company,oe-ord.tax-gr:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN oe-ord.tax-gr:screen-value = ENTRY(1,char-val).
          END.
-         WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company,g_loc,oe-ord.carrier:screen-value, OUTPUT char-val).
+         WHEN "carrier" THEN DO: 
+              RUN windows/l-carrie.w (g_company,cShipFromLoc,oe-ord.carrier:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN oe-ord.carrier:screen-value = ENTRY(1,char-val).
          END.
          WHEN "terms" THEN DO:
@@ -1965,6 +1966,19 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
 
   oeprompt = sys-ctrl.log-fld.
 
+  Main-Loop-Usrx:
+  FOR EACH usrx WHERE usrx.company EQ g_company
+           AND usrx.uid EQ USERID(LDBNAME(1))
+           AND usrx.loc NE "" NO-LOCK:
+          FIND loc WHERE loc.company EQ usrx.company
+                     AND loc.loc     EQ usrx.loc
+                   NO-LOCK NO-ERROR.
+          IF avail loc THEN DO:
+              cShipFromLoc = loc.loc .
+              LEAVE Main-Loop-Usrx.
+          END.
+  END.
+  IF cShipFromLoc EQ "" THEN cShipFromLoc = g_loc .
 
   IF NOT v-oecomm-log THEN RUN hide-comm (YES).
 
@@ -6752,15 +6766,11 @@ PROCEDURE valid-carrier :
 {&methods/lValidateError.i YES}
      ASSIGN lErrorValid = YES .
 DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST shipto NO-LOCK 
-        WHERE shipto.company EQ g_company 
-        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
-        NO-ERROR.
-    IF AVAIL shipto THEN do:
-        FIND FIRST carrier  
+    
+     IF cShipFromLoc NE "" THEN do:
+         FIND FIRST carrier  
             WHERE carrier.company EQ g_company 
-            AND carrier.loc = shipto.loc
+            AND carrier.loc = cShipFromLoc
             AND carrier.carrier EQ oe-ord.carrier:SCREEN-VALUE
             NO-LOCK NO-ERROR.
         IF AVAIL carrier THEN DO:
@@ -6775,7 +6785,7 @@ DO WITH FRAME {&FRAME-NAME}:
             MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
             lErrorValid = NO .                                
         END.
-    END.
+     END.
 END.
     {&methods/lValidateError.i NO} 
 END PROCEDURE.
