@@ -154,8 +154,7 @@ RUN pGetExecutionPath(OUTPUT cPath). /*Gets the LMPrint.exe execution path*/
  
      cFileName = "/L=" + ipcLabelFile.
 
-     IF iLMReanalyze NE 0 THEN
-         cFileName = "/Z=" + trim(STRING(iLMReanalyze)) .
+     
 
 /* Specify a "lock" file for LM to remove when done printing */
 IF lLabelMatrixLock THEN DO:
@@ -169,7 +168,8 @@ END.
 IF ipcDataFile NE "" AND ipcDataName NE "" THEN
     cFileName = cFileName + " /file=" + ipcDataName + "," + ipcDataFile.
 
-
+IF iLMReanalyze NE 0 THEN
+     cFileName = cFileName + " /Z=" + TRIM(STRING(iLMReanalyze)) .
 /* Original Call Failed with newer version 8.7 of label matrix*/
 /*                                                                             */
 /*           RUN WinExec (INPUT cPath + CHR(32) + cFileName , INPUT 1, OUTPUT */
@@ -218,10 +218,23 @@ ELSE DO:  /*Newer Operating Systems*/
     opcPath = TRIM(opcPath,"%1").
   
 END.
-IF opcPath EQ ? THEN 
+IF opcPath EQ ? THEN DO:
+    RUN custom/getregvalue.p (INPUT "HKEY_LOCAL_MACHINE", 
+                          INPUT "SOFTWARE",
+                          INPUT "Classes\LabelMatrix.Document.QDF\shell\open\command",
+                          INPUT "",
+                          OUTPUT opcPath).
+    IF opcPath NE ? THEN
+        ASSIGN
+            opcPath = TRIM(opcPath,'LWM.exe "%1"')
+            opcPath = TRIM(opcPath,"\")
+            opcPath = opcPath + "\lmwprint.exe ".
+END.
+IF opcPath EQ ? THEN
     MESSAGE "The Label Matrix print program cannot be located or launched on this computer - Reinstall or contact your system administrator." VIEW-AS ALERT-BOX ERROR.  
 
 END PROCEDURE.
+
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
