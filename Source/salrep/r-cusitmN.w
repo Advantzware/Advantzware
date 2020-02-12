@@ -89,7 +89,7 @@ DEFINE BUFFER xreport FOR tt-report.
 
 DEFINE TEMP-TABLE w-data NO-UNDO
   FIELD i-no      LIKE ar-invl.i-no COLUMN-LABEL "FG Item"
-  FIELD inv-no    LIKE ar-invl.inv-no COLUMN-LABEL "Invoice!Number"
+  FIELD inv-no    LIKE ar-invl.inv-no COLUMN-LABEL "Invoice!Number" FORMAT ">>>>>>>9"
   FIELD rec-id    AS RECID.
 
 DEFINE TEMP-TABLE ttgroup
@@ -118,7 +118,7 @@ ASSIGN cTextListToSelect = "Customer,Customer Name,Ship-To,Inv#,Inv Date,FG Item
                           + "Order#,Qty Shipped,Unit Price,UOM,Invoice Amt,Customer Group"
        cFieldListToSelect = "cust,cust-name,shipto,inv,inv-date,fgitem,item-name," +
                             "ord,qty-ship,unit-pr,uom,inv-amt,cust-g"
-       cFieldLength = "8,30,8,6,8,15,30," + "8,12,15,4,17,14"
+       cFieldLength = "8,30,8,8,8,15,30," + "8,12,15,4,17,14"
        cFieldType = "c,c,c,i,c,c,c," + "i,i,i,c,i,c" 
     .
 
@@ -1815,7 +1815,7 @@ EMPTY TEMP-TABLE ttgroup .
 FORM cust.cust-no       COLUMN-LABEL "Customer"
      v-name             COLUMN-LABEL "Customer/Item Name"
      tt-report.key-05   COLUMN-LABEL "Ship-to"                FORMAT "x(8)"
-     w-data.inv-no
+     w-data.inv-no      FORMAT ">>>>>>>9"
      v-date             FORMAT "99/99/99"
      w-data.i-no
      v-ord              FORMAT ">>>>>>"
@@ -1956,7 +1956,7 @@ EMPTY TEMP-TABLE tt-report.
                                IF ar-invl.misc THEN ar-invl.i-name ELSE
                                IF ar-invl.i-no NE "" THEN ar-invl.i-no ELSE
                                "AR SALE",
-                               STRING(ar-inv.inv-no,"999999"), "").
+                               STRING(ar-inv.inv-no,"9999999"), "").
          END.
 
          IF v-freight AND ar-inv.f-bill THEN DO:
@@ -1981,7 +1981,7 @@ EMPTY TEMP-TABLE tt-report.
                   v-sman-no LE tsman                      THEN DO:
 
                  RUN create-report (RECID(ar-invl), "FREIGHT",
-                                    STRING(ar-inv.inv-no,"999999"), "FREIGHT").
+                                    STRING(ar-inv.inv-no,"9999999"), "FREIGHT").
                END.
             END.
          END.
@@ -2004,7 +2004,7 @@ EMPTY TEMP-TABLE tt-report.
                               tt-report.key-09
                            ELSE ""
         tt-report.key-03 = "MEMO"
-        tt-report.key-04 = STRING(ar-cashl.inv-no,"999999")
+        tt-report.key-04 = STRING(ar-cashl.inv-no,">>>>>>>9")
         tt-report.key-05 = tt-report.key-09
         tt-report.key-06 = cust.sman
         tt-report.key-07 = tt-report.key-03.
@@ -2303,7 +2303,7 @@ EMPTY TEMP-TABLE tt-report.
                          WHEN "cust"    THEN cVarValue = STRING(cust.cust-no,"x(8)") .
                          WHEN "cust-name"   THEN cVarValue = STRING(cust.NAME,"x(30)").
                          WHEN "shipto"   THEN cVarValue = STRING(tt-report.key-05,"x(8)").
-                         WHEN "inv"  THEN cVarValue = STRING(w-data.inv-no,">>>>>>") .
+                         WHEN "inv"  THEN cVarValue = STRING(w-data.inv-no,">>>>>>>9") .
                          WHEN "inv-date"   THEN cVarValue = STRING(v-date,"99/99/99") .
                          WHEN "fgitem"  THEN cVarValue = STRING(w-data.i-no,"x(15)") .
                          WHEN "item-name"   THEN cVarValue = STRING(v-name,"x(30)") .
