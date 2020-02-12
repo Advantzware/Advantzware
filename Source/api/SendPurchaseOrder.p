@@ -314,16 +314,15 @@
                     .
 
             /* Fetch first operation id (job-mch.m-code) for the order line */
-            RUN GetOperationForPO IN hdJobprocs (
-                po-ordl.company,
-                po-ordl.job-no,
-                po-ordl.job-no2,
-                po-ordl.ord-no,
-                po-ordl.i-no,                
-                "FIRST", /* First - Fetches first operation id, leave this empty to fetch the comma seperated list of all operation id */
+            RUN GetOperation IN hdJobProcs (
+                INPUT        po-ordl.company,
+                INPUT        po-ordl.job-no,
+                INPUT        INTEGER(po-ordl.job-no2),
+                INPUT        INTEGER(po-ordl.s-num),
+                INPUT        "First",
                 INPUT-OUTPUT cOperationID
                 ).
-                                                         
+
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
