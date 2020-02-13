@@ -64,7 +64,7 @@ ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,
                            "r-state,r-zip,r-country,r-postal,check-memo,curr-code,curr-dscr,tax-gr,code-1099,an-edi-vend,tb-cc,terms,terms-dscr,disc-%,po-export," +
                            "loc,rebate-%,frt-pay,disc-days,carrier,carrier-dscr,fob-code,pay-type,Bank-Acct,SwiftBIC,Bank-RTN" .
 
-        ASSIGN cTextListToDefault  = "Vendor,Name,Address1,Address2,City,State,Country,Postal Code,Zip,Remit to,Remit Address1,Remit Address2,Remit City,Remit State,Remit Postal Code,Remit Zip," +
+        ASSIGN cTextListToDefault  = "Vendor,Name,Address1,Address2,City,State,Country,Postal Code,Zip,Remit to,Remit Address1,Remit Address2,Remit City,Remit State,Remit Country,Remit Postal Code,Remit Zip," +
                                  "Terms,Default G/L#,Area code,Phone,Fax Area Code,Fax,1099 Code,Tax ID#,Type,Tax,Carrier,Account#,Swift Code,Routing"  .
 {sys/inc/ttRptSel.i}
 

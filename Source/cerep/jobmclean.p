@@ -1333,8 +1333,8 @@ FOR EACH job-hdr NO-LOCK
                                                 AND bff-eb.form-no EQ wrk-op.s-num
                                                 AND (bff-eb.blank-no EQ wrk-op.b-num OR wrk-op.b-num EQ 0) NO-ERROR .
                                             IF AVAIL bff-eb THEN
-                                                iDisYieldQty = INTEGER(STRING(bff-eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
-                                             ELSE iDisYieldQty = INTEGER(STRING(eb.bl-qty * (IF AVAILABLE oe-ordl THEN 1 + oe-ordl.over-pct / 100 ELSE 1))) .
+                                                iDisYieldQty = IF AVAILABLE oe-ordl then INTEGER(bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE job-hdr.qty .
+                                             ELSE iDisYieldQty = IF AVAILABLE oe-ordl THEN INTEGER(eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE job-hdr.qty .
                                              IF cSetFGItem NE "" THEN do:
                                                  FIND FIRST fg-set WHERE fg-set.company = eb.company
                                                      AND fg-set.set-no = cSetFGItem

@@ -149,7 +149,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-cashl.inv-no FORMAT ">>>>>9":U WIDTH 20.2
+      ar-cashl.inv-no FORMAT ">>>>>>9":U WIDTH 20.2
       ar-cashl.inv-date COLUMN-LABEL "Invoice Date" FORMAT "99/99/9999":U
             WIDTH 19.2
       ar-cashl.amt-due FORMAT "->>,>>>,>>9.99":U WIDTH 21
@@ -242,7 +242,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -263,7 +263,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _FldNameList[1]   > ASI.ar-cashl.inv-no
-"ar-cashl.inv-no" ? ? "integer" ? ? ? ? ? ? yes ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cashl.inv-no" ? ">>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cashl.inv-date
 "ar-cashl.inv-date" "Invoice Date" ? "date" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cashl.amt-due
@@ -642,7 +642,7 @@ PROCEDURE display-arinv :
 
   FIND ar-inv WHERE RECID(ar-inv) = ip-recid NO-LOCK NO-ERROR.
   IF AVAIL ar-inv THEN DO:
-     DISPLAY ar-inv.inv-no @ ar-cashl.inv-no 
+     DISPLAY ar-inv.inv-no @ ar-cashl.inv-no FORMAT ">>>>>>9"
              ar-inv.inv-date @ ar-cashl.inv-date
              ar-inv.due @ ar-cashl.amt-due
               WITH BROWSE {&browse-name}.
@@ -796,7 +796,7 @@ PROCEDURE local-create-record :
   */
   lv-new-recid = RECID(ar-cashl).
 
-  DISPLAY ar-cashl.inv-no ar-cashl.inv-date
+  DISPLAY ar-cashl.inv-no FORMAT ">>>>>>9" ar-cashl.inv-date
           ar-cashl.amt-paid WITH BROWSE {&browse-name}.
 
 

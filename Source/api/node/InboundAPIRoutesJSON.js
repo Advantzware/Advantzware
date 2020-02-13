@@ -80,4 +80,9 @@ router.post('/createvendorinvoice', (req,res) => {
 router.post('/updateitem', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This will split a tag
+router.post('/splittag', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
 module.exports = router;

@@ -1567,12 +1567,7 @@ DO:
         ASSIGN 
             tb_reprint              =  YES
             tb_reprint:SCREEN-VALUE = "YES"
-            ipcInvoiceType          = "ar-inv"
-             .
-    ELSE 
-        ipcInvoiceType = "inv-head".  
- 
-    
+             .    
     IF VALID-HANDLE(hSuperProc) THEN DO:
        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
        DELETE OBJECT hSuperProc.

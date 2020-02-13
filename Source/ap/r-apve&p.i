@@ -108,7 +108,7 @@ FOR EACH tt-report,
   PUT ap-inv.inv-no         TO 55
       ap-inv.inv-date       AT 60 FORMAT "99/99/99"
       ap-inv.due-date       AT 71 FORMAT "99/99/99"                       
-      tt-report.curr-amt    TO 94 FORMAT "->,>>>,>>9.99".
+      tt-report.curr-amt    TO 94 FORMAT "->>,>>>,>>9.99".
 
   ASSIGN
    v2 = v2 + tt-report.curr-amt
@@ -131,7 +131,7 @@ FOR EACH tt-report,
       
     PUT ap-invl.actnum AT 96 FORMAT "x(19)"
         SPACE(1)
-        tt-ap-invl.amt SKIP.
+        tt-ap-invl.amt format "->>,>>>,>>9.99" SKIP.
         
     IF v-prt-dscr THEN DO:
       FIND FIRST account NO-LOCK
@@ -251,9 +251,9 @@ page.
 form header
      "ACCOUNT                             PO#   DATE   VENDOR#  INVOICE#     "
      "LINE DESCRIPTION              QTY    UNIT PRICE       AMOUNT" skip
-     fill("_",132) format "x(132)"
+     fill("_",136) format "x(136)"
   
-    with no-labels no-box no-underline frame f-top2 page-top width 132 STREAM-IO .
+    with no-labels no-box no-underline frame f-top2 page-top width 136 STREAM-IO .
 
 display "" with frame f-top2.
 
@@ -352,8 +352,8 @@ FOR EACH tt-ap-tax,
       ap-inv.inv-no               SPACE(6)
       "Tax"        FORMAT "x(18)" SPACE(7)
       1.0          FORMAT "9.9"   SPACE(1)
-      tt-ap-tax.amt               TO 118
-      tt-ap-tax.amt               TO 131
+      tt-ap-tax.amt FORMAT "->>,>>>,>>9.99"  TO 119
+      tt-ap-tax.amt FORMAT "->>,>>>,>>9.99"  TO 133
       SKIP.
   
   ACCUMULATE tt-ap-tax.amt (TOTAL).
@@ -405,11 +405,11 @@ for each tt-report,
       space(1)
       ap-invl.dscr          format "x(18)"
       space(1)
-      ap-invl.qty           format "->>,>>9.9<<"
+      ap-invl.qty           format "->,>>>,>>9.9<<"
       space(1)
       ap-invl.unit-pr
       space(1)
-      ap-invl.amt
+      ap-invl.amt          format "->>,>>>,>>9.99"
       space(1)
       skip.
       

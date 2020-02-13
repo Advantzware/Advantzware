@@ -20,31 +20,23 @@
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+        
+    DEFINE VARIABLE lcItemData        AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcItemConcatData  AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcItemTempData    AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOrderData       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOrderConcatData AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOrderTempData   AS LONGCHAR NO-UNDO.
     
-    /* Variables to store the header data */
-    DEFINE VARIABLE lcHeaderData       AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcHeaderToData     AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcHeaderFromData   AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcHeaderSenderData AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lAvailable AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iOrderID   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lValidBOL  AS LOGICAL   NO-UNDO INITIAL TRUE.
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
     
-    /* Variables to store request tag data */
-    DEFINE VARIABLE lcRequestData                 AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticeRequestData       AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticeHeaderData        AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticeHeaderContactData AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticeHeaderCommentData AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipControlData             AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticePortionData       AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticeItemData          AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcShipNoticeItemConcatData    AS LONGCHAR NO-UNDO.
-    
-    DEFINE VARIABLE lAvailable    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iOrderID      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lValidBOL     AS LOGICAL   NO-UNDO INITIAL TRUE.
-    DEFINE VARIABLE cReturn       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cHeaderToID   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHeaderFromID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyIdentity AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPartnerIdentity AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSharedSecret    AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cPostalStreet  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalCity    AS CHARACTER NO-UNDO.
@@ -61,7 +53,15 @@
     DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cQuantity    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUOM         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCaseUomList AS CHARACTER NO-UNDO.
+
+    /* ************************  Function Prototypes ********************** */
+    FUNCTION FormatDateForCXML RETURNS CHARACTER 
+        ( ipdtDate AS DATE, ipiTime AS INTEGER ) FORWARD.
+
+    FUNCTION GetPayLoadID RETURNS CHARACTER
+    	( ipcProcessID AS CHARACTER ) FORWARD.
+
+    /* ***************************  Main Block  *************************** */        
     
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -93,357 +93,113 @@
                 .
             RETURN.
         END.
-        
+
+        RUN GetCXMLIdentities (
+            INPUT  oe-bolh.company,
+            INPUT  oe-bolh.cust-no,
+            OUTPUT cCompanyIdentity,
+            OUTPUT cPartnerIdentity,
+            OUTPUT cSharedSecret
+            ) NO-ERROR.
+
+        RUN oe/custxship.p (
+            INPUT  oe-bolh.company,
+            INPUT  oe-bolh.cust-no,
+            INPUT  oe-bolh.ship-id,
+            BUFFER shipto
+            ).
+        IF AVAILABLE shipTo THEN
+            ASSIGN
+                cPostalStreet     = shipto.ship-addr[1] + shipto.ship-addr[2]
+                cPostalCity       = shipto.ship-city
+                cPostalState      = shipto.ship-state
+                cPostalZip        = shipto.ship-zip
+                cPostalCountry    = shipto.country
+                cPostalEMail      = shipto.email
+                cPhoneCountryCode = shipto.phone-country
+                cPhoneCityCode    = shipto.area-code
+                cPhoneNumber      = shipto.phone
+                cPhoneExtension   = shipto.phone-prefix
+                .
+
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", GetPayLoadID("")).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", FormatDateForCXML(oe-bolh.bol-date, 0)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyIdentity", cCompanyIdentity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PartnerIdentity", cPartnerIdentity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyIdentity", cCompanyIdentity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SharedSecret", cSharedSecret).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLID", STRING(oe-bolh.bol-no)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLPrintDate", FormatDateForCXML(oe-bolh.prt-date, oe-bolh.prt-time)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLShipDate", FormatDateForCXML(oe-bolh.ship-date, oe-bolh.ship-time)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLRelDate", FormatDateForCXML(oe-bolh.rel-date, 0)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressStreet", cPostalStreet).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressCity", cPostalCity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressState", cPostalState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressPostalCode", cPostalZip).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressCountryCode", cPostalCountry).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToEmail", cPostalEMail).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPhoneCountryCode", cPhoneCountryCode).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPhoneAreaOrCityCode", cPhoneCityCode).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPhoneNumber", cPhoneNumber).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPhoneExtension", cPhoneExtension).            
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CarrierName", oe-bolh.carrier).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TrailerID", oe-bolh.trailer).
+
+        FIND FIRST APIOutboundDetail NO-LOCK
+             WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+               AND APIOutboundDetail.detailID      EQ "OrderDetailID"
+               AND APIOutboundDetail.parentID      EQ "SendAdvancedShipNotice"
+             NO-ERROR.        
+        IF AVAILABLE APIOutboundDetail THEN
+            lcOrderTempData = APIOutboundDetail.data.
+
+        FIND FIRST APIOutboundDetail NO-LOCK
+             WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+               AND APIOutboundDetail.detailID      EQ "ItemDetailID"
+               AND APIOutboundDetail.parentID      EQ "SendAdvancedShipNotice"
+             NO-ERROR.        
+        IF AVAILABLE APIOutboundDetail THEN
+            lcItemTempData = APIOutboundDetail.data.  
+                
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-bolh.company
-              AND oe-boll.b-no    EQ oe-bolh.b-no:
-            IF oe-boll.ord-no EQ 0 THEN DO:
-                lValidBOL = FALSE.
-                LEAVE.
-            END.
-            
-            IF iOrderID NE 0 AND iOrderID NE oe-boll.ord-no THEN DO:
-                lValidBOL = FALSE.
-                LEAVE.
-            END.
-            
-            iOrderID = oe-boll.ord-no.
-        END.
-
-        IF NOT lValidBOL THEN DO:
-            ASSIGN
-                opcMessage = IF iOrderID EQ 0 THEN
-                                 "Invalid order exists in BOL" 
-                             ELSE
-                                 "Multiple orders exists in BOL"
-                oplSuccess = FALSE
-                .
-            RETURN.
-        END.
-        
-        FIND FIRST oe-ord NO-LOCK
-             WHERE oe-ord.company EQ oe-bolh.company
-               AND oe-ord.ord-no  EQ iOrderID
-             NO-ERROR.
-        IF NOT AVAILABLE oe-ord THEN DO:
-            ASSIGN
-                opcMessage = "Invalid order number " + STRING(iOrderID) + " in BOL"
-                oplSuccess = FALSE
-                .
-            RETURN.                   
-        END.
-        
-        IF oe-ord.spare-char-3 EQ "" THEN DO:
-            ASSIGN
-                opcMessage = "Empty payloadID"
-                oplSuccess = FALSE
-                .
-            RETURN.            
-        END.
-
-        RUN sys/ref/nk1look.p (
-            INPUT  oe-bolh.company, /* Company Code */
-            INPUT  "CaseUOMList",   /* sys-ctrl name */
-            INPUT  "C",             /* Output return value */
-            INPUT  NO,              /* Use ship-to */
-            INPUT  NO,              /* ship-to vendor */
-            INPUT  "",              /* ship-to vendor value */
-            INPUT  "",              /* ship-id value */
-            OUTPUT cCaseUomList, 
-            OUTPUT lRecFound
-            ).
-                      
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", oe-ord.spare-char-3).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", STRING(YEAR(oe-bolh.bol-date),"9999") + "-" + STRING(MONTH(oe-bolh.bol-date),"99") + "-" + STRING(DAY(oe-bolh.bol-date),"99")).
-        
-        /* Header data update */        
-        RUN pGetOutboundDetailData (
-            INPUT  ipiAPIOutboundID,
-            INPUT  "HeaderID",
-            INPUT  "SendAdvancedShipNotice",
-            OUTPUT lAvailable,
-            OUTPUT lcHeaderData
-            ).
-        IF lAvailable THEN DO:            
-            /* Header From data */
-            RUN pGetOutboundDetailData (
-                INPUT  ipiAPIOutboundID,
-                INPUT  "HeaderFromID",
-                INPUT  "HeaderID",
-                OUTPUT lAvailable,
-                OUTPUT lcHeaderFromData
-                ).            
-            IF lAvailable THEN DO:
-                RUN sys/ref/nk1look.p (
-                    INPUT  oe-bolh.company, /* Company Code */
-                    INPUT  "cXMLIdentity",  /* sys-ctrl name */
-                    INPUT  "C",             /* Output return value */
-                    INPUT  NO,              /* Use ship-to */
-                    INPUT  NO,              /* ship-to vendor */
-                    INPUT  "",              /* ship-to vendor value */
-                    INPUT  "",              /* ship-id value */
-                    OUTPUT cReturn, 
-                    OUTPUT lRecFound
-                    ).
-                
-                cHeaderFromID = cReturn.
-                
-                RUN updateRequestData(INPUT-OUTPUT lcHeaderFromData, "HeaderFromIdentity", cHeaderFromID).
-            END.
-            
-            /* Header To data */
-            RUN pGetOutboundDetailData (
-                INPUT  ipiAPIOutboundID,
-                INPUT  "HeaderToID",
-                INPUT  "HeaderID",
-                OUTPUT lAvailable,
-                OUTPUT lcHeaderToData
-                ).
-            IF lAvailable THEN DO:
-                FIND FIRST cust NO-LOCK
-                     WHERE cust.company EQ oe-ord.company
-                       AND cust.cust-no EQ oe-ord.cust-no
+              AND oe-boll.b-no    EQ oe-bolh.b-no
+            BREAK BY oe-boll.ord-no
+                  BY oe-boll.line:
+            IF FIRST-OF(oe-boll.ord-no) THEN DO:
+                FIND FIRST oe-ord NO-LOCK
+                     WHERE oe-ord.company EQ oe-boll.company
+                       AND oe-ord.ord-no  EQ oe-boll.ord-no
                      NO-ERROR.
-                IF AVAILABLE cust THEN DO:
-                    IF cust.ASNClientID EQ "" THEN DO:
-                        RUN sys/ref/nk1look.p (
-                            INPUT  oe-bolh.company, /* Company Code */
-                            INPUT  "cXMLASN",       /* sys-ctrl name */
-                            INPUT  "C",             /* Output return value */
-                            INPUT  YES,             /* Use ship-to */
-                            INPUT  YES,             /* ship-to vendor */
-                            INPUT  cust.cust-no,    /* ship-to vendor value */
-                            INPUT  "",              /* ship-id value */
-                            OUTPUT cReturn, 
-                            OUTPUT lRecFound
-                            ).
-                        cHeaderToID = cReturn.                        
-                    END.
-                    ELSE
-                        cHeaderToID = cust.ASNClientID.
+                IF AVAILABLE oe-ord THEN DO:
+                    lcOrderData = lcOrderTempData.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderReferenceID", oe-ord.po-no).
+                    RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderPayloadID", oe-ord.spare-char-3).
+                    
+                    lcOrderConcatData = lcOrderConcatData + lcOrderData.                
                 END.
-
-                RUN updateRequestData(INPUT-OUTPUT lcHeaderToData, "HeaderToIdentity", cHeaderToID).
-            END.    
-                
-            /* Header Sender data */
-            RUN pGetOutboundDetailData (
-                INPUT  ipiAPIOutboundID,
-                INPUT  "HeaderSenderID",
-                INPUT  "HeaderID",
-                OUTPUT lAvailable,
-                OUTPUT lcHeaderSenderData
-                ).            
-            IF lAvailable THEN DO:
-                RUN updateRequestData(INPUT-OUTPUT lcHeaderSenderData, "HeaderSenderIdentity", cHeaderFromID).
-
-                RUN sys/ref/nk1look.p (
-                    INPUT  oe-bolh.company, /* Company Code */
-                    INPUT  "cXMLSecret",    /* sys-ctrl name */
-                    INPUT  "C",             /* Output return value */
-                    INPUT  YES,             /* Use ship-to */
-                    INPUT  YES,             /* ship-to vendor */
-                    INPUT  cust.cust-no,    /* ship-to vendor value */
-                    INPUT  "",              /* ship-id value */
-                    OUTPUT cReturn, 
-                    OUTPUT lRecFound
-                    ).       
-                IF NOT lRecFound OR cReturn EQ "" THEN DO:
-                    RUN sys/ref/nk1look.p (
-                        INPUT  oe-bolh.company, /* Company Code */
-                        INPUT  "cXMLSecret",    /* sys-ctrl name */
-                        INPUT  "C",             /* Output return value */
-                        INPUT  NO,              /* Use ship-to */
-                        INPUT  NO,              /* ship-to vendor */
-                        INPUT  "",              /* ship-to vendor value */
-                        INPUT  "",              /* ship-id value */
-                        OUTPUT cReturn, 
-                        OUTPUT lRecFound
-                        ).   
-                END.
-                RUN updateRequestData(INPUT-OUTPUT lcHeaderSenderData, "HeaderSharedSecret", cReturn).
             END.
-        END.
-
-        /* Request tag data update */
-        RUN pGetOutboundDetailData (
-            INPUT  ipiAPIOutboundID,
-            INPUT  "RequestID",
-            INPUT  "SendAdvancedShipNotice",
-            OUTPUT lAvailable,
-            OUTPUT lcRequestData
-            ).
-        IF lAvailable THEN DO:
-            /* ShipNoticeRequest tag data */
-            RUN pGetOutboundDetailData (
-                INPUT  ipiAPIOutboundID,
-                INPUT  "ShipNoticeRequestID",
-                INPUT  "RequestID",
-                OUTPUT lAvailable,
-                OUTPUT lcShipNoticeRequestData
-                ).              
-            IF lAvailable THEN DO:
-                /* ShipNoticeHeader tag data */
-                RUN pGetOutboundDetailData (
-                    INPUT  ipiAPIOutboundID,
-                    INPUT  "ShipNoticeHeaderID",
-                    INPUT  "ShipNoticeRequestID",
-                    OUTPUT lAvailable,
-                    OUTPUT lcShipNoticeHeaderData
-                    ).
-                IF lAvailable THEN DO:
-                    RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderData, "ShipNoticeHeaderShipmentID", STRING(oe-bolh.bol-no)).
-                    RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderData, "ShipNoticeHeaderNoticeDate", STRING(YEAR(oe-bolh.prt-date),"9999") + "-" + STRING(MONTH(oe-bolh.prt-date),"99") + "-" + STRING(DAY(oe-bolh.prt-date),"99")).
-                    RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderData, "ShipNoticeHeaderShipmentDate", STRING(YEAR(oe-bolh.ship-date),"9999") + "-" + STRING(MONTH(oe-bolh.ship-date),"99") + "-" + STRING(DAY(oe-bolh.ship-date),"99")).
-                    RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderData, "ShipNoticeHeaderDeliveryDate", STRING(YEAR(oe-bolh.rel-date),"9999") + "-" + STRING(MONTH(oe-bolh.rel-date),"99") + "-" + STRING(DAY(oe-bolh.rel-date),"99")).
-                    
-                    RUN pGetOutboundDetailData (
-                        INPUT  ipiAPIOutboundID,
-                        INPUT  "ShipNoticeHeaderContactID",
-                        INPUT  "ShipNoticeHeaderID",
-                        OUTPUT lAvailable,
-                        OUTPUT lcShipNoticeHeaderContactData
-                        ).     
-                    IF lAvailable THEN DO:
-                        RUN oe/custxship.p (
-                            INPUT  oe-bolh.company,
-                            INPUT  oe-bolh.cust-no,
-                            INPUT  oe-bolh.ship-id,
-                            BUFFER shipto
-                            ).
-                        IF AVAILABLE shipTo THEN
-                            ASSIGN
-                                cPostalStreet     = shipto.ship-addr[1] + shipto.ship-addr[2]
-                                cPostalCity       = shipto.ship-city
-                                cPostalState      = shipto.ship-state
-                                cPostalZip        = shipto.ship-zip
-                                cPostalCountry    = shipto.country
-                                cPostalEMail      = shipto.email
-                                cPhoneCountryCode = shipto.phone-country
-                                cPhoneCityCode    = shipto.area-code
-                                cPhoneNumber      = shipto.phone
-                                cPhoneExtension   = shipto.phone-prefix
-                                .
-                                                
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPostalAddressStreet", cPostalStreet).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPostalAddressCity", cPostalCity).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPostalAddressState", cPostalState).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPostalAddressPostalCode", cPostalZip).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPostalAddressCountryCode", cPostalCountry).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactEmail", cPostalEMail).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPhoneCountryCode", cPhoneCountryCode).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPhoneAreaOrCityCode", cPhoneCityCode).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPhoneNumber", cPhoneNumber).
-                        RUN updateRequestData(INPUT-OUTPUT lcShipNoticeHeaderContactData, "ContactPhoneExtension", cPhoneExtension).
-                    END.
-                    
-                    RUN pGetOutboundDetailData (
-                        INPUT  ipiAPIOutboundID,
-                        INPUT  "ShipNoticeHeaderCommentID",
-                        INPUT  "ShipNoticeHeaderID",
-                        OUTPUT lAvailable,
-                        OUTPUT lcShipNoticeHeaderCommentData
-                        ). 
-                END.
-                
-                ASSIGN
-                    lcShipNoticeHeaderData = REPLACE(lcShipNoticeHeaderData,"$ShipNoticeHeaderContactID$",lcShipNoticeHeaderContactData)
-                    lcShipNoticeHeaderData = REPLACE(lcShipNoticeHeaderData,"$ShipNoticeHeaderCommentID$",lcShipNoticeHeaderCommentData)
-                    .
-
-                /* ShipNoticeRequest tag data */
-                RUN pGetOutboundDetailData (
-                    INPUT  ipiAPIOutboundID,
-                    INPUT  "ShipControlID",
-                    INPUT  "ShipNoticeRequestID",
-                    OUTPUT lAvailable,
-                    OUTPUT lcShipControlData
-                    ).                
-                IF lAvailable THEN DO:
-                    RUN updateRequestData(INPUT-OUTPUT lcShipControlData, "ShipControlCarrierIndetifierCompanyName", oe-bolh.carrier).
-                    RUN updateRequestData(INPUT-OUTPUT lcShipControlData, "ShipControlShipmentIdentifier", oe-bolh.trailer).
-                END.
-                
-                RUN pGetOutboundDetailData (
-                    INPUT  ipiAPIOutboundID,
-                    INPUT  "ShipNoticePortionID",
-                    INPUT  "ShipNoticeRequestID",
-                    OUTPUT lAvailable,
-                    OUTPUT lcShipNoticePortionData
-                    ).                    
-                IF lAvailable THEN DO:
-                    RUN updateRequestData(INPUT-OUTPUT lcShipNoticePortionData, "ShipNoticePortionOrderReferenceID", STRING(oe-bolh.po-no)).
-                    RUN updateRequestData(INPUT-OUTPUT lcShipNoticePortionData, "ShipNoticePortionDocumentReferenceID", oe-ord.spare-char-3).
-                    
-                    FOR EACH oe-boll EXCLUSIVE-LOCK
-                        WHERE oe-boll.company EQ oe-bolh.company
-                          AND oe-boll.b-no    EQ oe-bolh.b-no:                    
-                        RUN pGetOutboundDetailData (
-                            INPUT  ipiAPIOutboundID,
-                            INPUT  "ShipNoticeItemID",
-                            INPUT  "ShipNoticePortionID",
-                            OUTPUT lAvailable,
-                            OUTPUT lcShipNoticeItemData
-                            ).                    
-                        IF lAvailable THEN DO:
-                            dQuantity = oe-boll.qty.
-                                 
-                            FIND FIRST oe-ordl NO-LOCK
-                                 WHERE oe-ordl.company EQ oe-boll.company
-                                   AND oe-ordl.ord-no  EQ oe-boll.ord-no
-                                   AND oe-ordl.i-no    EQ oe-boll.i-no
-                                   AND oe-ordl.line    EQ oe-boll.line
-                                 NO-ERROR.                            
-                            IF AVAILABLE oe-ordl THEN DO:
-                                ASSIGN
-                                    cQuantity = TRIM(STRING(oe-ordl.spare-dec-1,"->>>>>>>9"))
-                                    cUOM      = oe-ordl.spare-char-2
-                                    .
-                                    
-                                IF (cUOM EQ 'CS' OR LOOKUP(cUOM, cCaseUOMList) GT 0)
-                                    AND DECIMAL(cQuantity) NE dQuantity 
-                                    AND oe-ordl.cas-cnt    NE 0 THEN
-                                    cQuantity = TRIM(STRING(dQuantity / oe-ordl.cas-cnt, "->>>>>>>9")).
-                                ELSE 
-                                    cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
-                            END.
-
-                            IF DECIMAL(cQuantity) EQ 0 THEN
-                                cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
-                                                                
-                            IF cUOM EQ "" THEN 
-                                cUOM = "EA".
-                                                            
-                            RUN updateRequestData(INPUT-OUTPUT lcShipNoticeItemData, "ShipNoticePortionItemLineID", STRING(oe-boll.line)).
-                            RUN updateRequestData(INPUT-OUTPUT lcShipNoticeItemData, "ShipNoticePortionItemQuantity", cQuantity).                            
-                            RUN updateRequestData(INPUT-OUTPUT lcShipNoticeItemData, "ShipNoticePortionUnitOfMeasure", cUOM).
-                        END.
                         
-                        lcShipNoticeItemConcatData = lcShipNoticeItemConcatData + lcShipNoticeItemData.
-                    END.                    
-                END.
-                
-                lcShipNoticePortionData = REPLACE(lcShipNoticePortionData,"$ShipNoticeItemID$",lcShipNoticeItemConcatData).                
-            END.
+            lcItemData = lcItemTempData.
+               
+            RUN GetOriginalQuantity (
+                INPUT  ROWID(oe-boll),
+                OUTPUT dQuantity,
+                OUTPUT cUOM
+                ) NO-ERROR.                            
+
+            cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
             
-            ASSIGN
-                lcShipNoticeRequestData = REPLACE(lcShipNoticeRequestData,"$ShipNoticeHeaderID$",lcShipNoticeHeaderData)
-                lcShipNoticeRequestData = REPLACE(lcShipNoticeRequestData,"$ShipControlID$",lcShipControlData)
-                lcShipNoticeRequestData = REPLACE(lcShipNoticeRequestData,"$ShipNoticePortionID$",lcShipNoticePortionData)
-                .    
-        END.
-
-        ASSIGN
-            lcHeaderData  = REPLACE(lcHeaderData,"$HeaderToID$",lcHeaderToData)
-            lcHeaderData  = REPLACE(lcHeaderData,"$HeaderFromID$",lcHeaderFromData)
-            lcHeaderData  = REPLACE(lcHeaderData,"$HeaderSenderID$",lcHeaderSenderData)
-            lcRequestData = REPLACE(lcRequestData,"$ShipNoticeRequestID$",lcShipNoticeRequestData)
-            .
-
-        ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData,"$HeaderID$",lcHeaderData)
-            ioplcRequestData = REPLACE(ioplcRequestData,"$RequestID$",lcRequestData)
-            .
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+            
+            lcItemConcatData = lcItemConcatData + lcItemData.
+        END.    
+            
+        ioplcRequestData = REPLACE(ioplcRequestData,"$ItemDetailID$",lcItemConcatData).                
+        ioplcRequestData = REPLACE(ioplcRequestData,"$OrderDetailID$",lcOrderConcatData).
         
         ASSIGN   
             opcMessage       = ""
@@ -453,29 +209,190 @@
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE pGetOutboundDetailData PRIVATE:
+PROCEDURE GetCXMLIdentities:
 /*------------------------------------------------------------------------------
- Purpose: Returns the request data struction for given inputs
+ Purpose: Procedure to fetch the cXML related identities (Company, Partner, 
+          SharedSecret)
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcDetailID      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcParentID      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplAvailable     AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplcData         AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustNo          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCompanyIdentity AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPartnerIdentity AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSharedSecret    AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-APIOutboundDetail FOR APIOutboundDetail.
-  
-    FIND FIRST bf-APIOutboundDetail NO-LOCK
-         WHERE bf-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
-           AND bf-APIOutboundDetail.detailID      EQ ipcDetailID
-           AND bf-APIOutboundDetail.parentID      EQ ipcParentID
-         NO-ERROR.        
-    IF AVAILABLE bf-APIOutboundDetail THEN
-        ASSIGN
-            oplAvailable = TRUE
-            oplcData     = bf-APIOutboundDetail.data
-            .
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-    RELEASE bf-APIoutboundDetail.
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+         
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,      /* Company Code */
+        INPUT  "cXMLIdentity",  /* sys-ctrl name */
+        INPUT  "C",             /* Output return value */
+        INPUT  NO,              /* Use ship-to */
+        INPUT  NO,              /* ship-to vendor */
+        INPUT  "",              /* ship-to vendor value */
+        INPUT  "",              /* ship-id value */
+        OUTPUT opcCompanyIdentity, 
+        OUTPUT lRecFound
+        ).
+                    
+    IF AVAILABLE bf-cust THEN DO:
+        opcPartnerIdentity = bf-cust.ASNClientID.
+        
+        IF bf-cust.ASNClientID EQ "" THEN
+            RUN sys/ref/nk1look.p (
+                INPUT  ipcCompany,            /* Company Code */
+                INPUT  "cXMLASN",             /* sys-ctrl name */
+                INPUT  "C",                   /* Output return value */
+                INPUT  YES,                   /* Use ship-to */
+                INPUT  YES,                   /* ship-to vendor */
+                INPUT  bf-cust.cust-no,       /* ship-to vendor value */
+                INPUT  "",                    /* ship-id value */
+                OUTPUT opcPartnerIdentity, 
+                OUTPUT lRecFound
+                ).                       
+
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany,      /* Company Code */
+            INPUT  "cXMLSecret",    /* sys-ctrl name */
+            INPUT  "C",             /* Output return value */
+            INPUT  YES,             /* Use ship-to */
+            INPUT  YES,             /* ship-to vendor */
+            INPUT  bf-cust.cust-no, /* ship-to vendor value */
+            INPUT  "",              /* ship-id value */
+            OUTPUT opcSharedSecret, 
+            OUTPUT lRecFound
+            ).       
+    END.
+
+    IF opcSharedSecret EQ "" THEN DO:
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany,      /* Company Code */
+            INPUT  "cXMLSecret",    /* sys-ctrl name */
+            INPUT  "C",             /* Output return value */
+            INPUT  NO,              /* Use ship-to */
+            INPUT  NO,              /* ship-to vendor */
+            INPUT  "",              /* ship-to vendor value */
+            INPUT  "",              /* ship-id value */
+            OUTPUT opcSharedSecret, 
+            OUTPUT lRecFound
+            ).   
+    END.
+    
+    RELEASE bf-cust.
 END PROCEDURE.
+
+PROCEDURE GetOriginalQuantity:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to get the original quantity of a BOL line
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriOeBoll  AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUOM      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+
+    FIND FIRST bf-oe-boll NO-LOCK 
+         WHERE ROWID(bf-oe-boll) EQ ipriOeBoll
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-boll THEN
+        RETURN.
+                 
+    RUN sys/ref/nk1look.p (
+        INPUT  oe-boll.company, /* Company Code */
+        INPUT  "CaseUOMList",   /* sys-ctrl name */
+        INPUT  "C",             /* Output return value */
+        INPUT  NO,              /* Use ship-to */
+        INPUT  NO,              /* ship-to vendor */
+        INPUT  "",              /* ship-to vendor value */
+        INPUT  "",              /* ship-id value */
+        OUTPUT cCaseUOMList, 
+        OUTPUT lRecFound
+        ).
+                         
+    FIND FIRST bf-oe-ordl NO-LOCK
+         WHERE bf-oe-ordl.company EQ bf-oe-boll.company
+           AND bf-oe-ordl.ord-no  EQ bf-oe-boll.ord-no
+           AND bf-oe-ordl.i-no    EQ bf-oe-boll.i-no
+           AND bf-oe-ordl.line    EQ bf-oe-boll.line
+         NO-ERROR.                            
+    IF AVAILABLE bf-oe-ordl THEN DO:
+        ASSIGN
+            opdQuantity = bf-oe-ordl.spare-dec-1
+            opcUOM      = bf-oe-ordl.spare-char-2
+            .
+            
+        IF (cUOM EQ 'CS' OR LOOKUP(opcUOM, cCaseUOMList) GT 0)
+            AND opdQuantity        NE bf-oe-boll.qty 
+            AND bf-oe-ordl.cas-cnt NE 0 THEN
+            opdQuantity = bf-oe-boll.qty / bf-oe-ordl.cas-cnt.
+        ELSE 
+            opdQuantity = bf-oe-boll.qty.
+    END.
+
+    IF opdQuantity EQ 0 THEN
+        opdQuantity = bf-oe-boll.qty.
+                                        
+    IF opcUOM EQ "" THEN 
+        opcUOM = "EA".   
+        
+    RELEASE bf-oe-boll.
+    RELEASE bf-oe-ordl.        
+END PROCEDURE.
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION FormatDateForCXML RETURNS CHARACTER 
+	( ipdtDate AS DATE, ipiTime AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose: Formats a given date and time to cXML formatted date
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cFormattedDate AS CHARACTER NO-UNDO.
+    
+    IF ipdtDate EQ ? THEN
+        cFormattedDate = "".
+    ELSE
+        cFormattedDate = STRING(YEAR(ipdtDate),"9999") + "-" 
+                       + STRING(MONTH(ipdtDate),"99") + "-" 
+                       + STRING(DAY(ipdtDate),"99")
+                       + 'T'
+                       + STRING(ipiTime,'hh:mm:ss')
+                       + '-05:00'.
+    RETURN cFormattedDate.
+END FUNCTION.
+
+FUNCTION GetPayLoadID RETURNS CHARACTER
+	(ipcProcessID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Generates a payload id to send in cXML ASN
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cPayLoadID AS CHARACTER NO-UNDO.
+      
+    ASSIGN
+        cPayLoadID = STRING(NOW)
+        cPayLoadID = REPLACE(cPayLoadID,'/','')
+        cPayLoadID = REPLACE(cPayLoadID,' ','')
+        cPayLoadID = REPLACE(cPayLoadID,' ','')
+        cPayLoadID = REPLACE(cPayLoadID,':','')
+        cPayLoadID = REPLACE(cPayLoadID,'-','')
+        cPayLoadID = REPLACE(cPayLoadID,'.','')
+        cPayLoadID = cPayLoadID + IF ipcProcessID NE '' THEN '.' + ipcProcessID ELSE ''
+        cPayLoadID = cPayLoadID + '.' + STRING(RANDOM(1000,9999),'9999')
+        cPayLoadID = cPayLoadID + "@PremPack.com"
+        .
+      
+    RETURN cPayLoadID.
+END FUNCTION.

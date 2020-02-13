@@ -109,7 +109,7 @@
                                        DAY(ar-inv.inv-date),"99999999")
            xtt-report.key-04  = ar-invl.po-no
            xtt-report.key-05  = v-ship
-           xtt-report.key-06  = string(ar-invl.inv-no,"999999")
+           xtt-report.key-06  = string(ar-invl.inv-no,"9999999")
            xtt-report.key-07  = v-sman-no
            xtt-report.key-09  = tt-report.key-09.
          LEAVE.
@@ -132,7 +132,7 @@
                                  (MONTH(ar-cash.check-date) * 100) +
                                  DAY(ar-cash.check-date),"99999999")
        tt-report.key-05 = tt-report.key-09
-       tt-report.key-06 = string(ar-cashl.inv-no,"999999")
+       tt-report.key-06 = string(ar-cashl.inv-no,"9999999")
        tt-report.key-07 = cust.sman.
       
       release ar-inv.
@@ -288,7 +288,7 @@
     create w-data.
     assign
      w-data.i-no    = tt-report.key-02
-     w-data.inv-no  = int(tt-report.key-06)
+     w-data.inv-no  = int(tt-report.key-06) 
      w-data.rec-id  = tt-report.rec-id.
 
     IF FIRST-OF(tt-report.key-02) THEN DO:
@@ -524,7 +524,7 @@
                          WHEN "cust-po"  THEN cVarValue = STRING(tt-report.key-04,"x(15)") .
                          WHEN "ship-to"    THEN cVarValue = string(tt-report.key-05,"x(8)") .
                          WHEN "ship-date"   THEN cVarValue = string(v-date,"99/99/99").
-                         WHEN "inv"   THEN cVarValue = STRING(w-data.inv-no,">>>>>>>>").
+                         WHEN "inv"   THEN cVarValue = STRING(w-data.inv-no,">>>>>>>9").
                          WHEN "order"  THEN cVarValue = STRING(v-ord,">>>>>>>>") .
                          WHEN "uom"   THEN cVarValue = STRING(v-uom,"x(3)") .
                          WHEN "qty-ord"  THEN cVarValue = STRING(v-qty[6],"->>,>>>,>>9.99") .

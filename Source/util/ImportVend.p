@@ -33,6 +33,7 @@ DEFINE TEMP-TABLE ttImportVend
     FIELD VendRAdd2       AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Remit Addr 2" HELP "Optional - Size:30"
     FIELD VendRCity       AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Remit City" HELP "Optional - Size:16"
     FIELD VendRState      AS CHARACTER FORMAT "X(2)" COLUMN-LABEL "Remit State" HELP "Optional - Size:2"
+    FIELD VendRCountry    AS CHARACTER FORMAT "X(11)" COLUMN-LABEL "Remit Country" HELP "Optional - Size:11"
     FIELD VendRPostal     AS CHARACTER FORMAT "X(11)" COLUMN-LABEL "Remit Postal Code" HELP "Optional - Size:11"
     FIELD VendRZip        AS CHARACTER FORMAT "xxxxx-xxxx" COLUMN-LABEL "Remit Zip Code" HELP "Optional - Size:9"
     FIELD Terms           AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Terms Code" HELP "Optional - Validated - Size:5"
@@ -182,7 +183,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportVend.VendState, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.state).
     RUN pAssignValueC (ipbf-ttImportVend.VendRState, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-state).
     RUN pAssignValueC (ipbf-ttImportVend.VendCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.country).
-    RUN pAssignValueC (ipbf-ttImportVend.VendCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-country).
+    RUN pAssignValueC (ipbf-ttImportVend.VendRCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-country).
     RUN pAssignValueC (ipbf-ttImportVend.VendPostal, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.postal).
     RUN pAssignValueC (ipbf-ttImportVend.VendRPostal, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.r-postal).
     RUN pAssignValueC (ipbf-ttImportVend.VendZip, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.zip).

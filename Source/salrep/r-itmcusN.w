@@ -47,7 +47,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 def TEMP-TABLE w-data NO-UNDO
   field i-no      like ar-invl.i-no
-  field inv-no    like ar-invl.inv-no
+  field inv-no    like ar-invl.inv-no FORMAT ">>>>>>>9"
   field rec-id    as recid.
 
 DEF TEMP-TABLE tt-ordl NO-UNDO FIELD row-id AS ROWID INDEX row-id row-id.
@@ -1654,7 +1654,7 @@ FORM tt-report.key-04       FORMAT "x(15)"
                             COLUMN-LABEL "Ship To"
      v-date                 FORMAT "99/99/99"
                             COLUMN-LABEL "Ship Date"
-     w-data.inv-no          FORMAT ">>>>>>>>"
+     w-data.inv-no          FORMAT ">>>>>>>9"
                             COLUMN-LABEL "Invoice#"
      v-ord                  FORMAT ">>>>>>>>"
                             COLUMN-LABEL "Order#"
