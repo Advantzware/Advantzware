@@ -536,7 +536,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBinDetails B-table-Win
 ON CHOOSE OF btnBinDetails IN FRAME F-Main /* View Bin Details */
 DO:
-    {methods/run_link.i "ViewDetail-TARGET" "pViewDetail" "(13)"}
+    {methods/run_link.i "ViewDetail-TARGET" "pViewDetail" "(14)"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
