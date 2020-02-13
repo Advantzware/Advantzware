@@ -93,14 +93,13 @@ DEF STREAM excel.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-year ~
-tran-period tb_inact tb_prior-period-data tb_out-bal ~
-tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page ~
-lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS tran-year tran-period ~
-tb_inact tb_prior-period-data tb_out-bal tb_invalid-period ~
-tb_post-out-period fi_file rd-dest lines-per-page lv-ornt lv-font-no ~
-lv-font-name td-show-parm v-msg1 v-msg2 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_inact tb_prior-period-data ~
+tb_out-bal tb_invalid-period tb_post-out-period fi_file rd-dest ~
+lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiText tran-year tran-period tb_inact ~
+tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period ~
+fi_file rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm ~
+v-msg1 v-msg2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -123,6 +122,10 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U INITIAL "This operation will perform a CLOSE on your first open period" 
+     VIEW-AS FILL-IN 
+     SIZE 66 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(250)":U INITIAL "c:~\tmp~\r-glmclo.csv" 
      LABEL "File Location" 
@@ -220,8 +223,9 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tran-year AT ROW 3.62 COL 19.4 COLON-ALIGNED WIDGET-ID 6
-     tran-period AT ROW 3.67 COL 37.6 COLON-ALIGNED
+     fiText AT ROW 2.43 COL 9 COLON-ALIGNED NO-LABEL
+     tran-year AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 6
+     tran-period AT ROW 3.62 COL 39 COLON-ALIGNED
      tb_inact AT ROW 5.29 COL 21.8 WIDGET-ID 10
      tb_prior-period-data AT ROW 5.29 COL 57 WIDGET-ID 40
      tb_out-bal AT ROW 6.43 COL 21.8 WIDGET-ID 12
@@ -239,8 +243,6 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 23.05 COL 57
      v-msg1 AT ROW 11.52 COL 3.2 NO-LABEL WIDGET-ID 2
      v-msg2 AT ROW 13.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     /*" --" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 3.90 COL 53 WIDGET-ID 38*/
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
      "Output Destination" VIEW-AS TEXT
@@ -308,6 +310,11 @@ ASSIGN
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR FILL-IN fiText IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiText:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -334,10 +341,14 @@ ASSIGN
        tb_prior-period-data:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 ASSIGN 
        tran-period:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN tran-year IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 ASSIGN 
        tran-year:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -1187,15 +1198,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-year tran-period tb_inact 
-          tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period 
-          fi_file rd-dest lines-per-page lv-ornt lv-font-no lv-font-name 
-          td-show-parm v-msg1 v-msg2 
+  DISPLAY fiText tran-year tran-period tb_inact tb_prior-period-data tb_out-bal 
+          tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
+          lv-ornt lv-font-no lv-font-name td-show-parm v-msg1 v-msg2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tran-year tran-period tb_inact 
-         tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period 
-         fi_file rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok 
-         btn-cancel 
+  ENABLE RECT-6 RECT-7 tb_inact tb_prior-period-data tb_out-bal 
+         tb_invalid-period tb_post-out-period fi_file rd-dest lines-per-page 
+         lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1277,7 +1286,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
- DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
  DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
