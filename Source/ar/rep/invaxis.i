@@ -31,9 +31,9 @@ PUT "<FTimes New Roman></B>".
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>          INVOICE#                    " ar-inv.inv-no
+    "<=#3>          INVOICE#                    " ar-inv.inv-no FORMAT ">>>>>>9"
     "<=#3><R+1>              DATE               " v-inv-date 
-    "<=#3><R+2>              PAGE                   " lv-page FORMAT ">9" " of [=@endPage" + TRIM(string(ar-inv.inv-no,">>>>>9")) + "-@startPage" + TRIM(string(ar-inv.inv-no,">>>>>9")) + "+1]" FORMAT "x(60)" "<FCourier New>"    
+    "<=#3><R+2>              PAGE                   " lv-page FORMAT ">9" " of [=@endPage" + TRIM(string(ar-inv.inv-no,">>>>>>9")) + "-@startPage" + TRIM(string(ar-inv.inv-no,">>>>>9")) + "+1]" FORMAT "x(60)" "<FCourier New>"    
     SKIP(1)
     .
 

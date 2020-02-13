@@ -19,7 +19,7 @@ v-printline = v-printline + 19.
 PUT "</B><P10><R5.5><C65><#3><FROM><R11.5><C80><RECT><||3>" SKIP
     "<R7.5><C65><FROM><R7.5><C80><LINE><||3>" SKIP
     "<R9.5><C65><FROM><R9.5><C80><LINE><||3>" SKIP
-    "<P12><=#3><R4><B><C65>Invoice # " TRIM(STRING(ar-inv.inv-no)) "</B><P10>" SKIP
+    "<P12><=#3><R4><B><C65>Invoice # " TRIM(STRING(ar-inv.inv-no,">>>>>>9"))  "</B><P10>" SKIP
     "<=#3><C65> Invoice Date"
     "<=#3><R+2><C65> BOL #"
     "<=#3><R+4><C65> Customer ID</B>"    

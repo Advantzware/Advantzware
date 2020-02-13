@@ -68,7 +68,7 @@
            xtt-report.key-01  = if sort-by-cust then tt-report.key-09
                                 else if avail itemfg then itemfg.procat else ""
            xtt-report.key-02  = ar-invl.i-no
-           xtt-report.key-03  = string(ar-invl.inv-no,"999999")
+           xtt-report.key-03  = string(ar-invl.inv-no,"9999999")
            xtt-report.key-09  = tt-report.key-09
            xtt-report.key-10  = "ar-invl".
         end.
@@ -85,7 +85,7 @@
          v-exc         = yes
          tt-report.key-01 = if sort-by-cust then tt-report.key-09 else ""
          tt-report.key-02 = ""
-         tt-report.key-03 = string(ar-cashl.inv-no,"999999").
+         tt-report.key-03 = string(ar-cashl.inv-no,"9999999").
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
@@ -431,9 +431,9 @@
       IF TB_style-flute-test-lwd = YES THEN DO:
          DISPLAY  
             v-cust-no
-            v-order-date
+            v-order-date  
             v-date
-            w-data.inv-no
+            w-data.inv-no   FORMAT ">>>>>>9"
             w-data.i-no
             v-cust-part-no    WHEN RS_fgitem-cust-part-no = "Cust Part no" @ w-data.i-no
             itemfg.procat     WHEN AVAIL itemfg
@@ -456,7 +456,7 @@
       ELSE DO:
          DISPLAY 
             v-cust-no
-            w-data.inv-no
+            w-data.inv-no   FORMAT ">>>>>>9"
             w-data.i-no       
             v-cust-part-no    WHEN RS_fgitem-cust-part-no = "Cust Part no" @ w-data.i-no
             itemfg.procat     when avail itemfg
@@ -483,7 +483,7 @@
                '"' v-cust-no                                      '",'  
                '"' v-order-date                                   '",'
                '"' v-date                                         '",'  
-               '"' w-data.inv-no                                  '",'
+               '"' w-data.inv-no  format ">>>>>>9"                '",'
                '"' REPLACE(v-cust-part-no, '"', "") FORMAT "X(15)"                 '",'  
                '"' (IF AVAIL itemfg THEN itemfg.procat ELSE "")   '",' 
                '"' v-qty[1]                                       '",'
@@ -505,7 +505,7 @@
          ELSE
             PUT STREAM excel 
                '"' v-cust-no                                      '",'
-               '"' w-data.inv-no                                  '",'
+               '"' w-data.inv-no  FORMAT ">>>>>>9"                '",'
                '"' REPLACE(v-cust-part-no, '"', "")  FORMAT "X(15)"                '",'  
                '"' (IF AVAIL itemfg THEN itemfg.procat ELSE "")   '",' 
                '"' v-qty[1]                                       '",'

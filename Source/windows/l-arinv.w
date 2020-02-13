@@ -144,7 +144,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>9":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
       ar-inv.ord-no FORMAT ">>>>>9":U
       ar-inv.po-no FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */
@@ -206,7 +206,7 @@ ASSIGN
      _Where[1]         = "ASI.ar-inv.company = ip-company and
 (ar-inv.cust-no = ip-cust-no or ip-cust-no = """")"
      _FldNameList[1]   > ASI.ar-inv.inv-no
-"inv-no" "Invoice#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[2]   = ASI.ar-inv.ord-no
      _FldNameList[3]   = ASI.ar-inv.po-no
      _Query            is OPENED

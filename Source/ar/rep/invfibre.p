@@ -53,7 +53,7 @@ find first cust no-lock no-error.
 
 format header
        skip(3)
-       trim(string(ar-inv.inv-no,">>>>>>"))     at 73
+       trim(string(ar-inv.inv-no,">>>>>>>"))     at 73
        skip(1)
        ar-inv.inv-date      format "99/99/99"   at 73
        skip(1)

@@ -1430,7 +1430,7 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 form cust.cust-no       column-label "Customer"
      v-name             column-label "Customer/Item Name"
      tt-report.key-05   column-label "Ship-to"                format "x(8)"
-     w-data.inv-no
+     w-data.inv-no      FORMAT ">>>>>>>"
      v-date             FORMAT "99/99/99"
      w-data.i-no
      v-ord              format ">>>>>>"
@@ -1438,7 +1438,7 @@ form cust.cust-no       column-label "Customer"
      v-pric             format "->>>,>>>,>>9.99<<"
      v-uom
      v-amt[1]           format "->,>>>,>>>,>>9.99"
-   with no-box frame itemx down STREAM-IO width 132.
+   with no-box frame itemx down STREAM-IO width 133.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1544,7 +1544,7 @@ FOR EACH ttCustList
                                if ar-invl.misc then ar-invl.i-name else
                                if ar-invl.i-no ne "" then ar-invl.i-no else
                                "AR SALE",
-                               string(ar-inv.inv-no,"999999"), "").
+                               string(ar-inv.inv-no,"9999999"), "").
          end.
 
          if v-freight and ar-inv.f-bill then do:
@@ -1569,7 +1569,7 @@ FOR EACH ttCustList
                   v-sman-no le tsman                      THEN do:
 
                  run create-report (recid(ar-invl), "FREIGHT",
-                                    string(ar-inv.inv-no,"999999"), "FREIGHT").
+                                    string(ar-inv.inv-no,"9999999"), "FREIGHT").
                END.
             end.
          end.
@@ -1592,7 +1592,7 @@ FOR EACH ttCustList
                               tt-report.key-09
                            else ""
         tt-report.key-03 = "MEMO"
-        tt-report.key-04 = string(ar-cashl.inv-no,"999999")
+        tt-report.key-04 = string(ar-cashl.inv-no,"9999999")
         tt-report.key-05 = tt-report.key-09
         tt-report.key-06 = cust.sman
         tt-report.key-07 = tt-report.key-03.
@@ -1885,7 +1885,7 @@ FOR EACH ttCustList
              '"' IF (v-print1 and first-of(tt-report.key-01))
                     or (not v-print1) THEN v-name ELSE ""          '",'
              '"' tt-report.key-05                                  '",'
-             '"' w-data.inv-no                                     '",'
+             '"' string(w-data.inv-no,">>>>>>>")                   '",'
              '"' STRING(v-date)                                    '",'
              '"' REPLACE(w-data.i-no,lv-quotes,"")                 '",'
              '"' STRING(v-ord,">>>>>>")                            '",'

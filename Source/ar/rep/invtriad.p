@@ -46,7 +46,7 @@ if avail company then
 
 format header
        skip(3)
-       trim(string(ar-inv.inv-no,">>>>>>"))
+       trim(string(ar-inv.inv-no,">>>>>>>"))
 				    at 65
        skip(1)
        ar-inv.inv-date              at 66 FORMAT "99/99/99" 

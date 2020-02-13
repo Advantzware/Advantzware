@@ -1461,7 +1461,7 @@ form header
 form v-cust-no            column-label "Customer"
      v-order-date
      v-date                                      
-     w-data.inv-no
+     w-data.inv-no        FORMAT ">>>>>>9"
      space(2)
      w-data.i-no
      itemfg.procat        column-label "Prod!Categ"

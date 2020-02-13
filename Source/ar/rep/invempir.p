@@ -50,7 +50,7 @@ find first oe-ord no-lock no-error.
 
 format header
        skip(1)
-       trim(string(ar-inv.inv-no,">>>>>>"))
+       trim(string(ar-inv.inv-no,">>>>>>>"))
 				    to 78
        skip(1)
        ar-inv.inv-date         to 78 FORMAT "99/99/99" 
