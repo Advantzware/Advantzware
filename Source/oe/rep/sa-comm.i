@@ -593,24 +593,25 @@
             deUseCost = 0.
         IF v-full-cost THEN DO:
         IF ar-invl.spare-dec-1 GT 0 THEN ASSIGN 
-            deUseCost = ar-invl.spare-dec-1.
+            v-cost = ar-invl.spare-dec-1.
         ELSE DO:
             FIND c-itemfg NO-LOCK WHERE 
                 c-itemfg.company EQ ar-invl.company AND 
                 c-itemfg.i-no EQ ar-invl.i-no 
                 NO-ERROR.
-            IF AVAIL c-itemfg THEN ASSIGN 
-                deUseCost = c-itemfg.spare-dec-1.
+            IF AVAIL c-itemfg 
+            AND c-itemfg.spare-dec-1 NE 0 THEN ASSIGN 
+                v-cost = c-itemfg.spare-dec-1.
         END.
         IF ar-invl.dscr[1] EQ "M" 
         OR ar-invl.dscr[1] EQ "" THEN ASSIGN 
-            v-cost = deUseCost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
-        ELSE ASSIGN /* EA */
-            v-cost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100
+            v-cost = v-cost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
+        ELSE ASSIGN  /* EA */ 
+            v-cost = v-cost * ar-invl.inv-qty * v-slsp[1] / 100
             v-prof = v-amt - v-cost
             v-prof = IF v-prof EQ ? THEN 0 ELSE v-prof
-            v-gp   = ROUND(v-prof / v-amt * 100,2)
-            v-gp    IF v-gp EQ ? 0 ELSE v-gp.
+            v-gp   = ROUND(v-prof / v-amt * 100 , 2)
+            v-gp   = IF v-gp EQ ? THEN 0 ELSE v-gp. 
     END.
         
 
