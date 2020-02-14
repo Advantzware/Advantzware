@@ -1440,15 +1440,6 @@ ll-tag-meth = v-tag#.
   ASSIGN
      v-loadtag = sys-ctrl.char-fld.
 
-PROCEDURE mail EXTERNAL "xpMail.dll" :
-    DEFINE INPUT  PARAMETER mailTo      AS CHAR.
-    DEFINE INPUT  PARAMETER mailsubject AS CHAR.
-    DEFINE INPUT  PARAMETER mailText    AS CHAR.
-    DEFINE INPUT  PARAMETER mailFiles   AS CHAR.
-    DEFINE INPUT  PARAMETER mailDialog  AS LONG.
-    DEFINE OUTPUT PARAMETER retCode     AS LONG.
-END.
-
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

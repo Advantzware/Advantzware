@@ -27,9 +27,6 @@ IF {&TABLENAME}.pur-uom EQ "EA" THEN DO:
   {sys/inc/roundup.i {&TABLENAME}.qty}
 END.
 
-IF {&TABLENAME}.po-line EQ 0 THEN 
-    {&TABLENAME}.po-line = 1.
-
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.
