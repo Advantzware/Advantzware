@@ -56,7 +56,7 @@ cocode = ip-company.
 
 def var lv-first-time as log init yes no-undo.
 
-&scoped-define SORTBY-1 BY po-ordl.po-no DESC
+&scoped-define SORTBY-1 BY po-ordl.po-no DESC BY po-ordl.LINE
 &scoped-define SORTBY-2 BY po-ordl.vend-i-no {&SORTBY-1}
 &scoped-define SORTBY-3 BY po-ordl.i-no {&SORTBY-1}
 &scoped-define FLD-NAME-1 po-ordl.po-no
@@ -89,9 +89,10 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 po-ordl.po-no po-ordl.po-no ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 po-ordl.po-no po-ordl.LINE ~
 po-ordl.i-no po-ordl.i-name po-ordl.job-no po-ordl.job-no2 ~
-po-ordl.vend-i-no po-ord.vend-no po-ordl.s-wid po-ordl.s-len 
+po-ordl.vend-i-no po-ord.vend-no po-ordl.s-wid po-ordl.s-len ~
+po-ordl.ord-qty po-ordl.cost
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH po-ordl WHERE ~{&KEY-PHRASE} ~
       AND po-ordl.company eq ip-company and ~
@@ -186,7 +187,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       po-ordl.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
-      po-ordl.po-no FORMAT ">>>>>9":U COLUMN-FONT 0 LABEL-BGCOLOR 14
+      po-ordl.LINE FORMAT ">>9":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.i-no FORMAT "x(15)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.i-name FORMAT "x(30)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U COLUMN-FONT 0
@@ -197,6 +198,10 @@ DEFINE BROWSE BROWSE-1
       po-ordl.s-wid COLUMN-LABEL "Sheet!Wid" FORMAT ">>9.9999":U
             COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.s-len COLUMN-LABEL "Sheet!Len" FORMAT ">>9.9999":U
+            COLUMN-FONT 0 LABEL-BGCOLOR 14
+     po-ordl.ord-qty COLUMN-LABEL "Qty" FORMAT ">>>>>>>9.99":U
+            COLUMN-FONT 0 LABEL-BGCOLOR 14
+     po-ordl.cost COLUMN-LABEL "Cost" FORMAT ">>>>>>>9.99<<":U
             COLUMN-FONT 0 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -282,8 +287,8 @@ po-ord.po-no eq po-ordl.po-no"
      _Where[2]         = "po-ord.stat ne ""H"""
      _FldNameList[1]   > ASI.po-ordl.po-no
 "po-ordl.po-no" "PO#" ? "integer" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.po-ordl.po-no
-"po-ordl.po-no" ? ? "Decimal" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.po-ordl.line
+"po-ordl.line" ? ? "Integer" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.po-ordl.i-no
 "po-ordl.i-no" ? ? "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.po-ordl.i-name
@@ -300,6 +305,10 @@ po-ord.po-no eq po-ordl.po-no"
 "po-ordl.s-wid" "Sheet!Wid" ? "decimal" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.po-ordl.s-len
 "po-ordl.s-len" "Sheet!Len" ? "decimal" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.po-ordl.ord-qty
+"po-ordl.ord-qty" "Qty" ? "decimal" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[12]   > ASI.po-ordl.cost
+"po-ordl.cost" "Cost" ? "decimal" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
