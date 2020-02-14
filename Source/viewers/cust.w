@@ -1423,7 +1423,7 @@ ON LEAVE OF cust.state IN FRAME F-Main /* State */
 DO:
     {&methods/lValidateError.i YES}
     if lastkey <> -1 and cust.state:screen-value <> "" and
-       not can-find(first state where state.state = cust.state:screen-value )
+       not can-find(first statecod where statecod.statecod = cust.state:screen-value )
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
@@ -2398,7 +2398,7 @@ PROCEDURE local-update-record :
         return no-apply.
      end.                                     
      if cust.state:screen-value <> "" and
-        not can-find(first state where state.state = cust.state:screen-value )
+        not can-find(first statecod where statecod.statecod = cust.state:screen-value )
      then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        apply "entry" to cust.state.
