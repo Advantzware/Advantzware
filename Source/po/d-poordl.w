@@ -1026,7 +1026,10 @@ DO:
   END.
 
   RUN check-cust-hold(OUTPUT op-error) NO-ERROR.
-  IF op-error THEN APPLY 'choose' TO btn_Cancel.
+  IF op-error THEN do: 
+      APPLY 'choose' TO btn_Cancel.
+      RETURN NO-APPLY .
+  END.
 
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1368,7 +1371,10 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
             RUN check-cust-hold(OUTPUT lReturnError) NO-ERROR.
-            IF lReturnError THEN APPLY 'choose' TO btn_Cancel.
+            IF lReturnError THEN do:
+                 APPLY 'choose' TO btn_Cancel.
+                 RETURN NO-APPLY .
+            END.
 
             /* gdm - 06040918 */
             FIND FIRST bf-itemfg NO-LOCK 
