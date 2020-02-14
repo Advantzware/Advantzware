@@ -190,16 +190,17 @@ DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.r-no rm-rctd.tag ~
-loadtag.misc-char[1] loadtag.misc-char[2] rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date ~
-rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.i-no ~
-rm-rctd.i-name rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom ~
-calc-ext-cost() @ ext-cost display-dimension('W') @ lv-po-wid ~
-display-dimension('L') @ lv-po-len rm-rctd.user-id 
+loadtag.misc-char[1] loadtag.misc-char[2] rm-rctd.loc rm-rctd.loc-bin ~
+rm-rctd.rct-date rm-rctd.po-no rm-rctd.po-line rm-rctd.job-no ~
+rm-rctd.job-no2 rm-rctd.s-num rm-rctd.i-no rm-rctd.i-name rm-rctd.qty ~
+rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom calc-ext-cost() @ ext-cost ~
+display-dimension('W') @ lv-po-wid display-dimension('L') @ lv-po-len ~
+rm-rctd.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.tag ~
 loadtag.misc-char[2] rm-rctd.loc rm-rctd.loc-bin rm-rctd.i-no rm-rctd.qty 
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table loadtag rm-rctd 
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table loadtag
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd loadtag
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table loadtag
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
       AND rm-rctd.company EQ cocode ~
 AND rm-rctd.rita-code EQ "R" ~
@@ -314,11 +315,12 @@ DEFINE BROWSE Browser-Table
       loadtag.misc-char[1] COLUMN-LABEL "Vendor Tag #" FORMAT "x(21)":U
             WIDTH 30 LABEL-BGCOLOR 14
       loadtag.misc-char[2] COLUMN-LABEL "RM Lot #" FORMAT "x(21)":U
-            WIDTH 20 
+            WIDTH 20
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.po-line FORMAT ">>9":U
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
       rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
@@ -433,13 +435,6 @@ ASSIGN
 ASSIGN 
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-IF cSSScanVendor = "RMLot" THEN
-    ASSIGN 
-    loadtag.misc-char[2]:VISIBLE IN BROWSE Browser-Table = TRUE.
-ELSE
-    ASSIGN 
-        loadtag.misc-char[2]:VISIBLE IN BROWSE Browser-Table = FALSE.
-
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -471,38 +466,41 @@ loadtag.misc-char[1] begins lv-search"
 "rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.loadtag.misc-char[1]
 "loadtag.misc-char[1]" "Vendor Tag #" "x(21)" "character" ? ? ? 14 ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > asi.rm-rctd.loc
+     _FldNameList[4]   > asi.loadtag.misc-char[2]
+"loadtag.misc-char[2]" "RM Lot #" "x(21)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > asi.rm-rctd.loc
 "rm-rctd.loc" "Whse" "x(13)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > asi.rm-rctd.loc-bin
+     _FldNameList[6]   > asi.rm-rctd.loc-bin
 "rm-rctd.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > asi.rm-rctd.rct-date
+     _FldNameList[7]   > asi.rm-rctd.rct-date
 "rm-rctd.rct-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > asi.rm-rctd.po-no
+     _FldNameList[8]   > asi.rm-rctd.po-no
 "rm-rctd.po-no" ? "x(6)" "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > asi.rm-rctd.job-no
+     _FldNameList[9]   = asi.rm-rctd.po-line
+     _FldNameList[10]   > asi.rm-rctd.job-no
 "rm-rctd.job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = asi.rm-rctd.job-no2
-     _FldNameList[10]   > asi.rm-rctd.s-num
+     _FldNameList[11]   = asi.rm-rctd.job-no2
+     _FldNameList[12]   > asi.rm-rctd.s-num
 "rm-rctd.s-num" "S" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > asi.rm-rctd.i-no
+     _FldNameList[13]   > asi.rm-rctd.i-no
 "rm-rctd.i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > asi.rm-rctd.i-name
+     _FldNameList[14]   > asi.rm-rctd.i-name
 "rm-rctd.i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > asi.rm-rctd.qty
+     _FldNameList[15]   > asi.rm-rctd.qty
 "rm-rctd.qty" "Qty" "->,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > asi.rm-rctd.pur-uom
+     _FldNameList[16]   > asi.rm-rctd.pur-uom
 "rm-rctd.pur-uom" "UOM" "x(4)" "character" ? ? ? 14 ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > asi.rm-rctd.cost
+     _FldNameList[17]   > asi.rm-rctd.cost
 "rm-rctd.cost" "Cost" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > asi.rm-rctd.cost-uom
+     _FldNameList[18]   > asi.rm-rctd.cost-uom
 "rm-rctd.cost-uom" "UOM" "x(4)" "character" ? ? ? 14 ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > "_<CALC>"
-"calc-ext-cost() @ ext-cost" "Ext.Amount" "->>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > "_<CALC>"
-"display-dimension('W') @ lv-po-wid" "Width" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
+"calc-ext-cost() @ ext-cost" "Ext.Amount" "->>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > "_<CALC>"
+"display-dimension('W') @ lv-po-wid" "Width" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[21]   > "_<CALC>"
 "display-dimension('L') @ lv-po-len" "Length" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > asi.rm-rctd.user-id
+     _FldNameList[22]   > asi.rm-rctd.user-id
 "rm-rctd.user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -1442,16 +1440,14 @@ ll-tag-meth = v-tag#.
   ASSIGN
      v-loadtag = sys-ctrl.char-fld.
 
-
-  PROCEDURE mail EXTERNAL "xpMail.dll" :
-        DEF INPUT PARAM mailTo AS CHAR.
-        DEF INPUT PARAM mailsubject AS CHAR.
-        DEF INPUT PARAM mailText AS CHAR.
-        DEF INPUT PARAM mailFiles AS CHAR.
-        DEF INPUT PARAM mailDialog AS LONG.
-        DEF OUTPUT PARAM retCode AS LONG.
-  END.
-
+PROCEDURE mail EXTERNAL "xpMail.dll" :
+    DEFINE INPUT  PARAMETER mailTo      AS CHAR.
+    DEFINE INPUT  PARAMETER mailsubject AS CHAR.
+    DEFINE INPUT  PARAMETER mailText    AS CHAR.
+    DEFINE INPUT  PARAMETER mailFiles   AS CHAR.
+    DEFINE INPUT  PARAMETER mailDialog  AS LONG.
+    DEFINE OUTPUT PARAMETER retCode     AS LONG.
+END.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -2764,6 +2760,7 @@ PROCEDURE local-assign-statement :
     /* Code placed here will execute AFTER standard behavior.    */
     ASSIGN
         rm-rctd.po-no     = rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        rm-rctd.po-line   = INTEGER(rm-rctd.po-line:SCREEN-VALUE)
         rm-rctd.rct-date  = DATE(rm-rctd.rct-date:SCREEN-VALUE)
         rm-rctd.job-no    = rm-rctd.job-no:SCREEN-VALUE
         rm-rctd.job-no2   = INT(rm-rctd.job-no2:SCREEN-VALUE)
@@ -2870,6 +2867,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF cSSScanVendor = "RMLot" THEN
+        loadtag.misc-char[2]:VISIBLE IN BROWSE Browser-Table = TRUE.
+    ELSE
+        loadtag.misc-char[2]:VISIBLE IN BROWSE Browser-Table = FALSE.
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
