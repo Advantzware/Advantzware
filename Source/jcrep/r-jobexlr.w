@@ -994,11 +994,12 @@ IF tb_excel THEN
  FOR EACH job WHERE job.company EQ cocode
      AND  (job.job-no >= begin_job AND job.job-no <= END_job)
      AND ((job.opened EQ YES AND v-open) OR (job.opened EQ NO AND v-closed))  NO-LOCK,
-     FIRST job-hdr WHERE job-hdr.company = cocode
+     FIRST job-hdr NO-LOCK WHERE job-hdr.company = cocode
       AND ((job-hdr.opened EQ YES AND v-open) OR (job-hdr.opened EQ NO AND v-closed)) 
       AND (job-hdr.cust-no >= begin_cust-no AND job-hdr.cust-no <= end_cust-no) 
       AND (job-hdr.i-no >= begin_item AND job-hdr.i-no <= END_item) 
-      AND job-hdr.job-no = job.job-no NO-LOCK,
+      AND job-hdr.job-no = job.job-no
+      AND job-hdr.job-no2 = job.job-no2 ,
       EACH job-mch WHERE job-mch.company = cocode 
              AND job-mch.job = job.job 
              AND job-mch.job-no = job.job-no 
