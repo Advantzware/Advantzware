@@ -1109,10 +1109,14 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
     MESSAGE "Unspecified Locations exist for the item " itemfg.i-no "." SKIP 
         "Do you want to recalulate the quantity?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL  
-        UPDATE lUnspecified as LOGICAL . 
-    IF lUnspecified THEN DO:
+        UPDATE lCalculate as LOGICAL . 
+    IF lCalculate THEN DO:
         RUN pCalculateQty.
-        RUN build-table. 
+        RUN build-table.
+        IF lUnspecified THEN 
+            MESSAGE "The unspecified location is because there are orders without releases for this item, "
+                    + "so the ship from location cannot be determined"
+                VIEW-AS ALERT-BOX INFORMATION.     
     END.    
       
 
