@@ -1633,7 +1633,6 @@ PROCEDURE CreateTransactionInitializedFromJob:
            AND job-mch.job-no2  EQ job-hdr.job-no2
            AND job-mch.m-code   EQ ipcMachine
            AND job-mch.frm      EQ ipiFormno
-           AND job-mch.blank-no EQ ipiBlankno
          NO-ERROR.
     IF NOT AVAILABLE job-mch THEN DO:
         ASSIGN
@@ -1648,7 +1647,6 @@ PROCEDURE CreateTransactionInitializedFromJob:
            AND job-mat.job-no   EQ job-hdr.job-no
            AND job-mat.job-no2  EQ job-hdr.job-no2
            AND job-mat.frm      EQ ipiFormNo
-           AND job-mat.blank-no EQ ipiBlankNo
            AND (IF ipcRMItem    EQ "" THEN 
                     TRUE
                 ELSE
@@ -2623,9 +2621,7 @@ PROCEDURE RebuildWIPBrowseTT:
          AND inventoryStock.jobID2    EQ ipiJobno2   
          AND (IF ipcMachine           EQ "" THEN TRUE 
               ELSE inventoryStock.MachineID EQ ipcMachine)
-         AND inventoryStock.formNo    EQ ipiFormno   
-         AND inventoryStock.blankNo   EQ ipiBlankno
-        :
+         AND inventoryStock.formNo    EQ ipiFormno:
         CREATE ttBrowseInventory.
         BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
         ASSIGN
