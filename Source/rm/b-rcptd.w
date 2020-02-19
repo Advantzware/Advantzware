@@ -2781,6 +2781,8 @@ PROCEDURE local-cancel-record :
         v-copy-mode       = NO
         v-copy-mode-dec-1 = NO
         v-new-mode        = NO.
+    
+    EMPTY TEMP-TABLE tt-rm-rctd .
 
 END PROCEDURE.
 
