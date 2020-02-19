@@ -121,7 +121,12 @@ ASSIGN cocode = gcompany
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
-DEF TEMP-TABLE tt-eb LIKE eb FIELD row-id AS ROWID INDEX row-id row-id.
+DEFINE TEMP-TABLE tt-eb LIKE eb 
+  FIELD selected AS LOGICAL
+  FIELD row-id   AS ROWID 
+  INDEX row-id row-id
+  .
+  
 DEF TEMP-TABLE tt-est-op LIKE est-op.
 
 {est/inksvarn.i NEW}
@@ -4696,11 +4701,15 @@ PROCEDURE mass-delete :
       ASSIGN
        tt-eb.row-id = ROWID(b-eb).
     END.
-
-    FOR EACH tt-eb:
-      RUN repo-query (tt-eb.row-id).
-      IF AVAIL eb THEN RUN dispatch ("delete-record").
-    END.  
+    RUN est/ItemDeleteSelection.w (
+        INPUT-OUTPUT TABLE tt-eb
+        ).
+    FOR EACH tt-eb 
+        WHERE tt-eb.selected:
+        RUN repo-query (tt-eb.row-id).
+        IF AVAILABLE eb THEN 
+            RUN dispatch ("delete-record").
+    END.
   END.
 
   ll-mass-del = NO.
