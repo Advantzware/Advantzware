@@ -371,16 +371,14 @@ PROCEDURE ValidateJob:
                       AND job-mch.m-code   EQ ipcMachine
                       AND job-mch.job-no   EQ bf-job.job-no
                       AND job-mch.job-no2  EQ bf-job.job-no2
-                      AND job-mch.frm      EQ ipiFormno
-                      AND job-mch.blank-no EQ ipiBlankno).
+                      AND job-mch.frm      EQ ipiFormno).
         ELSE
             oplValidJob = CAN-FIND(FIRST job-mat NO-LOCK
                     WHERE job-mat.company  EQ bf-job.company
                       AND job-mat.job      EQ bf-job.job
                       AND job-mat.job-no   EQ bf-job.job-no
                       AND job-mat.job-no2  EQ bf-job.job-no2
-                      AND job-mat.frm      EQ ipiFormno
-                      AND job-mat.blank-no EQ ipiBlankno).
+                      AND job-mat.frm      EQ ipiFormno).
         
         IF oplValidJob THEN
             LEAVE.
