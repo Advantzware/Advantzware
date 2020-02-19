@@ -1878,7 +1878,7 @@ END.
           v-amt[2] @ v-amt[1]
 
       WITH FRAME itemx.
-MESSAGE "cFileName " cFileName VIEW-AS ALERT-BOX ERROR .
+
   IF tb_excel AND cFileName NE '' THEN
   OUTPUT STREAM st-excel CLOSE.
 
