@@ -93,7 +93,7 @@ DISPLAY  {1}
       /*oe-boll.qty-case*/ lv-qcase-tot FORM ">>>>>Z"           
     SPACE(1)
      lv-qty-tot FORM "->>>>>>>z"  WHEN lv-partial-tot = 0 SPACE(3)
-     lv-class FORM "x(3)" SPACE(3)
+     lv-class FORM "x(3)" SPACE(2)
      /*tt-boll.p-c /*v-part-comp WHEN lv-partial-tot = 0*/*/
      tt-boll.weight FORMAT ">>>>>>9"
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
@@ -135,7 +135,7 @@ tt-boll.printed = yes.
          PUT {1} "<R63><C69>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
          PAGE {1}.
          v-printline = 0.
-         {oe/rep/bolfran1.i}
+         {oe/rep/bolindc1.i}
     END.
 
      /* display componets of set */
@@ -188,7 +188,7 @@ tt-boll.printed = yes.
             /* PUT {1} SKIP(5) "*CONTINUED*" AT 52.*/
              PAGE {1}.
              v-printline = 0.
-             {oe/rep/bolfran1.i}
+             {oe/rep/bolindc1.i}
           END.
 
     end. /* isaset */
@@ -203,7 +203,7 @@ tt-boll.printed = yes.
          PUT {1} "<R63><C69>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
          PAGE {1}.
          v-printline = 0.
-         {oe/rep/bolfran1.i}
+         {oe/rep/bolindc1.i}
     END.
     ASSIGN lv-cases-tot = 0
        lv-qty-tot = 0
