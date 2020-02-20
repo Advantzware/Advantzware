@@ -1140,7 +1140,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_ok:HIDDEN                             = YES.
         btn_cancel:HIDDEN                         = YES.
     END.
-   
+
+    fg-rcpth.rita-code:SENSITIVE = FALSE.
+           
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
