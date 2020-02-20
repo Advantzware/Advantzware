@@ -131,7 +131,15 @@ FOR EACH reftable
     EXCLUSIVE-LOCK:
   DELETE reftable.
 END.
-         
+    
+FOR EACH estCostHeader EXCLUSIVE-LOCK 
+    WHERE estCostHeader.company EQ {&TABLENAME}.company
+    AND estCostHeader.estimateNo EQ {&TABLENAME}.est-no
+    AND estCostHeader.jobID EQ {&TABLENAME}.job-no
+    AND estCostHeader.jobID2 EQ {&TABLENAME}.job-no2:
+    DELETE estCostHeader.
+END.
+
 IF {&TABLENAME}.exported THEN DO:
   {&TABLENAME}.stat = "X".
   {jc/kiwiexp4.i}

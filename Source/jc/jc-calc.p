@@ -100,6 +100,7 @@ DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRecipients        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPriorJobMchExists AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUseNewCalc        AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER x-eb            FOR eb.
 DEFINE BUFFER x-job-hdr       FOR job-hdr.
@@ -244,6 +245,7 @@ RUN pGetParamValue.
 lAuditJobMch = CAN-FIND(FIRST AuditTbl
                         WHERE AuditTbl.AuditTable  EQ "job-mch"
                           AND AuditTbl.AuditUpdate EQ YES).
+RUN pGetEstimateCalcNew(cocode, OUTPUT lUseNewCalc).
 
 mainloop:
 DO:
@@ -701,7 +703,7 @@ DO:
     FIND CURRENT job NO-LOCK.
 
     /* calc-est.p calls print4.p or print42.p to create op temp-table */
-    RUN jc/calc-est.p (RECID(job)).
+    RUN jc/calc-est.p (RECID(job), lUseNewCalc).
 
     FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "SCHEDULE" NO-LOCK NO-ERROR.
@@ -1730,6 +1732,28 @@ IF lAuditJobMch AND iAuditID NE 0 THEN DO:
     RUN pSetParamValueAuditID (iAuditID).
     RUN pRunNow (cOutputFormat,"",YES).
 END. /* if iauditid */
+
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE pGetEstimateCalcNew PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Gets NK1 setting for CEVersion
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplUseNew AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany,"CEVersion","C",NO,NO,"","",
+        OUTPUT cReturn,OUTPUT lFound).
+    oplUseNew = lFound AND cReturn EQ "NEW".
+
+END PROCEDURE.
 
 PROCEDURE pGetParamValue:
     DEFINE VARIABLE cFound    AS CHARACTER NO-UNDO.

@@ -108,8 +108,8 @@ ASSIGN
     /*Build mapping from estimate type # to descriptive type*/ 
     gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
     .
-/*RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.*/
-/*THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).       */
+RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
 RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
@@ -123,18 +123,22 @@ PROCEDURE CalculateEstimate:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
 
     RUN pSetGlobalSettings(ipcCompany).  
     IF iplPurge THEN 
-        RUN pPurgeCalculation(ipcCompany, ipcEstimateNo).
-    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo).
+        RUN pPurgeProbes(ipcCompany, ipcEstimateNo).
+    IF ipcJobID NE "" THEN 
+        RUN pPurgeHeadersForJob(ipcCompany, ipcEstimateNo, ipcJobID, ipiJobID2).
+    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobID, ipiJobID2).
     FOR EACH ttEstHeaderToCalc: 
         RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
     END.
-    FOR EACH ttEstError NO-LOCK:
-        DISPLAY ttEstError.iFormNo ttEstError.iBlankNo ttEstError.cErrorType ttEstError.cError FORMAT "x(60)" ttEstError.iFormNo.
-    END.
+//    FOR EACH ttEstError NO-LOCK:
+//        DISPLAY ttEstError.iFormNo ttEstError.iBlankNo ttEstError.cErrorType ttEstError.cError FORMAT "x(60)" ttEstError.iFormNo.
+//    END.
 
 END PROCEDURE.
 
@@ -1124,7 +1128,8 @@ PROCEDURE pAddHeader PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
     DEFINE INPUT PARAMETER ipdQtyMaster AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdReleases AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
        
     CREATE estCostHeader.
     ASSIGN 
@@ -1134,10 +1139,15 @@ PROCEDURE pAddHeader PRIVATE:
         estCostHeader.estimateNo     = ipbf-est.est-no
         estCostHeader.quantityMaster = ipdQtyMaster
         estCostHeader.releaseCount   = ipdReleases
-        opiEstCostHeaderID           = estCostHeader.estCostHeaderID
+        estCostHeader.jobID          = ipcJobID
+        estCostHeader.jobID2         = ipiJobID2
         .
         
     RUN pBuildHeader(BUFFER estCostHeader).
+    
+    CREATE ttEstHeaderToCalc.
+    ASSIGN
+        ttEstHeaderToCalc.iEstCostHeaderID = estCostHeader.estCostHeaderID.
 
 END PROCEDURE.
 
@@ -1616,11 +1626,15 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
 
     DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-est-qty FOR est-qty.
-    DEFINE VARIABLE iEstCostHeaderID AS INT64   NO-UNDO.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
     DEFINE VARIABLE iQtyCount        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dJobQty AS DECIMAL NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstHeaderToCalc.
     FIND FIRST bf-est NO-LOCK 
@@ -1628,21 +1642,29 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
         AND bf-est.est-no EQ ipcEstimateNo
         NO-ERROR.
     IF NOT AVAILABLE bf-est THEN RETURN.
-    FIND FIRST bf-est-qty
-        WHERE bf-est-qty.company EQ bf-est.company
-        AND bf-est-qty.est-no  EQ bf-est.est-no
-        NO-LOCK NO-ERROR.
-    IF AVAILABLE bf-est-qty THEN 
-    DO iQtyCount = 1 TO 20:
-        IF bf-est-qty.qty[iQtyCount] NE 0 THEN 
-        DO:
-            RUN pAddHeader(BUFFER bf-est, bf-est-qty.qty[iQtyCount], MAX(bf-est-qty.qty[iQtyCount + 20], 1) , OUTPUT iEstCostHeaderID).
-            CREATE ttEstHeaderToCalc.
-            ASSIGN 
-                ttEstHeaderToCalc.iEstCostHeaderID = iEstCostHeaderID.
+    IF ipcJobID NE "" THEN DO:
+        FOR EACH bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ ipcCompany
+            AND bf-job-hdr.job-no EQ ipcJobID
+            AND bf-job-hdr.job-no2 EQ ipiJobID2
+            :
+                dJobQty = dJobQty + bf-job-hdr.qty.
+        END.
+        IF dJobQty GT 0 THEN 
+            RUN pAddHeader(BUFFER bf-est, dJobQty, 1 , ipcJobID, ipiJobID2).
+    END.
+    ELSE DO:
+        FIND FIRST bf-est-qty
+            WHERE bf-est-qty.company EQ bf-est.company
+            AND bf-est-qty.est-no  EQ bf-est.est-no
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE bf-est-qty THEN 
+        DO iQtyCount = 1 TO 20:
+            IF bf-est-qty.qty[iQtyCount] NE 0 THEN 
+                RUN pAddHeader(BUFFER bf-est, bf-est-qty.qty[iQtyCount], MAX(bf-est-qty.qty[iQtyCount + 20], 1) , "", 0).
+                
         END.
     END.
-
 END PROCEDURE.
 
 PROCEDURE pBuildProbe PRIVATE:
@@ -3298,7 +3320,7 @@ PROCEDURE pBuildHeader PRIVATE:
         FIND FIRST bf-ce-ctrl NO-LOCK 
             WHERE bf-ce-ctrl.company EQ ipbf-estCostHeader.company
             NO-ERROR.
-    IF NOT AVAILABLE bf-est THEN 
+    IF NOT AVAILABLE bf-ce-ctrl THEN 
     DO:
         RUN pAddError("Control File not found for company '" + ipbf-estCostHeader.company + "'", gcErrorCritical, ipbf-estCostHeader.estCostHeaderID, 0,0).
         RETURN.
@@ -3857,8 +3879,8 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
 
         IF AVAILABLE e-item-vend THEN
         DO:
-            IF e-item-vend.std-uom NE "" THEN
-                opcCostUom = e-item-vend.std-uom.
+//            IF e-item-vend.std-uom NE "" THEN
+//                opcCostUom = e-item-vend.std-uom.
 
             DO iIndex = 1 TO 10:
                 ASSIGN
@@ -4014,7 +4036,7 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pPurgeCalculation PRIVATE:
+PROCEDURE pPurgeProbes PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a company and estimate number, purges all related data for 
      cost estimate calculation
@@ -4078,6 +4100,30 @@ PROCEDURE pPurgeCostSummary PRIVATE:
     END.
     
     RELEASE bf-estCostSummary.
+    
+END PROCEDURE.
+
+PROCEDURE pPurgeHeadersForJob PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a company and estimate number and job, purges all related data for 
+     cost estimate calculation
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+           
+    FOR EACH bf-estCostHeader EXCLUSIVE-LOCK 
+        WHERE bf-estCostHeader.company EQ ipcCompany
+        AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
+        AND bf-estCostHeader.jobID EQ ipcJobID
+        AND bf-estCostHeader.jobID2 EQ ipiJobID2:
+        DELETE bf-estCostHeader.
+    END.
+    RELEASE bf-estCostHeader.
     
 END PROCEDURE.
 

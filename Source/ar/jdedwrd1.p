@@ -89,7 +89,7 @@ for first ar-invl where recid(ar-invl) eq v-recid no-lock,
         no-lock no-error.
         
     if avail job then do:
-      run jc/calc-est.p (recid(job)).
+      run jc/calc-est.p (recid(job), NO).
     
       for each mclean:
         find first tt-cost where tt-dscr eq mclean.descr no-error.

@@ -1,5 +1,6 @@
 
 def input parameter v-recid as recid no-undo.
+DEFINE INPUT PARAMETER iplNewCalc AS LOGICAL NO-UNDO.
 
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
@@ -17,6 +18,7 @@ DEF SHARED VAR v-shared-rel AS INT NO-UNDO.
 DEF NEW SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-prep-mat LIKE tprep-mat NO-UNDO.  /* for probemk cost */
 DEFINE NEW SHARED VARIABLE v-prep-lab LIKE tprep-lab NO-UNDO.
+DEFINE VARIABLE ghdEstimateCalcProcs AS HANDLE.
 
 def TEMP-TABLE work-eb NO-UNDO
    field form-no  like job-hdr.frm
@@ -34,7 +36,10 @@ def var chcs as char extent 8 init ["ce/print4.p",
                                     "cec/tan/print4.p",
                                     "cec/com/print4.p"] no-undo.
                                     
-                                    
+IF iplNewCalc THEN DO:
+    RUN est\EstimateCalcProcs.p PERSISTENT SET ghdEstimateCalcProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghdEstimateCalcProcs).
+END.                                        
 for first job where recid(job) eq v-recid no-lock: 
   find first xest
       where xest.company eq job.company
@@ -107,10 +112,14 @@ for first job where recid(job) eq v-recid no-lock:
     iJobNo2 = job.job-no2
     riJob = ROWID(job)
     .
-  RUN est\CostResetHeaders.p(ROWID(xest),riJob).
-  run value(chcs[xest.est-type]).
-  RUN est\CostExportHeaders.p(job.company,TRIM(xest.est-no) + "JC").
-  
+    IF iplNewCalc THEN
+        RUN CalculateEstimate (job.company, job.est-no, job.job-no, job.job-no2, NO).
+    
+//    ELSE DO:
+        RUN est\CostResetHeaders.p(ROWID(xest),riJob).
+        run value(chcs[xest.est-type]).
+        RUN est\CostExportHeaders.p(job.company,TRIM(xest.est-no) + "JC").
+//    END.  
   find first xest
       where xest.company eq job.company
         and xest.est-no  eq job.est-no.
