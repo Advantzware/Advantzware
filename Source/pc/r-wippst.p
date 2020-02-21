@@ -1137,7 +1137,7 @@ PROCEDURE post-wip :
 
         FIRST pc-prdd WHERE RECID(pc-prdd) EQ tt-report.rec-id,
         first mach
-        {sys/ref/machW.i}
+        WHERE mach.company EQ cocode
       and mach.m-code eq pc-prdd.m-code
         no-lock,
 
@@ -2469,7 +2469,7 @@ PROCEDURE run-report :
         no-lock,
           
         first mach
-        {sys/ref/machW.i}
+        WHERE mach.company EQ cocode
         and mach.m-code eq pc-prdd.m-code
         and mach.loc  ge cLoc[1]
         and mach.loc  le cLoc[2]
