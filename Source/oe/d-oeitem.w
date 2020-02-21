@@ -185,7 +185,7 @@ DEF VAR v-ponoUp AS LOG NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
@@ -337,6 +337,16 @@ RUN methods/prgsecur.p
      OUTPUT llOEPrcChg-sec, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+     
+ RUN methods/prgsecur.p
+    (INPUT "OEDiscount",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT llOEDiscount, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */    
      
 DEF VAR lcReturn AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
@@ -1950,8 +1960,10 @@ DO:
               APPLY "entry" TO oe-ordl.price.
           ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
               APPLY "entry" TO oe-ordl.pr-uom.
-          ELSE 
+          ELSE IF  oe-ordl.disc:SENSITIVE THEN
               APPLY "entry" TO oe-ordl.disc.
+          ELSE
+              APPLY "entry" TO oe-ordl.cas-cnt.
          RETURN NO-APPLY.
       END.
       
@@ -2861,6 +2873,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+  IF NOT llOEDiscount THEN
+  ASSIGN   asi.oe-ordl.disc:SENSITIVE IN FRAME {&FRAME-NAME} = NO .  
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
