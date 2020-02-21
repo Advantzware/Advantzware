@@ -1073,24 +1073,7 @@ PROCEDURE local-delete-record :
   DEF VAR ll AS LOG NO-UNDO.
   DEFINE BUFFER bf-job-mat FOR job-mat.
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT adm-new-record THEN DO:
-    RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).
-   
-    IF ll EQ ? THEN DO:
-      ll = NO.
-      MESSAGE "Material has been Allocated, delete anyway?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-          UPDATE ll.
-    END.
-
-    ELSE IF NOT ll THEN
-      MESSAGE "Sorry, this RM has been processed for this job " +
-              "and may not be deleted..."
-          VIEW-AS ALERT-BOX ERROR.
-
-    IF NOT ll THEN RETURN ERROR.
-  END.
-
+  
   FIND CURRENT job.
   RUN jc/jc-all.p (ROWID(job-mat), -1, INPUT-OUTPUT job.stat).
   FIND CURRENT job NO-LOCK.
