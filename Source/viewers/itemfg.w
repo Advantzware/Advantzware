@@ -1159,6 +1159,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.prod-uom V-table-Win
 ON LEAVE OF itemfg.prod-uom IN FRAME F-Main /* Cost UOM */
 DO:
+  DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dLastCost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dStdMatCost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dStdLabCost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dStdVarCost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dStdFixCost AS DECIMAL NO-UNDO.
+  
         {&methods/lValidateError.i YES}
         IF LASTKEY <> -1 AND 
             ( (itemfg.i-code:SCREEN-VALUE = "S" AND
@@ -1184,35 +1191,35 @@ DO:
 
         RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
             0, 0, 0, 0, itemfg.avg-cost,
-            OUTPUT itemfg.avg-cost).
+            OUTPUT dAvgCost ).
 
         RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
             0, 0, 0, 0, itemfg.last-cost,
-            OUTPUT itemfg.last-cost).
+            OUTPUT dLastCost  ).
 
         RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
             0, 0, 0, 0, itemfg.std-mat-cost,
-            OUTPUT itemfg.std-mat-cost).
+            OUTPUT dStdMatCost  ).
 
         RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
             0, 0, 0, 0, itemfg.std-lab-cost,
-            OUTPUT itemfg.std-lab-cost).
+            OUTPUT dStdLabCost ).
 
         RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
             0, 0, 0, 0, itemfg.std-var-cost,
-            OUTPUT itemfg.std-var-cost).
+            OUTPUT dStdVarCost  ).
 
         RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
             0, 0, 0, 0, itemfg.std-fix-cost,
-            OUTPUT itemfg.std-fix-cost).
+            OUTPUT dStdFixCost  ).
 
         ASSIGN 
-            itemfg.avg-cost:SCREEN-VALUE     = STRING(itemfg.avg-cost)
-            itemfg.last-cost:SCREEN-VALUE    = STRING(itemfg.last-cost)
-            itemfg.std-mat-cost:SCREEN-VALUE = STRING(itemfg.std-mat-cost)
-            itemfg.std-lab-cost:SCREEN-VALUE = STRING(itemfg.std-lab-cost)
-            itemfg.std-var-cost:SCREEN-VALUE = STRING(itemfg.std-var-cost)
-            itemfg.std-fix-cost:SCREEN-VALUE = STRING(itemfg.std-fix-cost).
+            itemfg.avg-cost:SCREEN-VALUE     = STRING(dAvgCost)
+            itemfg.last-cost:SCREEN-VALUE    = STRING(dLastCost)
+            itemfg.std-mat-cost:SCREEN-VALUE = STRING(dStdMatCost)
+            itemfg.std-lab-cost:SCREEN-VALUE = STRING(dStdLabCost)
+            itemfg.std-var-cost:SCREEN-VALUE = STRING(dStdVarCost)
+            itemfg.std-fix-cost:SCREEN-VALUE = STRING(dStdFixCost).
 
         RUN calc-std-cost.    
 
