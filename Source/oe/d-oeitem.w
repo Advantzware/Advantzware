@@ -1903,20 +1903,14 @@ DO:
         ASSIGN
          cp-part-no = oe-ordl.part-no:SCREEN-VALUE
          cp-rowid   = ?.
-        RUN custom/getcpart.p (cocode, oe-ord.cust-no,
-                               INPUT-OUTPUT cp-part-no, INPUT-OUTPUT cp-rowid).
+         RUN pGetcPart("custpart",cocode,oe-ord.cust-no,cp-part-no, INPUT-OUTPUT cp-rowid). 
+        
         FIND itemfg WHERE ROWID(itemfg) EQ cp-rowid NO-LOCK NO-ERROR.
       END.
-
-      IF NOT AVAIL itemfg THEN
-      FIND FIRST itemfg WHERE itemfg.company = g_company 
-                          AND itemfg.part-no = oe-ordl.part-no:screen-value
-                          AND itemfg.cust-no = oe-ord.cust-no
-                          NO-LOCK NO-ERROR.
+            
       IF NOT AVAIL itemfg THEN DO:
-         FIND FIRST itemfg WHERE itemfg.company = g_company 
-                          AND itemfg.part-no = oe-ordl.part-no:screen-value
-                          NO-LOCK NO-ERROR.
+         RUN pGetcPart("FGItem",cocode,oe-ord.cust-no,cp-part-no, INPUT-OUTPUT cp-rowid).
+         FIND FIRST itemfg WHERE ROWID(itemfg) EQ cp-rowid  NO-LOCK NO-ERROR.
          IF NOT AVAIL itemfg THEN DO:
             RUN pCrtPart(INPUT-OUTPUT cp-rowid,OUTPUT lErrorPart ) .
             IF lErrorPart THEN
@@ -1937,7 +1931,12 @@ DO:
                END.  
             END.   
          END.   
-      END.   
+      END.  
+      
+      IF itemfg.stat EQ "I" THEN DO:        
+        MESSAGE "The only FG Item " + itemfg.i-no + " found is not active.  Enter a different part number or make this FG item active " VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.        
+      END.
 
       IF itemfg.prod-uom EQ "" THEN DO:
         MESSAGE "FG Item " + itemfg.i-no + " has no cost UOM. Please correct and try again. " VIEW-AS ALERT-BOX.
@@ -4943,13 +4942,13 @@ DO WITH FRAME {&frame-name}:
   RUN default-type (BUFFER itemfg).
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
-     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
+     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-name:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
             oe-ordl.i-no:screen-value       = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-no ELSE oe-ordl.i-no:SCREEN-VALUE
             oe-ordl.part-dscr2:screen-value = itemfg.part-dscr2
             oe-ordl.part-dscr3:screen-value = itemfg.part-dscr3 .
   ELSE
   DO:
-     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
+     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-name:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
             oe-ordl.i-no:screen-value       = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-no ELSE oe-ordl.i-no:SCREEN-VALUE
             oe-ordl.price:screen-value  = IF setFromHistory THEN STRING(historyPrice) ELSE STRING(itemfg.sell-price)
             oe-ordl.pr-uom:screen-value = IF setFromHistory THEN STRING(historyPrUOM) ELSE itemfg.sell-uom
@@ -9760,6 +9759,77 @@ PROCEDURE pGetPartComm :
         END.
       END.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetcPart d-oeitem 
+PROCEDURE pGetcPart :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPartType AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO .       
+    DEFINE INPUT-OUTPUT PARAM io-rowid AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE lCheckActive AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO .    
+    DEFINE BUFFER bf-cust-part FOR cust-part .
+    DEFINE BUFFER bf-itemfg FOR itemfg .    
+    
+        
+    IF ipcPartType EQ "CustPart" THEN 
+    DO:
+        DO iCount = 1 TO 2:   
+            FOR EACH bf-cust-part
+                WHERE bf-cust-part.company EQ ipcCompany
+                AND bf-cust-part.cust-no EQ ipcCustomer
+                AND bf-cust-part.part-no EQ ipcPartNo
+                NO-LOCK,
+                FIRST bf-itemfg
+                WHERE bf-itemfg.company EQ bf-cust-part.company
+                AND bf-itemfg.i-no    EQ bf-cust-part.i-no
+                AND (bf-itemfg.stat EQ "A" OR lCheckActive )
+                NO-LOCK:
+                io-rowid = ROWID(bf-itemfg).
+                LEAVE.
+            END.
+            IF io-rowid NE ? THEN
+                iCount = 2 .
+            ELSE  lCheckActive = TRUE .
+    
+        END.      
+    END.
+    ELSE IF ipcPartType EQ "FGItem" THEN 
+        DO:
+            DO iCount = 1 TO 2:   
+   
+                FIND FIRST bf-itemfg  NO-LOCK
+                    WHERE bf-itemfg.company EQ ipcCompany
+                    AND bf-itemfg.part-no EQ ipcPartNo
+                    AND bf-itemfg.cust-no EQ ipcCustomer
+                    AND (bf-itemfg.stat EQ "A" OR lCheckActive )
+                    NO-ERROR .
+        
+                FIND FIRST bf-itemfg  NO-LOCK
+                    WHERE bf-itemfg.company EQ ipcCompany
+                    AND bf-itemfg.part-no EQ ipcPartNo             
+                    AND (bf-itemfg.stat EQ "A" OR lCheckActive )
+                    NO-ERROR .   
+        
+                IF AVAIL bf-itemfg THEN
+                    ASSIGN
+                        io-rowid = ROWID(bf-itemfg)
+                        iCount   = 2.
+                ELSE  lCheckActive = TRUE .     
+            END.      
+        END.      
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
