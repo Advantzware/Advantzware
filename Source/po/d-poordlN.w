@@ -881,7 +881,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Purchase Order Item Update */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+    IF lv-item-recid <> ? THEN DO:
+       DISABLE TRIGGERS FOR LOAD OF po-ordl.
+       FIND po-ordl EXCLUSIVE-LOCK WHERE RECID(po-ordl) = lv-item-recid  NO-ERROR.
+       IF AVAILABLE po-ordl THEN DELETE po-ordl.
+    END.
+    APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
