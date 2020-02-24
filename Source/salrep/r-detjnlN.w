@@ -75,7 +75,7 @@ ASSIGN cTextListToSelect = "Cust#,Name,BOL#,C/R,INV Date,Order#,Inv#," +
                            "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
        cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
                             "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
-       cFieldLength = "8,30,6,3,8,7,6," + "13,9,11,10,5,14,30,9"
+       cFieldLength = "8,30,6,3,8,7,7," + "13,9,11,10,5,14,30,9"
        cFieldType = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
     .
 
@@ -1782,7 +1782,7 @@ FOR EACH ttCustList
                          WHEN "ct"  THEN cVarValue = STRING(cust.cr-rating,"x(3)") .
                          WHEN "inv-date"   THEN cVarValue = STRING(w-data.w-inv-date,"99/99/99") .
                          WHEN "ord"  THEN cVarValue = STRING(w-data.w-ord-no,">>>>>>>") .
-                         WHEN "inv"   THEN cVarValue = STRING(w-data.w-inv-no,">>>>>>") .
+                         WHEN "inv"   THEN cVarValue = STRING(w-data.w-inv-no,">>>>>>>") .
                          WHEN "qty-ship"  THEN cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-qty,"->>>>,>>9.999") ELSE  STRING(w-qty,"->>>>,>>9.999") .
                          WHEN "sqft"  THEN cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-sq-ft,"->>>9.999") ELSE STRING(w-sq-ft,"->>>9.999") .
                          WHEN "tot-sqt"   THEN cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-tot-sf-sht,"->>,>>>,>>9") ELSE STRING(w-tot-sf-sht,"->>,>>>,>>9") .

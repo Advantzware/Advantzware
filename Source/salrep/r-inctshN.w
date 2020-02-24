@@ -104,7 +104,7 @@ ASSIGN cTextListToSelect = "Customer,Ship To,City,State,Rep,Inv#,Month,Year," +
                            "Inv Date,Fg Item#,Pro Code,Order #,Qty Shipped,Unit Price,UOM,Invoice Amt,BOL Whse"
        cFieldListToSelect = "cust,shipto,city,stat,rep,inv,month,year," +
                             "inv-date,fg-item,pro-code,ord,qty-ship,unit-price,uom,inv-amt,bol-whs"
-       cFieldLength = "8,8,15,5,20,6,5,4," + "8,15,8,8,12,15,4,17,8"
+       cFieldLength = "8,8,15,5,20,7,5,4," + "8,15,8,8,12,15,4,17,8"
        cFieldType = "c,c,c,c,c,i,i,i," + "c,c,c,i,i,i,c,i,c" 
     .
 
@@ -1892,7 +1892,7 @@ FOR each cust
                               if ar-invl.misc then ar-invl.i-name else
                               if ar-invl.i-no ne "" then ar-invl.i-no else
                               "AR SALE",
-                              string(ar-inv.inv-no,"999999"), "").
+                              string(ar-inv.inv-no,"9999999"), "").
         end.
 
         if v-freight and ar-inv.f-bill then do:
@@ -1939,7 +1939,7 @@ FOR each cust
                              tt-report.key-09
                           else ""
        tt-report.key-03 = "MEMO"
-       tt-report.key-04 = string(ar-cashl.inv-no,"999999")
+       tt-report.key-04 = string(ar-cashl.inv-no,"9999999")
        tt-report.key-05 = tt-report.key-09
        tt-report.key-06 = cust.sman
        tt-report.key-07 = tt-report.key-03.
@@ -2279,7 +2279,7 @@ FOR each cust
                          WHEN "city"  THEN cVarValue = STRING(v-city,"x(15)") .
                          WHEN "stat"   THEN cVarValue = STRING(v-state,"x(5)") .
                          WHEN "rep"  THEN cVarValue = STRING(v-sname,"x(20)") .
-                         WHEN "inv"   THEN cVarValue = STRING(w-data.inv-no,">>>>>>") .
+                         WHEN "inv"   THEN cVarValue = STRING(w-data.inv-no,">>>>>>>") .
                          WHEN "month"  THEN cVarValue = STRING(v-month,">>>>>") .
                          WHEN "year"    THEN cVarValue = string(v-year[2],"9999") .
                          WHEN "inv-date"   THEN cVarValue = string(v-date,"99/99/99").

@@ -1501,7 +1501,7 @@ SESSION:SET-WAIT-STATE ("general").
              CASE cTmpField: 
                   WHEN "cust"       THEN cVarValue = IF FIRST-OF(tt-report.key-02) THEN ar-inv.cust-no ELSE "" .
                   WHEN "cst-nam"    THEN cVarValue = IF FIRST-OF(tt-report.key-02) AND AVAIL cust THEN cust.NAME ELSE "" .
-                  WHEN "inv"        THEN cVarValue = STRING(ar-inv.inv-no) .
+                  WHEN "inv"        THEN cVarValue = STRING(ar-inv.inv-no,">>>>>>9") .
                   WHEN "inv-dt"     THEN cVarValue = STRING(ar-inv.inv-date) .
                   WHEN "due-dt"     THEN cVarValue = STRING(tt-report.due-date) .
                   WHEN "dsc-dt"     THEN cVarValue = STRING(ar-inv.inv-date + ar-inv.disc-days) .

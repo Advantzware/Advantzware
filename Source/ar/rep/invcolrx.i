@@ -37,7 +37,7 @@ PUT "<FTimes New Roman>".
             "<R7><C65><FROM><R9><C65><LINE>" SKIP .
         
 PUT "<FArial><P12><=#4><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#4>          INVOICE#                    " ar-inv.inv-no
+    "<=#4>          INVOICE#                    " ar-inv.inv-no FORMAT ">>>>>>9"
     "<=#4><R+1>              DATE               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .

@@ -65,7 +65,7 @@ PUT
   "<R7><C65><FROM><R8><C65><LINE>" SKIP.      /*Task# 11211306*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>"
-    "<=#3><B><C58>Invoice # " ar-inv.inv-no "</B>"
+    "<=#3><B><C58>Invoice # " ar-inv.inv-no FORMAT ">>>>>>9" "</B>"
     "<=#3><R+1><C55>Date:<C66>" formatDate(v-inv-date) FORMAT "x(20)" 
     "<=#3><R+2><C55>Customer Id:<C66>" v-custno "<FCourier New>"  
     "<=#3><R+3><C57>HST#:<C66>14043 0158 RT0001"                        /*Task# 11211305*/

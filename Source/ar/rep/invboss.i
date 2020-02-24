@@ -36,7 +36,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no FORMAT ">>>>>>9" "</B><P10>                          Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
@@ -52,7 +52,7 @@ PUT "<R5.5><C50><FROM><R5.5><C80><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP */ .
 
 PUT "<FArial><P12><=#3>     Invoice#:                 Invoice Date <FCourier New>"    SKIP
-    "<=3><R+1.6> " SPACE(1) ar-inv.inv-no  "<C67>" v-inv-date .
+    "<=3><R+1.6> " SPACE(1) ar-inv.inv-no FORMAT ">>>>>>9" "<C67>" v-inv-date .
 
     
 /*PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP

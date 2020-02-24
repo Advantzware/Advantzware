@@ -82,7 +82,7 @@ ASSIGN cTextListToSelect = "Inv #,Inv# Date,Post Date,Cust. #,Customer Name,Net,
                            "PTD AMT,WGT/MSF"*/
        cFieldListToSelect = "inv,inv-date,post-date,cust,cust-name,net,msf,msf$" /*+ 
                             "ptd-amt,wgt-msf"*/
-       cFieldLength = "6,10,10,8,30,13,13,13" /*+ "13,13" */
+       cFieldLength = "7,10,10,8,30,13,13,13" /*+ "13,13" */
        cFieldType = "i,c,c,c,c,i,i,i" /*+ "13,13"  */
     .
 

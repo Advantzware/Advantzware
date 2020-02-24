@@ -15,7 +15,7 @@ v-printline = v-printline + 18.
 PUT "<R3><C50><#3>"
     "<=#3><R-0.8><FArial><C+22><P16><B>Invoice</B><P10>"
     "<=#3><R+1><C+21>Invoice Number:"
-    "<=#3><R+2><C+28>" ar-inv.inv-no
+    "<=#3><R+2><C+26>" ar-inv.inv-no FORMAT ">>>>>>9"
     "<=#3><R+3><C+23>Invoice Date:"
     "<=#3><R+4><C+24>" v-inv-date
     "<=#3><R+5><C+27>Page:" 

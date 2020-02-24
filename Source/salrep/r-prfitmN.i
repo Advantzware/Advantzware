@@ -70,7 +70,7 @@
            xtt-report.key-01  = if sort-by-cust then tt-report.key-09
                                 else if avail itemfg then itemfg.procat else ""
            xtt-report.key-02  = ar-invl.i-no
-           xtt-report.key-03  = string(ar-invl.inv-no,"999999")
+           xtt-report.key-03  = string(ar-invl.inv-no,"9999999")
            xtt-report.key-09  = tt-report.key-09
            xtt-report.key-10  = "ar-invl".
         end.
@@ -87,7 +87,7 @@
          v-exc         = yes
          tt-report.key-01 = if sort-by-cust then tt-report.key-09 else ""
          tt-report.key-02 = ""
-         tt-report.key-03 = string(ar-cashl.inv-no,"999999").
+         tt-report.key-03 = string(ar-cashl.inv-no,"9999999").
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 

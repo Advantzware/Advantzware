@@ -40,7 +40,7 @@ format header
        v-ship-addr3         format "x(35)"      at 10
        skip(1)
        ar-inv.cust-no       format "x(8)"       at 72
-       trim(string(ar-inv.inv-no,">>>>>>"))     at 70
+       trim(string(ar-inv.inv-no,">>>>>>>"))     at 71
        ar-invl.po-no                            at 73
        cust.name            format "x(35)"      at 10
        v-sman-name          format "x(23)"      at 65
