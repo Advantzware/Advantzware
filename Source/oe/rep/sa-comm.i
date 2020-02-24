@@ -594,7 +594,8 @@
             deUseCost = 0.
         IF ar-invl.spare-dec-1 GT 0 THEN ASSIGN 
             deUseCost = ar-invl.spare-dec-1.
-        ELSE DO:
+        ELSE 
+        DO:
             FIND c-itemfg NO-LOCK WHERE 
                 c-itemfg.company EQ ar-invl.company AND 
                 c-itemfg.i-no EQ ar-invl.i-no 
@@ -604,7 +605,8 @@
                 deUseCost = c-itemfg.spare-dec-1.
         END.
         IF ar-invl.dscr[1] EQ "M" 
-        OR ar-invl.dscr[1] EQ "" THEN ASSIGN 
+        OR ar-invl.dscr[1] EQ "" 
+        OR AVAIL c-itemfg AND c-itemfg.prod-uom EQ "M" THEN ASSIGN 
             deUseCost = deUseCost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
         ELSE ASSIGN  /* EA */ 
             deUseCost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100.
