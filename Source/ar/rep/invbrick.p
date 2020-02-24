@@ -55,7 +55,7 @@ find first cust no-lock no-error.
 
 format header
        skip(6)                                         /* ekw02010006 */
-       trim(string(ar-inv.inv-no,">>>>>>")) to 74
+       trim(string(ar-inv.inv-no,">>>>>>>")) to 74
        skip(6)                                         /* ekw02010006 */
        cust.name                    at 12
        v-ship-name                  at 51   skip(1)      /* ekw02010006 */

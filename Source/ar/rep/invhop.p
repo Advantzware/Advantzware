@@ -69,7 +69,7 @@ format header
        v-ship-name                  at 37
        v-fob                        at 69
        v-salesman                   at 85
-       trim(string(ar-inv.inv-no,">>>>>>"))
+       trim(string(ar-inv.inv-no,">>>>>>>"))
                                     at 101
        v-bol-no                     at 117
        cust.addr[1]                 at 4

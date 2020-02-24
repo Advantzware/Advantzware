@@ -1331,7 +1331,7 @@ FORM cust.cust-no       COLUMN-LABEL "!Customer!    #"
      v-city             COLUMN-LABEL "!Cust Buy!Loc City"
      v-state            COLUMN-LABEL "Cust Buy!  Loc! State"
      v-sname            COLUMN-LABEL "! !Rep"
-     w-data.inv-no      COLUMN-LABEL "!  Inv!Number"
+     w-data.inv-no      COLUMN-LABEL "! Inv!Number " FORMAT ">>>>>>9"
      v-month            COLUMN-LABEL "! !Month"
                         FORMAT "99"
      v-year[2]          COLUMN-LABEL "! !Year"
@@ -1460,7 +1460,7 @@ END.
                               if ar-invl.misc then ar-invl.i-name else
                               if ar-invl.i-no ne "" then ar-invl.i-no else
                               "AR SALE",
-                              string(ar-inv.inv-no,"999999"), "").
+                              string(ar-inv.inv-no,"9999999"), "").
         end.
 
         if v-freight and ar-inv.f-bill then do:
@@ -1507,7 +1507,7 @@ END.
                              tt-report.key-09
                           else ""
        tt-report.key-03 = "MEMO"
-       tt-report.key-04 = string(ar-cashl.inv-no,"999999")
+       tt-report.key-04 = string(ar-cashl.inv-no,"9999999")
        tt-report.key-05 = tt-report.key-09
        tt-report.key-06 = cust.sman
        tt-report.key-07 = tt-report.key-03.
@@ -1847,7 +1847,7 @@ END.
           '"' REPLACE(v-city, '"', "")                '",'
           '"' REPLACE(v-state, '"', "")               '",'
           '"' REPLACE(v-sname, '"', "")               '",'
-          '"' w-data.inv-no                                    '",'
+          '"' w-data.inv-no         FORMAT ">>>>>>9"  '",'
           '"' v-month               FORMAT "99"                '",'
           '"' v-year[2]             FORMAT "9999"              '",'
           '"' v-date                FORMAT "99/99/9999"        '",'

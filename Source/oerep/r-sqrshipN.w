@@ -61,7 +61,7 @@ ASSIGN
     cFieldListToSelect = "cust-no,cust-name,po-num,ord-no,rel-no,i-no,i-name," +
                                 "job,shp-qty,ord-qty,part-no,v-del-zone,v-terr," +
                                 "v-trailer,v-totl-sq,v-bol-no,ship-id,ship-name,bol-date"
-    cFieldLength       = "8,30,15,6,6,15,30," + "9,11,11,15,8,4," + "21,12,6,8,30,10"
+    cFieldLength       = "8,30,15,6,6,15,30," + "9,11,11,15,8,4," + "21,12,7,8,30,10"
     cFieldType         = "c,c,c,i,i,c,c," + "c,i,i,c,c,c," + "c,i,i,c,c,c"
     .
 
@@ -1310,7 +1310,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-trailer      AS CHARACTER FORMAT "x(8)" NO-UNDO.
     DEFINE VARIABLE v-bol-no       AS INTEGER   FORMAT ">>>>>>>9" NO-UNDO.
     DEFINE VARIABLE v-totl-sq      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dTotalSqft     AS DECIMAL  FORMAT "->>,>>,>>>.9<<<<"  NO-UNDO.
+    DEFINE VARIABLE dTotalSqft     AS DECIMAL  FORMAT "->>,>>>,>>>.9<<<<"  NO-UNDO.
     DEFINE VARIABLE cCustName         AS CHARACTER FORMAT "X(30)" NO-UNDO.
     DEFINE VARIABLE v-i-name       LIKE oe-ordl.i-name NO-UNDO.
 
@@ -1477,7 +1477,7 @@ PROCEDURE run-report :
                 WHEN "v-totl-sq" THEN 
                     cVarValue = STRING(dTtlSqFt,"->,>>>,>>>.9<<<<").
                 WHEN "v-bol-no" THEN 
-                    cVarValue = STRING(v-bol-no,">>>>>9").
+                    cVarValue = STRING(v-bol-no,">>>>>>9").
 
                 WHEN "cust-no" THEN 
                     cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".

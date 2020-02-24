@@ -1994,6 +1994,7 @@ PROCEDURE create-from-po :
                 fg-rctd.std-cost
                 fg-rctd.ext-cost
                 fg-rctd.frt-cost
+                fg-rctd.po-line
                     WITH FRAME {&FRAME-NAME}.
             IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
             DO:

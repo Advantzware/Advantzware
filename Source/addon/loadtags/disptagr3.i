@@ -29,6 +29,7 @@
   &ENDIF
     ASSIGN
       rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(loadtag.po-no)
+      rm-rctd.po-line:SCREEN-VALUE = STRING(loadtag.line)
       rm-rctd.job-no:SCREEN-VALUE = loadtag.job-no
       rm-rctd.job-no2:SCREEN-VALUE = STRING(loadtag.job-no2)
       rm-rctd.i-no:SCREEN-VALUE = loadtag.i-no

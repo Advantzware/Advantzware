@@ -1040,8 +1040,8 @@ PROCEDURE valid-ship-state :
    DO WITH FRAME {&FRAME-NAME}:
       v-ship-state:SCREEN-VALUE = CAPS(v-ship-state:SCREEN-VALUE).
 
-      IF NOT CAN-FIND(FIRST state WHERE
-         state.state EQ v-ship-state:SCREEN-VALUE) THEN DO:
+      IF NOT CAN-FIND(FIRST statecod WHERE
+         statecod.statecod EQ v-ship-state:SCREEN-VALUE) THEN DO:
          MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO v-ship-state.
          RETURN ERROR.

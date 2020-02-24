@@ -1685,7 +1685,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   MAINBLOK:
   for each w-bolh by w-bolh.bol-no by w-bolh.ord-no
                   by w-bolh.rel-no by w-bolh.b-ord-no:
-    find oe-bolh where recid(oe-bolh) eq w-bolh.w-recid no-lock.
+    find oe-bolh where recid(oe-bolh) eq w-bolh.w-recid no-lock no-error.
     
     IF NOT AVAILABLE oe-bolh THEN
         NEXT MAINBLOK.
@@ -1765,11 +1765,11 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
         IF AVAIL(cust) AND cust.ACTIVE EQ "X"
             AND oe-bolh.ship-id = oe-boll.loc THEN DO:
             IF lSingleBOL THEN     
-                MESSAGE "BOL # " STRING(w-bolh.bol-no) + " Cannot Transfer to the same location " oe-boll.loc 
+                MESSAGE "BOL " STRING(w-bolh.bol-no) + " Cannot Transfer to the same location " oe-boll.loc 
                     VIEW-AS ALERT-BOX ERROR.
             ELSE 
                 RUN create-nopost(
-                    INPUT "Cannot transfer Bol to the same location"
+                    INPUT "Cannot transfer BOL to the same location"
                     ).
             
             DELETE w-bolh.
@@ -1798,7 +1798,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
         IF NOT AVAILABLE shipto THEN 
         DO:
           IF lSingleBOL THEN 
-              MESSAGE "Invalid Shipto Address or Shipto doesnot exists for Bol# " + STRING(w-bolh.bol-no)
+              MESSAGE "Invalid Shipto Address or Shipto does not exists for BOL " + STRING(w-bolh.bol-no)
                   VIEW-AS ALERT-BOX ERROR.  
           ELSE 
               RUN create-nopost(

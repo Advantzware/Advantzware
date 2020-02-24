@@ -2997,71 +2997,6 @@ PROCEDURE pBuildCostSummary PRIVATE:
 
 END PROCEDURE.
 
-
-PROCEDURE pBuildTestData PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Builds the temptables to test with
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplReset AS LOGICAL NO-UNDO.
-        
-    DEFINE BUFFER bf-estCostForm       FOR estCostForm.
-    DEFINE BUFFER bf-estCostBlank      FOR estCostBlank.
-    DEFINE BUFFER bf-estCostMaterial   FOR estCostMaterial.
-    DEFINE BUFFER bf-estCostOperation  FOR estCostOperation.
-    DEFINE BUFFER bf-estCostGroupLevel FOR estCostGroupLevel.
-    DEFINE BUFFER bf-estCostGroup      FOR estCostGroup.
-    DEFINE BUFFER bf-estCostCategory   FOR estCostCategory.
-    DEFINE BUFFER bf-estCostHeader     FOR estCostHeader.
-    
-    DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dQtyOnForm          AS DECIMAL NO-UNDO.
-    
-
-    EMPTY TEMP-TABLE ttEstError.
-    EMPTY TEMP-TABLE ttInk.
-    EMPTY TEMP-TABLE ttGlue.
-    
-    
-    RUN pLoadData("EstHeader").
- 
-    IF NOT CAN-FIND(FIRST bf-estCostGroupLevel) OR iplReset THEN 
-    DO: 
-        FOR EACH bf-estCostGroupLevel:
-            DELETE bf-estCostGroupLevel.
-        END.
-        RELEASE bf-estCostGroupLevel.
-        RUN pLoadData("CostGroupLevel").
-    END. 
-    IF NOT CAN-FIND(FIRST bf-estCostGroup) OR iplReset THEN 
-    DO: 
-        FOR EACH bf-estCostGroup:
-            DELETE bf-estCostGroup.
-        END.
-        RELEASE bf-estCostGroup.    
-        RUN pLoadData("CostGroup").
-    END.
-    IF NOT CAN-FIND(FIRST bf-estCostCategory) OR iplReset THEN 
-    DO: 
-        FOR EACH bf-estCostCategory:
-            DELETE bf-estCostCategory.
-        END.
-        RELEASE bf-estCostCategory.    
-        RUN pLoadData("CostCategory").
-    END.
-   
-
-    FIND FIRST estCostHeader NO-LOCK. 
-    IF AVAILABLE estCostHeader THEN 
-    DO:
-        RUN pPurgeCalculation(estCostHeader.company, estCostHeader.estimateNo).
-        RUN pCalculateEstimate(estCostHeader.company, estCostHeader.estimateNo).
-    END.
-        
-END PROCEDURE.
-
-
 PROCEDURE pCalcEstMaterial PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a estCostMaterial buffer, calculate simple calculated fields
@@ -4088,26 +4023,9 @@ PROCEDURE pPurgeCalculation PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER bf-estCostHeader    FOR estCostHeader.
-    DEFINE BUFFER bf-estCostMisc      FOR estCostMisc.
-    DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
-    DEFINE BUFFER bf-estCostMaterial  FOR estCostMaterial.
-    DEFINE BUFFER bf-estCostForm      FOR estCostForm.
-    DEFINE BUFFER bf-estCostItem      FOR estCostItem.
-    DEFINE BUFFER bf-estCostBlank     FOR estCostBlank.
     DEFINE BUFFER bf-probe            FOR probe.
     DEFINE BUFFER bf-probeit          FOR probeit.
-    
-    DISABLE TRIGGERS FOR LOAD OF estCostHeader.
-    DISABLE TRIGGERS FOR LOAD OF estCostMisc.
-    DISABLE TRIGGERS FOR LOAD OF estCostOperation.
-    DISABLE TRIGGERS FOR LOAD OF estCostMaterial.
-    DISABLE TRIGGERS FOR LOAD OF estCostForm.
-    DISABLE TRIGGERS FOR LOAD OF estCostItem.
-    DISABLE TRIGGERS FOR LOAD OF estCostBlank.
-    DISABLE TRIGGERS FOR LOAD OF estCostSummary.
-    DISABLE TRIGGERS FOR LOAD OF estCostDetail.
-    
+       
     FOR EACH bf-probe EXCLUSIVE-LOCK 
         WHERE bf-probe.company EQ ipcCompany
         AND bf-probe.est-no  EQ ipcEstimateNo:
@@ -4118,49 +4036,6 @@ PROCEDURE pPurgeCalculation PRIVATE:
         AND bf-probeit.est-no  EQ ipcEstimateNo:
         DELETE bf-probeit.                 
     END.
-    FOR EACH bf-estCostHeader EXCLUSIVE-LOCK 
-        WHERE bf-estCostHeader.company EQ ipcCompany
-        AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
-        USE-INDEX estimate:
-        FOR EACH bf-estCostMisc EXCLUSIVE-LOCK
-            WHERE bf-estCostMisc.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-            /*            USE-INDEX estHeader*/
-            :
-            DELETE bf-estCostMisc.
-        END. 
-        FOR EACH bf-estCostOperation EXCLUSIVE-LOCK
-            WHERE bf-estCostOperation.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
-            DELETE bf-estCostOperation.
-        END. 
-        FOR EACH bf-estCostMaterial EXCLUSIVE-LOCK
-            WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
-            DELETE bf-estCostMaterial.
-        END.
-        FOR EACH bf-estCostForm EXCLUSIVE-LOCK 
-            WHERE bf-estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-            USE-INDEX estHeader:
-            DELETE bf-estCostForm.
-        END.    
-        FOR EACH bf-estCostBlank EXCLUSIVE-LOCK 
-            WHERE bf-estCostBlank.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
-            DELETE bf-estCostBlank.
-        END.
-        FOR EACH bf-estCostItem EXCLUSIVE-LOCK 
-            WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-            USE-INDEX estHeader:
-            DELETE bf-estCostItem.
-        END.
-        RUN pPurgeCostDetail(bf-estCostHeader.estCostHeaderID, "").
-        RUN pPurgeCostSummary(bf-estCostHeader.estCostHeaderID).
-        DELETE bf-estCostHeader.
-    END. /*Each bf-estCostHeader for estimate*/
-    RELEASE bf-estCostHeader.
-    RELEASE bf-estCostMisc.
-    RELEASE bf-estCostOperation.
-    RELEASE bf-estCostMaterial.
-    RELEASE bf-estCostForm.
-    RELEASE bf-estCostItem.
-    RELEASE bf-estCostBlank.
     RELEASE bf-probe.
     RELEASE bf-probeit.
     

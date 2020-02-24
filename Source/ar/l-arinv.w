@@ -36,14 +36,15 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
+def var lv-first-time as log init yes no-undo.
 
-&SCOPED-DEFINE ASCDSC-1 DESC
-&scoped-define FLD-NAME-1 ar-inv.inv-no
+/*&SCOPED-DEFINE ASCDSC-1 DESC*/
+&scoped-define FLD-NAME-1 ar-inv.inv-no 
 &scoped-define FLD-NAME-2 ar-inv.inv-date
 &scoped-define FLD-NAME-3 ar-inv.due
-&scoped-define SORTBY-1 BY {&FLD-NAME-1} {&ASCDSC-1}
-&scoped-define SORTBY-2 BY {&FLD-NAME-2} {&SORTBY-1}
-&scoped-define SORTBY-3 BY {&FLD-NAME-3} {&SORTBY-1}
+&scoped-define SORTBY-1 BY ar-inv.inv-no 
+&scoped-define SORTBY-2 BY ar-inv.inv-date 
+&scoped-define SORTBY-3 BY ar-inv.due 
 &SCOPED-DEFINE DATATYPE-1 INT
 &SCOPED-DEFINE DATATYPE-2 DATE
 &SCOPED-DEFINE DATATYPE-3 DEC
@@ -75,7 +76,7 @@ def var lv-type-dscr as cha no-undo.
 ar-inv.inv-date ar-inv.net ar-inv.paid ar-inv.due 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ar-inv WHERE ~{&KEY-PHRASE} ~
-      AND ar-inv.posted = yes and ~
+      AND ar-inv.posted = yes AND ~
 ASI.ar-inv.company = ip-company and ~
 ar-inv.cust-no = ip-cust-no ~
  ~
@@ -154,7 +155,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       ar-inv.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 12
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>>":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>":U
             WIDTH 12
       ar-inv.inv-date FORMAT "99/99/9999":U WIDTH 15
       ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U WIDTH 18
@@ -254,6 +255,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define SELF-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON ANY-PRINTABLE OF BROWSE-1 IN FRAME Dialog-Frame
+DO:
+   if lv-first-time then assign lv-search:screen-value = ""
+                               lv-first-time = no.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define BROWSE-NAME BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
@@ -278,9 +291,10 @@ DO:
     assign lv-search:screen-value = "".
            lv-search = "".
     case rd-sort:
-        {srtord.i 1}
-        {srtord.i 2}
+        {srtord2.i 1}
+        {srtord2.i 2}
     end.
+   apply "entry" to {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -309,15 +323,15 @@ DO:
     assign rd-sort 
            lv-search.
     &scoped-define IAMWHAT Search
-    &scoped-define where-statement ge lv-search 
-       
-    IF rd-sort = 3 THEN
+    &scoped-define where-statement GE lv-search 
+    
+   /* IF rd-sort = 3 THEN
         &SCOPED-DEFINE key-phrase ar-inv.due GE DEC(lv-search)
-        
+     */   
     case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-        {srtord2.i 3} 
+        {srtord.i 1}
+        {srtord.i 2}
+        {srtord.i 3} 
     end.      
     
 END.
@@ -344,7 +358,7 @@ DO:
         {srtord.i 3}
        
     end.    
- 
+  apply "entry" to {&browse-name}.
 
 END.
 

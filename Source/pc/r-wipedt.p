@@ -2441,8 +2441,8 @@ PROCEDURE run-report :
                 end.
 
                 if v-tot-fg gt v-tot-rm THEN 
-                do:
-                    RUN displayMessageQuestionLOG ("6", OUTPUT ll-ok-to-post).
+                do:                     
+                    RUN displayMessage ("6") .
                     RETURN NO-APPLY .
                 END.
                 next.

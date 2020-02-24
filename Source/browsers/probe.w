@@ -1234,7 +1234,7 @@ PROCEDURE calc-fields :
      lv-orig-changed = lv-changed
      v-com = probe.comm
      lv-changed2 = lv-changed
-     ld-price    = DECIMAL(lv-price)
+     ld-price    = DECIMAL(probe.sell-price:{&SVB})
      ld-factc    = DECIMAL(probe.fact-cost:{&SVB})
      ld-commc    = (ld-price - (IF v-basis EQ "G" THEN ld-factc ELSE 0)) *
                    (v-com / 100)   

@@ -493,12 +493,13 @@ PROCEDURE BuildImpTable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT PARAM ipFileName AS cha NO-UNDO.
+ DEFINE INPUT PARAMETER ipFileName AS CHARACTER NO-UNDO.
 
- DEF VAR cInput AS cha NO-UNDO.
- DEF VAR iOrder# AS INT NO-UNDO.
- DEF VAR cPO# AS cha NO-UNDO.
- DEF VAR isPOSame AS LOG NO-UNDO.
+ DEFINE VARIABLE cInput   AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE iOrder#  AS INTEGER   NO-UNDO.
+ DEFINE VARIABLE cPO#     AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE isPOSame AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE cEstNo   AS CHARACTER NO-UNDO.
 
  IF ipFileName NE '' THEN DO: /* 05291402 */
    INPUT FROM VALUE(ipFileName) NO-ECHO.
@@ -534,7 +535,10 @@ PROCEDURE BuildImpTable :
                ttHeader.CCType = ENTRY(9,cInput).
 
             IF NUM-ENTRIES(cInput) >= 10 THEN
-                         ttHeader.Est#  = ENTRY(10,cInput).
+                ASSIGN
+                    cEstNo        = ENTRY(10,cInput)
+                    ttHeader.Est# = cEstNo
+                    .
             IF NUM-ENTRIES(cInput) >= 11 THEN
                          ttHeader.Quote# = int(ENTRY(11,cInput)).
 
@@ -546,7 +550,17 @@ PROCEDURE BuildImpTable :
                           ASSIGN gcImportError = "Detail Error - No FG Item:" + entry(2,cInput).                        
                           RETURN.
             END.
-
+            
+            IF cEstNo NE "" THEN
+                IF NOT CAN-FIND(FIRST eb 
+                                WHERE eb.company      EQ cocode 
+                                  AND TRIM(eb.est-no) EQ cEstNo 
+                                  AND eb.part-no      EQ ENTRY(3,cInput) 
+                                  AND eb.stock-no     EQ ENTRY(2,cInput)) 
+                THEN DO:
+                    gcImportError = "Detail Error - CustomerPart# or FG Item # is not matching on order# and estimate#".                        
+                    RETURN.
+                END.           
             CREATE ttDetail.
             ASSIGN ttDetail.Order# = iOrder#
                          ttDetail.FgItem = ENTRY(2,cInput)

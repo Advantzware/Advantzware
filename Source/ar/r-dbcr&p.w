@@ -1113,7 +1113,7 @@ FORMAT HEADER
         WITH FRAME a2 NO-BOX NO-LABELS WIDTH 132:
 
       v2 = v2 + ar-cashl.amt-paid - ar-cashl.amt-disc.
-      PUT ar-cashl.inv-no AT 70 ar-cashl.actnum AT 80 SPACE(1)
+      PUT ar-cashl.inv-no AT 70 FORMAT ">>>>>>>" ar-cashl.actnum AT 80 SPACE(1)
           ar-cashl.amt-paid - ar-cashl.amt-disc format "->,>>>,>>9.99" TO 126 SKIP.
     END. /* each ar-cashl */
     IF LAST-OF(ar-cash.cust-no) THEN

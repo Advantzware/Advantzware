@@ -71,9 +71,16 @@ DO WHILE {4} GT 0 OR ll-neg:
      tt-rm-rctd-qty.job-no    = job-mat.job-no
      tt-rm-rctd-qty.job-no2   = job-mat.job-no2
      tt-rm-rctd-qty.pass      = job-mat.pass
-     tt-rm-rctd-qty.cost      = job-mat.std-cost
-     tt-rm-rctd-qty.cost-uom  = job-mat.sc-uom
      .
+     IF job-mat.sc-uom NE item.cons-uom THEN DO:
+         RUN rm\convcuom.p (job-mat.sc-uom, ITEM.cons-uom, ITEM.basis-w, item.s-len, item.s-wid, item.s-dep, job-mat.std-cost, OUTPUT tt-rm-rctd-qty.cost).
+         tt-rm-rctd-qty.cost-uom = item.cons-uom.
+     END.
+     ELSE 
+        ASSIGN 
+            tt-rm-rctd-qty.cost      = job-mat.std-cost
+            tt-rm-rctd-qty.cost-uom  = job-mat.sc-uom
+            .
     IF NOT ll-bin AND {3}.i-code EQ "R" THEN
     FOR EACH tt-bin WHERE tt-bin.qty GT 0 
         BY tt-date BY tt-bin.rec_key:
@@ -144,10 +151,19 @@ DO WHILE {4} GT 0 OR ll-neg:
      {2}.job-no    = job-mat.job-no
      {2}.job-no2   = job-mat.job-no2
      {2}.pass      = job-mat.pass
-     {2}.cost      = job-mat.std-cost
-     {2}.cost-uom  = job-mat.sc-uom
      ll-bin        = NO.
-  
+     
+    /*convert to cons-uom of item since posting assumes that - Ticket 57232*/ 
+    IF job-mat.sc-uom NE item.cons-uom THEN DO:
+         RUN rm\convcuom.p (job-mat.sc-uom, ITEM.cons-uom, ITEM.basis-w, item.s-len, item.s-wid, item.s-dep, job-mat.std-cost, OUTPUT  {2}.cost).
+         {2}.cost-uom = item.cons-uom.
+     END.
+     ELSE 
+        ASSIGN 
+            {2}.cost      = job-mat.std-cost
+            {2}.cost-uom  = job-mat.sc-uom
+            .
+            
     IF ll-neg THEN
     FOR EACH mat-act
         WHERE mat-act.company EQ job-mat.company
@@ -164,11 +180,22 @@ DO WHILE {4} GT 0 OR ll-neg:
        {2}.loc     = mat-act.loc
        {2}.loc-bin = mat-act.loc-bin
        {2}.tag     = mat-act.tag
-       {2}.cost    = mat-act.cost
+       {2}.cost    = mat-act.ext-cost / mat-act.qty  /*set cost to same UOM as qty*/
+       {2}.cost-uom = mat-act.qty-uom
        {2}.qty     = {4}
        {4}         = 0
        ll-bin      = YES
        dLastAssigned = {2}.qty.
+    
+     IF mat-act.qty-uom NE item.cons-uom THEN DO:
+         RUN rm\convcuom.p (mat-act.qty-uom, ITEM.cons-uom, ITEM.basis-w, item.s-len, item.s-wid, item.s-dep, mat-act.ext-cost / mat-act.qty, OUTPUT  {2}.cost).
+         {2}.cost-uom = item.cons-uom.
+     END.
+     ELSE 
+        ASSIGN 
+            {2}.cost      = mat-act.ext-cost / mat-act.qty 
+            {2}.cost-uom  = mat-act.qty-uom
+            .
   
       LEAVE.
     END.
@@ -249,7 +276,7 @@ DO WHILE {4} GT 0 OR ll-neg:
   END.
 
   IF NOT ll-bin THEN DO:
-    IF {2}.loc EQ "" OR {2}.loc-bin eq "" THEN DO:
+    IF {2}.loc EQ "" OR {2}.loc-bin EQ "" THEN DO:
       FIND FIRST cust NO-LOCK
           WHERE cust.company EQ job-mat.company
             AND cust.active  EQ "X" 
@@ -287,11 +314,11 @@ END.
 
 PROCEDURE pre-post:
 
-   def var v-po-no like rm-rctd.po-no.
-   def var v-autoissue as log.
+   DEF VAR v-po-no LIKE rm-rctd.po-no.
+   DEF VAR v-autoissue AS LOG.
    DEF VAR ld AS DEC NO-UNDO.
-   def var v-whse like rm-rctd.loc.
-   def var v-ext-cost as de.
+   DEF VAR v-whse LIKE rm-rctd.loc.
+   DEF VAR v-ext-cost AS de.
    DEF VAR ll-one-item AS LOG NO-UNDO.
 
    DEF BUFFER b-tt-rctd FOR tt-rctd.
@@ -312,33 +339,33 @@ PROCEDURE pre-post:
    RELEASE tt-rctd.
 
    auto-issue:
-    for each tt-rctd
-        where tt-rctd.rita-code eq "R"
-          and tt-rctd.job-no    ne ""
-        no-lock,
-        first item
-        where item.company eq cocode
-          and item.i-no    eq tt-rctd.i-no
-        no-lock.
+    FOR EACH tt-rctd
+        WHERE tt-rctd.rita-code EQ "R"
+          AND tt-rctd.job-no    NE ""
+        NO-LOCK,
+        FIRST item
+        WHERE item.company EQ cocode
+          AND item.i-no    EQ tt-rctd.i-no
+        NO-LOCK.
 
-      release po-ordl.
+      RELEASE po-ordl.
 
-      v-po-no = trim(tt-rctd.po-no).
-      if v-po-no ne "" then do:
-        do x = 1 to length(v-po-no):
-          if substr(v-po-no,x,1) lt "0" or
-             substr(v-po-no,x,1) gt "9" then next auto-issue.
-        end.
+      v-po-no = TRIM(tt-rctd.po-no).
+      IF v-po-no NE "" THEN DO:
+        DO x = 1 TO LENGTH(v-po-no):
+          IF substr(v-po-no,x,1) LT "0" OR
+             substr(v-po-no,x,1) GT "9" THEN NEXT auto-issue.
+        END.
 
-        find first po-ordl
-            where po-ordl.company   eq cocode
-              and po-ordl.i-no      eq tt-rctd.i-no
-              and po-ordl.po-no     eq int(v-po-no)
-              and po-ordl.job-no    eq tt-rctd.job-no
-              and po-ordl.job-no2   eq tt-rctd.job-no2
-              and po-ordl.item-type eq yes
-            use-index item-ordno no-lock no-error.
-      end.
+        FIND FIRST po-ordl
+            WHERE po-ordl.company   EQ cocode
+              AND po-ordl.i-no      EQ tt-rctd.i-no
+              AND po-ordl.po-no     EQ int(v-po-no)
+              AND po-ordl.job-no    EQ tt-rctd.job-no
+              AND po-ordl.job-no2   EQ tt-rctd.job-no2
+              AND po-ordl.item-type EQ YES
+            USE-INDEX item-ordno NO-LOCK NO-ERROR.
+      END.
 
       IF item.mat-type NE "I" OR AVAIL po-ordl THEN
         IF (item.i-code EQ "E" AND
@@ -413,24 +440,24 @@ PROCEDURE pre-post:
          b-tt-rctd.qty       = tt-mat.qty.
         DELETE tt-mat.
       END.
-    end.
+    END.
 
     issue-adder-for-board:
-    for each tt-rctd
-        where tt-rctd.rita-code eq "I"
-          and tt-rctd.job-no    ne ""
-        no-lock,
-        first job
-        where job.company eq cocode
-          and job.job-no  eq tt-rctd.job-no
-          and job.job-no2 eq tt-rctd.job-no2
-        no-lock,
+    FOR EACH tt-rctd
+        WHERE tt-rctd.rita-code EQ "I"
+          AND tt-rctd.job-no    NE ""
+        NO-LOCK,
+        FIRST job
+        WHERE job.company EQ cocode
+          AND job.job-no  EQ tt-rctd.job-no
+          AND job.job-no2 EQ tt-rctd.job-no2
+        NO-LOCK,
 
-        first item
-        where item.company  eq cocode
-          and item.i-no     eq tt-rctd.i-no
-          and item.mat-type eq "B"
-        no-lock:
+        FIRST item
+        WHERE item.company  EQ cocode
+          AND item.i-no     EQ tt-rctd.i-no
+          AND item.mat-type EQ "B"
+        NO-LOCK:
 
         IF AVAIL b-tt-rctd THEN DO:
            {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
@@ -439,7 +466,7 @@ PROCEDURE pre-post:
             b-tt-rctd.seq-no    = 3.
         END.
       END.
-    end.
+    END.
     
     FOR EACH tt-rctd
         BREAK BY tt-rctd.loc                                             
@@ -452,45 +479,45 @@ PROCEDURE pre-post:
 
       
 
-      find first item no-lock
-          where item.company eq cocode
-            and item.i-no    eq tt-rctd.i-no
-          no-error.
+      FIND FIRST item NO-LOCK
+          WHERE item.company EQ cocode
+            AND item.i-no    EQ tt-rctd.i-no
+          NO-ERROR.
 
-      release costtype.
-      if avail item then
-      find first costtype no-lock
-          where costtype.company   eq cocode
-            and costtype.cost-type eq item.cost-type
-          no-error.
+      RELEASE costtype.
+      IF AVAIL item THEN
+      FIND FIRST costtype NO-LOCK
+          WHERE costtype.company   EQ cocode
+            AND costtype.cost-type EQ item.cost-type
+          NO-ERROR.
 
-      release po-ord.
-      if int(tt-rctd.po-no) ne 0 and tt-rctd.rita-code eq "R" then                                         
-      find first po-ord no-lock
-          where po-ord.company eq cocode
-            and po-ord.po-no   eq int(tt-rctd.po-no)
-          no-error.
+      RELEASE po-ord.
+      IF int(tt-rctd.po-no) NE 0 AND tt-rctd.rita-code EQ "R" THEN                                         
+      FIND FIRST po-ord NO-LOCK
+          WHERE po-ord.company EQ cocode
+            AND po-ord.po-no   EQ int(tt-rctd.po-no)
+          NO-ERROR.
 
-      release po-ordl.
-      if avail po-ord then
-      find first po-ordl no-lock
-          where po-ordl.company   eq cocode
-            and po-ordl.po-no     eq po-ord.po-no
-            and po-ordl.i-no      eq tt-rctd.i-no
-            and po-ordl.job-no    eq tt-rctd.job-no
-            and po-ordl.job-no2   eq tt-rctd.job-no2
-            and po-ordl.s-num     eq tt-rctd.s-num
-            and po-ordl.b-num     eq tt-rctd.b-num
-            and po-ordl.deleted   eq no
-            and po-ordl.item-type eq yes
-          no-error.
+      RELEASE po-ordl.
+      IF AVAIL po-ord THEN
+      FIND FIRST po-ordl NO-LOCK
+          WHERE po-ordl.company   EQ cocode
+            AND po-ordl.po-no     EQ po-ord.po-no
+            AND po-ordl.i-no      EQ tt-rctd.i-no
+            AND po-ordl.job-no    EQ tt-rctd.job-no
+            AND po-ordl.job-no2   EQ tt-rctd.job-no2
+            AND po-ordl.s-num     EQ tt-rctd.s-num
+            AND po-ordl.b-num     EQ tt-rctd.b-num
+            AND po-ordl.deleted   EQ NO
+            AND po-ordl.item-type EQ YES
+          NO-ERROR.
 
       v-ext-cost = tt-rctd.cost * tt-rctd.qty.
        
       IF rmpostgl AND AVAIL costtype AND costtype.inv-asset NE ""  AND
          v-ext-cost NE 0 AND v-ext-cost NE ?                       THEN DO:
 
-        if tt-rctd.rita-code EQ "R"  AND  
+        IF tt-rctd.rita-code EQ "R"  AND  
            costtype.ap-accrued NE "" THEN DO:
 
           /* Debit RM Asset */
@@ -599,27 +626,27 @@ END PROCEDURE.
 
 PROCEDURE post-rm:
 
-   def buffer xrm-rctd     for rm-rctd.
-   def buffer xrm-bin      for rm-bin.
-   def buffer b-rm-rctd    for rm-rctd.
-   def buffer b-item       for item.
-   def buffer b-po-ordl    for po-ordl.
-   def buffer b-job-mat    for job-mat.
+   DEF BUFFER xrm-rctd     FOR rm-rctd.
+   DEF BUFFER xrm-bin      FOR rm-bin.
+   DEF BUFFER b-rm-rctd    FOR rm-rctd.
+   DEF BUFFER b-item       FOR item.
+   DEF BUFFER b-po-ordl    FOR po-ordl.
+   DEF BUFFER b-job-mat    FOR job-mat.
    
-   def var v-avg-cst   as log.
-   def var ld-cvt-qty as dec no-undo.
-   def var v-trnum like gl-ctrl.trnum no-undo.
+   DEF VAR v-avg-cst   AS LOG.
+   DEF VAR ld-cvt-qty AS DEC NO-UNDO.
+   DEF VAR v-trnum LIKE gl-ctrl.trnum NO-UNDO.
    
-   def var v-r-qty     as   dec                    no-undo.
-   def var v-i-qty     as   dec                    no-undo.
-   def var v-t-qty     as   dec                    no-undo.
-   def var cost        as   dec                    no-undo.
-   def var out-qty     as   dec                    no-undo.
-   def var v-bwt       like item.basis-w           no-undo.
-   def var v-len       like item.s-len             no-undo.
-   def var v-wid       like item.s-wid             no-undo.
-   def var v-dep       like item.s-dep             no-undo.
-   def var v-recid     as   recid                  no-undo.
+   DEF VAR v-r-qty     AS   DEC                    NO-UNDO.
+   DEF VAR v-i-qty     AS   DEC                    NO-UNDO.
+   DEF VAR v-t-qty     AS   DEC                    NO-UNDO.
+   DEF VAR cost        AS   DEC                    NO-UNDO.
+   DEF VAR out-qty     AS   DEC                    NO-UNDO.
+   DEF VAR v-bwt       LIKE item.basis-w           NO-UNDO.
+   DEF VAR v-len       LIKE item.s-len             NO-UNDO.
+   DEF VAR v-wid       LIKE item.s-wid             NO-UNDO.
+   DEF VAR v-dep       LIKE item.s-dep             NO-UNDO.
+   DEF VAR v-recid     AS   RECID                  NO-UNDO.
    DEF VAR li          AS   INT                    NO-UNDO.
    DEF VAR v-post-date AS DATE INIT TODAY          NO-UNDO.
 
@@ -688,15 +715,15 @@ PROCEDURE post-rm:
       IF rm-rctd.pur-uom NE item.cons-uom AND item.cons-uom NE "" THEN
         RUN sys/ref/convquom.p (rm-rctd.pur-uom, item.cons-uom,
                               item.basis-w,
-                              (if item.r-wid eq 0 then item.s-len else 12), 
-                              (if item.r-wid eq 0 then item.s-wid else item.r-wid),
+                              (IF item.r-wid EQ 0 THEN item.s-len ELSE 12), 
+                              (IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid),
                               item.s-dep,
                               ld-cvt-qty, OUTPUT ld-cvt-qty).
 
-      if rm-rctd.rita-code eq "R" then do:        /** RECEIPTS **/
+      IF rm-rctd.rita-code EQ "R" THEN DO:        /** RECEIPTS **/
         {rm/rm-post.i "rm-bin.qty" "rm-bin.cost" "rm-rctd.qty" "rm-rctd.cost"}
 
-        assign
+        ASSIGN
          rm-bin.qty     = rm-bin.qty + ld-cvt-qty
          item.last-cost = rm-rctd.cost
          item.q-onh     = item.q-onh + ld-cvt-qty.
@@ -704,33 +731,33 @@ PROCEDURE post-rm:
         {rm/rm-poupd.i 2}
 
         item.q-avail = item.q-onh + item.q-ono - item.q-comm.
-      end. /* R */
+      END. /* R */
 
-      else
-      if rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
-        if avail job and job.job-no ne "" then do:
-          run rm/mkjobmat.p (recid(rm-rctd),rm-rctd.company, output v-recid).
+      ELSE
+      IF rm-rctd.rita-code EQ "I" THEN DO:  /** ISSUES **/
+        IF AVAIL job AND job.job-no NE "" THEN DO:
+          RUN rm/mkjobmat.p (RECID(rm-rctd),rm-rctd.company, OUTPUT v-recid).
 
-          find job-mat where recid(job-mat) eq v-recid no-error.
+          FIND job-mat WHERE RECID(job-mat) EQ v-recid NO-ERROR.
 
-          if not avail job-mat then do:
-            undo transblok.
-          end.
+          IF NOT AVAIL job-mat THEN DO:
+            UNDO transblok.
+          END.
 
-          assign
+          ASSIGN
            v-bwt = job-mat.basis-w
            v-len = job-mat.len
            v-wid = job-mat.wid
            v-dep = item.s-dep.
 
-          if v-len eq 0 then v-len = item.s-len.
+          IF v-len EQ 0 THEN v-len = item.s-len.
 
-          if v-wid eq 0 then
-            v-wid = if item.r-wid ne 0 then item.r-wid else item.s-wid.
+          IF v-wid EQ 0 THEN
+            v-wid = IF item.r-wid NE 0 THEN item.r-wid ELSE item.s-wid.
 
-          if v-bwt eq 0 then v-bwt = item.basis-w.
+          IF v-bwt EQ 0 THEN v-bwt = item.basis-w.
 
-          if index("RL",job.stat) ne 0 then job.stat = "W".
+          IF INDEX("RL",job.stat) NE 0 THEN job.stat = "W".
 
           {rm/rmmatact.i}            /* Create Actual Material */
 
@@ -738,7 +765,7 @@ PROCEDURE post-rm:
           IF rm-rctd.pur-uom NE job-mat.qty-uom AND rm-rctd.pur-uom NE "" THEN
             RUN sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.qty-uom,
                                    v-bwt, v-len, v-wid, v-dep,
-                                   rm-rctd.qty, output out-qty).
+                                   rm-rctd.qty, OUTPUT out-qty).
 
           cost = rm-rctd.cost.
           IF rm-rctd.pur-uom NE job-mat.sc-uom AND rm-rctd.pur-uom NE "" THEN
@@ -746,7 +773,7 @@ PROCEDURE post-rm:
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rctd.cost, OUTPUT cost).
 
-          assign
+          ASSIGN
            mat-act.qty-uom = job-mat.qty-uom
            mat-act.cost    = cost
            mat-act.qty     = mat-act.qty     + out-qty
@@ -754,36 +781,36 @@ PROCEDURE post-rm:
            job-mat.qty-all = job-mat.qty-all - out-qty
            item.q-comm     = item.q-comm     - rm-rctd.qty.
 
-          run sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
+          RUN sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                  v-bwt, v-len, v-wid, v-dep,
-                                 rm-rctd.qty, output out-qty).
+                                 rm-rctd.qty, OUTPUT out-qty).
 
           mat-act.ext-cost = mat-act.ext-cost + (cost * out-qty).
 
           /* Don't relieve more than were allocated */
-          if job-mat.qty-all lt 0 then do:
-            run sys/ref/convquom.p(job-mat.qty-uom, rm-rctd.pur-uom,
+          IF job-mat.qty-all LT 0 THEN DO:
+            RUN sys/ref/convquom.p(job-mat.qty-uom, rm-rctd.pur-uom,
                                    v-bwt, v-len, v-wid, v-dep,
-                                   job-mat.qty-all, output out-qty).
-            assign
+                                   job-mat.qty-all, OUTPUT out-qty).
+            ASSIGN
              job-mat.qty-all = 0
              item.q-comm     = item.q-comm - out-qty.
-          end.
+          END.
           
-          if item.q-comm lt 0 then item.q-comm = 0.
+          IF item.q-comm LT 0 THEN item.q-comm = 0.
 
           IF item.mat-type EQ "B" THEN RUN rm/rm-addcr.p (ROWID(rm-rctd)).
-        end.
+        END.
 
-        find first rm-bin
-            where rm-bin.company eq rm-rctd.company
-              and rm-bin.loc     eq rm-rctd.loc
-              and rm-bin.i-no    eq rm-rctd.i-no
-              and rm-bin.loc-bin eq rm-rctd.loc-bin
-              and rm-bin.tag     eq rm-rctd.tag
-            no-error.
+        FIND FIRST rm-bin
+            WHERE rm-bin.company EQ rm-rctd.company
+              AND rm-bin.loc     EQ rm-rctd.loc
+              AND rm-bin.i-no    EQ rm-rctd.i-no
+              AND rm-bin.loc-bin EQ rm-rctd.loc-bin
+              AND rm-bin.tag     EQ rm-rctd.tag
+            NO-ERROR.
 
-        assign
+        ASSIGN
          rm-bin.qty     = rm-bin.qty - ld-cvt-qty
          item.q-onh     = item.q-onh - ld-cvt-qty
          item.qlast-iss = rm-rctd.qty
@@ -793,52 +820,52 @@ PROCEDURE post-rm:
          item.u-ptd     = item.u-ptd + (rm-rctd.cost * rm-rctd.qty)
          item.u-ytd     = item.u-ytd + (rm-rctd.cost * rm-rctd.qty)
          item.q-avail   = item.q-onh + item.q-ono - item.q-comm.
-      end.  /* I */
+      END.  /* I */
 
-      else
-      if rm-rctd.rita-code eq "A" then do:  /** ADJUSTMENTS **/
-        if rm-rctd.cost ne 0 then do:
+      ELSE
+      IF rm-rctd.rita-code EQ "A" THEN DO:  /** ADJUSTMENTS **/
+        IF rm-rctd.cost NE 0 THEN DO:
           {rm/rm-post.i "rm-bin.qty" "rm-bin.cost" "rm-rctd.qty" "rm-rctd.cost"}
-        end.
+        END.
 
-        assign
+        ASSIGN
          rm-bin.qty     = rm-bin.qty + ld-cvt-qty
-         item.last-cost = if rm-rctd.cost ne 0 then rm-rctd.cost
-                                               else item.last-cost
+         item.last-cost = IF rm-rctd.cost NE 0 THEN rm-rctd.cost
+                                               ELSE item.last-cost
          item.q-onh     = item.q-onh + ld-cvt-qty
          item.q-avail   = item.q-onh + item.q-ono - item.q-comm.
-      end. /* A */
+      END. /* A */
 
-      else
-      if rm-rctd.rita-code eq "T" then do:  /** TRANSFERS **/
-        assign
+      ELSE
+      IF rm-rctd.rita-code EQ "T" THEN DO:  /** TRANSFERS **/
+        ASSIGN
          rm-bin.qty   = rm-bin.qty - rm-rctd.qty
          rm-rctd.cost = rm-bin.cost.
 
         /* This code is to handel the Transfer to quantity to increase the BIN
            using a buffer record so current rm-bin record is not updated. */
 
-        find first xrm-bin
-             where xrm-bin.company eq rm-rctd.company
-               and xrm-bin.loc     eq rm-rctd.loc2
-               and xrm-bin.i-no    eq rm-rctd.i-no
-               and xrm-bin.loc-bin eq rm-rctd.loc-bin2
-               and xrm-bin.tag     eq rm-rctd.tag2
-             no-error.
-        if not avail xrm-bin then do:
-          create xrm-bin.
-          assign
+        FIND FIRST xrm-bin
+             WHERE xrm-bin.company EQ rm-rctd.company
+               AND xrm-bin.loc     EQ rm-rctd.loc2
+               AND xrm-bin.i-no    EQ rm-rctd.i-no
+               AND xrm-bin.loc-bin EQ rm-rctd.loc-bin2
+               AND xrm-bin.tag     EQ rm-rctd.tag2
+             NO-ERROR.
+        IF NOT AVAIL xrm-bin THEN DO:
+          CREATE xrm-bin.
+          ASSIGN
            xrm-bin.company = rm-rctd.company
            xrm-bin.loc     = rm-rctd.loc2
            xrm-bin.loc-bin = rm-rctd.loc-bin2
            xrm-bin.tag     = rm-rctd.tag2
            xrm-bin.i-no    = rm-rctd.i-no.
-        end.
+        END.
 
         {rm/rm-post.i "xrm-bin.qty" "xrm-bin.cost" "rm-rctd.qty" "rm-rctd.cost"}
 
         xrm-bin.qty = xrm-bin.qty + rm-rctd.qty.
-      end. /* T */
+      END. /* T */
 
 /*       /** Delete Bins With Zero Quantities. **/ */
 /*       IF rm-bin.qty EQ 0 THEN DELETE rm-bin.    */
@@ -871,38 +898,39 @@ PROCEDURE post-rm:
       END.
 
       /*if last-of(tt-rctd.i-no) then /* Calculate average cost */*/
-      for each rm-bin
-          where rm-bin.company eq rm-rctd.company
-            and rm-bin.i-no    eq rm-rctd.i-no
-          no-lock use-index i-no
-          break by rm-bin.i-no:
+      FOR EACH rm-bin
+          WHERE rm-bin.company EQ rm-rctd.company
+            AND rm-bin.i-no    EQ rm-rctd.i-no
+          NO-LOCK USE-INDEX i-no
+          BREAK BY rm-bin.i-no:
 
-        if first(rm-bin.i-no) then
-          assign
+        IF FIRST(rm-bin.i-no) THEN
+          ASSIGN
            v-i-qty = 0
            cost    = 0.
 
         v-r-qty = rm-bin.qty.
 
-        if v-r-qty lt 0 then v-r-qty = v-r-qty * -1.
+        IF v-r-qty LT 0 THEN v-r-qty = v-r-qty * -1.
 
-        assign
+        ASSIGN
          v-i-qty = v-i-qty + v-r-qty
          cost    = cost    + (v-r-qty * rm-bin.cost).
 
         IF cost EQ ? THEN cost = 0.
+	    IF v-i-qty EQ ? THEN v-i-qty = 0.
 
-        if last(rm-bin.i-no) and v-i-qty ne 0 AND cost NE 0 THEN item.avg-cost = cost / v-i-qty.
+        IF LAST(rm-bin.i-no) AND v-i-qty NE 0 AND cost NE 0 THEN item.avg-cost = cost / v-i-qty.
 
         /* gdm - 10280903 - Assign prep code received date */
         RUN assign-prep-info. 
 
-      end. /* each rm-bin */      
+      END. /* each rm-bin */      
 
       RUN final-steps.
 
       IF AVAIL rm-rctd AND
-         rm-rctd.rita-code eq "ADDER" THEN
+         rm-rctd.rita-code EQ "ADDER" THEN
          rm-rctd.rita-code = "I".
 
       FIND CURRENT item NO-LOCK NO-ERROR.
@@ -912,7 +940,7 @@ PROCEDURE post-rm:
       FIND CURRENT mat-act NO-LOCK NO-ERROR.
       FIND CURRENT job NO-LOCK NO-ERROR.
       FIND CURRENT job-mat NO-LOCK NO-ERROR.
-    end. /* for each rm-rctd */
+    END. /* for each rm-rctd */
 
     IF rmpostgl THEN DO TRANSACTION:
       /* gdm - 11050906 */
@@ -1033,8 +1061,8 @@ PROCEDURE gl-from-work:
    DEF INPUT PARAM ip-run AS INT NO-UNDO.
    DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
    
-   def var credits as dec init 0 no-undo.
-   def var debits as dec init 0 no-undo. 
+   DEF VAR credits AS DEC INIT 0 NO-UNDO.
+   DEF VAR debits AS DEC INIT 0 NO-UNDO. 
    DEF VAR v-post-date AS DATE INIT TODAY NO-UNDO.
 
    FIND FIRST period
@@ -1043,31 +1071,31 @@ PROCEDURE gl-from-work:
          AND period.pend    GE v-post-date
        NO-LOCK.
   
-   for each work-gl 
-       where (ip-run eq 1 and work-gl.job-no ne "")
-          or (ip-run eq 2 and work-gl.job-no eq "")
-       break by work-gl.actnum:
+   FOR EACH work-gl 
+       WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
+          OR (ip-run EQ 2 AND work-gl.job-no EQ "")
+       BREAK BY work-gl.actnum:
        
-     assign
+     ASSIGN
       debits  = debits  + work-gl.debits
       credits = credits + work-gl.credits.
   
-     if last-of(work-gl.actnum) then do:
-       create gltrans.
-       assign
+     IF LAST-OF(work-gl.actnum) THEN DO:
+       CREATE gltrans.
+       ASSIGN
         gltrans.company = cocode
         gltrans.actnum  = work-gl.actnum
         gltrans.jrnl    = "RMPOST"
         gltrans.period  = period.pnum
         gltrans.tr-amt  = debits - credits
         gltrans.tr-date = v-post-date
-        gltrans.tr-dscr = if work-gl.job-no NE "" then "RM Issue to Job"
-                                                  else "RM Receipt"
+        gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "RM Issue to Job"
+                                                  ELSE "RM Receipt"
         gltrans.trnum   = ip-trnum
         debits  = 0
         credits = 0.
   
        RELEASE gltrans.
-     end.
-   end.
+     END.
+   END.
 END.
