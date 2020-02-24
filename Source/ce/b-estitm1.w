@@ -5126,7 +5126,10 @@ PROCEDURE reset-est-type :
             WHERE bf-eb.company  EQ bf-est.company
               AND bf-eb.est-no   EQ bf-est.est-no
               AND bf-eb.blank-no GT 0:
-          bf-eb.bl-qty = bf-est.est-qty[1].
+          ASSIGN 
+            bf-eb.bl-qty = bf-est.est-qty[1]
+            bf-eb.yld-qty = bf-est.est-qty[1]
+            .
         END.
       END.
 

@@ -1728,7 +1728,9 @@ PROCEDURE assign-qty :
 
   IF est.est-type EQ 2 THEN
   FOR EACH bf-eb OF est WHERE ROWID(bf-eb) NE ROWID(eb):
-    bf-eb.bl-qty = eb.bl-qty.
+    ASSIGN 
+        bf-eb.bl-qty = eb.bl-qty
+        bf-eb.yld-qty = eb.bl-qty.
   END.
 
   FIND bf-est-qty WHERE /*recid(bf-est-qty) = recid(est-qty)*/
