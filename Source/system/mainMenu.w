@@ -1757,11 +1757,8 @@ PROCEDURE pGetMenuSettings:
        
         IF NOT lCanProfile THEN
             MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.             
-        IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
-            RUN sys/ref/nk1look.p (
-                g_company,"ASIHelpService","C",NO,NO,"","",
-                OUTPUT cHelpService,OUTPUT lFound
-                ).
+        IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:           
+            cHelpService = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .    
             CREATE SERVER hWebService.
             hWebService:CONNECT(cHelpService) NO-ERROR.
             IF hWebService:CONNECTED() THEN DO:

@@ -141,6 +141,19 @@ FUNCTION sfCommon_UserAMPM RETURNS LOGICAL
 
 &ENDIF
 
+
+&IF DEFINED(EXCLUDE-sfCommon_HelpService) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HelpService Procedure
+FUNCTION sfCommon_HelpService RETURNS CHARACTER 
+  () FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -606,6 +619,26 @@ FUNCTION sfCommon_UserAMPM RETURNS LOGICAL
  Notes:
 ------------------------------------------------------------------------------*/
 	RETURN lUserAMPM.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_HelpService) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HelpService Procedure
+FUNCTION sfCommon_HelpService RETURNS CHARACTER 
+  ():
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cConnection   AS CHARACTER NO-UNDO .
+	cConnection = "-WSDL 'http:\\3.83.239.172/asihelpServices/helpmaintenance.asmx?WSDL'" .
+    RETURN cConnection.
 
 END FUNCTION.
 	

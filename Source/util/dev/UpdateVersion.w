@@ -356,14 +356,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
-
-  find first sys-ctrl NO-LOCK
-     WHERE sys-ctrl.name    eq "AsiHelpService"
-       AND sys-ctrl.company EQ cocode NO-ERROR.
-  IF AVAIL sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
+  
+  vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .     
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
@@ -441,14 +435,8 @@ PROCEDURE run-process :
     DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
     DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
     DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
-
-    find first sys-ctrl NO-LOCK
-           WHERE sys-ctrl.name    eq "AsiHelpService"
-             AND sys-ctrl.company EQ cocode NO-ERROR.
-      IF AVAIL sys-ctrl THEN
-         ASSIGN vconn = sys-ctrl.char-fld .
-      ELSE
-         vconn = "".
+    
+     vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .     
 
 DO TRANSACTION WITH FRAME {&FRAME-NAME}:
     CREATE SERVER vhWebService.

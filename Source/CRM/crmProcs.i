@@ -26,8 +26,7 @@ PROCEDURE pGetConnection:
     DEFINE OUTPUT PARAMETER opcConnection AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (ipcCompany, "ASIHelpService", "C", NO, NO, "", "",
-                           OUTPUT opcConnection, OUTPUT lFound).
+    
+    opcConnection = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .                         
     RETURN opcConnection.
 END PROCEDURE.

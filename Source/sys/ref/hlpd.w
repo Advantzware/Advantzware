@@ -305,11 +305,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
         
-        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
-                               NO /* check by cust */, YES /* use cust not vendor */, 
-                               "" /* cust */, "" /* ship-to*/,
-                               OUTPUT cRtnChar, OUTPUT lRecFound).
-        vconn = cRtnChar .
+       vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .
      
     CREATE SERVER vhWebService.
     vhWebService:CONNECT(vconn) NO-ERROR.

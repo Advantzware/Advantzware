@@ -412,12 +412,13 @@ PROCEDURE local-delete-record :
   {methods/template/local/deleteAfter.i}
 
   /* mod - sewa for Web Services task 08211210 */
-   FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
+   /*FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
         NO-LOCK NO-ERROR.
   IF AVAILABLE sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
   ELSE
-      vconn = "".
+      vconn = "".*/
+  vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .   
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
@@ -491,13 +492,8 @@ PROCEDURE local-update-record :
     DISABLE tb_re-view .
   END.
 /* mod - sewa for Web Services task 08211210 */
-  
-FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
-        NO-LOCK NO-ERROR.
-  IF AVAILABLE sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
+
+ vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .     
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.

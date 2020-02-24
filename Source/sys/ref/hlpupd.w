@@ -236,13 +236,14 @@ DO:
 /* mod - sewa for Web Services task 08211210 */
       ASSIGN op-ed-text = STRING(ed-text:SCREEN-VALUE).
 
-      find first sys-ctrl NO-LOCK
+      /*find first sys-ctrl NO-LOCK
            WHERE sys-ctrl.name    eq "AsiHelpService"
              AND sys-ctrl.company EQ g_company NO-ERROR.
       IF AVAIL sys-ctrl THEN
          ASSIGN vconn = sys-ctrl.char-fld .
       ELSE
-         vconn = "".
+         vconn = "".*/
+    vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .     
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
@@ -344,13 +345,8 @@ find first help-msg where asihlp.help-msg.msg-number = asihlp.hlp-head.msg-num n
 */                 
 
 /* mod - sewa for Web Services task 08211210 */
-find first sys-ctrl NO-LOCK
-     WHERE sys-ctrl.name    eq "AsiHelpService"
-       AND sys-ctrl.company EQ g_company NO-ERROR.
-  IF AVAIL sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
+
+  vconn = DYNAMIC-FUNCTION("sfCommon_HelpService" ) .    
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
