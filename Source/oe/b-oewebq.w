@@ -109,7 +109,7 @@ ll-sort-asc = NO.
 &SCOPED-DEFINE for-eachblank                        ~
     FOR EACH oe-ordl                                ~
         WHERE {&key-phrase}                         ~
-          AND (oe-ordl.stat NE "C") 
+          AND (oe-ordl.stat EQ "W") 
 
 
 &SCOPED-DEFINE for-each1                            ~
@@ -1893,23 +1893,11 @@ PROCEDURE query-first :
                sys-ctrl.int-fld = 30.
   end.
 
-
-     {&for-eachblank}
-        AND oe-ordl.opened EQ YES
-        USE-INDEX opened NO-LOCK,
-        {&for-each2}
-        BREAK BY oe-ordl.ord-no DESC:
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
-     END.
-
      &SCOPED-DEFINE open-query                  ~
         OPEN QUERY {&browse-name}               ~
           {&for-eachblank}                      ~
               AND oe-ordl.opened EQ YES         ~
-              AND oe-ordl.ord-no GE lv-ord-no   ~
-              USE-INDEX opened NO-LOCK,         ~
+              USE-INDEX stat NO-LOCK,         ~
               {&for-each2}
 
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
