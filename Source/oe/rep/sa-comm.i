@@ -345,7 +345,7 @@
             IF AVAIL oe-boll THEN cWhse = oe-boll.loc.
         END.
 
-        IF ar-invl.t-cost NE 0 THEN
+        IF ar-invl.t-cost NE 0 THEN           
              v-cost = ar-invl.t-cost * v-slsp[1] / 100.
           
         /*when updating cost via A-U-1, bug where t-cost
@@ -589,11 +589,11 @@
       v-part-fg = IF rd_part-fg BEGINS "Cust" THEN v-cust-part ELSE v-i-no.
 
     /* If 'full cost' selected and history full cost > zero, then print history full cost. */
-        ASSIGN
+    IF v-full-cost THEN DO:
+        ASSIGN 
             deUseCost = 0.
-        IF v-full-cost THEN DO:
         IF ar-invl.spare-dec-1 GT 0 THEN ASSIGN 
-            v-cost = ar-invl.spare-dec-1.
+            deUseCost = ar-invl.spare-dec-1.
         ELSE DO:
             FIND c-itemfg NO-LOCK WHERE 
                 c-itemfg.company EQ ar-invl.company AND 
@@ -601,14 +601,16 @@
                 NO-ERROR.
             IF AVAIL c-itemfg 
             AND c-itemfg.spare-dec-1 NE 0 THEN ASSIGN 
-                v-cost = c-itemfg.spare-dec-1.
+                deUseCost = c-itemfg.spare-dec-1.
         END.
         IF ar-invl.dscr[1] EQ "M" 
         OR ar-invl.dscr[1] EQ "" THEN ASSIGN 
-            v-cost = v-cost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
+            deUseCost = deUseCost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
         ELSE ASSIGN  /* EA */ 
-            v-cost = v-cost * ar-invl.inv-qty * v-slsp[1] / 100
-            v-prof = v-amt - v-cost
+            deUseCost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100.
+        ASSIGN 
+            v-cost = deUseCost
+            v-prof = v-amt - deUseCost
             v-prof = IF v-prof EQ ? THEN 0 ELSE v-prof
             v-gp   = ROUND(v-prof / v-amt * 100 , 2)
             v-gp   = IF v-gp EQ ? THEN 0 ELSE v-gp. 
