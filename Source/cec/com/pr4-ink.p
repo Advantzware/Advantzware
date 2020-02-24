@@ -7,6 +7,7 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 
 {cec/print4.i shared shared}
+{sys/inc/vendItemCost.i}
 
 def buffer ink2 for ink.
 DEF BUFFER b-qty FOR reftable.
