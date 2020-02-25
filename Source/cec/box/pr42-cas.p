@@ -24,6 +24,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {cec/print4.i shared shared}
 {cec/print42.i shared}
+{sys/inc/vendItemCost.i}
 
 def buffer xcas for cas.
 

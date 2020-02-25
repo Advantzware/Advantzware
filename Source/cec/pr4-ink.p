@@ -11,6 +11,7 @@ def shared buffer xef for ef.
 def shared buffer xeb for eb.
 
 {cec/print4.i shared shared}
+{sys/inc/vendItemCost.i}
 
 def var vuom like item.cons-uom NO-UNDO.
 def var vqty as   char NO-UNDO.

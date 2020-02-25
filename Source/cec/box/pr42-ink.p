@@ -15,6 +15,7 @@ DEF VAR v-n-out AS INT NO-UNDO.
 
 {cec/print4.i shared shared}
 {cec/print42.i shared}
+{sys/inc/vendItemCost.i}
 
 def input parameter v-vend-no like e-item-vend.vend-no.
 DEFINE INPUT PARAMETER TABLE FOR tt-all-forms-ink.
