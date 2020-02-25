@@ -121,11 +121,7 @@ ASSIGN cocode = gcompany
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
-DEFINE TEMP-TABLE tt-eb LIKE eb 
-  FIELD selected AS LOGICAL
-  FIELD row-id   AS ROWID 
-  INDEX row-id row-id
-  .
+{ce/tt-eb.i}
   
 DEF TEMP-TABLE tt-est-op LIKE est-op.
 
@@ -4695,8 +4691,7 @@ PROCEDURE mass-delete :
         WHERE b-eb.company EQ eb.company
           AND b-eb.est-no  EQ eb.est-no
           AND (lv-delete   EQ "est"                                  OR
-               (lv-delete  EQ "form" AND b-eb.form-no EQ eb.form-no) OR
-               (lv-delete  EQ "blank" AND ROWID(b-eb) EQ ROWID(eb)))
+               (lv-delete  EQ "form" AND b-eb.form-no EQ eb.form-no))
         NO-LOCK:
       CREATE tt-eb.
       BUFFER-COPY b-eb TO tt-eb

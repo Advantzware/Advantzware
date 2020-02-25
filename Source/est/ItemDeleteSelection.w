@@ -27,10 +27,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE TEMP-TABLE tt-eb NO-UNDO LIKE eb 
-  FIELD selected AS LOGICAL
-  FIELD row-id   AS ROWID 
-  INDEX row-id row-id
+{ce/tt-eb.i}
   .
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-eb. 
