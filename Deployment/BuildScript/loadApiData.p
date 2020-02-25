@@ -73,8 +73,6 @@ REPEAT:
     END.
 END.
 
-MESSAGE "ready" VIEW-AS ALERT-BOX.
-
 FOR EACH ttFiles:
     CASE ttFiles.cFileName:
         WHEN "APIInbound" THEN 
