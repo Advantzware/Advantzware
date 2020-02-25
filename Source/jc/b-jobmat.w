@@ -1074,9 +1074,6 @@ PROCEDURE local-delete-record :
   DEFINE BUFFER bf-job-mat FOR job-mat.
   /* Code placed here will execute PRIOR to standard behavior. */
   
-  FIND CURRENT job.
-  RUN jc/jc-all.p (ROWID(job-mat), -1, INPUT-OUTPUT job.stat).
-  FIND CURRENT job NO-LOCK.
 
   IF AVAIL job-mat THEN
       RUN jc/JobItemPop.w(job.job-no,job.job-no2,ROWID(job-mat),"Job-mat") .
@@ -1085,7 +1082,11 @@ PROCEDURE local-delete-record :
       FOR EACH bf-job-mat EXCLUSIVE-LOCK 
           WHERE bf-job-mat.company EQ cocode AND 
           ROWID(bf-job-mat) EQ tt-job-item.tt-rowid :
-            DELETE bf-job-mat .
+          
+          FIND CURRENT job.
+          RUN jc/jc-all.p (ROWID(bf-job-mat), -1, INPUT-OUTPUT job.stat).
+          FIND CURRENT job NO-LOCK.
+          DELETE bf-job-mat .
       END.
   END.
 
