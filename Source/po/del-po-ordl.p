@@ -1,5 +1,6 @@
 
-DEF PARAM BUFFER io-po-ordl FOR po-ordl.
+DEFINE PARAMETER BUFFER io-po-ordl       FOR po-ordl.
+DEFINE INPUT PARAMETER  iplgShowMessages AS LOGICAL NO-UNDO.
 
 DEF BUFFER b-po-ordl FOR po-ordl.
 DEF BUFFER b-ref1 FOR reftable.
@@ -48,8 +49,9 @@ IF NOT ll THEN
                   USE-INDEX rita-code) NO-ERROR.
 
 IF ll THEN DO:
-  MESSAGE "Receipts and/or invoice have been entered against this item, cannot delete..."
-      VIEW-AS ALERT-BOX ERROR.
+  IF iplgShowMessages THEN  
+      MESSAGE "Receipts and/or invoice have been entered against this item, cannot delete..."
+          VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 END.
 

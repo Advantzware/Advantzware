@@ -576,7 +576,10 @@ PROCEDURE delete_item :
                   AND ROWID(b-po-ordl)  NE ROWID(po-ordl)) THEN DELETE po-ordl.
 
     ELSE DO:
-      RUN po/del-po-ordl.p (BUFFER po-ordl).
+      RUN po/del-po-ordl.p(
+          BUFFER po-ordl,
+          INPUT YES /* To show the messages */
+          ).
 
       FOR EACH tt-po-ordl:
         DELETE tt-po-ordl.
