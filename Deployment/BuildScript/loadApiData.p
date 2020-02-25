@@ -60,7 +60,7 @@ REPEAT:
     IMPORT 
         cDumpFile
         cLongFile
-        cTypea.
+        cType.
     IF LENGTH(cDumpFile) LT 3 THEN NEXT.
     IF SUBSTRING(cDumpFile, LENGTH(cDumpFile) - 1, 2) EQ ".d" THEN DO: 
         CREATE ttFiles.
@@ -69,7 +69,6 @@ REPEAT:
             ttFiles.cType = cType
             ttFiles.cLongFile = cLongFile
             ttFiles.cFileName = ENTRY(LOOKUP(SUBSTRING(cDumpFile, 1, LENGTH(cDumpFile) - 2),cDumpFileList),cFileList).
-        DISP ttfiles.
     END.
 END.
 
