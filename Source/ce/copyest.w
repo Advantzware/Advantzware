@@ -1212,22 +1212,34 @@ PROCEDURE run-process :
     END.
 
 
-    IF tb_farm THEN
-    FOR EACH e-itemfg-vend NO-LOCK
-        WHERE e-itemfg-vend.company  EQ eb.company
-          AND e-itemfg-vend.est-no   EQ eb.est-no
-          AND e-itemfg-vend.form-no  EQ eb.form-no
-          AND e-itemfg-vend.blank-no EQ eb.blank-no
-        BREAK BY e-itemfg-vend.vend-no:
-
-
-      CREATE keiv.
-      BUFFER-COPY e-itemfg-vend EXCEPT rec_key TO keiv
-      ASSIGN
-       keiv.company = keb.company
-       keiv.est-no  = keb.est-no
-       keiv.i-no    = keb.stock-no.
-    END.
+    IF tb_farm THEN DO:  
+        DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+        DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+        FOR EACH e-itemfg-vend NO-LOCK
+            WHERE e-itemfg-vend.company  EQ eb.company
+              AND e-itemfg-vend.est-no   EQ eb.est-no
+              AND e-itemfg-vend.form-no  EQ eb.form-no
+              AND e-itemfg-vend.blank-no EQ eb.blank-no
+            BREAK BY e-itemfg-vend.vend-no:
+    
+    
+          CREATE keiv.
+          BUFFER-COPY e-itemfg-vend EXCEPT rec_key TO keiv
+          ASSIGN
+           keiv.company = keb.company
+           keiv.est-no  = keb.est-no
+           keiv.i-no    = keb.stock-no.
+        END.
+        RUN copyVendItemCost(
+            INPUT eb.company,
+            INPUT eb.est-no,  /* Old Estimate Number */
+            INPUT keb.stock-no,
+            INPUT eb.form-no,
+            INPUT eb.blank-no,
+            INPUT keb.est-no  /* New Estimate Number */
+            ).    
+    END.  
 
     IF fi_cust NE eb.cust-no THEN
     FOR EACH shipto

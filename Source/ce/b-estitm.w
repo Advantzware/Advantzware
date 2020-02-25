@@ -152,11 +152,14 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 
 {cec/tt-eb-set-part.i "new"}
 
-DEF VAR viEQtyPrev AS INT NO-UNDO.
-DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
+
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -3948,6 +3951,31 @@ PROCEDURE local-assign-record :
   ASSIGN lCheckPurMan = NO .
   IF adm-new-record AND eb.pur-man THEN RUN create-e-itemfg-vend.
   ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN RUN update-e-itemfg-vend.
+  
+  IF CAN-FIND(FIRST vendItemCost 
+               WHERE vendItemCost.company    EQ cocode
+                 AND vendItemCost.ItemID     EQ eb.stock-no
+                 AND vendItemCost.estimateNo EQ "" ) THEN
+                                         
+      MESSAGE "Update Or Delete Vendor Cost?"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+          UPDATE lFlag AS LOGICAL.
+  IF lFlag THEN 
+      RUN UpdateVendItemCost(
+          INPUT cocode,    
+          INPUT eb.stock-no,      
+          INPUT eb.est-no,    
+          INPUT eb.form-no,    
+          INPUT eb.blank-no    
+         ).                                                      
+  ELSE 
+      RUN DeleteVendItemCost(
+          INPUT cocode,            
+          INPUT eb.est-no,  
+          INPUT cOldFGItem,
+          INPUT eb.form-no, 
+          INPUT eb.blank-no
+          ).              
 
   ll-new-shipto = NO.
   RUN valid-eb-reckey.
@@ -4177,6 +4205,25 @@ PROCEDURE local-delete-record :
     FIND bb WHERE ROWID(bb) EQ ROWID(eb) NO-ERROR.
     FIND bf WHERE ROWID(bf) EQ ROWID(ef) NO-ERROR.
     FIND best WHERE ROWID(best) EQ ROWID(est) NO-ERROR.
+    
+    IF CAN-FIND(FIRST vendItemCost
+                WHERE vendItemCost.company    EQ cocode
+                  AND vendItemCost.ItemID     EQ eb.stock-no
+                  AND vendItemCost.estimateNo EQ eb.est-no
+                  AND vendItemCost.formNo     EQ eb.form-no
+                  AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
+        MESSAGE "Do you also want to delete vendor cost ?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO 
+            UPDATE lFLag AS logical.
+            
+    IF lFLag THEN   
+        RUN DeleteVendItemCost (
+            INPUT cocode,    
+            INPUT eb.est-no,  
+            INPUT eb.stock-no,
+            INPUT eb.form-no, 
+            INPUT eb.blank-no
+            ).
 
     ll-dum = BROWSE {&browse-name}:DELETE-CURRENT-ROW().
 
@@ -4277,6 +4324,7 @@ PROCEDURE local-enable-fields :
   DEF BUFFER enable-eb FOR eb.
     
   /* Code placed here will execute PRIOR to standard behavior. */
+  cOldFGItem = eb.stock-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
   {custom/checkuse.i}
 
   DO WITH FRAME {&FRAME-NAME}:

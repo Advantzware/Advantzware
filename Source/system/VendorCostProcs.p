@@ -207,6 +207,76 @@ PROCEDURE BuildVendItemCosts:
 
 END PROCEDURE.
 
+PROCEDURE CopyVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: Copy vendItemCost records from an estimate
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcNewEstimate AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company    EQ ipcCompany
+          AND vendItemCost.estimateNo EQ ipcEstimate
+          AND vendItemCost.formNo     EQ ipiFormNo
+          AND vendItemCost.blankno    EQ ipiBlankNo:
+              
+        CREATE bf-vendItemCost .
+        BUFFER-COPY vendItemCost EXCEPT company estimateNo rec_key vendItemCostID itemID TO bf-vendItemCost.
+        ASSIGN
+            bf-vendItemCost.company    = ipcCompany
+            bf-vendItemCost.estimateNo = ipcNewEstimate
+            bf-vendItemCost.ItemID     = ipcItemID
+            .
+        FOR EACH vendItemCostLevel NO-LOCK    
+            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID:
+            CREATE bf-vendItemCostLevel.
+            BUFFER-COPY vendItemCostLevel EXCEPT rec_key vendItemCostID vendItemCostLevelID TO bf-vendItemCostLevel. 
+            bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.vendItemCostID.    
+        END.          
+    END.       
+
+END PROCEDURE.
+
+PROCEDURE DeleteVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: To delete vendItemCost Records
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    FOR EACH bf-vendItemCost EXCLUSIVE-LOCK
+        WHERE bf-vendItemCost.company    EQ ipcCompany
+          AND bf-vendItemCost.estimateNo EQ ipcEstimate
+          AND bf-vendItemCost.itemID     EQ ipcItemID
+          AND bf-vendItemCost.formNo     EQ ipiFormNo
+          AND bf-vendItemCost.blankNo    EQ ipiBlankNo:    
+        FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK 
+            WHERE bf-vendItemCost.vendItemCostID EQ bf-vendItemCostLevel.vendItemCostID:
+            DELETE bf-vendItemCostLevel.  
+        END.  
+        DELETE bf-vendItemCost.  
+    END. 
+       
+   RELEASE bf-vendItemCost.
+   RELEASE bf-vendItemCostLevel.
+
+END PROCEDURE.
+
 PROCEDURE GetFirstVendCostFromReport:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper procedure to build temp-table tt-report from report table
@@ -1686,6 +1756,69 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
+PROCEDURE UpdateVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: To create or update the vendItemCost records for a given estimate
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNO     AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+             
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company    EQ ipcCompany
+          AND vendItemCost.estimateNo EQ ""
+          AND vendItemCost.itemID     EQ ipcItemID:
+
+        FIND FIRST bf-vendItemCost   
+             WHERE bf-vendItemCost.company    EQ vendItemCost.company
+               AND bf-vendItemCost.estimateNO EQ ipcEstimate
+               AND bf-vendItemCost.ItemID     EQ ipcItemID
+               AND bf-vendItemCost.formNo     EQ ipiFormNo
+               AND bf-vendItemCost.blankNo    EQ ipiBlankNo
+               AND bf-vendItemCost.vendorID   EQ vendItemCost.vendorID
+               AND bf-vendItemCost.customerID EQ vendItemCost.customerID
+               NO-ERROR.
+        IF AVAILABLE bf-vendItemCost THEN DO:
+            BUFFER-COPY vendItemCost EXCEPT rec_key vendItemCostID formNo blankNo estimateNo TO bf-vendItemCost. 
+               
+            FOR EACH vendItemCostLevel NO-LOCK    
+                WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID:
+                FIND FIRST bf-vendItemCostLevel NO-lOCK
+                     WHERE bf-vendItemCostLevel.vendItemCostLevelID EQ vendItemCostLevel.vendItemCostLevelID
+                     NO-ERROR.
+                IF AVAILABLE bf-vendItemCostLevel THEN
+                    BUFFER-COPY vendItemCOstLevel EXCEPT rec_key vendItemCostId vendItemCostLevelID TO bf-vendItemCostLevel.
+            END. 
+        END.    
+                    
+        ELSE IF NOT AVAILABLE bf-vendItemCost THEN DO:
+            CREATE bf-vendItemCost.         
+            BUFFER-COPY vendItemCost EXCEPT company estimateNo rec_key vendItemCostID itemID TO bf-vendItemCost.        
+            ASSIGN
+                bf-vendItemCost.company    = ipcCompany
+                bf-vendItemCost.estimateNo = ipcEstimate
+                bf-vendItemCost.ItemID     = ipcItemID
+                bf-vendItemCost.formNo     = ipiFormNo
+                bf-vendItemCOst.blankNo    = ipiBlankNo
+               . 
+            FOR EACH vendItemCostLevel NO-LOCK    
+                WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID:              
+                CREATE bf-vendItemCostLevel.
+                BUFFER-COPY vendItemCostLevel EXCEPT rec_key vendItemCostID vendItemCostLevelID TO bf-vendItemCostLevel.          
+                bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.vendItemCostID.         
+            END.            
+        END.              
+    END.            
+
+    RELEASE bf-vendItemCost.
+    RELEASE bf-vendItemCostLevel.         
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
