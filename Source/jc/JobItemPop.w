@@ -463,7 +463,7 @@ PROCEDURE build-table :
             AND job-mat.job-no2 = ipiJobNo2 
             BY job-mat.frm BY job-mat.blank-no :
             ll = NO .
-            RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).
+            /*RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).*/
        
             FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mat)
                 NO-ERROR.
@@ -475,7 +475,7 @@ PROCEDURE build-table :
                     tt-job-item.frm      = job-mat.frm  
                     tt-job-item.blank-no = job-mat.blank-no
                     tt-job-item.rm-i-no  = job-mat.rm-i-no
-                    tt-job-item.mat-alloc = IF ll EQ NO THEN YES ELSE NO.
+                    tt-job-item.mat-alloc = job-mat.all-flg.
             END.
         END.
       END. /* Job-mat*/
