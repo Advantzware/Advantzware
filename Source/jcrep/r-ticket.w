@@ -849,7 +849,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job1 C-Win
 ON LEAVE OF begin_job1 IN FRAME FRAME-A /* Beginning  Job# */
 DO:
-  IF {&self-name}:MODIFIED THEN RUN new-job-no.
+  IF {&self-name}:MODIFIED THEN RUN new-job-no (INPUT "begin-only").
   ASSIGN {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
                  TRIM({&self-name}:SCREEN-VALUE)  .   /* Task 10181302  */
 
@@ -865,7 +865,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job2 C-Win
 ON LEAVE OF begin_job2 IN FRAME FRAME-A /* - */
 DO:
-  IF {&self-name}:MODIFIED THEN RUN new-job-no.
+  IF {&self-name}:MODIFIED THEN RUN new-job-no (INPUT "begin-only").
   ASSIGN {&self-name}.
 
   IF lv-format-f = "FibreFC" AND lv-format-c = "Artios" THEN
@@ -1092,7 +1092,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job1 C-Win
 ON LEAVE OF end_job1 IN FRAME FRAME-A /* Ending Job# */
 DO:
-  IF {&self-name}:MODIFIED THEN RUN new-job-no.
+  IF {&self-name}:MODIFIED THEN RUN new-job-no (INPUT "All").
   ASSIGN {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
                  TRIM({&self-name}:SCREEN-VALUE)  . /* Task 10181302  */
 END.
@@ -1105,7 +1105,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job2 C-Win
 ON LEAVE OF end_job2 IN FRAME FRAME-A /* - */
 DO:
-  IF {&self-name}:MODIFIED THEN RUN new-job-no.
+  IF {&self-name}:MODIFIED THEN RUN new-job-no (INPUT "All").
   ASSIGN {&self-name}.
 END.
 
@@ -1950,7 +1950,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job1.    
   END.  
 
-  RUN new-job-no.
+  RUN new-job-no (INPUT "All").
   
   IF NOT lAsiUser THEN do:
       RUN_format:HIDDEN IN FRAME FRAME-A = YES .
@@ -2673,6 +2673,7 @@ PROCEDURE new-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT  PARAMETER ipcRunType AS CHARACTER NO-UNDO.
   DEF VAR ll-fold AS LOG NO-UNDO.
   DEF VAR ll-corr AS LOG NO-UNDO.
 
@@ -2714,7 +2715,7 @@ PROCEDURE new-job-no :
         WHERE job-hdr.company               EQ cocode
 
           AND job-hdr.job-no                GE SUBSTR(fjob-no,1,6)
-          AND job-hdr.job-no                LE SUBSTR(tjob-no,1,6)
+          AND job-hdr.job-no                LE SUBSTR(IF ipcRunType EQ "All" THEN tjob-no ELSE fJob-no,1,6)
 
           AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
@@ -2722,7 +2723,7 @@ PROCEDURE new-job-no :
 
           AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  LE tjob-no
+              STRING(job-hdr.job-no2,"99")  LE IF ipcRunType EQ "All" THEN tjob-no ELSE fJob-no
         NO-LOCK,
 
         FIRST job
