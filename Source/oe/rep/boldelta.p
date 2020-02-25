@@ -197,7 +197,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
               v-comp-add3   = cust.city + ", " +
                         cust.state + "  " +
                         cust.zip
-              v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
+              v-comp-add4 = " " /*"Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") */ 
               v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
               lv-email    = "Email:  " + cust.email   
               lv-comp-name = cust.NAME .
