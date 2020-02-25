@@ -46,7 +46,7 @@ FOR EACH itemfg-loc
   IF v-fin-qty LT {&TABLENAME}.qty THEN DO:
     v-fin-qty = {&TABLENAME}.qty - v-fin-qty.
 
-    IF NOT itemfg.pur-man THEN
+    IF AVAILABLE itemfg AND NOT itemfg.pur-man THEN
       itemfg-loc.q-ono = itemfg-loc.q-ono - v-fin-qty.
               
   END.
