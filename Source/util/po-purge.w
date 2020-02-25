@@ -55,9 +55,10 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_po end_po begin_date end_date ~
-btn-process btn-cancel RECT-17 
-&Scoped-Define DISPLAYED-OBJECTS begin_po end_po begin_date end_date 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_po end_po begin_date end_date ~
+tbPurgeLinkedPO btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_po end_po begin_date end_date ~
+tbPurgeLinkedPO 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -86,7 +87,7 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_po AS INTEGER FORMAT ">>>>>":U INITIAL 0 
+DEFINE VARIABLE begin_po AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      LABEL "Beginning PO#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -96,14 +97,19 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_po AS INTEGER FORMAT ">>>>>":U INITIAL 0 
+DEFINE VARIABLE end_po AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      LABEL "Ending PO#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 8.57.
+
+DEFINE VARIABLE tbPurgeLinkedPO AS LOGICAL INITIAL no 
+     LABEL "Purge PO's even if linked to invoices or receipts?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 50.6 BY 1.19 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -117,14 +123,15 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Purchase Order Number"
      end_date AT ROW 9.1 COL 63 COLON-ALIGNED HELP
           "Enter Ending Purchase Order Number"
+     tbPurgeLinkedPO AT ROW 11 COL 24.4 WIDGET-ID 2
      btn-process AT ROW 15.29 COL 21
      btn-cancel AT ROW 15.29 COL 53
-     RECT-17 AT ROW 4.81 COL 1
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
+     RECT-17 AT ROW 4.81 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -198,15 +205,13 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -341,9 +346,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_po end_po begin_date end_date 
+  DISPLAY begin_po end_po begin_date end_date tbPurgeLinkedPO 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_po end_po begin_date end_date btn-process btn-cancel RECT-17 
+  ENABLE RECT-17 begin_po end_po begin_date end_date tbPurgeLinkedPO 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -360,6 +366,9 @@ PROCEDURE run-process :
 /* Purge PO Program                                                           */
 /******************************************************************************/
 
+DISABLE TRIGGERS FOR LOAD OF po-ord.
+DISABLE TRIGGERS FOR LOAD OF po-ordl.
+
 def buffer b-ref1 for reftable.
 def buffer b-ref2 for reftable.
 
@@ -369,13 +378,15 @@ def var tpo like fpo initial 999999 no-undo.
 
 session:set-wait-state("General").
 
-do with frame {&frame-name}:
-  assign
+DO WITH FRAME {&frame-name}:
+  ASSIGN
    begin_po
    end_po
    begin_date
-   end_date.
-end.
+   end_date
+   tbPurgeLinkedPO
+   .
+END.
 
 session:set-wait-state("").
 
@@ -387,8 +398,8 @@ assign
 message "Are you sure you want to delete the purchase orders within the " +
         "selection parameters?"
         view-as alert-box question button yes-no update v-process.
-
-if v-process then do: 
+if v-process then do:
+  MAINBLOCK: 
   for each po-ord
       where po-ord.company eq cocode
         and po-ord.po-no   ge fpo
@@ -396,18 +407,25 @@ if v-process then do:
         and po-ord.po-date ge begin_date
         and po-ord.po-date le end_date:
 
-    for each po-ordl WHERE
-        po-ordl.company EQ po-ord.company AND
-        po-ordl.po-no   EQ po-ord.po-no:
+    FOR EACH po-ordl 
+        WHERE po-ordl.company EQ po-ord.company 
+          AND po-ordl.po-no   EQ po-ord.po-no:
       {po/po-ordls.i}
       if avail b-ref1 then delete b-ref1.
       if avail b-ref2 then delete b-ref2.
-
-      delete po-ordl.
-    end.
-
-    delete po-ord.
-  end.
+      
+      IF NOT tbPurgeLinkedPO THEN DO:
+          RUN po/del-po-ordl.p(
+              BUFFER po-ordl,
+              INPUT  NO /* Supress the messages */
+              )NO-ERROR.    
+          IF ERROR-STATUS:ERROR THEN
+              UNDO MAINBLOCK,NEXT MAINBLOCK. 
+      END.                    
+      DELETE po-ordl.
+    END.
+    DELETE po-ord.
+  END.
 
   message trim(c-win:title) + " Process Is Completed." view-as alert-box.
   apply "close" to this-procedure.
