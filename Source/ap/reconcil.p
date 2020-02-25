@@ -14,6 +14,10 @@ FOR EACH ap-pay NO-LOCK WHERE
     ap-pay.company    EQ cocode AND 
     ap-pay.reconciled EQ NO AND 
     ap-pay.memo       EQ NO:
+        
+    IF NOT CAN-FIND (FIRST bank WHERE 
+        bank.company   EQ ap-pay.company AND 
+        bank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
     
     ASSIGN 
         v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
@@ -69,6 +73,9 @@ FOR EACH ap-pay NO-LOCK WHERE
     ap-pay.reconciled EQ ? AND 
     ap-pay.memo       EQ NO:
         
+    IF NOT CAN-FIND (FIRST bank WHERE 
+        bank.company   EQ ap-pay.company AND 
+        bank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
     
     ASSIGN 
         v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
@@ -157,6 +164,10 @@ FOR EACH ar-cash NO-LOCK WHERE
         ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"9999999999")
         BREAK BY ar-ledger.tr-num:
         
+        IF NOT CAN-FIND (FIRST bank WHERE 
+            bank.company   EQ ar-cash.company AND 
+            bank.bank-code EQ ar-cash.bank-code) THEN NEXT.
+            
         CREATE tt-cash.
         ASSIGN
             tt-cash.row-id = ROWID(ar-cash)
@@ -192,6 +203,7 @@ FOR EACH gl-jrn NO-LOCK WHERE
         bank.company EQ gl-jrn.company AND 
         bank.actnum  EQ gl-jrnl.actnum
         NO-ERROR.
+    IF NOT AVAIL bank THEN NEXT.
 
     ASSIGN 
         ld = ld + gl-jrnl.tr-amt.
@@ -247,6 +259,10 @@ FOR EACH ar-mcash NO-LOCK WHERE
         ar-mcash-ref2.company  EQ "ar-mcash" AND 
         ar-mcash-ref2.val[1]   EQ 0:
 
+    IF NOT CAN-FIND (FIRST bank WHERE 
+        bank.company   EQ ar-mcash.company AND 
+        bank.bank-code EQ ar-mcash.bank-code) THEN NEXT. 
+        
     CREATE reconcile.
     ASSIGN
         reconcile.tt-type    = 4

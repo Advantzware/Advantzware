@@ -118,16 +118,14 @@ PROCEDURE pProcessRecord PRIVATE:
         glInitialized = YES.
     END.
    
-    FIND FIRST reconcile EXCLUSIVE-LOCK
-        WHERE reconcile.tt-number = STRING(INTEGER(ipbf-ttImportBankReconl.CheckJrl),"999999")
-          AND reconcile.tt-amt = DEC(ipbf-ttImportBankReconl.Amount)  NO-ERROR.
+    FIND FIRST reconcile WHERE 
+        reconcile.tt-number = STRING(INTEGER(ipbf-ttImportBankReconl.CheckJrl),"999999") AND 
+        reconcile.tt-amt = DEC(ipbf-ttImportBankReconl.Amount)  
+        NO-ERROR.
     IF AVAIL reconcile THEN DO:
-       
         IF ipbf-ttImportBankReconl.Cleared EQ "Yes" THEN reconcile.tt-cleared = YES.
-        
         RUN reconcile-file( BUFFER reconcile).
     END.
-
    
     RELEASE ap-pay.
     RELEASE reconcile.
