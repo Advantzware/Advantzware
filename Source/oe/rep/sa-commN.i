@@ -590,7 +590,7 @@
             END.
             IF ar-invl.dscr[1] EQ "M" 
             OR ar-invl.dscr[1] EQ "" 
-            OR AVAIL c-itemfg AND c-itemfg.prod-uom EQ "M" THEN ASSIGN 
+            OR (AVAIL c-itemfg AND c-itemfg.prod-uom EQ "M") THEN ASSIGN 
                 deUseCost = deUseCost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
             ELSE ASSIGN  /* EA */ 
                 deUseCost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100.
