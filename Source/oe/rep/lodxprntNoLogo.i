@@ -17,8 +17,6 @@
 
         PUT "<||><R22><C8><#4><FROM><R26><C78><RECT>" SKIP.            
         
-        PUT "<FArial><=4><R-1.6><C8><B><p15> CUSTOMER NAME </B>" SKIP.
-        
         PUT "<FArial><=4><R22.6><C8><B><P28>  " tt-word-print.cust-name FORMAT "x(30)" "</B>" SKIP.
 
         PUT "<||><R28><C8><#5><FROM><R32><C78><RECT>" SKIP.            
