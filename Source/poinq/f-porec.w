@@ -340,19 +340,19 @@ PROCEDURE populate-tt :
 
    IF AVAIL b-po-ord THEN DO:
       FOR EACH b-po-ordl NO-LOCK 
-        WHERE b-po-ordl.company EQ cocode
-          AND b-po-ordl.po-no EQ ip-po-no
-        ,
-       EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date) NO-LOCK
-       WHERE fg-rcpth.company                 EQ cocode 
-         AND fg-rcpth.po-no                   EQ v-po-no 
-         AND fg-rcpth.i-no                    EQ b-po-ordl.i-no 
-         AND LOOKUP(fg-rcpth.rita-code,"R,E") GT 0
-         AND fg-rcpth.po-line                 EQ ipiPOLine,
-       EACH  fg-rdtlh FIELDS(loc loc-bin qty tag) NO-LOCK
-       WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
-         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code :
-         
+         WHERE b-po-ordl.company EQ cocode
+           AND b-po-ordl.po-no   EQ ip-po-no
+           AND b-po-ordl.line    EQ ipiPOLine,
+          EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date) NO-LOCK
+          WHERE fg-rcpth.company                 EQ cocode 
+            AND fg-rcpth.po-no                   EQ v-po-no 
+            AND fg-rcpth.i-no                    EQ b-po-ordl.i-no 
+            AND LOOKUP(fg-rcpth.rita-code,"R,E") GT 0
+            AND fg-rcpth.po-line                 EQ ipiPOLine,
+          EACH  fg-rdtlh FIELDS(loc loc-bin qty tag) NO-LOCK
+          WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code :
+
           CREATE temp-rec.
           ASSIGN temp-rec.item-no = fg-rcpth.i-no
                  temp-rec.job-no = fg-rcpth.job-no
