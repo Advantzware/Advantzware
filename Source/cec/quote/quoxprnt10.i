@@ -228,7 +228,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        PUT "<C21>CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
     END.
     ELSE
-    IF i EQ 10  THEN DO:                
+    IF i EQ 10  THEN DO:  
+           cAddrDesc = "" .
            IF AVAILABLE ef THEN 
            DO j = 1 TO 6:
                IF ef.adder[j] NE "" THEN
@@ -356,7 +357,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
       PUT eb.part-dscr1 AT 8 FORM "x(21)" SPACE
           style-dscr SKIP.
-
+      cAdder = "" .
       DO i = 1 TO 6:
           IF ef.adder[i] NE "" THEN
               cAdder = cAdder + ef.adder[i] + ",".
