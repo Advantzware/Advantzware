@@ -584,7 +584,7 @@ DO:
                         IF NOT AVAILABLE item THEN FIND FIRST item WHERE item.company = rm-rctd.company AND
                                 item.i-no = entry(2,char-val)
                                 NO-LOCK NO-ERROR.
-                        IF v-bin NE "user entered" THEN
+                        IF v-bin NE "user entered" AND v-bin EQ "RMITEM"  THEN
                           ASSIGN 
                             rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
                             rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
@@ -600,7 +600,7 @@ DO:
                                  sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
                                  sys-ctrl.char-fld = "RMITEM".
                             END.*/
-                            IF v-bin NE "user entered" THEN
+                            IF v-bin NE "user entered" AND v-bin NE "RMITEM" THEN
                             ASSIGN 
                                 rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
                         END.
@@ -2879,11 +2879,11 @@ PROCEDURE local-create-record :
           sys-ctrl.char-fld = "RMITEM".
         END.*/
 
-  IF v-bin NE "user entered" THEN
+  IF v-bin NE "user entered" AND v-bin NE "RMITEM" THEN
     ASSIGN
         rm-rctd.loc-bin = SUBSTR(v-bin,6)
         rm-rctd.loc = SUBSTR(v-bin,1,5).
-    
+       
         FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
             AND b-rm-rctd.rita-code = "R"
             AND recid(b-rm-rctd) <> RECID(rm-rctd) NO-LOCK NO-ERROR.
@@ -3550,7 +3550,7 @@ PROCEDURE update-ttt :
     ------------------------------------------------------------------------------*/
 
     FIND FIRST tt-rm-rctd NO-ERROR.
-
+    DEFINE BUFFER bff-item FOR ITEM .
     IF AVAILABLE tt-rm-rctd THEN 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -3558,6 +3558,14 @@ PROCEDURE update-ttt :
             rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} = tt-rm-rctd.i-no
             rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(tt-rm-rctd.qty)
             tt-rm-rctd.tt-rowid                                 = ROWID(rm-rctd).
+            
+            FIND FIRST bff-item NO-LOCK
+                 WHERE bff-item.company = cocode 
+                   AND bff-item.i-no = tt-rm-rctd.i-no NO-ERROR.
+                IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
+                       ASSIGN 
+                            rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
+                            rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
     END.
 
 END PROCEDURE.
