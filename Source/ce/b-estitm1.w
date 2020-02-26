@@ -118,7 +118,8 @@ ASSIGN cocode = gcompany
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
-DEF TEMP-TABLE tt-eb LIKE eb FIELD row-id AS ROWID INDEX row-id row-id.
+{ce/tt-eb.i}
+
 DEF TEMP-TABLE tt-est-op LIKE est-op.
 
 {est/inksvarn.i NEW}
@@ -4733,16 +4734,18 @@ PROCEDURE mass-delete :
         WHERE b-eb.company EQ eb.company
           AND b-eb.est-no  EQ eb.est-no
           AND (lv-delete   EQ "est"                                  OR
-               (lv-delete  EQ "form" AND b-eb.form-no EQ eb.form-no) OR
-               (lv-delete  EQ "blank" AND ROWID(b-eb) EQ ROWID(eb)))
+               (lv-delete  EQ "form" AND b-eb.form-no EQ eb.form-no))
         NO-LOCK:
       CREATE tt-eb.
       BUFFER-COPY b-eb TO tt-eb
       ASSIGN
        tt-eb.row-id = ROWID(b-eb).
     END.
-
-    FOR EACH tt-eb:
+    RUN est/ItemDeleteSelection.w (
+        INPUT-OUTPUT TABLE tt-eb
+        ).
+    FOR EACH tt-eb
+        WHERE tt-eb.selected:
       RUN repo-query (tt-eb.row-id).
       IF AVAIL eb THEN RUN dispatch ("delete-record").
     END.  

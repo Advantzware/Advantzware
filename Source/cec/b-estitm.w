@@ -141,7 +141,8 @@ DEF VAR v-rowid-eb AS ROWID NO-UNDO.
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
-DEF TEMP-TABLE tt-eb NO-UNDO LIKE eb FIELD row-id AS ROWID INDEX row-id row-id.
+{ce/tt-eb.i}
+
 DEF TEMP-TABLE tt-est-op NO-UNDO LIKE est-op.
 DEF TEMP-TABLE tt-stock-no 
     FIELD eb-row-id AS ROWID
@@ -6612,7 +6613,7 @@ PROCEDURE mass-delete :
 
   IF AVAIL eb THEN RUN est/d-masdel.w (OUTPUT ls-delete).
 
-  li-delete = LOOKUP(ls-delete,"est,form,blank").
+  li-delete = LOOKUP(ls-delete,"est,form").
 
   IF li-delete GT 0 THEN DO:
     ll-mass-del = YES.
@@ -6621,20 +6622,21 @@ PROCEDURE mass-delete :
         WHERE b-eb.company EQ eb.company
           AND b-eb.est-no  EQ eb.est-no
           AND (li-delete   EQ 1                                 OR
-               (li-delete  EQ 2 AND b-eb.form-no EQ eb.form-no) OR
-               (li-delete  EQ 3 AND ROWID(b-eb) EQ ROWID(eb)))
+               (li-delete  EQ 2 AND b-eb.form-no EQ eb.form-no))
         NO-LOCK:
       CREATE tt-eb.
       BUFFER-COPY b-eb TO tt-eb
       ASSIGN
        tt-eb.row-id = ROWID(b-eb).
     END.
-
-    FOR EACH tt-eb:
+    RUN est/ItemDeleteSelection.w (
+        INPUT-OUTPUT TABLE tt-eb
+        ).
+    FOR EACH tt-eb
+        WHERE tt-eb.selected:
       RUN repo-query (tt-eb.row-id).
-      IF AVAIL eb AND eb.est-no EQ tt-eb.est-no            AND
-         (eb.form-no EQ tt-eb.form-no OR li-delete LT 2)   AND
-         (eb.blank-no EQ tt-eb.blank-no OR li-delete LT 3) THEN
+      IF AVAIL eb AND eb.est-no EQ tt-eb.est-no          AND
+         (eb.form-no EQ tt-eb.form-no OR li-delete LT 2) THEN
         RUN dispatch ("delete-record").
     END.  
   END.
