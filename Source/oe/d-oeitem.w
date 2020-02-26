@@ -1937,7 +1937,12 @@ DO:
                END.  
             END.   
          END.   
-      END.   
+      END.  
+      
+      IF itemfg.stat EQ "I" THEN DO:        
+        MESSAGE "The only FG Item " + itemfg.i-no + " found is not active.  Enter a different part number or make this FG item active " VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.        
+      END.
 
       IF itemfg.prod-uom EQ "" THEN DO:
         MESSAGE "FG Item " + itemfg.i-no + " has no cost UOM. Please correct and try again. " VIEW-AS ALERT-BOX.
