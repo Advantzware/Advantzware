@@ -2002,6 +2002,8 @@ PROCEDURE create-from-po :
                 RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
                 fg-rctd.tag = v-next-tag.
             END.
+            ELSE fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE .
+            
             IF rwRowid EQ ? THEN
                 rwRowid = ROWID(fg-rctd) .
             RELEASE fg-rctd.
