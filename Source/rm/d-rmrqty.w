@@ -31,6 +31,7 @@ def input parameter ip-mkbin as log no-undo.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 DEF BUFFER bfItem FOR ITEM.
+DEF BUFFER b-rm-bin FOR rm-bin.
 {sys/inc/var.i new shared}
 
 /* _UIB-CODE-BLOCK-END */
@@ -186,24 +187,30 @@ DO:
   IF ip-mkbin THEN
       RUN rm/rm-mkbinrc.p (ROWID(ITEM)).
   
-  if tb_zer then
-  for each rm-bin
-      where rm-bin.company eq item.company
-        and rm-bin.i-no    eq item.i-no
-        and rm-bin.qty     eq 0:
-    delete rm-bin.
-  end.
+    IF tb_zer THEN FOR EACH rm-bin NO-LOCK WHERE  
+        rm-bin.company EQ item.company AND 
+        rm-bin.i-no    EQ item.i-no AND 
+        rm-bin.qty     EQ 0:
+        FIND b-rm-bin EXCLUSIVE WHERE 
+            ROWID(b-rm-bin) EQ ROWID(rm-bin)
+            NO-ERROR.
+        IF AVAIL b-rm-bin THEN 
+            DELETE b-rm-bin.
+    END.
 
-  if tb_neg then
-  for each rm-bin
-      where rm-bin.company eq item.company
-        and rm-bin.i-no    eq item.i-no
-        and rm-bin.qty     lt 0:
+    IF tb_neg THEN FOR EACH rm-bin NO-LOCK WHERE 
+        rm-bin.company EQ item.company AND 
+        rm-bin.i-no    EQ item.i-no AND 
+        rm-bin.qty     LT 0:
         
-    RUN rm/cre-tran.p (ROWID(rm-bin), "C", 0,"").
-
-    delete rm-bin.
-  end.
+        RUN rm/cre-tran.p (ROWID(rm-bin), "C", 0,"").
+        
+        FIND b-rm-bin EXCLUSIVE WHERE 
+            ROWID(b-rm-bin) EQ ROWID(rm-bin)
+            NO-ERROR.
+        IF AVAIL b-rm-bin THEN 
+            DELETE b-rm-bin.
+    END.
 
   run rm/rm-reset.p (recid(item)). 
 
