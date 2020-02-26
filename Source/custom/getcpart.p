@@ -26,6 +26,7 @@ FOR EACH cust-part
     FIRST itemfg
     WHERE itemfg.company EQ cust-part.company
       AND itemfg.i-no    EQ cust-part.i-no
+      AND itemfg.stat    EQ "A"
     NO-LOCK:
   io-rowid = ROWID(itemfg).
   LEAVE.
