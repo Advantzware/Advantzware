@@ -122,6 +122,7 @@ DEF TEMP-TABLE tt-text NO-UNDO
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cEmailId AS CHARACTER NO-UNDO .
 
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
@@ -923,9 +924,17 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
     "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/
                 /*v-bot-lab[2] */
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
+    
+    FIND FIRST users NO-LOCK
+       WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR .
+       IF AVAIL users AND users.image_filename NE "" THEN
+        ASSIGN 
+          cEmailId = users.image_filename .
+          ELSE
+          cEmailId =  "purchaseorders@mcleanpackaging.com" .  
 
 PUT "<FArial><R57.5><C1><P12><B>Terms and Conditions</B><P9> " SKIP
-       "<R59><C1><P7><B> Please send acknowledgment to: purchaseorders@mcleanpackaging.com </B>"
+       "<R59><C1><P7><B> Please send acknowledgment to: " cEmailId FORMAT "x(35)" "</B>"
        "<R60><C1><P7> - All Pallets must be labeled with the McLean specified 128 Auto bar code"
        "<R61><C1><P7> - No Steel Banding On Pallets Vendor must confirm shipment"
        "<R62><C1><P7> - Vendor must confirm shipment and schedule a dock appointment by calling (856)359-2625 (NJ) or (610)759-3550 (PA)"  
