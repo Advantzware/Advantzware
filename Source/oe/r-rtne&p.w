@@ -951,12 +951,19 @@ FOR EACH oe-reth
     fg-rctd.pur-uom   = itemfg.prod-uom
     fg-rctd.t-qty     = oe-retl.qty-return-inv
     fg-rctd.std-cost  = oe-retl.cost
-    fg-rctd.ext-cost  = fg-rctd.std-cost * (fg-rctd.t-qty / 1000)
     fg-rctd.qty-case  = v-cas-cnt
     fg-rctd.i-no      = oe-retl.i-no
     fg-rctd.i-name    = oe-retl.i-name
     fg-rctd.job-no    = oe-retl.job-no
-    fg-rctd.job-no2   = oe-retl.job-no2.
+    fg-rctd.job-no2   = oe-retl.job-no2 .
+    
+    IF AVAIL ar-invl AND ar-invl.dscr[1] NE "" THEN
+      fg-rctd.cost-uom = ar-invl.dscr[1].
+    ELSE
+      fg-rctd.cost-uom = "M".   
+    fg-rctd.ext-cost  = fg-rctd.std-cost * fg-rctd.t-qty / 
+                        (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1) .
+    
 
     RUN sys/ref/convcuom.p("M", fg-rctd.pur-uom, 0, 0, 0, 0,
     fg-rctd.std-cost, OUTPUT fg-rctd.std-cost).
