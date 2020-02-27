@@ -89,7 +89,7 @@ IF lRecFound THEN
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel btn-auto-calc 
+&Scoped-Define ENABLED-OBJECTS btPOScores Btn-Save Btn-Cancel btn-auto-calc 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -118,6 +118,10 @@ DEFINE BUTTON Btn-Save
      SIZE 9 BY 1.29
      FONT 4.
 
+DEFINE BUTTON btPOScores 
+     LABEL "PO Scores" 
+     SIZE 9 BY 1.29.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 52 BY 1.76.
@@ -126,9 +130,10 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Save AT ROW 1.24 COL 2
-     Btn-Cancel AT ROW 1.24 COL 12
-     btn-auto-calc AT ROW 1.24 COL 21
+     btPOScores AT ROW 1.24 COL 2.8 WIDGET-ID 2
+     Btn-Save AT ROW 1.24 COL 16.6
+     Btn-Cancel AT ROW 1.24 COL 26.6
+     btn-auto-calc AT ROW 1.24 COL 36.6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -291,6 +296,27 @@ DO:
          btn-auto-calc:sensitive = yes.
      END.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btPOScores
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPOScores C-WIn
+ON CHOOSE OF btPOScores IN FRAME Panel-Frame /* PO Scores */
+DO:
+    DEFINE VARIABLE cSourceStr AS CHARACTER NO-UNDO.
+    
+    RUN get-link-handle IN adm-broker-hdl (
+        INPUT  THIS-PROCEDURE, 
+        INPUT  'Tableio-Target':U, 
+        OUTPUT cSourceStr
+        ).
+  
+    RUN UpdatePOScores IN WIDGET-HANDLE (
+        cSourceStr
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */

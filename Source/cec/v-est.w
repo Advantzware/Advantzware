@@ -121,15 +121,14 @@ DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 RUN methods/prgsecur.p
-	    (INPUT "p-upditm.",
-	     INPUT "CREATE", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-
+            (INPUT "p-upditm.",
+             INPUT "CREATE", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -155,12 +154,12 @@ RUN methods/prgsecur.p
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, est-qty, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id est.csrUser eb.part-no ~
-eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
-eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
-eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
-eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid eb.k-len eb.tuck ~
-eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
+&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id ~
+est.csrUser_id eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ~
+ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no ~
+eb.upc-no eb.style eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len ~
+eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid ~
+eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
 &Scoped-define ENABLED-TABLES est eb ef
 &Scoped-define FIRST-ENABLED-TABLE est
 &Scoped-define SECOND-ENABLED-TABLE eb
@@ -170,12 +169,12 @@ btn_fgitem btn_style btn_board btn_cust RECT-18 RECT-19 RECT-23 RECT-24
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date eb.ord-no est.ord-date est.highlight eb.cust-no ~
 eb.ship-id eb.ship-name eb.ship-addr[1] eb.ship-addr[2] eb.ship-city ~
-eb.ship-state eb.ship-zip est-qty.eqty eb.part-no eb.stock-no eb.part-dscr1 ~
-eb.part-dscr2 eb.die-no ef.cad-image est.csrUser eb.sman eb.comm eb.cad-no eb.plate-no ~
-eb.procat eb.spc-no eb.upc-no eb.style eb.flute eb.test est.metric ef.board ~
-ef.brd-dscr eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock ~
-eb.gluelap eb.k-wid eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin ~
-eb.loc 
+eb.ship-state eb.ship-zip est.csrUser_id est-qty.eqty eb.part-no ~
+eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
+eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
+eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
+eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid eb.k-len eb.tuck ~
+eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
 &Scoped-define DISPLAYED-TABLES est eb est-qty ef
 &Scoped-define FIRST-DISPLAYED-TABLE est
 &Scoped-define SECOND-DISPLAYED-TABLE eb
@@ -251,25 +250,25 @@ DEFINE BUTTON btnDieLookup
      LABEL "" 
      SIZE 4.4 BY 1.05.
 
+DEFINE BUTTON btn_board 
+     LABEL "" 
+     SIZE 11 BY 1.
+
+DEFINE BUTTON btn_cust 
+     LABEL "" 
+     SIZE 9 BY 1.
+
 DEFINE BUTTON btn_fgitem 
      LABEL "" 
      SIZE 13 BY 1.
 
-DEFINE BUTTON btn_style
-     LABEL "" 
-     SIZE 15 BY 1.
-
-DEFINE BUTTON btn_board
-     LABEL "" 
-     SIZE 11 BY 1.
-
-DEFINE BUTTON btn_cust
-     LABEL "" 
-     SIZE 9 BY 1.
-
 DEFINE BUTTON btn_qty-msf 
      LABEL "" 
      SIZE 74 BY 1.
+
+DEFINE BUTTON btn_style 
+     LABEL "" 
+     SIZE 15 BY 1.
 
 DEFINE VARIABLE fi_blank-qty AS INTEGER FORMAT ">9" INITIAL 1 
      VIEW-AS FILL-IN 
@@ -382,29 +381,29 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 6
-     eb.ship-name AT ROW 3.80 COL 22.2 COLON-ALIGNED
+     eb.ship-name AT ROW 3.81 COL 22.2 COLON-ALIGNED
           LABEL "Company"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
           FONT 6
-     eb.ship-addr[1] AT ROW 4.70 COL 22.2 COLON-ALIGNED
+     eb.ship-addr[1] AT ROW 4.71 COL 22.2 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-addr[2] AT ROW 5.55 COL 22.2 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.57 COL 22.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-city AT ROW 6.45 COL 22.2 COLON-ALIGNED
+     eb.ship-city AT ROW 6.43 COL 22.2 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.ship-state AT ROW 6.45 COL 45.6 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.43 COL 45.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6.45 COL 52.2 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.43 COL 52.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.8 BY 1
-     est.csrUser_id AT ROW 7.30 COL 22 COLON-ALIGNED
+     est.csrUser_id AT ROW 7.29 COL 22 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -445,8 +444,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     ef.cad-image AT ROW 6.95 COL 127 COLON-ALIGNED HELP
-          "Filename of the Die image"
+     ef.cad-image AT ROW 6.95 COL 127 COLON-ALIGNED
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -480,12 +478,11 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      eb.upc-no AT ROW 8.91 COL 121 COLON-ALIGNED
-          LABEL "UPC#" FORMAT "x(20)"
+          LABEL "UPC#"
           VIEW-AS FILL-IN 
           SIZE 29 BY 1
           FONT 6
      eb.style AT ROW 10.52 COL 21 COLON-ALIGNED
-          LABEL "Style Code"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
@@ -561,22 +558,22 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-wid AT ROW 16 COL 26 COLON-ALIGNED
-          LABEL "Blank Width" 
+          LABEL "Blank Width" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-len AT ROW 16 COL 61 COLON-ALIGNED
-          LABEL "Blank Length" 
+          LABEL "Blank Length" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Blank Square Feet" 
+          LABEL "Blank Square Feet" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
      eb.loc AT ROW 9.19 COL 62.2 COLON-ALIGNED WIDGET-ID 14
           LABEL "W"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1     
+          SIZE 8 BY 1
      btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 8 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 12 WIDGET-ID 16
@@ -667,18 +664,16 @@ ASSIGN
    ALIGN-R EXP-LABEL                                                    */
 /* SETTINGS FOR FILL-IN eb.comm IN FRAME Corr
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME Corr
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.cust-no IN FRAME Corr
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.dep IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN eb.die-no IN FRAME Corr
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR TOGGLE-BOX est.highlight IN FRAME Corr
-   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN eb.dust IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */
-/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME Corr
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN est-qty.eqty IN FRAME Corr
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 ASSIGN 
@@ -708,6 +703,8 @@ ASSIGN
    5 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN eb.gluelap IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR TOGGLE-BOX est.highlight IN FRAME Corr
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN eb.k-len IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN eb.k-wid IN FRAME Corr
@@ -787,7 +784,7 @@ ASSIGN
 */  /* FRAME Corr */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1044,21 +1041,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME est.csrUser_id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
-ON LEAVE OF est.csrUser_id IN FRAME Corr /* Type */
-DO:
-  
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-custcsr NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON LEAVE OF ef.board IN FRAME Corr /* Board */
@@ -1241,38 +1223,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_fgitem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_fgitem V-table-Win
-ON CHOOSE OF btn_fgitem IN FRAME Corr
-DO:
-  IF AVAIL eb THEN
-   FIND FIRST itemfg WHERE itemfg.company  = cocode
-       AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
-
-   IF AVAIL itemfg THEN
-   RUN oe/w-estfg.w(RECID(eb)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_style
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
-ON CHOOSE OF btn_style IN FRAME Corr
-DO:
-  IF AVAIL eb THEN
-   FIND FIRST style WHERE style.company  = cocode
-       AND style.style = eb.style NO-LOCK NO-ERROR.
-
-   IF AVAIL style THEN
-   RUN windows/stylec-e.w(RECID(style)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btn_board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
 ON CHOOSE OF btn_board IN FRAME Corr
@@ -1305,11 +1255,43 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_fgitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_fgitem V-table-Win
+ON CHOOSE OF btn_fgitem IN FRAME Corr
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST itemfg WHERE itemfg.company  = cocode
+       AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
+
+   IF AVAIL itemfg THEN
+   RUN oe/w-estfg.w(RECID(eb)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_qty-msf
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_qty-msf V-table-Win
 ON CHOOSE OF btn_qty-msf IN FRAME Corr
 DO:
   IF AVAIL eb THEN RUN est/d-estmsf.w (ROWID(eb)).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_style
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
+ON CHOOSE OF btn_style IN FRAME Corr
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST style WHERE style.company  = cocode
+       AND style.style = eb.style NO-LOCK NO-ERROR.
+
+   IF AVAIL style THEN
+   RUN windows/stylec-e.w(RECID(style)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1325,6 +1307,22 @@ DO:
       IF SEARCH(lv-cad-path + eb.cad-no:SCREEN-VALUE + lv-cad-ext) = ? THEN lv-cad-ext = "".
 
    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME est.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
+ON LEAVE OF est.csrUser_id IN FRAME Corr /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1400,7 +1398,6 @@ DO:
 {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1458,8 +1455,6 @@ DO:
    END.
 {&methods/lValidateError.i NO}
 END.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1537,8 +1532,6 @@ DO:
 {&methods/lValidateError.i NO}
 END.
 
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1584,15 +1577,12 @@ DO:
  {&methods/lValidateError.i NO}
 END.
 
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
- &Scoped-define SELF-NAME eb.gluelap
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.gluelap V-table-Win
-ON VALUE-CHANGED OF eb.gluelap IN FRAME Corr /* Tab */
+ON VALUE-CHANGED OF eb.gluelap IN FRAME Corr /* Joint Tab Width */
 DO: 
   IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
@@ -1643,8 +1633,6 @@ DO:
 {&methods/lValidateError.i NO}
 END.
 
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1689,8 +1677,6 @@ DO:
     THEN ll-style-is-valid = YES.
 {&methods/lValidateError.i NO}
 END.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1743,8 +1729,6 @@ DO:
   END.
 {&methods/lValidateError.i NO}
 END.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1799,8 +1783,6 @@ DO:
 
 END.
 
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1843,8 +1825,6 @@ DO:
     THEN ll-style-is-valid = YES.
 {&methods/lValidateError.i NO}
 END.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1942,7 +1922,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1960,7 +1939,7 @@ END.
 
 &Scoped-define SELF-NAME eb.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.sman V-table-Win
-ON LEAVE OF eb.sman IN FRAME Corr /* Sales Rep */
+ON LEAVE OF eb.sman IN FRAME Corr /* SalesGrp */
 DO:
   IF LASTKEY NE -1  THEN DO:
     RUN valid-sman NO-ERROR.
@@ -1973,7 +1952,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.sman V-table-Win
-ON VALUE-CHANGED OF eb.sman IN FRAME Corr /* Sales Rep */
+ON VALUE-CHANGED OF eb.sman IN FRAME Corr /* SalesGrp */
 DO:
   RUN new-sman.
 END.
@@ -2011,7 +1990,6 @@ DO:
     end.  
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2081,7 +2059,6 @@ DO:
     RETURN NO-APPLY.
   END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2122,8 +2099,6 @@ IF LASTKEY EQ -1 THEN Return .
              eb.t-sqin:screen-value = string( if v-corr then round(lv-sqin * 0.007,6) else round(lv-sqin / 144,6)).
 {&methods/lValidateError.i NO}
 END.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2168,7 +2143,6 @@ DO:
     RETURN NO-APPLY.
   END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2211,7 +2185,6 @@ DO:
          eb.t-sqin:screen-value = string(if v-corr then round(lv-sqin * 0.007,6)
                                          else round(lv-sqin / 144,6)).
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2283,8 +2256,6 @@ DO:
 {&methods/lValidateError.i NO}
 END.
 
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2336,8 +2307,6 @@ DO:
   END.
 {&methods/lValidateError.i NO}
 END.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2449,6 +2418,23 @@ PROCEDURE auto-calc :
    run dispatch ('enable-fields').
    disable eb.t-wid eb.t-len eb.t-sqin
            with frame {&frame-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
+PROCEDURE cad-image-update :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAIL eb THEN do:
+        RUN est/d-cadimgupd.w(cocode,ROWID(est)) .
+        RUN local-display-fields .
+    END.
 
 END PROCEDURE.
 
@@ -2869,6 +2855,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
+PROCEDURE csr-display :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+
+      FIND FIRST cust NO-LOCK
+            WHERE cust.company = cocode
+              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
+     
+       IF AVAIL cust THEN
+           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
+
+  END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-spec V-table-Win 
 PROCEDURE cust-spec :
 /*------------------------------------------------------------------------------
@@ -2892,7 +2902,6 @@ PROCEDURE cust-spec :
   end.
 {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3810,33 +3819,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel B-table-Win 
-PROCEDURE set-panel :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
-
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-
-
-  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'btn-set-target':U,OUTPUT char-hdl).
-
-  IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
-      IF ip-switch EQ 0 THEN 
-          RUN disable-all IN WIDGET-HANDLE(char-hdl).
-      ELSE
-          RUN enable-all IN WIDGET-HANDLE(char-hdl).
-  END.
-
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -4056,8 +4038,6 @@ PROCEDURE local-update-record :
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4437,31 +4417,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
- 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
-PROCEDURE csr-display :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel V-table-Win 
+PROCEDURE set-panel :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DO WITH FRAME {&frame-name}:
+  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
 
-      FIND FIRST cust NO-LOCK
-            WHERE cust.company = cocode
-              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
-     
-       IF AVAIL cust THEN
-           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
+  DEF VAR char-hdl AS CHAR NO-UNDO.
 
+
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'btn-set-target':U,OUTPUT char-hdl).
+
+  IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
+      IF ip-switch EQ 0 THEN 
+          RUN disable-all IN WIDGET-HANDLE(char-hdl).
+      ELSE
+          RUN enable-all IN WIDGET-HANDLE(char-hdl).
   END.
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE shipto-enable V-table-Win 
 PROCEDURE shipto-enable :
@@ -4621,6 +4602,23 @@ PROCEDURE update-sheet :
   find xef where recid(xef) = recid(ef) no-lock.
   find xeb where recid(xeb) = recid(eb) no-lock.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UpdatePOScores V-table-Win 
+PROCEDURE UpdatePOScores :
+/*------------------------------------------------------------------------------
+  Purpose: Procedure to open dialog box to view/create/update po scores for 
+           estimate
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAILABLE eb THEN
+        RUN est/d-panelDetails.w (
+            INPUT ROWID(eb)
+            ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5105,23 +5103,6 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
-PROCEDURE cad-image-update :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF AVAIL eb THEN do:
-        RUN est/d-cadimgupd.w(cocode,ROWID(est)) .
-        RUN local-display-fields .
-    END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
