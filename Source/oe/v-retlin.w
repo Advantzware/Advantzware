@@ -1004,7 +1004,10 @@ PROCEDURE local-display-fields :
             lv_disc = ar-invl.disc
             lv_tax = ar-invl.tax
             lv_sman3 = ar-invl.sman[3] 
-            lv_s-comm3 = ar-invl.s-comm[3].
+            lv_s-comm3 = ar-invl.s-comm[3]
+            fi_cost-uom = ar-invl.dscr[1].
+            IF fi_cost-uom EQ "" THEN
+             fi_cost-uom = "M".       
 
  DISPLAY   lv_sman1 lv_s-comm1           
            lv_cas-cnt lv_sman2
