@@ -71,7 +71,7 @@ DEFINE VARIABLE cbShipFrom AS CHARACTER  NO-UNDO .
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-job-hdr.IS-SELECTED tt-job-hdr.frm tt-job-hdr.blank-no tt-job-hdr.i-no tt-job-hdr.qty tt-job-hdr.on-hand tt-job-hdr.on-order tt-job-hdr.on-allo tt-job-hdr.on-required   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-job-hdr.IS-SELECTED   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-job-hdr.IS-SELECTED tt-job-hdr.qty  
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-job-hdr
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-job-hdr
 &Scoped-define SELF-NAME BROWSE-1
@@ -87,7 +87,7 @@ DEFINE VARIABLE cbShipFrom AS CHARACTER  NO-UNDO .
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 Btn_apply-jobqty Btn_reset-qty ~
-dOverRun Btn_select-all Btn_Deselect-all Btn_apply-requed-qty BROWSE-1 
+dOverRun Btn_select-all Btn_Deselect-all Btn_save BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS cJobNo cCustNo cCustName dOverRun 
 
 /* Custom List Definitions                                              */
@@ -108,9 +108,10 @@ DEFINE BUTTON Btn_apply-jobqty  NO-CONVERT-3D-COLORS
      SIZE 29.6 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_apply-requed-qty  NO-CONVERT-3D-COLORS
-     LABEL "Apply Required Quantities To Job Quantities" 
-     SIZE 52.4 BY 1.14
+DEFINE BUTTON Btn_save  
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.81
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Deselect-all  NO-CONVERT-3D-COLORS
@@ -130,7 +131,7 @@ DEFINE BUTTON Btn_select-all  NO-CONVERT-3D-COLORS
 
 DEFINE VARIABLE cCustName AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
-     SIZE 45.6 BY 1
+     SIZE 41.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
@@ -176,6 +177,7 @@ DEFINE BROWSE BROWSE-1
       tt-job-hdr.on-allo FORMAT "->,>>>,>>9" COLUMN-LABEL "Allocated"
       tt-job-hdr.on-required FORMAT "->,>>>,>>9" COLUMN-LABEL "Required"
      ENABLE tt-job-hdr.IS-SELECTED
+            tt-job-hdr.qty
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 116.6 BY 10.24
@@ -191,10 +193,10 @@ DEFINE FRAME Dialog-Frame
      Btn_apply-jobqty AT ROW 2.57 COL 31.8
      Btn_reset-qty AT ROW 2.57 COL 65 WIDGET-ID 10
      dOverRun AT ROW 2.62 COL 15.8 COLON-ALIGNED
-     Btn_select-all AT ROW 3.76 COL 17.2 WIDGET-ID 84
-     Btn_Deselect-all AT ROW 3.76 COL 31.8 WIDGET-ID 86
-     Btn_apply-requed-qty AT ROW 3.81 COL 65 WIDGET-ID 12
+     Btn_select-all AT ROW 3.76 COL 3.4 WIDGET-ID 84
+     Btn_Deselect-all AT ROW 3.76 COL 16.4 WIDGET-ID 86      
      BROWSE-1 AT ROW 5.05 COL 3.4
+     Btn_save AT ROW 1.15 COL 112 WIDGET-ID 12
      RECT-1 AT ROW 1.1 COL 1.2 WIDGET-ID 82
      SPACE(0.50) SKIP(0.50)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -220,7 +222,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-1 Btn_apply-requed-qty Dialog-Frame */
+/* BROWSE-TAB BROWSE-1 Btn_save Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -276,12 +278,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-     
-       RUN jc/jobHdrQty.w ("Job Quantitiy:", INPUT-OUTPUT tt-job-hdr.qty).
-     
-       RUN open-query(rowid(tt-job-hdr)).
- 
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tt-job-hdr.qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-job-hdr.qty BROWSE-1 _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF tt-job-hdr.qty IN BROWSE BROWSE-1 /* qty */
+DO:
+     tt-job-hdr.qty = integer(tt-job-hdr.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NO-ERROR . 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,22 +323,19 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_apply-requed-qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_apply-requed-qty Dialog-Frame
-ON CHOOSE OF Btn_apply-requed-qty IN FRAME Dialog-Frame /* Apply Required Quantities To Job Quantities */
+&Scoped-define SELF-NAME Btn_save
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_save Dialog-Frame
+ON CHOOSE OF Btn_save IN FRAME Dialog-Frame /* Apply Required Quantities To Job Quantities */
 DO:
-    DEFINE BUFFER bf-tt-job-hdr FOR tt-job-hdr .
-    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN {&displayed-objects}.
-        END.
-
-    FOR EACH bf-tt-job-hdr WHERE bf-tt-job-hdr.IS-SELECTED
-            EXCLUSIVE-LOCK  BY bf-tt-job-hdr.frm:
-            bf-tt-job-hdr.qty = tt-job-hdr.on-required .
-     END.
-     RUN open-query(rwRowid) .
+    FOR EACH tt-job-hdr NO-LOCK ,
+       FIRST bf-job-hdr WHERE bf-job-hdr.job-no EQ tt-job-hdr.job-no
+           AND bf-job-hdr.job-no2 EQ tt-job-hdr.job-no2
+           AND bf-job-hdr.frm EQ tt-job-hdr.frm
+           AND bf-job-hdr.blank-no EQ tt-job-hdr.blank-no EXCLUSIVE-LOCK:
+        ASSIGN bf-job-hdr.qty = tt-job-hdr.qty .
+    END.
+   RELEASE bf-job-hdr .
+  APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,7 +593,7 @@ PROCEDURE enable_UI :
   DISPLAY cJobNo cCustNo cCustName dOverRun 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 Btn_apply-jobqty Btn_reset-qty dOverRun Btn_select-all 
-         Btn_Deselect-all Btn_apply-requed-qty BROWSE-1 
+         Btn_Deselect-all Btn_save BROWSE-1 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
