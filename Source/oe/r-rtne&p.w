@@ -962,11 +962,7 @@ FOR EACH oe-reth
     ELSE
       fg-rctd.cost-uom = "M".   
     fg-rctd.ext-cost  = fg-rctd.std-cost * fg-rctd.t-qty / 
-                        (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1) .
-    
-
-    RUN sys/ref/convcuom.p("M", fg-rctd.pur-uom, 0, 0, 0, 0,
-    fg-rctd.std-cost, OUTPUT fg-rctd.std-cost).
+                        (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1) .   
 
     IF v-cas-cnt GT 0 THEN
       ASSIGN
