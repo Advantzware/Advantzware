@@ -938,6 +938,8 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
             cCommandParamResource = "RFID Monitor".
         WHEN "jobXML" THEN
             cCommandParamResource = "Esko Monitor".
+        WHEN "Schedule" THEN
+            cCommandParamResource = "Schedule Monitor".
         OTHERWISE
             "".
     END.

@@ -108,7 +108,6 @@ DO TRANSACTION:
 END.
 
 DEF VAR oeimportCompleted AS cha NO-UNDO.
-DEF VAR gImportMultiFile AS LOG NO-UNDO.
 DEF VAR gcImportError AS cha NO-UNDO.
 
 /* for oe/oe-price.p ========*/
@@ -342,17 +341,14 @@ DO:
       RETURN NO-APPLY.
   END.
 
-  gImportMultiFile = NO.
-
+  
   IF fcFileName <> "" THEN
     MESSAGE "Are you ready to import orders from "  fcFileName "?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE v-process.
   ELSE DO:
-      gImportMultiFile = YES.
-      MESSAGE "Are you ready to import orders from folder "  oeimport-cha  "?"
-           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE v-process.
+      MESSAGE "Use schedule monitor to import orders from folder "
+           VIEW-AS ALERT-BOX INFORMATION.
   END.
 
   IF v-process THEN RUN runProcess.
@@ -1370,88 +1366,173 @@ PROCEDURE runProcess :
   Parameters:  <none>
   Notes:       copyOrder procedure is contained in oe/copyOrder.i include
 ------------------------------------------------------------------------------*/  
-  DEF VAR cImportFileName AS cha FORM "x(60)"  NO-UNDO.
-  DEF VAR cImportCompleted AS cha NO-UNDO.
-  DEF VAR cImportErrored AS cha NO-UNDO.
-  IF NOT llBatchMode THEN 
-  SESSION:SET-WAIT-STATE("general").    
-
-  /* Special to impord */
-  IF NOT llBatchMode AND NOT gImportMultiFile THEN DO:  /* single file improt */
-      cImportFileName = fcFileName. 
-      RUN ImportOrder (cImportFileName).
-  END.
-  ELSE DO:  
-     /* Exists in sImpOrd.p */
-     /* multi file import from oeimport-cha*/
-
-     INPUT FROM OS-DIR(oeimport-cha) NO-ECHO.
-     REPEAT:
-         IMPORT cImportFileName.
-     
-         IF cImportFileName BEGINS "." THEN NEXT.
-         IF SUBSTRING(cImportFileName,LENGTH(cImportFileName) - 3,4) <> ".csv" THEN NEXT.
-
-         /*FILE-INFO:FILE-NAME = cImportFileName.
-         MESSAGE "file? " cImportFileName ":" FILE-INFO:FULL-PATHNAME ":" FILE-INFO:pathname
-             VIEW-AS ALERT-BOX INFO BUTTONS OK.
-         cImportFileName = FILE-INFO:FULL-PATHNAME.
-         */
-         cImportFileName =  IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
-                 SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\" THEN oeimport-cha + cImportFileName
-             ELSE oeimport-cha + "/" + cImportFileName.
-   /* Special to impord */
-   IF NOT llBatchMode THEN
-         fcMessage:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Import file: " + cImportFileName + " ...".
-
-          RUN ImportOrder (cImportFileName).
-          
-          IF gcImportError <> "" THEN DO:      /* error */
-              IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
-                 SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\"
-                 THEN cImportErrored = SUBSTRING(oeimport-cha,1,LENGTH(oeimport-cha) - 1).
-             ELSE cImportErrored = oeimport-cha.
-
-             cImportErrored = cImportErrored + "Errored".
-             OS-CREATE-DIR VALUE(cImportErrored).
-              OS-COPY VALUE(cImportFileName) VALUE(cImportErrored).              
-              IF OS-ERROR = 0 THEN 
-                  OS-DELETE VALUE(cImportFileName).
-               NEXT.
-          END.
-          ELSE DO:  /* successfully imported, move files to completed folder  */
-             IF SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "/" OR 
-                 SUBSTRING(oeimport-cha,LENGTH(oeimport-cha),1) = "\"
-                 THEN cImportCompleted = SUBSTRING(oeimport-cha,1,LENGTH(oeimport-cha) - 1).
-             ELSE cImportCompleted = oeimport-cha.
-
-             cImportCompleted = cImportCompleted + "Completed".
-             /*IF SEARCH(cImportCompleted) = ? THEN*/
-             
-              OS-CREATE-DIR VALUE(cImportCompleted).
-              OS-COPY VALUE(cImportFileName) VALUE(cImportCompleted).
-              
-              IF OS-ERROR = 0 THEN 
-                  OS-DELETE VALUE(cImportFileName).
-
-              
-          END.
-     END.      /* repeat of input oeimport-cha */
-     
-
-  END.  /* multi file input */
-IF NOT llBatchMode THEN DO:
-  /* Special to impord */
-  ASSIGN
+    DEFINE VARIABLE cImportFileName  AS CHARACTER NO-UNDO FORMAT "x(60)".
+    DEFINE VARIABLE cImportCompleted AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cImportErrored   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE attrList         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdFileSys        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cCompanyMask     AS CHARACTER NO-UNDO INITIAL "$company$". /* Mask character */
+    DEFINE VARIABLE lValidateCompany AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE cImportDir       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cImportMainDir   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidPath       AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCreated         AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE cGCompany        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCocode          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileFullName    AS CHARACTER NO-UNDO.
     
-  fcMessage:SCREEN-VALUE = "".
+    IF NOT llBatchMode THEN 
+        SESSION:SET-WAIT-STATE("general").    
+    
+    RUN system\FileSysProcs.p PERSISTENT SET hdFileSys.
+    
+    /* Special to impord */
+    IF NOT llBatchMode THEN DO:  /* single file improt */
+        cImportFileName = fcFileName. 
+        RUN ImportOrder (
+            INPUT cImportFileName
+            ).
+    END.
+    ELSE DO:  /* multi files import (Schedule Monitor) */
+        ASSIGN
+            cImportMainDir = ENTRY(1,oeimport-cha,cCompanyMask)
+            cImportMainDir = IF SUBSTR(cImportMainDir,LENGTH(cImportMainDir),1) EQ "/" OR   /* Checks for forward or backward slashe at the end of dir. if found removes it */
+                                SUBSTR(cImportMainDir,LENGTH(cImportMainDir),1) EQ "\" THEN
+                                SUBSTR(cImportMainDir,1,LENGTH(cImportMainDir) - 1)
+                             ELSE
+                                 cImportMainDir
+            cGCompany      = g_company /* Stores global company value into a temporary variable */
+            cCocode        = cocode    /* Stores cocode into a temporary variable */
+            .
+          
+        COMPANY-BLK:                       
+        FOR EACH company NO-LOCK:
+            lValidateCompany = INDEX(oeimport-cha,cCompanyMask) EQ 0. /* Checks whether NK1 directory has mask and current company is global company */
+            
+            IF lValidateCompany AND company.company NE g_company THEN 
+               NEXT COMPANY-BLK.
+	    
+            ASSIGN
+                cImportDir       = REPLACE(oeimport-cha,cCompanyMask,company.company) /* Replaces mask with company value */
+                cImportDir       = IF SUBSTR(cImportDir,LENGTH(cImportDir),1) EQ "/" OR   /* Checks for forward or backward slashes at the end of dir. if found removes it */
+                                      SUBSTR(cImportDir,LENGTH(cImportDir),1) EQ "\" THEN
+                                      SUBSTR(cImportDir,1,LENGTH(cImportDir) - 1)
+                                   ELSE
+                                       cImportDir
+                cImportCompleted = cImportMainDir + "\Completed\"
+                cImportErrored   = cImportMainDir + "\Errored\"
+                .  
 
-  SESSION:SET-WAIT-STATE("").
-  
-  /* Special to impord */
-  IF gcImportError = "" THEN
-     MESSAGE TRIM(c-win:TITLE) + " Process Is Completed.   Order#: "   iNextOrder#  VIEW-AS ALERT-BOX.    
-END.
+            /* Checks whether import dir exists */    
+            RUN FileSys_ValidateDirectory IN hdFileSys (
+                INPUT  cImportDir,
+                OUTPUT lValidPath,
+                OUTPUT cMessage
+                ) NO-ERROR.
+                   
+            /* Creates import dir if it does not exists */ 
+            IF NOT lValidPath THEN 
+                RUN FileSys_CreateDirectory IN hdFileSys (
+                    INPUT  cImportDir,
+                    OUTPUT lCreated,
+                    OUTPUT cMessage
+                    ) NO-ERROR.
+                       
+            /* This assignment is required to populate cocode and g_company variables 
+               with company code and global company code since as these variables are being 
+               used in ImportOrder procedure */    
+            ASSIGN
+                g_company = company.company /* assigns global company with current company value */
+                cocode    = g_company       /* assigns cocode with current company value */
+                .
+                
+            IF NOT lValidateCompany THEN
+                ASSIGN
+                    cImportCompleted = cImportCompleted + company.company + '\' /* Path where completed files store */
+                    cImportErrored   = cImportErrored   + company.company + '\' /* Path where errored files store */
+                    .
+	    
+            /* Checks whether completed dir exists */
+            RUN FileSys_ValidateDirectory IN hdFileSys (
+                INPUT  cImportCompleted,
+                OUTPUT lValidPath,
+                OUTPUT cMessage
+                ) NO-ERROR.
+                   
+            /* Creates completed dir if it does not exists */    
+            IF NOT lValidPath THEN    
+               RUN FileSys_CreateDirectory IN hdFileSys (
+                   INPUT  cImportCompleted,
+                   OUTPUT lCreated,
+                   OUTPUT cMessage
+                   ) NO-ERROR.
+                           
+            /* Checks whether errored dir exists */
+            RUN FileSys_ValidateDirectory IN hdFileSys (
+                INPUT  cImportErrored,
+                OUTPUT lValidPath,
+                OUTPUT cMessage
+                ) NO-ERROR.
+                
+            /* Creates errored dir if it does not exists */    
+            IF NOT lValidPath THEN    
+                RUN FileSys_CreateDirectory IN hdFileSys (
+                    INPUT  cImportErrored,
+                    OUTPUT lCreated,
+                    OUTPUT cMessage
+                    ) NO-ERROR. 
+					
+            INPUT FROM OS-DIR(cImportDir) NO-ECHO.
+            REPEAT:
+                SET cImportFileName ^ attrList.
+            
+                /* skips directories and files which are not csv */
+                IF attrList NE 'f' OR cImportFileName BEGINS '.' OR
+                    INDEX(cImportFileName,'.csv') EQ 0 THEN NEXT.
+                  
+				cFileFullName = cImportDir + "\" + cImportFileName.
+
+				RUN ImportOrder (
+					INPUT cFileFullName
+					).
+				
+				IF gcImportError NE "" THEN DO:      /* error */
+				
+					OS-COPY VALUE(cFileFullName) VALUE(cImportErrored).  
+					
+					IF OS-ERROR EQ 0 THEN 
+						OS-DELETE VALUE(cFileFullName).
+					NEXT.
+					
+				END.
+				ELSE DO:  /* successfully imported, move files to completed folder  */
+					
+					OS-COPY VALUE(cFileFullName) VALUE(cImportCompleted).
+					
+					IF OS-ERROR EQ 0 THEN 
+						OS-DELETE VALUE(cFileFullName).
+				    
+                        
+                END.
+            END. /* repeat of input importdir */
+        
+        END. /* each company */
+        ASSIGN
+            g_company = cGCompany /* Assigns back temporary variable into global company */
+            cocode    = cCocode   /* Assigns back temporary variable into cocode */
+            .
+         
+    END.  /* multi file input */
+    
+	IF NOT llBatchMode THEN DO:
+        SESSION:SET-WAIT-STATE("").
+      
+        /* Special to impord */
+        IF gcImportError = "" THEN
+            MESSAGE TRIM(c-win:TITLE) + " Process Is Completed.   Order#: "   iNextOrder#  VIEW-AS ALERT-BOX.    
+    END.
+    DELETE OBJECT hdFileSys.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
