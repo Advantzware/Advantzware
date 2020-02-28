@@ -483,7 +483,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/itemfg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_itemfg-2 ).
        RUN set-position IN h_itemfg-2 ( 4.81 , 9.00 ) NO-ERROR.
        RUN set-size IN h_itemfg-2 ( 17.14 , 144.00 ) NO-ERROR.
