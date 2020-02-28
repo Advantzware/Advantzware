@@ -36,7 +36,8 @@ FUNCTION FormatNumber RETURNS CHARACTER
     (ipdNumber AS DECIMAL,
     ipiLeftDigits AS INTEGER,
     ipiRightDigits AS INTEGER,
-    iplComma AS LOGICAL) FORWARD.
+    iplComma AS LOGICAL,
+     iplAllowNegatives AS LOGICAL) FORWARD.
 
 FUNCTION FormatString RETURNS CHARACTER
     (ipcString AS CHARACTER,
@@ -70,7 +71,7 @@ PROCEDURE AddPage:
         iopiPageCount = iopiPageCount + 1
         giPageCount = iopiPageCount
         .
-    RUN PageOutput.
+    RUN pPageOutput.
     
 END PROCEDURE.
 
@@ -94,7 +95,24 @@ PROCEDURE AddRow:
     
 END PROCEDURE.
 
-PROCEDURE CloseOutput:
+PROCEDURE AddRowMultiple:
+    /*------------------------------------------------------------------------------
+     Purpose: Increments row based on #, prints a Skip
+     Notes:
+    ------------------------------------------------------------------------------*/   
+    DEFINE INPUT PARAMETER ipiCount AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iCounter AS INTEGER NO-UNDO.
+    
+    DO iCounter = 1 TO ipiCount:
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END. 
+    
+END PROCEDURE.
+
+PROCEDURE Output_Close:
     /*------------------------------------------------------------------------------
      Purpose:  Closes output
      Notes:
@@ -120,34 +138,37 @@ PROCEDURE GetBarDirFilePath:
     
 END PROCEDURE.
 
-PROCEDURE InitializeOutputXprint:
+PROCEDURE Output_InitializeXprint:
     /*------------------------------------------------------------------------------
      Purpose: Initialize XPrintOutput with default Font and FontSize
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplPreview AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER iplModal AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplPDF AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcFont AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiFontSize AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipcAdditionalTags AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cInitTag AS CHARACTER NO-UNDO.
-
-    RUN InitializeOutput(ipcOutputFile).
+    DEFINE VARIABLE lModal AS LOGICAL NO-UNDO INITIAL YES.
     
+    RUN Output_Initialize(ipcOutputFile).
+  
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
     IF ipiFontSize LT 8 THEN ipiFontSize = 8.
     cInitTag = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">".
     IF ipcAdditionalTags NE "" THEN cInitTag = ipcAdditionalTags + cInitTag.
-    IF NOT iplModal THEN cInitTag = "<MODAL=NO>" + cInitTag. 
+    IF NOT lModal THEN cInitTag = "<MODAL=NO>" + cInitTag.
+    IF iplPDF THEN cInitTag = "<PDF-LEFT=2.5mm><PDF-OUTPUT=" + ipcOutputFile + ".pdf>" + cInitTag. 
     IF iplPreview THEN cInitTag = "<PREVIEW>" + cInitTag.
-     
-    RUN WriteOutput(cInitTag, YES, YES).
+    cInitTag = "</PROGRESS>" + cInitTag.     
+    
+    RUN Output_Write(cInitTag, YES, YES).
 
 END PROCEDURE.
 
-PROCEDURE InitializeOutput:
+PROCEDURE Output_Initialize:
     /*------------------------------------------------------------------------------
      Purpose:  Initializes the stream given an output file 
      Notes:
@@ -158,7 +179,7 @@ PROCEDURE InitializeOutput:
 
 END PROCEDURE.
 
-PROCEDURE PageOutput:
+PROCEDURE pPageOutput PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Pages the output
      Notes:
@@ -196,7 +217,7 @@ PROCEDURE PrintLabelMatrixFile:
 
 END PROCEDURE.
 
-PROCEDURE PrintXprintFile:
+PROCEDURE Output_PrintXprintFile:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper for Printing XPrint File
      Notes:
@@ -282,7 +303,70 @@ PROCEDURE TempTableToCSV:
     OUTPUT STREAM sOutput CLOSE.
 END PROCEDURE.
 
-PROCEDURE WriteOutput:
+PROCEDURE Output_TempTableToCSV:
+    /*------------------------------------------------------------------------------
+     Purpose: Exports the contents of the temp-table to CSV
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
+
+    RUN TempTableToCSV(iphTT, ipcFileName, iplHeader).
+        
+END PROCEDURE.
+
+PROCEDURE Output_TempTableToJSON:
+    /*------------------------------------------------------------------------------
+     Purpose: Exports the contents of the temp-table to XML
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
+
+    ASSIGN
+        cTargetType = "file"
+        lFormatted  = TRUE
+        .
+    lRetOK = iphTT:WRITE-JSON(cTargetType, ipcFile, lFormatted).
+    
+END PROCEDURE.
+
+PROCEDURE Output_TempTableToXML:
+    /*------------------------------------------------------------------------------
+     Purpose: Exports the contents of the temp-table to XML
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cEncoding       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSchemaLocation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lWriteSchema    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMinSchema      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
+
+    /* Code to populate the temp-table  */
+    ASSIGN
+        cTargetType     = "file"
+        lFormatted      = TRUE
+        cEncoding       = ?
+        cSchemaLocation = ?
+        lWriteSchema    = FALSE
+        lMinSchema      = FALSE.
+
+    lRetOK = iphTT:WRITE-XML(cTargetType, ipcFile,lFormatted, cEncoding,
+        cSchemaLocation, lWriteSchema, lMinSchema).
+
+END PROCEDURE.
+
+PROCEDURE Output_Write:
     /*------------------------------------------------------------------------------
      Purpose: Writes passed value to stream
      Notes:
@@ -300,7 +384,7 @@ PROCEDURE WriteOutput:
     
 END PROCEDURE.
 
-PROCEDURE WriteToXprint:
+PROCEDURE Output_WriteToXprint:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -310,6 +394,7 @@ PROCEDURE WriteToXprint:
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplBold AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplUnderline AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplItalic AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplRightJustified AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE cCoordinates     AS CHARACTER NO-UNDO.
@@ -330,35 +415,57 @@ PROCEDURE WriteToXprint:
 
     IF iplBold THEN cText = "<B>" + cText + "</B>".
     IF iplUnderline THEN cText = "<U>" + cText + "</U>".
-    RUN WriteOutput(cText,YES,NO).
+    IF iplItalic THEN cText = "<I>" + cText + "</I>".
+    RUN Output_Write(cText,YES,NO).
 
 END PROCEDURE.
 
-PROCEDURE WriteToXprintBold:
+PROCEDURE Output_WriteToXprintBold:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper on WriteToXprint
+     Purpose: Wrapper on Output_WriteToXprint
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdR AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdC AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
     
-    RUN WriteToXprint(ipdR,ipdC, ipcText, YES, NO, NO).
+    RUN Output_WriteToXprint(ipdR,ipdC, ipcText, YES, NO, NO, NO).
    
 END PROCEDURE.
-PROCEDURE WriteToXprintBoldUline:
+
+PROCEDURE Output_WriteToXprintBoldUline:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper on WriteToXprint for "Headers"
+     Purpose: Wrapper on Output_WriteToXprint for "Headers"
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdR AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdC AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
     
-    RUN WriteToXprint(ipdR,ipdC, ipcText, YES, YES, NO).
+    RUN Output_WriteToXprint(ipdR,ipdC, ipcText, YES, YES, NO, NO).
    
 END PROCEDURE.
-PROCEDURE WriteToXprintULine:
+
+PROCEDURE Output_WriteToXprintFontChange:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Output_WriteToXprint for "Headers"
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFont AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFontSize AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+    
+    IF ipcFont NE "" THEN 
+        cText = "<F" + ipcFont + ">".
+    IF ipiFontSize NE 0 THEN 
+        cText = cText + "<P" + TRIM(STRING(ipiFontSize,">>9")) + ">".         
+    
+    RUN Output_Write(cText, YES, NO).
+   
+END PROCEDURE.
+
+PROCEDURE Output_WriteToXprintULine:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -367,10 +474,11 @@ PROCEDURE WriteToXprintULine:
     DEFINE INPUT PARAMETER ipdC AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
     
-    RUN WriteToXprint(ipdR,ipdC, ipcText, NO, YES, NO).
+    RUN Output_WriteToXprint(ipdR,ipdC, ipcText, NO, YES, NO, NO).
    
 END PROCEDURE.
-PROCEDURE WriteToXprintRightAlign:
+
+PROCEDURE Output_WriteToXprintRightAlign:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -379,11 +487,11 @@ PROCEDURE WriteToXprintRightAlign:
     DEFINE INPUT PARAMETER ipdC AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
     
-    RUN WriteToXprint(ipdR,ipdC, ipcText, NO, NO, YES).
+    RUN Output_WriteToXprint(ipdR,ipdC, ipcText, NO, NO, NO, YES).
    
 END PROCEDURE.
 
-PROCEDURE WriteToXprintRect:
+PROCEDURE Output_WriteToXprintRect:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -397,12 +505,12 @@ PROCEDURE WriteToXprintRect:
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><R" + STRING(ipdRTo) + "><C" + STRING(ipdCTo) + "><RECT>" . 
     
-    RUN WriteOutput(cText,YES,NO).
+    RUN Output_Write(cText,YES,NO).
    
 END PROCEDURE.
 
 
-PROCEDURE WriteToXprintLine:
+PROCEDURE Output_WriteToXprintLine:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -415,7 +523,7 @@ PROCEDURE WriteToXprintLine:
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><C" + STRING(ipdCTo) + "><LINE>" . 
    
-    RUN WriteOutput(cText,YES,NO).
+    RUN Output_Write(cText,YES,NO).
    
 END PROCEDURE.
 
@@ -430,13 +538,11 @@ PROCEDURE ChangeXprintFont:
     
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
 
-     cText = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
-    
-     RUN WriteOutput(cText,YES,NO).
+    RUN Output_WriteToXprintFontChange(ipcFont, ipiFontSize).
    
 END PROCEDURE.
 
-PROCEDURE WriteToXprintImage:
+PROCEDURE Output_WriteToXprintImage:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -452,11 +558,11 @@ PROCEDURE WriteToXprintImage:
      cText = "<C" + STRING(ipdCFrom) + "><R" + string(ipdRFrom) + "><#1><R+" + STRING(ipdRSize) + 
          "><C+" + STRING(ipdCSize) + "><IMAGE#1=" + ipcImagePath + ">" . 
     
-     RUN WriteOutput(cText,YES,NO).
+     RUN Output_Write(cText,YES,NO).
    
 END PROCEDURE.
 
-PROCEDURE WriteToXprintBarCode:
+PROCEDURE Output_WriteToXprintBarCode:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
      Notes:
@@ -473,7 +579,7 @@ PROCEDURE WriteToXprintBarCode:
          STRING(ipdRSize) + "><BARCODE,TYPE=" + STRING(ipcBarCodeType) + ",CHECKSUM=NONE,VALUE= " + string(ipcBarCodeValue) + ">"  +
          "<C" + STRING(ipdCFrom + 0.5) + ">" + ipcBarCodeValue .
     
-    RUN WriteOutput(cText,YES,NO).
+    RUN Output_Write(cText,YES,NO).
    
 END PROCEDURE.
 
@@ -509,7 +615,7 @@ FUNCTION FormatForCSV RETURNS CHARACTER
 END FUNCTION.
 
 FUNCTION FormatNumber RETURNS CHARACTER 
-    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL):
+    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL, iplAllowNegatives AS LOGICAL):
     /*------------------------------------------------------------------------------
      Purpose: Formats a number with left and right digits.  Handles problem when 
      size of number doesn't fit
@@ -518,19 +624,21 @@ FUNCTION FormatNumber RETURNS CHARACTER
     DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormat    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorChar AS CHARACTER NO-UNDO.
- 
-    
+           
+    IF iplAllowNegatives THEN 
+                cFormat = "-".
     IF NOT iplComma OR ipiLeftDigits LE 3 THEN 
-        cFormat = FILL(">",ipiLeftDigits - 1) + "9".
+        cFormat = cFormat + FILL(">",ipiLeftDigits - 1) + "9".
     ELSE 
     DO:
-        IF ipiLeftDigits GT 9 THEN cFormat = FILL(">",ipiLeftDigits - 9) + ",>>>,>>>,>>9".
-        ELSE IF ipiLeftDigits GT 6 THEN cFormat = FILL(">",ipiLeftDigits - 6) + ",>>>,>>9".
-            ELSE IF ipiLeftDigits GT 3 THEN cFormat = FILL(">",ipiLeftDigits - 6) + ",>>9". 
+        IF ipiLeftDigits GT 9 THEN cFormat = cFormat + FILL(">",ipiLeftDigits - 9) + ",>>>,>>>,>>9".
+        ELSE IF ipiLeftDigits GT 6 THEN cFormat = cFormat + FILL(">",ipiLeftDigits - 6) + ",>>>,>>9".
+            ELSE IF ipiLeftDigits GT 3 THEN cFormat = cFormat + FILL(">",ipiLeftDigits - 6) + ",>>9". 
     END.
     IF ipiRightDigits GT 0 THEN 
         cFormat = cFormat + "." + Fill("9",ipiRightDigits).
-    IF ipdNumber GE EXP(10, ipiLeftDigits) THEN  
+    IF ipdNumber GE EXP(10, ipiLeftDigits) 
+            OR (NOT iplAllowNegatives AND ipdNumber LT 0) THEN 
     DO:
         cErrorChar = SUBSTRING(gcNumError, 1,1).
         cReturn = FILL(cErrorChar, LENGTH(cFormat)).

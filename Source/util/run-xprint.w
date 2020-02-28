@@ -803,37 +803,37 @@ PROCEDURE pProgram :
     RUN ChangeXprintFont(begin_font,begin_font-size).
     
     
-    RUN WriteToXprint(4,52,"Asi Version #: {&awversion} ",YES,NO,NO) .
+    RUN Output_WriteToXprint(4,52,"Asi Version #: {&awversion} ",YES,NO,NO,NO) .
 
-    RUN WriteToXprint(5,52,"Xprint Version #: ",YES,NO,NO) .
+    RUN Output_WriteToXprint(5,52,"Xprint Version #: ",YES,NO,NO,NO) .
 
     IF tb_image THEN
-    RUN WriteToXprintImage(2,3,8,50,ls-full-img1) . /* row form, col from, row size,col size ,image path */
+    RUN Output_WriteToXprintImage(2,3,8,50,ls-full-img1) . /* row form, col from, row size,col size ,image path */
     
     iRowCount = iRowCount + 8 .
     
    IF tb_bar-code THEN
-    RUN WriteToXprintBarCode(13,20,2.5,30,"Test data test","39") . /* row form, col from, row size,col size ,value ,type*/
+    RUN Output_WriteToXprintBarCode(13,20,2.5,30,"Test data test","39") . /* row form, col from, row size,col size ,value ,type*/
 
    iRowCount = iRowCount + 5 .
 
    IF tb_rec THEN
-     RUN WriteToXprintRect(18,26,1.5,43) . /* row from, row to, col from ,col to*/
+     RUN Output_WriteToXprintRect(18,26,1.5,43) . /* row from, row to, col from ,col to*/
 
    IF tb_rec THEN
-     RUN WriteToXprintRect(18,26,48.5,85) . /* row from, row to, col from ,col to*/
+     RUN Output_WriteToXprintRect(18,26,48.5,85) . /* row from, row to, col from ,col to*/
    
-    RUN WriteToXprint(19, 1," Sold To:" , NO, NO, NO).
-    RUN WriteToXprint(19, 49," Ship To:" , NO, NO, NO).
+    RUN Output_WriteToXprint(19, 1," Sold To:" , NO, NO, NO, NO).
+    RUN Output_WriteToXprint(19, 49," Ship To:" , NO, NO, NO, NO).
 
-    RUN WriteToXprint(20, 5," IBM CORP" , NO, NO, NO).
-    RUN WriteToXprint(20, 52," 1ST SOURCE SERVICE" , NO, NO, NO).
+    RUN Output_WriteToXprint(20, 5," IBM CORP" , NO, NO, NO, NO).
+    RUN Output_WriteToXprint(20, 52," 1ST SOURCE SERVICE" , NO, NO, NO, NO).
 
-    RUN WriteToXprint(21, 5," 2nd Line of Address" , NO, NO, NO).
-    RUN WriteToXprint(21, 52," 3850 PINSON VALLEY PKWY" , NO, NO, NO).
+    RUN Output_WriteToXprint(21, 5," 2nd Line of Address" , NO, NO, NO, NO).
+    RUN Output_WriteToXprint(21, 52," 3850 PINSON VALLEY PKWY" , NO, NO, NO, NO).
 
-    RUN WriteToXprint(22, 5," Rochester,NY 14606" , NO, NO, NO).
-    RUN WriteToXprint(22, 52," BIRMINGHAM, AL 35217" , NO, NO, NO).
+    RUN Output_WriteToXprint(22, 5," Rochester,NY 14606" , NO, NO, NO, NO).
+    RUN Output_WriteToXprint(22, 52," BIRMINGHAM, AL 35217" , NO, NO, NO, NO).
 
     iRowCount = iRowCount + 9 .
    
@@ -841,12 +841,12 @@ PROCEDURE pProgram :
 
 
     cText =  fi_text .
-     RUN WriteToXprint(35,5,cText,NO,NO,NO) .
+     RUN Output_WriteToXprint(35,5,cText,NO, NO, NO, NO) .
 
      iRowCount = iRowCount + 13 .
 
      IF tb_line THEN
-         RUN WriteToXprintLine(48,5,85) .
+         RUN Output_WriteToXprintLine(48,5,85) .
      iRowCount = iRowCount + 13 .
 
 
@@ -868,7 +868,7 @@ PROCEDURE run-report :
     {sys/inc/print1.i}
   
     /*{sys/inc/outprint.i value(99)}*/
-   RUN InitializeOutputXprint(list-name, YES, lBussFormModle, begin_font, begin_font-size,"") .
+   RUN Output_InitializeXprint(list-name, YES, lBussFormModle, begin_font, begin_font-size,"") .
 
     SESSION:SET-WAIT-STATE ("general").
    
@@ -882,21 +882,21 @@ PROCEDURE run-report :
   
         CASE rd-dest:
             WHEN 1 THEN 
-                RUN WriteToXprint(1,1,"<PRINTER?>",YES,NO,NO) .
+                RUN Output_WriteToXprint(1,1,"<PRINTER?>",YES,NO,NO) .
             WHEN 2 THEN 
                 DO:
                 END.
             WHEN 3 THEN 
                 DO:
-                 RUN WriteToXprint(1,1,"<PDF-OUTPUT=" + lv-pdf-file + ">",YES,NO,NO) .
+                 RUN Output_WriteToXprint(1,1,"<PDF-OUTPUT=" + lv-pdf-file + ">",YES,NO,NO) .
                 END.
         END CASE.
     END.
 
     RUN pProgram . 
     
-    RUN CloseOutput.
-    RUN PrintXprintFile(list-name).
+    RUN Output_Close.
+    RUN Output_PrintXprintFile(list-name).
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
