@@ -926,7 +926,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
     
     FIND FIRST users NO-LOCK
-       WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR .
+       WHERE users.user_id EQ po-ord.buyer NO-ERROR .
        IF AVAIL users AND users.image_filename NE "" THEN
         ASSIGN 
           cEmailId = users.image_filename .
