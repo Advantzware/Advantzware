@@ -146,7 +146,11 @@ PROCEDURE postMonitor:
                 cdb = fnGetPhysicalDb("ASI").
             FOR EACH userLog NO-LOCK WHERE 
                 userLog.userStatus EQ "Logged In":
-                /* Don't autoLogout admin-level users */
+                FIND FIRST users NO-LOCK WHERE 	
+                    users.user_id EQ  userLog.user_id 	
+                    NO-ERROR.	
+                IF NOT AVAILABLE users THEN /* This should never happen, but bypass if it does */ 	
+                    NEXT.                /* Don't autoLogout admin-level users */
                 IF users.securityLevel GE 900 THEN NEXT.
                 /* Add logout hours to the users login time to get time when they should get logged out */ 
                 ASSIGN 
