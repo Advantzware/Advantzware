@@ -236,7 +236,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit W-Win
 ON CHOOSE OF btnExit IN FRAME F-Main /* Exit Application */
 DO:
-  RUN local-exit.
+    op-value = TRIM(SELF:label).
+    RUN local-exit.
 END.
 
 /* _UIB-CODE-BLOCK-END */

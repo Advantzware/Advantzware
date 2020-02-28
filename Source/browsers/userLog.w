@@ -57,7 +57,8 @@ RUN sys/ref/nk1look.p (INPUT g_company, "UserControl", "C" /* Character*/,
 IF lRecFound THEN 
     cLogoutFolder = cReturnChar  .
 IF SEARCH( cLogoutFolder) EQ ? THEN 
-    OS-CREATE-DIR VALUE( cLogoutFolder).    
+    OS-CREATE-DIR VALUE( cLogoutFolder).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -83,7 +84,9 @@ IF SEARCH( cLogoutFolder) EQ ? THEN
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.user_id ~
-userLog.userName userLog.sessionID userLog.LoginDateTime userLog.IpAddress 
+userLog.userName userLog.mode userLog.LoginDateTime userLog.userStatus ~
+userLog.asiUsrNo userLog.asiPID userLog.audUsrNo userLog.audPID ~
+userLog.IpAddress userLog.sessionID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
       AND userLog.logoutDateTime = ? NO-LOCK ~
@@ -144,9 +147,15 @@ DEFINE QUERY Browser-Table FOR
       userLog
     FIELDS(userLog.user_id
       userLog.userName
-      userLog.sessionID
+      userLog.mode
       userLog.LoginDateTime
-      userLog.IpAddress) SCROLLING.
+      userLog.userStatus
+      userLog.asiUsrNo
+      userLog.asiPID
+      userLog.audUsrNo
+      userLog.audPID
+      userLog.IpAddress
+      userLog.sessionID) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -154,13 +163,19 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       userLog.user_id FORMAT "X(12)":U
-      userLog.userName FORMAT "x(16)":U
-      userLog.sessionID FORMAT ">>>>>>>>>>":U
-      userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      userLog.userName FORMAT "x(16)":U WIDTH 35.6
+      userLog.mode FORMAT "x(12)":U WIDTH 23.2
+      userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS AM":U
+      userLog.userStatus FORMAT "x(8)":U WIDTH 16.6
+      userLog.asiUsrNo FORMAT ">>>>>>>9":U WIDTH 13.8
+      userLog.asiPID FORMAT ">>>>>>>9":U
+      userLog.audUsrNo FORMAT ">>>>>>>9":U WIDTH 14.2
+      userLog.audPID FORMAT ">>>>>>>9":U
       userLog.IpAddress FORMAT "x(15)":U
+      userLog.sessionID FORMAT ">>>>>>>>>>":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS MULTIPLE SIZE 115 BY 16.43
+    WITH NO-ASSIGN SEPARATORS MULTIPLE SIZE 139 BY 16.43
          FONT 2 ROW-HEIGHT-CHARS .71.
 
 
@@ -212,7 +227,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 115.
+         WIDTH              = 139.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -237,7 +252,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -259,10 +274,22 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "userLog.logoutDateTime = ?"
      _FldNameList[1]   = ASI.userLog.user_id
-     _FldNameList[2]   = ASI.userLog.userName
-     _FldNameList[3]   = ASI.userLog.sessionID
-     _FldNameList[4]   = ASI.userLog.LoginDateTime
-     _FldNameList[5]   = ASI.userLog.IpAddress
+     _FldNameList[2]   > ASI.userLog.userName
+"userName" ? ? "character" ? ? ? ? ? ? no ? no no "35.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.userLog.mode
+"mode" ? ? "character" ? ? ? ? ? ? no ? no no "23.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.userLog.LoginDateTime
+"LoginDateTime" ? "99/99/9999 HH:MM:SS AM" "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.userLog.userStatus
+"userStatus" ? ? "character" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.userLog.asiUsrNo
+"asiUsrNo" ? ? "integer" ? ? ? ? ? ? no ? no no "13.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   = ASI.userLog.asiPID
+     _FldNameList[8]   > ASI.userLog.audUsrNo
+"audUsrNo" ? ? "integer" ? ? ? ? ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   = ASI.userLog.audPID
+     _FldNameList[10]   = ASI.userLog.IpAddress
+     _FldNameList[11]   = ASI.userLog.sessionID
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -350,11 +377,6 @@ DO:
         IF AVAIL userLog THEN DO:
             
           RUN system/userLogout.p (YES, userLog.sessionID).
-             
-          FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
-                  NO-ERROR.
-          IF AVAIL bf-userLog THEN
-            DELETE bf-userlog.
              
         END. /* if avail userlog */
       END. /* do li ... */
