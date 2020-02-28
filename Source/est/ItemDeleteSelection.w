@@ -52,13 +52,13 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR tt-eb.
 &Scoped-define INTERNAL-TABLES tt-eb
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-eb.selected tt-eb.form-no tt-eb.part-no tt-eb.part-dscr1 tt-eb.stock-no   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-eb.selected tt-eb.form-no tt-eb.blank-no tt-eb.part-no tt-eb.part-dscr1 tt-eb.stock-no   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-eb.selected   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-eb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-eb
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-eb NO-LOCK
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-eb NO-LOCK.
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-eb NO-LOCK BY tt-eb.form-no BY tt-eb.blank-no
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-eb NO-LOCK BY tt-eb.form-no BY tt-eb.blank-no.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-eb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-eb
 
@@ -111,7 +111,8 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 NO-LOCK DISPLAY
       tt-eb.selected COLUMN-LABEL '' WIDTH 6 VIEW-AS TOGGLE-BOX 
-      tt-eb.form-no FORMAT ">9":U
+      tt-eb.form-no COLUMN-LABEL "Form" FORMAT ">9":U
+      tt-eb.blank-no COLUMN-LABEL "Blank" FORMAT ">9":U
       tt-eb.part-no FORMAT "x(15)":U WIDTH 17
       tt-eb.part-dscr1 FORMAT "x(20)":U WIDTH 15.2
       tt-eb.stock-no FORMAT "x(15)":U WIDTH 15.2
@@ -119,7 +120,7 @@ DEFINE BROWSE BROWSE-1
         tt-eb.selected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 85 BY 8.57 ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 95 BY 8.57 ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -170,7 +171,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH tt-eb NO-LOCK.
+OPEN QUERY {&SELF-NAME} FOR EACH tt-eb NO-LOCK BY tt-eb.form-no BY tt-eb.blank-no.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
