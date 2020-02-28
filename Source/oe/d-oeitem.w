@@ -1899,13 +1899,19 @@ DO:
       IF LASTKEY = -1 THEN RETURN.
 
   IF SELF:modified AND SELF:screen-value <> "" THEN DO:
-      IF ll-new-file THEN DO:
+      IF ll-new-file AND (oe-ordl.i-no:SCREEN-VALUE EQ ""  OR oe-ordl.i-no:SCREEN-VALUE EQ "0" ) THEN DO:
         ASSIGN
          cp-part-no = oe-ordl.part-no:SCREEN-VALUE
          cp-rowid   = ?.
         RUN custom/getcpart.p (cocode, oe-ord.cust-no,
                                INPUT-OUTPUT cp-part-no, INPUT-OUTPUT cp-rowid).
         FIND itemfg WHERE ROWID(itemfg) EQ cp-rowid NO-LOCK NO-ERROR.
+      END.
+      ELSE do:
+           FIND FIRST itemfg WHERE itemfg.company = g_company 
+                          AND itemfg.i-no = oe-ordl.i-no:screen-value
+                          AND itemfg.part-no = oe-ordl.part-no:screen-value
+                          NO-LOCK NO-ERROR.
       END.
 
       IF NOT AVAIL itemfg THEN
@@ -4948,13 +4954,13 @@ DO WITH FRAME {&frame-name}:
   RUN default-type (BUFFER itemfg).
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
-     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
+     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-name:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
             oe-ordl.i-no:screen-value       = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-no ELSE oe-ordl.i-no:SCREEN-VALUE
             oe-ordl.part-dscr2:screen-value = itemfg.part-dscr2
             oe-ordl.part-dscr3:screen-value = itemfg.part-dscr3 .
   ELSE
   DO:
-     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
+     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-name:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
             oe-ordl.i-no:screen-value       = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-no ELSE oe-ordl.i-no:SCREEN-VALUE
             oe-ordl.price:screen-value  = IF setFromHistory THEN STRING(historyPrice) ELSE STRING(itemfg.sell-price)
             oe-ordl.pr-uom:screen-value = IF setFromHistory THEN STRING(historyPrUOM) ELSE itemfg.sell-uom
