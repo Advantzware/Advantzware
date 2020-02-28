@@ -86,10 +86,10 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
 RUN pBuildSections(ipiEstCostHeaderID, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-    RUN InitializeOutputXprint(ipcOutputFile, YES, YES, gcFont, 11,"") .
+    RUN Output_InitializeXprint(ipcOutputFile, YES, YES, gcFont, 11,"") .
     RUN pProcessSections(ipcSectionStyle).
-    RUN CloseOutput.
-    RUN PrintXprintFile(ipcOutputFile).
+    RUN Output_Close.
+    RUN Output_PrintXprintFile(ipcOutputFile).
 END.
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutputProcs).
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdNotesProcs).
@@ -1116,7 +1116,7 @@ PROCEDURE pWrite PRIVATE:
     DEFINE INPUT PARAMETER iplUnformatted AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplSkip AS LOGICAL NO-UNDO.
 
-    RUN WriteOutput(ipcText, iplUnformatted, iplSkip).
+    RUN Output_Write(ipcText, iplUnformatted, iplSkip).
     
 END PROCEDURE.
 
@@ -1132,7 +1132,7 @@ PROCEDURE pWriteToCoordinates PRIVATE:
     DEFINE INPUT PARAMETER iplUnderline AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplRightJustified AS LOGICAL NO-UNDO.
     
-    RUN WriteToXprint(ipdR, ipdC, ipcText, iplBold, iplUnderline, iplRightJustified).
+    RUN Output_WriteToXprint(ipdR, ipdC, ipcText, iplBold, iplUnderline, NO, iplRightJustified).
 
 END PROCEDURE.
 
@@ -1155,7 +1155,7 @@ PROCEDURE pWriteToCoordinatesNum PRIVATE:
     DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
     cText = fFormatNumber(ipdNumber, ipiLeftDigits, ipiDecimalDigits, iplComma).
     IF iplTrim THEN cText = TRIM(cText).
-    RUN WriteToXprint(ipdR, ipdC, cText, iplBold, iplUnderline, iplRightJustified).
+    RUN Output_WriteToXprint(ipdR, ipdC, cText, iplBold, iplUnderline, NO, iplRightJustified).
 
 END PROCEDURE.
 
@@ -1173,7 +1173,7 @@ PROCEDURE pWriteToCoordinatesString PRIVATE:
     DEFINE INPUT PARAMETER iplRightJustified AS LOGICAL NO-UNDO.
     
     ipcText = fFormatString(ipcText, ipiCharacters).
-    RUN WriteToXprint(ipdR, ipdC, ipcText, iplBold, iplUnderline, iplRightJustified).
+    RUN Output_WriteToXprint(ipdR, ipdC, ipcText, iplBold, iplUnderline, NO, iplRightJustified).
 
 END PROCEDURE.
 
@@ -1188,7 +1188,7 @@ FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/	
     
-    RETURN DYNAMIC-FUNCTION("FormatNumber", ipdNumber, ipiLeftDigits, ipiRightDigits, iplComma).
+    RETURN DYNAMIC-FUNCTION("FormatNumber", ipdNumber, ipiLeftDigits, ipiRightDigits, iplComma, NO).
 		
 END FUNCTION.
 

@@ -919,18 +919,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then run output-to-port.
-       WHEN 5 THEN RUN output-to-email.
-  end case. 
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    IF next-program NE "Configurable" THEN 
+        CASE rd-dest:
+            WHEN 1 THEN RUN output-to-printer.
+            WHEN 2 THEN RUN output-to-screen.
+            WHEN 3 THEN RUN output-to-file.
+            WHEN 4 THEN RUN output-to-port.
+            WHEN 5 THEN RUN output-to-email.
+        END CASE. 
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1137,11 +1139,12 @@ DEF VAR lFlag AS LOGICAL NO-UNDO INIT YES.
    END.
 /*    ELSE IF LOOKUP(next-program,"ap/ap-ckhug.p") GT 0 THEN */
 /*         OUTPUT TO VALUE(list-name) PAGE-SIZE 59.          */
+   
    ELSE do: /*Fibre and Unipak Laser page statement needs PAGED*/
 /*        IF next-program EQ "ap/ap-ckrfc.p" THEN     /* Task 09301303*/ */
 /*         output to value(list-name) page-size 80 .  /* Task 09301303*/ */
-/*        ELSE */
-        OUTPUT TO VALUE(list-name) PAGED.
+/*        ELSE */ 
+        IF next-program NE "Configurable" THEN OUTPUT TO VALUE(list-name) PAGED.
    END.
 
 
@@ -1234,59 +1237,78 @@ do on error undo outers, leave outers :
     undo outers, leave outers.
   end.
 
-  /* ========= print check =========*/
-    IF ll-is-xprint-form THEN DO:
-        CASE rd-dest:
-            WHEN 1 THEN PUT "<PRINTER?>" /*"</PROGRESS>"*/ .
-            WHEN 2 THEN do:
-               IF NOT lBussFormModle THEN
-                PUT "<PREVIEW><MODAL=NO>". 
-               ELSE
-                PUT "<PREVIEW>".        
-            END.
-/*           WHEN 4 THEN do:                                                                                                    */
-/*                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".                                                          */
-/*                 PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".                                                     */
-/*           END.                                                                                                               */
-          WHEN 5 THEN do:
-              gcPDFFile = init-dir + "\RemitRun.pdf".
-              PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(180)".
+    /* ========= print check =========*/
+    IF next-program EQ "Configurable" THEN
+        RUN ap\CheckPrint.p (cocode, /*Company*/ 
+                             wdate, /*Check Date*/ 
+                             bank-code, /*Bank Code*/ 
+                             wvend-no, evend-no,  /*vendor range*/ 
+                             stnum, /*starting check number*/ 
+                             NO, /*Run a sample set of data*/ 
+                             rd-dest NE 1,  /*Preview and don't process*/ 
+                             list-name + "cfg" /*output file*/).
+    ELSE 
+    DO:
+        IF ll-is-xprint-form THEN 
+        DO:
+            CASE rd-dest:
+                WHEN 1 THEN 
+                    PUT "<PRINTER?>" /*"</PROGRESS>"*/ .
+                WHEN 2 THEN 
+                    do:
+                        IF NOT lBussFormModle THEN
+                            PUT "<PREVIEW><MODAL=NO>". 
+                        ELSE
+                            PUT "<PREVIEW>".        
+                    END.
+                /*           WHEN 4 THEN do:                                                                                                    */
+                /*                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".                                                          */
+                /*                 PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".                                                     */
+                /*           END.                                                                                                               */
+                WHEN 5 THEN 
+                    do:
+                        gcPDFFile = init-dir + "\RemitRun.pdf".
+                        PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(180)".
 
-          END.
-        END CASE.
-    END.  
-  v-print-mode = "PROD".  /* need it to see for test */
+                    END.
+            END CASE.
+        END.  
+        v-print-mode = "PROD".  /* need it to see for test */
 
-  run value(next-program).
+        run value(next-program).
 
-  /*======== end printing =========*/
+        /*======== end printing =========*/
 
-  find first bank where bank.company   eq cocode
-                    and bank.bank-code eq bank-code
-                  EXCLUSIVE-LOCK.
-  IF AVAIL bank THEN DO:
-    IF tb_ach  
-          THEN
-            bank.spare-int-1 = stnum - 1.
-          ELSE
-            bank.last-chk = stnum - 1.
-      FIND CURRENT bank NO-LOCK NO-ERROR.
-  END.
+        find first bank where bank.company   eq cocode
+            and bank.bank-code eq bank-code
+            EXCLUSIVE-LOCK.
+        IF AVAIL bank THEN 
+        DO:
+            IF tb_ach  
+                THEN
+                bank.spare-int-1 = stnum - 1.
+            ELSE
+                bank.last-chk = stnum - 1.
+            FIND CURRENT bank NO-LOCK NO-ERROR.
+        END.
+        for each ap-chk
+            where ap-chk.company   eq cocode
+            and ap-chk.man-check eq no
+            no-lock,
+            each ap-sel EXCLUSIVE-LOCK
+            where ap-sel.company   eq cocode
+            and ap-sel.vend-no   eq ap-chk.vend-no
+            and ap-chk.man-check eq no:
 
-  for each ap-chk
-      where ap-chk.company   eq cocode
-        and ap-chk.man-check eq no
-      no-lock,
-      each ap-sel EXCLUSIVE-LOCK
-      where ap-sel.company   eq cocode
-        and ap-sel.vend-no   eq ap-chk.vend-no
-        and ap-chk.man-check eq no:
-
-    assign
-     ap-sel.check-no  = ap-chk.check-no
-     ap-sel.bank-code = ap-chk.bank-code
-     ap-sel.actnum    = ap-chk.check-act.
-  end.
+            assign
+                ap-sel.check-no  = ap-chk.check-no
+                ap-sel.bank-code = ap-chk.bank-code
+                ap-sel.actnum    = ap-chk.check-act
+                .
+        end.
+    END. /* Not configurable*/
+    
+  
 END. /* outers */
 
 
@@ -1602,6 +1624,11 @@ ELSE DO:
              ll-is-xprint-form = YES
              max-per-chk  = 12
              next-program = "ap/ap-chkondu.p".
+       WHEN "Configurable" THEN 
+          ASSIGN 
+            ll-is-xprint-form = YES
+            next-program = "Configurable"
+            .
        OTHERWISE DO:
           assign
              max-per-chk  = if v-print-fmt eq "s" then 20 else 12
