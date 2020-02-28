@@ -327,7 +327,7 @@ DO v-local-loop = 1 TO v-local-copies:
               DO:
                   PUT SKIP(1)
                       "<=BoxImageStart>"   .
-                  PUT "<R22><P10><C43>MACHINE DIRECTION<-------  <P8>" .
+                  PUT "<R22><P10><C43>PANEL MACHINE DIRECTION<-------  <P8>" .
                   RUN cec/desprntL20.p (RECID(xef),
                       INPUT-OUTPUT v-lines,
                       RECID(xest),
@@ -337,7 +337,7 @@ DO v-local-loop = 1 TO v-local-copies:
               ELSE IF AVAILABLE box-design-hdr THEN DO:
                   cImagePath = box-design-hdr.box-image.
                   PUT UNFORMATTED "<=BoxImageStart>".
-                  PUT "<R22><P10><C43>MACHINE DIRECTION<-------  <P8>" .
+                  PUT "<R22><P10><C43>PANEL MACHINE DIRECTION<-------  <P8>" .
                   PUT UNFORMATTED "<C2><R24><#BoxImage><R50><C62><IMAGE#BoxImage=" cImagePath "><=BoxImage>".
               END.
               PUT "<P8>" .
