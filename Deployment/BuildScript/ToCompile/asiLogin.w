@@ -435,6 +435,9 @@ ON WINDOW-CLOSE OF C-Win /* Login */
 DO:
   /* This event will close the window and terminate the procedure.  */
     APPLY "CLOSE":U TO THIS-PROCEDURE.
+    DO ictr = 1 TO NUM-DBS:
+        DISCONNECT VALUE(LDBNAME(iCtr)).
+    END.
     QUIT.
     /* RETURN NO-APPLY. */
 END.
@@ -904,7 +907,8 @@ PROCEDURE ipClickOk :
         iTruncLevel = INT(cDbLevel)
         no-error.
 
-    IF connectStatement <> "" THEN DO:
+    IF connectStatement <> "" 
+    AND cbMode NE "Monitor Users" THEN DO:
         RUN ipDisconnectDB IN THIS-PROCEDURE.
         RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
                                            OUTPUT lError).
@@ -920,16 +924,27 @@ PROCEDURE ipClickOk :
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
 
+    /* If menu program is/was mainmenu2, reset it here */
+    IF INDEX(cRunPgm,"mainmenu") <> 0
+    AND iEnvLevel LT 16080000
+    AND (SEARCH("system/mainmenu2.r") NE ? OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
+        cRunPgm = "system/mainmenu2.w".
+
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
-        IF INDEX(cRunPgm,"mainmenu") <> 0
-        AND iEnvLevel LT 16080000
-        AND (SEARCH("system/mainmenu2.r") NE ? 
-            OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
-            cRunPgm = "system/mainmenu2.w".
+        
+        /* Run the mode program selected in the login dialog */
         RUN VALUE(cRunPgm).
+        
+        /* On exit of the run pgm, ensure the user is logged out and disconnected */
+        RUN system/userLogout.p (YES, 0).
+        DO ictr = 1 TO NUM-DBS:
+            DISCONNECT VALUE(LDBNAME(iCtr)).
+        END.
+        
+        /* Close the dialog box and leave prowin */
         QUIT.
     END.
     /* This is only used to monitor users */
@@ -940,8 +955,12 @@ PROCEDURE ipClickOk :
         OS-COMMAND VALUE(cCmdString).
     END.
     
-    IF cSessionParam EQ "" THEN 
+    IF cSessionParam EQ "" THEN DO:
+        DO ictr = 1 TO NUM-DBS:
+            DISCONNECT VALUE(LDBNAME(iCtr)).
+        END.
         QUIT.
+    END.
     
 END PROCEDURE.
 
@@ -993,6 +1012,9 @@ PROCEDURE ipConnectDb :
                 "You have exceeded the maximum allowed login attempts." SKIP
                 "Exiting..."
                  VIEW-AS ALERT-BOX ERROR.
+            DO ictr = 1 TO NUM-DBS:
+                DISCONNECT VALUE(LDBNAME(iCtr)).
+            END.
             QUIT.
         END.
         RETURN ERROR.
@@ -1263,14 +1285,19 @@ PROCEDURE ipPreRun :
     IF iDbLevel GT 16050000 THEN DO:
         IF USERID(LDBNAME(1)) NE "asi" THEN DO:
             RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
-            IF NOT lOK THEN QUIT.
-            RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
-            IF NOT lOK THEN QUIT.
+            IF NOT lOK THEN DO:
+                DO ictr = 1 TO NUM-DBS:
+                    DISCONNECT VALUE(LDBNAME(iCtr)).
+                END.
+                QUIT.
+            END.
         END.
     END.
 
-    IF iEnvLevel GE 16071600 THEN DO:
-        IF NOT VALID-HANDLE(hSession) THEN DO:
+    IF iEnvLevel GE 16071600 THEN 
+    DO:
+        IF NOT VALID-HANDLE(hSession) THEN 
+        DO:
             RUN system/session.p PERSISTENT SET hSession.
             SESSION:ADD-SUPER-PROCEDURE (hSession).
         END. 
@@ -1313,24 +1340,32 @@ PROCEDURE ipPreRun :
     IF NOT VALID-HANDLE(listlogic-handle) THEN
         RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 
+    IF cbMode EQ "Touchscreen" THEN 
+        RUN epTouchLogin in hPreRun (OUTPUT tslogin-log).
+
+    RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).
+    IF NOT lOK THEN DO:
+        DO ictr = 1 TO NUM-DBS:
+            DISCONNECT VALUE(LDBNAME(iCtr)).
+        END.
+        QUIT.
+    END.
+
+    /* Run user-level tests and create the userlog before doing the session-level work */
     IF iDbLevel GT 16050000
-    AND cbMode NE "Monitor Users" 
-    AND cbMode NE "Editor" THEN DO:
-        RUN epUserLogin IN hPreRun (OUTPUT lExit).
-        IF lExit THEN DO:
+        AND cbMode NE "Monitor Users" 
+        AND cbMode NE "Editor" THEN 
+    DO:
+        RUN epUserLogin IN hPreRun (cbMode, OUTPUT lExit).
+        IF lExit THEN 
+        DO:
             DO ictr = 1 TO NUM-DBS:
                 DISCONNECT VALUE(LDBNAME(iCtr)).
             END.
             QUIT.
         END.
     END.
-
-    IF cbMode EQ "Touchscreen" THEN 
-        RUN epTouchLogin in hPreRun (OUTPUT tslogin-log).
-
-    RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).
-    IF NOT lOK THEN QUIT.
-
+     
     RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
 
     RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
@@ -1345,7 +1380,12 @@ PROCEDURE ipPreRun :
 /*        RUN asiload.p.      */
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
-    IF NOT lOK THEN QUIT.
+    IF NOT lOK THEN DO:
+        DO ictr = 1 TO NUM-DBS:
+            DISCONNECT VALUE(LDBNAME(iCtr)).
+        END.
+        QUIT.
+    END.
 
     RUN epGetDeveloperList IN hPreRun (OUTPUT g_developer).
 

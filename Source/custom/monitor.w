@@ -86,7 +86,7 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClearLog btnViewLog btnClose ~
+&Scoped-Define ENABLED-OBJECTS btnClearLog btnViewLog btnClose btnRunNow ~
 monitorActivity 
 &Scoped-Define DISPLAYED-OBJECTS monitorImportDir monitorActivity 
 
@@ -116,6 +116,10 @@ DEFINE BUTTON btnClose
      LABEL "&Close" 
      SIZE 15 BY 1.43.
 
+DEFINE BUTTON btnRunNow 
+     LABEL "Run Now" 
+     SIZE 15 BY 1.43.
+
 DEFINE BUTTON btnViewLog 
      LABEL "&View Log" 
      SIZE 15 BY 1.43.
@@ -141,6 +145,7 @@ DEFINE FRAME DEFAULT-FRAME
      btnViewLog AT ROW 1.24 COL 138 WIDGET-ID 6
      btnClose AT ROW 1.24 COL 154 HELP
           "Close TCP/IP Server Process"
+     btnRunNow AT ROW 1.24 COL 170
      monitorActivity AT ROW 2.91 COL 1 HELP
           "Use Arrows, Page Up/Down, Home & End to Scroll Log Screen" NO-LABEL
      "Date                   Time                   Activity" VIEW-AS TEXT
@@ -148,7 +153,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 168.4 BY 27.05.
+         SIZE 189 BY 27.05.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -168,8 +173,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "{1} Monitor"
-         HEIGHT-P           = 768
-         WIDTH-p            = 1024
+         HEIGHT             = 36.57
+         WIDTH              = 204.8
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -331,6 +336,29 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnRunNow
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunNow C-Win
+ON CHOOSE OF btnRunNow IN FRAME DEFAULT-FRAME /* Run Now */
+DO:
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    ASSIGN lRunNow = TRUE.
+    
+    RUN postMonitor.
+    
+    RUN AdvantzwareMonitor_UpdateResourceStatusTime IN hdAdvantzwareMonitorProcs (
+        INPUT  "{1}",
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    
+    ASSIGN lRunNow = FALSE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME CtrlFrame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame C-Win OCX.Tick
@@ -395,6 +423,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF AVAIL bf-prgrms 
     AND bf-prgrms.track_usage THEN ASSIGN   
         lAuditMonitor = TRUE.
+
+/* Run Now button only in User Monitor */
+&IF '{1}' NE 'UserControl' &THEN
+    ASSIGN 
+        btnRunNow:SENSITIVE = FALSE 
+        btnRunNow:VISIBLE = FALSE.
+&endif        
 
 /* All monitors EXCEPT cXML */  
 &IF '{1}' NE 'cXML' &THEN
@@ -528,7 +563,7 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY monitorImportDir monitorActivity 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnClearLog btnViewLog btnClose monitorActivity 
+  ENABLE btnClearLog btnViewLog btnClose btnRunNow monitorActivity 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

@@ -114,9 +114,13 @@ IF CONNECTED(LDBNAME(1)) THEN DO:
     /* IF NOT (LDBNAME(1) EQ "ASI" OR LDBNAME(2) EQ "ASI" OR LDBNAME(3) EQ "ASI") THEN  */
     DO TRANSACTION:            
         /* Check EULA and number of sessions here using combined db or in mainmenu if ASI is physically connected */
-        RUN system/userLogin.p (OUTPUT lExit).
-        IF lExit THEN 
-            QUIT. 
+        RUN system/userLogin.p ("NOSWEAT", OUTPUT lExit).
+        IF lExit THEN DO:
+            DO i = 1 TO NUM-DBS:
+                DISCONNECT VALUE(LDBNAME(i)).
+            END.
+            QUIT.
+        END. 
     END.
     &ENDIF
     

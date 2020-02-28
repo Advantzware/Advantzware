@@ -202,43 +202,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-epCheckUserLocked) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epCheckUserLocked Procedure 
-PROCEDURE epCheckUserLocked :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF INPUT-OUTPUT PARAMETER iopOK AS LOG INITIAL TRUE NO-UNDO.
-    DEF VAR iDaysToExpire AS INT NO-UNDO.
-
-    FIND FIRST users NO-LOCK WHERE
-        users.user_id EQ USERID(LDBNAME(1))
-        NO-ERROR.
-    IF NOT AVAIL users THEN DO:
-        ASSIGN
-            iopOK = FALSE.
-        RETURN.
-    END.
-    IF users.isLocked EQ TRUE THEN DO:
-        MESSAGE
-            "Your Advantzware account has been locked." SKIP
-            "Please contact a Systems Administrator."
-            VIEW-AS ALERT-BOX ERROR.
-        ASSIGN
-            iopOK = FALSE.
-        RETURN.
-    END.           
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-epConnectDB) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epConnectDB Procedure 
@@ -475,9 +438,10 @@ PROCEDURE epUserLogin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER lExit AS LOG.
+    DEF INPUT PARAMETER ipcMode AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER lExit AS LOG NO-UNDO.
     DEF VAR lResult AS LOG.
-    RUN system\userLogin.p (OUTPUT lResult).
+    RUN system\userLogin.p (ipcMode, OUTPUT lResult).
     IF lResult THEN ASSIGN 
         lExit = TRUE.
     
