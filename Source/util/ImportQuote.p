@@ -154,7 +154,7 @@ PROCEDURE pValidate PRIVATE:
     DO:
 
         IF oplValid AND ipbf-ttImportQuote.CustPart NE "" THEN 
-            RUN pIsValidCustPartID (ipbf-ttImportQuote.CustPart,ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidCustPartIDNonFG (ipbf-ttImportQuote.CustPart,ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportQuote.CustNo NE "" THEN 
             RUN pIsValidCustomerID (ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -194,8 +194,7 @@ PROCEDURE pValidate PRIVATE:
 
     IF ipbf-ttImportQuote.QuoteDate EQ ? THEN
         ipbf-ttImportQuote.QuoteDate = TODAY .
-    IF ipbf-ttImportQuote.DeliveryDate EQ ? THEN
-        ipbf-ttImportQuote.DeliveryDate = TODAY .
+    
     ipbf-ttImportQuote.EstNo = FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) +
                                                    TRIM(ipbf-ttImportQuote.EstNo).
     
@@ -216,6 +215,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cQuoteGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .
     DEFINE BUFFER bQuoteItm FOR quoteitm.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
     DEFINE VARIABLE hdupdQuoteProcs AS HANDLE NO-UNDO.
@@ -381,6 +381,23 @@ PROCEDURE pProcessRecord PRIVATE:
       RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteqty.price).
       RUN pAssignValueD (ipbf-ttImportQuote.profit, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteqty.profit).
       RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteqty.uom).
+      
+      dTotCost = bf-quoteqty.mat-cost + bf-quoteqty.lab-cost 
+                 + bf-quoteqty.fo-cost
+                 + bf-quoteqty.vo-cost.
+
+      IF bf-quotehd.est-no = "" AND AVAIL itemfg AND itemfg.sell-price GT 0 THEN DO:     
+         CASE bf-quoteqty.uom:
+           WHEN "EA" THEN
+               bf-quoteqty.profit = ((bf-quoteqty.price * 1000) - dTotCost) / (bf-quoteqty.price * 1000) * 100.
+           WHEN "M" THEN
+               bf-quoteqty.profit = ((bf-quoteqty.price) - dTotCost) / (bf-quoteqty.price)  * 100.
+           WHEN "CS" THEN
+               bf-quoteqty.profit = ((bf-quoteqty.price / itemfg.case-count * 1000) - dTotCost) / (bf-quoteqty.price / itemfg.case-count * 1000)  * 100.
+           WHEN "LOT" THEN
+               bf-quoteqty.profit = ((bf-quoteqty.price / bf-quoteitm.qty * 1000) - dTotCost) / (bf-quoteqty.price / bf-quoteitm.qty * 1000)  * 100.
+         END CASE.           
+      END. /* if est-no = "" */
 
       RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm)) .
       RELEASE bf-quoteitm.
