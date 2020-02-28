@@ -384,10 +384,10 @@ DO:
     RUN write_segments.ip ("N3,008").
     RUN write_segments.ip ("N4,009").
 */
-    FIND FIRST EDShipto NO-LOCK WHERE EDShipto.cust EQ EDIVTran.cust
-        AND EDShipto.Partner EQ EDIVTran.partner
-        AND EDShipto.ship-to EQ EDIVTran.By-code 
-        AND EDShipto.Ref-type EQ "BY"
+    FIND FIRST EDShipto NO-LOCK 
+        WHERE   EDShipto.Partner EQ EDIVTran.partner
+            AND EDShipto.ship-to EQ EDIVTran.By-code 
+            AND EDShipto.Ref-type EQ "BY"
         NO-ERROR.
     ASSIGN
         entity_id         = "ST"
