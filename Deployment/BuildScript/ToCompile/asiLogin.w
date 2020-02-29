@@ -1356,7 +1356,10 @@ PROCEDURE ipPreRun :
         AND cbMode NE "Monitor Users" 
         AND cbMode NE "Editor" THEN 
     DO:
-        RUN epUserLogin IN hPreRun (cbMode, OUTPUT lExit).
+        IF iEnvLevel GE 161503 THEN 
+            RUN epUserLogin IN hPreRun (cbMode, OUTPUT lExit).
+        ELSE 
+            RUN epUserLogin IN hPreRun (OUTPUT lExit).
         IF lExit THEN 
         DO:
             DO ictr = 1 TO NUM-DBS:

@@ -11,7 +11,6 @@
     DEF VAR lAccess AS LOG NO-UNDO.
     RUN util/CheckModule.p (INPUT "ASI", INPUT "AutoLogout", INPUT NO /*prompt if no access*/, OUTPUT lAccess).
     IF NOT lAccess THEN RETURN.
-    DEFINE VARIABLE lRunNow AS LOG NO-UNDO.
 
     {custom/monitor.w "userControl" "userControl"}
 
