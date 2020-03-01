@@ -204,7 +204,9 @@ ASSIGN
                     THEN DO:
                         MESSAGE 
                             "You have records locked in another session. Please" SKIP 
-                            "resolve these prior to logging in again."
+                            "reopen the minimized ASI session and either complete" SKIP
+                            "the open transaction, return to the main menu, or" SKIP
+                            "manually exit that session to resolve this issue."
                             VIEW-AS ALERT-BOX ERROR.
                         ASSIGN 
                             lLogMeIn = FALSE 
