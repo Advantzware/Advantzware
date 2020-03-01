@@ -1356,7 +1356,7 @@ PROCEDURE ipPreRun :
         AND cbMode NE "Monitor Users" 
         AND cbMode NE "Editor" THEN 
     DO:
-        IF iEnvLevel GE 161503 THEN 
+        IF iEnvLevel GE 16150300 THEN 
             RUN epUserLogin IN hPreRun (cbMode, OUTPUT lExit).
         ELSE 
             RUN epUserLogin IN hPreRun (OUTPUT lExit).
