@@ -43,6 +43,9 @@ DEFINE VARIABLE ll-show-zero-bins AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lc-pass-loc       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUnspecified      AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lFirst            AS LOGICAL   NO-UNDO INIT YES.
+DEFINE VARIABLE lCalculate        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iPrevPage         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iCurrentPage      AS INTEGER   NO-UNDO.
 {sys/inc/oeinq.i}
  
 DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
@@ -963,11 +966,18 @@ PROCEDURE local-open-query :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
 /* Code placed here will execute AFTER standard behavior.    */
-    IF lFirst AND lUnspecified THEN DO: 
-         RUN pDisplayRecalculateMsg.  
-         lFirst = NO.  
+    IF iCurrentpage EQ 15
+        THEN lfirst = NO.
+    RUN pGetPOLocation.
+    RUN pCheckUnspecified.
+    OPEN QUERY {&browse-name} {&for-each1}.    
+    IF lFirst AND iCurrentpage NE 15 THEN DO:
+        IF NOT lUnspecified THEN 
+            OPEN QUERY {&browse-name} {&for-each1}. 
+        ELSE 
+            RUN pDisplayRecalculateMsg.
+        lFirst = NO.  
     END. 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -987,12 +997,16 @@ PROCEDURE local-view:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF NOT lFirst AND lUnspecified THEN DO: 
-      RUN pDisplayRecalculateMSg.
-      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ).
+  RUN GET-ATTRIBUTE IN adm-broker-hdl ('PreviousPage'). 
+  iPrevPage = INTEGER(RETURN-VALUE).
+  RUN GET-ATTRIBUTE IN adm-broker-hdl ('CurrentPage'). 
+  iCurrentPage = INTEGER(RETURN-VALUE).
+  IF NOT lFirst AND iprevPage EQ 1 THEN DO: 
+      RUN pCheckUnspecified.
+      IF lUnspecified THEN 
+          RUN pDisplayRecalculateMsg.  
+      OPEN QUERY {&browse-name} {&for-each1}. 
   END.
-  
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1086,6 +1100,57 @@ PROCEDURE pCalculateQty PRIVATE:
                     ). 
         END.                                 
     END. 
+
+    IF AVAILABLE itemfg THEN DO:
+        FIND FIRST oe-ctrl NO-LOCK 
+             WHERE oe-ctrl.company EQ itemfg.company 
+             NO-ERROR.
+
+        IF AVAILABLE oe-ctrl THEN DO:
+            FOR EACH oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ itemfg.company 
+                  AND oe-ordl.opened  EQ YES 
+                  AND oe-ordl.i-no    EQ itemfg.i-no 
+                  AND oe-ordl.stat    NE "C" 
+                  AND CAN-FIND(FIRST oe-ord OF oe-ordl 
+                               WHERE oe-ord.type    NE "T" 
+                                 AND oe-ord.deleted EQ NO)      
+                USE-INDEX item:
+                IF oe-ordl.is-a-component THEN DO:
+                    FIND FIRST fg-set NO-LOCK 
+                         WHERE fg-set.company EQ oe-ordl.company 
+                           AND fg-set.part-no EQ oe-ordl.i-no
+                            NO-ERROR.
+                
+                    IF AVAILABLE fg-set THEN DO: 
+                        FIND FIRST itemfg NO-LOCK 
+                        WHERE itemfg.company EQ oe-ordl.company 
+                          AND itemfg.i-no    EQ fg-set.set-no
+                           NO-ERROR.
+                        IF AVAILABLE itemfg AND itemfg.alloc NE YES THEN 
+                            NEXT.              
+                    END.
+                END. /* oe-ordl.is-a-component */   
+                FOR EACH oe-rel NO-LOCK 
+                    WHERE oe-rel.company EQ oe-ordl.company 
+                      AND oe-rel.ord-no  EQ oe-ordl.ord-no 
+                      AND oe-rel.LINE    EQ oe-ordl.LINE 
+                      AND oe-rel.stat    NE "Z" 
+                      AND oe-rel.stat    NE "C":     
+                   IF NOT CAN-FIND(FIRST itemfg-loc 
+                                   WHERE itemfg-loc.company EQ cocode 
+                                     AND itemfg-loc.loc     EQ oe-rel.spare-char-1 
+                                     AND itemfg-loc.i-no    EQ itemfg.i-no) THEN
+                   RUN CreateItemFGLoc IN hdInventoryProcs(
+                       INPUT cocode,
+                       INPUT itemfg.i-no,
+                       INPUT oe-rel.spare-char-1
+                       ).                                   
+                END. /* EACH oe-rel */
+            END. /* EACH oe-ordl */
+        END.        
+    END. /* AVAIL itemfg */
+    
     RUN fg/fg-calcbcst.p(
         INPUT ROWID(itemfg)
         ).
@@ -1094,11 +1159,41 @@ PROCEDURE pCalculateQty PRIVATE:
         ).
     RUN fg/fg-reset.p(
         INPUT RECID(itemfg)
-        ).            
+        ).      
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUnspecified B-table-Win
+PROCEDURE pCheckUnspecified PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To check and delete the unspecified location record from the workfile 
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST w-jobs NO-LOCK
+         WHERE w-jobs.i-no EQ itemfg.i-no
+           AND w-jobs.loc  EQ "*UNSP"
+            NO-ERROR.
+            
+    IF AVAILABLE w-jobs 
+       AND w-jobs.onHand       EQ 0      
+       AND w-jobs.onOrder      EQ 0
+       AND w-jobs.allocated    EQ 0               
+       AND w-jobs.backOrder    EQ 0 
+       AND w-jobs.qtyAvailable EQ 0 THEN DO:     
+       DELETE w-jobs.
+       lUnspecified = NO.
+    END.   
+       
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayRecalculateMsg B-table-Win
 PROCEDURE pDisplayRecalculateMsg PRIVATE:
@@ -1106,20 +1201,81 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
  Purpose: To Display a message box to recalculate the quantity
  Notes:
 ------------------------------------------------------------------------------*/
-    MESSAGE "Unspecified Locations exist for the item " itemfg.i-no "." SKIP 
-        "Do you want to recalulate the quantity?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL  
-        UPDATE lCalculate as LOGICAL . 
+    RUN displayMessageQuestionLOG(
+        INPUT  "20", 
+        OUTPUT lCalculate
+        ).
     IF lCalculate THEN DO:
         RUN pCalculateQty.
         RUN build-table.
-        IF lUnspecified THEN 
-            MESSAGE "The unspecified location is because there are orders without releases for this item, "
-                    + "so the ship from location cannot be determined"
-                VIEW-AS ALERT-BOX INFORMATION.     
-    END.    
-      
+        RUN pGetPOLocation.
+        RUN pCheckUnspecified.
+        IF lUnspecified THEN
+            RUN displayMessage(
+                INPUT "21"
+                ). 
+    END.     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
+
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPOLocation B-table-Win
+PROCEDURE pGetPOLocation PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To show the POs in correct location in browse
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-w-jobs FOR w-jobs.
+    
+    FIND FIRST w-jobs NO-LOCK
+         WHERE w-jobs.loc EQ "*UNSP" 
+         NO-ERROR.
+    IF AVAILABLE w-jobs AND w-jobs.onorder NE 0 THEN DO:
+        FOR EACH po-ordl NO-LOCK
+            WHERE po-ordl.company                 EQ cocode
+              AND po-ordl.i-no                    EQ w-jobs.i-no
+              AND lookup(po-ordl.stat, "O,P,U,A") GT 0  
+              AND po-ordl.item-type               EQ NO 
+              AND po-ordl.t-rec-qty               NE 0, 
+            FIRST po-ord NO-LOCK
+            WHERE po-ord.company                   EQ po-ordl.company 
+              AND po-ord.po-no                     EQ po-ordl.po-no 
+              AND lookup(po-ord.stat, "N,O,R,U,H") GT 0:
+            IF w-jobs.onOrder LT 0 THEN
+                ASSIGN
+                    w-jobs.onorder      = w-jobs.onorder      + t-rec-qty
+                    w-jobs.qtyAvailable = w-jobs.qtyAvailable + t-rec-qty
+                    .  
+            ELSE IF w-jobs.onOrder GT 0 THEN
+                ASSIGN 
+                    w-jobs.onOrder      = w-jobs.onOrder      - t-rec-qty
+                    w-jobs.qtyAvailable = w-jobs.qtyAvailable - t-rec-qty
+                    .
+            FIND FIRST bf-w-jobs NO-LOCK
+                 WHERE bf-w-jobs.i-no EQ w-jobs.i-no 
+                   AND bf-w-jobs.loc  EQ po-ord.loc 
+                    NO-ERROR.
+            IF AVAILABLE bf-w-jobs THEN DO: 
+                IF w-jobs.onOrder LT 0 THEN
+                    ASSIGN 
+                        bf-w-jobs.onOrder      = bf-w-jobs.onOrder       - t-rec-qty 
+                        bf-w-jobs.qtyavailable = bf-w-jobs.qtyavailable  - t-rec-qty 
+                        . 
+                ELSE
+                    ASSIGN
+                        bf-w-jobs.onOrder      = bf-w-jobs.onOrder      + t-rec-qty 
+                        bf-w-jobs.qtyavailable = bf-w-jobs.qtyavailable  + t-rec-qty 
+                        .                                
+            END.        
+        END.      
+    END.  
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
