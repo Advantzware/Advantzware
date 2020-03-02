@@ -859,7 +859,13 @@ PROCEDURE local-assign-record :
                               ar-inv.zip = cust.zip 
                               ar-inv.fob-code = cust.fob-code
                               .          
-    FIND FIRST terms WHERE terms.t-code = cust.terms NO-LOCK NO-ERROR.  
+    FIND FIRST terms WHERE terms.t-code = cust.terms NO-LOCK NO-ERROR.
+    FIND FIRST soldto NO-LOCK WHERE soldto.company EQ g_company
+                             AND soldto.cust-no EQ ar-inv.cust-no
+                             AND soldto.sold-id EQ ar-inv.cust-no
+                             USE-INDEX sold-id NO-ERROR.
+             IF AVAIL soldto THEN
+                ar-inv.sold-id =  soldto.sold-id .
 
     IF NOT ll-got-cust-info THEN DO: /* don't override */
        FIND FIRST cust WHERE cust.company = g_company

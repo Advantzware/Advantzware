@@ -207,7 +207,7 @@ FOR each report
      FIND FIRST oe-ord 
          WHERE oe-ord.company EQ cocode
            AND oe-ord.ord-no  EQ ar-inv.ord-no NO-LOCK NO-ERROR.
-       IF AVAIL oe-ord THEN DO:
+       
           
           IF AVAIL sman THEN v-salesname = sman.sname.
           FIND FIRST soldto WHERE soldto.company EQ cocode
@@ -244,30 +244,7 @@ FOR each report
                       v-addr3          = ar-inv.city + ", " + 
                                          ar-inv.state + "  " + ar-inv.zip.
              END.
-       END.
-       ELSE
-       DO:
-          FIND FIRST soldto WHERE
-               soldto.company EQ cocode AND
-               soldto.cust-no EQ ar-inv.cust-no AND
-               soldto.sold-id EQ ar-inv.BILL-TO
-               NO-LOCK NO-ERROR.
-          
-          IF AVAIL soldto THEN
-             ASSIGN
-               v-soldto-name = soldto.sold-name
-               v-soldto-addr[1] = soldto.sold-addr[1]
-               v-soldto-addr[2] = soldto.sold-addr[2]
-               v-addr3      = soldto.sold-city + ", " + 
-                              soldto.sold-state + "  " + soldto.sold-zip.
-          ELSE
-             ASSIGN
-                v-soldto-name = ar-inv.cust-name
-                v-soldto-addr[1] = ar-inv.addr[1]
-                v-soldto-addr[2] = ar-inv.addr[2]
-                v-addr3          = ar-inv.city + ", " + 
-                                   ar-inv.state + "  " + ar-inv.zip.
-       END.
+       
 
      ASSIGN v-del-no = 0.
 
