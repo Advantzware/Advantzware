@@ -88,6 +88,7 @@ FOR EACH ttFiles:
                         IMPORT {&ccFile}.
                     END.
                     INPUT CLOSE.
+                    CURRENT-VALUE ({&ccFile}ID_seq) = 0.
                 END.
                 ELSE DO:
                     INPUT FROM VALUE(ttFiles.cLongFile).
@@ -124,6 +125,7 @@ FOR EACH ttFiles:
                         IMPORT {&ccFile}.
                     END.
                     INPUT CLOSE.
+                    CURRENT-VALUE ({&ccFile}ID_seq) = 0.
                 END.
                 ELSE 
                 DO:
@@ -146,7 +148,7 @@ FOR EACH ttFiles:
                 END.
                 FIND LAST {&ccFile} NO-LOCK NO-ERROR.
                 IF AVAIL {&ccFile} THEN ASSIGN 
-                        CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
+                    CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
             END.
         WHEN "APIOutbound" THEN 
             DO:
@@ -162,6 +164,7 @@ FOR EACH ttFiles:
                         IMPORT {&ccFile}.
                     END.
                     INPUT CLOSE.
+                    CURRENT-VALUE ({&ccFile}ID_seq) = 0.
                 END.
                 ELSE 
                 DO:
@@ -184,7 +187,7 @@ FOR EACH ttFiles:
                 END.
                 FIND LAST {&ccFile} NO-LOCK NO-ERROR.
                 IF AVAIL {&ccFile} THEN ASSIGN 
-                        CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
+                    CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
             END.
         WHEN "APIOutboundDetail" THEN 
             DO:
@@ -200,6 +203,7 @@ FOR EACH ttFiles:
                         IMPORT {&ccFile}.
                     END.
                     INPUT CLOSE.
+                    CURRENT-VALUE ({&ccFile}ID_seq) = 0.
                 END.
                 ELSE 
                 DO:
@@ -222,7 +226,7 @@ FOR EACH ttFiles:
                 END.
                 FIND LAST {&ccFile} NO-LOCK NO-ERROR.
                 IF AVAIL {&ccFile} THEN ASSIGN 
-                        CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
+                    CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
             END.
         WHEN "APIOutboundTrigger" THEN 
             DO:
@@ -238,8 +242,9 @@ FOR EACH ttFiles:
                         IMPORT {&ccFile}.
                     END.
                     INPUT CLOSE.
+                    CURRENT-VALUE ({&ccFile}ID_seq) = 0.
                 END.
-                ELSE 
+                ELSE  
                 DO:
                     INPUT FROM VALUE(ttFiles.cLongFile).
                     REPEAT:
@@ -260,7 +265,7 @@ FOR EACH ttFiles:
                 END.
                 FIND LAST {&ccFile} NO-LOCK NO-ERROR.
                 IF AVAIL {&ccFile} THEN ASSIGN 
-                        CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
+                    CURRENT-VALUE ({&ccFile}ID_seq) = {&ccFile}.{&ccFile}ID.   
             END.
     END.
 END.
