@@ -1017,7 +1017,7 @@ FOR EACH ef
               IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
               ASSIGN v-ink1[i] = STRING(wrk-ink.form-no,">9") + "  " + /*"1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
-                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-per,">>>%")) + " " + STRING(wrk-ink.i-unit) + " " + STRING(wrk-ink.side)
+                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-per,">>>>%")) + " " + STRING(wrk-ink.i-unit,">>>") + " " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
@@ -1031,11 +1031,11 @@ FOR EACH ef
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(eb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   eb.i-coldscr FORMAT "x(35)" SKIP.
         
-        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C36.8>Per<C40.7>U <C42.5>S <FGCOLOR=BLACK>" SKIP. 
+        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C36.2>Per<C40.7>U <C42.5>S <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN do:
-                PUT v-ink1[j] FORM "x(55)" SKIP .
+                PUT v-ink1[j] FORM "x(59)" SKIP .
                 iCount = iCount + 1.
             END.
         END.
@@ -1257,7 +1257,7 @@ FOR EACH ef
               IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
               ASSIGN v-ink1[i] = STRING(wrk-ink.form-no,">9") + "  " + /*"1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
-                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-per,">>>%")) + " " + STRING(wrk-ink.i-unit) + " " + STRING(wrk-ink.side)
+                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-per,">>>>%")) + " " + STRING(wrk-ink.i-unit,">>>") + " " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
@@ -1271,11 +1271,11 @@ FOR EACH ef
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(eb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   eb.i-coldscr FORMAT "x(35)" SKIP.
         
-        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C36.8>Per<C40.7>U <C42.5>S <FGCOLOR=BLACK>" SKIP. 
+        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C36.2>Per<C40.7>U <C42.5>S <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN do:
-                PUT v-ink1[j] FORM "x(55)" SKIP .
+                PUT v-ink1[j] FORM "x(59)" SKIP .
                 iCount = iCount + 1.
             END.
         END.
@@ -1507,8 +1507,7 @@ PROCEDURE pPrintHeader :
 
     PUT
     "<C1><R1><#1><R+3.5><C+25><IMAGE#1=" ls-full-img1  
-    "<R1.5><C27><P18><FGCOLOR=GREEN>Page <FGCOLOR=BLACK><C33>" string(PAGE-NUMBER - v-pg-num,">>") "<C35>  of <#PAGES> <P10>"  
-    "<R3.5><C25><FGCOLOR=GREEN>Broker PO#:<FGCOLOR=BLACK>" v-po-no FORMAT "X(10)"   "<C42><FGCOLOR=GREEN>Est#:<FGCOLOR=BLACK>" trim(job-hdr.est-no) FORMAT "x(6)" 
+    "<R1.5><C27><P18><FGCOLOR=GREEN>Page <FGCOLOR=BLACK><C33>" string(PAGE-NUMBER - v-pg-num,">>") "<C35>  of <#PAGES> <P10>"      
     "<C+4><R1.5><FROM><C80><R3.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" + cBarCodeVal + ">" FORMAT "x(150)" SKIP
     v-fill .
 
