@@ -187,8 +187,8 @@ ttSubjectColumn ttSubjectParamSet ttSubjectTable ttSubjectWhere ttTable
 
 
 /* Definitions for BROWSE subjectParamSetBrowse                         */
-&Scoped-define FIELDS-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet.sortOrder dynParamSet.setName dynParamSet.setTitle ttSubjectParamSet.isVisible ttSubjectParamSet.paramSetID ttSubjectParamSet.setRow ttSubjectParamSet.setCol   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet.isVisible   
+&Scoped-define FIELDS-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet.sortOrder dynParamSet.setName dynParamSet.setTitle ttSubjectParamSet.isVisible ttSubjectParamSet.useInTitle ttSubjectParamSet.paramSetID ttSubjectParamSet.setRow ttSubjectParamSet.setCol   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet.isVisible ttSubjectParamSet.useInTitle
 &Scoped-define ENABLED-TABLES-IN-QUERY-subjectParamSetBrowse ~
 ttSubjectParamSet
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-subjectParamSetBrowse ttSubjectParamSet
@@ -1011,7 +1011,7 @@ DEFINE BROWSE subjectColumnBrowse
   QUERY subjectColumnBrowse DISPLAY
       ttSubjectColumn.sortOrder
 ttSubjectColumn.isActive VIEW-AS TOGGLE-BOX
-ttSubjectColumn.fieldName
+ttSubjectColumn.fieldName FORMAT "x(40)"
 ttSubjectColumn.fieldLabel
 ttSubjectColumn.sortCol
 ttSubjectColumn.sortDescending VIEW-AS TOGGLE-BOX
@@ -1049,11 +1049,13 @@ DEFINE BROWSE subjectParamSetBrowse
 dynParamSet.setName
 dynParamSet.setTitle
 ttSubjectParamSet.isVisible VIEW-AS TOGGLE-BOX
+ttSubjectParamSet.useInTitle VIEW-AS TOGGLE-BOX
 ttSubjectParamSet.paramSetID
 ttSubjectParamSet.setRow
 ttSubjectParamSet.setCol
 ENABLE
 ttSubjectParamSet.isVisible
+ttSubjectParamSet.useInTitle
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 78 BY 4.19
@@ -3754,6 +3756,7 @@ PROCEDURE pAddSelections :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
         CASE subjectSection:
@@ -3764,8 +3767,19 @@ PROCEDURE pAddSelections :
                 END. /* do idex */
             END. /* table */
             OTHERWISE DO:
-                DO idx = 1 TO fieldBrowse:NUM-SELECTED-ROWS:
-                    fieldBrowse:FETCH-SELECTED-ROW(idx).
+                CASE subjectSection:
+                    WHEN "Parameters" THEN
+                    jdx = paramSetBrowse:NUM-SELECTED-ROWS.
+                    OTHERWISE
+                    jdx = fieldBrowse:NUM-SELECTED-ROWS.
+                END CASE.
+                DO idx = 1 TO jdx:
+                    CASE subjectSection:
+                        WHEN "Parameters" THEN
+                        paramSetBrowse:FETCH-SELECTED-ROW(idx).
+                        OTHERWISE
+                        fieldBrowse:FETCH-SELECTED-ROW(idx).
+                    END CASE.
                     CASE subjectSection:
                         WHEN "Columns" THEN
                         RUN pAddColumn (ttField.fieldName).
@@ -4146,7 +4160,10 @@ PROCEDURE pCRUD :
                         DISABLE btnReset.
                     END. /* add */
                     WHEN "Copy" THEN
-                    dynSubject.subjectID:SCREEN-VALUE = "".
+                    ASSIGN
+                        dynSubject.subjectID:SCREEN-VALUE   = ""
+                        dynSubject.subjectType:SCREEN-VALUE = IF lSuperAdmin THEN "System" ELSE "User"
+                        .
                 END CASE.
                 ASSIGN
                     FRAME viewFrame:TITLE = iphMode:LABEL
@@ -4218,6 +4235,7 @@ PROCEDURE pCRUD :
                         "Delete Currently Selected Record?"
                     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
                     UPDATE lContinue.
+                    SESSION:SET-WAIT-STATE ("General").
                     IF lContinue THEN DO TRANSACTION:
                         cMode = iphMode:LABEL.
                         {AOA/includes/dynSubjctDelete.i "Task"}
@@ -4233,6 +4251,7 @@ PROCEDURE pCRUD :
                     IF AVAILABLE dynSubject THEN
                     BROWSE subjectBrowse:REFRESH().
                     RUN pDisplay.
+                    SESSION:SET-WAIT-STATE ("").
                 END. /* if avail */
             END. /* delete */
             WHEN "Reset" THEN DO:
@@ -4646,9 +4665,10 @@ PROCEDURE pGetFields :
     IF VALID-HANDLE(hBusinessLogicTable) THEN DO:
         hBuffer = hBusinessLogicTable:DEFAULT-BUFFER-HANDLE.
         DO idx = 1 TO hBuffer:NUM-FIELDS:
+            hColumn = hBuffer:BUFFER-FIELD(idx).
+            IF hColumn:NAME BEGINS "xx" THEN NEXT.
             CREATE ttField.
             ASSIGN
-                hColumn            = hBuffer:BUFFER-FIELD(idx)
                 ttField.tableDB    = "ASI"
                 ttField.fieldLabel = hColumn:LABEL
                 ttField.fieldName  = hBusinessLogicTable:NAME + "."
