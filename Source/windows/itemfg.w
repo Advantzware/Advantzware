@@ -1395,8 +1395,10 @@ PROCEDURE local-change-page :
     
     /* Code placed here will execute PRIOR to standard behavior. */
     li-prev-page = li-current-page.
+    RUN set-attribute-list IN adm-broker-hdl ('PreviousPage = ' +  QUOTER(li-current-page) ).
     RUN get-attribute ("current-page").
-    li-current-page = INTEGER(RETURN-VALUE).         
+    li-current-page = INTEGER(RETURN-VALUE).    
+    RUN set-attribute-list IN adm-broker-hdl ('CurrentPage = ' +  QUOTER(li-current-page) ).     
 
     IF li-current-page EQ 8 AND lNewVendorItemCost THEN DO:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "IF"' ).
