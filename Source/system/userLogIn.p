@@ -197,22 +197,22 @@ ASSIGN
                     userLog.userStatus EQ "Logged In" AND  
                     userLog.user_id EQ cCurrentUserID AND 
                     userLog.sessionID NE igsSessionID:
-                    /* Check for record locks */
-                    IF CAN-FIND (FIRST asi._lock WHERE asi._lock._lock-usr EQ userlog.asiUsrNo)
-                    /* Crappy auditing has a lock when main menu is up */
-                    /* OR CAN-FIND (FIRST audit._lock WHERE audit._lock._lock-usr EQ userlog.audUsrNo) */
-                    THEN DO:
-                        MESSAGE 
-                            "You have records locked in another session. Please" SKIP 
-                            "reopen the minimized ASI session and either complete" SKIP
-                            "the open transaction, return to the main menu, or" SKIP
-                            "manually exit that session to resolve this issue."
-                            VIEW-AS ALERT-BOX ERROR.
-                        ASSIGN 
-                            lLogMeIn = FALSE 
-                            oplExit = TRUE.
-                        RETURN.    
-                    END.      
+/*                    /* Check for record locks - comment this out until it becomes an issue with DB crash */                                                         */
+/*                    IF CAN-FIND (FIRST asi._lock WHERE asi._lock._lock-usr EQ userlog.asiUsrNo)          */
+/*                    /* Crappy auditing has a lock when main menu is up */                                */
+/*                    /* OR CAN-FIND (FIRST audit._lock WHERE audit._lock._lock-usr EQ userlog.audUsrNo) */*/
+/*                    THEN DO:                                                                             */
+/*                        MESSAGE                                                                          */
+/*                            "You have records locked in another session. Please" SKIP                    */
+/*                            "reopen the minimized ASI session and either complete" SKIP                  */
+/*                            "the open transaction, return to the main menu, or" SKIP                     */
+/*                            "manually exit that session to resolve this issue."                          */
+/*                            VIEW-AS ALERT-BOX ERROR.                                                     */
+/*                        ASSIGN                                                                           */
+/*                            lLogMeIn = FALSE                                                             */
+/*                            oplExit = TRUE.                                                              */
+/*                        RETURN.                                                                          */
+/*                    END.                                                                                 */
                     RUN system/userLogout.p (YES, userLog.sessionID).
                     /* This is still experimental.  If NK1 "enforceUserCount" integer value is set to 1, this line will 
                     "kill" any open sessions on user's workstation.  Risk is if run on server with RDP, AND multiple users have same
