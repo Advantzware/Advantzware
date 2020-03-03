@@ -518,7 +518,7 @@ PROCEDURE printInv :
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
 
   RUN printInv IN h_b-arinvl.
-  RUN moveToTop.
+  //RUN moveToTop.
 
 END PROCEDURE.
 
