@@ -421,7 +421,7 @@ DEFINE FRAME F-Main
           LABEL "Pallet #" FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     iCount AT ROW 12.67 COL 106.8 COLON-ALIGNED
+     iCount AT ROW 12.67 COL 107.2 COLON-ALIGNED
      itemfg.spare-char-4 AT ROW 12.67 COL 126.6 COLON-ALIGNED
           LABEL "Zone" FORMAT "x(12)"
           VIEW-AS FILL-IN 
