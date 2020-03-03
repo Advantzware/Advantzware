@@ -68,6 +68,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE riItemfg AS ROWID NO-UNDO.
+    DEFINE VARIABLE cEstNumber AS CHARACTER NO-UNDO .
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
 
     
@@ -153,8 +155,22 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid AND iplFieldValidation THEN 
     DO:
 
-        IF oplValid AND ipbf-ttImportQuote.CustPart NE "" THEN 
+        RUN custom/getcpart.p (ipbf-ttImportQuote.Company, ipbf-ttImportQuote.CustNo,
+                             INPUT-OUTPUT ipbf-ttImportQuote.CustPart, INPUT-OUTPUT riItemfg).
+        FIND itemfg WHERE ROWID(itemfg) EQ riItemfg NO-LOCK NO-ERROR.         
+         
+        IF NOT AVAIL itemfg AND ipbf-ttImportQuote.EstNo NE "" THEN
+        DO:      
+          cEstNumber =  FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) + TRIM(ipbf-ttImportQuote.EstNo)   .
+          IF oplValid AND ipbf-ttImportQuote.CustPart NE "" THEN 
+            RUN pIsValidCustPartFromEst (cEstNumber,ipbf-ttImportQuote.CustPart, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        END.
+        ELSE do: 
+          IF oplValid AND ipbf-ttImportQuote.CustPart NE "" THEN 
             RUN pIsValidCustPartIDNonFG (ipbf-ttImportQuote.CustPart,ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        END.
 
         IF oplValid AND ipbf-ttImportQuote.CustNo NE "" THEN 
             RUN pIsValidCustomerID (ipbf-ttImportQuote.CustNo, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -385,19 +401,34 @@ PROCEDURE pProcessRecord PRIVATE:
       dTotCost = bf-quoteqty.mat-cost + bf-quoteqty.lab-cost 
                  + bf-quoteqty.fo-cost
                  + bf-quoteqty.vo-cost.
+                 
+     IF dTotCost EQ 0 AND bf-quotehd.est-no NE "" THEN
+     DO:
+       FIND FIRST probe NO-LOCK
+           WHERE probe.company   EQ bf-quotehd.company
+            AND probe.est-no    EQ bf-quotehd.est-no
+            AND probe.full-cost NE ?    NO-ERROR .
+        IF AVAIL probe THEN
+           dTotCost =  probe.full-cost   .         
+     END.
+         
+      FIND FIRST ce-ctrl where (ce-ctrl.company = bf-quotehd.company and 
+                 ce-ctrl.loc     = bf-quotehd.loc) NO-LOCK NO-ERROR.
+      IF dTotCost EQ 0 AND AVAIL itemfg THEN
+           dTotCost =  IF ce-ctrl.r-cost  THEN itemfg.avg-cost ELSE itemfg.last-cost.
 
-      IF bf-quotehd.est-no = "" AND AVAIL itemfg AND itemfg.sell-price GT 0 THEN DO:     
+         
          CASE bf-quoteqty.uom:
            WHEN "EA" THEN
                bf-quoteqty.profit = ((bf-quoteqty.price * 1000) - dTotCost) / (bf-quoteqty.price * 1000) * 100.
            WHEN "M" THEN
                bf-quoteqty.profit = ((bf-quoteqty.price) - dTotCost) / (bf-quoteqty.price)  * 100.
            WHEN "CS" THEN
-               bf-quoteqty.profit = ((bf-quoteqty.price / itemfg.case-count * 1000) - dTotCost) / (bf-quoteqty.price / itemfg.case-count * 1000)  * 100.
+               bf-quoteqty.profit = ((bf-quoteqty.price / ( IF AVAIL itemfg THEN itemfg.case-count ELSE 1) * 1000) - dTotCost) / (bf-quoteqty.price / (IF AVAIL itemfg THEN itemfg.case-count ELSE 1) * 1000)  * 100.
            WHEN "LOT" THEN
                bf-quoteqty.profit = ((bf-quoteqty.price / bf-quoteitm.qty * 1000) - dTotCost) / (bf-quoteqty.price / bf-quoteitm.qty * 1000)  * 100.
          END CASE.           
-      END. /* if est-no = "" */
+     
 
       RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm)) .
       RELEASE bf-quoteitm.
