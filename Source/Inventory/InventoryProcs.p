@@ -93,6 +93,144 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE RecalculateQuantities:
+/*------------------------------------------------------------------------------
+ Purpose: To add the location into itemfg-loc based on history records and oe-rel
+          and recalculate the quantities
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriItemFG AS ROWID     NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-itemFG FOR itemFG.
+    
+    FIND FIRST bf-itemFG NO-LOCK
+         WHERE ROWID(bf-itemFG) EQ ipriItemFG
+            NO-ERROR.
+
+    IF AVAILABLE bf-itemfg THEN DO:      
+        FOR EACH fg-rcpth NO-LOCK
+            WHERE fg-rcpth.company   EQ ipcCompany
+              AND fg-rcpth.i-no      EQ bf-itemFG.i-no       
+              USE-INDEX tran,
+            EACH fg-rdtlh NO-LOCK
+            WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
+            BREAK BY fg-rcpth.loc
+                  BY fg-rcpth.po-no
+                  BY fg-rcpth.job-no:
+                   
+            IF FIRST-OF(fg-rcpth.loc) 
+                AND fg-rcpth.loc NE "" 
+                AND NOT CAN-FIND (FIRST itemfg-loc 
+                     WHERE itemfg-loc.company EQ fg-rcpth.company 
+                       AND itemfg-loc.i-no    EQ bf-itemFG.i-no 
+                       AND itemfg-loc.loc     EQ fg-rcpth.loc) THEN  
+                                    
+                RUN CreateItemFGLoc(
+                    INPUT ipcCompany,
+                    INPUT fg-rcpth.i-no,
+                    INPUT fg-rcpth.loc
+                    ).
+                   
+                    
+            IF FIRST-OF(fg-rcpth.po-no) AND fg-rcpth.loc NE "" THEN DO: 
+                FIND FIRST po-ord NO-LOCK 
+                     WHERE po-ord.company EQ ipcCompany
+                       AND po-ord.po-no   EQ INT(fg-rcpth.po-no)
+                       NO-ERROR.
+                       
+                IF AVAILABLE po-ord 
+                    AND po-ord.loc NE "" 
+                    AND NOT CAN-FIND(FIRST itemfg-loc 
+                        WHERE itemfg-loc.company  EQ ipcCompany
+                          AND itemfg-loc.i-no     EQ fg-rcpth.i-no 
+                          AND itemfg-loc.loc      EQ po-ord.loc) THEN
+                                  
+                    RUN CreateItemFGLoc(
+                        INPUT ipcCompany,
+                        INPUT fg-rcpth.i-no,
+                        INPUT po-ord.loc
+                        ).                                          
+            END. 
+            
+            IF FIRST-OF(fg-rcpth.job-no) AND fg-rcpth.loc NE "" THEN DO: 
+                FIND FIRST job-hdr NO-LOCK 
+                     WHERE job-hdr.company EQ ipcCompany
+                       AND job-hdr.i-no    EQ fg-rcpth.i-no
+                       AND job-hdr.job-no  EQ fg-rcpth.job-no
+                       AND job-hdr.job-no2 EQ fg-rcpth.job-no2
+                       NO-ERROR.
+                       
+                IF AVAILABLE job-hdr 
+                    AND job-hdr.loc NE "" 
+                    AND NOT CAN-FIND(FIRST itemfg-loc
+                        WHERE itemfg-loc.company EQ ipcCompany
+                          AND itemfg-loc.i-no    EQ fg-rcpth.i-no
+                          AND itemfg-loc.loc     EQ job-hdr.loc) THEN
+                                   
+                    RUN CreateItemFGLoc(
+                        INPUT ipcCompany,
+                        INPUT fg-rcpth.i-no,
+                        INPUT job-hdr.loc
+                        ). 
+            END.                                 
+        END. 
+        
+        FOR EACH oe-ordl NO-LOCK 
+            WHERE oe-ordl.company EQ bf-itemFG.company 
+              AND oe-ordl.opened  EQ YES 
+              AND oe-ordl.i-no    EQ bf-itemFG.i-no 
+              AND oe-ordl.stat    NE "C" 
+              AND CAN-FIND(FIRST oe-ord OF oe-ordl 
+                           WHERE oe-ord.type    NE "T" 
+                             AND oe-ord.deleted EQ NO)      
+            USE-INDEX item:
+            IF oe-ordl.is-a-component THEN DO:
+                FIND FIRST fg-set NO-LOCK 
+                     WHERE fg-set.company EQ oe-ordl.company 
+                       AND fg-set.part-no EQ oe-ordl.i-no
+                        NO-ERROR.
+            
+                IF AVAILABLE fg-set THEN DO: 
+                    FIND FIRST itemfg NO-LOCK 
+                    WHERE itemfg.company EQ oe-ordl.company 
+                      AND itemfg.i-no    EQ fg-set.set-no
+                       NO-ERROR.
+                    IF AVAILABLE bf-itemFG AND bf-itemFG.alloc NE YES THEN 
+                        NEXT.              
+                END.
+            END. /* oe-ordl.is-a-component */   
+            FOR EACH oe-rel NO-LOCK 
+                WHERE oe-rel.company EQ oe-ordl.company 
+                  AND oe-rel.ord-no  EQ oe-ordl.ord-no 
+                  AND oe-rel.LINE    EQ oe-ordl.LINE 
+                  AND oe-rel.stat    NE "Z" 
+                  AND oe-rel.stat    NE "C":     
+               IF NOT CAN-FIND(FIRST itemfg-loc 
+                               WHERE itemfg-loc.company EQ ipcCompany 
+                                 AND itemfg-loc.loc     EQ oe-rel.spare-char-1 
+                                 AND itemfg-loc.i-no    EQ bf-itemFG.i-no) THEN
+               RUN CreateItemFGLoc(
+                   INPUT ipcCompany,
+                   INPUT bf-itemfg.i-no,
+                   INPUT oe-rel.spare-char-1
+                   ).                                   
+            END. /* EACH oe-rel */
+        END. /* EACH oe-ordl */
+             
+        RUN fg/fg-calcbcst.p(
+            INPUT ROWID(bf-itemFG)
+            ).
+        RUN fg/fg-mkbin.p(
+            INPUT RECID(bf-itemFG)
+            ).
+        RUN fg/fg-reset.p(
+            INPUT RECID(bf-itemfg)
+            ).      
+    END.
+END PROCEDURE.
+
 PROCEDURE BuildFGInventoryStockForItem:
     /*------------------------------------------------------------------------------
      Purpose: Create InventoryStock records from fg
