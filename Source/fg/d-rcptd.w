@@ -2045,13 +2045,15 @@ PROCEDURE create-from-po :
     lMultipleAdds = iCount GT 1.
 
     IF NOT ip-set-parts AND lMultipleAdds THEN RUN fg/invrecpt.p (rwRowid, 1).
-    
+      
     IF lMultipleAdds EQ NO AND op-rowid NE ? THEN do:
         FIND FIRST fg-rctd NO-LOCK
             WHERE ROWID(fg-rctd) EQ op-rowid
             NO-ERROR.
-        IF AVAIL fg-rctd THEN
+        IF AVAIL fg-rctd THEN do:
            fg-rctd.tag:SCREEN-VALUE IN FRAME {&frame-name} = fg-rctd.tag .
+           lv-item-recid = RECID(fg-rctd) .
+        END.
     END.
 END PROCEDURE.
 
