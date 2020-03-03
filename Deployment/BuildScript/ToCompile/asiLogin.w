@@ -810,21 +810,60 @@ PROCEDURE ipChangeEnvironment :
                 ASSIGN 
                     cTestList = "".
                 DO iCtr = 1 TO NUM-ENTRIES(cDbList):
-                    ASSIGN 
-                        iEnvLevelM = iEnvLevel / 1000
-                        iDbLevelM = intVer(ENTRY(iCtr,cDbVerList)) / 1000.
-                    if iEnvLevelM GT 16085 THEN DO:
-                        IF iEnvLevelM LT iDbLevelM THEN NEXT.
-                        IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                    IF iEnvLevel EQ 99999900 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 99999900 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
                     END.
-                    ELSE DO:
-                        ASSIGN
-                            iEnvLevelM = 10 * TRUNCATE(iEnvLevelM / 10,0).        
-                        IF iEnvLevelM LT iDbLevelM THEN NEXT.
-                        IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                    ELSE IF iEnvLevel EQ 16150300 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150300 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
                     END.
-                    ASSIGN 
-                        cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".    
+                    ELSE IF iEnvLevel EQ 16150200 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150200 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16150100 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150100 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16150000 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16140300 
+                    OR iEnvLevel EQ 16140200 
+                    OR iEnvLevel EQ 16140100 
+                    OR iEnvLevel EQ 16140000 
+                    THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16140000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16130000 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16130000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16120000 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16120000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16110200 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16110200 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16110000 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16110000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16100100 
+                    OR iEnvLevel EQ 16100000 
+                    THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16100000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
+                    ELSE IF iEnvLevel EQ 16089000 THEN DO:
+                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16089000 THEN ASSIGN
+                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
+                    END.
                 END.
                 IF cSessionParam EQ "" THEN ASSIGN 
                     cTestList = TRIM(cTestList,",")
