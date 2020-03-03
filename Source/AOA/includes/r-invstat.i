@@ -134,11 +134,11 @@ PROCEDURE pAddJobItem PRIVATE:
     CREATE opbf-ttJobItem.
     ASSIGN 
         opbf-ttJobItem.cCompany                = ipcCompany
-        opbf-ttJobItem.cCustomerID             = ipcCustomerID
-        opbf-ttJobItem.cItemID                 = ipcItemID
+        opbf-ttJobItem.cCustomerID             = CAPS(ipcCustomerID)
+        opbf-ttJobItem.cItemID                 = CAPS(ipcItemID)
         opbf-ttJobItem.xxcJobID                = ipcJobID
         opbf-ttJobItem.xxiJobID2               = ipiJobID2
-        opbf-ttJobItem.cProductCategory        = ipcProductCategory
+        opbf-ttJobItem.cProductCategory        = CAPS(ipcProductCategory)
         opbf-ttJobItem.cProductDescription     = fProductDescription (ipcCompany, ipcProductCategory)
         opbf-ttJobItem.dQuantityOrdered        = ipdQuantityOrdered
         opbf-ttJobItem.dQuantityProduced       = ipdQuantityProduced
@@ -156,7 +156,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.dPriceTotalProduced     = opbf-ttJobItem.dPricePerEA      * opbf-ttJobItem.dQuantityProduced
         opbf-ttJobItem.dPriceTotalShipped      = opbf-ttJobItem.dPricePerEA      * opbf-ttJobItem.dQuantityShipped
         opbf-ttJobItem.dPriceTotalBalanceToRun = opbf-ttJobItem.dPricePerEA      * opbf-ttJobItem.dQuantityBalanceToRun
-        opbf-ttJobItem.cJob                    = ipcJobID + "-" + STRING(ipiJobID2,"99")
+        opbf-ttJobItem.cJob                    = IF ipcJobID NE "" THEN ipcJobID + "-" + STRING(ipiJobID2,"99") ELSE ""
         .
     FIND FIRST ttProdSum
          WHERE ttProdSum.cCompany         EQ ipcCompany
@@ -300,17 +300,28 @@ PROCEDURE pBuildJobItem PRIVATE:
             lIsComp    = NO
             lNoMake    = NO
             .
-        RUN pGetQuantityMadeAsOf(job-hdr.company, job-hdr.job-no, job-hdr.job-no2, job-hdr.i-no, ipdtAsOf, OUTPUT dQtyProd).
-                
+        RUN pGetQuantityMadeAsOf (
+            job-hdr.company,
+            job-hdr.job-no,
+            job-hdr.job-no2,
+            job-hdr.i-no,
+            ipdtAsOf,
+            OUTPUT dQtyProd
+            ).                
         IF job-hdr.ord-no NE 0 THEN 
-        DO:  /*This will be the case for all non-stock jobs*/
+        DO: /*This will be the case for all non-stock jobs*/
             FIND FIRST oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ job-hdr.company
                   AND oe-ordl.ord-no  EQ job-hdr.ord-no
                   AND oe-ordl.i-no    EQ job-hdr.i-no
                 NO-ERROR.
             IF AVAILABLE oe-ordl THEN DO:
-                RUN pGetQuantityInvShipAsOf(ROWID(oe-ordl), ipdtAsOf, OUTPUT dQtyInv, OUTPUT dQtyShip).
+                RUN pGetQuantityInvShipAsOf (
+                    ROWID(oe-ordl),
+                    ipdtAsOf,
+                    OUTPUT dQtyInv,
+                    OUTPUT dQtyShip
+                    ).
                 ASSIGN 
                     dQtyOnHand = dQtyProd - dQtyShip
                     dPricePer  = IF oe-ordl.pr-uom EQ "M" THEN oe-ordl.price / 1000 ELSE oe-ordl.price
@@ -319,7 +330,14 @@ PROCEDURE pBuildJobItem PRIVATE:
             END. 
         END.
         ELSE DO:
-            RUN pGetQuantityOnHandAsOf(job-hdr.company, job-hdr.job-no, job-hdr.job-no2, job-hdr.i-no, ipdtAsOf, OUTPUT dQtyOnHand).
+            RUN pGetQuantityOnHandAsOf (
+                job-hdr.company,
+                job-hdr.job-no,
+                job-hdr.job-no2,
+                job-hdr.i-no,
+                ipdtAsOf,
+                OUTPUT dQtyOnHand
+                ).
             ASSIGN 
                 dQtyShip  = dQtyProd - dQtyOnHand
                 dQtyInv   = dQtyShip
@@ -327,7 +345,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                 .
         END.
         
-        IF itemfg.isaset THEN 
+        IF itemfg.isaset AND NOT CAN-DO("EP,EEP",itemfg.procat) THEN 
             cSource = "Job Header - Set".
         ELSE 
             cSource = "Job Header - Single".
@@ -371,18 +389,54 @@ PROCEDURE pBuildJobItem PRIVATE:
                     lNoMake    = fg-set.noReceipt
                     .
                 IF AVAILABLE bf-ttJobItem THEN 
-                    RUN pAnalyzeItem(BUFFER bf-ttJobItem, bf-comp-itemfg.procat, fg-set.part-qty).
-                RUN pGetQuantityMadeAsOf(job-hdr.company, job-hdr.job-no, job-hdr.job-no2, fg-set.part-no, ipdtAsOf, OUTPUT dQtyProd).
-                RUN pGetQuantityOnHandAsOf(job-hdr.company, job-hdr.job-no, job-hdr.job-no2, fg-set.part-no, ipdtAsOf, OUTPUT dQtyOnHand).
-                RUN pAddJobItem(job-hdr.company, job-hdr.cust-no, fg-set.part-no, job-hdr.job-no, job-hdr.job-no2, bf-comp-itemfg.procat, 
-                    dQtyOrd * fg-set.part-qty, dQtyProd, dQtyProd - dQtyOnHand, dQtyProd - dQtyOnHand, dQtyOnHand, 
-                    "Component", dPricePer,
-                    lNoMake, YES, NO,
-                    BUFFER bf-comp-ttJobItem).
+                RUN pAnalyzeItem (
+                    BUFFER bf-ttJobItem,
+                    bf-comp-itemfg.procat,
+                    fg-set.part-qty
+                    ).
+                RUN pGetQuantityMadeAsOf (
+                    job-hdr.company,
+                    job-hdr.job-no,
+                    job-hdr.job-no2,
+                    fg-set.part-no,
+                    ipdtAsOf,
+                    OUTPUT dQtyProd
+                    ).
+                RUN pGetQuantityOnHandAsOf (
+                    job-hdr.company,
+                    job-hdr.job-no,
+                    job-hdr.job-no2,
+                    fg-set.part-no,
+                    ipdtAsOf,
+                    OUTPUT dQtyOnHand
+                    ).
+                RUN pAddJobItem (
+                    job-hdr.company,
+                    job-hdr.cust-no,
+                    fg-set.part-no,
+                    job-hdr.job-no,
+                    job-hdr.job-no2,
+                    bf-comp-itemfg.procat, 
+                    dQtyOrd * fg-set.part-qty,
+                    dQtyProd,
+                    dQtyProd - dQtyOnHand,
+                    dQtyProd - dQtyOnHand,
+                    dQtyOnHand, 
+                    "Component",
+                    dPricePer,
+                    lNoMake,
+                    YES,
+                    NO,
+                    BUFFER bf-comp-ttJobItem
+                    ).
             END.            
         END.
         ELSE IF AVAILABLE bf-ttJobItem THEN 
-                RUN pAnalyzeItem(BUFFER bf-ttJobItem, itemfg.procat, 1).
+                RUN pAnalyzeItem (
+                    BUFFER bf-ttJobItem,
+                    itemfg.procat,
+                    1
+                    ).
     END.
     FOR EACH oe-ord NO-LOCK 
         WHERE oe-ord.company EQ ipcCompany
@@ -410,13 +464,33 @@ PROCEDURE pBuildJobItem PRIVATE:
             lIsComp    = NO
             lNoMake    = NO
             .
-            RUN pGetInvoicedAmountForMiscAsOf(oe-ord.company, oe-ord.ord-no, oe-ordm.charge, ipdtAsOf, OUTPUT dInvAmt).
+            RUN pGetInvoicedAmountForMiscAsOf (
+                oe-ord.company,
+                oe-ord.ord-no,
+                oe-ordm.charge,
+                ipdtAsOf,
+                OUTPUT dInvAmt
+                ).
             IF dPricePer LT dInvAmt THEN NEXT.  /*already invoiced at time of "as of"*/
-            RUN pAddJobItem(oe-ord.company, oe-ord.cust-no, oe-ordm.charge, "", 0, prep.fgcat,
-                dQtyOrd, dQtyProd, dQtyShip, dQtyInv, dQtyOnHand, 
-                "Misc/Prep", dPricePer,
-                NO, NO, lHasOrder,
-                BUFFER bf-ttJobItem).
+            RUN pAddJobItem (
+                oe-ord.company,
+                oe-ord.cust-no,
+                oe-ordm.charge,
+                "",
+                0,
+                prep.fgcat,
+                dQtyOrd,
+                dQtyProd,
+                dQtyShip,
+                dQtyInv,
+                dQtyOnHand, 
+                "Misc/Prep",
+                dPricePer,
+                NO,
+                NO,
+                lHasOrder,
+                BUFFER bf-ttJobItem
+                ).
     END.
     
 END PROCEDURE.
@@ -511,7 +585,7 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
             USE-INDEX b-no
             :
             IF oe-boll.s-code NE "S" AND NOT oe-ordl.is-a-component AND NOT lInvQty THEN
-                opdQuantityInvoiced = opdQuantityInvoiced + oe-boll.qty.    
+            opdQuantityInvoiced = opdQuantityInvoiced + oe-boll.qty.    
             IF (oe-boll.s-code NE "I" OR
                 CAN-FIND(FIRST bf-oe-ordl 
                          WHERE bf-oe-ordl.company        EQ oe-ordl.company
