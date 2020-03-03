@@ -113,8 +113,8 @@ itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.palletVolume ~
 itemfg.prod-code 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define ENABLED-OBJECTS tg-Freeze-weight btn_misc-est RECT-10 ~
-RECT-8 RECT-9 RECT-11 RECT-12 
+&Scoped-Define ENABLED-OBJECTS tg-Freeze-weight btn_misc-est RECT-10 RECT-8 ~
+RECT-9 RECT-11 RECT-12 
 &Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.poStatus ~
 itemfg.setupDate itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name ~
 itemfg.part-dscr1 itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 ~
@@ -181,7 +181,7 @@ DEFINE VARIABLE fi_type-dscr AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE iCount AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0 
-     LABEL "Count" 
+     LABEL "Total" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
@@ -309,6 +309,9 @@ DEFINE FRAME F-Main
           LABEL "Cust#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     itemfg.cust-name AT ROW 1.48 COL 91.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 35.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -316,9 +319,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.cust-name AT ROW 1.48 COL 91.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 35.8 BY 1
      tb_taxable AT ROW 1.29 COL 129.6
      itemfg.stat AT ROW 3 COL 78.8 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
@@ -376,7 +376,7 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
      itemfg.case-count AT ROW 9.52 COL 81.6 COLON-ALIGNED HELP
           "Enter Qty per Case, Bundle or Pallet"
-          LABEL "Count" FORMAT ">>>>>9"
+          LABEL "Unit Count" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      itemfg.case-pall AT ROW 9.52 COL 104.2 COLON-ALIGNED HELP
@@ -401,6 +401,11 @@ DEFINE FRAME F-Main
      itemfg.cc-code AT ROW 8.52 COL 128.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13.8 BY .95
+     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
+          ""
+          LABEL "Partial" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -408,11 +413,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
-          ""
-          LABEL "Partial" FORMAT ">>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 13.8 BY 1
      itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
@@ -487,6 +487,10 @@ DEFINE FRAME F-Main
           LABEL "Modifed By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     itemfg.modifiedDate AT ROW 19.86 COL 50.4 COLON-ALIGNED
+          LABEL "Modified Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -494,10 +498,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.modifiedDate AT ROW 19.86 COL 50.4 COLON-ALIGNED
-          LABEL "Modified Date" FORMAT "99/99/9999"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
      itemfg.palletVolume AT ROW 15.05 COL 100 COLON-ALIGNED
           LABEL "Std. Pallet Volume (in3)"
           VIEW-AS FILL-IN 
@@ -609,6 +609,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.i-no IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN iCount IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX itemfg.isaset IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.last-cost IN FRAME F-Main
@@ -689,8 +691,6 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.upc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN iCount IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                        */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -885,7 +885,7 @@ END.
 
 &Scoped-define SELF-NAME itemfg.case-count
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.case-count V-table-Win
-ON LEAVE OF itemfg.case-count IN FRAME F-Main /* Count */
+ON LEAVE OF itemfg.case-count IN FRAME F-Main /* Unit Count */
 DO:
         {&methods/lValidateError.i YES}
         IF LASTKEY <> -1 AND 
@@ -904,7 +904,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.case-count V-table-Win
-ON VALUE-CHANGED OF itemfg.case-count IN FRAME F-Main /* Count */
+ON VALUE-CHANGED OF itemfg.case-count IN FRAME F-Main /* Unit Count */
 DO:
          RUN pCalCount .
 END.
