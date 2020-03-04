@@ -91,7 +91,7 @@ END FUNCTION.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
-    CASE cAsOfDateOptions:
+    CASE cAsOfDateOption:
         WHEN "Prior Month" THEN
         dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Month", dtAsOfDate).
         WHEN "Prior Year" THEN
@@ -345,7 +345,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                 .
         END.
         
-        IF itemfg.isaset AND NOT CAN-DO("EP,EEP",itemfg.procat) THEN 
+        IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN 
             cSource = "Job Header - Set".
         ELSE 
             cSource = "Job Header - Single".
