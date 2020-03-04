@@ -87,8 +87,7 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClearLog btnViewLog btnClose btnRunNow ~
-monitorActivity 
+&Scoped-Define ENABLED-OBJECTS btnClearLog btnViewLog btnClose btnRunNow 
 &Scoped-Define DISPLAYED-OBJECTS monitorImportDir monitorActivity 
 
 /* Custom List Definitions                                              */
@@ -209,6 +208,8 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+/* SETTINGS FOR EDITOR monitorActivity IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 ASSIGN 
        monitorActivity:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
@@ -318,25 +319,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnViewLog
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
-ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
-DO:
-    RUN AOA/dynGrid.p (11,
-        "Types^LOG" +
-        "|Users^All" +
-        "|DBs^All" +
-        "|Tables^{1}." +
-        "|Fields^All" +
-        "|StartTransDate^" + STRING(TODAY) +
-        "|EndTransDate^" + STRING(TODAY)
-        ).
-    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &Scoped-define SELF-NAME btnRunNow
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunNow C-Win
 ON CHOOSE OF btnRunNow IN FRAME DEFAULT-FRAME /* Run Now */
@@ -355,6 +337,26 @@ DO:
         ) NO-ERROR.
     
     ASSIGN lRunNow = FALSE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnViewLog
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
+ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
+DO:
+    RUN AOA/dynGrid.p (11,
+        "Types^LOG" +
+        "|Users^All" +
+        "|DBs^All" +
+        "|Tables^{1}." +
+        "|Fields^All" +
+        "|StartTransDate^" + STRING(TODAY) +
+        "|EndTransDate^" + STRING(TODAY)
+        ).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -564,7 +566,7 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY monitorImportDir monitorActivity 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnClearLog btnViewLog btnClose btnRunNow monitorActivity 
+  ENABLE btnClearLog btnViewLog btnClose btnRunNow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
