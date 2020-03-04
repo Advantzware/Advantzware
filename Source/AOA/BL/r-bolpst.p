@@ -554,6 +554,7 @@ PROCEDURE pCreateNoPostRec :
         w-nopost.po-no    = oe-boll.PO-NO
         w-nopost.reason   = cNoPostReason
         .
+    IF AVAILABLE w-bolh THEN
     DELETE w-bolh.
 END PROCEDURE.
 
