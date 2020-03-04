@@ -11,6 +11,8 @@
     DEF VAR lAccess AS LOG NO-UNDO.
     RUN util/CheckModule.p (INPUT "ASI", INPUT "AutoLogout", INPUT NO /*prompt if no access*/, OUTPUT lAccess).
     IF NOT lAccess THEN RETURN.
+    
+    DEFINE BUFFER bUserLog FOR userlog.
 
     {custom/monitor.w "userControl" "userControl"}
 
@@ -161,6 +163,39 @@ PROCEDURE postMonitor:
         END.
         
         /* NEW FUNCTIONALITY */
+        /* Read list of userlogs and compare to connections; if not present, mark as disconnected */
+        RUN monitorActivity ('Check for Userlogs without DB connections ' ,YES,'').
+        FOR EACH userlog EXCLUSIVE WHERE 
+            userLog.userStatus = "Logged In":
+            FIND FIRST asi._connect NO-LOCK WHERE     
+                asi._connect._Connect-Usr EQ userLog.asiUsrNo AND  
+                asi._connect._Connect-Pid EQ userLog.asiPID
+                NO-ERROR. 
+            FIND FIRST audit._connect NO-LOCK WHERE     
+                audit._connect._Connect-Usr EQ userLog.audUsrNo AND  
+                audit._connect._Connect-Pid EQ userLog.audPID
+                NO-ERROR. 
+            IF NOT AVAIL asi._connect 
+            OR NOT AVAIL audit._connect THEN ASSIGN 
+                userLog.dbDisconnect   = FALSE
+                userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+                userLog.userStatus     = "Disconnected".
+        END.
+                
+        FOR EACH asi._connect NO-LOCK WHERE 
+            CAN-DO("REMC,SELF",asi._connect._connect-type) AND
+            asi._connect._connect-clienttype NE "SQLC":
+            IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(asi._connect._connect-time),"seconds") LE 30 THEN 
+                NEXT.                
+            IF CAN-FIND (FIRST userLog WHERE 
+                            userLog.asiUsrNo = asi._connect._Connect-Usr AND 
+                            userLog.asiPID   = asi._connect._Connect-Pid AND 
+                            userLog.userStatus = "Logged In") THEN NEXT.
+            ASSIGN 
+                cdb = fnGetPhysicalDb("ASI").
+            RUN disconnectUser (cDb, asi._connect._Connect-Usr, asi._connect._connect-name).
+        END.
+
         /* Read list of connections and compare to userLogins; if not present, log him out of DB */
         RUN monitorActivity ('Check for DB users without userLogs ' ,YES,'').
         testasi:
@@ -208,7 +243,7 @@ PROCEDURE disconnectUser:
     
     ASSIGN 
         cDLC = fnGetDLC().
-    RUN monitorActivity (" Disconnecting user # " + STRING(ipcUserNum) + " (" + STRING(ipcUserName) + ") from DB " + ipcDB + " ",YES,'').
+    RUN monitorActivity (" Requesting Disconnect for user # " + STRING(ipcUserNum) + " (" + STRING(ipcUserName) + ") from DB " + ipcDB + " ",YES,'').
     OS-COMMAND SILENT VALUE(cDLC + "\bin\proshut " + ipcDb + " -C disconnect " + TRIM(STRING(ipcUserNum,">>>9"))).
     RETURN.
 

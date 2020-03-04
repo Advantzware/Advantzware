@@ -75,7 +75,7 @@ ELSE DO:
                     NO-ERROR.
             IF AVAIL bUserLog THEN ASSIGN 
                     buserLog.logoutDateTime = DATETIME(TODAY, MTIME)
-                    buserLog.userStatus     = "User Logged Out".
+                    buserLog.userStatus     = "Disconnected".
             IF iplDisconnect THEN DO:
                 FIND FIRST asi._connect NO-LOCK WHERE 
                     asi._connect._connect-Usr EQ buserLog.asiUsrNo AND 
