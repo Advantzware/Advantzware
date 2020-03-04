@@ -203,20 +203,20 @@ eb.i-coat eb.die-in ef.f-col ef.f-pass ef.f-coat ef.f-coat-p eb.pur-man
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br-estitm est
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br-estitm eb
 &Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-br-estitm ef
-&Scoped-define QUERY-STRING-br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
-  AND ef.est-no = est-qty.est-no ~
-  AND ef.eqty = est-qty.eqty NO-LOCK, ~
-      EACH eb WHERE eb.company = ef.company ~
-  AND eb.est-no = ef.est-no ~
-  AND eb.form-no = ef.form-no NO-LOCK ~
+&Scoped-define QUERY-STRING-br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
+  AND eb.est-no = est-qty.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = eb.company ~
+  AND ef.est-no = eb.est-no ~
+  AND ef.eqty = est-qty.eqty ~
+  AND ef.form-no = eb.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no
-&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
-  AND ef.est-no = est-qty.est-no ~
-  AND ef.eqty = est-qty.eqty NO-LOCK, ~
-      EACH eb WHERE eb.company = ef.company ~
-  AND eb.est-no = ef.est-no ~
-  AND eb.form-no = ef.form-no NO-LOCK ~
+&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
+  AND eb.est-no = est-qty.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = eb.company ~
+  AND ef.est-no = eb.est-no ~
+  AND ef.eqty = est-qty.eqty ~
+  AND ef.form-no = eb.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no.
 &Scoped-define TABLES-IN-QUERY-br-estitm ef eb
@@ -295,8 +295,8 @@ FUNCTION display-cw-dim RETURNS DECIMAL
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br-estitm FOR 
-      ef, 
-      eb SCROLLING.
+      eb, 
+      ef SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
