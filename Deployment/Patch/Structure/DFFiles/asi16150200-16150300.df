@@ -1,0 +1,351 @@
+DROP TABLE "inventoryStockAlias"
+DROP TABLE "state"
+
+ADD TABLE "itemUoM"
+  AREA "Data"
+  DUMP-NAME "itemuom"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/itemUoM.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/itemUoM.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/itemUoM.p" CRC "?" 
+
+ADD FIELD "company" OF "itemUoM" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter company number for this item."
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "itemID" OF "itemUoM" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Item No"
+  POSITION 3
+  MAX-WIDTH 30
+  HELP "Enter F/G Item Number"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "procat" OF "itemUoM" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Category"
+  POSITION 4
+  MAX-WIDTH 10
+  HELP "Enter Product Category Code for Sales Reporting and Costing"
+  ORDER 30
+
+ADD FIELD "itemType" OF "itemUoM" AS character 
+  DESCRIPTION "RM, FG, or WIP"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Item Type"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Enter Item Type (RM, FG, or WIP)"
+  ORDER 20
+
+ADD FIELD "UOM" OF "itemUoM" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "UOM"
+  POSITION 6
+  MAX-WIDTH 12
+  ORDER 50
+
+ADD FIELD "descr" OF "itemUoM" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "UoM Description"
+  POSITION 7
+  MAX-WIDTH 120
+  ORDER 60
+
+ADD FIELD "UOMBase" OF "itemUoM" AS character 
+  FORMAT "x(3)"
+  INITIAL "EA"
+  LABEL "UOM Base"
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "convFactor" OF "itemUoM" AS decimal 
+  FORMAT ">>>,>>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Conv. Factor"
+  POSITION 9
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 80
+
+ADD FIELD "isStock" OF "itemUoM" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is StockUoM"
+  POSITION 10
+  MAX-WIDTH 1
+  ORDER 90
+
+ADD FIELD "canPurchase" OF "itemUoM" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Can Purchase"
+  POSITION 11
+  MAX-WIDTH 1
+  HELP "Can you Purchase this item in this UoM?"
+  ORDER 100
+
+ADD FIELD "canSell" OF "itemUoM" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Can Sell"
+  POSITION 12
+  MAX-WIDTH 1
+  HELP "Can you Sell this item in this UoM?"
+  ORDER 110
+
+ADD FIELD "isDefaultPurchaseUoM" OF "itemUoM" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Default Pur UoM"
+  POSITION 13
+  MAX-WIDTH 1
+  HELP "Is this the DEFAULT Purchase UoM?"
+  ORDER 120
+
+ADD FIELD "isDefaultSellUoM" OF "itemUoM" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Default Sell UoM"
+  POSITION 14
+  MAX-WIDTH 1
+  HELP "Is this the DEFAULT Purchase UoM?"
+  ORDER 130
+
+ADD FIELD "inactive" OF "itemUoM" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Inactive?"
+  POSITION 15
+  MAX-WIDTH 1
+  HELP "Is this record INactive?"
+  ORDER 140
+
+ADD FIELD "createdBy" OF "itemUoM" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Created By"
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "createdDtTm" OF "itemUoM" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Created DtTm"
+  POSITION 17
+  MAX-WIDTH 8
+  ORDER 160
+
+ADD FIELD "updatedBy" OF "itemUoM" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Updated By"
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "updatedDtTm" OF "itemUoM" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Updated DtTm"
+  POSITION 19
+  MAX-WIDTH 8
+  ORDER 180
+
+ADD FIELD "rec_key" OF "itemUoM" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 20
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 190
+
+ADD INDEX "iPriUoM" ON "itemUoM" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "itemType" ASCENDING 
+  INDEX-FIELD "itemID" ASCENDING 
+  INDEX-FIELD "UOM" ASCENDING 
+
+ADD INDEX "iBaseUoM" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "UOMBase" ASCENDING 
+
+ADD INDEX "iCompany" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+
+ADD INDEX "iCreated" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "createdDtTm" ASCENDING 
+
+ADD INDEX "iInActive" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "inactive" ASCENDING 
+
+ADD INDEX "iItemNo" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "itemID" ASCENDING 
+
+ADD INDEX "iItemType" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "itemType" ASCENDING 
+
+ADD INDEX "iProcat" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "procat" ASCENDING 
+
+ADD INDEX "iRecKey" ON "itemUoM" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "iTxnUoM" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "UOM" ASCENDING 
+
+ADD INDEX "iUpdated" ON "itemUoM" 
+  AREA "Index"
+  INDEX-FIELD "updatedDtTm" ASCENDING 
+
+UPDATE FIELD "calcFormula" OF "dynParamValue"
+  MAX-WIDTH 102800
+
+ADD FIELD "useInTitle" OF "dynSubjectParamSet" AS logical
+  FORMAT "yes/no"
+  POSITION 11
+  INITIAL "no"
+  HELP "Toggle to Use In Title"
+  LABEL "Use In Title"
+  ORDER 80
+  MAX-WIDTH 1
+
+ADD FIELD "tag" OF "inventoryStock" AS character
+  FORMAT "x(8)"
+  POSITION 67
+  INITIAL ""
+  HELP "?"
+  LABEL "Tag"
+  ORDER 660
+  MAX-WIDTH 16
+
+ADD FIELD "tagVendor" OF "inventoryStock" AS character
+  DESCRIPTION "Vendor Tag"
+  FORMAT "x(32)"
+  POSITION 75
+  INITIAL ""
+  LABEL "Vendor Tag"
+  COLUMN-LABEL "Vendor Tag"
+  ORDER 711
+  MAX-WIDTH 64
+
+ADD FIELD "tagRFID" OF "inventoryStock" AS character
+  DESCRIPTION "RFID Tag"
+  FORMAT "x(32)"
+  POSITION 76
+  INITIAL ""
+  LABEL "RFID Tag"
+  COLUMN-LABEL "RFID Tag"
+  ORDER 721
+  MAX-WIDTH 64
+
+RENAME INDEX "fgItemTagLoc" TO "temp-30828" ON "inventoryStock"
+
+ADD INDEX "fgItemTagLoc" ON "inventoryStock"
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "fgItemID" ASCENDING
+  INDEX-FIELD "tag" ASCENDING
+  INDEX-FIELD "jobID" ASCENDING
+  INDEX-FIELD "jobID2" ASCENDING
+  INDEX-FIELD "warehouseID" ASCENDING
+  INDEX-FIELD "locationID" ASCENDING
+  INDEX-FIELD "customerID" ASCENDING
+  INDEX-FIELD "createdTime" ASCENDING
+
+ADD INDEX "tagRFID" ON "inventoryStock"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "tagRFID" ASCENDING
+
+ADD INDEX "tagVendor" ON "inventoryStock"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "tagVendor" ASCENDING
+
+DROP INDEX "temp-30828" ON "inventoryStock"
+
+DROP FIELD "stockIDAlias" OF "inventoryStock"
+
+ADD FIELD "tag" OF "inventoryStockSnapshot" AS character
+  FORMAT "x(8)"
+  POSITION 67
+  INITIAL ""
+  HELP "?"
+  LABEL "Tag"
+  ORDER 660
+  MAX-WIDTH 16
+
+RENAME INDEX "stockIDAlias" TO "temp-80833" ON "inventoryStockSnapshot"
+
+ADD INDEX "stockIDAlias" ON "inventoryStockSnapshot"
+  AREA "Index"
+  DESCRIPTION "Stock ID Alias index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "tag" ASCENDING
+
+DROP INDEX "temp-80833" ON "inventoryStockSnapshot"
+
+DROP FIELD "stockIDAlias" OF "inventoryStockSnapshot"
+
+ADD FIELD "tag" OF "inventoryTransaction" AS character
+  FORMAT "x(8)"
+  POSITION 6
+  INITIAL ""
+  HELP "?"
+  LABEL "Tag"
+  ORDER 50
+  MAX-WIDTH 16
+
+DROP FIELD "stockIDAlias" OF "inventoryTransaction"
+
+ADD FIELD "mode" OF "userLog" AS character
+  FORMAT "x(12)"
+  POSITION 33
+  INITIAL ""
+  LABEL "Mode"
+  ORDER 350
+  MAX-WIDTH 24
+
+ADD FIELD "processID" OF "userLog" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 34
+  INITIAL "0"
+  LABEL "Process ID"
+  ORDER 360
+  MAX-WIDTH 4
+
+DROP SEQUENCE "invaliasid_seq"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000007579
