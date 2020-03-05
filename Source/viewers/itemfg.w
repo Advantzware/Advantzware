@@ -181,7 +181,7 @@ DEFINE VARIABLE fi_type-dscr AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE iCount AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0 
-     LABEL "Pallet Count" 
+     LABEL "Count" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
@@ -376,7 +376,7 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
      itemfg.case-count AT ROW 9.52 COL 81.6 COLON-ALIGNED HELP
           "Enter Qty per Case, Bundle or Pallet"
-          LABEL "Count" FORMAT ">>>>>9"
+          LABEL "Unit Count" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      itemfg.case-pall AT ROW 9.52 COL 104.2 COLON-ALIGNED HELP
