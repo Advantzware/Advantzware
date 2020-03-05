@@ -352,9 +352,9 @@ PROCEDURE pPrintCheckHeaderRecords:
             cCheckPayeeName2      = vend.remit
             cCheckPayeeAddress1   = vend.r-add1
             cCheckPayeeAddress2   = vend.r-add2
-            cCheckPayeeCity       = vend.city
-            cCheckPayeeState      = vend.state
-            cCheckPayeeZipCode    = vend.zip
+            cCheckPayeeCity       = vend.r-city
+            cCheckPayeeState      = vend.r-state
+            cCheckPayeeZipCode    = vend.r-zip
             cCheckPayeeCountry    = vend.r-country
             cCheckPaymentData     = vend.check-memo
             cCheckMailInstruction = IF vend.country BEGINS "CA" THEN /* country validation for Canada */
