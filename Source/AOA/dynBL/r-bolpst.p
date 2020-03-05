@@ -1053,7 +1053,7 @@ PROCEDURE pRunReport :
                 RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").    
                 ELSE 
                 RUN pCreateNoPostRec ("BOL is on Hold Status").           
-                DELETE w-bolh.
+/*                DELETE w-bolh.*/
                 NEXT mainblok.           
             END.      
             FIND FIRST w-except NO-LOCK 
@@ -1064,7 +1064,7 @@ PROCEDURE pRunReport :
                     RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped for BOL " + STRING(w-bolh.bol-no)).
                 ELSE 
                     RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped").   
-                DELETE w-bolh. 
+/*                DELETE w-bolh.*/
                 NEXT MAINBLOK.                                                  
             END.
             IF NOT oe-bolh.deleted THEN DO:
