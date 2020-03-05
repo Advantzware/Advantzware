@@ -1395,6 +1395,10 @@ PROCEDURE runProcess :
             ).
     END.
     ELSE DO:  /* multi files import (Schedule Monitor) */
+        IF oeimport-cha EQ "" THEN DO:
+            MESSAGE "There is no defined location for the importing of orders, set this value in N-K-1 = OeImport" VIEW-AS ALERT-BOX INFORMATION.
+            RETURN.
+        END.
         ASSIGN
             cImportMainDir = ENTRY(1,oeimport-cha,cCompanyMask)
             cImportMainDir = IF SUBSTR(cImportMainDir,LENGTH(cImportMainDir),1) EQ "/" OR   /* Checks for forward or backward slashe at the end of dir. if found removes it */
