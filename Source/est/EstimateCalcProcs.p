@@ -982,7 +982,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                 WHERE bf-mach.company EQ bf-est-op.company
                 AND bf-mach.m-code EQ bf-est-op.m-code 
                 BY bf-est-op.line:
-                IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
+                IF bf-mach.p-type EQ "B" OR bf-mach.p-type EQ "A" OR bf-mach.p-type EQ "P" THEN  /*Last machine before a blank fed*/
                     ASSIGN 
                         opbf-estCostOperation.isBlankMaker = YES
                         opbf-estCostOperation.outputType   = "B"
@@ -1704,6 +1704,14 @@ PROCEDURE pBuildProbe PRIVATE:
                 bf-probe.tot-lbs  = bf-probe.tot-lbs + estCostForm.grossQtyRequiredTotalArea * 1000 //Refactor - assumes Area is MSF
                 .
         END.    
+        FOR EACH estCostBlank NO-LOCK 
+            WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            AND estCostBlank.formNo NE 0
+            :
+            ASSIGN 
+                bf-probe.bsf = bf-probe.bsf + estCostBlank.quantityPerSet * estCostBlank.blankArea  / 144 //Refactor - assumes area is SQIN.
+                .
+        END.
     END.
     ASSIGN 
         bf-probe.fact-cost    = ipbf-estCostHeader.costTotalFactory / dQtyInM
