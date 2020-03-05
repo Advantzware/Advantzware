@@ -438,7 +438,7 @@ DO:
         WHEN 'fiStartJob' THEN DO:
             IF SELF:SCREEN-VALUE NE ""
             AND fiEndJob:SCREEN-VALUE EQ "" THEN ASSIGN 
-                fiEndJob:SCREEN-VALUE = "zzzzzz". 
+                fiEndJob:SCREEN-VALUE = SELF:SCREEN-VALUE .
             ASSIGN 
                 SELF:SCREEN-VALUE = FILL(" ", 6 - INT(LENGTH(TRIM(SELF:SCREEN-VALUE)))) + TRIM(SELF:SCREEN-VALUE).
             IF SELF:SCREEN-VALUE NE "" 
@@ -477,7 +477,7 @@ DO:
     CASE SELF:NAME: 
         WHEN 'fiStartJob2' THEN DO:            
             IF SELF:SCREEN-VALUE NE "" 
-            AND integer(fiEndJob2:SCREEN-VALUE) NE 0 
+            AND integer(fiEndJob2:SCREEN-VALUE) NE 0  
             AND integer(SELF:SCREEN-VALUE) GT INTEGER(fiEndJob2:SCREEN-VALUE) THEN DO:
                 MESSAGE 
                     "Start job2 is greater than end job2. Please correct."
