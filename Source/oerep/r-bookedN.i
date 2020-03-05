@@ -591,19 +591,8 @@ FORMAT wkrecap.procat
 
         ASSIGN  dNetprct = 0.
          IF AVAIL oe-ordl THEN
-         FOR EACH probe NO-LOCK WHERE probe.company EQ oe-ordl.company
-         AND probe.est-no EQ oe-ordl.est-no
-            AND probe.probe-date NE ?
-            AND INT(probe.est-qty) EQ INT(oe-ordl.qty)
-            BY probe.company 
-            BY probe.est-no 
-            BY probe.probe-date 
-            BY probe.est-qty  :
-            ASSIGN  dNetprct = probe.net-profit.
-            LEAVE.
-        END.
-
-    
+         ASSIGN dNetprct = oe-ordl.s-comm[1] .
+        
     ASSIGN 
      v-revenue     = w-data.revenue
      v-price-per-m = v-revenue / w-data.t-sqft
