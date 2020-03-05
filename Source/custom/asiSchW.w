@@ -39,7 +39,10 @@ END.
 
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cMonitorName              AS CHARACTER NO-UNDO INITIAL "Schedule". /* Monitor Name */ 
 
+RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -210,6 +213,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Advantzware Scheduler/Monitor */
 DO:
+   IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+       DELETE PROCEDURE hdAdvantzwareMonitorProcs.
+       
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
        RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
@@ -225,6 +231,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit C-Win
 ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
+   IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
+       DELETE PROCEDURE hdAdvantzwareMonitorProcs.
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
        RUN system/userLogOut.p (NO, 0).
   APPLY "CLOSE" TO THIS-PROCEDURE.
@@ -254,9 +262,16 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 RUN Check4tasks.
 
+RUN AdvantzwareMonitor_UpdateResourceStatusTime IN hdAdvantzwareMonitorProcs (
+    INPUT  cMonitorName,
+    OUTPUT lSuccess,
+    OUTPUT cMessage
+    ) NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -524,8 +539,8 @@ PROCEDURE runTask :
   Notes:       
 ------------------------------------------------------------------------------*/
    /*tasklist-cha*/
-  processingTask:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "oe/impord.p ...".
-  RUN oe/impord.p.
+  processingTask:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "oe/impord.w ...".
+  RUN oe/impord.w.
 
   processingTask:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Waiting ...".
   RETURN.

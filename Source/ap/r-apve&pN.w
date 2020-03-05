@@ -1246,46 +1246,42 @@ PROCEDURE post-gl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR g2 AS dec NO-UNDO.
-DEF VAR t1 AS DEC NO-UNDO.
-DEF VAR v-upd AS LOG NO-UNDO.
-DEF var v-po-no like fg-rcpth.po-no NO-UNDO.
-def var total-msf like ap-invl.amt-msf NO-UNDO.
+DEF VAR g2 AS DECIMAL.
+DEF VAR t1 AS DECIMAL.
+DEF VAR v-upd AS LOGICAL.
+DEF var v-po-no like fg-rcpth.po-no.
+def var total-msf like ap-invl.amt-msf.
 def var v-qty like ap-invl.qty.
 def var v-qty1 like v-qty.
 def var v-qty2 like v-qty.
 def var v-qty3 like v-qty.
 def var v-cost like fg-rdtlh.cost.
-DEF VAR v-wid AS DEC NO-UNDO.
-DEF VAR v-len AS DEC NO-UNDO.
-DEF VAR v-dep AS DEC NO-UNDO.
-DEF VAR v-bwt AS DEC NO-UNDO.
-DEF VAR ll-rcpth AS LOG NO-UNDO.
+DEF VAR v-wid AS DEC.
+DEF VAR v-len AS DEC.
+DEF VAR v-dep AS DEC.
+DEF VAR v-bwt AS DEC.
+DEF VAR ll-rcpth AS LOG.
 
   /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
-  postit:
-do transaction on error undo postit:
   g2 = 0.
-
   for each tt-report
       where can-find(first ap-inv where recid(ap-inv) eq tt-report.rec-id
                                     and ap-inv.posted eq no)
-      BREAK BY tt-report.actnum:
+      BREAK BY tt-report.actnum
+      TRANSACTION:
 
     find first ap-inv
         where recid(ap-inv) eq tt-report.rec-id
         exclusive-lock no-error no-wait.
 
-    if not avail ap-inv then do:
-      message "Unable to Post due to Invoice Record being Locked.  " +
-              "Please Try again Later".
-      pause.
-      hide message no-pause.
-      undo postit, leave postit.
-    end.
-
-    ap-inv.period = tran-period.
-
+    IF NOT AVAILABLE ap-inv THEN
+        UNDO, NEXT.
+    
+    ASSIGN
+        ap-inv.period = tran-period.
+        total-msf     = 0
+        .
+    
     find first vend
         where vend.company eq cocode
           and vend.vend-no eq ap-inv.vend-no
@@ -1659,55 +1655,56 @@ do transaction on error undo postit:
 
   g2 = g2 + lv-frt-total.
 
-  if lv-frt-total ne 0 then do:
-    create gltrans.
-    assign
-     gltrans.company = cocode
-     gltrans.actnum  = v-frt-acct
-     gltrans.jrnl    = "ACPAY"
-     gltrans.tr-dscr = "ACCOUNTS PAYABLE FREIGHT"
-     gltrans.tr-date = tran-date
-     gltrans.tr-amt  = (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate)
-     gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
-    RELEASE gltrans.
-  end.
+    DO TRANSACTION:
+        IF lv-frt-total NE 0 THEN DO:
+            CREATE gltrans.
+            ASSIGN
+                gltrans.company = cocode
+                gltrans.actnum  = v-frt-acct
+                gltrans.jrnl    = "ACPAY"
+                gltrans.tr-dscr = "ACCOUNTS PAYABLE FREIGHT"
+                gltrans.tr-date = tran-date
+                gltrans.tr-amt  = (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate)
+                gltrans.period  = tran-period
+                gltrans.trnum   = v-trnum
+                .
+            RELEASE gltrans.
+        END.
 
-  FOR EACH tt-ap-tax BREAK BY tt-ap-tax.actnum:
-    ACCUM tt-ap-tax.curr-amt (TOTAL BY tt-ap-tax.actnum).
+        FOR EACH tt-ap-tax BREAK BY tt-ap-tax.actnum:
+            ACCUM tt-ap-tax.curr-amt (TOTAL BY tt-ap-tax.actnum).
 
-    g2 = g2 + tt-ap-tax.amt.
+            g2 = g2 + tt-ap-tax.amt.
 
-    IF LAST-OF(tt-ap-tax.actnum) THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = tt-ap-tax.actnum
-       gltrans.jrnl    = "ACPAY"
-       gltrans.tr-dscr = "ACCOUNTS PAYABLE TAX"
-       gltrans.tr-date = tran-date
-       gltrans.tr-amt  = (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt)
-       gltrans.period  = tran-period
-       gltrans.trnum   = v-trnum.
-      RELEASE gltrans.
+            IF LAST-OF(tt-ap-tax.actnum) THEN DO:
+                CREATE gltrans.
+                ASSIGN
+                    gltrans.company = cocode
+                    gltrans.actnum  = tt-ap-tax.actnum
+                    gltrans.jrnl    = "ACPAY"
+                    gltrans.tr-dscr = "ACCOUNTS PAYABLE TAX"
+                    gltrans.tr-date = tran-date
+                    gltrans.tr-amt  = (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt)
+                    gltrans.period  = tran-period
+                    gltrans.trnum   = v-trnum
+                    .
+                RELEASE gltrans.
+            END.
+        END.
+
+        CREATE gltrans.
+        ASSIGN
+            gltrans.company = cocode
+            gltrans.actnum  = xap-acct
+            gltrans.jrnl    = "ACPAY"
+            gltrans.tr-dscr = "ACCOUNTS PAYABLE INVOICE"
+            gltrans.tr-date = tran-date
+            gltrans.tr-amt  = - g2
+            gltrans.period  = tran-period
+            gltrans.trnum   = v-trnum
+            .
+        RELEASE gltrans.
     END.
-  END.
-
-  create gltrans.
-  assign
-   gltrans.company = cocode
-   gltrans.actnum  = xap-acct
-   gltrans.jrnl    = "ACPAY"
-   gltrans.tr-dscr = "ACCOUNTS PAYABLE INVOICE"
-   gltrans.tr-date = tran-date
-   gltrans.tr-amt  = - g2
-   gltrans.period  = tran-period
-   gltrans.trnum   = v-trnum.
-  RELEASE gltrans.
-
-
-end. /* postit: transaction */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1746,8 +1743,8 @@ time_stamp = string(time,"hh:mmam").
 
 form header
      "VENDOR#  Name                              INVOICE #       INV.DATE    DUE DATE         AMOUNT " 
-     "    G/L DISTRIBUTION" skip fill("_",130) format "x(130)"
-    with no-labels no-box no-underline frame f-top page-top width 132 STREAM-IO.
+     "    G/L DISTRIBUTION" skip fill("_",136) format "x(136)"
+    with no-labels no-box no-underline frame f-top page-top width 136 STREAM-IO.
 
 form v-disp-actnum label "G/L ACCOUNT NUMBER"
      v-dscr        label "DESCRIPTION"

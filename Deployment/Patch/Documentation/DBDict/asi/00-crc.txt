@@ -81,7 +81,7 @@
 "dynPrgrmsPage" 7409
 "dynSubject" 41254
 "dynSubjectColumn" 65510
-"dynSubjectParamSet" 15010
+"dynSubjectParamSet" 4091
 "dynSubjectTable" 2314
 "dynSubjectWhere" 60719
 "e-item" 32665
@@ -196,10 +196,9 @@
 "inv-line" 52724
 "inv-misc" 54655
 "inventorySnapshot" 18890
-"inventoryStock" 52711
-"inventoryStockAlias" 9040
-"inventoryStockSnapshot" 49889
-"inventoryTransaction" 443
+"inventoryStock" 56576
+"inventoryStockSnapshot" 32006
+"inventoryTransaction" 42541
 "InvoiceLines" 22450
 "item" 23709
 "item-bom" 39803
@@ -210,6 +209,7 @@
 "itemfg-ink" 57099
 "itemfg-loc" 37805
 "itemfgdtl" 60018
+"itemUoM" 27971
 "jc-ctrl" 29823
 "job" 42431
 "job-all" 20067
@@ -377,7 +377,6 @@
 "stack-flute" 36151
 "stack-size" 53972
 "stackPattern" 15364
-"state" 13153
 "statecod" 52139
 "statusCode" 30356
 "stax" 24100
@@ -418,7 +417,7 @@
 "userEula" 64113
 "usergrps" 61185
 "userLanguage" 41039
-"userLog" 8756
+"userLog" 42617
 "userPwdHist" 36282
 "users" 56168
 "usersman" 19243

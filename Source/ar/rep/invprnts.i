@@ -69,7 +69,7 @@ PUT
         
 PUT "<FArial><P10><=#5><R-2> <P10>" SKIP
     "<=#3><B>                         INVOICE                  " SKIP
-    "<=#3><R+1><P14>                 " ar-inv.inv-no "</B><P10>"
+    "<=#3><R+1><P14>                 " ar-inv.inv-no FORMAT ">>>>>>9" "</B><P10>"
     "<=#3><R+3>                      Date    " v-inv-date SKIP 
     "<=#3><R+4>         Customer Id     " v-custno SKIP
     "<=#3><R+5>    Purchase Order     " v-po-no SKIP 

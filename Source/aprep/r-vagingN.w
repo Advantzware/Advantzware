@@ -1527,6 +1527,7 @@ DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE str-tit4 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-tit5 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-line AS CHARACTER FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE str-line2 AS CHARACTER FORM "x(300)" NO-UNDO.
 DEFINE VARIABLE lPrintHead AS LOGICAL FORMAT "yes/no"  INITIAL yes.
 
 {sys/form/r-top5L3.f} 
@@ -1644,6 +1645,7 @@ DEFINE VARIABLE cslist AS CHARACTER NO-UNDO.
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+         str-line2 =  str-line2 + FILL(" ",ttRptSelected.FieldLength) + " " .
  END.
 
 
@@ -1652,11 +1654,13 @@ DEFINE VARIABLE cslist AS CHARACTER NO-UNDO.
                       STRING(period-days-1 + 1) + " - " + STRING(period-days-2,">>>9") + FILL(" ",8) +
                       STRING(period-days-2 + 1) + " - " + STRING(period-days-3,">>>9") + FILL(" ",8) +
                       STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +
-                      STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  
+                      STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + "       Payables"
     str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-                       "-----------------" + " " + "-----------------" + " "   
+                       "-----------------" + " " + "-----------------" + " " + "-----------------"  
      str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-                       "-----------------" + " " + "-----------------" + " " .
+                       "-----------------" + " " + "-----------------" + " " + "-----------------" .
+     str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                       "-----------------" + " " + "-----------------" + " " + "-----------------" .                  
 
 DO WITH FRAME {&FRAME-NAME}:
  EMPTY TEMP-TABLE w-sort.
@@ -1774,7 +1778,7 @@ ELSE VIEW FRAME r-top .
                         + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
                         + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
                         + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
-                        + " ".
+                        + " , Payables".
      IF NOT lPrintHead THEN
      PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
@@ -1804,75 +1808,10 @@ ELSE VIEW FRAME r-top .
           DO i = 1 TO 5:
             curr-t[6] = curr-t[6] + curr-t[i].
           END.
-
-          VIEW FRAME f-bot.
-          DOWN.
-
-          DISPLAY SPACE(10) lv-f-bot-hdr
-                  curr-t[1]
-                  curr-t[2]
-                  curr-t[3]
-                  curr-t[4]
-                  curr-t[5]
-                  curr-t[6]
-                  SKIP
-
-              WITH FRAME bot1 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200.
-
-          DISPLAY "PERCENTAGE COMPOSITION" SPACE(2)
-                  (curr-t[1] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-                  (curr-t[2] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-                  (curr-t[3] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-                  (curr-t[4] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-                  (curr-t[5] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-
-              WITH FRAME bot2 STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-ATTR-SPACE.
-
-          IF tb_excel THEN
-          DO:
-            PUT STREAM excel UNFORMATTED
-                SKIP(1).
-
-            IF ll-mult-curr THEN
-               PUT STREAM excel UNFORMATTED
-                   '"' "" '",'.
-
-                 excelheader = "," + "," +   "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
-                        + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
-                        + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
-                        + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
-                        + ",Total Payables,".
-
-                 PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-
-            PUT STREAM excel UNFORMATTED
-
-                '"' ""                                  '",'
-                '"' "CURR TOTALS"                       '",'
-                '"' ""                                  '",'
-                '"' STRING(curr-t[1],"$->>>,>>>,>>9.99") '",'
-                '"' STRING(curr-t[2],"$->>>,>>>,>>9.99") '",'
-                '"' STRING(curr-t[3],"$->>>,>>>,>>9.99") '",'
-                '"' STRING(curr-t[4],"$->>>,>>>,>>9.99") '",'
-                '"' STRING(curr-t[5],"$->>>,>>>,>>9.99") '",'
-                '"' STRING(curr-t[6],"$->>>,>>>,>>9.99") '",'
-                SKIP.
-
-            IF ll-mult-curr THEN
-               PUT STREAM excel UNFORMATTED
-                   '"' "" '",'.
-
-            PUT STREAM excel UNFORMATTED
-
-                '"' "PERCENTAGE COMPOSITION"            '",'
-                '"' ""                                  '",'
-                '"' STRING((curr-t[1] / t2) * 100,"->>>>>>>>>>9.99%") '",'
-                '"' STRING((curr-t[2] / t2) * 100,"->>>>>>>>>>9.99%") '",'
-                '"' STRING((curr-t[3] / t2) * 100,"->>>>>>>>>>9.99%") '",'
-                '"' STRING((curr-t[4] / t2) * 100,"->>>>>>>>>>9.99%") '",'
-                '"' STRING((curr-t[5] / t2) * 100,"->>>>>>>>>>9.99%") '",'
-                SKIP(1).
-          END.
+          
+           RUN pPrintTotals(lv-f-bot-hdr, curr-t[1],curr-t[2],curr-t[3],curr-t[4],curr-t[5],curr-t[6],str-line2) .
+           RUN pPrintTotals("PERCENTAGE COMPOSITION", (curr-t[1] / t2) * 100,(curr-t[2] / t2) * 100,(curr-t[3] / t2) * 100,(curr-t[4] / t2) * 100,(curr-t[5] / t2) * 100,0,str-line2) .
+         
        END.
 
        DO i = 1 TO 5:
@@ -1900,72 +1839,11 @@ ELSE VIEW FRAME r-top .
   DO i = 1 TO 5:
      grand-t[6] = grand-t[6] + grand-t[i].
   END.
+  
+  RUN pPrintTotals(lv-f-bot-hdr, grand-t[1],grand-t[2],grand-t[3],grand-t[4],grand-t[5],grand-t[6],str-line2) .
+  RUN pPrintTotals("PERCENTAGE COMPOSITION", (grand-t[1] / t3) * 100,(grand-t[2] / t3) * 100,(grand-t[3] / t3) * 100,(grand-t[4] / t3) * 100,(grand-t[5] / t3) * 100,0,str-line2) .
 
-  VIEW FRAME f-bot.
-  DOWN.
-
-  DISPLAY SPACE(10) lv-f-bot-hdr
-          grand-t[1]
-          grand-t[2]
-          grand-t[3]
-          grand-t[4]
-          grand-t[5]
-          grand-t[6]
-          skip
-
-      WITH FRAME bot3 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200.
-
-  DISPLAY "PERCENTAGE COMPOSITION" SPACE(2)
-          (grand-t[1] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
-          (grand-t[2] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
-          (grand-t[3] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
-          (grand-t[4] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
-          (grand-t[5] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
-
-      WITH FRAME b4 STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-ATTR-SPACE.
-
-  IF tb_excel THEN
-     DO:
-       PUT STREAM excel UNFORMATTED
-           SKIP(1).
-
-       /*IF ll-mult-curr THEN
-          PUT STREAM excel UNFORMATTED
-              '"' "" '",'.*/
-
-       PUT STREAM excel UNFORMATTED
-
-           '"' ""                                  '",' 
-           '"' "GRAND TOTALS"                      '",'
-           '"' ""                                  '",'
-           '"' STRING(grand-t[1],"$->>>,>>>,>>9.99") '",'
-           '"' STRING(grand-t[2],"$->>>,>>>,>>9.99") '",'
-           '"' STRING(grand-t[3],"$->>>,>>>,>>9.99") '",'
-           '"' STRING(grand-t[4],"$->>>,>>>,>>9.99") '",'
-           '"' STRING(grand-t[5],"$->>>,>>>,>>9.99") '",'
-           '"' STRING(grand-t[6],"$->>>,>>>,>>9.99") '",'
-           SKIP.
-
-       PUT STREAM excel UNFORMATTED
-           SKIP(1).
-
-       /*IF ll-mult-curr THEN
-          PUT STREAM excel UNFORMATTED
-              '"' "" '",'.*/
-
-       PUT STREAM excel UNFORMATTED
-
-           '"' ""                                  '",'
-           '"' "PERCENTAGE COMPOSITION"            '",'
-           '"' ""                                  '",'
-           '"' STRING((grand-t[1] / t3) * 100,"->>>>>>>>>>9.99%") '",'
-           '"' STRING((grand-t[2] / t3) * 100,"->>>>>>>>>>9.99%") '",'
-           '"' STRING((grand-t[3] / t3) * 100,"->>>>>>>>>>9.99%") '",'
-           '"' STRING((grand-t[4] / t3) * 100,"->>>>>>>>>>9.99%") '",'
-           '"' STRING((grand-t[5] / t3) * 100,"->>>>>>>>>>9.99%") '",'
-           SKIP.
-     END.
-
+ 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
@@ -2048,6 +1926,99 @@ PROCEDURE show-param :
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
   PAGE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintTotals C-Win 
+PROCEDURE pPrintTotals :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcHeader AS CHARACTER NO-UNDO .
+  DEFINE INPUT PARAMETER ipdValue1 AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipdValue2 AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipdValue3 AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipdValue4 AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipdValue5 AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipdValue6 AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipcStrLine AS CHARACTER NO-UNDO .
+  
+  DEFINE VARIABLE cDisplay AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+  DEFINE VARIABLE cTmpField AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.     
+
+cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.    
+
+  PUT ipcStrLine FORMAT "x(300)" SKIP .
+  
+  ASSIGN cDisplay = ""
+            cTmpField = ""
+            cVarValue = ""
+            cExcelDisplay = ""
+            cExcelVarValue = "".
+          
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                    CASE cTmpField:             
+                         WHEN "curr"      THEN cVarValue = "" .
+                         WHEN "vend"      THEN cVarValue = "".
+                         WHEN "vend-name" THEN cVarValue = "".
+                         WHEN "phone"     THEN cVarValue = "" .
+                         WHEN "type"      THEN cVarValue = "" .
+                         WHEN "term"      THEN cVarValue = "" .
+                         WHEN "inv"       THEN cVarValue = "" .
+                         WHEN "date"      THEN cVarValue = "" .
+                         WHEN "amt"       THEN cVarValue = "" .
+                         WHEN "day"       THEN cVarValue = "" .
+                         
+                    END CASE.
+                      
+                    cExcelVarValue = cVarValue.
+                    cDisplay = cDisplay + cVarValue +
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+            END.
+
+            IF ipcHeader EQ "PERCENTAGE COMPOSITION" THEN
+            DO:
+                cDisplay =  cDisplay + STRING(ipdValue1,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + 
+                     " " + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " +
+                     STRING(ipdValue5,"->>>>>>>>>>>9.99%") + " " .
+               cExcelDisplay = cExcelDisplay +  STRING(ipdValue1,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + "," +
+                            STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + "," +
+                            STRING(ipdValue5,"->>>>>>>>>>>9.99%")  .
+                            
+              PUT UNFORMATTED  SPACE(3) string(ipcHeader,"x(22)")  SUBSTRING(cDisplay,26,300) SKIP(1).
+             IF tb_excel THEN DO:
+                 PUT STREAM excel UNFORMATTED  
+                     ipcHeader + ' ,' + SUBSTRING(cExcelDisplay,4,300) SKIP(1).
+             END.             
+            END.
+            ELSE do:
+            cDisplay =  cDisplay + STRING(ipdValue1,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue2,"->,>>>,>>>,>>9.99") + 
+                     " " + STRING(ipdValue3,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
+                     STRING(ipdValue5,"->,>>>,>>>,>>9.99") + " " +  STRING(ipdValue6,"->,>>>,>>>,>>9.99").
+             cExcelDisplay = cExcelDisplay +  STRING(ipdValue1) + "," + STRING(ipdValue2) + "," +
+                            STRING(ipdValue3) + "," + STRING(ipdValue4) + "," +
+                            STRING(ipdValue5) + "," + STRING(ipdValue6) .   
+             
+             PUT UNFORMATTED SPACE(4) string(ipcHeader,"x(22)")  SUBSTRING(cDisplay,27,300) SKIP(1).
+             IF tb_excel THEN DO:
+                 PUT STREAM excel UNFORMATTED  
+                     ipcHeader + ' ,' + SUBSTRING(cExcelDisplay,4,300) SKIP(1).
+             END.
+            END.    
 
 END PROCEDURE.
 

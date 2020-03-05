@@ -573,12 +573,17 @@ PROCEDURE get-po-recs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR vcPONum AS INT NO-UNDO.
+   DEFINE VARIABLE vcPONum AS INTEGER NO-UNDO.
+   DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
    
    vcPONum = DYNAMIC-FUNCTION ('GetCurrentPO' IN h_b-po-inq).
+   iPOLine = DYNAMIC-FUNCTION ('GetPOLine'    IN h_b-po-inq).
 
    IF VALID-HANDLE(h_f-porec) THEN
-      RUN populate-tt IN h_f-porec (INPUT vcPONum).
+      RUN populate-tt IN h_f-porec(
+          INPUT vcPONum, 
+          INPUT iPOLine
+          ).
    
 END PROCEDURE.
 

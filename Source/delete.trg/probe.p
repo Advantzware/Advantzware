@@ -87,4 +87,11 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
+FOR EACH estCostHeader
+    WHERE estCostHeader.company EQ {&TABLENAME}.company
+    AND estCostHeader.estimateNo EQ {&TABLENAME}.est-no
+    AND estCostHeader.estCostHeaderID EQ INT64({&TABLENAME}.spare-char-2):
+    DELETE estCostHeader.    
+END.
+
 

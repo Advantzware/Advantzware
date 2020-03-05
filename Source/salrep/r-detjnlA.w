@@ -1384,7 +1384,7 @@ FOR EACH ttCustList
                               WHEN FIRST-OF(tt-report.key-04)
                                 OR tb_summary
           w-data.w-ord-no     WHEN NOT tb_summary
-          w-data.w-inv-no
+          w-data.w-inv-no FORMAT ">>>>>>9"
           w-qty
             (ACCUMULATE TOTAL BY tt-report.key-04 w-qty)
                               WHEN tb_summary @ w-qty 
@@ -1413,7 +1413,7 @@ FOR EACH ttCustList
                '"' cust.cr-rating '",'
                '"' w-data.w-inv-date '",' 
                '"' w-data.w-ord-no '",'
-               '"' w-data.w-inv-no '",' 
+               '"' w-data.w-inv-no FORMAT ">>>>>>9" '",' 
                '"' (IF tb_summary THEN (ACCUMULATE TOTAL BY tt-report.key-04 w-qty)
                     ELSE w-qty) '",' 
                '"' (IF tb_summary THEN (ACCUMULATE TOTAL BY tt-report.key-04 w-sq-ft)

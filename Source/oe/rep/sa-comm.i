@@ -73,7 +73,7 @@
           assign
            tt-report.key-01  = v-slsm[1]
            tt-report.key-02  = cust.cust-no
-           tt-report.key-03  = string(ar-inv.inv-no,"999999")
+           tt-report.key-03  = string(ar-inv.inv-no,"9999999")
            tt-report.key-10  = "ar-invl"
            tt-report.rec-id  = recid(ar-invl)
            tt-report.row-id  = ROWID(ar-invl).
@@ -157,7 +157,7 @@
             CREATE tt-report.
             ASSIGN
              tt-report.key-01 = v-slsm[1]
-             tt-report.key-03 = STRING(b-ar-invl.inv-no,"999999")
+             tt-report.key-03 = STRING(b-ar-invl.inv-no,"9999999")
              tt-report.row-id = ROWID(b-ar-invl)
              tt-report.key-02 = cust.cust-no
              tt-report.key-10 = "ar-cashl"
@@ -176,7 +176,7 @@
             create tt-report.
             assign
              tt-report.key-01 = cust.sman
-             tt-report.key-03 = string(ar-cashl.inv-no,"999999").
+             tt-report.key-03 = string(ar-cashl.inv-no,"9999999").
           end.
 
           if avail tt-report then
@@ -209,13 +209,13 @@
             assign
             v-head[2] =
                  "Rep Customer Name       Type     " +  STRING(rd_part-fg,"x(16)") +
-                 "Order#   Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
+                 "Order#    Inv#  Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
                  "mm Amt Comm Pct Ship To" .
         ELSE
             assign
             v-head[2] =
                  "Rep Customer Name       Group     " +  STRING(rd_part-fg,"x(16)") +
-                 "Order#   Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
+                 "Order#    Inv#  Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
                  "mm Amt Comm Pct Ship To" .
 
        v-head[3] = fill("-",143) /* 138/143 */ .
@@ -345,7 +345,7 @@
             IF AVAIL oe-boll THEN cWhse = oe-boll.loc.
         END.
 
-        IF ar-invl.t-cost NE 0 THEN
+        IF ar-invl.t-cost NE 0 THEN           
              v-cost = ar-invl.t-cost * v-slsp[1] / 100.
           
         /*when updating cost via A-U-1, bug where t-cost
@@ -588,21 +588,35 @@
 
       v-part-fg = IF rd_part-fg BEGINS "Cust" THEN v-cust-part ELSE v-i-no.
 
-     /* If 'full cost' selected and history full cost > zero, 
-        then print history full cost. */
-     IF v-full-cost = YES AND ar-invl.spare-dec-1 > 0 THEN DO:
-/*          ASSIGN v-cost = ar-invl.spare-dec-1. */
-         IF ar-invl.dscr[1] EQ "M" OR
-            ar-invl.dscr[1] EQ "" THEN
-             v-cost = ar-invl.spare-dec-1 * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
-         ELSE /*EA*/
-             v-cost = ar-invl.spare-dec-1 * ar-invl.inv-qty * v-slsp[1] / 100.
-
-             v-prof    = v-amt - v-cost.
-             IF v-prof EQ ? THEN v-prof = 0.
-             v-gp      = round(v-prof / v-amt * 100,2) .
-             if v-gp   eq ? then v-gp   = 0.
-     END.
+    /* If 'full cost' selected and history full cost > zero, then print history full cost. */
+    IF v-full-cost THEN DO:
+        ASSIGN 
+            deUseCost = 0.
+        IF ar-invl.spare-dec-1 GT 0 THEN ASSIGN 
+            deUseCost = ar-invl.spare-dec-1.
+        ELSE 
+        DO:
+            FIND c-itemfg NO-LOCK WHERE 
+                c-itemfg.company EQ ar-invl.company AND 
+                c-itemfg.i-no EQ ar-invl.i-no 
+                NO-ERROR.
+            IF AVAIL c-itemfg 
+            AND c-itemfg.spare-dec-1 NE 0 THEN ASSIGN 
+                deUseCost = c-itemfg.spare-dec-1.
+        END.
+        IF ar-invl.dscr[1] EQ "M" 
+        OR ar-invl.dscr[1] EQ "" 
+        OR (AVAIL c-itemfg AND c-itemfg.prod-uom EQ "M") THEN ASSIGN 
+            deUseCost = deUseCost * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
+        ELSE ASSIGN  /* EA */ 
+            deUseCost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100.
+        ASSIGN 
+            v-cost = deUseCost
+            v-prof = v-amt - deUseCost
+            v-prof = IF v-prof EQ ? THEN 0 ELSE v-prof
+            v-gp   = ROUND(v-prof / v-amt * 100 , 2)
+            v-gp   = IF v-gp EQ ? THEN 0 ELSE v-gp. 
+    END.
         
 
       if not v-sumdet then DO:
@@ -617,7 +631,7 @@
                 cust.TYPE               when first-of(tt-report.key-02) format "x(8)"
                 v-part-fg
                 v-ord-no
-                v-inv-no
+                v-inv-no FORMAT ">>>>>>9"
                 v-procat
                 v-qty                   format "->>>>>>>9"
                 v-amt                   format "->>>>>>>9.99"
@@ -661,7 +675,7 @@
                 cust.spare-char-2     when first-of(tt-report.key-02) format "x(8)" @ cust.TYPE    
                 v-part-fg
                 v-ord-no
-                v-inv-no
+                v-inv-no FORMAT ">>>>>>9"
                 v-procat
                 v-qty                   format "->>>>>>>9"
                 v-amt                   format "->>>>>>>9.99"

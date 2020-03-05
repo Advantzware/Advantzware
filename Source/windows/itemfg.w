@@ -483,7 +483,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/itemfg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_itemfg-2 ).
        RUN set-position IN h_itemfg-2 ( 4.81 , 9.00 ) NO-ERROR.
        RUN set-size IN h_itemfg-2 ( 17.14 , 144.00 ) NO-ERROR.
@@ -1391,8 +1395,10 @@ PROCEDURE local-change-page :
     
     /* Code placed here will execute PRIOR to standard behavior. */
     li-prev-page = li-current-page.
+    RUN set-attribute-list IN adm-broker-hdl ('PreviousPage = ' +  QUOTER(li-current-page) ).
     RUN get-attribute ("current-page").
-    li-current-page = INTEGER(RETURN-VALUE).         
+    li-current-page = INTEGER(RETURN-VALUE).    
+    RUN set-attribute-list IN adm-broker-hdl ('CurrentPage = ' +  QUOTER(li-current-page) ).     
 
     IF li-current-page EQ 8 AND lNewVendorItemCost THEN DO:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "IF"' ).

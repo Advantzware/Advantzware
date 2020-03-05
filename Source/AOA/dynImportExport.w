@@ -39,7 +39,7 @@ DEFINE OUTPUT PARAMETER oplRefresh AS LOGICAL NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE cDynamicParam   AS CHARACTER NO-UNDO INITIAL
-    "dynParamSet,dynParamSetDtl,dynParam".
+    "dynParam,dynParamSet,dynParamSetDtl".
 DEFINE VARIABLE cDynamicSubject AS CHARACTER NO-UNDO INITIAL
     "dynSubject,dynSubjectTable,dynSubjectWhere,dynSubjectColumn,dynSubjectParamSet,dynParamValue".
 DEFINE VARIABLE cFolder         AS CHARACTER NO-UNDO.

@@ -2320,7 +2320,7 @@ END FUNCTION.
                     cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE "" .
                      cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
                         + STRING(job-mch.job-no2) + "."
-                        + STRING(job-mch.job-mchID,"999999999")
+                        + STRING(job-mch.job-mchID,"9999999")
                         .
                    PUT "<R+0.5><C4>" job-mch.frm
                         "<C10>" job-mch.blank-no FORMAT ">>>" 

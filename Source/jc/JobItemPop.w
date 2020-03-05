@@ -64,7 +64,7 @@ ASSIGN
 &Scoped-define INTERNAL-TABLES tt-job-item
 
 /* Definitions for BROWSE BROWSE-3                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED tt-job-item.frm tt-job-item.blank-no tt-job-item.rm-i-no tt-job-item.mach-id
+&Scoped-define FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED tt-job-item.frm tt-job-item.blank-no tt-job-item.rm-i-no tt-job-item.mach-id tt-job-item.mat-alloc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 tt-job-item.IS-SELECTED  
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tt-job-item
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tt-job-item
@@ -133,6 +133,7 @@ DEFINE BROWSE BROWSE-3
     tt-job-item.blank-no FORMAT ">>>" COLUMN-LABEL "B" WIDTH 7
     tt-job-item.rm-i-no FORMAT "X(20)" 
     tt-job-item.mach-id FORMAT "x(20)"
+    tt-job-item.mat-alloc 
     
       ENABLE tt-job-item.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
@@ -180,6 +181,7 @@ ASSIGN
 
 IF ipcType EQ "job-mch" THEN DO:
     tt-job-item.rm-i-no:VISIBLE IN BROWSE BROWSE-3 = FALSE .
+    tt-job-item.mat-alloc:VISIBLE IN BROWSE BROWSE-3 = FALSE .
 END.
 ELSE tt-job-item.mach-id:VISIBLE IN BROWSE BROWSE-3 = FALSE .
 
@@ -207,12 +209,14 @@ and oe-ord.stat = ""D"""
 "tt-job-item.rm-i-no" ? ? "Character" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
      _FldNameList[5]   > tt-job-item.mach-id
 "tt-job-item.mach-id" ? ? "Character" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
+     _FldNameList[6]   > tt-job-item.mat-alloc
+"tt-job-item.mat-alloc" ? ? "Logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME 
 
  
-
+        
 
 
 /* ************************  Control Triggers  ************************ */
@@ -253,12 +257,33 @@ ON ROW-LEAVE OF BROWSE-3 IN FRAME Dialog-Frame
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define BROWSE-NAME BROWSE-3
+&Scoped-define SELF-NAME BROWSE-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
+ON ROW-DISPLAY OF BROWSE-3 IN FRAME Dialog-Frame
+DO:   
+    IF AVAIL tt-job-item THEN DO:
+        IF tt-job-item.mat-alloc = YES THEN DO:
+            tt-job-item.IS-SELECTED:BGCOLOR IN BROWSE {&BROWSE-NAME} = 2 .
+            tt-job-item.frm:BGCOLOR IN BROWSE {&BROWSE-NAME}  = 2 .
+            tt-job-item.blank-no:BGCOLOR IN BROWSE {&BROWSE-NAME} = 2 .
+            tt-job-item.rm-i-no:BGCOLOR IN BROWSE {&BROWSE-NAME} = 2 .            
+            tt-job-item.mat-alloc:BGCOLOR IN BROWSE {&BROWSE-NAME} = 2 .
+        END.
+        
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process Dialog-Frame
 ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
     DO:
         DEFINE VARIABLE v-process AS LOG NO-UNDO.
+        DEFINE VARIABLE lAskComm AS LOGICAL NO-UNDO.
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -267,6 +292,9 @@ ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
         i = 0 .
         FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
             i = i + 1.
+          IF tt-job-item.mat-alloc THEN
+          ASSIGN
+            lAskComm = YES .
         END.
 
         IF i = 0  THEN 
@@ -275,11 +303,18 @@ ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK .
             RETURN .
         END.
-
-
-        MESSAGE "Are you sure you want to " FRAME {&FRAME-NAME}:TITLE 
+        
+       IF lAskComm THEN
+       DO:
+             MESSAGE "Material is committed. Are you sure you want to " FRAME {&FRAME-NAME}:TITLE 
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        IF NOT v-process THEN RETURN NO-APPLY .
+            IF NOT v-process THEN RETURN NO-APPLY .
+       END.
+       ELSE do:
+          MESSAGE "Are you sure you want to " FRAME {&FRAME-NAME}:TITLE 
+                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+          IF NOT v-process THEN RETURN NO-APPLY .
+        END.
         
         APPLY 'GO' TO FRAME {&FRAME-NAME}.
     END.
@@ -418,6 +453,7 @@ PROCEDURE build-table :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEF VAR ll AS LOG NO-UNDO.    
     DO WITH FRAME {&FRAME-NAME}:
       EMPTY TEMP-TABLE tt-job-item . 
       IF ipcType EQ "job-mat" THEN do:
@@ -426,6 +462,8 @@ PROCEDURE build-table :
             AND job-mat.job-no = ipcJobNo 
             AND job-mat.job-no2 = ipiJobNo2 
             BY job-mat.frm BY job-mat.blank-no :
+            ll = NO .
+            /*RUN jc/maydeletejob-mat.p (BUFFER job-mat, OUTPUT ll).*/
        
             FIND FIRST tt-job-item WHERE tt-job-item.tt-rowid = ROWID(job-mat)
                 NO-ERROR.
@@ -436,7 +474,8 @@ PROCEDURE build-table :
                     tt-job-item.tt-rowid = ROWID(job-mat)
                     tt-job-item.frm      = job-mat.frm  
                     tt-job-item.blank-no = job-mat.blank-no
-                    tt-job-item.rm-i-no  = job-mat.rm-i-no .
+                    tt-job-item.rm-i-no  = job-mat.rm-i-no
+                    tt-job-item.mat-alloc = job-mat.all-flg.
             END.
         END.
       END. /* Job-mat*/

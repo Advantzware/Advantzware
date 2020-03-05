@@ -24,7 +24,7 @@ PUT "<FTimes New Roman>".
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" SKIP
-    "<=#3>          INVOICE#                    " ar-inv.inv-no
+    "<=#3>          INVOICE#                    " ar-inv.inv-no FORMAT ">>>>>>9"
     "<=#3><R+1>              DATE               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .

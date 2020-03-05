@@ -802,14 +802,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 v-printline = 29.
             END.
 
-            FIND FIRST oe-ordm WHERE oe-ordm.company EQ inv-misc.company        /*10011302*/
-                AND oe-ordm.ord-no EQ inv-misc.ord-no 
-                AND oe-ordm.charge EQ inv-misc.charge NO-LOCK NO-ERROR.
-
-
             PUT  "<C2>" inv-misc.po-no  FORMAT "x(16)".
-            IF AVAIL oe-ordm AND oe-ordm.spare-int-1 NE 0 THEN                   /*10011302*/
-                PUT "<C13>" oe-ordm.spare-int-4 FORMAT ">>>>9".
+            IF inv-misc.spare-int-4 NE 0 THEN                   
+                PUT "<C13>" inv-misc.spare-int-4 FORMAT ">>>>9".
             IF inv-misc.dscr NE "" THEN
                PUT "<C18>" inv-misc.dscr   FORMAT "x(30)".
             ELSE

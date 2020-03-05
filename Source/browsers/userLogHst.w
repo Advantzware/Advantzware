@@ -44,11 +44,11 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
-DEFINE VARIABLE dtStartDate AS DATETIME    NO-UNDO.
-DEFINE VARIABLE dtEndDate AS DATETIME    NO-UNDO.
+DEFINE VARIABLE dtStartDate AS DATETIME NO-UNDO.
+DEFINE VARIABLE dtEndDate AS DATETIME NO-UNDO.
 
 ASSIGN dtStartDate = TODAY
-       dtEndDate   = TODAY.
+       dtEndDate   = TODAY + 1.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -75,14 +75,14 @@ ASSIGN dtStartDate = TODAY
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.user_id ~
-userLog.userName userLog.sessionID userLog.LoginDateTime ~
-userLog.logoutDateTime userLog.EulaVersion userLog.IpAddress 
+userLog.userName userLog.userStatus userLog.mode userLog.LoginDateTime ~
+userLog.logoutDateTime userLog.IpAddress userLog.sessionID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
-      AND date(userLog.loginDateTime) >= date(dtStartDate) and date(userLog.loginDateTime) <= date(dtEndDate) NO-LOCK ~
+      AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
-      AND date(userLog.loginDateTime) >= date(dtStartDate) and date(userLog.loginDateTime) <= date(dtEndDate) NO-LOCK ~
+      AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table userLog
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table userLog
@@ -91,11 +91,12 @@ userLog.logoutDateTime userLog.EulaVersion userLog.IpAddress
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 fiStartingDate fiEndingDate btSearch ~
-Browser-Table browse-order auto_find Btn_Clear_Find btnCalendar-1 btnCalendar-2
+&Scoped-Define ENABLED-OBJECTS RECT-4 fiStartingDate btnCalendar-1 ~
+fiEndingDate btnCalendar-2 btSearch Browser-Table browse-order auto_find ~
+Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS fiStartingDate fiEndingDate browse-order ~
 auto_find 
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -108,6 +109,16 @@ auto_find
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -144,28 +155,18 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 99 BY 1.43.
 
-DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       userLog
     FIELDS(userLog.user_id
       userLog.userName
-      userLog.sessionID
+      userLog.userStatus
+      userLog.mode
       userLog.LoginDateTime
       userLog.logoutDateTime
-      userLog.EulaVersion
-      userLog.IpAddress) SCROLLING.
+      userLog.IpAddress
+      userLog.sessionID) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -173,16 +174,18 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       userLog.user_id FORMAT "X(12)":U
-      userLog.userName FORMAT "x(16)":U
-      userLog.sessionID FORMAT ">>>>>>>>>>":U
-      userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-      userLog.logoutDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-      userLog.EulaVersion FORMAT ">>9.99":U WIDTH 41.8
+      userLog.userName FORMAT "x(20)":U WIDTH 35.6
+      userLog.userStatus FORMAT "x(12)":U WIDTH 16.6
+      userLog.mode FORMAT "x(12)":U WIDTH 16.6
+      userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS AM":U WIDTH 30.8
+      userLog.logoutDateTime FORMAT "99/99/9999 HH:MM:SS AM":U
+            WIDTH 30.8
       userLog.IpAddress FORMAT "x(15)":U
+      userLog.sessionID FORMAT ">>>>>>>>>>":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 113 BY 16.43
-         FONT 2 ROW-HEIGHT-CHARS .57.
+    WITH NO-ASSIGN SEPARATORS SIZE 139 BY 16.43
+         FONT 2 ROW-HEIGHT-CHARS .71.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -237,7 +240,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 20.05
-         WIDTH              = 116.8.
+         WIDTH              = 142.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -284,13 +287,18 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate"
      _FldNameList[1]   = ASI.userLog.user_id
-     _FldNameList[2]   = ASI.userLog.userName
-     _FldNameList[3]   = ASI.userLog.sessionID
-     _FldNameList[4]   = ASI.userLog.LoginDateTime
-     _FldNameList[5]   = ASI.userLog.logoutDateTime
-     _FldNameList[6]   > ASI.userLog.EulaVersion
-"EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no "41.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.userLog.userName
+"userName" ? "x(20)" "character" ? ? ? ? ? ? no ? no no "35.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.userLog.userStatus
+"userStatus" ? "x(12)" "character" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.userLog.mode
+"mode" ? ? "character" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.userLog.LoginDateTime
+"LoginDateTime" ? "99/99/9999 HH:MM:SS AM" "datetime" ? ? ? ? ? ? no ? no no "30.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.userLog.logoutDateTime
+"logoutDateTime" ? "99/99/9999 HH:MM:SS AM" "datetime" ? ? ? ? ? ? no ? no no "30.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.userLog.IpAddress
+     _FldNameList[8]   = ASI.userLog.sessionID
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -346,6 +354,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fiStartingDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fiEndingDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btSearch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
 ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
@@ -358,6 +388,16 @@ END.
 
 
 &Scoped-define SELF-NAME fiEndingDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingDate B-table-Win
+ON HELP OF fiEndingDate IN FRAME F-Main /* Ending Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingDate B-table-Win
 ON LEAVE OF fiEndingDate IN FRAME F-Main /* Ending Date */
 DO:
@@ -380,6 +420,16 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
+ON HELP OF fiStartingDate IN FRAME F-Main /* Starting Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
 ON LEAVE OF fiStartingDate IN FRAME F-Main /* Starting Date */
 DO:
 /*  RUN local-open-query. */
@@ -387,48 +437,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiStartingDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
-ON HELP OF fiStartingDate IN FRAME F-Main /*  Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i fiStartingDate}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiEndingDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingDate B-table-Win
-ON HELP OF fiEndingDate IN FRAME F-Main /* Ack. Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
-ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i fiEndingDate}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
 
 
 &UNDEFINE SELF-NAME
@@ -443,6 +451,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+ASSIGN 
+    fiStartingDate:SCREEN-VALUE  = STRING(TODAY)
+    fiEndingDate:SCREEN-VALUE  = STRING(TODAY + 1).
+APPLY 'choose' TO btSearch.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

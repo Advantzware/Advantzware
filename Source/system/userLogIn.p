@@ -9,6 +9,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+DEFINE INPUT PARAMETER ipcMode  AS CHAR NO-UNDO.
 DEFINE OUTPUT PARAMETER oplExit AS LOGICAL       NO-UNDO.
 
 DEFINE VARIABLE lAnswer         AS LOGICAL       NO-UNDO.
@@ -26,6 +27,8 @@ DEFINE VARIABLE cCurrentUserID  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponse       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lLogMeIn        AS LOG NO-UNDO.
 DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
+DEFINE VARIABLE lStrongDisconnect AS LOG NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
@@ -36,6 +39,20 @@ DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
 {system/sysconst.i}
 
 /* ***************************  Main Block  *************************** */
+
+
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE GetCurrentProcessId EXTERNAL "kernel32.dll":
+/*------------------------------------------------------------------------------
+ Purpose: Gets the current process ID of this session on the user's machine
+ Notes:   Required by logout when user chooses "Log out other sessions"
+------------------------------------------------------------------------------*/
+    DEFINE RETURN PARAMETER ppid AS LONG NO-UNDO.
+
+END PROCEDURE.
+
 ASSIGN
     cocode = gcompany
     locode = gloc
@@ -48,9 +65,12 @@ ASSIGN
         WHERE sys-ctrl.name EQ "enforceUserCount"
         NO-ERROR.
     IF AVAILABLE sys-ctrl THEN ASSIGN 
-        lEnforceUserCount = sys-ctrl.log-fld NO-ERROR.
+        lEnforceUserCount = sys-ctrl.log-fld 
+        lStrongDisconnect = sys-ctrl.int-fld EQ 1
+        NO-ERROR.
     ELSE ASSIGN  
-        lEnforceUserCount = TRUE.
+        lEnforceUserCount = TRUE
+        lStrongDisconnect = FALSE.
     
     FIND FIRST sys-ctrl NO-LOCK 
         WHERE sys-ctrl.name EQ "promptMultiSession"
@@ -69,7 +89,9 @@ ASSIGN
             MESSAGE 
                 "User Control Record was not found.  Exiting application."
                 VIEW-AS ALERT-BOX.
-            QUIT.
+            ASSIGN 
+                oplExit = TRUE.
+            RETURN.
         END. 
     END.
 
@@ -84,9 +106,29 @@ ASSIGN
             VIEW-AS ALERT-BOX ERROR.
         ASSIGN 
             oplExit = TRUE.
+        RETURN.
     END.
+    ELSE IF users.isLocked THEN DO:
+        MESSAGE
+            "Your Advantzware account has been locked." SKIP
+            "Please contact a Systems Administrator."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            oplExit = TRUE.
+        RETURN.
+    END.
+/*    NOT IN USE AT THIS TIME                                      */
+/*    ELSE IF NOT users.isActive THEN DO:                          */
+/*        MESSAGE                                                  */
+/*            "Your Advantzware account has been inactivated." SKIP*/
+/*            "Please contact a Systems Administrator."            */
+/*            VIEW-AS ALERT-BOX ERROR.                             */
+/*        ASSIGN                                                   */
+/*            oplExit = TRUE.                                      */
+/*        RETURN.                                                  */
+/*    END.                                                         */
     ELSE ASSIGN  
-            cUserName = users.user_name.
+        cUserName = users.user_name.
 
 /* Verify user has "signed" the EULA agreement */
     cEulaFile = SEARCH("{&EulaFile}").
@@ -142,8 +184,12 @@ ASSIGN
         CASE cResponse:
             WHEN "" THEN ASSIGN     /* First time, or user wants multiple sessions */ 
                 lLogMeIn = TRUE.
-            WHEN "Exit Application" THEN ASSIGN     /* User bails out */
-                oplExit = TRUE.          
+            WHEN "Exit Application" THEN DO:
+                ASSIGN     /* User bails out */
+                    lLogMeIn = FALSE 
+                    oplExit = TRUE.
+                RETURN.
+            END.          
             WHEN "Log Out Other Sessions" THEN DO TRANSACTION:  /* User wants other sessions logged out */
                 ASSIGN 
                     lLogMeIn = TRUE.
@@ -151,8 +197,30 @@ ASSIGN
                     userLog.userStatus EQ "Logged In" AND  
                     userLog.user_id EQ cCurrentUserID AND 
                     userLog.sessionID NE igsSessionID:
+/*                    /* Check for record locks - comment this out until it becomes an issue with DB crash */                                                         */
+/*                    IF CAN-FIND (FIRST asi._lock WHERE asi._lock._lock-usr EQ userlog.asiUsrNo)          */
+/*                    /* Crappy auditing has a lock when main menu is up */                                */
+/*                    /* OR CAN-FIND (FIRST audit._lock WHERE audit._lock._lock-usr EQ userlog.audUsrNo) */*/
+/*                    THEN DO:                                                                             */
+/*                        MESSAGE                                                                          */
+/*                            "You have records locked in another session. Please" SKIP                    */
+/*                            "reopen the minimized ASI session and either complete" SKIP                  */
+/*                            "the open transaction, return to the main menu, or" SKIP                     */
+/*                            "manually exit that session to resolve this issue."                          */
+/*                            VIEW-AS ALERT-BOX ERROR.                                                     */
+/*                        ASSIGN                                                                           */
+/*                            lLogMeIn = FALSE                                                             */
+/*                            oplExit = TRUE.                                                              */
+/*                        RETURN.                                                                          */
+/*                    END.                                                                                 */
                     RUN system/userLogout.p (YES, userLog.sessionID).
-                END.            
+                    /* This is still experimental.  If NK1 "enforceUserCount" integer value is set to 1, this line will 
+                    "kill" any open sessions on user's workstation.  Risk is if run on server with RDP, AND multiple users have same
+                    user-id, will/may also kill other users' sessions.  Unknown without further testing, so do not recommend this be set
+                    in the field */
+                    IF lStrongDisconnect THEN 
+                        OS-COMMAND SILENT VALUE("taskkill /f /pid " + STRING(userlog.processID)).         
+                END.   
             END.
         END CASE.
     END.
@@ -187,10 +255,13 @@ ASSIGN
     END. 
 
 IF NOT oplExit THEN DO TRANSACTION:
+    RUN GetCurrentProcessID (OUTPUT ppid).
     CREATE userLog.
     ASSIGN 
         userLog.user_id         = cCurrentUserID       
-        userLog.sessionID       = igsSessionID 
+        userLog.sessionID       = igsSessionID
+        userlog.mode            = ipcMode 
+        userlog.processID       = ppid
         userLog.userName        = cUserName
         userLog.IpAddress       = OS-GETENV("userDomain")
         userLog.deviceName      = OS-GETENV("computerName")  + (IF AVAIL(asi._myconnection) THEN "-" + STRING(asi._myconnection._myconn-userid) ELSE "")
@@ -198,7 +269,11 @@ IF NOT oplExit THEN DO TRANSACTION:
         userLog.logoutDateTime  = ?
         userLog.userStatus      = "Logged In"
         userLog.loginDateTime   = DATETIME(TODAY, MTIME)
-        userLog.rec_key         = ?
+        userLog.rec_key         = STRING(YEAR(TODAY),"9999") + 
+                                  STRING(MONTH(TODAY),"99") + 
+                                  STRING(DAY(TODAY),"99") + 
+                                  STRING(TIME,"99999") + 
+                                  STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
         userLog.dbDisconnect    = FALSE
         userLog.userDisconnect  = FALSE 
         userLog.notifyLocked    = ?

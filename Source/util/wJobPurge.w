@@ -65,10 +65,10 @@ ASSIGN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiDate rsOpen fiStartJob fiEndJob rsPurge ~
-btn-process btn-cancel eHelp 
-&Scoped-Define DISPLAYED-OBJECTS fiText-2 fiDate rsOpen fiStartJob fiEndJob ~
-fiText-3 rsPurge fiText1 eHelp 
+&Scoped-Define ENABLED-OBJECTS fiDate rsOpen fiStartJob fiStartJob2 ~
+fiEndJob fiEndJob2 rsPurge btn-process btn-cancel eHelp 
+&Scoped-Define DISPLAYED-OBJECTS fiText-2 fiDate rsOpen fiStartJob ~
+fiStartJob2 fiEndJob fiEndJob2 fiText-3 rsPurge fiText1 eHelp 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -104,12 +104,20 @@ DEFINE VARIABLE fiDate AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(6)":U 
      LABEL "TO" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 11.6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiEndJob2 AS INTEGER FORMAT "99":U INITIAL 99 
+     VIEW-AS FILL-IN 
+     SIZE 4.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiStartJob AS CHARACTER FORMAT "X(6)":U 
      LABEL "(Optional) Job Range - FROM" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 11.6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiStartJob2 AS INTEGER FORMAT "99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 4.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiText-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Purge all jobs and related records where:" 
      VIEW-AS FILL-IN 
@@ -145,8 +153,10 @@ DEFINE FRAME DEFAULT-FRAME
      fiDate AT ROW 2.67 COL 39 COLON-ALIGNED
      rsOpen AT ROW 4.1 COL 6 NO-LABEL
      fiStartJob AT ROW 5.29 COL 39 COLON-ALIGNED
-     fiEndJob AT ROW 5.29 COL 58 COLON-ALIGNED
-     fiText-3 AT ROW 5.29 COL 74 NO-LABEL NO-TAB-STOP 
+     fiStartJob2 AT ROW 5.29 COL 50.8 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiEndJob AT ROW 5.29 COL 60.2 COLON-ALIGNED
+     fiEndJob2 AT ROW 5.29 COL 72 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiText-3 AT ROW 5.29 COL 79 NO-LABEL NO-TAB-STOP 
      rsPurge AT ROW 6.71 COL 6 NO-LABEL
      btn-process AT ROW 7.19 COL 75
      btn-cancel AT ROW 8.86 COL 75
@@ -241,6 +251,54 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON HELP OF FRAME DEFAULT-FRAME /* job purge */
+DO:
+DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ls-cur-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+   lw-focus = FOCUS.
+
+   CASE lw-focus:NAME :
+
+       WHEN "fiStartJob" THEN DO:             
+           RUN system/openlookup.p (cocode, "job-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+           fiStartJob:SCREEN-VALUE = cFoundValue.            
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
+       WHEN "fiStartJob2" THEN DO:
+           ls-cur-val = fiStartJob:SCREEN-VALUE.
+           RUN windows/l-jobno2.w (cocode,ls-cur-val,FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT recFoundRecID).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(2,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
+       WHEN "fiEndJob" THEN DO:             
+           RUN system/openlookup.p (cocode, "job-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+           fiEndJob:SCREEN-VALUE = cFoundValue.            
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
+       WHEN "fiEndJob2" THEN DO:
+           ls-cur-val = fiEndJob:SCREEN-VALUE.
+           RUN windows/l-jobno2.w (cocode,ls-cur-val,FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT recFoundRecID).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(2,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/ 
+       
+   END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Purge Jobs */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
@@ -293,6 +351,14 @@ DO:
             VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
     END.
+    
+    IF integer(fiStartJob2:SCREEN-VALUE) GT  INTEGER(fiEndJob2:SCREEN-VALUE) THEN
+    DO:
+          MESSAGE 
+            "Start job2 is less than end job2. Please correct."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
 
     MESSAGE 
         "Are you sure you want to " + TRIM(c-win:TITLE) +
@@ -314,17 +380,19 @@ DO:
                 
             IF fiEndJob:SCREEN-VALUE NE "" THEN  DO: 
                 IF (job.job-no LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR job.job-no GT fiEndJob:SCREEN-VALUE)
+                    OR job.job-no GT fiEndJob:SCREEN-VALUE
+                    OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
+                    OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE))    
                 AND TRIM(job.job-no) NE "" THEN 
                     NEXT.
             END.
-            
+                
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
                 RUN purge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
             ELSE 
-                RUN PrePurge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
+                RUN PrePurge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).   
         END.
     END.
     ELSE DO: /* Closed and open jobs, full table scan */
@@ -336,7 +404,9 @@ DO:
             
             IF fiEndJob:SCREEN-VALUE NE "" THEN DO: 
                 IF (job.job-no LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR job.job-no GT fiEndJob:SCREEN-VALUE)
+                    OR job.job-no GT fiEndJob:SCREEN-VALUE
+                    OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
+                    OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE)) 
                 AND TRIM(job.job-no) NE "" THEN 
                     NEXT.
             END.
@@ -388,6 +458,39 @@ DO:
             DO:
                 MESSAGE 
                     "Start job is less than end job. Please correct."
+                    VIEW-AS ALERT-BOX WARNING.
+            END.  
+        END.
+    END CASE.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiStartJob2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartJob2 C-Win
+ON LEAVE OF fiStartJob2 IN FRAME DEFAULT-FRAME /* job2 */
+OR LEAVE OF fiEndJob2
+DO:
+    CASE SELF:NAME: 
+        WHEN 'fiStartJob2' THEN DO:            
+            IF SELF:SCREEN-VALUE NE "" 
+            AND integer(fiEndJob2:SCREEN-VALUE) NE 0 
+            AND integer(SELF:SCREEN-VALUE) GT INTEGER(fiEndJob2:SCREEN-VALUE) THEN DO:
+                MESSAGE 
+                    "Start job2 is greater than end job2. Please correct."
+                    VIEW-AS ALERT-BOX WARNING.
+            END.  
+        END.
+        WHEN 'fiEndJob2' THEN DO:             
+            IF SELF:SCREEN-VALUE NE "" 
+                AND integer(fiStartJob2:SCREEN-VALUE) NE 0 
+                AND INTEGER(SELF:SCREEN-VALUE) LT integer(fiStartJob:SCREEN-VALUE) THEN 
+            DO:
+                MESSAGE 
+                    "Start job2 is greater than end job2. Please correct."
                     VIEW-AS ALERT-BOX WARNING.
             END.  
         END.
@@ -495,10 +598,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText-2 fiDate rsOpen fiStartJob fiEndJob fiText-3 rsPurge fiText1 
-          eHelp 
+  DISPLAY fiText-2 fiDate rsOpen fiStartJob fiStartJob2 fiEndJob fiEndJob2 
+          fiText-3 rsPurge fiText1 eHelp 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE fiDate rsOpen fiStartJob fiEndJob rsPurge btn-process btn-cancel eHelp 
+  ENABLE fiDate rsOpen fiStartJob fiStartJob2 fiEndJob fiEndJob2 rsPurge 
+         btn-process btn-cancel eHelp 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

@@ -97,18 +97,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 68 ROW 2.91
          SIZE 83 BY 1.43
+         BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15  WIDGET-ID 100.
 
 
@@ -310,8 +310,8 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Current|Settings|History|Password' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 131.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 147.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -326,17 +326,20 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/userlog.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_userlog ).
-       RUN set-position IN h_userlog ( 5.52 , 6.80 ) NO-ERROR.
-       RUN set-size IN h_userlog ( 17.86 , 115.00 ) NO-ERROR.
+          INPUT  '':U ,
+          OUTPUT h_userlog ).
+       RUN set-position IN h_userlog ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_userlog ( 19.29 , 140.00 ) NO-ERROR.
+       /* Position in AB:  ( 4.81 , 4.00 ) */
+       /* Size in UIB:  ( 19.29 , 140.00 ) */ 
+/*    Save these, they get overwritten a log */    
+/*      RUN set-position IN h_userlog ( 4.81 , 4.00 ) NO-ERROR.*/
+/*      RUN set-size IN h_userlog ( 19.29 , 140.00 ) NO-ERROR. */
 
-       /* Links to SmartNavBrowser h_userlog. */
+
+       /* Links to  h_userlog. */
        RUN add-link IN adm-broker-hdl ( h_userlog , 'Record':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_userlog ,
-             h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -344,7 +347,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_usercontrol ).
-       RUN set-position IN h_usercontrol ( 5.76 , 6.00 ) NO-ERROR.
+       RUN set-position IN h_usercontrol ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 13.57 , 111.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -362,7 +365,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_quserctrl ).
-       RUN set-position IN h_quserctrl ( 9.57 , 112.00 ) NO-ERROR.
+       RUN set-position IN h_quserctrl ( 5.05 , 132.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.86 , 10.80 ) */
 
        /* Links to SmartViewer h_usercontrol. */
@@ -381,7 +384,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_userloghst ).
-       RUN set-position IN h_userloghst ( 5.29 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_userloghst ( 4.81 , 3.00 ) NO-ERROR.
        RUN set-size IN h_userloghst ( 19.52 , 114.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
@@ -394,7 +397,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_password ).
-       RUN set-position IN h_password ( 5.05 , 26.00 ) NO-ERROR.
+       RUN set-position IN h_password ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 11.48 , 48.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

@@ -3036,7 +3036,7 @@ PROCEDURE pRunFormatValueChanged :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         
-        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,jobcardf 1,jobcardf 2") > 0 THEN
+        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE = YES.
         ELSE  ASSIGN tb_fgimage:SENSITIVE = NO.
         IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2") > 0 THEN
@@ -3168,7 +3168,7 @@ PROCEDURE pRunFormatValueChanged :
                     ELSE
                         revsn_no:HIDDEN IN FRAME FRAME-A = NO .
 
-                        tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Valley,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
+                        tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Valley,Fluted,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
                         IF NOT tb_prt-set-header:SENSITIVE THEN
                             tb_prt-set-header:SCREEN-VALUE = "no".
                    

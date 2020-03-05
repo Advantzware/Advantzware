@@ -136,6 +136,32 @@ PROCEDURE pIsValidCustPartID:
 
 END PROCEDURE.
 
+PROCEDURE pIsValidCustPartIDNonFG:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cust Part ID 
+     Notes: Input 1 = Cust Part Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWith2Criteria.i  
+        &ValidateTable = "cust-part" 
+        &ValidateField1 = "part-no" 
+        &ValidateField2 = "cust-no"
+        &ValidateMessage = "Cust Part ID"}
+
+END PROCEDURE.
+
+PROCEDURE pIsValidCustPartFromEst:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cust Part ID 
+     Notes: Input 1 = Estimate Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWith2Criteria.i  
+        &ValidateTable = "eb" 
+        &ValidateField1 = "est-no" 
+        &ValidateField2 = "part-no"
+        &ValidateMessage = "Cust Part ID on estimate"}
+
+END PROCEDURE.
+
 PROCEDURE pIsValidEstID:
     /*------------------------------------------------------------------------------
      Purpose:  Validates Estimate No

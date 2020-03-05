@@ -13,7 +13,9 @@ DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem FOR item.
 DEF BUFFER b-ref1  FOR reftable.
 DEF BUFFER b-ref2  FOR reftable.
-
+def var cWinScpXmlLog as char.
+def stream sReadLog.
+def stream sLogFileTest.
 {po/po-print.i}
 {po/getPoAdders.i}
 
@@ -705,9 +707,42 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     RUN po/ftppo.p (v-outfile[4],"HRMS"). 
     MESSAGE "HRMS file:" TRIM(v-outfile[3]) "has been created" 
             VIEW-AS ALERT-BOX.
+cWinScpXmlLog = v-outfile[4] + ".xml".
+   run checkXmlLogResult.            
   END.
 
   PAUSE 1 NO-MESSAGE.
 END. /* for each po-ord record */
 
+PROCEDURE checkXmlLogResult:
+    DEFINE VARIABLE cLogLine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lTransferSuccess AS LOGICAL NO-UNDO.
+    lTransferSuccess = FALSE.
+    // To ensure process has finished
+    pause 1. 
+    IF SEARCH(cWinscpXmlLog) NE ? THEN DO:
+        lTransferSuccess = FALSE.
+        INPUT STREAM sReadLog FROM VALUE(SEARCH(cWinscpXmlLog)).
+        REPEAT:
+            cLogLine = "".
+            IMPORT STREAM sReadLog UNFORMATTED cLogLine.
+            IF INDEX(cLogLine, "Result") GT 0 AND INDEX(cLogLine, "success") GT 0 THEN DO:
+                IF INDEX(cLogLine, "true") GT 0 THEN DO:
+                    lTransferSuccess = TRUE.
+                END.
+            END. 
+        END. /* repeat */
+        INPUT STREAM sReadLog CLOSE.
+
+
+        
+    END.
+    output stream sLogFileTest to value("n:\environments\prod\custfiles\logs\TestXmlLog.txt") append.
+    put stream sLogFileTest unformatted cWinScpXmlLog " " string(lTransferSuccess) skip.
+    
+            IF NOT lTransferSuccess THEN 
+           MESSAGE "Warning: The purchase order was not transmitted."
+                   VIEW-AS ALERT-BOX.
+    output stream sLogFileTest close.
+END PROCEDURE.
 /* end ----------------------------------- Copr. 2004  Advanced Software Inc. */

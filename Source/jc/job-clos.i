@@ -59,7 +59,7 @@ DEF VAR ll-set AS LOG NO-UNDO.
       END.
 
       IF NOT ll-set THEN
-        IF itemfg.isaset                                                    AND
+        IF AVAILABLE itemfg AND itemfg.isaset AND
            CAN-FIND(FIRST reftable
                     WHERE reftable.reftable EQ "jc/jc-calc.p"
                       AND reftable.company  EQ job.company

@@ -1068,7 +1068,12 @@ DO:
               IF char-val <> "" THEN oe-ord.tax-gr:screen-value = ENTRY(1,char-val).
          END.
          WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company,g_loc,oe-ord.carrier:screen-value, OUTPUT char-val).
+              FIND FIRST shipto NO-LOCK 
+                  WHERE shipto.company EQ g_company 
+                  AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+                  AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+                  NO-ERROR.
+              RUN windows/l-carrie.w (g_company,(IF AVAIL shipto THEN shipto.loc ELSE ""),oe-ord.carrier:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN oe-ord.carrier:screen-value = ENTRY(1,char-val).
          END.
          WHEN "terms" THEN DO:

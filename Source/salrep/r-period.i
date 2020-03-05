@@ -515,7 +515,7 @@
       ld-amt-msf = w-inv.amt / w-inv.msf.
       IF ld-amt-msf EQ ? THEN ld-amt-msf = 0.
 
-      display w-inv.inv-no label "Inv #"
+      display w-inv.inv-no format ">>>>>>9" label "Inv #"
               w-inv.inv-date
               w-inv.pst-date
               w-inv.cust-no
@@ -526,7 +526,7 @@
 
      IF tb_excel THEN  
        EXPORT STREAM excel DELIMITER ","
-              w-inv.inv-no 
+              w-inv.inv-no  format ">>>>>>9" 
               w-inv.inv-date 
               w-inv.pst-date 
               w-inv.cust-no 

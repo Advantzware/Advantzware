@@ -18,6 +18,8 @@ DEFINE VARIABLE cAppServerName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAppServerPort   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNameServerName  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNameServerPort  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIIPAddress    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIPort         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cResourceStatusRunning AS CHARACTER NO-UNDO INITIAL "Running".
 DEFINE VARIABLE cResourceStatusStopped AS CHARACTER NO-UNDO INITIAL "Stopped".
@@ -59,6 +61,8 @@ PROCEDURE AdvantzwareMonitor_Initialize:
     DEFINE INPUT PARAMETER ipcAppServerPort   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNameServerName  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNameServerPort  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAPIIPAddress    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAPIPort         AS CHARACTER NO-UNDO.
     
     ASSIGN
         cDLC             = ipcDLC            
@@ -68,6 +72,8 @@ PROCEDURE AdvantzwareMonitor_Initialize:
         cAppServerPort   = ipcAppServerPort  
         cNameServerName  = ipcNameServerName 
         cNameServerPort  = ipcNameServerPort 
+        cAPIIPAddress    = ipcAPIIPAddress 
+        cAPIPort         = ipcAPIPort
         .
 END PROCEDURE.
 
@@ -116,12 +122,32 @@ PROCEDURE pGetNodeStatus PRIVATE:
     DEFINE INPUT  PARAMETER ipcNodePort AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcStatus   AS CHARACTER NO-UNDO.
         
-    DEFINE VARIABLE cCommand AS CHARACTER NO-UNDO. 
-
+    DEFINE VARIABLE cCommand   AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE lcResponse AS LONGCHAR  NO-UNDO.
+    
     opcStatus = cResourceStatusStopped. 
 
 /*    cCommand = "POWERSHELL GET-PROCESS -ID (GET-NETTCPCONNECTION -LOCALPORT " + ipcNodePort + ").OWNINGPROCESS".*/
-    cCommand = "netstat -an -p tcp".
+/*    cCommand = "netstat -an -p tcp".*/
+    
+    IF SEARCH("curl.exe") EQ ? THEN DO:
+        MESSAGE "curl not found! Unable to find node status"
+            VIEW-AS ALERT-BOX ERROR. 
+        RETURN.
+    END.
+
+    /* curl parameter connect-timout is used to set the timeout to establish a 
+       connection with url. If establishing a connection with url exceeds the
+       set time, curl should terminate the process and exit. In this case the
+       timeout is set to 0.1 seconds or 100 milliseconds */
+    /* api/getnodestatus is the dummy api, that is going to return the status as 
+       "Running" if node is running. This response will return from node itself,
+       so no AppServer brokers are blocked in the process */    
+    cCommand = SEARCH("curl.exe") + ' --connect-timeout 0.1 --insecure' + ' '
+              + '-H "Content-Type: application/json"' + ' '
+              + 'http://' + cAPIIPAddress
+              + (IF cAPIPort NE '' THEN ":" + cAPIPort ELSE "")
+              + '/api/getnodestatus'.
 
     RUN OS_RunCommand IN hdOSProcs (
         INPUT  cCommand,             /* Command string to run */
@@ -137,15 +163,11 @@ PROCEDURE pGetNodeStatus PRIVATE:
     IF SEARCH(cPathDataFile) = ? THEN
         RETURN.
 
-    INPUT FROM VALUE(cPathDataFile).
-    REPEAT:
-        IMPORT UNFORMATTED cLine.
+    COPY-LOB FILE cPathDataFile TO lcResponse.
 
-        IF cLine MATCHES "*:" + ipcNodePort + "*" AND cLine MATCHES "*LISTENING*" THEN
-           opcStatus = cResourceStatusRunning.
-    END.
-    INPUT CLOSE.
-    
+    IF lcResponse MATCHES "*200*" AND lcResponse MATCHES "*Running*" THEN
+       opcStatus = cResourceStatusRunning.
+
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 

@@ -187,7 +187,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     form header
          skip(7)
          v-hdr[1]
-         ar-inv.inv-no         to 66
+         ar-inv.inv-no         to 66 FORMAT ">>>>>>9"
          ar-inv.inv-date       to 77  FORMAT "99/99/99" 
          skip(3)
          v-hdr[2]
@@ -221,7 +221,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     form header
          skip(10)
          v-hdr[1]
-         ar-inv.inv-no         to 66
+         ar-inv.inv-no         to 66 FORMAT ">>>>>>9"
          ar-inv.inv-date       to 77 FORMAT "99/99/99" 
          skip(3)
          v-hdr[2]
@@ -253,7 +253,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     form header
          skip(11)
          v-hdr[1]
-         ar-inv.inv-no         to 66
+         ar-inv.inv-no         to 66 FORMAT ">>>>>>9"
          ar-inv.inv-date       to 77 FORMAT "99/99/99" 
          skip(3)
          v-hdr[2]

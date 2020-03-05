@@ -584,7 +584,7 @@ DO:
                         IF NOT AVAILABLE item THEN FIND FIRST item WHERE item.company = rm-rctd.company AND
                                 item.i-no = entry(2,char-val)
                                 NO-LOCK NO-ERROR.
-                        IF v-bin NE "user entered" THEN
+                        IF v-bin NE "user entered" AND v-bin EQ "RMITEM"  THEN
                           ASSIGN 
                             rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
                             rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
@@ -600,7 +600,7 @@ DO:
                                  sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
                                  sys-ctrl.char-fld = "RMITEM".
                             END.*/
-                            IF v-bin NE "user entered" THEN
+                            IF v-bin NE "user entered" AND v-bin NE "RMITEM" THEN
                             ASSIGN 
                                 rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
                         END.
@@ -2781,6 +2781,8 @@ PROCEDURE local-cancel-record :
         v-copy-mode       = NO
         v-copy-mode-dec-1 = NO
         v-new-mode        = NO.
+    
+    EMPTY TEMP-TABLE tt-rm-rctd .
 
 END PROCEDURE.
 
@@ -2877,11 +2879,11 @@ PROCEDURE local-create-record :
           sys-ctrl.char-fld = "RMITEM".
         END.*/
 
-  IF v-bin NE "user entered" THEN
+  IF v-bin NE "user entered" AND v-bin NE "RMITEM" THEN
     ASSIGN
         rm-rctd.loc-bin = SUBSTR(v-bin,6)
         rm-rctd.loc = SUBSTR(v-bin,1,5).
-    
+       
         FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
             AND b-rm-rctd.rita-code = "R"
             AND recid(b-rm-rctd) <> RECID(rm-rctd) NO-LOCK NO-ERROR.
@@ -3548,7 +3550,7 @@ PROCEDURE update-ttt :
     ------------------------------------------------------------------------------*/
 
     FIND FIRST tt-rm-rctd NO-ERROR.
-
+    DEFINE BUFFER bff-item FOR ITEM .
     IF AVAILABLE tt-rm-rctd THEN 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -3556,6 +3558,14 @@ PROCEDURE update-ttt :
             rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} = tt-rm-rctd.i-no
             rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(tt-rm-rctd.qty)
             tt-rm-rctd.tt-rowid                                 = ROWID(rm-rctd).
+            
+            FIND FIRST bff-item NO-LOCK
+                 WHERE bff-item.company = cocode 
+                   AND bff-item.i-no = tt-rm-rctd.i-no NO-ERROR.
+                IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
+                       ASSIGN 
+                            rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
+                            rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
     END.
 
 END PROCEDURE.
@@ -4385,18 +4395,7 @@ FUNCTION display-adder RETURNS DECIMAL
                     WHERE item.company  EQ job-mat.company
                     AND item.i-no     EQ job-mat.i-no
                     AND item.mat-type EQ "A":
-         
-                    FIND FIRST e-item NO-LOCK
-                        WHERE e-item.company EQ rm-rctd.company
-                        AND e-item.i-no    EQ rm-rctd.i-no
-                        NO-ERROR.
-         
-                    FIND FIRST e-item-vend NO-LOCK
-                        WHERE e-item-vend.company EQ item.company
-                        AND e-item-vend.i-no    EQ item.i-no
-                        AND e-item-vend.vend-no EQ po-ord.vend-no
-                        NO-ERROR.
-         
+                    
                     ASSIGN 
                         v-len = display-dimension('L')
                         v-wid = display-dimension('W').
@@ -4410,60 +4409,7 @@ FUNCTION display-adder RETURNS DECIMAL
                         ASSIGN
                             v-basis-w = item-1.basis-w
                             v-dep     = item-1.s-dep.
-
-                    IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
-                    DO:
-                        IF rm-rctd.pur-uom EQ e-item.std-uom THEN
-                            v-qty-comp = rm-rctd.qty.
-                        ELSE
-                            RUN custom/convquom.p (cocode,
-                                rm-rctd.pur-uom, e-item.std-uom,
-                                v-basis-w, v-len, v-wid, v-dep,
-                                rm-rctd.qty,
-                                OUTPUT v-qty-comp).
-                        v-setup = 0.
-
-                        EMPTY TEMP-TABLE tt-eiv.
-                        CREATE tt-eiv.
-                        DO i = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[i]  = e-item-vend.run-qty[i]
-                                tt-eiv.run-cost[i] = e-item-vend.run-cost[i]
-                                tt-eiv.setups[i]   = e-item-vend.setups[i].
-                        END.
-         
-                        
-                        IF AVAILABLE e-item-vend THEN
-                        DO:                            
-          
-                            DO i = 1 TO 10:
-                                ASSIGN
-                                    tt-eiv.run-qty[i + 10]  = e-item-vend.runQtyXtra[i]
-                                    tt-eiv.run-cost[i + 10] = e-item-vend.runCostXtra[i]
-                                    tt-eiv.setups[i + 10]   = e-item-vend.setupsXtra[i].
-                            END.
-                        END.
-
-                        DO i = 1 TO 20:
-                            IF v-qty-comp LE tt-eiv.run-qty[i] THEN
-                                LEAVE.
-                        END.
-        
-                        ASSIGN
-                            v-setup = tt-eiv.setups[i]
-                            v-cost  = IF v-qty-comp NE 0 THEN ((tt-eiv.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp
-                     ELSE 0.
-
-                        /* This adds the Adder cost in */
-                        IF e-item.std-uom NE v-uom THEN
-                            RUN custom/convcuom.p (cocode,
-                                e-item.std-uom, v-uom, job-mat.basis-w,
-                                job-mat.len, job-mat.wid, v-dep,
-                                v-cost, OUTPUT v-cost).
-                    END.
-        
-                    ELSE 
-                    DO:
+                   
                         v-cost = job-mat.std-cost.
 
                         IF job-mat.sc-uom NE v-uom THEN
@@ -4471,7 +4417,6 @@ FUNCTION display-adder RETURNS DECIMAL
                                 job-mat.sc-uom, v-uom, job-mat.basis-w,
                                 job-mat.len, job-mat.wid, v-dep,
                                 job-mat.std-cost, OUTPUT v-cost).
-                    END.
          
                     v-add-cost = v-add-cost + v-cost.
                 END.
@@ -4560,17 +4505,6 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                     AND item.i-no     EQ job-mat.i-no
                     AND item.mat-type EQ "A":
          
-                    FIND FIRST e-item NO-LOCK
-                        WHERE e-item.company EQ rm-rctd.company
-                        AND e-item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-ERROR.
-         
-                    FIND FIRST e-item-vend NO-LOCK
-                        WHERE e-item-vend.company EQ item.company
-                        AND e-item-vend.i-no    EQ item.i-no
-                        AND e-item-vend.vend-no EQ po-ord.vend-no
-                        NO-ERROR.
-         
                     ASSIGN 
                         v-len = display-dimension-screen('L')
                         v-wid = display-dimension-screen('W').
@@ -4584,62 +4518,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                         ASSIGN
                             v-basis-w = item-1.basis-w
                             v-dep     = item-1.s-dep.
-
-                    IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
-                    DO:
-                        IF rm-rctd.pur-uom:SCREEN-VALUE EQ e-item.std-uom THEN
-                            v-qty-comp = DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
-                        ELSE
-                            RUN custom/convquom.p (cocode,
-                                rm-rctd.pur-uom:SCREEN-VALUE, e-item.std-uom,
-                                v-basis-w, v-len, v-wid, v-dep,
-                                DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                OUTPUT v-qty-comp).
-            
-        
-                        v-setup = 0.
-                        EMPTY TEMP-TABLE tt-eiv.
-                        CREATE tt-eiv.
-                        DO i = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[i]  = e-item-vend.run-qty[i]
-                                tt-eiv.run-cost[i] = e-item-vend.run-cost[i]
-                                tt-eiv.setups[i]   = e-item-vend.setups[i].
-                        END.
-          
-                        
-          
-                        IF AVAILABLE e-item-vend THEN
-                        DO:                            
-          
-                            DO i = 1 TO 10:
-                                ASSIGN
-                                    tt-eiv.run-qty[i + 10]  = e-item-vend.runQtyXtra[i]
-                                    tt-eiv.run-cost[i + 10] = e-item-vend.runCostXtra[i]
-                                    tt-eiv.setups[i + 10]   = e-item-vend.setupsXtra[i].
-                            END.
-                        END.
-
-                        DO i = 1 TO 20:
-                            IF v-qty-comp LE tt-eiv.run-qty[i] THEN
-                                LEAVE.
-                        END.
-        
-                        ASSIGN
-                            v-setup = tt-eiv.setups[i]
-                            v-cost  = IF v-qty-comp NE 0 THEN ((tt-eiv.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp
-                     ELSE 0.
-
-                        /* This adds the Adder cost in */
-                        IF e-item.std-uom NE v-uom THEN
-                            RUN custom/convcuom.p (cocode,
-                                e-item.std-uom, v-uom, job-mat.basis-w,
-                                job-mat.len, job-mat.wid, v-dep,
-                                v-cost, OUTPUT v-cost).
-                    END.
-        
-                    ELSE 
-                    DO:
+                   
                         v-cost = job-mat.std-cost.
 
                         IF job-mat.sc-uom NE v-uom THEN
@@ -4647,7 +4526,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                                 job-mat.sc-uom, v-uom, job-mat.basis-w,
                                 job-mat.len, job-mat.wid, v-dep,
                                 job-mat.std-cost, OUTPUT v-cost).
-                    END.
+                   
          
                     v-add-cost = v-add-cost + v-cost.
                 END.

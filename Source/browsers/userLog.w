@@ -46,6 +46,10 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cLogoutFolder   AS CHARACTER NO-UNDO.
+DEF VAR iCtr AS INT NO-UNDO.
+DEFINE BUFFER bUserLog FOR userlog.
+DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
+
 DEFINE STREAM sLogOut.
 RUN sys/ref/nk1look.p (INPUT g_company, "UserControl", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
@@ -57,7 +61,8 @@ RUN sys/ref/nk1look.p (INPUT g_company, "UserControl", "C" /* Character*/,
 IF lRecFound THEN 
     cLogoutFolder = cReturnChar  .
 IF SEARCH( cLogoutFolder) EQ ? THEN 
-    OS-CREATE-DIR VALUE( cLogoutFolder).    
+    OS-CREATE-DIR VALUE( cLogoutFolder).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -83,7 +88,9 @@ IF SEARCH( cLogoutFolder) EQ ? THEN
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.user_id ~
-userLog.userName userLog.sessionID userLog.LoginDateTime userLog.IpAddress 
+userLog.userName userLog.mode userLog.userStatus userLog.LoginDateTime ~
+userLog.asiUsrNo userLog.asiPID userLog.audUsrNo userLog.audPID ~
+userLog.IpAddress userLog.sessionID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
       AND userLog.logoutDateTime = ? NO-LOCK ~
@@ -99,8 +106,8 @@ userLog.userName userLog.sessionID userLog.LoginDateTime userLog.IpAddress
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find btDelSelected 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+Btn_Clear_Find btDelSelected btRefresh 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fiTotal 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -116,27 +123,36 @@ Btn_Clear_Find btDelSelected
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btDelSelected 
      LABEL "Delete" 
-     SIZE 15 BY 1.14.
+     SIZE 12 BY 1.14.
 
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
      FONT 4.
 
+DEFINE BUTTON btRefresh 
+     LABEL "Refresh" 
+     SIZE 12 BY 1.14.
+
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiTotal AS INTEGER FORMAT ">>>9":U INITIAL 0 
+     LABEL "Current" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
+
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 99 BY 1.43.
+     SIZE 92 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -144,9 +160,15 @@ DEFINE QUERY Browser-Table FOR
       userLog
     FIELDS(userLog.user_id
       userLog.userName
-      userLog.sessionID
+      userLog.mode
+      userLog.userStatus
       userLog.LoginDateTime
-      userLog.IpAddress) SCROLLING.
+      userLog.asiUsrNo
+      userLog.asiPID
+      userLog.audUsrNo
+      userLog.audPID
+      userLog.IpAddress
+      userLog.sessionID) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -154,13 +176,19 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       userLog.user_id FORMAT "X(12)":U
-      userLog.userName FORMAT "x(16)":U
-      userLog.sessionID FORMAT ">>>>>>>>>>":U
-      userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      userLog.userName FORMAT "x(20)":U WIDTH 35.6
+      userLog.mode FORMAT "x(12)":U WIDTH 16.6
+      userLog.userStatus FORMAT "x(12)":U WIDTH 16.6
+      userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS AM":U
+      userLog.asiUsrNo FORMAT ">>>>>>>9":U WIDTH 13.8
+      userLog.asiPID FORMAT ">>>>>>>9":U
+      userLog.audUsrNo FORMAT ">>>>>>>9":U WIDTH 14.2
+      userLog.audPID FORMAT ">>>>>>>9":U
       userLog.IpAddress FORMAT "x(15)":U
+      userLog.sessionID FORMAT ">>>>>>>>>>":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS MULTIPLE SIZE 115 BY 16.43
+    WITH NO-ASSIGN SEPARATORS MULTIPLE SIZE 139 BY 16.43
          FONT 2 ROW-HEIGHT-CHARS .71.
 
 
@@ -171,11 +199,13 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 17.67 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 17.67 COL 52 COLON-ALIGNED HELP
+     auto_find AT ROW 17.67 COL 44 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.67 COL 86 HELP
+     Btn_Clear_Find AT ROW 17.67 COL 79 HELP
           "CLEAR AUTO FIND Value"
-     btDelSelected AT ROW 17.67 COL 101 WIDGET-ID 2
+     fiTotal AT ROW 17.67 COL 101 COLON-ALIGNED
+     btDelSelected AT ROW 17.67 COL 113 WIDGET-ID 2
+     btRefresh AT ROW 17.67 COL 126
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 17.67 COL 2
      RECT-4 AT ROW 17.43 COL 1
@@ -212,7 +242,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 115.
+         WIDTH              = 139.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -237,7 +267,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -245,6 +275,11 @@ ASSIGN
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2".
+
+/* SETTINGS FOR FILL-IN fiTotal IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiTotal:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -259,10 +294,22 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "userLog.logoutDateTime = ?"
      _FldNameList[1]   = ASI.userLog.user_id
-     _FldNameList[2]   = ASI.userLog.userName
-     _FldNameList[3]   = ASI.userLog.sessionID
-     _FldNameList[4]   = ASI.userLog.LoginDateTime
-     _FldNameList[5]   = ASI.userLog.IpAddress
+     _FldNameList[2]   > ASI.userLog.userName
+"userName" ? "x(20)" "character" ? ? ? ? ? ? no ? no no "35.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.userLog.mode
+"mode" ? ? "character" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.userLog.userStatus
+"userStatus" ? "x(12)" "character" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.userLog.LoginDateTime
+"LoginDateTime" ? "99/99/9999 HH:MM:SS AM" "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.userLog.asiUsrNo
+"asiUsrNo" ? ? "integer" ? ? ? ? ? ? no ? no no "13.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   = ASI.userLog.asiPID
+     _FldNameList[8]   > ASI.userLog.audUsrNo
+"audUsrNo" ? ? "integer" ? ? ? ? ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   = ASI.userLog.audPID
+     _FldNameList[10]   = ASI.userLog.IpAddress
+     _FldNameList[11]   = ASI.userLog.sessionID
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -312,6 +359,16 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+    ASSIGN 
+        iCtr = 0.
+    FOR EACH bUserLog NO-LOCK WHERE 
+        bUserLog.userStatus EQ "Logged In":
+        ASSIGN 
+            iCtr = iCtr + 1.
+    END.
+    ASSIGN 
+        fiTotal:SCREEN-VALUE IN FRAME {&frame-name} = STRING(iCtr,">>>9").
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,19 +405,50 @@ DO:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
         IF AVAIL userLog THEN DO:
+            IF userlog.processId EQ ppid THEN DO:
+                MESSAGE 
+                    "You cannot disconnect your current session."
+                    VIEW-AS ALERT-BOX WARNING.
+                NEXT.
+            END.
             
           RUN system/userLogout.p (YES, userLog.sessionID).
-             
-          FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
-                  NO-ERROR.
-          IF AVAIL bf-userLog THEN
-            DELETE bf-userlog.
              
         END. /* if avail userlog */
       END. /* do li ... */
       RUN dispatch ('open-query').
     END. /* if lAns */
   END. /* do with frame ... */
+
+    ASSIGN iCtr = 0.
+    FOR EACH bUserLog NO-LOCK WHERE 
+        bUserLog.userStatus EQ "Logged In":
+        ASSIGN 
+            iCtr = iCtr + 1.
+    END.
+    ASSIGN 
+        fiTotal:SCREEN-VALUE IN FRAME {&frame-name} = STRING(iCtr,">>>9").
+
+END. /* end trigger block */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btRefresh
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRefresh B-table-Win
+ON CHOOSE OF btRefresh IN FRAME F-Main /* Refresh */
+DO:
+    RUN dispatch ('open-query').
+
+    ASSIGN iCtr = 0.
+    FOR EACH bUserLog NO-LOCK WHERE 
+        bUserLog.userStatus EQ "Logged In":
+        ASSIGN 
+            iCtr = iCtr + 1.
+    END.
+    ASSIGN 
+        fiTotal:SCREEN-VALUE IN FRAME {&frame-name} = STRING(iCtr,">>>9").
 
 END. /* end trigger block */
 
@@ -378,7 +466,7 @@ END. /* end trigger block */
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+    RUN GetCurrentProcessID (OUTPUT ppid).
 {methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -427,6 +515,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    ASSIGN 
+        iCtr = 0.
+    FOR EACH bUserLog NO-LOCK WHERE 
+        bUserLog.userStatus EQ "Logged In":
+        ASSIGN 
+            iCtr = iCtr + 1.
+    END.
+    ASSIGN 
+        fiTotal = iCtr.
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -444,6 +563,9 @@ PROCEDURE local-open-query :
   APPLY "entry" TO BROWSE {&browse-name}.
   IF USERID(LDBNAME(1)) NE "ASI" THEN
     DISABLE btDelSelected.
+
+
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -491,3 +613,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE GetCurrentProcessId EXTERNAL "kernel32.dll":
+    /*------------------------------------------------------------------------------
+     Purpose: Gets the current process ID of this session on the user's machine
+     Notes:   Required by logout when user chooses "Log out other sessions"
+    ------------------------------------------------------------------------------*/
+    DEFINE RETURN PARAMETER ppid AS LONG NO-UNDO.
+
+END PROCEDURE.

@@ -21,7 +21,7 @@ PUT "<P10><=#3>" SKIP
     "<=#3> Customer ID   Invoice#"
     "<=#3><R+2> Telephone         Fax" 
     "<=#3><R+4> Contact                Invoice Date"    
-    "<=3><R+1> " ar-inv.cust-no  space(8) ar-inv.inv-no FORM ">>>>>9"
+    "<=3><R+1> " ar-inv.cust-no  space(8) ar-inv.inv-no FORM ">>>>>>9"
     "<=3><R+3> " cust.area-code + cust.phone format "(999) 999-9999" space(4) cust.fax
     "<=3><R+5> " cust.contact FORM "x(22)" SPACE (3) v-inv-date .
 

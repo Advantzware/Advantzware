@@ -45,7 +45,7 @@ find first carrier no-lock no-error.
        
 format header
        skip(5)
-       trim(string(ar-inv.inv-no,">>>>>>"))     at 70
+       trim(string(ar-inv.inv-no,">>>>>>>"))     at 70
        skip(1)
        ar-inv.inv-date      format "99/99/99"   at 70
        skip(1)

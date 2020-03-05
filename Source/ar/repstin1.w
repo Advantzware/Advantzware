@@ -258,7 +258,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" 
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>":U
       
       ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
       ar-inv.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U

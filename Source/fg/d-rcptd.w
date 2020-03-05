@@ -1525,6 +1525,38 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fg-rctd.po-line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-line Dialog-Frame
+ON VALUE-CHANGED OF fg-rctd.po-line IN FRAME Dialog-Frame /* PO Ln# */
+DO:
+    
+        IF LASTKEY NE -1  THEN  DO:
+          IF SELF:modified AND SELF:screen-value <> "" THEN DO:          
+            FIND FIRST po-ordl NO-LOCK
+                WHERE po-ord.company EQ cocode
+                  AND po-ordl.po-no EQ INTEGER(fg-rctd.po-no:screen-value)
+                  AND po-ordl.LINE EQ INTEGER(fg-rctd.po-line:SCREEN-VALUE)
+                 NO-ERROR.
+             IF AVAIL po-ordl THEN
+             DO:  
+              ASSIGN 
+                
+                fg-rctd.i-no:SCREEN-VALUE    = po-ordl.i-no  
+                fg-rctd.i-name:SCREEN-VALUE  = po-ordl.i-name
+                fg-rctd.job-no:SCREEN-VALUE  = po-ordl.job-no
+                fg-rctd.job-no2:SCREEN-VALUE = string(po-ordl.job-no2) .
+               RUN pDisplayPO(YES).   
+               RUN pGetLocBin .
+             END.
+          END.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME fg-rctd.po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
 ON ENTRY OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
@@ -1994,6 +2026,7 @@ PROCEDURE create-from-po :
                 fg-rctd.std-cost
                 fg-rctd.ext-cost
                 fg-rctd.frt-cost
+                fg-rctd.po-line
                     WITH FRAME {&FRAME-NAME}.
             IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
             DO:
@@ -2001,6 +2034,8 @@ PROCEDURE create-from-po :
                 RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
                 fg-rctd.tag = v-next-tag.
             END.
+            ELSE fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE .
+            
             IF rwRowid EQ ? THEN
                 rwRowid = ROWID(fg-rctd) .
             RELEASE fg-rctd.

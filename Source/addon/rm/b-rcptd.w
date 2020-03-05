@@ -656,6 +656,7 @@ DO:
             FIND FIRST bpo-ordl NO-LOCK
                  WHERE bpo-ordl.company EQ g_company
                    AND bpo-ordl.po-no EQ loadtag.po-no
+                   AND bpo-ordl.LINE EQ loadtag.LINE
                    AND bpo-ordl.job-no EQ loadtag.job-no
                    AND bpo-ordl.job-no2 EQ loadtag.job-no2
                    AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
@@ -725,6 +726,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
+   DEFINE VARIABLE cTagNo AS CHARACTER NO-UNDO.
   /*
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tag NO-ERROR.
@@ -736,44 +738,16 @@ DO:
   END.
   */
 
-    IF LASTKEY = -1 THEN RETURN.
-
-    FIND FIRST br-tmp WHERE br-tmp.company = g_company 
-                        AND br-tmp.tag = SELF:SCREEN-VALUE
-                        AND SELF:SCREEN-VALUE <> ""
-                        AND br-tmp.rita-code <> "P"
-                        AND RECID(br-tmp) <> RECID(rm-rctd)
-                        NO-LOCK NO-ERROR.
-    IF AVAIL br-tmp THEN DO:
-       MESSAGE "This Tag Number Has Already Been Used." skip
-               "Please Enter A Unique Tag Number." 
-           VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-    END.
-    ELSE DO:
-        IF lv-do-what <> "Delete" THEN DO:
-          find first xrm-rdtlh
-                 where xrm-rdtlh.company   eq g_company
-                   and xrm-rdtlh.loc       eq rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                   and xrm-rdtlh.tag       eq rm-rctd.tag:SCREEN-VALUE
-                   AND xrm-rdtlh.tag <> ""
-                   and xrm-rdtlh.qty       gt 0
-                   and xrm-rdtlh.rita-code ne "S"
-                 use-index tag no-lock no-error.
-          if avail xrm-rdtlh THEN  DO:
-                 MESSAGE "This Tag Number Has Already Been Used." skip
-                         "Please Enter A Unique Tag Number." 
-                         VIEW-AS ALERT-BOX ERROR.
-                 RETURN NO-APPLY.
-          END.
-        END.
+    IF LASTKEY = -1 THEN RETURN.       
+    
         RUN valid-tag NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
         IF lv-do-what = "delete" THEN DO:
            RUN valid-delete-tag NO-ERROR.
            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         END.
-        {addon/loadtags/disptagr.i "RMItem" rm-rctd.tag:SCREEN-VALUE}
+        cTagNo = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+        {addon/loadtags/disptagr.i "RMItem" cTagNo }
       
         IF lv-do-what EQ "Delete" THEN DO:
             FIND FIRST rm-bin
@@ -791,6 +765,7 @@ DO:
         FIND FIRST bpo-ordl NO-LOCK
              WHERE bpo-ordl.company EQ g_company
                AND bpo-ordl.po-no EQ loadtag.po-no
+               AND bpo-ordl.LINE EQ loadtag.LINE
                AND bpo-ordl.job-no EQ loadtag.job-no
                AND bpo-ordl.job-no2 EQ loadtag.job-no2
                AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
@@ -798,13 +773,13 @@ DO:
         rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
         IF lv-do-what EQ 'Delete' THEN
         rm-rctd.qty:SCREEN-VALUE = STRING(DEC(rm-rctd.qty:SCREEN-VALUE) * -1).
-        APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.
         
-        IF NOT v-ssrmscan THEN do:
-          APPLY "row-leave" TO BROWSE {&browse-name}.
+        IF v-ssrmscan THEN
+          APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.         
+        ELSE IF NOT v-ssrmscan THEN do:
+          APPLY "row-leave" TO BROWSE {&browse-name}.    
           RETURN NO-APPLY.
-        END.
-    END.
+        END.       
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2875,6 +2850,45 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
+DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST br-tmp WHERE br-tmp.company = g_company 
+        AND br-tmp.tag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+        AND SELF:SCREEN-VALUE <> ""
+        AND br-tmp.rita-code <> "P"
+        AND RECID(br-tmp) <> RECID(rm-rctd)
+        NO-LOCK NO-ERROR.
+    IF AVAIL br-tmp THEN 
+    DO:
+        MESSAGE "This Tag Number Has Already Been Used." skip
+            "Please Enter A Unique Tag Number." 
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
+        RETURN ERROR.
+    END.
+    ELSE 
+    DO:
+        IF lv-do-what <> "Delete" THEN 
+        DO:
+            find first xrm-rdtlh
+                where xrm-rdtlh.company   eq g_company
+                and xrm-rdtlh.loc       eq rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                and xrm-rdtlh.tag       eq rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+                AND xrm-rdtlh.tag <> ""
+                and xrm-rdtlh.qty       gt 0
+                and xrm-rdtlh.rita-code ne "S"
+                use-index tag no-lock no-error.
+            if avail xrm-rdtlh THEN  
+            DO:
+                MESSAGE "This Tag Number Has Already Been Used." skip
+                    "Please Enter A Unique Tag Number." 
+                    VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
+                RETURN ERROR.
+            END.
+        END. 
+    END.
+
   IF rmrecpt-int EQ 1 THEN DO:
     FIND FIRST loadtag WHERE loadtag.company = g_company
                          AND loadtag.item-type = YES
@@ -2886,7 +2900,7 @@ PROCEDURE valid-tag :
        RETURN ERROR.
     END.
   END.
-    
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

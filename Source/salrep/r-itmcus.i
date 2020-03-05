@@ -109,7 +109,7 @@
                                        DAY(ar-inv.inv-date),"99999999")
            xtt-report.key-04  = ar-invl.po-no
            xtt-report.key-05  = v-ship
-           xtt-report.key-06  = string(ar-invl.inv-no,"999999")
+           xtt-report.key-06  = string(ar-invl.inv-no,"9999999")
            xtt-report.key-07  = v-sman-no
            xtt-report.key-09  = tt-report.key-09.
          LEAVE.
@@ -132,7 +132,7 @@
                                  (MONTH(ar-cash.check-date) * 100) +
                                  DAY(ar-cash.check-date),"99999999")
        tt-report.key-05 = tt-report.key-09
-       tt-report.key-06 = string(ar-cashl.inv-no,"999999")
+       tt-report.key-06 = string(ar-cashl.inv-no,"9999999")
        tt-report.key-07 = cust.sman.
       
       release ar-inv.

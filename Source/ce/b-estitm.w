@@ -121,7 +121,8 @@ ASSIGN cocode = gcompany
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
-DEF TEMP-TABLE tt-eb LIKE eb FIELD row-id AS ROWID INDEX row-id row-id.
+{ce/tt-eb.i}
+  
 DEF TEMP-TABLE tt-est-op LIKE est-op.
 
 {est/inksvarn.i NEW}
@@ -211,25 +212,25 @@ ef.f-col ef.f-pass ef.f-coat ef.f-coat-p eb.pur-man est.est-date
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br-estitm eb
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br-estitm ef
 &Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-br-estitm est
-&Scoped-define QUERY-STRING-br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
-  AND ef.est-no = est-qty.est-no ~
-  AND ef.eqty = est-qty.eqty NO-LOCK, ~
-      EACH eb WHERE eb.company = ef.company ~
-  AND eb.est-no = ef.est-no ~
-  AND eb.form-no = ef.form-no NO-LOCK ~
+&Scoped-define QUERY-STRING-br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
+  AND eb.est-no = est-qty.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = eb.company ~
+  AND ef.est-no = eb.est-no ~
+  AND ef.eqty = est-qty.eqty ~
+  AND ef.form-no = eb.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no
-&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
-  AND ef.est-no = est-qty.est-no ~
-  AND ef.eqty = est-qty.eqty NO-LOCK, ~
-      EACH eb WHERE eb.company = ef.company ~
-  AND eb.est-no = ef.est-no ~
-  AND eb.form-no = ef.form-no NO-LOCK ~
+&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
+  AND eb.est-no = est-qty.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = eb.company ~
+  AND ef.est-no = eb.est-no ~
+  AND ef.eqty = est-qty.eqty ~
+  AND ef.form-no = eb.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no.
-&Scoped-define TABLES-IN-QUERY-br-estitm ef eb
-&Scoped-define FIRST-TABLE-IN-QUERY-br-estitm ef
-&Scoped-define SECOND-TABLE-IN-QUERY-br-estitm eb
+&Scoped-define TABLES-IN-QUERY-br-estitm eb ef
+&Scoped-define FIRST-TABLE-IN-QUERY-br-estitm eb
+&Scoped-define SECOND-TABLE-IN-QUERY-br-estitm ef
 
 
 /* Definitions for FRAME Corr                                           */
@@ -303,8 +304,8 @@ FUNCTION display-cw-dim RETURNS DECIMAL
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br-estitm FOR 
-      ef, 
-      eb SCROLLING.
+      eb, 
+      ef SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -1723,7 +1724,9 @@ PROCEDURE assign-qty :
 
   IF est.est-type EQ 2 THEN
   FOR EACH bf-eb OF est WHERE ROWID(bf-eb) NE ROWID(eb):
-    bf-eb.bl-qty = eb.bl-qty.
+    ASSIGN 
+        bf-eb.bl-qty = eb.bl-qty
+        bf-eb.yld-qty = eb.bl-qty.
   END.
 
   FIND bf-est-qty WHERE /*recid(bf-est-qty) = recid(est-qty)*/
@@ -4688,19 +4691,22 @@ PROCEDURE mass-delete :
         WHERE b-eb.company EQ eb.company
           AND b-eb.est-no  EQ eb.est-no
           AND (lv-delete   EQ "est"                                  OR
-               (lv-delete  EQ "form" AND b-eb.form-no EQ eb.form-no) OR
-               (lv-delete  EQ "blank" AND ROWID(b-eb) EQ ROWID(eb)))
+               (lv-delete  EQ "form" AND b-eb.form-no EQ eb.form-no))
         NO-LOCK:
       CREATE tt-eb.
       BUFFER-COPY b-eb TO tt-eb
       ASSIGN
        tt-eb.row-id = ROWID(b-eb).
     END.
-
-    FOR EACH tt-eb:
-      RUN repo-query (tt-eb.row-id).
-      IF AVAIL eb THEN RUN dispatch ("delete-record").
-    END.  
+    RUN est/ItemDeleteSelection.w (
+        INPUT-OUTPUT TABLE tt-eb
+        ).
+    FOR EACH tt-eb 
+        WHERE tt-eb.selected:
+        RUN repo-query (tt-eb.row-id).
+        IF AVAILABLE eb THEN 
+            RUN dispatch ("delete-record").
+    END.
   END.
 
   ll-mass-del = NO.

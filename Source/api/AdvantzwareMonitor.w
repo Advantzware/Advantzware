@@ -45,6 +45,8 @@ DEFINE SHARED VARIABLE cIniLoc AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdAdvantzwareMonitorProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cColumnHandles            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDLCDir                   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIIPAddress             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIPort                  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAdminServerPort          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAppServerPort            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAppServerName            AS CHARACTER NO-UNDO.
@@ -78,7 +80,9 @@ RUN AdvantzwareMonitor_Initialize IN hdAdvantzwareMonitorProcs (
     INPUT cAppServerName,
     INPUT cAppServerPort,
     INPUT cNameServerName,
-    INPUT cNameServerPort
+    INPUT cNameServerPort,
+    INPUT cAPIIPAddress,
+    INPUT cAPIPort
     ).
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,11 +425,13 @@ ON VALUE-CHANGED OF BROWSE-10 IN FRAME DEFAULT-FRAME
 DO:
     ASSIGN
         btStart:SENSITIVE = AVAILABLE serverResource AND 
-                            serverResource.resourceStatus EQ "Stopped"
+                            serverResource.resourceStatus EQ "Stopped" AND
+                            serverResource.resourceType   NE "Node"
         btStop:SENSITIVE  = AVAILABLE serverResource  AND 
                             serverResource.resourceStatus EQ "Running" AND
                             serverResource.resourceType NE "AdminServer" AND
-                            serverResource.resourceType NE "ASI"
+                            serverResource.resourceType NE "ASI" AND
+                            serverResource.resourceType NE "Node"
         .
 END.
 
@@ -778,7 +784,7 @@ PROCEDURE pFetchAPIElements :
     
     /* Create the temp-table and load var names */
     cIniVarList = "# Setup Variables,DLCDir,hostname,
-                   # API Elements,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,
+                   # API Elements,apiIPAddress,apiPort,adminPort,nameServerName,nameServerPort,appServerName,appServerPort,
                    # ASI Login Items,modeList".
     
     EMPTY TEMP-TABLE ttIniFile.
@@ -826,6 +832,10 @@ PROCEDURE pFetchAPIElements :
             cNameServerName = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "NameServerPort" THEN
             cNameServerPort = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "apiIPAddress" THEN
+            cAPIIPAddress = ttIniFile.cVarValue.
+        IF ttIniFile.cVarName EQ "apiPort" THEN
+            cAPIPort = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "hostname" THEN
             cServerHostName = ttIniFile.cVarValue.
         IF ttIniFile.cVarName EQ "modeList" THEN
@@ -938,6 +948,8 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
             cCommandParamResource = "RFID Monitor".
         WHEN "jobXML" THEN
             cCommandParamResource = "Esko Monitor".
+        WHEN "Schedule" THEN
+            cCommandParamResource = "Schedule Monitor".
         OTHERWISE
             "".
     END.

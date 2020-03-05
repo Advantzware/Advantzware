@@ -360,7 +360,7 @@ PROCEDURE calc-tax-gr :
                     tt-report.term-id = ""
                     tt-report.key-01  = "work-tax"
                     tt-report.key-02  = account.actnum
-                    tt-report.key-03  = STRING(ipi-inv-no,"999999")
+                    tt-report.key-03  = STRING(ipi-inv-no,"9999999")
                     tt-report.key-04  = bf-inv-head.tax-gr
                     tt-report.key-05  = STRING(dTaxRate[i] *
                                       (IF AVAILABLE bf-currency  THEN
@@ -1173,7 +1173,7 @@ PROCEDURE list-post-inv :
                     tt-report.key-01  = "work-line"
                     tt-report.key-02  = IF AVAILABLE fgcat AND fgcat.glacc NE ""
                                  THEN fgcat.glacc ELSE v-ar-sales
-                    tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+                    tt-report.key-03  = STRING(inv-head.inv-no,"9999999")
                     tt-report.key-04  = inv-line.i-no
                     tt-report.weight  = w-inv-line.weight
                     dTempAmount       = dTempAmount +
@@ -1442,7 +1442,7 @@ PROCEDURE list-post-inv :
                     tt-report.key-01  = "work-misc"
                     tt-report.key-02  = IF inv-misc.actnum NE ""
                                  THEN inv-misc.actnum ELSE v-ar-sales
-                    tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+                    tt-report.key-03  = STRING(inv-head.inv-no,"9999999")
                     tt-report.key-04  = inv-misc.charge
                     tt-report.key-05  = STRING(inv-misc.amt *
                                         (IF AVAILABLE currency  THEN
@@ -1537,7 +1537,7 @@ PROCEDURE list-post-inv :
             ASSIGN
                 tt-report.term-id = ""
                 tt-report.key-01  = "work-disc"
-                tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+                tt-report.key-02  = STRING(inv-head.inv-no,"9999999")
                 tt-report.key-05  = STRING(dInvDisc)
                 tt-report.weight  = dInvDisc-w
                 .
@@ -1575,7 +1575,7 @@ PROCEDURE list-post-inv :
                     tt-report.term-id = ""
                     tt-report.key-01  = "work-tax"
                     tt-report.key-02  = account.actnum
-                    tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+                    tt-report.key-03  = STRING(inv-head.inv-no,"9999999")
                     tt-report.key-05  = STRING(inv-head.t-inv-tax *
                                         (IF AVAILABLE currency  THEN
                                            currency.ex-rate ELSE 1))
@@ -1771,7 +1771,7 @@ PROCEDURE list-post-inv :
             ASSIGN
                 tt-report.term-id = ""
                 tt-report.key-01  = "work-freight"
-                tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+                tt-report.key-02  = STRING(inv-head.inv-no,"9999999")
                 tt-report.key-05  = STRING(- dTempAmount)
                 tt-report.weight  = - dLineTot-w
                 .
@@ -1789,7 +1789,7 @@ PROCEDURE list-post-inv :
             ASSIGN
                 tt-report.term-id = ""
                 tt-report.key-01  = "work-cash"
-                tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+                tt-report.key-02  = STRING(inv-head.inv-no,"9999999")
                 tt-report.key-05  = STRING(inv-head.t-inv-rev)
                 tt-report.weight  = dLineTot-w.
         END.

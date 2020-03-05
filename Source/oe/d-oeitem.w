@@ -185,7 +185,7 @@ DEF VAR v-ponoUp AS LOG NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
@@ -337,6 +337,16 @@ RUN methods/prgsecur.p
      OUTPUT llOEPrcChg-sec, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+     
+ RUN methods/prgsecur.p
+    (INPUT "OEDiscount",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT llOEDiscount, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */    
      
 DEF VAR lcReturn AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
@@ -1889,13 +1899,19 @@ DO:
       IF LASTKEY = -1 THEN RETURN.
 
   IF SELF:modified AND SELF:screen-value <> "" THEN DO:
-      IF ll-new-file THEN DO:
+      IF ll-new-file AND (oe-ordl.i-no:SCREEN-VALUE EQ ""  OR oe-ordl.i-no:SCREEN-VALUE EQ "0" ) THEN DO:
         ASSIGN
          cp-part-no = oe-ordl.part-no:SCREEN-VALUE
          cp-rowid   = ?.
         RUN custom/getcpart.p (cocode, oe-ord.cust-no,
                                INPUT-OUTPUT cp-part-no, INPUT-OUTPUT cp-rowid).
         FIND itemfg WHERE ROWID(itemfg) EQ cp-rowid NO-LOCK NO-ERROR.
+      END.
+      ELSE do:
+           FIND FIRST itemfg WHERE itemfg.company = g_company 
+                          AND itemfg.i-no = oe-ordl.i-no:screen-value
+                          AND itemfg.part-no = oe-ordl.part-no:screen-value
+                          NO-LOCK NO-ERROR.
       END.
 
       IF NOT AVAIL itemfg THEN
@@ -1927,7 +1943,12 @@ DO:
                END.  
             END.   
          END.   
-      END.   
+      END.  
+      
+      IF itemfg.stat EQ "I" THEN DO:        
+        MESSAGE "The only FG Item " + itemfg.i-no + " found is not active.  Enter a different part number or make this FG item active " VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.        
+      END.
 
       IF itemfg.prod-uom EQ "" THEN DO:
         MESSAGE "FG Item " + itemfg.i-no + " has no cost UOM. Please correct and try again. " VIEW-AS ALERT-BOX.
@@ -1950,8 +1971,10 @@ DO:
               APPLY "entry" TO oe-ordl.price.
           ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
               APPLY "entry" TO oe-ordl.pr-uom.
-          ELSE 
+          ELSE IF  oe-ordl.disc:SENSITIVE THEN
               APPLY "entry" TO oe-ordl.disc.
+          ELSE
+              APPLY "entry" TO oe-ordl.cas-cnt.
          RETURN NO-APPLY.
       END.
       
@@ -2861,6 +2884,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+  IF NOT llOEDiscount THEN
+  ASSIGN   asi.oe-ordl.disc:SENSITIVE IN FRAME {&FRAME-NAME} = NO .  
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -4929,13 +4954,13 @@ DO WITH FRAME {&frame-name}:
   RUN default-type (BUFFER itemfg).
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
-     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
+     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-name:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
             oe-ordl.i-no:screen-value       = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-no ELSE oe-ordl.i-no:SCREEN-VALUE
             oe-ordl.part-dscr2:screen-value = itemfg.part-dscr2
             oe-ordl.part-dscr3:screen-value = itemfg.part-dscr3 .
   ELSE
   DO:
-     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
+     ASSIGN oe-ordl.i-name:screen-value     = IF oe-ordl.i-name:SCREEN-VALUE = "" THEN itemfg.i-name ELSE oe-ordl.i-name:SCREEN-VALUE
             oe-ordl.i-no:screen-value       = IF oe-ordl.i-no:SCREEN-VALUE = "" THEN itemfg.i-no ELSE oe-ordl.i-no:SCREEN-VALUE
             oe-ordl.price:screen-value  = IF setFromHistory THEN STRING(historyPrice) ELSE STRING(itemfg.sell-price)
             oe-ordl.pr-uom:screen-value = IF setFromHistory THEN STRING(historyPrUOM) ELSE itemfg.sell-uom

@@ -147,7 +147,7 @@ DEFINE            VARIABLE lv-recid           AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE lCheckValidHold    AS LOGICAL   NO-UNDO.
+
 /* gdm - 06040918 */
 DEFINE BUFFER bf-itemfg        FOR itemfg.  
 DEFINE BUFFER bf-e-itemfg      FOR e-itemfg.  
@@ -895,7 +895,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Purchase Order Item Update */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+    IF lv-item-recid <> ? THEN DO:
+       DISABLE TRIGGERS FOR LOAD OF po-ordl.
+       FIND po-ordl EXCLUSIVE-LOCK WHERE RECID(po-ordl) = lv-item-recid  NO-ERROR.
+       IF AVAILABLE po-ordl THEN DELETE po-ordl.
+    END.
+   
+   APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1020,7 +1026,10 @@ DO:
   END.
 
   RUN check-cust-hold(OUTPUT op-error) NO-ERROR.
-  IF op-error THEN APPLY 'choose' TO btn_Cancel.
+  IF op-error THEN do: 
+      APPLY 'choose' TO btn_Cancel.
+      RETURN NO-APPLY .
+  END.
 
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1362,7 +1371,10 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
             RUN check-cust-hold(OUTPUT lReturnError) NO-ERROR.
-            IF lReturnError THEN APPLY 'choose' TO btn_Cancel.
+            IF lReturnError THEN do:
+                 APPLY 'choose' TO btn_Cancel.
+                 RETURN NO-APPLY .
+            END.
 
             /* gdm - 06040918 */
             FIND FIRST bf-itemfg NO-LOCK 
@@ -1398,8 +1410,7 @@ ON VALUE-CHANGED OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
         ASSIGN
             ll-item-validated = NO
             ll-poord-warned   = NO
-            ll-pojob-warned   = NO
-            lCheckValidHold   = NO.
+            ll-pojob-warned   = NO.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1426,8 +1437,7 @@ ON VALUE-CHANGED OF po-ordl.item-type IN FRAME Dialog-Frame /* Item Type */
         ASSIGN
             ll-item-validated = NO
             ll-poord-warned   = NO
-            ll-pojob-warned   = NO
-            lCheckValidHold   = NO.
+            ll-pojob-warned   = NO.
         APPLY 'entry' TO po-ordl.i-no.
 /*        RUN validate-i-no NO-ERROR.                */
 /*        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.*/
@@ -6907,19 +6917,14 @@ PROCEDURE check-cust-hold :
             WHERE bf-itemfg.company EQ cocode
             AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
         
-        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND NOT lCheckValidHold AND ip-type EQ "add" AND
+        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND
             po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
             FIND FIRST cust NO-LOCK 
                 WHERE cust.company EQ cocode 
                 AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
             IF AVAIL cust AND cust.cr-hold THEN DO:
-                RUN displayMessageQuestionLOG ("12", OUTPUT lGetOutputValue).
-                IF NOT lGetOutPutValue THEN DO:
-                    ASSIGN 
-                        oplReturnError = TRUE.
-                END.
-                ELSE 
-                    lCheckValidHold = YES .
+                RUN displayMessage ("12").                    
+               oplReturnError = TRUE .
             END. 
         END.
     END.

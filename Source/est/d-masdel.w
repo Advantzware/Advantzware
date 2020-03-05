@@ -51,11 +51,11 @@ def output param ls-del-what as cha no-undo.
 
 &Scoped-define ADM-CONTAINER DIALOG-BOX
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_est Btn_frm Btn_blk RECT-25 
+&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_est Btn_frm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -70,11 +70,6 @@ def output param ls-del-what as cha no-undo.
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_blk AUTO-GO 
-     LABEL "&Blank" 
-     SIZE 26 BY 2.14
-     BGCOLOR 8 .
-
 DEFINE BUTTON Btn_est AUTO-GO 
      LABEL "&Estimate" 
      SIZE 26 BY 2.14
@@ -86,16 +81,15 @@ DEFINE BUTTON Btn_frm AUTO-GO
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-25
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 40 BY 7.38.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     Btn_est AT ROW 1.24 COL 7
-     Btn_frm AT ROW 3.62 COL 7
-     Btn_blk AT ROW 6 COL 7
+     Btn_est AT ROW 2.1 COL 7
+     Btn_frm AT ROW 5.14 COL 7
      RECT-25 AT ROW 1 COL 1
      SPACE(0.19) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -129,7 +123,7 @@ DEFINE FRAME D-Dialog
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX D-Dialog
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
@@ -160,18 +154,6 @@ DO:
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   assign ls-del-what = "".
   APPLY "END-ERROR":U TO SELF.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_blk
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_blk D-Dialog
-ON CHOOSE OF Btn_blk IN FRAME D-Dialog /* Blank */
-DO:
-    assign ls-del-what = "blank".
-    apply "window-close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,7 +262,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_est Btn_frm Btn_blk RECT-25 
+  ENABLE RECT-25 Btn_est Btn_frm 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

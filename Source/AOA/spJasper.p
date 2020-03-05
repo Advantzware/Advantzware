@@ -1389,7 +1389,7 @@ PROCEDURE pJasperStyles :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cColor AS CHARACTER NO-UNDO.
     
-    cColor = "#FFF1D1".
+    cColor = "#DCF5EB".
     PUT UNFORMATTED
         "    <style name=~"Zebra~" mode=~"Transparent~">" SKIP
         "        <conditionalStyle>" SKIP
@@ -1535,17 +1535,67 @@ PROCEDURE pJasterTitleBand :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiSize AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cSubTitle   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lParamFound AS LOGICAL   NO-UNDO.
+
     /* title band */
+    FOR EACH dynSubjectParamSet NO-LOCK
+        WHERE dynSubjectParamSet.subjectID  EQ dynParamValue.subjectID
+          AND dynSubjectParamSet.isVisible  EQ YES
+          AND dynSubjectParamSet.useInTitle EQ YES,
+        EACH dynParamSetDtl NO-LOCK
+        WHERE dynParamSetDtl.paramSetID  EQ dynSubjectParamSet.paramSetID
+          AND dynParamSetDtl.paramPrompt EQ YES
+           BY dynSubjectParamSet.sortOrder
+        :
+        ASSIGN
+            cParamValue = ""
+            lParamFound = NO
+            .
+        DO idx = 1 TO EXTENT(dynParamValue.paramName):
+            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+            IF dynParamValue.paramName[idx] NE dynParamSetDtl.paramName THEN NEXT.
+            ASSIGN
+                cParamValue = dynParamValue.paramValue[idx]
+                lParamFound = YES
+                .
+            IF cParamValue EQ CHR(254) THEN
+            cParamValue = "".
+            LEAVE.
+        END. /* do idx */
+        IF lParamFound THEN
+        cSubTitle = cSubTitle + dynParamSetDtl.paramLabel + ": "
+                  + cParamValue
+                  + " - "
+                  .
+    END. /* each dynsubjectparamset */
+    cSubTitle = TRIM(cSubTitle," - ").
     PUT UNFORMATTED
         "    <title>" SKIP
-        "        <band height=~"" 40 "~" splitType=~"Stretch~">" SKIP
+        "        <band height=~"" IF cSubTitle EQ "" THEN 40 ELSE 80 "~" splitType=~"Stretch~">" SKIP
         "            <staticText>" SKIP
-        "                <reportElement x=~"" 0 "~" y=~"" 0 "~" width=~"" 380 "~" height=~"" 40 "~"/>" SKIP
+        "                <reportElement x=~"" 0 "~" y=~"" 0 "~" width=~"" ipiSize "~" height=~"" 40 "~"/>" SKIP
         "                <textElement>" SKIP
         "                    <font size=~"" 26 "~"/>" SKIP
         "                </textElement>" SKIP
         "                <text><![CDATA[" aoaTitle "]]></text>" SKIP
         "            </staticText>" SKIP
+        .
+    IF cSubTitle NE "" THEN
+    PUT UNFORMATTED
+        "            <staticText>" SKIP
+        "                <reportElement x=~"" 0 "~" y=~"" 40 "~" width=~"" ipiSize "~" height=~"" 40 "~"/>" SKIP
+        "                <textElement>" SKIP
+        "                    <font size=~"" 9 "~"/>" SKIP
+        "                </textElement>" SKIP
+        "                <text><![CDATA[" cSubTitle "]]></text>" SKIP
+        "            </staticText>" SKIP
+        .
+    PUT UNFORMATTED
         "        </band>" SKIP
         "    </title>" SKIP
         .
@@ -1628,7 +1678,7 @@ PROCEDURE spJasper :
     RUN pJasperGroupDeclarations.
     RUN pJasperBackgroundBand.    
     IF svShowReportHeader THEN
-    RUN pJasterTitleBand.    
+    RUN pJasterTitleBand (iSize).    
     IF svShowPageHeader THEN DO:
         RUN pJasperPageHeaderBand.    
         RUN pJasperColumnHeaderBand.
@@ -1717,7 +1767,7 @@ PROCEDURE spJasperQuery:
         RUN pJasperGroupDeclarations.
         RUN pJasperBackgroundBand.    
         IF svShowReportHeader THEN
-        RUN pJasterTitleBand.    
+        RUN pJasterTitleBand (iSize).    
         IF svShowPageHeader THEN DO:
             RUN pJasperPageHeaderBand.    
             RUN pJasperColumnHeaderBand.

@@ -312,6 +312,16 @@ FUNCTION getcurrentpo RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetPOLine B-table-Win
+FUNCTION GetPOLine RETURNS INTEGER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-paid B-table-Win 
 FUNCTION is-it-paid RETURNS LOGICAL
   (  /* parameter-definitions */  )  FORWARD.
@@ -2786,6 +2796,25 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GetPOLine B-table-Win
+FUNCTION GetPOLine RETURNS INTEGER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the current po's line
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE po-ordl 
+        THEN RETURN po-ordl.line.
+    ELSE RETURN -1.    
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-paid B-table-Win 
 FUNCTION is-it-paid RETURNS LOGICAL

@@ -80,4 +80,15 @@ router.post('/createvendorinvoice', (req,res) => {
 router.post('/updateitem', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
+
+//This will split a tag
+router.post('/splittag', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
+//Dummy api to return "Running" status. This is to check the status of node server 
+router.get('/getnodestatus', (req,res) => {
+    return res.status(200).send(lib.JSONResponse(200,"Running"))
+});
+
 module.exports = router;

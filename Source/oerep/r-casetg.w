@@ -1877,9 +1877,21 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                 AND est.est-no  eq job.est-no
               NO-LOCK NO-ERROR.
           RELEASE eb.
-          IF AVAIL est THEN DO:
+          
+          FIND FIRST oe-ordl NO-LOCK 
+               WHERE oe-ordl.company EQ cocode
+                 AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                 AND oe-ordl.i-no    EQ job-hdr.i-no
+                  NO-ERROR.
 
-              IF  est.est-type = 6 THEN
+          IF AVAIL oe-ordl THEN
+              ASSIGN 
+                 w-ord.bundle     = oe-ordl.cases-unit
+                 w-ord.pcs        = oe-ordl.cas-cnt
+                 w-ord.total-unit = w-ord.pcs * w-ord.bundle
+                 .
+          IF AVAIL est THEN DO:
+              IF est.est-type = 6 THEN
                   FIND FIRST eb
                       WHERE eb.company   EQ est.company
                         AND eb.est-no    EQ est.est-no
@@ -1895,16 +1907,20 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                       NO-LOCK NO-ERROR.
           END.
 
-          IF AVAIL eb THEN
-            ASSIGN
-             w-ord.flute      = eb.flute
-             w-ord.test       = eb.test
-             w-ord.pcs        = if eb.cas-cnt NE 0 then eb.cas-cnt else itemfg.case-count
-             w-ord.bundle     = eb.cas-pal
-             w-ord.total-unit = w-ord.pcs * w-ord.bundle
-             w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
-             w-ord.cas-no     = eb.cas-no.
-
+          IF AVAILABLE eb THEN DO:
+              ASSIGN
+                  w-ord.flute      = eb.flute
+                  w-ord.test       = eb.test
+                  w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
+                  w-ord.cas-no     = eb.cas-no.
+                  .
+              IF NOT AVAILABLE oe-ordl THEN       
+                  ASSIGN 
+                      w-ord.pcs        = IF eb.cas-cnt NE 0 THEN eb.cas-cnt ELSE itemfg.case-count
+                      w-ord.bundle     = eb.cas-pal
+                      w-ord.total-unit = w-ord.pcs * w-ord.bundle
+                      .
+          END.   
           /* Add .49 to round up and add 1 for extra tag   */
           IF w-ord.rel-qty NE 0 THEN
               w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
@@ -2093,13 +2109,14 @@ PROCEDURE from-ord :
                 AND eb.est-no   EQ itemfg.est-no
                 AND eb.stock-no EQ itemfg.i-no
               NO-LOCK NO-ERROR.
-
+          ASSIGN 
+              w-ord.bundle = oe-ordl.cases-unit
+              w-ord.pcs    = oe-ordl.cas-cnt.
+             
           IF AVAIL eb THEN
             ASSIGN
              w-ord.flute      = eb.flute
              w-ord.test       = eb.test
-             w-ord.pcs        = if eb.cas-cnt NE 0 then eb.cas-cnt else itemfg.case-count
-             w-ord.bundle     = eb.cas-pal
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /*w-ord.ord-qty - w-ord.total-unit*/
              w-ord.cas-no     = eb.cas-no.

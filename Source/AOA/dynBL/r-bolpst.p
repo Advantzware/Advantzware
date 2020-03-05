@@ -21,6 +21,7 @@ DEFINE NEW SHARED VARIABLE g_rec_key AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_pageno AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_mainmenu AS WIDGET-HANDLE NO-UNDO.
 
+g_lookup-var = "".
 {sys/ref/CustList.i NEW}
 
 DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)":U.
@@ -56,16 +57,16 @@ DEFINE VARIABLE lPrintInvoice      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCountNotPosted    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hExtProgramHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cAutoSelectShipFromAlpha AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lTaglessBOLExists  AS LOG        NO-UNDO.
+DEFINE VARIABLE lTaglessBOLExists   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAutoSelectTagAlpha AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAutoSelectShipFrom AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoSelectShipFrom AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lUseLogs AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cLogFile            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDebugLog           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUseLogs            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSingleBOL          AS LOGICAL   NO-UNDO.
 /* for sel-bins */
 DEFINE NEW SHARED VARIABLE out-recid AS RECID NO-UNDO.
-
 DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
@@ -90,16 +91,45 @@ FUNCTION fDebugMsg RETURNS CHARACTER
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
-    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturnValue       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLogFolder         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdFileSysProcs     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lValid             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath          AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cTagDisplay        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTagNumber         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTagNumber2        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDisplayFullTag    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iLineCount         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lCheckQty          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturnChar        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecordFound       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cExternalProgram   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInvoiceStatusType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lInvoiceStatusLog  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lInvalidDate       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lUserChoice        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPrintInvoice      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCountNotPosted    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hExtProgramHandle  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cAutoSelectShipFromAlpha AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lTaglessBOLExists   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAutoSelectTagAlpha AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAutoSelectShipFrom AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoSelectShipFrom AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cLogFile            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDebugLog           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUseLogs            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSingleBOL          AS LOGICAL   NO-UNDO.
+    /* for sel-bins */
+    DEFINE BUFFER xoe-boll FOR oe-boll.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+
     ASSIGN
-        cocode = cCompany
-        locode = cLocation
+        cocode    = cCompany
+        locode    = cLocation
         g_company = cCompany
         g_loc     = cLocation
         lUseLogs = NO /* Use debug logging */
@@ -143,9 +173,7 @@ PROCEDURE pBusinessLogic:
           PUT STRING(TODAY,"99999999") + " " + STRING(TIME).
         END.            
         DELETE OBJECT hdFileSysProcs.            
-    END. /* If luseLogs */
-    
-
+    END. /* If luseLogs */ 
     
     /* ***************************  Main Block  *************************** */    
     PAUSE 0 BEFORE-HIDE.
@@ -551,6 +579,7 @@ PROCEDURE pCreateNoPostRec :
         w-nopost.po-no    = oe-boll.PO-NO
         w-nopost.reason   = cNoPostReason
         .
+    IF AVAILABLE w-bolh THEN
     DELETE w-bolh.
 END PROCEDURE.
 
@@ -713,10 +742,6 @@ PROCEDURE pPostBols :
                   BY bf-oe-bolh.ord-no
                   BY bf-oe-bolh.rel-no
             :
-            /* Create tt-fg-bin */
-            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN
-            RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
-            
             /* Find out if autoSelectingTags for this customer */
             RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
                 OUTPUT cAutoSelectShipFrom, OUTPUT lRecordFound).
@@ -729,18 +754,18 @@ PROCEDURE pPostBols :
             IF lAutoSelectShipFrom  THEN DO:
               lTaglessBOLExists = FALSE.
                 FOR EACH bf-oe-boll NO-LOCK                   
-                   WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
-                   :
-                  IF bf-oe-boll.tag EQ "" THEN
-                     lTaglessBOLExists = TRUE.
+                    WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
+                    :
+                    IF bf-oe-boll.tag EQ "" THEN
+                    lTaglessBOLExists = TRUE.
                 END. /* each bf-oe-boll */
                 fDebugMsg("decide that lTaglessBolExists " + string(lTaglessBOLExists) + string(avail(bf-oe-bolh))).                
                 IF AVAILABLE w-except OR lTaglessBOLExists THEN DO:
                 
                     /* Try to assign tags to fulfill BOL Qty */
                     FOR EACH bf-oe-boll NO-LOCK                   
-                       WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
-                       :
+                        WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
+                        :
                         fDebugMsg("start pAutoSelTags " + string(lTaglessBOLExists)).
                         RUN pAutoSelectTags (INPUT ROWID(bf-oe-boll)).
                     END. /* each bf-oe-boll */
@@ -749,7 +774,7 @@ PROCEDURE pPostBols :
                     FOR EACH w-except 
                       WHERE w-except.bol-no EQ bf-oe-bolh.bol-no 
                       :
-                          DELETE w-except.
+                      DELETE w-except.
                     END. /* each w-except */
                     fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
                     /* check if suffient inventory again after selecting tags */
@@ -828,7 +853,7 @@ PROCEDURE pPostBols :
         /* Requires shared buffer xoe-ord                                                                      */
         FIND FIRST report WHERE report.term-id = v-term NO-LOCK NO-ERROR.
         fDebugMsg("run oe/oe-bolp3 " + v-term + " avail report " + STRING(AVAIL(report))).
-        RUN oe/oe-bolp3.p (v-term).
+        RUN oe/oe-bolp3.p (v-term, dtPostDate).
     END. /* post-blok*/
     
     DELETE-BLOK:
@@ -902,12 +927,14 @@ PROCEDURE pRunReport :
     /* BILL OF LADING POSTING REPORT MODULE 2 - O/E Module                        */
     /* -------------------------------------------------------------------------- */
     DEFINE BUFFER b-oe-boll FOR oe-boll.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
     fDebugMsg("In Run Report").
     FIND FIRST period NO-LOCK                
-        WHERE period.company EQ gcompany
-          AND period.pst     LE dtPostDate
-          AND period.pend    GE dtPostDate
-        NO-ERROR.
+         WHERE period.company EQ gcompany
+           AND period.pst     LE dtPostDate
+           AND period.pend    GE dtPostDate
+         NO-ERROR.
 
     FOR EACH w-bolh:
         DELETE w-bolh.
@@ -916,6 +943,8 @@ PROCEDURE pRunReport :
     FOR EACH w-nopost:
         DELETE w-nopost.
     END.
+
+    lSingleBOL = iStartBOL EQ iEndBol.
 
     FOR EACH oe-bolh NO-LOCK
         WHERE oe-bolh.company  EQ cocode
@@ -927,8 +956,6 @@ PROCEDURE pRunReport :
           AND oe-bolh.bol-date LE dtEndBOLDate
           AND oe-bolh.cust-no  GE cStartCustNo
           AND oe-bolh.cust-no  LE cEndCustNo
-          AND oe-bolh.trailer  NE "HOLD"
-          AND oe-bolh.stat     EQ "R"
         USE-INDEX post
         :
         IF lCustList AND
@@ -958,8 +985,6 @@ PROCEDURE pRunReport :
           AND oe-bolh.bol-date LE dtEndBOLDate
           AND oe-bolh.cust-no  GE cStartCustNo
           AND oe-bolh.cust-no  LE cEndCustNo
-          AND oe-bolh.trailer  NE "HOLD"
-          AND oe-bolh.stat     EQ "R"
         USE-INDEX deleted
         :
         IF lCustList AND
@@ -1005,7 +1030,11 @@ PROCEDURE pRunReport :
           BY w-bolh.rel-no 
           BY w-bolh.b-ord-no
         :
-        FIND oe-bolh NO-LOCK WHERE RECID(oe-bolh) EQ w-bolh.w-recid.
+        FIND oe-bolh NO-LOCK WHERE RECID(oe-bolh) EQ w-bolh.w-recid NO-ERROR.
+        IF NOT AVAILABLE oe-bolh THEN
+        NEXT MAINBLOK.
+        IF lPrintInvoice AND lCheckQty THEN
+        RUN oe/bolcheck.p (ROWID(oe-bolh)).
         v-tot-post = v-tot-post + 1.
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-bolh.company
@@ -1019,13 +1048,35 @@ PROCEDURE pRunReport :
             fDebugMsg("run-report each oe-boll " + STRING(oe-boll.bol-no)).
             RELEASE oe-ord.
             RELEASE oe-ordl.
+            IF oe-bolh.trailer EQ "HOLD" OR oe-bolh.stat EQ "H" THEN DO:
+                IF lSingleBOL THEN
+                RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").    
+                ELSE 
+                RUN pCreateNoPostRec ("BOL is on Hold Status").           
+                DELETE w-bolh.
+                NEXT mainblok.           
+            END.      
+            FIND FIRST w-except NO-LOCK 
+                 WHERE w-except.bol-no EQ oe-bolh.bol-no 
+                 NO-ERROR. 
+            IF AVAILABLE w-except THEN DO:
+                IF lSingleBOL THEN 
+                    RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped for BOL " + STRING(w-bolh.bol-no)).
+                ELSE 
+                    RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped").   
+                DELETE w-bolh. 
+                NEXT MAINBLOK.                                                  
+            END.
             IF NOT oe-bolh.deleted THEN DO:
                 FIND FIRST oe-ord NO-LOCK
                      WHERE oe-ord.company EQ oe-bolh.company
                        AND oe-ord.ord-no = oe-boll.ord-no 
                      NO-ERROR.
                 IF NOT AVAILABLE oe-ord THEN DO:
-                    RUN pCreateNoPostRec ("Order Was Not Found").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Order Not Found for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Order Was Not Found").
                     NEXT mainblok.
                 END.
                 /* 04301302 - If customer 'x' and shipto = shipfrom, don't post */
@@ -1034,7 +1085,10 @@ PROCEDURE pRunReport :
                       AND cust.cust-no EQ oe-bolh.cust-no 
                     NO-ERROR.
                 IF AVAIL(cust) AND cust.ACTIVE EQ "X" AND oe-bolh.ship-id = oe-boll.loc THEN DO:
-                    RUN pCreateNoPostRec ("Cannot transfer to the same location").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Cannot transfer to the same location for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Cannot transfer to the same location").
                     NEXT mainblok.
                 END.
                 FIND FIRST oe-ordl NO-LOCK
@@ -1043,7 +1097,10 @@ PROCEDURE pRunReport :
                        AND oe-ordl.line   = oe-boll.line  NO-ERROR.
                 IF NOT AVAILABLE oe-ordl THEN 
                 DO:
-                    RUN pCreateNoPostRec ("Order Lines Were Not Found").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Order Lines Were Not Found for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Order Lines Were Not Found").
                     NEXT mainblok.
                 END.
 
@@ -1054,7 +1111,10 @@ PROCEDURE pRunReport :
                        AND oe-rell.line = oe-boll.line
                      USE-INDEX r-no NO-ERROR.
                 IF NOT AVAILABLE oe-rell THEN DO:
-                    RUN pCreateNoPostRec ("Release Lines Were Not Found").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Release Lines Were Not Found for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Release Lines Were Not Found").
                     NEXT mainblok.
                 END.
 
@@ -1063,12 +1123,18 @@ PROCEDURE pRunReport :
                        AND itemfg.i-no = oe-boll.i-no
                      NO-ERROR.
                 IF NOT AVAILABLE itemfg THEN DO:
-                    RUN pCreateNoPostRec ("Finish Good Item Was Not Found").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Finish Good Item Was Not Found for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Finish Good Item Was Not Found").
                     NEXT mainblok.
                 END.
             
                 IF oe-boll.loc EQ "" OR oe-boll.loc-bin EQ "" THEN DO:
-                    RUN pCreateNoPostRec ("Warehouse or Bin is Blank").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Warehouse or Bin is Blank for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Warehouse or Bin is Blank").
                     NEXT mainblok.
                 END.
 
@@ -1076,7 +1142,10 @@ PROCEDURE pRunReport :
                                 WHERE b-oe-boll.company EQ oe-bolh.company
                                   AND b-oe-boll.b-no    EQ oe-bolh.b-no
                                   AND b-oe-boll.qty     NE 0) THEN DO:
-                    RUN pCreateNoPostRec ("BOL Qty is Zero").
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("BOL Qty is Zero for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("BOL Qty is Zero").
                     NEXT mainblok.
                 END.
             END.
