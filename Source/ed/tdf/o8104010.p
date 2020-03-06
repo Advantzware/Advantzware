@@ -389,6 +389,13 @@ DO:
             AND EDShipto.ship-to EQ EDIVTran.By-code 
             AND EDShipto.Ref-type EQ "BY"
         NO-ERROR.
+    IF NOT AVAIL edshipto THEN 
+        IF NOT AVAILABLE EDShipTo THEN 
+            FIND FIRST EDShipTo EXCLUSIVE-LOCK
+                WHERE EDShipTo.partner = EDIVTran.partner
+                  AND EDShipTo.ref-type = "BY"
+                  AND EDShipTo.BY-CODE = ""
+                NO-ERROR.
     ASSIGN
         entity_id         = "ST"
          id_code_qualifier = "" /* "92" */ 
