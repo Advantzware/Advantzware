@@ -374,9 +374,12 @@ DO:
   END.
 
   IF v-est-fgitem <> "" THEN DO:
-      FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR.
+      FIND CURRENT eb NO-LOCK NO-ERROR.
       IF AVAIL eb THEN
-          eb.stock = v-est-fgitem .
+          RUN pUpdateStockNo (
+              INPUT ROWID(eb),
+              INPUT v-est-fgitem
+              ).
   END.
   
   RUN set-auto-add-item .
@@ -475,7 +478,7 @@ PROCEDURE auto-create-item :
                         AND xest.est-no  = eb.est-no
                       NO-LOCK NO-ERROR.
   END.
-  FIND xeb WHERE ROWID(xeb) = ROWID(eb) EXCLUSIVE-LOCK.
+  FIND xeb WHERE ROWID(xeb) = ROWID(eb) NO-LOCK.
   
   IF NOT AVAIL xest THEN
       RETURN.
@@ -488,7 +491,7 @@ PROCEDURE auto-create-item :
       FIND FIRST bf-eb WHERE bf-eb.company = xest.company
                          AND bf-eb.est-no  = xest.est-no
                          AND bf-eb.form-no = 0
-                       EXCLUSIVE-LOCK NO-ERROR.
+                       NO-LOCK NO-ERROR.
       
       IF AVAIL bf-eb AND xeb.stock-no = "" THEN DO:
          RUN fg/GetFGItemID.p (ROWID(bf-eb), "", OUTPUT lv-i-no). 
@@ -551,6 +554,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStockNo Dialog-Frame
+PROCEDURE pUpdateStockNo PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriEb     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStockNo AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-stockno-eb FOR eb.
+    
+    FIND FIRST bf-stockno-eb EXCLUSIVE-LOCK
+         WHERE ROWID(bf-stockno-eb) EQ ipriEb
+         NO-ERROR.
+    IF AVAILABLE bf-stockno-eb THEN DO:
+        bf-stockno-eb.stock-no = ipcStockNo.
+        
+        FIND CURRENT bf-stockno-eb NO-LOCK NO-ERROR.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-auto-add-item Dialog-Frame 
 PROCEDURE set-auto-add-item :
 /*------------------------------------------------------------------------------
@@ -593,7 +623,7 @@ PROCEDURE set-auto-add-item :
       IF AVAIL bf-est THEN
           l-est-type = bf-est.est-type.
       
-      FIND xeb WHERE ROWID(xeb) = ROWID(eb) EXCLUSIVE-LOCK.
+      FIND xeb WHERE ROWID(xeb) = ROWID(eb) NO-LOCK.
       FIND FIRST xest WHERE xest.company = xeb.company
           AND xest.est-no  = xeb.est-no
           NO-LOCK NO-ERROR.
@@ -607,7 +637,10 @@ PROCEDURE set-auto-add-item :
                     AND ROWID(bf-setheader-eb) NE ROWID(xeb)
                     NO-ERROR.
           RUN fg/GetFGItemID.p (ROWID(xeb), (IF AVAILABLE bf-setheader-eb THEN bf-setheader-eb.stock-no ELSE ""), OUTPUT lv-i-no). 
-          ASSIGN xeb.stock-no = lv-i-no .
+          RUN pUpdateStockNo (
+              INPUT ROWID(xeb),
+              INPUT lv-i-no
+              ).
                 /*RUN fg/ce-addfg.p (xeb.stock-no).*/
       END.
   END.
