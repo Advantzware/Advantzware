@@ -1090,13 +1090,10 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
-  li = 1.
-  FIND LAST job WHERE job.company EQ cocode USE-INDEX job NO-LOCK NO-ERROR.
-  FIND LAST job-hdr WHERE job-hdr.company EQ cocode
-      USE-INDEX job NO-LOCK NO-ERROR.
-  IF job-hdr.job GT job.job THEN li = job-hdr.job + 1.
-  IF job.job GE job-hdr.job THEN li = job.job + 1.
-
+  RUN pGetInternalJob (
+      INPUT  cocode,
+      OUTPUT li
+      ).
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -1158,7 +1155,7 @@ PROCEDURE local-delete-record :
     IF INDEX("CXZ", job.stat) GT 0 THEN
       lv-msg = "This job has been closed".
 
-    ELSE DO:
+    ELSE IF job.job-no NE "" THEN DO:
       FIND FIRST oe-ordl
           WHERE oe-ordl.company EQ job.company
             AND oe-ordl.job-no  EQ job.job-no
@@ -1183,7 +1180,7 @@ PROCEDURE local-delete-record :
       IF NOT ll-warn THEN RETURN ERROR.
     END.
 
-    IF lv-msg EQ "" THEN DO:
+    IF lv-msg EQ "" AND job.job-no NE "" THEN DO:
         FIND FIRST po-ordl NO-LOCK
              WHERE po-ordl.company EQ job.company
                AND po-ordl.job-no  EQ job.job-no
@@ -1412,7 +1409,7 @@ PROCEDURE local-update-record :
 
     FOR EACH xeb WHERE xeb.company = xest.company
                    AND xeb.est-no = xest.est-no
-                 EXCLUSIVE-LOCK
+                 NO-LOCK
         BREAK BY xeb.est-no
               BY xeb.form-no
               BY xeb.blank-no:
@@ -1441,7 +1438,10 @@ PROCEDURE local-update-record :
             RETURN.
           END.
           IF cNewitem <> "" THEN DO:
-              xeb.stock-no = cNewItem .
+              RUN pUpdateStockNo (
+                INPUT ROWID(xeb),
+                INPUT cNewitem
+                ).
               FIND FIRST itemfg
               {sys/look/itemfgrlW.i}
                 AND itemfg.i-no   EQ xeb.stock-no
@@ -1451,7 +1451,10 @@ PROCEDURE local-update-record :
                  " and Form#: " + STRING(xeb.form-no) + ", would you LIKE to create it?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
             IF choice THEN DO:
-              {jc/fgadd.i} 
+                RUN pFGAdd (
+                    INPUT ROWID(xeb),
+                    INPUT ROWID(xest)
+                    ).
             END.
 
           END.
@@ -1486,8 +1489,11 @@ PROCEDURE local-update-record :
       FIND xeb WHERE ROWID(xeb) = rEbRow NO-LOCK NO-ERROR.
 
       IF AVAILABLE xeb AND cNewItem GT "" THEN DO:
-        FIND xeb WHERE ROWID(xeb) = rEbRow EXCLUSIVE-LOCK NO-ERROR.
-        xeb.stock-no = cNewItem.
+        FIND xeb WHERE ROWID(xeb) = rEbRow NO-LOCK NO-ERROR.
+        RUN pUpdateStockNo (
+            INPUT ROWID(xeb),
+            INPUT cNewitem
+            ).
       END.
 
       RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.
@@ -1540,10 +1546,11 @@ PROCEDURE local-update-record :
   END.*/
 
   /* gdm - 05290901 */
-  IF ll-new AND NOT copyJob THEN DO:     
-    IF job.start-date EQ ? 
-      THEN ASSIGN job.start-date = DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-
+  IF ll-new AND NOT copyJob THEN DO:
+    RUN pUpdateJobStartDate (
+        INPUT ROWID(job),
+        INPUT DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+        ).
     IF CAN-FIND(FIRST bf-job-mch NO-LOCK
                 WHERE bf-job-mch.company EQ job.company
                 AND bf-job-mch.job     EQ job.job
@@ -1596,6 +1603,95 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFGadd V-table-Win
+PROCEDURE pFGAdd PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriEb  AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriEst AS ROWID NO-UNDO.    
+    
+    DEFINE BUFFER xeb  FOR eb.
+    DEFINE BUFFER xest FOR est.
+    
+    FIND FIRST xeb EXCLUSIVE-LOCK
+         WHERE ROWID(xeb) EQ ipriEb
+         NO-ERROR.
+
+    FIND FIRST xest EXCLUSIVE-LOCK
+         WHERE ROWID(xest) EQ ipriEst
+         NO-ERROR.
+        
+    {jc/fgadd.i}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInternalJob V-table-Win
+PROCEDURE pGetInternalJob PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiJob     AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    opiJob = 1.
+        
+    FIND LAST bf-job NO-LOCK
+         WHERE bf-job.company EQ ipcCompany 
+         USE-INDEX job NO-ERROR.
+    
+    FIND LAST bf-job-hdr NO-LOCK
+         WHERE bf-job-hdr.company EQ ipcCompany
+         USE-INDEX job NO-ERROR.
+    
+    IF bf-job-hdr.job GT bf-job.job THEN 
+        opiJob = bf-job-hdr.job + 1.
+    
+    IF bf-job.job GE bf-job-hdr.job THEN
+        opiJob = bf-job.job + 1.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobStartDate V-table-Win
+PROCEDURE pUpdateJobStartDate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriJob       AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtStartDate AS DATE  NO-UNDO.
+    
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job EXCLUSIVE-LOCK
+         WHERE ROWID(bf-job) EQ ipriJob
+         NO-ERROR.
+    IF AVAILABLE bf-job AND bf-job.start-date EQ ? THEN
+        bf-job.start-date = ipdtStartDate.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobTypeDesc V-table-Win 
 PROCEDURE pUpdateJobTypeDesc PRIVATE :
 /*------------------------------------------------------------------------------
@@ -1612,6 +1708,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStockNo V-table-Win
+PROCEDURE pUpdateStockNo PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriEb     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStockNo AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-stockno-eb FOR eb.
+    
+    FIND FIRST bf-stockno-eb EXCLUSIVE-LOCK
+         WHERE ROWID(bf-stockno-eb) EQ ipriEb
+         NO-ERROR.
+    IF AVAILABLE bf-stockno-eb THEN DO:
+        bf-stockno-eb.stock-no = ipcStockNo.
+        
+        FIND CURRENT bf-stockno-eb NO-LOCK NO-ERROR.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Rebuild-Stds V-table-Win 
 PROCEDURE Rebuild-Stds :
