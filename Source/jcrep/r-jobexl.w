@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
   /*Task# 08111405*/
@@ -106,20 +106,20 @@ ASSIGN cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE DIALOG-BOX
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE Dialog-Box
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
+&Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 RS-open-closed ~
-begin_cust-no end_cust-no begin_job end_job begin_item end_item begin_est ~
-end_est sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS RS-open-closed begin_cust-no end_cust-no ~
-begin_job end_job begin_item end_item begin_est end_est sl_avail ~
-sl_selected tb_excel tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 RS-open-closed ~
+begin_cust-no end_cust-no begin_item end_item begin_est end_est begin_job ~
+begin_job-2 end_job end_job-2 sl_avail sl_selected Btn_Add Btn_Remove ~
+btn_Up btn_down tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS RS-open-closed begin_cust-no end_cust-no ~
+begin_item end_item begin_est end_est begin_job begin_job-2 end_job ~
+end_job-2 sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -185,7 +185,11 @@ DEFINE VARIABLE begin_item AS CHARACTER FORMAT "X(15)"
 DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(8)" 
      LABEL "From Job#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 12.6 BY 1.
+
+DEFINE VARIABLE begin_job-2 AS INTEGER FORMAT ">>9" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 4.2 BY 1.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Customer#" 
@@ -205,7 +209,11 @@ DEFINE VARIABLE end_item AS CHARACTER FORMAT "X(15)"
 DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(8)" 
      LABEL "To Job#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 12.6 BY 1.
+
+DEFINE VARIABLE end_job-2 AS INTEGER FORMAT ">>9" INITIAL 99 
+     VIEW-AS FILL-IN 
+     SIZE 4.2 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-order.csv" 
      LABEL "If Yes, File Name" 
@@ -256,45 +264,49 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     RS-open-closed AT ROW 2 COLUMN 41.2 NO-LABEL WIDGET-ID 2
-     begin_cust-no AT ROW 3.43 COLUMN 27.8 COLON-ALIGNED HELP
+     RS-open-closed AT ROW 2 COL 41.2 NO-LABEL WIDGET-ID 2
+     begin_cust-no AT ROW 3.43 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 6
-     end_cust-no AT ROW 3.43 COLUMN 70.8 COLON-ALIGNED HELP
+     end_cust-no AT ROW 3.43 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 16
-     begin_job AT ROW 4.57 COLUMN 27.8 COLON-ALIGNED HELP
-          "Enter Beginning Job Number" WIDGET-ID 104
-     end_job AT ROW 4.57 COLUMN 70.8 COLON-ALIGNED HELP
-          "Enter Beginning Job Number" WIDGET-ID 106
-     begin_item AT ROW 5.71 COLUMN 27.8 COLON-ALIGNED HELP
+     begin_item AT ROW 4.57 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 100
-     end_item AT ROW 5.71 COLUMN 70.8 COLON-ALIGNED HELP
+     end_item AT ROW 4.57 COL 70.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 102
-     begin_est AT ROW 6.86 COLUMN 27.8 COLON-ALIGNED HELP
+     begin_est AT ROW 5.71 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 108
-     end_est AT ROW 6.86 COLUMN 70.8 COLON-ALIGNED HELP
+     end_est AT ROW 5.71 COL 70.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 110
-     sl_avail AT ROW 10.19 COLUMN 6.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 10.19 COLUMN 62.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.67 COLUMN 43.6 HELP
+     begin_job AT ROW 6.81 COL 27.8 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" WIDGET-ID 104
+     begin_job-2 AT ROW 6.81 COL 40.6 COLON-ALIGNED HELP
+          "Enter Beginning Job Number2" NO-LABEL WIDGET-ID 112
+     end_job AT ROW 6.81 COL 70.8 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" WIDGET-ID 106
+     end_job-2 AT ROW 6.81 COL 83.6 COLON-ALIGNED HELP
+          "Enter Beginning Job Number2" NO-LABEL WIDGET-ID 114
+     sl_avail AT ROW 10.19 COL 6.6 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 10.19 COL 62.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 10.67 COL 43.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.86 COLUMN 43.6 HELP
+     Btn_Remove AT ROW 11.86 COL 43.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 13.05 COLUMN 43.6 WIDGET-ID 40
-     btn_down AT ROW 14.24 COLUMN 43.6 WIDGET-ID 42
-     tb_excel AT ROW 16.76 COLUMN 36 WIDGET-ID 32
-     tb_runExcel AT ROW 16.76 COLUMN 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 17.71 COLUMN 34 COLON-ALIGNED HELP
+     btn_Up AT ROW 13.05 COL 43.6 WIDGET-ID 40
+     btn_down AT ROW 14.24 COL 43.6 WIDGET-ID 42
+     tb_excel AT ROW 16.76 COL 36 WIDGET-ID 32
+     tb_runExcel AT ROW 16.76 COL 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 17.71 COL 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 20.1 COLUMN 30 WIDGET-ID 14
-     btn-cancel AT ROW 20.1 COLUMN 60.2 WIDGET-ID 12
+     btn-ok AT ROW 20.1 COL 30 WIDGET-ID 14
+     btn-cancel AT ROW 20.1 COL 60.2 WIDGET-ID 12
      "Export Selection" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.33 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5 WIDGET-ID 36
+          SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     RECT-6 AT ROW 9.1 COLUMN 2 WIDGET-ID 30
-     RECT-7 AT ROW 1 COLUMN 2 WIDGET-ID 38
-     RECT-8 AT ROW 16 COLUMN 2 WIDGET-ID 84
+     RECT-6 AT ROW 9.1 COL 2 WIDGET-ID 30
+     RECT-7 AT ROW 1 COL 2 WIDGET-ID 38
+     RECT-8 AT ROW 16 COL 2 WIDGET-ID 84
      SPACE(0.79) SKIP(2.75)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -339,6 +351,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_job-2:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
@@ -352,6 +368,10 @@ ASSIGN
 
 ASSIGN 
        end_job:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+ASSIGN 
+       end_job-2:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
 ASSIGN 
@@ -377,7 +397,7 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME Dialog-Frame
+&Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Job Costing Excel Export */
 DO:
@@ -457,7 +477,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_cust-no
+&Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no Dialog-Frame
 ON LEAVE OF begin_cust-no IN FRAME Dialog-Frame /* From Customer# */
 DO:
@@ -468,7 +488,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_est
+&Scoped-define SELF-NAME begin_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est Dialog-Frame
 ON LEAVE OF begin_est IN FRAME Dialog-Frame /* From Estimate # */
 DO:
@@ -479,7 +499,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_item
+&Scoped-define SELF-NAME begin_item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_item Dialog-Frame
 ON LEAVE OF begin_item IN FRAME Dialog-Frame /* From FG Item */
 DO:
@@ -490,7 +510,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-cancel
+&Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
@@ -501,7 +521,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-ok
+&Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok Dialog-Frame
 ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
 DO:
@@ -524,7 +544,7 @@ DO:
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Add
+&Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add Dialog-Frame
 ON CHOOSE OF Btn_Add IN FRAME Dialog-Frame /* Add >> */
 DO:
@@ -550,7 +570,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_down
+&Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down Dialog-Frame
 ON CHOOSE OF btn_down IN FRAME Dialog-Frame /* Move Down */
 DO:
@@ -561,7 +581,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Remove
+&Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove Dialog-Frame
 ON CHOOSE OF Btn_Remove IN FRAME Dialog-Frame /* << Remove */
 DO:
@@ -577,7 +597,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_Up
+&Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up Dialog-Frame
 ON CHOOSE OF btn_Up IN FRAME Dialog-Frame /* Move Up */
 DO:
@@ -588,7 +608,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_cust-no
+&Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no Dialog-Frame
 ON LEAVE OF end_cust-no IN FRAME Dialog-Frame /* To Customer# */
 DO:
@@ -599,7 +619,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_est
+&Scoped-define SELF-NAME end_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est Dialog-Frame
 ON LEAVE OF end_est IN FRAME Dialog-Frame /* To Estimate# */
 DO:
@@ -610,7 +630,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_item
+&Scoped-define SELF-NAME end_item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_item Dialog-Frame
 ON LEAVE OF end_item IN FRAME Dialog-Frame /* To FG Item */
 DO:
@@ -621,7 +641,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_file
+&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file Dialog-Frame
 ON LEAVE OF fi_file IN FRAME Dialog-Frame /* If Yes, File Name */
 DO:
@@ -632,7 +652,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_avail
+&Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail Dialog-Frame
 ON DEFAULT-ACTION OF sl_avail IN FRAME Dialog-Frame
 DO:
@@ -671,7 +691,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_selected
+&Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected Dialog-Frame
 ON DEFAULT-ACTION OF sl_selected IN FRAME Dialog-Frame
 DO:
@@ -695,7 +715,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_excel
+&Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel Dialog-Frame
 ON VALUE-CHANGED OF tb_excel IN FRAME Dialog-Frame /* Export To Excel? */
 DO:
@@ -706,7 +726,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_runExcel
+&Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel Dialog-Frame
 ON VALUE-CHANGED OF tb_runExcel IN FRAME Dialog-Frame /* Auto Run Excel? */
 DO:
@@ -860,14 +880,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY RS-open-closed begin_cust-no end_cust-no begin_job end_job begin_item 
-          end_item begin_est end_est sl_avail sl_selected tb_excel tb_runExcel 
-          fi_file 
+  DISPLAY RS-open-closed begin_cust-no end_cust-no begin_item end_item begin_est 
+          end_est begin_job begin_job-2 end_job end_job-2 sl_avail sl_selected 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-6 RECT-7 RECT-8 RS-open-closed begin_cust-no end_cust-no 
-         begin_job end_job begin_item end_item begin_est end_est sl_avail 
-         sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         begin_item end_item begin_est end_est begin_job begin_job-2 end_job 
+         end_job-2 sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1040,7 +1060,8 @@ IF tb_excel THEN
       AND (job-hdr.cust-no GE begin_cust-no AND job-hdr.cust-no LE end_cust-no) 
       AND (job-hdr.i-no GE begin_item AND job-hdr.i-no LE END_item) 
       AND (TRIM(job-hdr.est-no) GE trim(begin_est) AND TRIM(job-hdr.est-no) LE trim(end_est))
-      AND (job-hdr.job-no GE begin_job AND job-hdr.job-no LE END_job) NO-LOCK, 
+      AND (job-hdr.job-no GE begin_job AND job-hdr.job-no LE END_job) 
+      AND job-hdr.job-no2 GE begin_job-2 AND job-hdr.job-no2 LE end_job-2 NO-LOCK, 
       EACH job OF job-hdr NO-LOCK BY job-hdr.job-no DESC
                                   BY job-hdr.job-no2 DESC:
 
