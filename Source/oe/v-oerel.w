@@ -47,6 +47,8 @@ DEF VAR v-access-list AS CHAR.
 DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+
 RUN methods/prgsecur.p
     (INPUT "OEDateMod",
      INPUT "UPDATE", /* based on run, create, update, delete or all */
@@ -67,6 +69,8 @@ RUN sys/ref/nk1look.p (g_company, "oeDateChange", "C", no, no, "", "",
                           OUTPUT v-rtn-char, OUTPUT v-rec-found).                      
 IF v-rec-found THEN
     oeDateChange-char = v-rtn-char NO-ERROR.
+    
+RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.    
 
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
@@ -1276,8 +1280,14 @@ PROCEDURE local-assign-record :
   IF oe-relh.ship-id NE v-orig-shipid THEN
       RUN changed-shipid.
 
-  RUN create-relhold.
-
+  RUN create-relhold.  
+  RUN CheckCreditHold IN hdOrderprocs(
+      INPUT cocode,
+      INPUT oe-relh.cust-no,
+      INPUT YES, /*To check aging*/
+      OUTPUT v-chkflg
+      ).
+  oe-relh.w-ord = v-chkflg.
 END PROCEDURE.
 
 
