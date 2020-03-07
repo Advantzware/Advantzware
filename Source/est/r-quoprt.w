@@ -95,7 +95,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dQuoteValue AS DECIMAL NO-UNDO .
-DEFINE VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint 11,quoprint10-CAN,QuoPrint-Excel-Mex" NO-UNDO .
+DEFINE VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint 11,quoprint10-CAN,QuoPrint-Excel-Mex,Onducorr" NO-UNDO .
 
 DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
@@ -2625,7 +2625,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,QuoPrintVAL,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,QuoPrintVAL,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord,Onducorr",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2683,6 +2683,7 @@ PROCEDURE SetQuoForm :
        WHEN "Xprint30" THEN ASSIGN v-program = "cec/quote/qoxpnt30.p" lines-per-page = 66.
        WHEN "StClair" THEN ASSIGN v-program = "cec/quote/qosclair.p" lines-per-page = 66.
        WHEN "MSPACK-EXCEL" THEN ASSIGN v-program = "cec/quote/quomsp-xl.p" lines-per-page = 66.
+       WHEN "Onducorr" THEN ASSIGN v-program = "cec/quote/quoOndu.p" lines-per-page = 56.
       /* gdm - 04200908*/
        WHEN "AllWest" THEN ASSIGN v-program = "cec/quote/quoalwst.p" lines-per-page = 66.        
       /* gdm - 04300907*/
