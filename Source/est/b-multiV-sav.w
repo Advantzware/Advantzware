@@ -5,21 +5,9 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
+
 /* Temp-Table and Buffer definitions                                    */
-DEFINE TEMP-TABLE ttGoto No-undo
-       FIELD company AS char
-       FIELD est-no AS char
-       FIELD eqty AS decimal
-       FIELD form-no AS INTEGER 
-       FIELD blank-no AS integer
-       FIELD part-no AS CHAR FORMAT "x(20)":U
-       FIELD num-wid AS INT
-       FIELD num-len AS int
-       FIELD num-up as int 
-       FIELD bl-qty AS INT LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U
-       FIELD yld-qty AS int labEL "Yield Qty!Override" FORMAT "->>>,>>>,>>>":U
-       FIELD cust-% AS DEC 
-       FIELD yrprice AS logical FORMAT "Yield/Request":U
+DEFINE TEMP-TABLE tt-eb NO-UNDO LIKE eb
        FIELD yieldQtyOverride AS INTEGER
        FIELD sheetsRequired AS DECIMAL
        FIELD maxSheetsPerForm AS DECIMAL
@@ -107,13 +95,13 @@ DEFINE VARIABLE lv-rowid      AS ROWID     NO-UNDO.
 DEFINE VARIABLE CHAR-hdl      AS cha       NO-UNDO.
 
 
-DEFINE BUFFER bf-ttGoto    FOR ttGoto.
+DEFINE BUFFER bf-tt-eb    FOR tt-eb.
 
 DEFINE BUFFER multbl      FOR reftable.
 DEFINE BUFFER xeb-form-ef FOR ef.
 DEFINE BUFFER b-ef        FOR ef.
 DEFINE BUFFER b-eb        FOR eb.
-DEFINE BUFFER bf2-ttGoto   FOR ttGoto.
+DEFINE BUFFER bf2-tt-eb   FOR tt-eb.
 DEFINE VARIABLE lUseAlternateQty AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lManualRecalc    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cCEGOTOCALC      AS CHARACTER NO-UNDO.
@@ -127,7 +115,7 @@ lManualRecalc = (IF cCEGOTOCALC EQ "AUTOCALC" THEN NO ELSE YES).
                               AND multbl.loc      EQ est.loc          ~
                               AND multbl.code     EQ est.est-no
 
-&SCOPED-DEFINE SORTBY-PHRASE BY ttGoto.form-no BY ttGoto.blank-no
+&SCOPED-DEFINE SORTBY-PHRASE BY tt-eb.form-no BY tt-eb.blank-no
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -147,28 +135,28 @@ lManualRecalc = (IF cCEGOTOCALC EQ "AUTOCALC" THEN NO ELSE YES).
 &Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttGoto
+&Scoped-define INTERNAL-TABLES tt-eb
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttGoto.form-no ttGoto.blank-no ~
-ttGoto.part-no ttGoto.num-wid ttGoto.num-len ttGoto.num-up ttGoto.bl-qty ~
-ttGoto.calcYieldQty ttGoto.yld-qty ttGoto.yrprice ttGoto.sheetsRequired ~
-ttGoto.maxSheetsPerForm ttGoto.effectiveYldQty ttGoto.surplusQty ~
-ttGoto.yld-qty-orig 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ttGoto.form-no ~
-ttGoto.blank-no ttGoto.part-no ttGoto.num-wid ttGoto.num-len ttGoto.bl-qty ~
-ttGoto.yld-qty ttGoto.yrprice 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table ttGoto
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table ttGoto
-&Scoped-define QUERY-STRING-br_table FOR EACH ttGoto WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define FIELDS-IN-QUERY-br_table tt-eb.form-no tt-eb.blank-no ~
+tt-eb.part-no tt-eb.num-wid tt-eb.num-len tt-eb.num-up tt-eb.bl-qty ~
+tt-eb.calcYieldQty tt-eb.yld-qty tt-eb.yrprice tt-eb.sheetsRequired ~
+tt-eb.maxSheetsPerForm tt-eb.effectiveYldQty tt-eb.surplusQty ~
+tt-eb.yld-qty-orig 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-eb.form-no ~
+tt-eb.blank-no tt-eb.part-no tt-eb.num-wid tt-eb.num-len tt-eb.bl-qty ~
+tt-eb.yld-qty tt-eb.yrprice 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-eb
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-eb
+&Scoped-define QUERY-STRING-br_table FOR EACH tt-eb WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH ttGoto WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH tt-eb WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table ttGoto
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table ttGoto
+&Scoped-define TABLES-IN-QUERY-br_table tt-eb
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table tt-eb
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -249,38 +237,37 @@ FUNCTION display-bl-qty RETURNS DECIMAL
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      ttGoto SCROLLING.
+      tt-eb SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      ttGoto.form-no COLUMN-LABEL "Form" FORMAT ">>9":U
-      ttGoto.blank-no COLUMN-LABEL "Blank" FORMAT ">>9":U
-      ttGoto.part-no FORMAT "x(20)":U
-      ttGoto.num-wid COLUMN-LABEL "# on!Width" FORMAT ">9":U
-      ttGoto.num-len COLUMN-LABEL "# on! Length" FORMAT ">9":U
-      ttGoto.num-up FORMAT ">>9":U
-      ttGoto.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U
-      ttGoto.effectiveYldQty COLUMN-LABEL "Effective!Yield Qty" FORMAT "->>>,>>>,>>>":U 
-      ttGoto.yld-qty COLUMN-LABEL "Yield Qty!Override" FORMAT "->>>,>>>,>>>":U
-      ttGoto.calcYieldQty COLUMN-LABEL "Calculated!Yield Qty" FORMAT "->>>,>>>,>>>":U
-      ttGoto.yrprice FORMAT "Yield/Request":U
-      ttGoto.sheetsRequired COLUMN-LABEL "Sheets!Required" FORMAT "->>>,>>>,>>>":U
-      ttGoto.maxSheetsPerForm COLUMN-LABEL "Max Sheets!Per Form" FORMAT "->>>,>>>,>>>":U
-      
-      ttGoto.surplusQty COLUMN-LABEL "Surplus Qty" FORMAT "->>>,>>>,>>>":U
-      ttGoto.yld-qty-orig COLUMN-LABEL "Yield Qty Loaded" FORMAT "->>>,>>>,>>>":U
+      tt-eb.form-no COLUMN-LABEL "Form" FORMAT ">>9":U
+      tt-eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>9":U
+      tt-eb.part-no FORMAT "x(20)":U
+      tt-eb.num-wid COLUMN-LABEL "# on!Width" FORMAT ">9":U
+      tt-eb.num-len COLUMN-LABEL "# on! Length" FORMAT ">9":U
+      tt-eb.num-up FORMAT ">>9":U
+      tt-eb.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U
+      tt-eb.calcYieldQty COLUMN-LABEL "Calculated!Yield Qty" FORMAT "->>>,>>>,>>>":U
+      tt-eb.yld-qty COLUMN-LABEL "Yield Qty!Override" FORMAT "->>>,>>>,>>>":U
+      tt-eb.yrprice FORMAT "Yield/Request":U
+      tt-eb.sheetsRequired COLUMN-LABEL "Sheets!Required" FORMAT "->>>,>>>,>>>":U
+      tt-eb.maxSheetsPerForm COLUMN-LABEL "Max Sheets!Per Form" FORMAT "->>>,>>>,>>>":U
+      tt-eb.effectiveYldQty COLUMN-LABEL "Effective!Yield Qty" FORMAT "->>>,>>>,>>>":U
+      tt-eb.surplusQty COLUMN-LABEL "Surplus Qty" FORMAT "->>>,>>>,>>>":U
+      tt-eb.yld-qty-orig COLUMN-LABEL "Yield Qty Loaded" FORMAT "->>>,>>>,>>>":U
   ENABLE
-      ttGoto.form-no
-      ttGoto.blank-no
-      ttGoto.part-no
-      ttGoto.num-wid
-      ttGoto.num-len
-      ttGoto.bl-qty
-      ttGoto.yld-qty
-      ttGoto.yrprice
+      tt-eb.form-no
+      tt-eb.blank-no
+      tt-eb.part-no
+      tt-eb.num-wid
+      tt-eb.num-len
+      tt-eb.bl-qty
+      tt-eb.yld-qty
+      tt-eb.yrprice
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 125 BY 16.91 ROW-HEIGHT-CHARS .57.
@@ -305,7 +292,7 @@ DEFINE FRAME F-Main
    Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
    Temp-Tables and Buffers:
-      TABLE: ttGoto T "?" NO-UNDO asi eb
+      TABLE: tt-eb T "?" NO-UNDO asi eb
       ADDITIONAL-FIELDS:
           FIELD yieldQtyOverride AS INTEGER
           FIELD sheetsRequired AS DECIMAL
@@ -365,8 +352,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/*ASSIGN                                                   */
-/*       ttGoto.yld-qty:VISIBLE IN BROWSE br_table = FALSE.*/
+/*ASSIGN                                                  */
+/*       tt-eb.yld-qty:VISIBLE IN BROWSE br_table = FALSE.*/
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -376,37 +363,37 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "Temp-Tables.ttGoto"
+     _TblList          = "Temp-Tables.tt-eb"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   > Temp-Tables.ttGoto.form-no
-"ttGoto.form-no" "Form" ">>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > Temp-Tables.ttGoto.blank-no
-"ttGoto.blank-no" "Blank" ">>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > Temp-Tables.ttGoto.part-no
-"ttGoto.part-no" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > Temp-Tables.ttGoto.num-wid
-"ttGoto.num-wid" "# on!Width" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > Temp-Tables.ttGoto.num-len
-"ttGoto.num-len" "# on! Length" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = Temp-Tables.ttGoto.num-up
-     _FldNameList[7]   > Temp-Tables.ttGoto.bl-qty
-"ttGoto.bl-qty" "Request Qty" "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   > Temp-Tables.tt-eb.form-no
+"tt-eb.form-no" "Form" ">>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > Temp-Tables.tt-eb.blank-no
+"tt-eb.blank-no" "Blank" ">>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > Temp-Tables.tt-eb.part-no
+"tt-eb.part-no" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > Temp-Tables.tt-eb.num-wid
+"tt-eb.num-wid" "# on!Width" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > Temp-Tables.tt-eb.num-len
+"tt-eb.num-len" "# on! Length" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   = Temp-Tables.tt-eb.num-up
+     _FldNameList[7]   > Temp-Tables.tt-eb.bl-qty
+"tt-eb.bl-qty" "Request Qty" "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"ttGoto.calcYieldQty" "Calculated!Yield Qty" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > Temp-Tables.ttGoto.yld-qty
-"ttGoto.yld-qty" "Yield Qty!Override" "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > Temp-Tables.ttGoto.yrprice
-"ttGoto.yrprice" ? "Yield/Request" "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.calcYieldQty" "Calculated!Yield Qty" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > Temp-Tables.tt-eb.yld-qty
+"tt-eb.yld-qty" "Yield Qty!Override" "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > Temp-Tables.tt-eb.yrprice
+"tt-eb.yrprice" ? "Yield/Request" "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
-"ttGoto.sheetsRequired" "Sheets!Required" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.sheetsRequired" "Sheets!Required" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"ttGoto.maxSheetsPerForm" "Max Sheets!Per Form" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.maxSheetsPerForm" "Max Sheets!Per Form" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
-"ttGoto.effectiveYldQty" "Effective!Yield Qty" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.effectiveYldQty" "Effective!Yield Qty" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
-"ttGoto.surplusQty" "Surplus Qty" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.surplusQty" "Surplus Qty" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"ttGoto.yld-qty-orig" "Yield Qty Loaded" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.yld-qty-orig" "Yield Qty Loaded" "->>>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -470,7 +457,7 @@ DO:
   /* This code displays initial values for newly added or copied rows. */
     {src/adm/template/brsentry.i}
   
-        lv-prev-val-1 = ttGoto.form-no:SCREEN-VALUE IN BROWSE {&browse-name}.
+        lv-prev-val-1 = tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}.
 
     END.
 
@@ -521,7 +508,7 @@ DO:
 
 /* ***************************  Main Block  *************************** */
 
-ON LEAVE OF ttGoto.form-no IN BROWSE br_table /* Form# */
+ON LEAVE OF tt-eb.form-no IN BROWSE br_table /* Form# */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -530,16 +517,16 @@ ON LEAVE OF ttGoto.form-no IN BROWSE br_table /* Form# */
         END.
     END.
 
-ON ENTRY OF ttGoto.blank-no IN BROWSE br_table /* Blank# */
+ON ENTRY OF tt-eb.blank-no IN BROWSE br_table /* Blank# */
     DO:
         IF ll-new-form THEN 
         DO:
-            APPLY "tab" TO ttGoto.blank-no IN BROWSE {&browse-name}.
+            APPLY "tab" TO tt-eb.blank-no IN BROWSE {&browse-name}.
             RETURN NO-APPLY.
         END.
     END.
 
-ON LEAVE OF ttGoto.blank-no IN BROWSE br_table /* Blank# */
+ON LEAVE OF tt-eb.blank-no IN BROWSE br_table /* Blank# */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -548,18 +535,18 @@ ON LEAVE OF ttGoto.blank-no IN BROWSE br_table /* Blank# */
         END.
     END.
 
-ON ENTRY OF ttGoto.bl-qty IN BROWSE br_table /* Request Qty */
+ON ENTRY OF tt-eb.bl-qty IN BROWSE br_table /* Request Qty */
     DO:
         IF est.est-type EQ 2 OR
             est.est-type EQ 5 OR
             est.est-type EQ 6 THEN 
         DO:
-            APPLY "tab" TO ttGoto.bl-qty IN BROWSE {&browse-name}.
+            APPLY "tab" TO tt-eb.bl-qty IN BROWSE {&browse-name}.
             RETURN NO-APPLY.
         END.
     END.
 
-ON LEAVE OF ttGoto.bl-qty IN BROWSE br_table /* Request Qty */
+ON LEAVE OF tt-eb.bl-qty IN BROWSE br_table /* Request Qty */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -568,24 +555,24 @@ ON LEAVE OF ttGoto.bl-qty IN BROWSE br_table /* Request Qty */
         END.
     END.
 
-ON ENTRY OF ttGoto.num-wid IN BROWSE br_table /* # on Width */
+ON ENTRY OF tt-eb.num-wid IN BROWSE br_table /* # on Width */
     DO:
+        DEFINE BUFFER b-eb FOR tt-eb.
+
 
         IF (est.est-type EQ 2 OR
             est.est-type EQ 5 OR
             est.est-type EQ 6)                     AND
-            CAN-FIND(bf-ttGoto 
-            WHERE bf-ttGoto.company = est.company
-              AND bf-ttGoto.est-no = est.est-no
-              AND bf-ttGoto.form-no EQ ttGoto.form-no
-              AND bf-ttGoto.eqty    EQ ttGoto.eqty) THEN 
+            CAN-FIND(b-eb OF est
+            WHERE b-eb.form-no EQ tt-eb.form-no
+            AND b-eb.eqty    EQ tt-eb.eqty) THEN 
         DO:
-            APPLY "tab" TO ttGoto.num-wid IN BROWSE {&browse-name}.
+            APPLY "tab" TO tt-eb.num-wid IN BROWSE {&browse-name}.
             RETURN NO-APPLY.
         END.
     END.
 
-ON LEAVE OF ttGoto.num-wid IN BROWSE br_table /* # on Width */
+ON LEAVE OF tt-eb.num-wid IN BROWSE br_table /* # on Width */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -596,24 +583,24 @@ ON LEAVE OF ttGoto.num-wid IN BROWSE br_table /* # on Width */
     END.
 
 
-ON ENTRY OF ttGoto.num-len IN BROWSE br_table /* # on Length */
+ON ENTRY OF tt-eb.num-len IN BROWSE br_table /* # on Length */
     DO:
+        DEFINE BUFFER b-eb FOR tt-eb.
+
 
         IF (est.est-type EQ 2 OR
             est.est-type EQ 5 OR
             est.est-type EQ 6)                     AND
-            CAN-FIND(bf-ttGoto 
-            WHERE bf-ttGoto.company = ttGoto.company
-              AND bf-ttGoto.est-no = ttGoto.est-no
-              and bf-ttGoto.form-no EQ ttGoto.form-no
-              AND bf-ttGoto.eqty    EQ ttGoto.eqty) THEN 
+            CAN-FIND(b-eb OF est
+            WHERE b-eb.form-no EQ tt-eb.form-no
+            AND b-eb.eqty    EQ tt-eb.eqty) THEN 
         DO:
-            APPLY "tab" TO ttGoto.num-len IN BROWSE {&browse-name}.
+            APPLY "tab" TO tt-eb.num-len IN BROWSE {&browse-name}.
             RETURN NO-APPLY.
         END.
     END.
 
-ON LEAVE OF ttGoto.num-len IN BROWSE br_table /* # on Length */
+ON LEAVE OF tt-eb.num-len IN BROWSE br_table /* # on Length */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -624,13 +611,13 @@ ON LEAVE OF ttGoto.num-len IN BROWSE br_table /* # on Length */
     END.
 
 
-ON LEAVE OF ttGoto.yld-qty IN BROWSE br_table /* Yield Qty */
+ON LEAVE OF tt-eb.yld-qty IN BROWSE br_table /* Yield Qty */
     DO:
         /* RUN calc-#up. */
         RUN recalcCurrent.
     END.
 
-ON LEAVE OF ttGoto.yrprice IN BROWSE br_table 
+ON LEAVE OF tt-eb.yrprice IN BROWSE br_table 
     DO:
 
         /* user must press save otherwise browse loses focus*/
@@ -642,6 +629,8 @@ ON LEAVE OF ttGoto.yrprice IN BROWSE br_table
 
 
 FIND eb NO-LOCK WHERE ROWID(eb) EQ lv-rowid NO-ERROR.
+
+
 IF AVAILABLE eb THEN FIND FIRST est NO-LOCK WHERE 
     est.company EQ eb.company AND 
     est.est-no EQ eb.est-no 
@@ -649,6 +638,8 @@ IF AVAILABLE eb THEN FIND FIRST est NO-LOCK WHERE
 
 IF AVAILABLE est THEN 
 DO:
+
+
     RELEASE eb.
 
     RUN del-ref-records.
@@ -784,7 +775,7 @@ FOR EACH est-op
 END.
 END.
 
-io-rowid = ROWID(ttGoto).
+io-rowid = ROWID(tt-eb).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -798,13 +789,13 @@ PROCEDURE assign-ttrel :
       Notes:       
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        DISPLAY ttGoto.part-no
-            ttGoto.bl-qty 
-            ttGoto.yld-qty
-            ttGoto.num-wid           
-            ttGoto.calcYieldQty
-            ttGoto.num-len
-            ttGoto.yrprice
+        DISPLAY tt-eb.part-no
+            tt-eb.bl-qty 
+            tt-eb.yld-qty
+            tt-eb.num-wid           
+            tt-eb.calcYieldQty
+            tt-eb.num-len
+            tt-eb.yrprice
             WITH BROWSE {&browse-name}.
 
     END.
@@ -822,9 +813,9 @@ PROCEDURE calc-#up :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
-            STRING(DEC(ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
-            DEC(ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name})).
+        tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
+            STRING(DEC(tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
+            DEC(tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name})).
     END.
 
 END PROCEDURE.
@@ -843,29 +834,29 @@ PROCEDURE checkAllSaved :
     DEFINE VARIABLE lSaved AS LOG NO-UNDO.
 
     lSaved = TRUE.
-    FOR EACH bf-ttGoto:  
-        FIND eb EXCLUSIVE-LOCK WHERE ROWID(eb) EQ bf-ttGoto.ebRowid
+    FOR EACH bf-tt-eb:  
+        FIND eb EXCLUSIVE-LOCK WHERE ROWID(eb) EQ bf-tt-eb.ebRowid
             NO-ERROR. 
 
         IF AVAILABLE eb THEN 
         DO:
 
-            lSaved = (eb.form-no EQ bf-ttGoto.form-no
-                AND eb.blank-no EQ bf-ttGoto.blank-no
-                AND eb.num-wid EQ (IF est.est-type GE 5 THEN bf-ttGoto.num-len ELSE bf-ttGoto.num-wid)
-                AND eb.num-len EQ (IF est.est-type GE 5 THEN bf-ttGoto.num-wid ELSE bf-ttGoto.num-len)                  
-                AND eb.num-up EQ bf-ttGoto.num-up)
+            lSaved = (eb.form-no EQ bf-tt-eb.form-no
+                AND eb.blank-no EQ bf-tt-eb.blank-no
+                AND eb.num-wid EQ (IF est.est-type GE 5 THEN bf-tt-eb.num-len ELSE bf-tt-eb.num-wid)
+                AND eb.num-len EQ (IF est.est-type GE 5 THEN bf-tt-eb.num-wid ELSE bf-tt-eb.num-len)                  
+                AND eb.num-up EQ bf-tt-eb.num-up)
                 .
 
             /* For type 2, cust-% is displayed at yld-qty, but not updateable */
-            /* Using ttGoto.yld-qty as the override, comparing that to calcYieldQty */
+            /* Using tt-eb.yld-qty as the override, comparing that to calcYieldQty */
             IF lSaved EQ TRUE AND est.est-type NE 2 THEN
-                lSaved = eb.yld-qty EQ (IF bf-ttGoto.yld-qty GT 0 THEN bf-ttGoto.yld-qty ELSE bf-ttGoto.calcYieldQty).
+                lSaved = eb.yld-qty EQ (IF bf-tt-eb.yld-qty GT 0 THEN bf-tt-eb.yld-qty ELSE bf-tt-eb.calcYieldQty).
 
     
             /* bl-qty has a different meaning for type 2 and 6, so can't assign directly */
             IF lSaved AND NOT (est.est-type EQ 2 OR est.est-type EQ 6) THEN
-                lSaved = eb.bl-qty EQ bf-ttGoto.bl-qty.
+                lSaved = eb.bl-qty EQ bf-tt-eb.bl-qty.
 
 
         END.
@@ -886,7 +877,7 @@ PROCEDURE createReftable :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-ttGoto FOR ttGoto.
+    DEFINE BUFFER bf-tt-eb FOR tt-eb.
 
     FOR EACH multbl {&where-multbl} USE-INDEX reftable:
     DELETE multbl.
@@ -896,12 +887,12 @@ END.
 FOR EACH ef FIELDS(est-no form-no board brd-dscr) NO-LOCK 
     WHERE ef.company EQ est.company
       AND ef.est-no  EQ est.est-no,
-    EACH  bf-ttGoto NO-LOCK
-    WHERE bf-ttGoto.company EQ est.company
-      AND bf-ttGoto.est-no  EQ ef.est-no
-    /* AND bf-ttGoto.form-no EQ ef.form-no */:
+    EACH  bf-tt-eb NO-LOCK
+    WHERE bf-tt-eb.company EQ est.company
+      AND bf-tt-eb.est-no  EQ ef.est-no
+    /* AND bf-tt-eb.form-no EQ ef.form-no */:
   
-    FIND eb NO-LOCK WHERE ROWID(eb) EQ bf-ttGoto.ebRowid NO-ERROR.
+    FIND eb NO-LOCK WHERE ROWID(eb) EQ bf-tt-eb.ebRowid NO-ERROR.
   
     CREATE multbl.
     ASSIGN
@@ -911,8 +902,8 @@ FOR EACH ef FIELDS(est-no form-no board brd-dscr) NO-LOCK
         multbl.code     = est.est-no
         multbl.code2    = ef.board
         multbl.dscr     = ef.brd-dscr
-        multbl.val[1]   = bf-ttGoto.form-no
-        multbl.val[2]   = bf-ttGoto.blank-no
+        multbl.val[1]   = bf-tt-eb.form-no
+        multbl.val[2]   = bf-tt-eb.blank-no
         multbl.val[3]   = DEC(RECID(eb)).
     RELEASE multbl.
 END.
@@ -968,21 +959,21 @@ PROCEDURE finish-assign :
     DEFINE VARIABLE ll-die-changed AS LOG     NO-UNDO.
     DEFINE VARIABLE ll-ans         AS LOG     NO-UNDO.
     DEFINE VARIABLE li-qty         AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lv-frm         LIKE ttGoto.form-no INIT 0 NO-UNDO.
-    DEFINE VARIABLE lv-blk         LIKE ttGoto.blank-no INIT 0 NO-UNDO.
+    DEFINE VARIABLE lv-frm         LIKE tt-eb.form-no INIT 0 NO-UNDO.
+    DEFINE VARIABLE lv-blk         LIKE tt-eb.blank-no INIT 0 NO-UNDO.
 
-    FIND CURRENT ttGoto.
+    FIND CURRENT tt-eb.
     IF NOT AVAILABLE est THEN
-        FIND FIRST est NO-LOCK WHERE est.company EQ ttGoto.company
-            AND est.est-no EQ ttGoto.est-no
+        FIND FIRST est NO-LOCK WHERE est.company EQ tt-eb.company
+            AND est.est-no EQ tt-eb.est-no
             NO-ERROR.
     /* Made decision to take these updates out pending further review */
     /* for ticket 19568                                               */
     /*   FIND CURRENT est EXCLUSIVE.                                                                  */
     /*                                                                                                */
-    /*   lv-die-in = ttGoto.die-in.                                                                    */
-    /*   IF ttGoto.die-in NE 0 THEN ttGoto.die-in = (ttGoto.die-in / v-num-up) * ttGoto.num-up.           */
-    /*   IF lv-die-in NE ttGoto.die-in THEN ll-die-changed = YES.                                      */
+    /*   lv-die-in = tt-eb.die-in.                                                                    */
+    /*   IF tt-eb.die-in NE 0 THEN tt-eb.die-in = (tt-eb.die-in / v-num-up) * tt-eb.num-up.           */
+    /*   IF lv-die-in NE tt-eb.die-in THEN ll-die-changed = YES.                                      */
     /*                                                                                                */
     /*   RELEASE xef.                                                                                 */
     /*   IF ll-change         AND                                                                     */
@@ -990,17 +981,17 @@ PROCEDURE finish-assign :
     /*      est.est-type NE 5 AND                                                                     */
     /*      est.est-type NE 6 THEN                                                                    */
     /*   FIND FIRST xef                                                                               */
-    /*       WHERE xef.company EQ ttGoto.company                                                       */
-    /*         AND xef.est-no  EQ ttGoto.est-no                                                        */
-    /*         AND xef.form-no EQ ttGoto.form-no                                                       */
+    /*       WHERE xef.company EQ tt-eb.company                                                       */
+    /*         AND xef.est-no  EQ tt-eb.est-no                                                        */
+    /*         AND xef.form-no EQ tt-eb.form-no                                                       */
     /*       NO-LOCK NO-ERROR.                                                                        */
     /*                                                                                                */
     /*   IF AVAIL xef THEN DO:                                                                        */
-    /*     v-qty = ttGoto.yld-qty / ttGoto.num-up.                                                      */
+    /*     v-qty = tt-eb.yld-qty / tt-eb.num-up.                                                      */
     /*     {sys/inc/roundup.i v-qty}                                                                  */
     /*     ASSIGN                                                                                     */
-    /*      ttGoto.yld-qty = v-qty * ttGoto.num-up                                                      */
-    /*      /*xef.die-in = ttGoto.die-in*/.                                                            */
+    /*      tt-eb.yld-qty = v-qty * tt-eb.num-up                                                      */
+    /*      /*xef.die-in = tt-eb.die-in*/.                                                            */
     /*                                                                                                */
     /*     ll-ans = NO.                                                                               */
     /*                                                                                                */
@@ -1008,7 +999,7 @@ PROCEDURE finish-assign :
     /*         WHERE xeb.company EQ xef.company                                                       */
     /*           AND xeb.est-no  EQ xef.est-no                                                        */
     /*           AND xeb.form-no EQ xef.form-no                                                       */
-    /*           AND decimal(RECID(xeb))  NE ttGoto.dec-recid                                          */
+    /*           AND decimal(RECID(xeb))  NE tt-eb.dec-recid                                          */
     /*           AND xeb.yld-qty NE v-qty * xeb.num-up:                                               */
     /*       ll-ans = lUseAlternateQty.                                                               */
     /* /*      ll-ans = YES.                                                                       */ */
@@ -1025,7 +1016,7 @@ PROCEDURE finish-assign :
     /*         WHERE xeb.company EQ xef.company                                                       */
     /*           AND xeb.est-no  EQ xef.est-no                                                        */
     /*           AND xeb.form-no EQ xef.form-no                                                       */
-    /*           AND ROWID(xeb)  NE ROWID(ttGoto)                                                      */
+    /*           AND ROWID(xeb)  NE ROWID(tt-eb)                                                      */
     /*           AND xeb.yld-qty NE v-qty * xeb.num-up                                                */
     /*         BY xeb.blank-no:                                                                       */
     /*       /*IF xeb.yld-qty LT xeb.bl-qty THEN xeb.yld-qty = xeb.bl-qty.*/                          */
@@ -1050,7 +1041,7 @@ PROCEDURE finish-assign :
     /*     RELEASE xeb.                                                                               */
     /*   END.                                                                                         */
     /*                                                                                                */
-    /*   FIND CURRENT ttGoto  NO-LOCK.                                                                 */
+    /*   FIND CURRENT tt-eb  NO-LOCK.                                                                 */
     /*   FIND CURRENT est NO-LOCK.                                                                    */
     /*                                                                                                */
     /*   IF ll-die-changed THEN RUN est/updefdie.p (ROWID(ef)).                                       */
@@ -1102,7 +1093,7 @@ PROCEDURE get-eb-rowid :
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
 
-    op-rowid = ROWID(ttGoto).
+    op-rowid = ROWID(tt-eb).
 
 END PROCEDURE.
 
@@ -1156,78 +1147,64 @@ PROCEDURE loadTempTable :
 
     DEFINE VARIABLE cEstNo   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dMaxSheets AS DECIMAL NO-UNDO.
-    
+
     cEstNo = ipcEstNo.
     cCompany = ipcCompany.
 
-    EMPTY TEMP-TABLE ttGoto.
+    EMPTY TEMP-TABLE tt-eb.
     FOR EACH eb NO-LOCK WHERE eb.company EQ cCompany
-        AND eb.est-no EQ cEstNo BREAK BY eb.form-no :
-            
-        IF FIRST-OF(eb.form-no) THEN 
-        DO:
-            /* Calculate maximum sheets requested for this form */
-            dMaxSheets = 0.
-            FOR EACH b-eb WHERE b-eb.company = eb.company
-                  AND b-eb.est-no = eb.est-no
-                  AND b-eb.form-no EQ eb.form-no:
-                /* bl-qty is requested sheets quantity */
-                IF (b-eb.bl-qty / b-eb.num-up) GT dMaxSheets THEN 
-                    dMaxSheets = b-eb.bl-qty / b-eb.num-up.
-            END.
-            {sys/inc/roundup.i dMaxSheets}
-        END.        
+        AND eb.est-no EQ cEstNo  :
         FIND FIRST est NO-LOCK WHERE 
             est.company EQ eb.company AND 
             est.est-no EQ eb.est-no 
             NO-ERROR.
 
-        CREATE ttGoto.
-        BUFFER-COPY eb TO ttGoto.
+        CREATE tt-eb.
+        BUFFER-COPY eb TO tt-eb.
         ASSIGN 
-            ttGoto.dec-recid = DECIMAL(RECID(eb))
-            ttGoto.ebRowid   = ROWID(eb)
+            tt-eb.dec-recid = DECIMAL(RECID(eb))
+            tt-eb.ebRowid   = ROWID(eb)
             .
 
         /* Save to compare with calculated value */
-        ttGoto.yld-qty-orig = ttGoto.yld-qty.
+        tt-eb.yld-qty-orig = tt-eb.yld-qty.
 
         /* Setting this way on create of temp-table, write it back to same field */
-        ttGoto.calcYieldQty = /*IF est.est-type EQ 2 THEN  eb.cust-%  
-                              ELSE  IF est.est-type EQ 6 THEN eb.yld-qty 
-                              ELSE*/  eb.yld-qty.
+        tt-eb.calcYieldQty = IF est.est-type EQ 2 THEN  eb.cust-%  
+        ELSE  IF est.est-type EQ 6 THEN eb.yld-qty 
+        ELSE eb.yld-qty.
 
 
-        /* Setting this way on create of temp-table, write it back to same field */
-        ttGoto.num-wid = IF est.est-type GE 5 THEN eb.num-len ELSE eb.num-wid.
 
         /* Setting this way on create of temp-table, write it back to same field */
-        ttGoto.num-len = IF est.est-type GE 5 THEN eb.num-wid ELSE eb.num-len.
+        tt-eb.num-wid = IF est.est-type GE 5 THEN eb.num-len ELSE eb.num-wid.
+
+        /* Setting this way on create of temp-table, write it back to same field */
+        tt-eb.num-len = IF est.est-type GE 5 THEN eb.num-wid ELSE eb.num-len.
 
         /* Setting this way on create of temp-table, write it back to same field */
 
-        /* ttGoto.bl-qty = display-bl-qty(). */
+        tt-eb.bl-qty = display-bl-qty().
 
         /* Yld-qty is the override quantity on the screen - calcYieldQty will be written to yld-qty on save */
-        IF ttGoto.calcYieldQty EQ eb.yld-qty THEN
-            ttGoto.yld-qty = 0.
+        IF tt-eb.calcYieldQty EQ eb.yld-qty THEN
+            tt-eb.yld-qty = 0.
 
     END.
     FIND FIRST eb NO-LOCK WHERE ROWID(eb) = lv-rowid NO-ERROR.
     IF AVAILABLE eb THEN 
-      FIND FIRST ttGoto WHERE ttGoto.ebRowid   = ROWID(eb) NO-ERROR.
+      FIND FIRST tt-eb WHERE tt-eb.ebRowid   = ROWID(eb) NO-ERROR.
 
-  /*  RUN recalcAll. */
+    RUN recalcAll.
 
-/*    FOR EACH ttGoto:                                                               */
-/*        /* If calculated value is different, assume stored value was an override */*/
-/*        IF ttGoto.effectiveYldQty NE ttGoto.yld-qty-orig THEN                      */
-/*            ttGoto.yld-qty = ttGoto.yld-qty-orig.                                  */
-/*        ELSE                                                                       */
-/*            ttGoto.yld-qty = 0.                                                    */
-/*                                                                                   */
-/*    END.                                                                           */
+    FOR EACH tt-eb:
+        /* If calculated value is different, assume stored value was an override */
+        IF tt-eb.effectiveYldQty NE tt-eb.yld-qty-orig THEN
+            tt-eb.yld-qty = tt-eb.yld-qty-orig.
+        ELSE 
+            tt-eb.yld-qty = 0.
+      
+    END.
 
     RUN createReftable.
 
@@ -1242,22 +1219,22 @@ PROCEDURE local-assign-statement :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-bl-qty  LIKE ttGoto.bl-qty NO-UNDO.
-    DEFINE VARIABLE lv-yld-qty LIKE ttGoto.yld-qty NO-UNDO.
+    DEFINE VARIABLE lv-bl-qty  LIKE tt-eb.bl-qty NO-UNDO.
+    DEFINE VARIABLE lv-yld-qty LIKE tt-eb.yld-qty NO-UNDO.
     DEFINE VARIABLE lv-field   AS CHARACTER NO-UNDO.
 
 
     /* Code placed here will execute PRIOR to standard behavior. */
     ASSIGN
-        lv-bl-qty  = ttGoto.bl-qty
-        lv-yld-qty = ttGoto.yld-qty.
+        lv-bl-qty  = tt-eb.bl-qty
+        lv-yld-qty = tt-eb.yld-qty.
 
     DO WITH FRAME {&FRAME-NAME}:
         IF est.est-type GE 5 THEN
             ASSIGN
-                lv-field                                            = ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}
-                ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} = ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name}
-                ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = lv-field.
+                lv-field                                            = tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}
+                tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} = tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name}
+                tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = lv-field.
     END.
 
     /* Dispatch standard ADM method.                             */
@@ -1265,14 +1242,14 @@ PROCEDURE local-assign-statement :
 
     /* Code placed here will execute AFTER standard behavior.    */
     DO WITH FRAME {&FRAME-NAME}:
-        ttGoto.num-up = INT(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+        tt-eb.num-up = INT(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
 
         IF est.est-type EQ 2 OR
             est.est-type EQ 5 OR
             est.est-type EQ 6 THEN
             ASSIGN
-                ttGoto.bl-qty  = lv-bl-qty
-                ttGoto.yld-qty = lv-yld-qty.
+                tt-eb.bl-qty  = lv-bl-qty
+                tt-eb.yld-qty = lv-yld-qty.
     END.
 
     FOR EACH b-ref NO-LOCK
@@ -1366,21 +1343,21 @@ PROCEDURE local-enable-fields :
 
     /* Code placed here will execute AFTER standard behavior.    */
     DO WITH FRAME {&FRAME-NAME}:
-        APPLY "entry" TO ttGoto.form-no IN BROWSE {&browse-name}.
+        APPLY "entry" TO tt-eb.form-no IN BROWSE {&browse-name}.
         ll-new-form = NO.
 
         ASSIGN
-            hld-yld-qty = ttGoto.yld-qty
-            hld-num-up  = ttGoto.num-up.
+            hld-yld-qty = tt-eb.yld-qty
+            hld-num-up  = tt-eb.num-up.
        
         IF hld-yld-qty EQ 0 THEN 
         DO:
             FIND FIRST xeb NO-LOCK
-                WHERE xeb.company EQ ttGoto.company
-                AND xeb.est-no  EQ ttGoto.est-no
-                AND xeb.form-no EQ ttGoto.form-no
-                /* AND decimal(RECID(xeb))  NE ttGoto.dec-recid */
-                AND ROWID(xeb) NE ROWID(ttGoto) /* Since xeb is now a buffer for ttGoto */
+                WHERE xeb.company EQ tt-eb.company
+                AND xeb.est-no  EQ tt-eb.est-no
+                AND xeb.form-no EQ tt-eb.form-no
+                /* AND decimal(RECID(xeb))  NE tt-eb.dec-recid */
+                AND ROWID(xeb) NE ROWID(tt-eb) /* Since xeb is now a buffer for tt-eb */
                  NO-ERROR.
             IF AVAILABLE xeb THEN 
             DO:
@@ -1440,7 +1417,7 @@ PROCEDURE local-initialize :
 /*            est.est-type EQ 5 OR                                     */
 /*            est.est-type EQ 6) THEN                                  */
 /*        DO WITH FRAME {&FRAME-NAME}:                                 */
-/*            ttGoto.yld-qty:LABEL IN BROWSE {&browse-name} = "Qty/Set".*/
+/*            tt-eb.yld-qty:LABEL IN BROWSE {&browse-name} = "Qty/Set".*/
 /*        END.                                                         */
     END.
 
@@ -1465,7 +1442,7 @@ PROCEDURE local-update-record :
 
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    lv-rowid = ROWID(ttGoto).
+    lv-rowid = ROWID(tt-eb).
 
     RUN calc-#up.
 
@@ -1480,14 +1457,14 @@ PROCEDURE local-update-record :
 
     ASSIGN
         ll-change  = NO
-        v-form-no  = ttGoto.form-no
-        v-blank-no = ttGoto.blank-no
-        v-num-up   = ttGoto.num-up.
+        v-form-no  = tt-eb.form-no
+        v-blank-no = tt-eb.blank-no
+        v-num-up   = tt-eb.num-up.
 
     DO WITH FRAME {&frame-name}:
-        ll-change = ttGoto.bl-qty  NE DEC(ttGoto.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name})  OR
-            ttGoto.yld-qty NE DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) OR
-            ttGoto.num-up  NE DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+        ll-change = tt-eb.bl-qty  NE DEC(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name})  OR
+            tt-eb.yld-qty NE DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) OR
+            tt-eb.num-up  NE DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
     END.
 
     /* Dispatch standard ADM method.                             */
@@ -1668,38 +1645,38 @@ PROCEDURE recalcAll :
     DEFINE VARIABLE rtt-ebRow AS ROWID NO-UNDO.
     
     rtt-ebRow = ?.
-    IF AVAIL ttGoto THEN
-      rtt-ebRow = ROWID(ttGoto).
+    IF AVAIL tt-eb THEN
+      rtt-ebRow = ROWID(tt-eb).
 
-    FOR EACH ttGoto BREAK BY ttGoto.form-no:
+    FOR EACH tt-eb BREAK BY tt-eb.form-no:
     
-        IF FIRST-OF(ttGoto.form-no) THEN 
+        IF FIRST-OF(tt-eb.form-no) THEN 
         DO:
             /* Calculate maximum sheets requested for this form */
             dMaxSheets = 0.
-            FOR EACH bf-ttGoto WHERE bf-ttGoto.form-no EQ 
-                ttGoto.form-no:
+            FOR EACH bf-tt-eb WHERE bf-tt-eb.form-no EQ 
+                tt-eb.form-no:
                 /* bl-qty is requested sheets quantity */
-                IF (bf-ttGoto.bl-qty / bf-ttGoto.num-up) GT dMaxSheets THEN 
-                    dMaxSheets = bf-ttGoto.bl-qty / bf-ttGoto.num-up.
+                IF (bf-tt-eb.bl-qty / bf-tt-eb.num-up) GT dMaxSheets THEN 
+                    dMaxSheets = bf-tt-eb.bl-qty / bf-tt-eb.num-up.
             END.
             {sys/inc/roundup.i dMaxSheets}
         END.
      /*
-        IF ttGoto.bl-qty / ttGoto.num-up > dMaxSheets then
-           dMaxSheets = ttGoto.bl-qty / ttGoto.num-up.
+        IF tt-eb.bl-qty / tt-eb.num-up > dMaxSheets then
+           dMaxSheets = tt-eb.bl-qty / tt-eb.num-up.
        */
            
-        ttGoto.sheetsRequired   = ttGoto.bl-qty / ttGoto.num-up.
+        tt-eb.sheetsRequired   = tt-eb.bl-qty / tt-eb.num-up.
     
-        {sys/inc/roundup.i ttGoto.sheetsRequired} /* sheets req'd / num up, rounded up */
+        {sys/inc/roundup.i tt-eb.sheetsRequired} /* sheets req'd / num up, rounded up */
         
         ASSIGN 
-            ttGoto.maxSheetsPerForm = dMaxSheets 
-            ttGoto.calcYieldQty     = ttGoto.num-up * ttGoto.maxSheetsPerForm         
-            ttGoto.effectiveYldQty  = (IF ttGoto.yld-qty GT 0 THEN  ttGoto.yld-qty ELSE 
-                                  ttGoto.calcYieldQty)
-            ttGoto.surplusQty       = (ttGoto.calcYieldQty - ttGoto.effectiveYldQty)
+            tt-eb.maxSheetsPerForm = dMaxSheets 
+            tt-eb.calcYieldQty     = tt-eb.num-up * tt-eb.maxSheetsPerForm         
+            tt-eb.effectiveYldQty  = (IF tt-eb.yld-qty GT 0 THEN  tt-eb.yld-qty ELSE 
+                                  tt-eb.calcYieldQty)
+            tt-eb.surplusQty       = (IF tt-eb.bl-qty GT 0 THEN tt-eb.effectiveYldQty - tt-eb.bl-qty ELSE 0)
             .
 
                   
@@ -1843,50 +1820,45 @@ PROCEDURE recalcCurrent :
     DEFINE VARIABLE dSheetReqd AS DECIMAL NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
-        ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
-            STRING(DEC(ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
-            DEC(ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name})).
+        tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
+            STRING(DEC(tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
+            DEC(tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name})).
     END.
   
 
     /* Calculate mraximum sheets requested for this form */
     dMaxSheets = 0.
-/*    FOR EACH bf2-ttGoto WHERE bf2-ttGoto.form-no EQ                                           */
-/*        ttGoto.form-no                                                                        */
-/*        AND bf2-ttGoto.blank-no NE int(ttGoto.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}):*/
-/*        /* bl-qty is requested sheets quantity */                                             */
-/*        IF bf2-ttGoto.bl-qty GT dMaxSheets THEN                                               */
-/*            dMaxSheets = bf2-ttGoto.bl-qty / bf2-ttGoto.num-up.                               */
-/*    END.                                                                                      */
-    
-    FOR EACH bf-ttGoto WHERE bf-ttGoto.form-no EQ 
-        ttGoto.form-no:
+    FOR EACH bf2-tt-eb WHERE bf2-tt-eb.form-no EQ 
+        tt-eb.form-no
+        AND bf2-tt-eb.blank-no NE int(tt-eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}):
         /* bl-qty is requested sheets quantity */
-        IF (bf-ttGoto.bl-qty / bf-ttGoto.num-up) GT dMaxSheets THEN 
-            dMaxSheets = bf-ttGoto.bl-qty / bf-ttGoto.num-up.
+        IF bf2-tt-eb.bl-qty GT dMaxSheets THEN 
+            dMaxSheets = bf2-tt-eb.bl-qty / bf2-tt-eb.num-up.
     END.
-    
+
    {sys/inc/roundup.i dMaxSheets}
     
-    ttGoto.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(DECIMAL(ttGoto.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) 
-        / DECIMAL(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
-    dSheetReqd = DECIMAL(ttGoto.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name}).
+    tt-eb.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(DECIMAL(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) 
+        / DECIMAL(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
+    dSheetReqd = DECIMAL(tt-eb.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name}).
     {sys/inc/roundup.i dSheetReqd} /* sheets req'd / num up, rounded up */
 
-    IF dSheetReqd GT dMaxSheets THEN  dMaxSheets = dSheetReqd.
-    ttGoto.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dSheetReqd).
+    IF dSheetReqd GT dMaxSheets THEN
+        dMaxSheets = dSheetReqd.
+    tt-eb.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dSheetReqd).
 
     ASSIGN 
-        ttGoto.maxSheetsPerForm:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMaxSheets)
-        ttGoto.calcYieldQty:SCREEN-VALUE IN BROWSE {&browse-name}     = STRING(DECIMAL(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) * dMaxSheets)
-        /* ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}          = STRING(DECIMAL(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) * dMaxSheets) */
-        ttGoto.effectiveYldQty:SCREEN-VALUE IN BROWSE {&browse-name}  = (IF INTEGER(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN  
-                                                                          ttGoto.yld-Qty:SCREEN-VALUE IN BROWSE {&browse-name} 
+        tt-eb.maxSheetsPerForm:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMaxSheets)
+        tt-eb.calcYieldQty:SCREEN-VALUE IN BROWSE {&browse-name}     = STRING(DECIMAL(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) * dMaxSheets)
+        /* tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}          = STRING(DECIMAL(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) * dMaxSheets) */
+        tt-eb.effectiveYldQty:SCREEN-VALUE IN BROWSE {&browse-name}  = (IF INTEGER(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN  
+                                                                          tt-eb.yld-Qty:SCREEN-VALUE IN BROWSE {&browse-name} 
                                                                         ELSE 
-                                                                          ttGoto.bl-Qty:SCREEN-VALUE IN BROWSE {&browse-name})
-        ttGoto.surplusQty:SCREEN-VALUE IN BROWSE {&browse-name}       = (STRING( integer(ttGoto.calcYieldQty:screen-value) -
-                                                                              INTEGER ( ttGoto.effectiveYldQty:SCREEN-VALUE IN BROWSE {&browse-name} )) 
-                                                                        )
+                                                                          tt-eb.calcYieldQty:SCREEN-VALUE IN BROWSE {&browse-name})
+        tt-eb.surplusQty:SCREEN-VALUE IN BROWSE {&browse-name}       = (IF INTEGER(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN 
+                                                                           STRING( INTEGER ( tt-eb.effectiveYldQty:SCREEN-VALUE IN BROWSE {&browse-name} ) - INTEGER (tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name})) 
+          
+                                                                        ELSE "")
         .
 
 
@@ -1985,8 +1957,8 @@ PROCEDURE saveAll :
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     isFormBlankChange = NO.
-    FOR EACH ttGoto:  
-        FIND eb EXCLUSIVE-LOCK WHERE ROWID(eb) EQ ttGoto.ebRowid
+    FOR EACH tt-eb:  
+        FIND eb EXCLUSIVE-LOCK WHERE ROWID(eb) EQ tt-eb.ebRowid
             NO-ERROR. 
 
         IF AVAILABLE eb THEN 
@@ -1998,25 +1970,25 @@ PROCEDURE saveAll :
                 NO-ERROR.
 
             iOrigNumUp = eb.num-up.
-            IF eb.form-no NE ttGoto.form-no OR eb.blank-no  NE ttGoto.blank-no  THEN
+            IF eb.form-no NE tt-eb.form-no OR eb.blank-no  NE tt-eb.blank-no  THEN
                 isFormBlankChange = TRUE.
 
             ASSIGN             
-                eb.num-wid = IF est.est-type GE 5 THEN ttGoto.num-len ELSE ttGoto.num-wid
-                eb.num-len = IF est.est-type GE 5 THEN ttGoto.num-wid ELSE ttGoto.num-len             
-                eb.num-up  = ttGoto.num-up
-                eb.yrprice = ttGoto.yrprice
-                eb.part-no = ttGoto.part-no
+                eb.num-wid = IF est.est-type GE 5 THEN tt-eb.num-len ELSE tt-eb.num-wid
+                eb.num-len = IF est.est-type GE 5 THEN tt-eb.num-wid ELSE tt-eb.num-len             
+                eb.num-up  = tt-eb.num-up
+                eb.yrprice = tt-eb.yrprice
+                eb.part-no = tt-eb.part-no
                 .
             iNewNumUp = eb.num-up.
 
             /* For type 2, cust-% is displayed at yld-qty, but not updateable */
             IF est.est-type NE 2 THEN
-                eb.yld-qty = (IF ttGoto.yld-qty GT 0 THEN ttGoto.yld-qty ELSE ttGoto.calcYieldQty).
+                eb.yld-qty = (IF tt-eb.yld-qty GT 0 THEN tt-eb.yld-qty ELSE tt-eb.calcYieldQty).
   
             /* bl-qty has a different meaning for type 2 and 6, so can't assign directly */
             IF NOT (est.est-type EQ 2 OR est.est-type EQ 6) THEN
-                eb.bl-qty = ttGoto.bl-qty.                      
+                eb.bl-qty = tt-eb.bl-qty.                      
            
 
             /* Handle any change to num-up, uses buffer xeb */
@@ -2036,7 +2008,7 @@ PROCEDURE saveAll :
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
         RUN setChangesMade IN WIDGET-HANDLE(char-hdl) (INPUT YES).
  
-    /* Handle any form/blank changes for all ttGoto */
+    /* Handle any form/blank changes for all tt-eb */
     IF isFormBlankChange THEN
         RUN saveFormBlankChanges.
 
@@ -2072,12 +2044,12 @@ END.
 FOR EACH ef FIELDS(est-no form-no board brd-dscr) NO-LOCK 
     WHERE ef.company EQ est.company
       AND ef.est-no  EQ est.est-no,
-    EACH  ttGoto NO-LOCK
-    WHERE ttGoto.company EQ est.company
-      AND ttGoto.est-no  EQ ef.est-no
-    /* AND ttGoto.form-no EQ ef.form-no */:
+    EACH  tt-eb NO-LOCK
+    WHERE tt-eb.company EQ est.company
+      AND tt-eb.est-no  EQ ef.est-no
+    /* AND tt-eb.form-no EQ ef.form-no */:
 
-    FIND eb NO-LOCK WHERE ROWID(eb) EQ ttGoto.ebRowid NO-ERROR.
+    FIND eb NO-LOCK WHERE ROWID(eb) EQ tt-eb.ebRowid NO-ERROR.
 
     CREATE multbl.
     ASSIGN
@@ -2087,18 +2059,18 @@ FOR EACH ef FIELDS(est-no form-no board brd-dscr) NO-LOCK
         multbl.code     = est.est-no
         multbl.code2    = ef.board
         multbl.dscr     = ef.brd-dscr
-        multbl.val[1]   = ttGoto.form-no
-        multbl.val[2]   = ttGoto.blank-no
+        multbl.val[1]   = tt-eb.form-no
+        multbl.val[2]   = tt-eb.blank-no
         multbl.val[3]   = DEC(RECID(eb))
         .
         
     RELEASE multbl.
 END.
 
-FOR EACH ttGoto:
+FOR EACH tt-eb:
 
     /* Code Prior to Finish Assign Logic */
-    FIND eb NO-LOCK WHERE ROWID(eb) EQ ttGoto.ebRowid NO-ERROR.
+    FIND eb NO-LOCK WHERE ROWID(eb) EQ tt-eb.ebRowid NO-ERROR.
 
     ASSIGN
         ll-change  = NO
@@ -2107,9 +2079,9 @@ FOR EACH ttGoto:
         v-num-up   = eb.num-up
         .
 
-    ll-change = ttGoto.bl-qty  NE eb.bl-qty  OR
-                ttGoto.yld-qty NE eb.yld-qty OR
-                ttGoto.num-up  NE eb.num-up.
+    ll-change = tt-eb.bl-qty  NE eb.bl-qty  OR
+                tt-eb.yld-qty NE eb.yld-qty OR
+                tt-eb.num-up  NE eb.num-up.
 
     /* Finish Assign - Reorder multbl */
     /* Renumbers form & blank compared to original */
@@ -2243,17 +2215,17 @@ PROCEDURE saveRowValues :
      Notes:
     ------------------------------------------------------------------------------*/
     ASSIGN 
-        ttGoto.form-no          = INTEGER(ttGoto.form-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-        ttGoto.blank-no         = INTEGER(ttGoto.blank-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-        ttGoto.bl-qty           = INTEGER(ttGoto.bl-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-        ttGoto.yld-qty          = INTEGER(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-        ttGoto.num-len          = INTEGER(ttGoto.num-len:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-        ttGoto.num-wid          = INTEGER(ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-        ttGoto.maxSheetsPerForm = INTEGER(ttGoto.maxSheetsPerForm:SCREEN-VALUE IN BROWSE {&browse-name})
-        ttGoto.calcYieldQty     = INTEGER(ttGoto.calcYieldQty:SCREEN-VALUE IN BROWSE {&browse-name})       
-        ttGoto.effectiveYldQty  = INTEGER(ttGoto.effectiveYldQty:SCREEN-VALUE IN BROWSE {&browse-name})
-        ttGoto.surplusQty       = INTEGER(ttGoto.surplusQty:SCREEN-VALUE IN BROWSE {&browse-name})
-        ttGoto.sheetsRequired   = INTEGER(ttGoto.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name})
+        tt-eb.form-no          = INTEGER(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        tt-eb.blank-no         = INTEGER(tt-eb.blank-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        tt-eb.bl-qty           = INTEGER(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        tt-eb.yld-qty          = INTEGER(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        tt-eb.num-len          = INTEGER(tt-eb.num-len:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        tt-eb.num-wid          = INTEGER(tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        tt-eb.maxSheetsPerForm = INTEGER(tt-eb.maxSheetsPerForm:SCREEN-VALUE IN BROWSE {&browse-name})
+        tt-eb.calcYieldQty     = INTEGER(tt-eb.calcYieldQty:SCREEN-VALUE IN BROWSE {&browse-name})       
+        tt-eb.effectiveYldQty  = INTEGER(tt-eb.effectiveYldQty:SCREEN-VALUE IN BROWSE {&browse-name})
+        tt-eb.surplusQty       = INTEGER(tt-eb.surplusQty:SCREEN-VALUE IN BROWSE {&browse-name})
+        tt-eb.sheetsRequired   = INTEGER(tt-eb.sheetsRequired:SCREEN-VALUE IN BROWSE {&browse-name})
         .
 /* RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) . */
 END PROCEDURE.
@@ -2273,7 +2245,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ttGoto"}
+  {src/adm/template/snd-list.i "tt-eb"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -2399,60 +2371,60 @@ PROCEDURE valid-bl-yld-up :
         est.est-type NE 6 THEN 
     DO WITH FRAME {&FRAME-NAME}:
 
-        IF DEC(ttGoto.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN 
+        IF DEC(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN 
         DO:
             MESSAGE "Request Qty may not be zero..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO ttGoto.bl-qty IN BROWSE {&browse-name}.
+            APPLY "entry" TO tt-eb.bl-qty IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
 
 
-        IF DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) LT 1 THEN
+        IF DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) LT 1 THEN
             ASSIGN
-                ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
-                ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
-                ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}  = "1".
+                tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
+                tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
+                tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}  = "1".
 
-        IF DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-yld-qty AND
-            DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO
-            DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0          AND
+        IF DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-yld-qty AND
+            DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO
+            DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0          AND
             v-qty NE 0                                                           AND
             NOT ll-one-bl-per-form                                               THEN 
         DO:
-            ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
-                STRING(TRUNC(DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / v-qty,0) +
-                INT(DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO v-qty GT 0)).
+            tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
+                STRING(TRUNC(DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / v-qty,0) +
+                INT(DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO v-qty GT 0)).
         END.
                     
-        IF DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-num-up THEN 
+        IF DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-num-up THEN 
         DO:
             /*       ll-ans = lManualRecalc.                                                                  */
-            /*       IF DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO                       */
-            /*            DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 AND lManualRecalc THEN */
+            /*       IF DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO                       */
+            /*            DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 AND lManualRecalc THEN */
             /*         MESSAGE "Recalculate Yield Qty?"                                                       */
             /*             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO                                           */
             /*             UPDATE ll-ans.                                                                     */
             ll-ans = TRUE.
             IF ll-ans THEN 
             DO:
-                v-qty = DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+                v-qty = DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
         {sys/inc/roundup.i v-qty}
-                ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
-                    STRING(v-qty * DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
+                tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
+                    STRING(v-qty * DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
             END.
         END.
           
         ASSIGN
-            hld-yld-qty = DEC(ttGoto.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name})
-            hld-num-up  = DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+            hld-yld-qty = DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name})
+            hld-num-up  = DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
         /* taking out, was changing num-wid entered 
-            IF DEC(ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
-               DEC(ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name}) NE
-                DEC(ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
+            IF DEC(tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
+               DEC(tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name}) NE
+                DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
               ASSIGN
-               ttGoto.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} =
-                                      ttGoto.num-up:SCREEN-VALUE IN BROWSE {&browse-name}
-               ttGoto.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
+               tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} =
+                                      tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}
+               tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
         */
         v-qty = hld-yld-qty / hld-num-up.
     {sys/inc/roundup.i v-qty}
@@ -2472,11 +2444,11 @@ PROCEDURE valid-blank-no :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF INT(ttGoto.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN 
+        IF INT(tt-eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN 
         DO:
             MESSAGE "Blank Number may not be zero..."
                 VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO ttGoto.blank-no IN BROWSE {&browse-name}.
+            APPLY "entry" TO tt-eb.blank-no IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
     END.
@@ -2507,7 +2479,7 @@ PROCEDURE valid-form-no :
             AND b-ref.company  EQ est.company
             AND b-ref.loc      EQ est.loc
             AND b-ref.code     EQ est.est-no
-            AND b-ref.val[1]   EQ INT(ttGoto.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+            AND b-ref.val[1]   EQ INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
             NO-ERROR.
         IF NOT AVAILABLE b-ref AND lRefExists THEN 
         DO:
@@ -2518,19 +2490,19 @@ PROCEDURE valid-form-no :
          
             IF ll-new-form THEN
                 ASSIGN
-                    ttGoto.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
-                    /*ttGoto.form-no:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(est.form-qty + 1)*/.
+                    tt-eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
+                    /*tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(est.form-qty + 1)*/.
 
             ELSE 
             DO:
-                APPLY "entry" TO ttGoto.form-no IN BROWSE {&browse-name}.
+                APPLY "entry" TO tt-eb.form-no IN BROWSE {&browse-name}.
                 RETURN ERROR.
             END.
       
         END.
     
         ELSE
-            IF INT(ttGoto.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE
+            IF INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE
                 INT(lv-prev-val-1) THEN 
             DO:
                 FOR EACH b-ref NO-LOCK
@@ -2538,17 +2510,17 @@ PROCEDURE valid-form-no :
                     AND b-ref.company  EQ est.company
                     AND b-ref.loc      EQ est.loc
                     AND b-ref.code     EQ est.est-no
-                    AND b-ref.val[1]   EQ INT(ttGoto.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                    AND b-ref.val[1]   EQ INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
                     AND ROWID(b-ref)   NE ROWID(reftable)  
                     BY b-ref.val[2] DESCENDING:
                     LEAVE.
                 END.
 
-                ttGoto.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} =
+                tt-eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} =
                     STRING((IF AVAILABLE b-ref THEN b-ref.val[2] ELSE 0) + 1).
             END.  
 
-        lv-prev-val-1 = ttGoto.form-no:SCREEN-VALUE IN BROWSE {&browse-name}. 
+        lv-prev-val-1 = tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}. 
     END.
 
 END PROCEDURE.
@@ -2568,27 +2540,27 @@ PROCEDURE valid-frm-bl :
     DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
     cMessage = "".
     iFormCnt = 0.
-    FOR EACH bf-ttGoto BREAK BY bf-ttGoto.form-no:
+    FOR EACH bf-tt-eb BREAK BY bf-tt-eb.form-no:
 
 
-        IF FIRST-OF(bf-ttGoto.form-no) THEN 
+        IF FIRST-OF(bf-tt-eb.form-no) THEN 
         DO: 
             /* Form may start at # 0, so don't make iFormCnt 1 in that case */
-            IF NOT (iFormCnt EQ 0 AND bf-ttGoto.form-no EQ 0) THEN 
+            IF NOT (iFormCnt EQ 0 AND bf-tt-eb.form-no EQ 0) THEN 
             iFormCnt = iFormCnt + 1.
-            IF bf-ttGoto.form-no NE iFormCnt THEN 
+            IF bf-tt-eb.form-no NE iFormCnt THEN 
             DO:
-                cMessage = "Form #" + STRING(bf-ttGoto.form-no) + " is out of order and should be #" + STRING(iFormCnt).
+                cMessage = "Form #" + STRING(bf-tt-eb.form-no) + " is out of order and should be #" + STRING(iFormCnt).
                 LEAVE.
             END.
             iBlankCnt = 0.
-            FOR EACH bf2-ttGoto WHERE bf2-ttGoto.form-no EQ bf-ttGoto.form-no
-                BY bf2-ttGoto.blank-no.
+            FOR EACH bf2-tt-eb WHERE bf2-tt-eb.form-no EQ bf-tt-eb.form-no
+                BY bf2-tt-eb.blank-no.
                 iBlankCnt = iBlankCnt + 1.
 
-                IF bf2-ttGoto.blank-no NE iBlankCnt THEN 
+                IF bf2-tt-eb.blank-no NE iBlankCnt THEN 
                 DO:
-                    cMessage = "Form #: " + STRING(bf2-ttGoto.form-no) + ", blank #" + STRING(bf2-ttGoto.blank-no) + " is out of order and should be #" + STRING(iBlankCnt).
+                    cMessage = "Form #: " + STRING(bf2-tt-eb.form-no) + ", blank #" + STRING(bf2-tt-eb.blank-no) + " is out of order and should be #" + STRING(iBlankCnt).
                     LEAVE.
                 END.
 
@@ -2596,7 +2568,7 @@ PROCEDURE valid-frm-bl :
 
         END. /* First-of form */
   
-    END. /* each ttGoto */
+    END. /* each tt-eb */
 
     IF cMessage GT "" THEN 
     DO:
@@ -2643,19 +2615,19 @@ FUNCTION display-bl-qty RETURNS DECIMAL
     DO:
         IF est.est-type EQ 2 THEN
             ASSIGN
-                lv-bl-qty  = ttGoto.bl-qty
-                lv-yld-qty = ttGoto.cust-%.
+                lv-bl-qty  = tt-eb.bl-qty
+                lv-yld-qty = tt-eb.cust-%.
         ELSE
             ASSIGN
                 lv-bl-qty  = est.est-qty[1]
-                lv-yld-qty = ttGoto.calcYieldQty.
+                lv-yld-qty = tt-eb.calcYieldQty.
 
         {sys/inc/partqty1.i ld-part-qty lv-yld-qty}
 
         lv-bl-qty = lv-bl-qty * ld-part-qty.
     END.
 
-    ELSE lv-bl-qty = ttGoto.bl-qty.
+    ELSE lv-bl-qty = tt-eb.bl-qty.
   
     RETURN lv-bl-qty.   /* Function return value. */
 
