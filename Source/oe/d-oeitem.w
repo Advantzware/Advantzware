@@ -72,7 +72,7 @@ DEF NEW SHARED VAR v-create-job AS LOG NO-UNDO.
 DEF VAR lv-ordl-recid AS RECID NO-UNDO.
 DEF VAR lv-change-prom-date AS LOG NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
 DEF VAR lv-change-cst-po AS LOG NO-UNDO.    /* flag for updateing oe-ordl.po-no */
-DEF VAR lv-uom-list AS cha INIT "M,EA,L,CS,C,LB,DRM,ROL,PLT,PKG,SET,DOZ,BDL" NO-UNDO.
+DEF VAR lv-uom-list AS CHAR NO-UNDO.
 DEF VAR lv-valid-uom AS CHAR NO-UNDO.
 DEF VAR v-valtype AS cha INIT "O,R,C" NO-UNDO.
 DEF VAR v-duelist AS cha INIT "AM,ASAP,BY,CPU,CR,HFR,HOLD,HOT,INK,MH,MUST,NB4,NCUST,NITEM,NCNI,OE,ON,PPR,RWRK,RUSH,TOOL,WO,$$$" NO-UNDO.
@@ -144,6 +144,8 @@ DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEFINE VARIABLE lInvoiceFound AS LOGICAL     NO-UNDO.
+DEF VAR lUseItemUoM AS LOG NO-UNDO.
+DEF VAR lItemHasUoM AS LOG NO-UNDO.
 
 DEF TEMP-TABLE tt-qty-price
 FIELD oeordl-rowid AS ROWID
@@ -250,10 +252,16 @@ IF v-rec-found THEN
 oeDateAuto-char = v-rtn-char NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceWarning", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+    lOEPriceWarning = LOGICAL(v-rtn-char) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUoM", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT v-rtn-char, OUTPUT v-rec-found).
-IF v-rec-found THEN
-lOEPriceWarning = LOGICAL(v-rtn-char) NO-ERROR.
+IF v-rec-found THEN ASSIGN 
+    lUseItemUoM = LOGICAL(v-rtn-char) NO-ERROR.                        
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -467,40 +475,26 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable d-oeitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable d-oeitem 
 FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
-  (ipcCompany AS CHARACTER,
-   ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER,
-   ipcFGItemID AS CHARACTER) FORWARD.
+  ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsCustPriceHoldExempt d-oeitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsCustPriceHoldExempt d-oeitem 
 FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
-  (ipcCompany AS CHARACTER,
-   ipcCustomerID AS CHARACTER,
-   ipcShipToID AS CHARACTER) FORWARD.
+  ( ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem
-FUNCTION fnPrevOrder RETURNS CHARACTER 
-    (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder d-oeitem 
+FUNCTION fnPrevOrder RETURNS CHARACTER
+  (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
@@ -656,7 +650,7 @@ DEFINE FRAME d-oeitem
           LABEL "Quantity" FORMAT "->>>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
-     fi_qty-uom AT ROW 2.19 COL 33.6 COLON-ALIGNED HELP
+     fi_qty-uom AT ROW 2.19 COL 33.2 COLON-ALIGNED HELP
           "Enter Unit of Measure for Purchasing this Raw Material" NO-LABEL
      oe-ordl.i-no AT ROW 3.14 COL 15.6 COLON-ALIGNED
           LABEL "FG Item#" FORMAT "x(15)"
@@ -990,7 +984,6 @@ DO:
 
   DO WITH FRAME {&FRAME-NAME}:
     lw-focus = FOCUS.
-
     CASE lw-focus:NAME :
          WHEN "est-no" THEN DO:
               RUN windows/l-estcst.w (g_company,g_loc,oe-ord.cust-no,0,lw-focus:SCREEN-VALUE, OUTPUT char-val).
@@ -1596,6 +1589,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_qty-uom d-oeitem
 ON LEAVE OF fi_qty-uom IN FRAME d-oeitem
 DO:
+    IF  oescreen-log 
+        AND oe-ordl.est-no:SCREEN-VALUE EQ "" THEN ASSIGN
+            oe-ordl.spare-char-2:SCREEN-VALUE = UPPER(fi_qty-uom:SCREEN-VALUE).
+
     IF LASTKEY NE -1 THEN DO:
         RUN valid-uom (FOCUS) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1603,11 +1600,6 @@ DO:
         RUN leave-qty NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
-
-    IF  oescreen-log 
-    AND oe-ordl.spare-char-2:SCREEN-VALUE EQ "" 
-    AND oe-ordl.est-no:SCREEN-VALUE EQ "" THEN ASSIGN
-        oe-ordl.spare-char-2:SCREEN-VALUE = fi_qty-uom:SCREEN-VALUE.
 
     IF oescreen-log 
     AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
@@ -1663,16 +1655,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME oe-ordl.i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.i-no d-oeitem
-ON VALUE-CHANGED OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
-DO:
-   lCheckFgForceWarning = NO .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.i-no d-oeitem
 ON LEAVE OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
@@ -1693,7 +1675,7 @@ DO:
 
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+  
   IF NOT AVAIL oe-ord THEN
        FIND FIRST oe-ord NO-LOCK 
         WHERE oe-ord.company EQ cocode
@@ -1717,6 +1699,12 @@ DO:
 
   IF oe-ordl.part-no:SCREEN-VALUE EQ "" THEN
       ASSIGN oe-ordl.part-no:SCREEN-VALUE = SELF:SCREEN-VALUE .
+
+    IF lUseItemUoM
+    AND DYNAMIC-FUNCTION("fGetValidUoMsForItem",oe-ord.company,"FG",SELF:SCREEN-VALUE) NE "" THEN ASSIGN 
+        lv-uom-list = DYNAMIC-FUNCTION("fGetValidUoMsForItem",oe-ord.company,"FG",SELF:SCREEN-VALUE).
+    ELSE ASSIGN 
+        lv-uom-list = DYNAMIC-FUNCTION("fGetValidItemUoMs",oe-ord.company,"FG").
 
  IF /*self:modified and*/ SELF:screen-value <> "0" AND NOT ll-ok-i-no /* done in leave trigger */
  THEN DO: 
@@ -1824,6 +1812,16 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.i-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
+DO:
+   lCheckFgForceWarning = NO .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-ordl.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.job-no d-oeitem
 ON LEAVE OF oe-ordl.job-no IN FRAME d-oeitem /* Job Number */
@@ -1876,16 +1874,6 @@ DO:
          RETURN NO-APPLY.
      END.   
 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME oe-ordl.part-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
-ON VALUE-CHANGED OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
-DO:
-  lCheckFgForceWarning = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1982,6 +1970,16 @@ DO:
   END.
   IF SELF:screen-value EQ "" THEN
       ASSIGN SELF:screen-value = oe-ordl.i-no:SCREEN-VALUE .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.part-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.part-no IN FRAME d-oeitem /* Cust Part # */
+DO:
+  lCheckFgForceWarning = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3368,9 +3366,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem 
+PROCEDURE CopyShipNote PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -3387,11 +3384,9 @@ DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
     DELETE OBJECT hNotesProcs.   
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item d-oeitem 
 PROCEDURE create-item :
@@ -6020,21 +6015,16 @@ PROCEDURE get-valid-uom :
       IF ENTRY(li,lv-uom-list) NE "L" THEN
         lv-valid-uom = lv-valid-uom + TRIM(ENTRY(li,lv-uom-list)) + ",".
     END.
-    IF lv-valid-uom NE ""                                 AND
-       SUBSTR(lv-valid-uom,LENGTH(lv-valid-uom),1) EQ "," THEN
-      SUBSTR(lv-valid-uom,LENGTH(lv-valid-uom),1) = "".
+    lv-valid-uom = TRIM(lv-valid-uom,",").
   END.
   IF ip-focus:NAME EQ "pr-uom" THEN DO:
     DO li = 1 TO NUM-ENTRIES(lv-uom-list):
       IF ENTRY(li,lv-uom-list) NE "PLT" THEN          
         lv-valid-uom = lv-valid-uom + TRIM(ENTRY(li,lv-uom-list)) + ",".              
-    END.
-    IF lv-valid-uom NE ""                                 AND
-       SUBSTR(lv-valid-uom,LENGTH(lv-valid-uom),1) EQ "," THEN
-      SUBSTR(lv-valid-uom,LENGTH(lv-valid-uom),1) = "".
+      END.
+    lv-valid-uom = TRIM(lv-valid-uom,",").
   END.
   IF lv-valid-uom EQ "" THEN lv-valid-uom = lv-uom-list.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6594,7 +6584,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OnSaveButton d-oeitem 
 PROCEDURE OnSaveButton :
@@ -7255,6 +7244,163 @@ PROCEDURE OnSaveButton :
         END. /* if ll-ans */
       END. /* If invoice was found */
     END. /* If Price was modified */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
+PROCEDURE pCrtPart :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAM io-rowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAM op-error AS LOGICAL NO-UNDO.
+    DEFINE BUFFER b-cust-part FOR cust-part .
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
+
+        FIND FIRST b-cust-part NO-LOCK
+            WHERE b-cust-part.company EQ cocode
+            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
+            AND b-cust-part.cust-no EQ cCustNo  NO-ERROR .
+
+        IF  AVAIL b-cust-part THEN DO:
+            MESSAGE "Cust Part# - Customer# already exists for FG Item:" + oe-ordl.i-no:SCREEN-VALUE + " and Part#:" + b-cust-part.part-no 
+                VIEW-AS ALERT-BOX ERROR .
+            APPLY "entry" TO oe-ordl.part-no .
+            op-error = YES .
+            RETURN NO-APPLY .
+        END.
+             
+        FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ oe-ordl.i-no:SCREEN-VALUE NO-ERROR .
+
+        IF AVAIL itemfg THEN do:
+            CREATE cust-part .
+            ASSIGN
+                cust-part.company = cocode
+                cust-part.i-no    = oe-ordl.i-no:SCREEN-VALUE
+                cust-part.cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no
+                cust-part.part-no = oe-ordl.part-no:SCREEN-VALUE .
+            IF lFGForcedCommission THEN
+               cust-part.forcedCommissionPercent = dFGForcedCommission .
+
+           RELEASE cust-part .
+           io-rowid = ROWID(itemfg).
+        END.
+        
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPartComm d-oeitem 
+PROCEDURE pGetPartComm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplCheckValue AS LOGICAL NO-UNDO .
+    DEFINE BUFFER b-cust-part FOR cust-part .
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+    IF iplCheckValue THEN
+        lCheckFgForceWarning = NO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+      IF lFGForcedCommission AND NOT lCheckFgForceWarning THEN do:
+          cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
+           
+        FIND FIRST b-cust-part NO-LOCK
+            WHERE b-cust-part.company EQ cocode
+            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
+            AND b-cust-part.cust-no EQ cCustNo
+            AND b-cust-part.part-no EQ oe-ordl.part-no:SCREEN-VALUE NO-ERROR .
+        IF AVAIL b-cust-part THEN do:
+            IF b-cust-part.forcedCommissionPercent EQ 0  THEN 
+                MESSAGE "N-K-1 Setting = FGForceCommission = Yes, but there is no commission percentage set for this item."
+                  "Defaulting to normal commission percentage" VIEW-AS ALERT-BOX WARNING .
+            ELSE do:
+                 oe-ordl.s-comm[1]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+                 IF oe-ordl.s-man[2]:SCREEN-VALUE NE "" THEN
+                     oe-ordl.s-comm[2]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+                 IF oe-ordl.s-man[3]:SCREEN-VALUE NE "" THEN
+                     oe-ordl.s-comm[3]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
+            END.
+            lCheckFgForceWarning = YES .
+        END.
+      END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQuoteRec d-oeitem 
+PROCEDURE pGetQuoteRec :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT        PARAM ipcEstNo      AS   CHARACTER.
+DEF INPUT        PARAM ipcPartNo    LIKE quoteit.part-no.
+DEF INPUT        PARAM ipcPartNo2   LIKE quoteit.part-no.
+DEF INPUT-OUTPUT PARAM iopPrice      LIKE oe-ordl.price.
+DEF INPUT-OUTPUT PARAM iopUom        LIKE oe-ordl.pr-uom.
+DEF OUTPUT       PARAM iopQ-no       LIKE quotehd.q-no.
+DEF INPUT-OUTPUT PARAM iop-qty       AS INT NO-UNDO.
+DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
+ DO WITH FRAME {&FRAME-NAME}:
+       j = 0.
+       FOR EACH quotehd
+            WHERE quotehd.company EQ cocode
+            AND quotehd.loc     EQ locode
+            AND quotehd.est-no  EQ ipcEstNo
+            AND quotehd.quo-date LE TODAY 
+            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            USE-INDEX quote NO-LOCK,
+            
+            EACH quoteitm OF quotehd
+            WHERE quoteitm.part-no  EQ ipcPartNo OR
+            (quoteitm.part-no EQ ipcPartNo2 AND ipcPartNo2 NE "" )
+            USE-INDEX q-line NO-LOCK,
+            EACH quoteqty OF quoteitm
+            USE-INDEX qt-qty NO-LOCK
+            
+            BY quotehd.q-no DESC
+            BY quoteqty.qty DESC:
+
+           j = J + 1 .
+           IF J > 1 THEN LEAVE.
+           
+           ASSIGN
+               iopPrice = quoteqty.price
+               iopUom   = quoteqty.uom
+               iopQ-no  = quoteqty.q-no .
+       END.
+  
+       IF j GT 1 THEN
+           RUN oe/d-quotedprices.w("",cocode,
+                          locode,
+                          oe-ordl.est-no:SCREEN-VALUE,
+                          oe-ordl.cust-no,
+                          oe-ordl.part-no:SCREEN-VALUE,
+                          oe-ordl.i-no:SCREEN-VALUE,
+                          INPUT-OUTPUT iopPrice,
+                          INPUT-OUTPUT iopUom,
+                          INPUT-OUTPUT iop-qty,
+                          INPUT-OUTPUT iopQ-no,
+                          OUTPUT lcChoice).  
+ END.
 
 END PROCEDURE.
 
@@ -9616,172 +9762,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQuoteRec d-oeitem 
-PROCEDURE pGetQuoteRec :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF INPUT        PARAM ipcEstNo      AS   CHARACTER.
-DEF INPUT        PARAM ipcPartNo    LIKE quoteit.part-no.
-DEF INPUT        PARAM ipcPartNo2   LIKE quoteit.part-no.
-DEF INPUT-OUTPUT PARAM iopPrice      LIKE oe-ordl.price.
-DEF INPUT-OUTPUT PARAM iopUom        LIKE oe-ordl.pr-uom.
-DEF OUTPUT       PARAM iopQ-no       LIKE quotehd.q-no.
-DEF INPUT-OUTPUT PARAM iop-qty       AS INT NO-UNDO.
-DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
- DO WITH FRAME {&FRAME-NAME}:
-       j = 0.
-       FOR EACH quotehd
-            WHERE quotehd.company EQ cocode
-            AND quotehd.loc     EQ locode
-            AND quotehd.est-no  EQ ipcEstNo
-            AND quotehd.quo-date LE TODAY 
-            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
-            USE-INDEX quote NO-LOCK,
-            
-            EACH quoteitm OF quotehd
-            WHERE quoteitm.part-no  EQ ipcPartNo OR
-            (quoteitm.part-no EQ ipcPartNo2 AND ipcPartNo2 NE "" )
-            USE-INDEX q-line NO-LOCK,
-            EACH quoteqty OF quoteitm
-            USE-INDEX qt-qty NO-LOCK
-            
-            BY quotehd.q-no DESC
-            BY quoteqty.qty DESC:
-
-           j = J + 1 .
-           IF J > 1 THEN LEAVE.
-           
-           ASSIGN
-               iopPrice = quoteqty.price
-               iopUom   = quoteqty.uom
-               iopQ-no  = quoteqty.q-no .
-       END.
-  
-       IF j GT 1 THEN
-           RUN oe/d-quotedprices.w("",cocode,
-                          locode,
-                          oe-ordl.est-no:SCREEN-VALUE,
-                          oe-ordl.cust-no,
-                          oe-ordl.part-no:SCREEN-VALUE,
-                          oe-ordl.i-no:SCREEN-VALUE,
-                          INPUT-OUTPUT iopPrice,
-                          INPUT-OUTPUT iopUom,
-                          INPUT-OUTPUT iop-qty,
-                          INPUT-OUTPUT iopQ-no,
-                          OUTPUT lcChoice).  
- END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
-PROCEDURE pCrtPart :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT-OUTPUT PARAM io-rowid AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAM op-error AS LOGICAL NO-UNDO.
-    DEFINE BUFFER b-cust-part FOR cust-part .
-    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
-
-        FIND FIRST b-cust-part NO-LOCK
-            WHERE b-cust-part.company EQ cocode
-            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
-            AND b-cust-part.cust-no EQ cCustNo  NO-ERROR .
-
-        IF  AVAIL b-cust-part THEN DO:
-            MESSAGE "Cust Part# - Customer# already exists for FG Item:" + oe-ordl.i-no:SCREEN-VALUE + " and Part#:" + b-cust-part.part-no 
-                VIEW-AS ALERT-BOX ERROR .
-            APPLY "entry" TO oe-ordl.part-no .
-            op-error = YES .
-            RETURN NO-APPLY .
-        END.
-             
-        FIND FIRST itemfg NO-LOCK
-            WHERE itemfg.company EQ cocode
-            AND itemfg.i-no EQ oe-ordl.i-no:SCREEN-VALUE NO-ERROR .
-
-        IF AVAIL itemfg THEN do:
-            CREATE cust-part .
-            ASSIGN
-                cust-part.company = cocode
-                cust-part.i-no    = oe-ordl.i-no:SCREEN-VALUE
-                cust-part.cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no
-                cust-part.part-no = oe-ordl.part-no:SCREEN-VALUE .
-            IF lFGForcedCommission THEN
-               cust-part.forcedCommissionPercent = dFGForcedCommission .
-
-           RELEASE cust-part .
-           io-rowid = ROWID(itemfg).
-        END.
-        
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPartComm d-oeitem 
-PROCEDURE pGetPartComm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplCheckValue AS LOGICAL NO-UNDO .
-    DEFINE BUFFER b-cust-part FOR cust-part .
-    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
-    IF iplCheckValue THEN
-        lCheckFgForceWarning = NO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-      IF lFGForcedCommission AND NOT lCheckFgForceWarning THEN do:
-          cCustNo = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE oe-ordl.cust-no .
-           
-        FIND FIRST b-cust-part NO-LOCK
-            WHERE b-cust-part.company EQ cocode
-            AND b-cust-part.i-no    EQ oe-ordl.i-no:SCREEN-VALUE
-            AND b-cust-part.cust-no EQ cCustNo
-            AND b-cust-part.part-no EQ oe-ordl.part-no:SCREEN-VALUE NO-ERROR .
-        IF AVAIL b-cust-part THEN do:
-            IF b-cust-part.forcedCommissionPercent EQ 0  THEN 
-                MESSAGE "N-K-1 Setting = FGForceCommission = Yes, but there is no commission percentage set for this item."
-                  "Defaulting to normal commission percentage" VIEW-AS ALERT-BOX WARNING .
-            ELSE do:
-                 oe-ordl.s-comm[1]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
-                 IF oe-ordl.s-man[2]:SCREEN-VALUE NE "" THEN
-                     oe-ordl.s-comm[2]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
-                 IF oe-ordl.s-man[3]:SCREEN-VALUE NE "" THEN
-                     oe-ordl.s-comm[3]:SCREEN-VALUE = STRING(b-cust-part.forcedCommissionPercent) .
-            END.
-            lCheckFgForceWarning = YES .
-        END.
-      END.
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 /* ************************  Function Implementations ***************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem 
 FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
   ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
 /*------------------------------------------------------------------------------
@@ -9795,14 +9778,11 @@ RETURN lTaxable.
 
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsCustPriceHoldExempt d-oeitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsCustPriceHoldExempt d-oeitem 
 FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
   ( ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER):
 /*------------------------------------------------------------------------------
@@ -9812,28 +9792,26 @@ FUNCTION fIsCustPriceHoldExempt RETURNS LOGICAL PRIVATE
     DEFINE VARIABLE lCustExempt AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPriceHoldActive AS LOGICAL NO-UNDO.
-	
-	RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
+        
+        RUN CheckPriceHoldForCustShip IN hdPriceProcs (ipcCompany, ipcCustomerID, ipcShipToID, OUTPUT lPriceHold, OUTPUT lPriceHoldActive).
 
     lCustExempt = NOT lPriceHold AND lPriceHoldActive.
     
     RETURN lCustExempt.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem
-FUNCTION fnPrevOrder RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder d-oeitem 
+FUNCTION fnPrevOrder RETURNS CHARACTER
   (ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+                DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
         IF ipcEstNo GT "" THEN 
         DO:
             FIND LAST bf-oe-ordl NO-LOCK
@@ -9844,42 +9822,49 @@ FUNCTION fnPrevOrder RETURNS CHARACTER
             IF AVAILABLE bf-oe-ordl THEN
                 cResult = STRING(bf-oe-ordl.ord-no).
         END.
-		RETURN cResult.
+                RETURN cResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
   ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ):
-/*---------------------------------------------------       ---------------------------
+/*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
-
-CASE ipcUOM:
-    WHEN "CS" THEN 
-        dMultiplier = ipdCount. 
-    WHEN "PLT" THEN 
-        dMultiplier = ipdCount. /*refactor?*/
-    WHEN "C" THEN 
-        dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
-    OTHERWISE DO:
-        FIND FIRST uom NO-LOCK 
-        WHERE uom.uom EQ ipcUOM NO-ERROR.
-        IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
-            dMultiplier = uom.mult.
-        ELSE 
-            dMultiplier = 1.
+    DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
+    
+    IF lUseItemUoM
+    AND DYNAMIC-FUNCTION("fIsValidItemUoM",oe-ord.company,"FG",oe-ordl.i-no:SCREEN-VALUE IN FRAME {&frame-name},ipcUom) NE "" THEN DO:
+        MESSAGE oe-ord.company SKIP oe-ordl.i-no SKIP INT(ipdStartQuantity) SKIP ipcUoM VIEW-AS ALERT-BOX.
+        ASSIGN 
+            ipdStartQuantity = DECIMAL(DYNAMIC-FUNCTION("fGetItemBaseQtyPerUoM",oe-ord.company,"FG",oe-ordl.i-no:SCREEN-VALUE,int(ipdStartQuantity),ipcUoM)).
+        MESSAGE ipdStartQuantity VIEW-AS ALERT-BOX.
+        RETURN ipdStartQuantity.
+    END. 
+    ELSE DO:
+        CASE ipcUOM:
+            WHEN "CS" THEN 
+                dMultiplier = ipdCount. 
+            WHEN "PLT" THEN 
+                dMultiplier = ipdCount. /*refactor?*/
+            WHEN "C" THEN 
+                dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
+            OTHERWISE DO:
+                FIND FIRST uom NO-LOCK 
+                WHERE uom.uom EQ ipcUOM NO-ERROR.
+                IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+                    dMultiplier = uom.mult.
+                ELSE 
+                    dMultiplier = 1.
+            END.
+        END CASE.
+        RETURN ipdStartQuantity * dMultiplier.
     END.
-END CASE.
-RETURN ipdStartQuantity * dMultiplier.
-
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
