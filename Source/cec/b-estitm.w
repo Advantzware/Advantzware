@@ -260,25 +260,25 @@ eb.pur-man est.est-date eb.spare-char-2 eb.spare-char-1
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br-estitm eb
 &Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-br-estitm est-qty
 &Scoped-define FOURTH-ENABLED-TABLE-IN-QUERY-br-estitm ef
-&Scoped-define QUERY-STRING-br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
-  AND eb.est-no = est-qty.est-no NO-LOCK, ~
-      FIRST ef WHERE ef.company = eb.company ~
-  AND ef.est-no = eb.est-no ~
-  AND ef.eqty = est-qty.eqty ~
-  AND ef.form-no = eb.form-no NO-LOCK ~
+&Scoped-define QUERY-STRING-br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
+  AND ef.est-no = est-qty.est-no ~
+  AND ef.eqty = est-qty.eqty NO-LOCK, ~
+      EACH eb WHERE eb.company = ef.company ~
+  AND eb.est-no = ef.est-no ~
+  AND eb.form-no = ef.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
-  AND eb.est-no = est-qty.est-no NO-LOCK, ~
-      FIRST ef WHERE ef.company = eb.company ~
-  AND ef.est-no = eb.est-no ~
-  AND ef.eqty = est-qty.eqty ~
-  AND ef.form-no = eb.form-no NO-LOCK ~
+&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
+  AND ef.est-no = est-qty.est-no ~
+  AND ef.eqty = est-qty.eqty NO-LOCK, ~
+      EACH eb WHERE eb.company = ef.company ~
+  AND eb.est-no = ef.est-no ~
+  AND eb.form-no = ef.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-br-estitm eb ef
-&Scoped-define FIRST-TABLE-IN-QUERY-br-estitm eb
-&Scoped-define SECOND-TABLE-IN-QUERY-br-estitm ef
+&Scoped-define TABLES-IN-QUERY-br-estitm ef eb
+&Scoped-define FIRST-TABLE-IN-QUERY-br-estitm ef
+&Scoped-define SECOND-TABLE-IN-QUERY-br-estitm eb
 
 
 /* Definitions for FRAME Corr                                           */
@@ -373,8 +373,8 @@ FUNCTION display-tab RETURNS LOGICAL
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br-estitm FOR 
-      eb, 
-      ef SCROLLING.
+      ef, 
+      eb SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -6601,7 +6601,7 @@ PROCEDURE mass-delete :
   DEF VAR li-delete AS INT NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
-
+  DEFINE BUFFER bf-ef FOR ef.
 
   RUN check-delete NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -6634,7 +6634,11 @@ PROCEDURE mass-delete :
         ).
     FOR EACH tt-eb
         WHERE tt-eb.selected:
-      RUN repo-query (tt-eb.row-id).
+        FIND FIRST bf-ef NO-LOCK
+             WHERE bf-ef.company EQ tt-eb.company 
+               AND bf-ef.est-no  EQ tt-eb.est-no 
+               AND bf-ef.form-no EQ tt-eb.form-no NO-ERROR .
+      RUN repo-query (ROWID(bf-ef),tt-eb.row-id).
       IF AVAIL eb AND eb.est-no EQ tt-eb.est-no          AND
          (eb.form-no EQ tt-eb.form-no OR li-delete LT 2) THEN
         RUN dispatch ("delete-record").
@@ -6990,10 +6994,10 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+  DEF INPUT PARAM ip-rowidEb AS ROWID NO-UNDO. 
 
-  IF NOT AVAIL eb OR ROWID(eb) NE ip-rowid THEN DO WITH FRAME {&FRAME-NAME}:
-    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+  IF NOT AVAIL eb OR ROWID(eb) NE ip-rowidEb THEN DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid, ip-rowidEb NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
   END.
 
