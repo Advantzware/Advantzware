@@ -51,6 +51,7 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "Machine Code,Machine Description,Department(1),Department(2),Department(3),Department(4),Location,Schedule Machine,Dept. Sequence," +   /* 9 */
                             "Mach Seq,Feed,Run Spoilage %,MR Waste,Lag TIME,Use Lineal Feet in RUN Matrix,Labor Rate,Labor Rate(2),Labor Rate(3),MIN Charge,Setup Crew,Run Crew," + /*12*/
                             "Default,Setup D.L.,Var OH,Fixed OH,MR Total,Run D.L.,Run Var OH,Run Fixed OH,Run Total Rate,Front-To-Back(MIN),Front-To-Back(MAX),Side-To-Side(MIN WIDTH),Side-To-Side(MAX Width)," +  /* 13  */
@@ -68,6 +69,13 @@ ASSIGN cTextListToSelect = "Machine Code,Machine Description,Department(1),Depar
                             .                        
 {sys/inc/ttRptSel.i}
 
+ ASSIGN cTextListToDefault  = "Machine Code,Machine Description,Department(1),Department(2),Department(3),Department(4),Location,Schedule Machine,Dept. Sequence," +   /* 9 */
+                            "Mach Seq,Feed,Run Spoilage %,MR Waste,Lag TIME,Use Lineal Feet in RUN Matrix,Labor Rate,Labor Rate(2),Labor Rate(3),MIN Charge,Setup Crew,Run Crew," + /*12*/
+                            "Default,Setup D.L.,Var OH,Fixed OH,MR Total,Run D.L.,Run Var OH,Run Fixed OH,Run Total Rate,Front-To-Back(MIN),Front-To-Back(MAX),Side-To-Side(MIN WIDTH),Side-To-Side(MAX Width)," +  /* 13  */
+                            "Side-To-Side(Trim Lgth),Front-To-Back(Trim),Caliper/Depth(MIN),Caliper/Depth(Max),Run Qty(MIN),Run Qty(MAX),Slot/Score Panel(MIN),Slot/Score Panel(Max),Min Panel (Hd-Hd),Max Panel (Hd-Hd)," +  /* 10  */
+                            "Slot SIZE(MIN),Slot Size(Max),Printer Type,Washup Hrs,Color/Pass,Max # of colors,Coater on Press,MR Waste per Color,Ink Waste Lbs\MR,Lbs/Color,Tandem MR/Plate,/Fountain,MAX Num WIDTH,MAX Num on Length," +  /* 14 */
+                            "Industry,Gang Jobs?,Plain Jobs Only,Inactive".
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -84,7 +92,7 @@ ASSIGN cTextListToSelect = "Machine Code,Machine Description,Department(1),Depar
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_mach end_mach ~
-sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
+sl_avail Btn_Add sl_selected Btn_Def Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_mach end_mach  ~
  sl_avail ~
@@ -144,6 +152,10 @@ DEFINE BUTTON btn-ok
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
      SIZE 16 BY 1.
+     
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
+     SIZE 16 BY 1.     
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
@@ -214,13 +226,15 @@ DEFINE FRAME rd-fgexp
      end_mach AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Machine #" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 12.24 COL 44 HELP
+     Btn_Def AT ROW 12.24 COL 44 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 13.43 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
-     sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 13.43 COL 44 HELP
+     sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28        
+     Btn_Remove AT ROW 14.62 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 14.62 COL 44 WIDGET-ID 136
-     btn_down AT ROW 15.81 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 15.81 COL 44 WIDGET-ID 136
+     btn_down AT ROW 16.99 COL 44 WIDGET-ID 132
      tb_excel AT ROW 18.91 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 18.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 19.86 COL 34 COLON-ALIGNED HELP
@@ -405,6 +419,21 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,6 +641,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-PrepExp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+  
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgexp 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -719,8 +771,8 @@ PROCEDURE enable_UI :
           tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_mach end_mach  sl_avail Btn_Add 
-         sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         sl_selected Btn_Def Btn_Remove btn_Up btn_down tb_runExcel fi_file 
+         btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
