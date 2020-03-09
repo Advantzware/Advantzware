@@ -562,13 +562,13 @@ PROCEDURE pPrintACHHeaderRecords:
             cACHIndividualID          = vend.vend-no
             cACHReceiverAddress1      = vend.r-add1
             cACHReceiverAddress2      = vend.r-add2
-            cACHReceiverCity          = vend.city
-            cACHReceiverState         = vend.state
-            cACHReceiverZip           = vend.zip
+            cACHReceiverCity          = vend.r-city
+            cACHReceiverState         = vend.r-state
+            cACHReceiverZip           = vend.r-zip
             cACHReceiverABA           = STRING(vend.bank-rtn,"999999999")
             cACHReceiverAccountNumber = vend.bank-acct
             cACHDiscretionaryData     = vend.check-memo
-            cACHCanadianIndicator     = IF vend.country BEGINS "CA" THEN
+            cACHCanadianIndicator     = IF vend.r-country BEGINS "CA" THEN
                                             "C"
                                         ELSE
                                             ""
