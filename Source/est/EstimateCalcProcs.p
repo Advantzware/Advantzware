@@ -32,6 +32,7 @@ DEFINE VARIABLE gcGlueMatTypes                        AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITIAL "I,V".
 DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
 DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
+DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
@@ -1292,8 +1293,10 @@ PROCEDURE pAddLeaf PRIVATE:
                 AND bf-estCostBlank.blankNo EQ ttLeaf.iBlankNo
                 NO-ERROR.
             IF AVAILABLE bf-estCostBlank THEN 
-                ASSIGN 
-                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn
+                ASSIGN
+                    /*Only add Window Area if material is a Window - i.e. cut out*/ 
+                    bf-estCostBlank.blankAreaWindow    = IF CAN-DO(gcWindowMatTypes, bf-item.mat-type) THEN bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn ELSE 0
+                    //bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn
                     bf-estCostBlank.blankAreaNetWindow = bf-estCostBlank.blankArea - bf-estCostBlank.blankAreaWindow
                     ttLeaf.estBlankID                  = bf-estCostBlank.estCostBlankID
                     .
