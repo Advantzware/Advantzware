@@ -1182,6 +1182,11 @@ DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-item FOR item.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE iQtyShipped AS INTEGER NO-UNDO .
+DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotalSqft AS DECIMAL NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
@@ -1207,43 +1212,69 @@ FOR EACH  oe-bolh WHERE oe-bolh.company EQ cocode
     AND (oe-boll.ord-no   GE begin_ord-no /*OR fi_ord-no EQ 0*/ ) 
     AND (oe-boll.ord-no   LE end_ord-no /*OR fi_ord-no EQ 0*/ ) 
     AND oe-boll.po-no     GE begin_cust-po 
-    AND oe-boll.po-no     LE end_cust-po BY oe-bolh.bol-no DESC  :
-  
-    v-excel-detail-lines = "".
+    AND oe-boll.po-no     LE end_cust-po BREAK BY oe-bolh.bol-no DESC BY oe-boll.i-no  :
+             
+    IF FIRST-OF(oe-boll.i-no) THEN
+    ASSIGN iQtyShipped = 0
+           dWeight = 0
+           dFreight = 0
+           dTotSqft = 0.   
+    
+    iQtyShipped = iQtyShipped + oe-boll.qty .
+    dWeight = dWeight + oe-boll.weight .
+    dFreight = dFreight + oe-boll.freight.
+    IF dWeight EQ ? THEN dWeight = 0 .
+    IF dFreight EQ ? THEN dFreight = 0 .
+    IF LAST-OF(oe-boll.i-no) THEN do:
+        v-excel-detail-lines = "". 
 
-    FOR EACH ttRptSelected:
-        v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER oe-bolh,BUFFER oe-boll,ttRptSelected.FieldList)).
-/*         CASE ttRptSelected.FieldList:                                                               */
-/*             WHEN "itemfg.i-no" THEN                                                                 */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
-/*             WHEN "itemfg.procat" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.procat).          */
-/*             WHEN "itemfg.i-name" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-name).          */
-/*             WHEN "itemfg.part-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-no).         */
-/*             WHEN "itemfg.est-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.est-no).          */
-/*             WHEN "itemfg.item" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.item).           */
-/*             WHEN "itemfg.cust-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cust-no).         */
-/*             WHEN "itemfg.part-dscr1" THEN                                                           */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-dscr1).      */
-/*             WHEN "itemfg.i-code" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-code).          */
-/*             WHEN "itemfg.cad-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cad-no).          */
-/*             WHEN "itemfg.spc-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.spc-no).          */
-/*             WHEN "itemfg.stocked" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.stocked)). */
-/*             WHEN "itemfg.q-onh" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.q-onh)).   */
-/*         END CASE.                                                                                   */
-    END.
-
+        FOR EACH ttRptSelected:            
+         IF lookup(ttRptSelected.FieldList,"qty,weight,freight,tot-sqft") EQ 0 THEN 
+         DO:
+            v-excel-detail-lines = v-excel-detail-lines + 
+                appendXLLine(getValue-itemfg(BUFFER oe-bolh,BUFFER oe-boll,ttRptSelected.FieldList)).  
+         END.
+         ELSE do:
+            CASE ttRptSelected.FieldList:                                                               
+                   WHEN "qty" THEN                                                               
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(iQtyShipped)). 
+                    WHEN "weight" THEN                                                               
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(dWeight)).
+                    WHEN "freight" THEN                                                               
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(dFreight)).                       
+                    WHEN "tot-sqft" THEN do:
+                   
+                      FIND FIRST oe-ord NO-LOCK
+                           WHERE oe-ord.company EQ cocode
+                             AND oe-ord.ord-no EQ oe-boll.ord-no
+                             NO-ERROR.
+                          IF AVAIL oe-ord AND oe-ord.est-no NE "" THEN 
+                            FIND FIRST eb NO-LOCK
+                                 WHERE eb.company EQ cocode 
+                                   AND eb.est-no EQ oe-ord.est-no
+                                   AND eb.stock-no EQ oe-boll.i-no NO-ERROR .
+                                   
+                             FIND FIRST itemfg NO-LOCK
+                                  WHERE itemfg.company EQ cocode
+                                    AND itemfg.i-no EQ oe-boll.i-no
+                                    NO-ERROR. 
+                             IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb THEN do:
+                               dTotSqft = DECIMAL((IF v-corr THEN (eb.t-sqin * .007)
+                                           ELSE (eb.t-sqin / 144)) * iQtyShipped )    .
+                             END.
+                             ELSE IF AVAIL itemfg THEN do:
+                               RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
+                                  ASSIGN 
+                                  dTotSqft = DECIMAL(dTotalSqft * iQtyShipped )    .
+                             END.
+                             ELSE dTotSqft = 0 .
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(dTotSqft)).
+                    END.
+            END CASE.                                                                                 
+         END.
+        END.
+    END.  
+      
     PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 END.
 
@@ -1553,34 +1584,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                lc-return = STRING(shipto.ship-zip)    .
             END.
             ELSE lc-return = "" .
-        END.
-
-       WHEN "tot-sqft" THEN DO:
-           FIND FIRST oe-ord NO-LOCK
-                WHERE oe-ord.company EQ cocode
-                AND oe-ord.ord-no EQ ipb-oe-boll.ord-no
-                NO-ERROR.
-            IF AVAIL oe-ord AND oe-ord.est-no NE "" THEN 
-                FIND FIRST eb NO-LOCK
-                    WHERE eb.company EQ cocode 
-                      AND eb.est-no EQ oe-ord.est-no
-                      AND eb.stock-no EQ ipb-oe-boll.i-no NO-ERROR .
-
-            FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ cocode
-                AND itemfg.i-no EQ ipb-oe-boll.i-no
-              NO-ERROR. 
-            IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb THEN do:
-              lc-return = STRING((IF v-corr THEN (eb.t-sqin * .007)
-                          ELSE (eb.t-sqin / 144)) * ipb-oe-boll.qty )    .
-            END.
-            ELSE IF AVAIL itemfg THEN do:
-                RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
-                ASSIGN 
-               lc-return = STRING(dTotalSqft * ipb-oe-boll.qty )    .
-            END.
-            ELSE lc-return = "" .
-        END.
+        END.          
         WHEN "est-no" THEN DO: 
             FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ cocode
