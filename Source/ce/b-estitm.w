@@ -3116,7 +3116,7 @@ PROCEDURE custom-row-changed :
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(ef), ROWID(eb)).
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
@@ -3125,7 +3125,7 @@ PROCEDURE custom-row-changed :
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(ef), ROWID(eb)).
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
@@ -4674,7 +4674,6 @@ PROCEDURE mass-delete :
   DEF BUFFER b-eb FOR eb.
   DEFINE BUFFER bf-ef FOR ef.
 
-
   RUN check-delete NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -4708,7 +4707,7 @@ PROCEDURE mass-delete :
              WHERE bf-ef.company EQ tt-eb.company 
                AND bf-ef.est-no  EQ tt-eb.est-no 
                AND bf-ef.form-no EQ tt-eb.form-no NO-ERROR .
-        RUN repo-query (ROWID(bf-ef),tt-eb.row-id).
+        RUN repo-query (ROWID(bf-ef), tt-eb.row-id).
         IF AVAILABLE eb THEN 
             RUN dispatch ("delete-record").
     END.
