@@ -1203,8 +1203,10 @@ PROCEDURE pViewDetail :
     DEFINE INPUT PARAMETER ipiPage AS INTEGER NO-UNDO.
     
     /* two smart objects in windows/itemfg.w are shared in this window container
-       however, itemfg.w page 5 objects are located on page 4 here, so switch */
-    IF ipiPage EQ 5 THEN ipiPage = 4.
+       however, itemfg.w page 5 objects are located on page 4 here, and page 14 
+       objects are located on page 13 here, so switch */
+    IF ipiPage EQ 5  THEN ipiPage = 4.
+    IF ipiPage EQ 14 THEN ipiPage = 13.
     
     RUN select-page IN THIS-PROCEDURE (ipiPage).
 
