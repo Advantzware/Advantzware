@@ -1762,19 +1762,25 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
             AND cust.cust-no EQ oe-bolh.cust-no 
           NO-LOCK NO-ERROR.
                
-        IF AVAIL(cust) AND cust.ACTIVE EQ "X"
-            AND oe-bolh.ship-id = oe-boll.loc THEN DO:
-            IF lSingleBOL THEN     
-                MESSAGE "BOL " STRING(w-bolh.bol-no) + " Cannot Transfer to the same location " oe-boll.loc 
-                    VIEW-AS ALERT-BOX ERROR.
-            ELSE 
-                RUN create-nopost(
-                    INPUT "Cannot transfer BOL to the same location"
-                    ).
-            
-            DELETE w-bolh.
-            NEXT mainblok.
-        END.
+          IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
+                  RUN oe/custxship.p(
+                      INPUT oe-bolh.company,
+                      INPUT oe-bolh.cust-no,
+                      INPUT oe-bolh.ship-id,
+                      BUFFER shipto
+                      ).
+              IF AVAILABLE shipto AND oe-boll.loc EQ shipto.loc THEN DO:     
+                  IF lSingleBOL THEN     
+                      MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                          VIEW-AS ALERT-BOX ERROR.
+                  ELSE 
+                      RUN create-nopost(
+                          INPUT "Cannot transfer to the same location"
+                          ).
+                  DELETE w-bolh.
+                  NEXT mainblok.
+              END.    
+          END.
         find first oe-ordl where oe-ordl.company = oe-boll.company  and
               oe-ordl.ord-no = oe-boll.ord-no  and
               oe-ordl.line   = oe-boll.line no-lock no-error.
