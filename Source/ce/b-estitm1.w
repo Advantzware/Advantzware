@@ -3096,7 +3096,7 @@ PROCEDURE custom-row-changed :
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(ef), ROWID(eb)).
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
