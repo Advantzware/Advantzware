@@ -236,7 +236,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
             iover-run    = DECIMAL(cust.over-pct)
             .
     ASSIGN 
-        cBarCodeVal = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99"). 
+        cBarCodeVal = trim(job-hdr.job-no) /* + "-" + STRING(job-hdr.job-no2,"99") */ . 
     ASSIGN  
         cCustName = cust.NAME 
         {sys/inc/ctrtext.i cCustName 30}.
@@ -264,8 +264,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=BlankLabel><C+4><#Blank>"
         "<=HeaderStart><C+10><R+0.6><#PartLabel>"
         "<=PartLabel><R+1><#Part>"
-        "<=HeaderStart><C+22><R+0.6><#CustomerName>"
-           
+        "<=HeaderStart><C+22><R+0.6><#CustomerName>"           
         "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" + cBarCodeVal + ">" FORMAT "x(150)"
         "<P14>                  "
         "<=JobLabel>Job #:"
