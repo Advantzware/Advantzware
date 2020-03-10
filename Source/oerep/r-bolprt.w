@@ -1409,20 +1409,26 @@ DO:
                    FIND FIRST cust NO-LOCK
                         WHERE cust.company EQ oe-bolh.company
                           AND cust.cust-no EQ oe-bolh.cust-no 
-                        NO-ERROR.
-                        
-                   IF AVAILABLE cust AND cust.ACTIVE EQ "X"
-                       AND oe-bolh.ship-id EQ oe-boll.loc THEN DO:
-                       IF lSingleBOL THEN     
-                           MESSAGE "BOL " STRING(oe-bolh.bol-no) " Cannot Transfer to the same location " + oe-boll.loc 
-                               VIEW-AS ALERT-BOX ERROR.
-                       ELSE 
-                           RUN pCreatettExceptionBOL(
-                               INPUT "Cannot transfer to the same location",
-                               INPUT ROWID(oe-boll)
+                        NO-ERROR.  
+                   IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
+                           RUN oe/custxship.p(
+                               INPUT oe-bolh.company,
+                               INPUT oe-bolh.cust-no,
+                               INPUT oe-bolh.ship-id,
+                               BUFFER shipto
                                ).
-                       DELETE tt-post.
-                       NEXT mainblock.
+                       IF AVAILABLE shipto AND oe-boll.loc EQ shipto.loc THEN DO:      
+                           IF lSingleBOL THEN     
+                               MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                                   VIEW-AS ALERT-BOX ERROR.
+                           ELSE 
+                               RUN pCreatettExceptionBOL(
+                                   INPUT "Cannot transfer to the same location",
+                                   INPUT ROWID(oe-boll)
+                                   ).
+                           DELETE tt-post.
+                           NEXT mainblock.
+                       END.    
                    END.
                
                    FIND FIRST oe-ordl NO-LOCK
