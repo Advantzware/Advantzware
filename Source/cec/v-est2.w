@@ -3961,7 +3961,7 @@ IF NOT ll-auto-calc-selected THEN
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+    RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(ef), ROWID(eb)).
 
   DISABLE eb.num-wid eb.num-len /*eb.num-dep*/ WITH FRAME {&FRAME-NAME}.
 
