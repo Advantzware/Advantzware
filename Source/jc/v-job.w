@@ -1208,10 +1208,9 @@ PROCEDURE local-delete-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  RUN get-link-handle IN adm-broker-hdl
-                      (THIS-PROCEDURE, "record-target", OUTPUT char-hdl).
-
-  RUN dispatch IN WIDGET-HANDLE(ENTRY(1,char-hdl)) ('open-query'). 
+  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
   /* Code placed here will execute AFTER standard behavior.    */
   {&methods/lValidateError.i NO}
 END PROCEDURE.

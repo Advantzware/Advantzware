@@ -1525,6 +1525,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query1 B-table-Win 
+PROCEDURE reopen-query1 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/    
+  RUN set-defaults .
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+     tb_open
+     tb_closed
+     fi_cust-no
+     fi_i-no
+     fi_cust-no
+     fi_ord-no
+     fi_est-no
+     fi_job-no
+     fi_job-no2.
+  END.
+
+  RUN dispatch ('open-query').    
+  RUN dispatch ('row-changed').
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
