@@ -1286,12 +1286,12 @@ FOR EACH ef
              
         FIND FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
-              AND prep.CODE EQ cDieNo AND cDieNo NE "" NO-ERROR .
+              AND prep.CODE EQ cDieNo AND eb.die-no NE "" NO-ERROR .
         PUT  SKIP(1)
             "<FGCOLOR=GREEN><C44> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
             "<FGCOLOR=GREEN><C44> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
             "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
-            "<FGCOLOR=GREEN><C44> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
+            "<FGCOLOR=GREEN><C44> DIE<FGCOLOR=BLACK> " eb.die-no FORM "x(25)"  SKIP
             "<FGCOLOR=GREEN><C44> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
             "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " (IF AVAIL prep THEN (string(prep.die-w) + " x "  + STRING(prep.die-l)) ELSE "") FORMAT "x(25)" SKIP
             "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
