@@ -143,8 +143,9 @@ PROCEDURE BuildVendItemCosts:
             ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + "Not Yet Effective,".
         
         IF ttVendItemCost.quantityTargetUOM NE ttVendItemCost.vendorUOM THEN
-            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
-                ipdBasisWeight, ipdDimLength, ipdDimWidth, ipdDimDepth,0, OUTPUT ttVendItemCost.quantityTargetInVendorUOM, OUTPUT oplError, OUTPUT opcMessage).
+            RUN pConvertQuantity(ipcCompany, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
+                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                OUTPUT ttVendItemCost.quantityTargetInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
         IF ipcDimUOM NE bf-vendItemCost.dimUOM THEN 
         DO:
             RUN pConvertDim(ipcCompany, ipdDimLength, ipcDimUOM, bf-vendItemCost.dimUOM, 
@@ -203,6 +204,151 @@ PROCEDURE BuildVendItemCosts:
                     .
         END.
     END.   
+
+END PROCEDURE.
+
+PROCEDURE CopyVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: Copy vendItemCost records from an estimate
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcNewEstimate AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER vendItemCost         FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company    EQ ipcCompany
+          AND vendItemCost.estimateNo EQ ipcEstimate
+          AND vendItemCost.formNo     EQ ipiFormNo
+          AND vendItemCost.blankno    EQ ipiBlankNo:
+
+        CREATE bf-vendItemCost .
+        BUFFER-COPY vendItemCost EXCEPT company estimateNo rec_key vendItemCostID itemID TO bf-vendItemCost.
+        ASSIGN
+            bf-vendItemCost.company    = ipcCompany
+            bf-vendItemCost.estimateNo = ipcNewEstimate
+            bf-vendItemCost.ItemID     = ipcItemID
+            .
+        FOR EACH vendItemCostLevel NO-LOCK    
+            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID:
+            CREATE bf-vendItemCostLevel.
+            BUFFER-COPY vendItemCostLevel EXCEPT rec_key vendItemCostID vendItemCostLevelID TO bf-vendItemCostLevel. 
+            bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.vendItemCostID.    
+        END.          
+    END. 
+
+END PROCEDURE.
+
+PROCEDURE CreateVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: To Create VendItemCost Records
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNO     AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER vendItemCost         FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+
+    IF ipcItemID EQ "" AND 
+        NOT CAN-FIND(FIRST vendItemCost
+                     WHERE vendItemCost.company    EQ ipcCompany
+                       AND vendItemCost.estimateNo EQ ipcEstimate
+                       AND vendItemCost.formNo     EQ ipiFormNo
+                       AND vendItemCost.blankNo    EQ ipiBlankNO
+                       AND vendItemCost.itemID     EQ ""
+                       AND vendItemCost.vendorID   EQ "") THEN DO TRANSACTION:
+
+        CREATE bf-vendItemCost. 
+        ASSIGN 
+            bf-vendItemCost.company    = ipcCompany
+            bf-vendItemCost.itemType   = "FG"
+            bf-vendItemCost.estimateNo = ipcEstimate
+            bf-vendItemCost.formNo     = ipiFormNo
+            bf-vendItemCost.blankNo    = ipiBlankNo
+            .
+        CREATE bf-vendItemCostLevel.
+        ASSIGN 
+            bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.vendItemCostID
+            bf-vendItemCostLevel.quantityBase   = 99999999
+            .           
+    END.
+    ELSE IF ipcItemID NE "" AND
+        NOT CAN-FIND(FIRST vendItemCost
+                     WHERE vendItemCost.company    EQ ipcCompany
+                       AND vendItemCost.estimateNo EQ ipcEstimate
+                       AND vendItemCost.formNo     EQ ipiFormNo
+                       AND vendItemCost.blankNo    EQ ipiBlankNO
+                       AND vendItemCost.itemID     EQ ipcItemID) THEN DO:
+
+        FOR EACH vendItemCost NO-LOCK
+           WHERE vendItemCost.company    EQ ipcCompany 
+             AND vendItemCost.itemID     EQ ipcItemID 
+             AND vendItemCost.estimateNo EQ "" :   
+
+            DO TRANSACTION:
+                CREATE bf-vendItemCost.
+                BUFFER-COPY vendItemCost EXCEPT estimateNo vendItemCostID rec_key TO bf-vendItemCost.
+                ASSIGN 
+                    bf-vendItemCost.estimateNo = ipcEstimate
+                    bf-vendItemCost.formNo     = ipiFormNo
+                    bf-vendItemCost.blankNo    = ipiBlankNo
+                    .            
+                FOR EACH vendItemCostLevel NO-LOCK
+                    WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID:
+                    CREATE bf-vendItemCostLevel.
+                    BUFFER-COPY vendItemCostLevel EXCEPT vendItemCostLevelID rec_key TO bf-vendItemCostLevel.
+                    bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.vendItemCostID.
+                END.           
+            END.
+        END.
+   END.         
+   RELEASE bf-vendItemCost.
+   RELEASE bf-vendItemCostLevel. 
+
+END PROCEDURE.
+
+PROCEDURE DeleteVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: To delete vendItemCost Records
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER vendItemCost         FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+
+    FOR EACH bf-vendItemCost EXCLUSIVE-LOCK
+        WHERE bf-vendItemCost.company    EQ ipcCompany
+          AND bf-vendItemCost.estimateNo EQ ipcEstimate
+          AND bf-vendItemCost.itemID     EQ ipcItemID
+          AND bf-vendItemCost.formNo     EQ ipiFormNo
+          AND bf-vendItemCost.blankNo    EQ ipiBlankNo:    
+        FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK 
+            WHERE bf-vendItemCost.vendItemCostID EQ bf-vendItemCostLevel.vendItemCostID:
+            DELETE bf-vendItemCostLevel.  
+        END.  
+        DELETE bf-vendItemCost.  
+    END. 
+
+   RELEASE bf-vendItemCost.
+   RELEASE bf-vendItemCostLevel.
 
 END PROCEDURE.
 
@@ -308,9 +454,9 @@ PROCEDURE GetVendorCostNextBreak:
             opcCostUOM = bf-vendItemCost.vendorUOM.
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO: 
-            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
-                ipdBasisWeight, ipdDimLength, ipdDimWidth, ipdDimDepth,0, OUTPUT dQuantityInVendorUOM, OUTPUT oplError, OUTPUT opcMessage).
-
+            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
         END.
         ELSE 
             dQuantityInVendorUOM = ipdQuantity. 
@@ -371,9 +517,9 @@ PROCEDURE GetVendorCost:
             opcCostUOM = bf-vendItemCost.vendorUOM.
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO: 
-            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
-                ipdBasisWeight, ipdDimLength, ipdDimWidth, ipdDimDepth,0, OUTPUT dQuantityInVendorUOM, OUTPUT oplError, OUTPUT opcMessage).
-
+            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
         END.
         ELSE 
             dQuantityInVendorUOM = ipdQuantity. 
@@ -1118,6 +1264,49 @@ PROCEDURE pConvertDim PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pConvertQuantity PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Converts given value in given uom to desired UOM, based on additional
+     item specs
+     Notes:
+     Syntax:
+         RUN pConvertQuantity(cCompany, dQtyInFromUOM, cFromUOM, cToUOM, 
+            dBasisWeight, cBasisWeightUOM, dLength, dWidth, dDepth, cDimUOM,
+            OUTPUT dQtyInToUOM, OUTPUT oplError, INPUT-OUTPUT iopcMessage).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQtyInFromUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQtyInToUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimLengthInIN          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimWidthInIN           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimDepthInIN           AS DECIMAL NO-UNDO.
+
+    /*Refactor handling of non-assumed UOMs of "IN" and "LBS/MSF" and handle error & message propagation*/
+    ASSIGN 
+        dBasisWeightInLBSPerMSF = ipdBasisWeight
+        dDimLengthInIN          = ipdDimLength
+        dDimWidthInIN           = ipdDimWidth
+        dDimDepthInIN           = ipdDimDepth
+        .
+
+    RUN custom/convquom.p(ipcCompany, ipcFromUOM, ipcToUOM, 
+        dBasisWeightInLBSPerMSF, dDimLengthInIN, dDimWidthInIN, dDimDepthInIN,
+        ipdQtyInFromUOM, OUTPUT opdQtyInToUOM).      
+
+END PROCEDURE.
+
 PROCEDURE pGetCostLevel PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a VendItemCostID and Target Quantity, return the Level ID that matches it
@@ -1435,7 +1624,7 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                         AND opbf-vendItemCost.blankNo EQ ipiBlankNo
                         AND opbf-vendItemCost.vendorID EQ ""
                         NO-ERROR.
-                    IF NOT AVAILABLE opbf-vendItemCost THEN 
+                     IF NOT AVAILABLE opbf-vendItemCost THEN 
                         FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
                         {&RequiredCriteria}
                         AND opbf-vendItemCost.estimateNo EQ ipcEstimateNo
@@ -1642,38 +1831,39 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
-PROCEDURE VendCost_GetVendorItemID:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcVendorItemId AS CHARACTER NO-UNDO.
+PROCEDURE UpdateVendItemCost:
+/*------------------------------------------------------------------------------
+ Purpose: To Update the FG Item in VendItemCost
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiForm     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlank    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOldItem  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcNewItem  AS CHARACTER NO-UNDO.
     
-    FIND FIRST vendItemCost NO-LOCK 
-        WHERE vendItemCost.company EQ ipcCompany
-        AND vendItemCost.itemID EQ ipcItemID
-        AND vendItemCost.itemType EQ ipcItemType 
-        AND vendItemCost.vendorID EQ ipcVendorID
-        AND vendItemCost.estimateNo = ""
-        NO-ERROR.
-    IF AVAILABLE vendItemCost AND vendItemCost.vendorItemID NE "" THEN
-        opcVendorItemID = vendItemCost.vendorItemID.
-    ELSE DO:
-        IF ipcItemType EQ "FG" THEN DO:
-            FIND FIRST itemfg NO-LOCK 
-                WHERE itemfg.company EQ ipcCompany
-                AND itemfg.i-no EQ ipcItemID
-                NO-ERROR.
-            IF AVAILABLE itemfg AND itemfg.vend-no EQ ipcVendorID THEN 
-                opcVendorItemID = itemfg.vend-item.
-            ELSE IF AVAILABLE itemfg AND itemfg.vend2-no EQ ipcVendorID THEN 
-                opcVendorItemID = itemfg.vend2-item.                     
-        END.
+    DEFINE BUFFER vendItemCost         FOR vendItemCost.    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company  EQ ipcCompany
+          AND vendItemCost.estimate EQ ipcEstimate 
+          AND vendItemCost.formNo   EQ ipiForm
+          AND vendItemCost.blankNo  EQ ipiBlank
+          AND vendItemCost.itemID   EQ ipcOldItem:
+        FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
+            WHERE bf-vendItemCost.company  EQ vendItemCost.company
+              AND bf-vendItemCost.estimate EQ vendItemCost.estimate 
+              AND bf-vendItemCost.formNo   EQ vendItemCost.formNo 
+              AND bf-vendItemCost.blankNO  EQ vendItemCost.blankNo
+              AND bf-vendItemCost.itemID   EQ vendItemCost.itemID
+            NO-ERROR.
+        IF AVAILABLE bf-vendItemCost THEN 
+            bf-vendItemCost.itemID = ipcNewItem.                       
     END.
+    RELEASE bf-vendItemCost.
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
