@@ -391,7 +391,7 @@ DO:
         NO-ERROR.
     IF NOT AVAIL edshipto THEN 
         IF NOT AVAILABLE EDShipTo THEN 
-            FIND FIRST EDShipTo EXCLUSIVE-LOCK
+            FIND FIRST EDShipTo NO-LOCK
                 WHERE EDShipTo.partner = EDIVTran.partner
                   AND EDShipTo.ref-type = "BY"
                   AND EDShipTo.BY-CODE = ""
