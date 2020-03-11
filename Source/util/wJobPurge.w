@@ -487,7 +487,7 @@ DO:
         WHEN 'fiEndJob2' THEN DO:             
             IF SELF:SCREEN-VALUE NE "" 
                 AND integer(fiStartJob2:SCREEN-VALUE) NE 0 
-                AND INTEGER(SELF:SCREEN-VALUE) LT integer(fiStartJob:SCREEN-VALUE) THEN 
+                AND INTEGER(SELF:SCREEN-VALUE) LT integer(fiStartJob2:SCREEN-VALUE) THEN 
             DO:
                 MESSAGE 
                     "Start job2 is greater than end job2. Please correct."
