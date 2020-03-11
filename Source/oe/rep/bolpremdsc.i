@@ -15,11 +15,6 @@ def buffer xxreport     for report.
 RUN XMLOutput (lXMLOutput,'','','Header').
 /* rstark 05181205 */
 
-/* rstark 05291402 */
-&SCOPED-DEFINE sysCtrlcXML cXMLASN
-{XMLOutput/XMLOutput.i &cXMLOutput={&sysCtrlcXML} &Company=cocode &c=c}
-/* rstark 05291402 */
-
 def var v-salesman          as   char format "x(26)".
 def var v-fob               as   char format "x(12)".
 def var v-tot-cases         as   int format ">>>>9".
@@ -63,7 +58,6 @@ def var v-frt-terms as char format "x(10)" no-undo.
 def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-total-weight LIKE tt-boll.weight.
 DEFINE VARIABLE cPoNum AS CHARACTER NO-UNDO.
-DEF VAR lGeneratecXML AS LOG NO-UNDO.
 DEFINE VARIABLE iReprint AS INTEGER     NO-UNDO.
 
 def TEMP-TABLE w2 no-undo
@@ -126,7 +120,6 @@ DEF VAR v-case-tot          AS INTE NO-UNDO.
 DEF VAR cOrderDate          AS CHAR NO-UNDO.
 DEF VAR dOrigQty            AS DEC NO-UNDO.
 DEF VAR cOrigUom            AS CHAR NO-UNDO.
-//DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
@@ -250,27 +243,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     break by oe-bolh.bol-no:
 
-    /* rstark 05291402 */
-     FIND FIRST sys-ctrl NO-LOCK
-       WHERE sys-ctrl.company EQ  cocode
-         AND sys-ctrl.name    EQ 'cXMLASN' NO-ERROR.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
-        FIND FIRST sys-ctrl-shipto OF sys-ctrl NO-LOCK
-            WHERE sys-ctrl-shipto.cust-vend EQ YES
-              AND sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no
-              AND sys-ctrl-shipto.log-fld EQ YES
-            NO-ERROR.
-        IF AVAIL sys-ctrl-shipto THEN 
-                lGeneratecXML = YES.
-      END. /* avail sys-ctrl */
-    /* key-10 set in oerep/r-bolprt.w (build-work) */
-    IF lGeneratecXML AND 
-        ((iReprint EQ 0 AND xxreport.key-10 EQ 'no') 
-         OR (iReprint EQ 1 AND xxreport.key-10 EQ 'yes')) THEN DO:
-        lGeneratecXML = YES.
-    END. /* if not printed */
-    ELSE lGeneratecXML = NO.
-    /* rstark 05291402 */
   
     if first-of(oe-bolh.bol-no) then do:
     find first carrier
@@ -436,18 +408,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
      RUN XMLOutput (lXMLOutput,'Freight',v-frt-terms,'Col').
      RUN XMLOutput (lXMLOutput,'/BOLHeader','','Row').
      XMLPage = NO.
-     /* rstark 05181205 */
-     
-     IF lGeneratecXML THEN DO:
-        FOR EACH oe-boll 
-            WHERE oe-boll.company EQ oe-bolh.company 
-              AND oe-boll.b-no eq oe-bolh.b-no
-            BREAK BY oe-boll.ord-no:
-           IF FIRST-OF(oe-boll.ord-no) THEN
-             RUN cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no, INPUT oe-boll.ord-no).
-        END.
-     END.
-     /* iCxmlOutput = 0 */
+
      
     {oe/rep/bolprem2dsc.i} /* header */
     {oe/rep/bolprem3dsc.i}
