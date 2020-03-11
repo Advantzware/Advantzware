@@ -182,28 +182,13 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportMach.num-len, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.num-len).
     RUN pAssignValueC (ipbf-ttImportMach.industry, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.industry).
     
-    
-    IF ipbf-ttImportMach.therm   EQ "Yes" THEN
-        ASSIGN bf-mach.therm   = YES.
-    ELSE bf-mach.therm = NO .
-    
-    IF ipbf-ttImportMach.coater   EQ "Y" THEN
-        ASSIGN bf-mach.coater   = YES.
-    ELSE bf-mach.coater = NO .
-    
-    IF ipbf-ttImportMach.gang-jobs   EQ "Yes" THEN
-        ASSIGN bf-mach.gang-jobs   = YES.
-    ELSE bf-mach.gang-jobs = NO .
-    
-    IF ipbf-ttImportMach.plan-job   EQ "Yes" THEN
-        ASSIGN bf-mach.plain-job   = YES.
-    ELSE bf-mach.plain-job = NO .
-    
-    IF ipbf-ttImportMach.Obsolete   EQ "Yes" THEN
-        ASSIGN bf-mach.Obsolete   = YES.
-    ELSE bf-mach.Obsolete = NO .      
-
-   RELEASE bf-mach .
+    RUN pAssignValueCToL (ipbf-ttImportMach.therm,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.therm).
+    RUN pAssignValueCToL (ipbf-ttImportMach.coater,"Y",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.coater).
+    RUN pAssignValueCToL (ipbf-ttImportMach.gang-jobs,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.gang-jobs).
+    RUN pAssignValueCToL (ipbf-ttImportMach.plan-job,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.plain-job).
+    RUN pAssignValueCToL (ipbf-ttImportMach.Obsolete,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.Obsolete).
+   
+    RELEASE bf-mach .
                                                                                                                                
                                                                                                                                
 END PROCEDURE.                                                                                                                 
