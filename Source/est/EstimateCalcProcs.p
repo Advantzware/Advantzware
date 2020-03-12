@@ -3078,6 +3078,11 @@ PROCEDURE pCalcEstMaterial PRIVATE:
             ipbf-estCostMaterial.costTotalPerMFinishedNoWaste    = ipbf-estCostMaterial.costTotalNoWaste / (ipbf-estCostForm.quantityFGOnForm / 1000)
             ipbf-estCostMaterial.costTotalPerMFinishedSetupWaste = ipbf-estCostMaterial.costTotalSetupWaste  / (ipbf-estCostForm.quantityFGOnForm / 1000)
             ipbf-estCostMaterial.costTotalPerMFinishedRunWaste   = ipbf-estCostMaterial.costTotalRunWaste / (ipbf-estCostForm.quantityFGOnForm / 1000)
+            .
+    ELSE 
+        ASSIGN 
+            ipbf-estCostMaterial.costPerUOM = 0
+            ipbf-estCostMaterial.costSetup = 0
             .        
     
 END PROCEDURE.
