@@ -38,8 +38,7 @@ DEFINE OUTPUT PARAMETER oplRefresh AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cDynamicParam   AS CHARACTER NO-UNDO INITIAL
-    "dynParam,dynParamSet,dynParamSetDtl".
+DEFINE VARIABLE cDynamicParam   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDynamicSubject AS CHARACTER NO-UNDO INITIAL
     "dynSubject,dynSubjectTable,dynSubjectWhere,dynSubjectColumn,dynSubjectParamSet,dynParamValue".
 DEFINE VARIABLE cFolder         AS CHARACTER NO-UNDO.
@@ -672,6 +671,7 @@ PROCEDURE pExport :
         OUTPUT CLOSE.
     END. /* do idx */
     EMPTY TEMP-TABLE ttDynParam.
+    cDynamicParam = "dynParamSet,dynParamSetDtl,dynParam".
     DO idx = 1 TO NUM-ENTRIES(cDynamicParam):
         FIND FIRST ASI._file NO-LOCK
              WHERE ASI._file._file-name EQ ENTRY(idx,cDynamicParam)
@@ -806,6 +806,7 @@ PROCEDURE pImport :
 
     SESSION:SET-WAIT-STATE("General").
     ASSIGN
+        cDynamicParam = "dynParam,dynParamSet,dynParamSetDtl"
         cDynamicTable = cDynamicTable + cDynamicSubject + "," + cDynamicParam
         oplRefresh    = YES
         .    
