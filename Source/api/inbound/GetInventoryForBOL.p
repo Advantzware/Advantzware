@@ -81,8 +81,8 @@ FOR EACH  oe-boll NO-LOCK
      
     RUN api\inbound\GetInventoryDetails.p (
         INPUT  oe-boll.company, /* Company */
-        INPUT  oe-boll.loc,     /* Location */
-        INPUT  oe-boll.loc-bin, /* Bin */
+        INPUT  "",              /* Location */
+        INPUT  "",              /* Bin */
         INPUT  oe-boll.tag,     /* Tag */
         INPUT  oe-boll.i-no,    /* Primary ID */
         INPUT  oe-boll.job-no,  /* Job Number */
