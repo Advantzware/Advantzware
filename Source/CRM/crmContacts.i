@@ -107,88 +107,108 @@ PROCEDURE pZohoCRM:
     DEFINE INPUT  PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiRows    AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE cAuthToken  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cConnection AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hWebService AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSalesSoap  AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lcAccounts  AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE lcContacts  AS LONGCHAR  NO-UNDO.
-
-    RUN pGetAuthToken  (ipcCompany, OUTPUT cAuthToken).
-    IF cAuthToken EQ "" THEN
-    RETURN "Authorization Token Value is Blank".
+    DEFINE VARIABLE lcAccounts    AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcContacts    AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE hdZohoProcs   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cRefreshToken AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientSecret AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccessToken  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    lSuccess = YES.
     
-    RUN pGetConnection (OUTPUT cConnection).
-    IF cConnection EQ "" THEN
-    RETURN "Web Service Connection is Blank".
+    RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    CREATE SERVER hWebService.
-    hWebService:CONNECT(cConnection) NO-ERROR.
-    IF NOT hWebService:CONNECTED() THEN DO:
-        DELETE OBJECT hWebService.
-        RETURN "Web Service Connection Failed".
-    END.
+    RUN pGetRefreshToken IN hdZohoProcs (
+        INPUT  ipcCompany,
+        OUTPUT cRefreshToken
+        ).
+        
+    IF cRefreshToken EQ "" THEN
+        RETURN "Refresh Token Value is Blank".
+        
+    RUN pGetClientID IN hdZohoProcs (
+        INPUT  ipcCompany,
+        OUTPUT cClientID
+        ).
+        
+    IF cClientID EQ "" THEN
+        RETURN "ClientID Value is Blank".
 
-    RUN Service1Soap SET hSalesSoap ON hWebService.
-
+    RUN pGetClientSecret IN hdZohoProcs (
+        INPUT  ipcCompany,
+        OUTPUT cClientSecret
+        ).
+        
+    IF cClientSecret EQ "" THEN
+        RETURN "ClientSecret Value is Blank".
+    
+     RUN pGetAccessToken IN hdZohoProcs (
+         INPUT  cRefreshToken,
+         INPUT  cClientID,
+         INPUT  cClientSecret,
+         OUTPUT cAccessToken,
+         OUTPUT lSuccess,
+         OUTPUT cMessage
+         ).
+    IF NOT lSuccess THEN
+        RETURN cMessage.     
+    IF cAccessToken EQ "" THEN
+        RETURN "AccessToken Value is Blank".
+    
     IF ipcRecKey NE "" THEN DO:
         FIND FIRST cust NO-LOCK
              WHERE cust.rec_key EQ ipcRecKey
              NO-ERROR.
+             
         IF NOT AVAILABLE cust THEN
-        RETURN "Customer Record Not Available".
+            RETURN "Customer Record Not Available".
 
-        RUN HelpCrmZohoAcc IN hSalesSoap (
-            "Accounts",
-            "Ticker Symbol:" + cust.cust-no,
-            "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol)",
-            "searchRecords",
-            cAuthToken,
-            OUTPUT lcAccounts
+        RUN pGetAccounts IN hdZohoProcs (
+            INPUT        cAccessToken,
+            INPUT        cust.cust-no,
+            OUTPUT TABLE ttAccounts,
+            OUTPUT       lSuccess,
+            OUTPUT       cMessage
             ).
-        IF INDEX(STRING(lcAccounts),"<code>4422</code>") NE 0 THEN
-        RETURN "No Data Returned".
+        IF NOT lSuccess THEN
+            RETURN cMessage.
+
     END. /* if ipcreckey */
-    ELSE
-    RUN HelpCrmZohoAcc IN hSalesSoap (
-        "Accounts",
-        "",
-        "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol)&fromIndex=1&toIndex=125&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
-        "getRecords",
-        cAuthToken,
-        OUTPUT lcAccounts
-        ).
-
-    OUTPUT TO "c:\temp\Accounts.xml".
-    PUT UNFORMATTED STRING(lcAccounts) SKIP.
-    OUTPUT CLOSE.
-    RUN pXML ("c:\temp\Accounts.xml", "Accounts").
-
+    ELSE DO:
+        RUN pGetAccounts IN hdZohoProcs (
+            INPUT        cAccessToken,
+            INPUT        "",
+            OUTPUT TABLE ttAccounts,
+            OUTPUT       lSuccess,
+            OUTPUT       cMessage
+            ).
+        
+        IF NOT lSuccess THEN
+            RETURN cMessage. 
+    END.   
     FOR EACH ttAccounts
         WHERE ttAccounts.tickerSymbol NE ""
-        :
+          AND ttAccounts.tickerSymbol NE "null":
         FIND FIRST cust NO-LOCK
              WHERE cust.company EQ ipcCompany
                AND cust.cust-no EQ ttAccounts.tickerSymbol
              NO-ERROR.
         IF AVAILABLE cust THEN DO:
-            RUN HelpCrmZohoCont IN hSalesSoap (
-                "Contacts",
-                "Account%20Name:" + ttAccounts.accountName,
-                "Contacts(First%20Name,Last%20Name,Phone,Email)",
-                "searchRecords",
-                cAuthToken,
-                OUTPUT lcContacts
+            RUN pGetContacts IN hdZohoProcs (
+                INPUT        cAccessToken,
+                INPUT        ttAccounts.accountName,
+                OUTPUT TABLE ttCRMContacts,
+                OUTPUT       lSuccess,
+                OUTPUT       cMessage
                 ).
-            OUTPUT TO "c:\temp\Contacts.xml".
-            PUT UNFORMATTED STRING(lcContacts) SKIP.
-            OUTPUT CLOSE.
-            RUN pXML ("c:\temp\Contacts.xml", "Contacts").
 
             FOR EACH ttCRMContacts
                 WHERE ttCRMContacts.tickerSymbol EQ ""
                   AND ttCRMContacts.xxRow        EQ 0
                 :
+
                 ASSIGN
                     ttCRMContacts.tickerSymbol  = ttAccounts.tickerSymbol
                     opiRows                     = opiRows + 1
@@ -218,10 +238,10 @@ PROCEDURE pZohoCRM:
                         .
                 END.
                 ELSE
-                ASSIGN
-                    ttCRMContacts.action        = "Update"
-                    ttCRMContacts.xxApplyAction = YES
-                    .
+                    ASSIGN
+                        ttCRMContacts.action        = "Update"
+                        ttCRMContacts.xxApplyAction = YES
+                        .
                 ASSIGN
                     ttCRMContacts.phoneAttention = phone.attention
                     ttCRMContacts.phoneCityCode  = phone.phone_city_code
