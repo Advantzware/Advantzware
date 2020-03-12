@@ -62,6 +62,7 @@ PROCEDURE pSetDynParamValue:
                 dynParamValue.paramDataType[idx] = dynParam.dataType
                 dynParamValue.paramFormat[idx]   = dynParam.paramFormat
                 .
+            IF idx GE EXTENT(dynParamValue.paramName) THEN LEAVE.
         END. /* each dynsubjectparamset */
         idx = 0.
         FOR EACH {1}SubjectColumn NO-LOCK
@@ -89,6 +90,7 @@ PROCEDURE pSetDynParamValue:
                 dynParamValue.calcParam[idx]      = {1}SubjectColumn.calcParam
                 dynParamValue.calcFormula[idx]    = {1}SubjectColumn.calcFormula
                 .
+            IF idx GE EXTENT(dynParamValue.colName) THEN LEAVE.
         END. /* each {1}SubjectColumn */
         FOR EACH {1}SubjectParamSet NO-LOCK
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID
