@@ -165,6 +165,15 @@ PROCEDURE dynValCustype:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValEmployee:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST emp
+                 WHERE emp.company EQ cCompany
+                   AND emp.emp-id  EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValFGItem:
     {&defInputParam}
     {&checkRange}
