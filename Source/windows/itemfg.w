@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object06 h_p-calcq
 &SCOPED-DEFINE h_Object07 h_p-locw
 &SCOPED-DEFINE moveRight {&h_Object02},{&h_Object03},{&h_Object04}
+&SCOPED-DEFINE h_folderUom h_folderUom
 
 /* Parameters Definitions ---                                           */
 
