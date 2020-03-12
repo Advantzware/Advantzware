@@ -174,10 +174,13 @@
             cReleaseStatus       = IF oe-relh.printed THEN "Update" ELSE "New"
             .
         
-        FIND FIRST shipto NO-LOCK
-             WHERE shipto.company EQ oe-relh.company
-               AND shipto.ship-id EQ oe-relh.ship-id
-             NO-ERROR.
+        RUN oe/custxship.p (
+            INPUT oe-relh.company,
+            INPUT oe-relh.cust-no,
+            INPUT oe-relh.ship-id,
+            BUFFER shipto
+            ).
+            
         IF AVAILABLE shipto THEN
             ASSIGN
                 cShipToName        = STRING(shipto.ship-name)
