@@ -1237,10 +1237,9 @@ PROCEDURE local-assign-record :
                        AND job.job-no = pc-prdd.job-no
                        AND job.job-no2 = pc-prdd.job-no2
                        NO-LOCK NO-ERROR.
-  IF li-help-job <> 0 THEN ASSIGN pc-prdd.job = li-help-job.
-  ELSE IF pc-prdd.job = 0 THEN DO:
-      IF AVAIL job THEN pc-prdd.job = job.job.
-  END.
+  IF pc-prdd.job EQ 0 AND AVAIL job THEN 
+    pc-prdd.job = job.job.
+  
   IF AVAIL job AND job.start-date = ? THEN DO: /* task 07181407 */
   FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
   ASSIGN job.start-date = pc-prdd.op-date .
