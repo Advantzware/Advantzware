@@ -112,7 +112,8 @@ DEFINE NEW SHARED WORKFILE wrk-ink
     FIELD i-unit AS DECIMAL
     FIELD i-seq AS INTEGER
     FIELD i-per AS INTEGER
-    FIELD side AS CHARACTER.
+    FIELD side AS CHARACTER
+    FIELD Iform AS INTEGER .
 
 DEFINE NEW SHARED WORKFILE wrk-prep
     FIELD code LIKE est-prep.code
@@ -706,8 +707,43 @@ FOR EACH ef
                     wrk-die.die-size = STRING(ef.trim-w) + "x" +
               string(ef.trim-l).
             END.
+            
+            
 
-            /** BUILD INK WORK FILE **/
+           /** BUILD INK WORK FILE **/
+           FOR EACH b-eb WHERE b-eb.company EQ cocode
+                  AND b-eb.est-no EQ eb.est-no 
+                  AND b-eb.form-no EQ eb.form-no .
+            FOR EACH job-mat
+                WHERE job-mat.company EQ cocode
+                AND job-mat.job     EQ job-hdr.job
+                AND job-mat.frm     EQ b-eb.form-no
+                AND job-mat.blank-no = b-eb.blank-no
+                NO-LOCK,
+                FIRST item
+                {sys/look/itemivW.i}
+                and item.i-no eq job-mat.i-no
+              no-lock:
+              
+               DO i = 1 TO 12:
+                IF b-eb.i-code2[i] EQ job-mat.i-no THEN 
+                DO:
+              
+                  CREATE wrk-ink .
+                   ASSIGN                 
+                    wrk-ink.i-code   = b-eb.i-code2[i]
+                    wrk-ink.form-no  = b-eb.form-no
+                    wrk-ink.blank-no = b-eb.blank-no
+                    wrk-ink.i-dscr   = b-eb.i-dscr2[i]
+                    wrk-ink.i-pass   = b-eb.i-ps2[i]
+                    wrk-ink.i-unit   = b-eb.unitNo[i] 
+                    wrk-ink.i-per    = b-eb.i-%2[i]
+                    wrk-ink.side     = b-eb.side[i]
+                    wrk-ink.Iform    = 1 .
+                  END.
+                END.                
+              END.
+             END.
             FOR EACH job-mat
                 WHERE job-mat.company EQ cocode
                 AND job-mat.job     EQ job-hdr.job
@@ -1001,6 +1037,7 @@ FOR EACH ef
             v-ink2 = "".
 
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+             AND wrk-ink.Iform EQ 1 
             BREAK BY wrk-ink.i-code
             BY wrk-ink.i-pass
             BY wrk-ink.i-unit
@@ -1011,6 +1048,7 @@ FOR EACH ef
         END. /* each wrk-ink */
              
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+             AND wrk-ink.Iform EQ 1
             BREAK BY wrk-ink.i-pass
             BY wrk-ink.i-unit
             :
@@ -1021,7 +1059,7 @@ FOR EACH ef
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
-           
+          DELETE wrk-ink. 
         END. /* each wrk-ink */
         ASSIGN
             v-skip          = NO
@@ -1054,7 +1092,7 @@ FOR EACH ef
             "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
             "<FGCOLOR=GREEN><C44> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
             "<FGCOLOR=GREEN><C44> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " (IF AVAIL prep THEN (string(prep.die-w) + " x "  + STRING(prep.die-l)) ELSE "") FORMAT "x(25)" SKIP
+            "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
             "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
             "<R-1>" v-fill  SKIP.
          
@@ -1241,6 +1279,7 @@ FOR EACH ef
             v-ink2 = "".
 
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+            AND wrk-ink.Iform EQ 0
             BREAK BY wrk-ink.i-code
             BY wrk-ink.i-pass
             BY wrk-ink.i-unit
@@ -1251,6 +1290,7 @@ FOR EACH ef
         END. /* each wrk-ink */
              
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+            AND wrk-ink.Iform EQ 0
             BREAK BY wrk-ink.i-pass
             BY wrk-ink.i-unit
             :
@@ -1286,14 +1326,14 @@ FOR EACH ef
              
         FIND FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
-              AND prep.CODE EQ cDieNo AND eb.die-no NE "" NO-ERROR .
+              AND prep.CODE EQ eb.die-no AND eb.die-no NE "" NO-ERROR .
         PUT  SKIP(1)
             "<FGCOLOR=GREEN><C44> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
             "<FGCOLOR=GREEN><C44> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
             "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
             "<FGCOLOR=GREEN><C44> DIE<FGCOLOR=BLACK> " eb.die-no FORM "x(25)"  SKIP
             "<FGCOLOR=GREEN><C44> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " (IF AVAIL prep THEN (string(prep.die-w) + " x "  + STRING(prep.die-l)) ELSE "") FORMAT "x(25)" SKIP
+            "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
             "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
             "<R-1>" v-fill  SKIP.
         PUT "<C2>" v-cust-name FORMAT "x(30)" SKIP .     
@@ -1433,7 +1473,7 @@ FOR EACH ef
             IF PAGE-SIZE - LINE-COUNTER LE 12 THEN PAGE. 
             PUT 
               "<C3><FGCOLOR=GREEN>SHIP TO: "  "<C40><FGCOLOR=GREEN>CUST PO: <FGCOLOR=BLACK>" (IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "") FORMAT "x(15)" "<C59><FGCOLOR=GREEN>  CASE WEIGHT: <FGCOLOR=BLACK>" string(bf-eb.cas-wt) FORMAT "x(10)"   SKIP
-              "<C7>" v-shipto[1] "<C43><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" string(xjob-hdr.qty)  SKIP
+              "<C7>" v-shipto[1] "<C43><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" IF AVAIL xjob-hdr THEN string(xjob-hdr.qty) ELSE "" SKIP
               "<C7>" v-shipto[2] "<C42><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-cnt)   "<C61><FGCOLOR=GREEN>  PER CASE: <FGCOLOR=BLACK>" bf-eb.cas-no FORMAT "x(15)" SKIP
               "<C7>" v-shipto[3] "<C42><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C60><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" bf-eb.tr-no FORMAT "x(15)" SKIP
               "<C7>" v-shipto[4]  SKIP
