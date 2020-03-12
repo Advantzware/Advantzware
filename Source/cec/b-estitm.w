@@ -192,11 +192,13 @@ DO:
    END.
 END.
 
-DEF VAR viEQtyPrev AS INT NO-UNDO.
-DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -5719,8 +5721,39 @@ PROCEDURE local-assign-record :
 
   END.
 
-  IF adm-new-record AND eb.pur-man THEN RUN create-e-itemfg-vend.
-  ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN RUN update-e-itemfg-vend.
+  IF adm-new-record AND eb.pur-man THEN DO:
+      RUN create-e-itemfg-vend.
+      RUN CreateVendItemCost(
+          INPUT cocode,    
+          INPUT eb.stock-no,      
+          INPUT eb.est-no,    
+          INPUT eb.form-no,    
+          INPUT eb.blank-no
+          ).
+  END.        
+  ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN 
+      RUN update-e-itemfg-vend.
+
+  IF NOT adm-new-record 
+     AND cOldFGItem NE eb.stock-no
+     AND eb.pur-man  THEN DO:
+      IF CAN-FIND(FIRST vendItemCost
+                  WHERE vendItemCost.company    EQ cocode
+                    AND vendItemCost.ItemID     EQ cOldFGItem
+                    AND vendItemCost.estimateNo EQ eb.est-no
+                    AND vendItemCost.formNo     EQ eb.form-no
+                    AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
+                    
+          RUN UpdateVendItemCost(
+              INPUT cocode,
+              INPUT eb.est-no,
+              INPUT eb.form-no,
+              INPUT eb.blank-no,
+              INPUT cOldFGItem, /* Old FG Item */
+              INPUT eb.stock-no /* New F Item */
+              ).                          
+  END.    
+
 
   /* If unitized and form 1, blank 1, copy to form zero record. */
   IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
@@ -5988,6 +6021,20 @@ PROCEDURE local-delete-record :
     FIND bf WHERE ROWID(bf) EQ ROWID(ef) NO-ERROR.
     FIND bqty WHERE ROWID(bqty) EQ ROWID(est-qty) NO-ERROR.
     FIND best WHERE ROWID(best) EQ ROWID(est) NO-ERROR.
+    
+    IF CAN-FIND(FIRST vendItemCost
+            WHERE vendItemCost.company    EQ cocode
+              AND vendItemCost.ItemID     EQ bb.stock-no
+              AND vendItemCost.estimateNo EQ bb.est-no
+              AND vendItemCost.formNo     EQ bb.form-no
+              AND vendItemCost.blankNo    EQ bb.blank-no) THEN 
+    RUN DeleteVendItemCost (
+        INPUT cocode,    
+        INPUT bb.est-no,  
+        INPUT bb.stock-no,
+        INPUT bb.form-no, 
+        INPUT bb.blank-no
+        ).
 
     ll-dum = BROWSE {&browse-name}:DELETE-CURRENT-ROW().
 
@@ -6128,7 +6175,8 @@ PROCEDURE local-enable-fields :
   DEF VAR li-cnt AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  cOldFGItem = eb.stock-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+  
   IF CAN-DO(",form,blank",ls-add-what) THEN
   DO:
      {custom/checkuse.i}
