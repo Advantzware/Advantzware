@@ -69,14 +69,16 @@ END.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-26 tb_die tb_image tb_cad tb_layout ~
-tb_inks tb_case tb_pallet tb_freight tb_design Btn_OK Btn_Cancel 
+tb_inks tb_case tb_pallet tb_freight tb_design tb_prep tb_packing ~
+tb_miscsub tb_routing Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_die tb_image tb_cad tb_layout tb_inks ~
-tb_case tb_pallet tb_freight tb_design 
+tb_case tb_pallet tb_freight tb_design tb_prep tb_packing tb_miscsub ~
+tb_routing 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 tb_die tb_image tb_cad tb_layout tb_inks tb_case ~
-tb_pallet tb_freight tb_design 
+tb_pallet tb_freight tb_design tb_prep tb_packing tb_miscsub tb_routing 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -100,7 +102,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
 
 DEFINE RECTANGLE RECT-26
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 33 BY 10.71.
+     SIZE 33 BY 14.05.
 
 DEFINE VARIABLE tb_cad AS LOGICAL INITIAL no 
      LABEL "" 
@@ -142,10 +144,30 @@ DEFINE VARIABLE tb_layout AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_miscsub AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_packing AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY .95 NO-UNDO.
+
 DEFINE VARIABLE tb_pallet AS LOGICAL INITIAL no 
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_prep AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_routing AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY .95 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -160,30 +182,42 @@ DEFINE FRAME D-Dialog
      tb_pallet AT ROW 8.19 COL 23
      tb_freight AT ROW 9.19 COL 23
      tb_design AT ROW 10.19 COL 23
-     Btn_OK AT ROW 11.95 COL 2
-     Btn_Cancel AT ROW 11.95 COL 18
+     tb_prep AT ROW 11.19 COL 23 WIDGET-ID 2
+     tb_packing AT ROW 12.1 COL 23 WIDGET-ID 6
+     tb_miscsub AT ROW 13.05 COL 23 WIDGET-ID 10
+     tb_routing AT ROW 13.91 COL 23 WIDGET-ID 14
+     Btn_OK AT ROW 15.29 COL 2
+     Btn_Cancel AT ROW 15.29 COL 18
+     "Routing?" VIEW-AS TEXT
+          SIZE 12.6 BY 1 AT ROW 13.91 COL 10 WIDGET-ID 16
+     "Misc/Sub data?" VIEW-AS TEXT
+          SIZE 19.6 BY 1 AT ROW 13.05 COL 3 WIDGET-ID 12
+     "Packing?" VIEW-AS TEXT
+          SIZE 12.6 BY 1 AT ROW 12.1 COL 10 WIDGET-ID 8
+     "Prep?" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 11.19 COL 13.6 WIDGET-ID 4
+     "Inks?" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 6.19 COL 15
+     "Freight?" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 9.19 COL 12
+     "Case?" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 7.19 COL 13
+     "Layout?" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 5.19 COL 12
+     "CAD#?" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.19 COL 13
+     "Pallet?" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 8.19 COL 13
+     "Copy..." VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 1.24 COL 3
      "Box Design?" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 10.19 COL 7
      "Die#?" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 2.19 COL 14
      "Image?" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 3.19 COL 13
-     "Inks?" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 6.19 COL 15
-     "Copy..." VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 1.24 COL 3
-     "Pallet?" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 8.19 COL 13
-     "CAD#?" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.19 COL 13
-     "Layout?" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 5.19 COL 12
-     "Case?" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 7.19 COL 13
-     "Freight?" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 9.19 COL 12
      RECT-26 AT ROW 1 COL 1
-     SPACE(0.00) SKIP(1.71)
+     SPACE(0.00) SKIP(1.65)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -236,7 +270,15 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb_layout IN FRAME D-Dialog
    1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX tb_miscsub IN FRAME D-Dialog
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX tb_packing IN FRAME D-Dialog
+   1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb_pallet IN FRAME D-Dialog
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX tb_prep IN FRAME D-Dialog
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX tb_routing IN FRAME D-Dialog
    1                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -417,6 +459,11 @@ PROCEDURE do-copy :
   DEF BUFFER b-box-l FOR box-design-line.
   DEF BUFFER unit-ref FOR reftable.
   DEF BUFFER depth-ref FOR reftable.
+  DEF BUFFER kprep FOR est-prep.
+  DEFINE BUFFER kest-op FOR est-op.
+  DEF BUFFER b-ref FOR reftable.
+  DEFINE BUFFER bf-prep FOR est-prep.
+  DEFINE VARIABLE li-next AS INTEGER NO-UNDO.
   DEF VAR v-str AS CHAR NO-UNDO.
   DEF VAR v-side-count AS INT NO-UNDO.
 
@@ -631,7 +678,115 @@ PROCEDURE do-copy :
        b-est-flm.snum   = io-eb.form-no
        b-est-flm.bnum   = io-eb.blank-no.
     END.
-
+    
+    IF tb_prep THEN do:     
+     for each est-prep
+      where est-prep.company eq eb.company
+        and est-prep.est-no  EQ eb.est-no
+        AND est-prep.s-num    EQ eb.form-no
+        AND est-prep.b-num    EQ eb.blank-no
+      NO-LOCK:
+      
+       FOR EACH bf-prep
+        WHERE bf-prep.company EQ eb.company 
+        AND bf-prep.est-no  EQ eb.est-no                      
+        USE-INDEX est-qty NO-LOCK
+        BY bf-prep.line DESCENDING:
+        LEAVE.
+       END.
+       li-next = (IF AVAILABLE bf-prep THEN bf-prep.line ELSE 0) + 1.
+      create kprep.
+     
+      buffer-copy est-prep except rec_key s-num b-num LINE to kprep  
+       assign
+        kprep.company = io-eb.company
+        kprep.LINE  = li-next
+        kprep.est-no  = io-eb.est-no
+        kprep.s-num   = io-eb.form-no 
+        kprep.b-num   = io-eb.blank-no
+        kprep.orderID = ""   .
+     end.
+    END.   
+    IF tb_routing THEN do:     
+     for each est-op
+      where est-op.company eq eb.company
+        and est-op.est-no  EQ eb.est-no
+        AND est-op.s-num    EQ eb.form-no  
+        AND (est-op.b-num   EQ eb.blank-no OR  est-op.b-num EQ 0 )
+      NO-LOCK:
+      create kest-op.
+      buffer-copy est-op except rec_key to kest-op
+       assign
+        kest-op.company = io-eb.company
+        kest-op.est-no  = io-eb.est-no
+        kest-op.s-num   = io-eb.form-no 
+        kest-op.b-num   = io-eb.blank-no .
+     end.
+    END.     
+    IF tb_miscsub AND ip-add-what EQ "form" THEN do:
+      DO li = 1 TO EXTENT(ef.mis-cost):
+         IF ef.mis-cost[li] NE "" AND ef.mis-snum[li] EQ eb.form-no AND ef.mis-bnum[li] EQ eb.blank-no THEN DO:
+         ASSIGN
+           io-ef.mis-snum[li]    = io-eb.form-no
+           io-ef.mis-bnum[li]    = io-eb.blank-no 
+           io-ef.mis-cost[li]    = ef.mis-cost[li] 
+           io-ef.mis-matf[li]    = ef.mis-matf[li] 
+           io-ef.mis-labf[li]    = ef.mis-labf[li] 
+           io-ef.mis-matm[li]    = ef.mis-matm[li] 
+           io-ef.mis-labm[li]    = ef.mis-labm[li] 
+           io-ef.mis-simon[li]   = ef.mis-simon[li] 
+           io-ef.mis-mkup[li]    = ef.mis-mkup[li]   .
+           
+           FOR EACH reftable
+              WHERE reftable.reftable          EQ "EST-MISC"
+                    AND reftable.company           EQ ef.company
+                    AND reftable.loc               EQ ef.loc
+                    AND reftable.code              EQ TRIM(ef.est-no) +
+                                                  STRING(ef.form-no,"/99")
+                    AND SUBSTR(reftable.code2,8,2) EQ STRING(li,"99"):
+            CREATE b-ref.
+            BUFFER-COPY reftable EXCEPT rec_key TO b-ref
+            ASSIGN
+             b-ref.CODE = TRIM(io-ef.est-no) + STRING(io-ef.form-no,"/99").
+          END.
+           
+         END.
+      END.        
+    END.     
+   IF tb_packing THEN do:
+      assign
+      io-eb.cas-no       =  eb.cas-no 
+      io-eb.cas-len      =  eb.cas-len           
+      io-eb.cas-wid      =  eb.cas-wid           
+      io-eb.cas-dep      =  eb.cas-dep            
+      io-eb.spare-int-3  =  eb.spare-int-3        
+      io-eb.layer-pad    =  eb.layer-pad          
+      io-eb.lp-len       =  eb.lp-len             
+      io-eb.lp-wid       =  eb.lp-wid                    
+      io-eb.lp-up        =  eb.lp-up              
+      io-eb.spare-char-3 =  eb.spare-char-3       
+      io-eb.divider      =  eb.divider            
+      io-eb.div-len      =  eb.div-len            
+      io-eb.div-wid      =  eb.div-wid                  
+      io-eb.spare-char-4 =  eb.spare-char-4       
+      io-eb.cas-cost     =  eb.cas-cost           
+      io-eb.cas-wt       =  eb.cas-wt             
+      io-eb.cas-cnt      =  eb.cas-cnt            
+      io-eb.cas-pal      =  eb.cas-pal            
+      io-eb.tr-no        =  eb.tr-no              
+      io-eb.tr-len       =  eb.tr-len             
+      io-eb.tr-wid       =  eb.tr-wid             
+      io-eb.tr-dep       =  eb.tr-dep             
+      io-eb.tr-cost      =  eb.tr-cost            
+      io-eb.tr-cnt       =  eb.tr-cnt             
+      io-eb.tr-cas       =  eb.tr-cas             
+      io-eb.stacks       =  eb.stacks             
+      io-eb.stack-code   =  eb.stack-code         
+      io-eb.trNoCharge   =  eb.trNoCharge         
+      io-eb.casNoCharge  =  eb.casNoCharge .
+   
+   END.     
+         
     op-error = NO.
   END.
 
@@ -652,10 +807,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_die tb_image tb_cad tb_layout tb_inks tb_case tb_pallet tb_freight 
-          tb_design 
+          tb_design tb_prep tb_packing tb_miscsub tb_routing 
       WITH FRAME D-Dialog.
   ENABLE RECT-26 tb_die tb_image tb_cad tb_layout tb_inks tb_case tb_pallet 
-         tb_freight tb_design Btn_OK Btn_Cancel 
+         tb_freight tb_design tb_prep tb_packing tb_miscsub tb_routing Btn_OK 
+         Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
