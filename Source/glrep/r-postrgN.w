@@ -70,12 +70,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Run#,Account Number,Account Description,Journal,Reference," +  
-                           "Date,Balance" 
+                           "Date,Balance,Account Status,Period,Date Outside Period,Transaction Number" 
 
        cFieldListToSelect = "run,acc,acc-desc,jour,ref," +
-                            "date,bal"  
-       cFieldLength = "7,15,30,12,30," + "10,15" 
-       cFieldType = "i,c,c,c,c," + "c,i" 
+                            "date,bal,acc-stat,period,out-per,trans"  
+       cFieldLength = "7,15,30,12,30," + "10,15,14,6,19,18" 
+       cFieldType = "i,c,c,c,c," + "c,i,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1350,7 +1350,7 @@ FOR EACH glhist WHERE
          '"' glhist.tr-dscr  '",'
          '"' glhist.tr-date  '",'
          '"' glhist.tr-amt   '",'
-         SKIP .*/
+         SKIP .*/     
 
       ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1368,6 +1368,10 @@ FOR EACH glhist WHERE
                          WHEN "ref"   THEN cVarValue = STRING(glhist.tr-dscr,"x(30)").
                          WHEN "date"   THEN cVarValue = STRING(glhist.tr-date,"99/99/9999").
                          WHEN "bal"   THEN cVarValue = STRING(glhist.tr-amt,"->>>,>>>,>>9.99").
+                         WHEN "acc-stat"   THEN cVarValue = IF AVAIL account AND account.inactive  THEN STRING("Inactive") ELSE "Active".
+                         WHEN "period"   THEN cVarValue = STRING(glhist.period,">>>>>9").
+                         WHEN "out-per"   THEN cVarValue = IF glhist.period NE MONTH(glhist.tr-date) THEN STRING("Yes") ELSE "".
+                         WHEN "trans"   THEN cVarValue = STRING(glhist.tr-num,"->>>,>>>,>>9.99").
 
                     END CASE.
 
@@ -1403,6 +1407,10 @@ FOR EACH glhist WHERE
                          WHEN "ref"   THEN cVarValue = "".
                          WHEN "date"   THEN cVarValue = "".
                          WHEN "bal"   THEN cVarValue = STRING(tot-all,"->>>,>>>,>>9.99").
+                         WHEN "acc-stat"   THEN cVarValue = "" .
+                         WHEN "period"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".
+                         WHEN "trans"   THEN cVarValue = "".
 
                     END CASE.
 
@@ -1467,6 +1475,10 @@ FOR EACH gltrans WHERE
                          WHEN "ref"   THEN cVarValue = STRING(gltrans.tr-dscr,"x(30)").
                          WHEN "date"   THEN cVarValue = STRING(gltrans.tr-date,"99/99/9999").
                          WHEN "bal"   THEN cVarValue = STRING(gltrans.tr-amt,"->>>,>>>,>>9.99").
+                         WHEN "acc-stat"   THEN cVarValue = IF AVAIL account AND account.inactive  THEN STRING("Inactive") ELSE "Active".
+                         WHEN "period"   THEN cVarValue = STRING(gltrans.period,">>>>>9").
+                         WHEN "out-per"   THEN cVarValue = IF gltrans.period NE MONTH(gltrans.tr-date) THEN STRING("Yes") ELSE "".
+                         WHEN "trans"   THEN cVarValue = STRING(gltrans.trnum,"->>>>>>>>>>9").
 
                     END CASE.
 
@@ -1511,6 +1523,10 @@ FOR EACH gltrans WHERE
                          WHEN "ref"   THEN cVarValue = "".
                          WHEN "date"   THEN cVarValue = "".
                          WHEN "bal"   THEN cVarValue = STRING(tot-all,"->>>,>>>,>>9.99").
+                         WHEN "acc-stat"   THEN cVarValue = "" .
+                         WHEN "period"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".
+                         WHEN "trans"   THEN cVarValue = "".
 
                     END CASE.
 
@@ -1550,6 +1566,10 @@ IF v-print THEN
                          WHEN "ref"   THEN cVarValue = "".
                          WHEN "date"   THEN cVarValue = "".
                          WHEN "bal"   THEN cVarValue = STRING(tot-tot,"->>>,>>>,>>9.99").
+                         WHEN "acc-stat"   THEN cVarValue = "" .
+                         WHEN "period"   THEN cVarValue = "".
+                         WHEN "out-per"   THEN cVarValue = "".
+                         WHEN "trans"   THEN cVarValue = "".
 
                     END CASE.
 
