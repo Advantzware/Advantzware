@@ -2027,6 +2027,12 @@ PROCEDURE create-from-po :
                 fg-rctd.ext-cost
                 fg-rctd.frt-cost
                 fg-rctd.po-line
+                fg-rctd.i-no
+                fg-rctd.i-name
+                fg-rctd.loc
+                fg-rctd.loc-bin
+                fg-rctd.qty-case
+                fg-rctd.cases-unit                 
                     WITH FRAME {&FRAME-NAME}.
             IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
             DO:
