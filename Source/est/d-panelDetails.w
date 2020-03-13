@@ -30,12 +30,15 @@
 {system/FormulaProcs.i}
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipriInput AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cEstimateNo        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iFormNo            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iBlankNo           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iPOId              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iPOLine            AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE hdFormulaProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
@@ -826,14 +829,22 @@ DO:
             INPUT-OUTPUT TABLE ttPanel
             ).
 
-    RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
-        INPUT cCompany,
-        INPUT cEstimateNo,
-        INPUT iFormNo,
-        INPUT iBlankNo,
-        INPUT TABLE ttPanel
-        ).
-
+    IF ipcType EQ "eb" THEN
+        RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT cCompany,
+            INPUT cEstimateNo,
+            INPUT iFormNo,
+            INPUT iBlankNo,
+            INPUT TABLE ttPanel
+            ).
+    ELSE IF ipcType EQ "po-ordl" THEN
+        RUN UpdatePanelDetailsForPO IN hdFormulaProcs (
+            INPUT cCompany,
+            INPUT iPOId,
+            INPUT iPOLine,
+            INPUT TABLE ttPanel
+            ).
+                    
     IF cCurrentSizeFormat NE cSizeFormatDecimal THEN
         RUN SwitchPanelSizeFormatForttPanel IN hdFormulaProcs (
             INPUT        cSizeFormatDecimal,
@@ -1356,7 +1367,6 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -1479,8 +1489,10 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-eb    FOR eb.
-    DEFINE BUFFER bf-style FOR style.
+    DEFINE BUFFER bf-eb      FOR eb.
+    DEFINE BUFFER bf-style   FOR style.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -1488,32 +1500,66 @@ PROCEDURE pInit :
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
     cCompany = g_company.
+
+    RUN pUpdateComboBoxes.   
+
+    IF ipcType EQ "po-ordl" THEN DO:
+        FIND FIRST bf-po-ordl NO-LOCK
+             WHERE ROWID(bf-po-ordl) EQ ipriInput
+             NO-ERROR.
+        IF NOT AVAILABLE bf-po-ordl THEN
+            RETURN.
         
-    FIND FIRST bf-eb NO-LOCK 
-         WHERE ROWID(bf-eb) EQ ipriEb
-         NO-ERROR.
-    IF NOT AVAILABLE bf-eb THEN
-        RETURN.
+        IF bf-po-ordl.i-no NE "" THEN
+            FIND FIRST bf-itemfg NO-LOCK
+                 WHERE bf-itemfg.company EQ bf-po-ordl.company
+                   AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
+                 NO-ERROR.        
+
+        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN
+            FIND LAST bf-eb NO-LOCK
+                 WHERE bf-eb.company  EQ bf-po-ordl.company
+                   AND bf-eb.est-no   EQ bf-itemfg.est-no
+                   AND bf-eb.stock-no EQ bf-itemfg.i-no
+                 NO-ERROR.
+    END.
+    ELSE IF ipcType EQ "eb" THEN DO:            
+        FIND FIRST bf-eb NO-LOCK 
+             WHERE ROWID(bf-eb) EQ ipriInput
+             NO-ERROR.
+        IF NOT AVAILABLE bf-eb THEN
+            RETURN.        
+    END.
+
+    IF AVAILABLE bf-eb THEN
+        FIND FIRST bf-style NO-LOCK 
+             WHERE bf-style.company EQ bf-eb.company
+               AND bf-style.style   EQ bf-eb.style
+             NO-ERROR.
     
-    FIND FIRST bf-style NO-LOCK 
-         WHERE bf-style.company EQ bf-eb.company
-           AND bf-style.style   EQ bf-eb.style
-         NO-ERROR.
-    IF NOT AVAILABLE bf-style THEN
-        RETURN.
-    
-    ASSIGN
-        fiEstimate:SCREEN-VALUE  = bf-eb.est-no
-        fiStyleCode:SCREEN-VALUE = bf-style.style
-        cEstimateNo              = bf-eb.est-no
-        iFormNo                  = bf-eb.form-no
-        iBlankNo                 = bf-eb.blank-no
-        cFormulaLength           = bf-style.formula[2]
-        cFormulaWidth            = IF bf-style.formula[20] NE "" THEN 
-                                       bf-style.formula[20]
-                                   ELSE 
-                                       bf-style.formula[1]
-        .
+    IF AVAILABLE bf-po-ordl THEN
+        ASSIGN
+            iPOId   = bf-po-ordl.po-no
+            iPOLine = bf-po-ordl.line
+            .
+
+    IF AVAILABLE bf-eb THEN
+        ASSIGN
+            fiEstimate:SCREEN-VALUE  = bf-eb.est-no
+            cEstimateNo              = bf-eb.est-no
+            iFormNo                  = bf-eb.form-no
+            iBlankNo                 = bf-eb.blank-no
+            .
+
+    IF AVAILABLE bf-style THEN            
+        ASSIGN
+            fiStyleCode:SCREEN-VALUE = bf-style.style
+            cFormulaLength           = bf-style.formula[2]
+            cFormulaWidth            = IF bf-style.formula[20] NE "" THEN 
+                                           bf-style.formula[20]
+                                       ELSE 
+                                           bf-style.formula[1]
+            .
 
     EMPTY TEMP-TABLE ttPanel.
 
@@ -1523,16 +1569,34 @@ PROCEDURE pInit :
         OUTPUT cCurrentSizeFormat,
         OUTPUT lDecimalFlag
         ).
+
+    IF ipcType EQ "eb" THEN        
+        RUN GetPanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT  cCompany,
+            INPUT  cEstimateNo,
+            INPUT  iFormNo,
+            INPUT  iBlankNo,
+            OUTPUT TABLE ttPanel
+            ).
+    ELSE IF ipcType EQ "po-ordl" THEN DO:
+        RUN GetPanelDetailsForPO IN hdFormulaProcs (
+            INPUT  cCompany,
+            INPUT  iPOId,
+            INPUT  iPOLine,
+            OUTPUT TABLE ttPanel
+            ).
         
-    RUN GetPanelDetailsForEstimate IN hdFormulaProcs (
-        INPUT  cCompany,
-        INPUT  bf-eb.est-no,
-        INPUT  bf-eb.form-no,
-        INPUT  bf-eb.blank-no,
-        OUTPUT TABLE ttPanel
-        ).
+        IF NOT TEMP-TABLE ttPanel:HAS-RECORDS THEN
+            RUN GetPanelDetailsForEstimate IN hdFormulaProcs (
+                INPUT  cCompany,
+                INPUT  cEstimateNo,
+                INPUT  iFormNo,
+                INPUT  iBlankNo,
+                OUTPUT TABLE ttPanel
+                ).        
+    END.
     
-    IF NOT TEMP-TABLE ttPanel:HAS-RECORDS THEN DO:     
+    IF NOT TEMP-TABLE ttPanel:HAS-RECORDS AND AVAILABLE bf-style THEN DO:     
         /* Use formula[20] for 2UP and formula[1] for 1UP */ 
         RUN ParsePanels IN hdFormulaProcs (
             INPUT  IF bf-style.formula[20] NE "" THEN bf-style.formula[20] ELSE bf-style.formula[1], 
@@ -1549,20 +1613,12 @@ PROCEDURE pInit :
         RUN CalculatePanels IN hdFormulaProcs (
             INPUT        ROWID(bf-eb),
             INPUT-OUTPUT TABLE ttPanel
-            ).
-            
-       RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
-            INPUT cCompany,
-            INPUT bf-eb.est-no,
-            INPUT bf-eb.form-no,
-            INPUT bf-eb.blank-no,
-            INPUT TABLE ttPanel
-            ).
+            ).            
     END.
 
     IF cCurrentSizeFormat NE cSizeFormatDecimal THEN DO:
         RUN SwitchPanelSizeFormatForttPanel IN hdFormulaProcs (
-            INPUT        "Decimal",
+            INPUT        cSizeFormatDecimal,
             INPUT        cCurrentSizeFormat,
             INPUT-OUTPUT TABLE ttPanel
             ).
@@ -1590,6 +1646,8 @@ PROCEDURE pInit :
 
     RELEASE bf-eb.
     RELEASE bf-style.    
+    RELEASE bf-po-ordl.
+    RELEASE bf-itemfg.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1676,7 +1734,7 @@ PROCEDURE pSavePanels :
                 .
         ELSE DO:
             /* Validate cScoreType with a space instead of an empty value. Combo-boxes although displayed empty is actually a space */
-            IF dPanelSize NE 0 OR cScoreType NE " " THEN DO:
+            IF dPanelSize NE 0 OR cScoreType NE " "  THEN DO:
                 CREATE ttPanel.
                 ASSIGN
                     ttPanel.cPanelType            = cCurrentPanelType
