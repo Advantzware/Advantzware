@@ -1097,52 +1097,14 @@ IF tb_excel THEN
                 AND fg-bin.job-no2 EQ oe-ordl.job-no2
                 AND fg-bin.i-no EQ oe-ordl.i-no:
                 v-oh-qty = v-oh-qty + fg-bin.qty.
-             END. /* each fg-bin */
-
+             END. /* each fg-bin */       
          
-         IF AVAILABLE oe-ordl THEN
-         DO:
-            IF oe-ordl.job-no NE '' THEN
-               FOR EACH fg-rcpth fields(r-no rita-code) NO-LOCK
-                  WHERE fg-rcpth.company EQ oe-ordl.company
-                    AND fg-rcpth.job-no EQ oe-ordl.job-no
-                    AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
-                    AND fg-rcpth.i-no EQ oe-ordl.i-no
-                    AND fg-rcpth.rita-code EQ 'R' USE-INDEX job,
-                   EACH fg-rdtlh FIELDS(qty) NO-LOCK
-                  WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
-                    AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
-                   v-prod-qty = v-prod-qty + fg-rdtlh.qty.
-            END.
-           ELSE
-              FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
-                  WHERE fg-rcpth.company   EQ cocode
-                    AND fg-rcpth.job-no    EQ job-hdr.job-no
-                    AND fg-rcpth.job-no2   EQ job-hdr.job-no2
-                    AND fg-rcpth.i-no      EQ oe-ordl.i-no
-                    AND fg-rcpth.rita-code EQ "R"
-                    USE-INDEX job,
-                  EACH fg-rdtlh FIELDS(qty) NO-LOCK WHERE
-                       fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
-                       fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
-                       v-prod-qty = v-prod-qty + fg-rdtlh.qty.
-              END.
-         END. /* avail oe-ordl */
-         ELSE DO:
-         
-             FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
-                 WHERE fg-rcpth.company   EQ cocode
-                   AND fg-rcpth.job-no    EQ job-hdr.job-no
-                   AND fg-rcpth.job-no2   EQ job-hdr.job-no2
-                   AND fg-rcpth.i-no      EQ job-hdr.i-no
-                   AND fg-rcpth.rita-code EQ "R"
-                   USE-INDEX job,
-                 EACH fg-rdtlh FIELDS(qty) NO-LOCK WHERE
-                      fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
-                      fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
-                      v-prod-qty = v-prod-qty + fg-rdtlh.qty.
-             END.
-         END.
+        RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                                INPUT job-hdr.job-no,
+                                INPUT job-hdr.job-no2,
+                                INPUT job-hdr.i-no,
+                                INPUT NO,
+                                OUTPUT v-prod-qty).            
   
          IF AVAILABLE oe-ordl THEN DO:
              FIND FIRST oe-ord OF oe-ordl NO-LOCK NO-ERROR.
