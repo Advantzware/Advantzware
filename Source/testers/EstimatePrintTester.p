@@ -23,9 +23,13 @@ DEFINE VARIABLE gcOutputFile        AS CHARACTER INITIAL "C:\temp\estPrintOut.xp
 DEFINE VARIABLE gcProfilerFile      AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
 DEFINE VARIABLE gcCompany           AS CHARACTER INITIAL "001".
 DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "   12236".
+DEFINE VARIABLE glDoJob             AS LOGICAL   INITIAL YES.
+DEFINE VARIABLE glPurge             AS LOGICAL   INITIAL YES.
 //DEFINE VARIABLE gcEstimate     AS CHARACTER INITIAL "   14058".
 //DEFINE VARIABLE gcEstimate     AS CHARACTER INITIAL "   13675".
 
+DEFINE VARIABLE cJobID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobID2 AS INTEGER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -35,22 +39,32 @@ DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "   12236".
 RUN system\session.p PERSISTENT SET ghSession.
 SESSION:ADD-SUPER-PROCEDURE (ghSession).
 RUN est\EstimateCalcProcs.p PERSISTENT SET ghEstimateCalcProcs.
-SESSION:ADD-SUPER-PROCEDURE (ghEstimateCalcProcs).
-RUN pOnOffProfiler.
-RUN CalculateEstimate(gcCompany,gcEstimate, YES).
-RUN pOnOffProfiler.
-FIND FIRST estCostHeader NO-LOCK
-    WHERE estCostHeader.company EQ gcCompany
-    AND estCostHeader.estimateNo EQ gcEstimate
-//    AND estCostHeader.quantityMaster EQ 10000
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghEstimateCalcProcs).
+
+FIND FIRST job NO-LOCK 
+    WHERE job.company EQ gcCompany
+    AND job.est-no EQ gcEstimate
     NO-ERROR.
-RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile, "By Form with Summary First Mult Qty","Calibri").
-FOR EACH probe EXCLUSIVE-LOCK
-    WHERE probe.company EQ gcCompany
-    AND probe.est-no EQ gcEstimate:
-    DISPLAY probe.est-qty probe.eqty.
-    DELETE probe.
-END.
+RUN pOnOffProfiler.
+IF AVAILABLE job AND glDoJob THEN 
+    ASSIGN 
+        cJobID = job.job-no
+        iJobID2 = job.job-no2
+        .
+RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
+
+RUN pOnOffProfiler.
+IF glPurge THEN 
+    FIND FIRST estCostHeader NO-LOCK
+        WHERE estCostHeader.company EQ gcCompany
+        AND estCostHeader.estimateNo EQ gcEstimate
+        AND estCostHeader.jobID EQ cJobID
+        AND estCostHeader.jobID2 EQ iJobID2
+        NO-ERROR.
+IF AVAILABLE estCostHeader THEN 
+    RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile, "By Form with Summary First Mult Qty","Calibri").
+
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pOnOffProfiler :
