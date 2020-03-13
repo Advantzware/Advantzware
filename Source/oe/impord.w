@@ -898,6 +898,7 @@ PROCEDURE CreateOrder :
                             oe-ordl.managed = oe-ord.managed
                             oe-ordl.e-num = ttDetail.POLineNum
                             oe-ordl.ship-id = oe-ord.ship-id
+                            oe-ordl.stat = "W"
                             .
 
                   IF oe-ordl.price = 0 THEN DO:                      
