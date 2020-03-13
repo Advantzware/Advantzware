@@ -869,6 +869,7 @@ PROCEDURE CreateOrder :
                             oe-ordl.q-no = IF ttDetail.ItemQuote# <> 0 THEN ttDetail.ItemQuote# ELSE oe-ord.q-no
                             oe-ordl.e-num = ttDetail.POLineNum
                             oe-ordl.ship-id = ttDetail.ShipTo
+                            oe-ordl.stat = "W"
                             .
                   IF oe-ordl.price = 0 THEN DO:
                      FIND FIRST xoe-ord OF oe-ord NO-LOCK.
