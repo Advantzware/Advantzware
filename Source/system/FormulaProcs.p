@@ -998,7 +998,7 @@ PROCEDURE UpdatePanelDetailsForPO:
     IF AVAILABLE bf-panelHeader THEN DO:
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            RUN pUpdatePanelHeader (
+            RUN pUpdatePanelDetail (
                 INPUT  bf-panelHeader.company,
                 INPUT  bf-panelHeader.panelHeaderID,
                 INPUT  ttPanel.cPanelType,
@@ -1060,7 +1060,7 @@ PROCEDURE UpdatePanelDetailsForStyle:
     IF AVAILABLE bf-panelHeader THEN DO:
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            RUN pUpdatePanelHeader (
+            RUN pUpdatePanelDetail (
                 INPUT  bf-panelHeader.company,
                 INPUT  bf-panelHeader.panelHeaderID,
                 INPUT  ttPanel.cPanelType,

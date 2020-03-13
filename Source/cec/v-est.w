@@ -4617,7 +4617,8 @@ PROCEDURE UpdatePOScores :
 ------------------------------------------------------------------------------*/
     IF AVAILABLE eb THEN
         RUN est/d-panelDetails.w (
-            INPUT ROWID(eb)
+            INPUT ROWID(eb),
+            INPUT "eb"
             ).
 END PROCEDURE.
 

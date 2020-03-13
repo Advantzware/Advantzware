@@ -77,8 +77,8 @@ IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR po-ord, po-ordl.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-ord Btn-View Btn-Save Btn-Add Btn-copy ~
-Btn-Delete btn-scores btn-recost 
+&Scoped-Define ENABLED-OBJECTS Btn-poScores Btn-ord Btn-View Btn-Save ~
+Btn-Add Btn-copy Btn-Delete btn-scores btn-recost 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -128,6 +128,15 @@ DEFINE BUTTON Btn-Delete
      SIZE 15 BY 1.29
      FONT 4.
 
+DEFINE BUTTON Btn-ord 
+     LABEL "&Order#" 
+     SIZE 15 BY 1.29
+     FONT 4.
+
+DEFINE BUTTON Btn-poScores 
+     LABEL "PO Scores" 
+     SIZE 15 BY 1.29.
+
 DEFINE BUTTON btn-recost 
      LABEL "&Recost Board" 
      SIZE 15 BY 1.29.
@@ -146,23 +155,19 @@ DEFINE BUTTON Btn-View
      SIZE 15 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-ord 
-     LABEL "&Order#" 
-     SIZE 15 BY 1.29
-     FONT 4.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn-ord AT ROW 1 COL 1
-     Btn-View AT ROW 1 COL 16
-     Btn-Save AT ROW 1 COL 31
-     Btn-Add AT ROW 1 COL 46
-     Btn-copy AT ROW 1 COL 61
-     Btn-Delete AT ROW 1 COL 76
-     btn-scores AT ROW 1 COL 91
-     btn-recost AT ROW 1 COL 105 WIDGET-ID 2
+     Btn-poScores AT ROW 1 COL 1.4 WIDGET-ID 4
+     Btn-ord AT ROW 1 COL 16.6
+     Btn-View AT ROW 1 COL 31.8
+     Btn-Save AT ROW 1 COL 47
+     Btn-Add AT ROW 1 COL 62
+     Btn-copy AT ROW 1 COL 77
+     Btn-Delete AT ROW 1 COL 92
+     btn-scores AT ROW 1 COL 107
+     btn-recost AT ROW 1 COL 122 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -236,6 +241,10 @@ ASSIGN
                 "panel-image".
 
 ASSIGN 
+       Btn-ord:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
        btn-recost:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
 
@@ -249,9 +258,6 @@ ASSIGN
 
 ASSIGN 
        Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
-                "panel-image".
-ASSIGN 
-       Btn-ord:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -397,6 +403,36 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn-ord
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-ord V-table-Win
+ON CHOOSE OF Btn-ord IN FRAME F-Main /* Order# */
+DO:
+   IF AVAIL po-ordl THEN
+   FIND FIRST oe-ord WHERE oe-ord.company  = cocode
+       AND oe-ord.ord-no = po-ordl.ord-no  NO-LOCK NO-ERROR.
+
+   IF AVAIL oe-ord THEN
+   RUN oe/w-inqord.w(ROWID(oe-ord),YES) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn-poScores
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-poScores V-table-Win
+ON CHOOSE OF Btn-poScores IN FRAME F-Main /* PO Scores */
+DO:
+    RUN est/d-panelDetails.w (
+        INPUT ROWID(po-ordl),
+        INPUT "po-ordl"
+        ).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-recost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recost V-table-Win
 ON CHOOSE OF btn-recost IN FRAME F-Main /* Recost Board */
@@ -485,23 +521,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-ord
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-ord V-table-Win
-ON CHOOSE OF Btn-ord IN FRAME F-Main /* View */
-DO:
-   IF AVAIL po-ordl THEN
-   FIND FIRST oe-ord WHERE oe-ord.company  = cocode
-       AND oe-ord.ord-no = po-ordl.ord-no  NO-LOCK NO-ERROR.
-
-   IF AVAIL oe-ord THEN
-   RUN oe/w-inqord.w(ROWID(oe-ord),YES) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -521,9 +540,8 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addItem V-table-Win
-PROCEDURE addItem:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addItem V-table-Win 
+PROCEDURE addItem :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -531,11 +549,9 @@ PROCEDURE addItem:
     APPLY 'choose' TO btn-Add IN FRAME {&frame-name}.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
