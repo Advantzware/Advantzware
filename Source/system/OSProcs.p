@@ -19,6 +19,47 @@ RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /* **********************  Internal Procedures  *********************** */
 
 
+PROCEDURE OS_GetIPAddress:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to return the current machines IP Address
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcIPAddress AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCommand    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLine       AS CHARACTER NO-UNDO.
+
+    /* Code to fetch the temporary directory */    
+    RUN FileSys_GetTempDirectory IN hdFileSysProcs (
+        OUTPUT cOutputFile
+        ) NO-ERROR.
+
+    /* Run ipconfig command and filter the IPv4 address line to output file */
+    ASSIGN
+        cOutputFile = cOutputFile + "\OSCommand" + STRING(MTIME)
+        cCommand    = 'ipconfig | find "IPv4" > ' 
+                    + cOutputFile
+        .
+    
+    RUN pRunOSCommandWithSilent(
+        INPUT cCommand
+        ).
+    
+    /* Read the first line in the output file */
+    INPUT FROM VALUE(cOutputFile).
+        IMPORT UNFORMATTED cLine.
+    INPUT CLOSE. 
+
+    ASSIGN
+        opcIPAddress = ENTRY(2, cLine, ":")
+        opcIPAddress = TRIM(opcIPAddress)
+        .
+                
+    /* Delete the temporary file once command is run successfully */
+    OS-DELETE VALUE(cOutputFile).    
+END PROCEDURE.
+
 PROCEDURE OS_RunCommand:
     DEFINE INPUT  PARAMETER ipcCommand    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.

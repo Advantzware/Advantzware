@@ -226,11 +226,14 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcBrokerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBrokerStatus  AS CHARACTER NO-UNDO.
-
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE cFullFilePath    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCounter         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ibrokerLine      AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE cCommand         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdServer         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
     
     opcBrokerStatus = cResourceStatusStopped.
     
@@ -262,9 +265,27 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
        IF cLine BEGINS "Broker Status" THEN
            opcBrokerStatus = cResourceStatusRunning.
        
-    END.
-     
+    END.     
     INPUT CLOSE.
+
+    IF opcBrokerStatus EQ cResourceStatusRunning THEN DO:
+        CREATE SERVER hdServer.
+
+        IF hdServer:CONNECT("-URL AppServerDC://localhost:" + cAppServerPort + "/" + ipcBrokerName) THEN DO:        
+            RUN api\ASStatus.p  ON hdServer (
+                OUTPUT lSuccess, 
+                OUTPUT opcMessage
+                ) NO-ERROR.
+                            
+            hdServer:DISCONNECT().
+        END.
+        
+        IF NOT lSuccess THEN
+            opcBrokerStatus = cResourceStatusStopped.
+    END.
+    
+    DELETE OBJECT hdServer.
+    
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
@@ -439,7 +460,9 @@ PROCEDURE pUpdateStatus PRIVATE:
     DEFINE VARIABLE cBrokerNameServer      AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cBrokerNameServerPort  AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE lEmailNotificationSent AS LOGICAL   NO-UNDO.
-
+    
+    DEFINE BUFFER serverResource FOR serverResource.
+    
     /* Not adding no-wait as the status must be updated */
     FIND serverResource 
         WHERE ROWID(serverResource) EQ iprRowId EXCLUSIVE-LOCK. 
@@ -480,7 +503,8 @@ PROCEDURE pUpdateStatus PRIVATE:
                     
                 RUN pGetASBrokerStatus(
                     INPUT  serverResource.Name,
-                    OUTPUT cStatus
+                    OUTPUT cStatus,
+                    OUTPUT serverResource.statusRemarks
                     ).
             END.
             WHEN cResourceTypeASI THEN DO:                

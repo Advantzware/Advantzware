@@ -57,6 +57,7 @@ DEFINE VARIABLE cEmailConfigDesc          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceName             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceType             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cModeList                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMachineIPAddress         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOSProcs                 AS HANDLE    NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
@@ -71,6 +72,10 @@ RUN pFetchAPIElements.
 
 RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
 RUN system/OSProcs.p              PERSISTENT SET hdOSProcs.
+
+RUN OS_GetIPAddress IN hdOSProcs (
+    OUTPUT cMachineIPAddress
+    ).
 
 /* Procedure to initialize the configuration variables required for monitoring */
 RUN AdvantzwareMonitor_Initialize IN hdAdvantzwareMonitorProcs (
@@ -426,12 +431,14 @@ DO:
     ASSIGN
         btStart:SENSITIVE = AVAILABLE serverResource AND 
                             serverResource.resourceStatus EQ "Stopped" AND
-                            serverResource.resourceType   NE "Node"
+                            (serverResource.resourceType  EQ "Node" AND
+                             cMachineIPAddress            EQ cAPIIPAddress)
         btStop:SENSITIVE  = AVAILABLE serverResource  AND 
                             serverResource.resourceStatus EQ "Running" AND
                             serverResource.resourceType NE "AdminServer" AND
                             serverResource.resourceType NE "ASI" AND
-                            serverResource.resourceType NE "Node"
+                            (serverResource.resourceType EQ "Node" AND
+                             cMachineIPAddress           EQ cAPIIPAddress)
         .
 END.
 
