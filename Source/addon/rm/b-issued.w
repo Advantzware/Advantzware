@@ -1097,13 +1097,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 DO:
-   IF LASTKEY NE -1 THEN DO:
-      IF INTEGER(SELF:SCREEN-VALUE) EQ 0 AND 
-          rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-        MESSAGE "Sheet # cannot be 0. Press F1 for help"
-          VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        RETURN NO-APPLY.
-      END.
+   IF LASTKEY NE -1 THEN DO:      
+      RUN valid-s-num NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
 END.
 
