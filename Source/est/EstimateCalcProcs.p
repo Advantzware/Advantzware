@@ -3631,7 +3631,10 @@ PROCEDURE pProcessPacking PRIVATE:
         AND bf-estCostBlank.estCostBlankID EQ ttPack.estBlankID:
         
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ttPack.cItemID, bf-estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
-        
+        ASSIGN 
+            dPalletsProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit * bf-estCostBlank.quantitySubUnitsPerUnit)
+            dCasesProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit)
+            . 
         CASE ttPack.cQtyMultiplier:
             WHEN "P" THEN 
                 bf-estCostMaterial.quantityRequiredNoWaste = dPalletsProRata * ttPack.dQtyMultiplier.
