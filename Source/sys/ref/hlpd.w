@@ -305,22 +305,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
         
-        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
-                               NO /* check by cust */, YES /* use cust not vendor */, 
-                               "" /* cust */, "" /* ship-to*/,
-                               OUTPUT cRtnChar, OUTPUT lRecFound).
-        vconn = cRtnChar .
-     
+    RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
+                           NO /* check by cust */, YES /* use cust not vendor */, 
+                           "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cRtnChar, OUTPUT lRecFound).
+    vconn = cRtnChar.     
     CREATE SERVER vhWebService.
     vhWebService:CONNECT(vconn) NO-ERROR.
-
-    IF NOT vhWebService:CONNECTED() THEN DO: 
-        MESSAGE 
-            "Unable to connect to the Advantzware Documentation/Help Server." SKIP
-            "Please report the issue to Advantzware support" SKIP
-            "AsiHelpService:" + STRING(vconn) 
-            VIEW-AS ALERT-BOX INFO .
-
+    IF NOT vhWebService:CONNECTED() THEN DO:
+        RUN displayMessage ("22").
         FIND FIRST hlp-head NO-LOCK WHERE
             hlp-head.fld-name EQ ip-field AND
             hlp-head.fil-name EQ ip-table AND
