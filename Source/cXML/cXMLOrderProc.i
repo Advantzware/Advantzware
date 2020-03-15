@@ -660,6 +660,7 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMissingLineMessage AS CHARACTER NO-UNDO.
   
   RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
@@ -766,14 +767,24 @@ PROCEDURE gencXMLOrder:
   
   IF lpcTempTableOnly THEN 
       RETURN.
-  
+      
+  cMissingLineMessage = "".  
   EACH-ORDER:
   FOR EACH  ttOrdHead NO-LOCK  
          WHERE (ttOrdHead.ttDocType EQ "PO" OR ttOrdHead.ttDocType EQ "850") :
                  
 
       ttOrdHead.ttSelectedOrder = TRUE.
-    
+      
+      FIND FIRST  ttOrdLines 
+        WHERE ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
+        NO-ERROR.
+      IF NOT AVAIL ttOrdLines THEN DO:
+          /* No order line for the order header so can't create it */
+          cMissingLineMessage = "No order line for PO ttOrdHead.po-no".
+          NEXT.          
+      END.
+      
       iNextOrderNumber = GetNextOrder#().
       RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
       IF NOT lIsEdiXML THEN DO:
@@ -802,8 +813,10 @@ PROCEDURE gencXMLOrder:
   RELEASE reftable.
   RELEASE oe-ord-whs-order.
   RELEASE oe-ordl-whs-item.
-  
-  opcReturnValue = 'Successfully Generated Order'.
+  IF cMissingLineMessage EQ "" THEN 
+    opcReturnValue = 'Successfully Generated Order'.
+  ELSE 
+    opcReturnValue = cMissingLineMessage.
   
 END PROCEDURE.
 
