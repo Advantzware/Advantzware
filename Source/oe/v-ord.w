@@ -4429,6 +4429,17 @@ PROCEDURE hold-approve :
                     IF OEJobHold-log THEN 
                         RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Approve").             
                 END.
+                FOR EACH b-oe-ordl NO-LOCK
+                    WHERE b-oe-ordl.company EQ oe-ord.company
+                      AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+                    :
+                    FIND oe-ordl EXCLUSIVE-LOCK 
+                        WHERE ROWID(oe-ordl) EQ rowid(b-oe-ordl)
+                        NO-ERROR.
+                    IF AVAIL oe-ordl THEN 
+                        oe-ordl.stat = (IF oe-ord.stat EQ "W" THEN oe-ord.stat ELSE "").
+                    FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
+                END. 
                 FIND CURRENT oe-ord NO-LOCK.
             END. /* transaction, set oe-ord.stat */
 

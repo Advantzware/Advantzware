@@ -556,6 +556,7 @@ PROCEDURE genOrderLines:
         oe-ordl.whsed     = oe-ordl.est-no NE ''
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
+        oe-ordl.stat      = 'W'
         .
 
       IF oe-ordl.price EQ 0 THEN DO:                      

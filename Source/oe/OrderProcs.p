@@ -580,7 +580,17 @@ PROCEDURE pApproveImportedOrder PRIVATE:
         ELSE ipbf-oe-ord.stat = "W".  /*Refactor - if we add ability to build job, this can be removed*/
         
     FIND CURRENT ipbf-oe-ord NO-LOCK.
-    
+    FOR EACH bf-oe-ordl NO-LOCK
+        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company
+        AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+        AND bf-oe-ordl.job-no  EQ ""
+        AND bf-oe-ordl.i-no    NE "":
+
+        FIND oe-ordl WHERE ROWID(oe-ordl) EQ ROWID(bf-oe-ordl)
+            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+        IF NOT AVAILABLE oe-ordl THEN NEXT.
+        oe-ordl.stat = (IF ipbf-oe-ord.stat EQ "W"  THEN ipbf-oe-ord.stat ELSE "").
+    END.
 /*    IF fGetSettingJobCreate(ipbf-oe-ord.company) AND ipbf-oe-ord.job-no NE "" THEN                          */
 /*    DO TRANSACTION: /*create job*/                                                                          */
 /*        FIND FIRST job NO-LOCK                                                                              */
