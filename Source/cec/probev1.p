@@ -11,7 +11,7 @@ def input parameter v-recid as recid.
 def shared buffer xest for est.
 def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
-
+DEFINE VARIABLE dFGPricePerMsf AS DECIMAL NO-UNDO .
 {cec/print4.i "shared" "shared"}
 
 if not avail ce-ctrl then
@@ -40,6 +40,7 @@ find probe where recid(probe) eq v-recid no-lock.
 assign
  voverall = round(probe.sell-price / probe.bsf,2)
  vtot-msf = probe.tot-lbs / 1000.
+ dFGPricePerMsf =  round(probe.sell-price * ( probe.est-qty / 1000) / vtot-msf,2) .
 
 IF sys-ctrl.char-fld NE "PEACHTRE" THEN
 DO:
@@ -110,7 +111,7 @@ DO:
 	          probe.boardContributionTotal 
 	          dContPerManHr
               probe.sell-price
-              voverall 
+              dFGPricePerMsf @ voverall
 	          probe.gsh-qty format ">>>>>9"
 	          vtot-msf
 	   with frame probe-peach.
@@ -122,7 +123,7 @@ DO:
 	       probe.boardContributionTotal 
 	       dContPerManHr
            probe.sell-price
-           voverall 
+           dFGPricePerMsf @ voverall
 	       probe.gsh-qty format ">>>>>9"
 	       vtot-msf
 	   with frame probe-peach-big.   
