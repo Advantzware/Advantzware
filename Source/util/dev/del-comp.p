@@ -3593,38 +3593,6 @@ CASE ipcTable:
            
         END. 
     
-        WHEN "job-set" THEN DO: 
-          &SCOPED-DEFINE deltable job-set 
-          DISABLE TRIGGERS FOR LOAD OF {&deltable}. 
-          IF llCancel THEN 
-              RETURN. 
-          PUBLISH "NUMDEL" (ipcTable, jCnt). 
-     
-          FOR EACH {&deltable}  
-              WHERE {&deltable}.company EQ ipcCompany 
-              EXCLUSIVE-LOCK: 
-     
-              IF llCancel THEN 
-                  LEAVE. 
-     
-              FOR EACH notes WHERE notes.rec_key EQ {&deltable}.rec_key 
-                  EXCLUSIVE-LOCK: 
-                  EXPORT STREAM sNotes notes. 
-                  DELETE notes. 
-              END. 
-         
-              EXPORT STREAM sSave {&deltable}. 
-              DELETE {&deltable}. 
-         
-              iCnt = iCnt + 1. 
-              IF iCnt GT 999 THEN DO:  
-                  iCnt = 0. PROCESS EVENTS. 
-                  jCnt = jCnt + 1000. 
-                  PUBLISH "NUMDEL" (ipcTable, jCnt). 
-              END. 
-          END. 
-           
-        END. 
     
         WHEN "loadtag" THEN DO: 
           &SCOPED-DEFINE deltable loadtag 
