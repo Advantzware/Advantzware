@@ -142,6 +142,10 @@ DO:
   session:set-wait-state('').
   RUN valid-inv-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  RUN pValidateCustomer NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN
+      RETURN NO-APPLY.
 
   ASSIGN begin_inv-no.
   opcInvNo = string(begin_inv-no) .
@@ -238,6 +242,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateCustomer Dialog-Frame
+PROCEDURE pValidateCustomer PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To check whether a customer exists before copying an invoice
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.   
+    FIND FIRST bf-ar-inv NO-LOCK
+         WHERE bf-ar-inv.company EQ g_company 
+           AND bf-ar-inv.inv-no  EQ INTEGER(begin_inv-no:SCREEN-VALUE)
+           AND CAN-FIND(FIRST cust 
+                        WHERE cust.company EQ ar-inv.company 
+                          AND cust.cust-no EQ ar-inv.cust-no
+                        )
+         NO-ERROR.
+    IF NOT AVAILABLE bf-ar-inv THEN DO:                            
+        MESSAGE "Customer is not available, thus cannot duplicate this invoice"
+        VIEW-AS ALERT-BOX WARNING.
+        APPLY "ENTRY" TO begin_inv-no.
+        RETURN ERROR.
+    END.    
+           
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-no B-table-Win 
