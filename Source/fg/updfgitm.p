@@ -302,14 +302,6 @@ FOR EACH pc-prdd-wip
   {fg/updfgitm.i pc-prdd-wip i-no NO}
 END.
 
-FOR EACH job-set
-    WHERE job-set.company EQ itemfg.company
-      AND job-set.i-no    EQ itemfg.i-no
-    NO-LOCK:
-
-  {fg/updfgitm.i job-set i-no NO}
-END.
-
 FOR EACH po-ordl
     WHERE po-ordl.company   EQ itemfg.company
       AND po-ordl.i-no      EQ itemfg.i-no

@@ -584,7 +584,6 @@ lcTableList =
 "job-mat," +
 "job-mch," +
 "job-prep," +
-"job-set," +
 "loadtag," +
 "mach," +
 "mach-adder," +
