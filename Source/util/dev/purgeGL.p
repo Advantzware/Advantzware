@@ -39,7 +39,6 @@ DEFINE NEW SHARED VARIABLE g_mainmenu    AS WIDGET-HANDLE NO-UNDO.
 {util/dev/deltable.i glhist}
 {util/dev/deltable.i gl-jrnl}
 {util/dev/deltable.i gl-rpt}
-{util/dev/deltable.i gl-rptd}
 /* {util/dev/deltable.i ap-chk} */ /* code in trigger, set bank.last-chk, del ap-sel */
 /*FOR EACH ap-chk EXCLUSIVE-LOCK.                                               */
 /*    DELETE ap-chk.                                                            */
