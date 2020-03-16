@@ -230,7 +230,7 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-shipto.company = ipbf-ttImportShipTo.Company
             bf-shipto.cust-no = ipbf-ttImportShipTo.CustomerID
             bf-shipto.ship-id = ipbf-ttImportShipTo.ShipToID
-            bf-shipto.ship-no = fGetNextShipNo(shipto.company,shipto.cust-no)
+            bf-shipto.ship-no = fGetNextShipNo(bf-shipto.company,bf-shipto.cust-no)
             . 
     END.
     RUN pAssignValueC (ipbf-ttImportShipTo.ShipName, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-name).
