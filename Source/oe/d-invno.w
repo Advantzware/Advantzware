@@ -259,8 +259,8 @@ PROCEDURE pValidateCustomer PRIVATE:
          WHERE bf-ar-inv.company EQ g_company 
            AND bf-ar-inv.inv-no  EQ INTEGER(begin_inv-no:SCREEN-VALUE)
            AND CAN-FIND(FIRST cust 
-                        WHERE cust.company EQ ar-inv.company 
-                          AND cust.cust-no EQ ar-inv.cust-no
+                        WHERE cust.company EQ bf-ar-inv.company 
+                          AND cust.cust-no EQ bf-ar-inv.cust-no
                         )
          NO-ERROR.
     IF NOT AVAILABLE bf-ar-inv THEN DO:                            
