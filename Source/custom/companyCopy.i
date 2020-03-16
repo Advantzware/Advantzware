@@ -74,8 +74,6 @@ PROCEDURE startCopy:
       RUN gl-ctrlCopy.
   IF tg_gl-rpt THEN
       RUN gl-rptCopy.
-  IF tg_gl-rptd THEN
-      RUN gl-rptdCopy.
   IF tg_item THEN
       RUN itemCopy.
   IF tg_item-bom THEN
@@ -220,7 +218,6 @@ PROCEDURE startCopy:
      RUN fg-rctd   .
      RUN fg-rdtl   .
      RUN fg-rdtlh  .
-     RUN gl-freq   .
      RUN gl-jrn    .
      RUN glhist    .
      RUN gltrans   .
@@ -1059,25 +1056,6 @@ PROCEDURE gl-rptCopy:
       ASSIGN bgl-rpt.company = ipCompanyTo.
 
     {custom\rec_key.i bgl-rpt}
-
-  END.
-  RUN showMsg ('',YES).
-END PROCEDURE.
-
-PROCEDURE gl-rptdCopy:
-  DEFINE BUFFER bgl-rptd FOR gl-rptd.
-
-  RUN showMsg ('gl-rptd',NO).
-  IF CAN-FIND(FIRST gl-rptd WHERE gl-rptd.company EQ ipCompanyTo) THEN
-  FOR EACH gl-rptd EXCLUSIVE-LOCK WHERE gl-rptd.company EQ ipCompanyTo:
-    DELETE gl-rptd.
-  END.
-  FOR EACH gl-rptd NO-LOCK WHERE gl-rptd.company EQ ipCompanyFrom:
-    CREATE bgl-rptd.
-    BUFFER-COPY gl-rptd EXCEPT company rec_key TO bgl-rptd
-      ASSIGN bgl-rptd.company = ipCompanyTo.
-
-    {custom\rec_key.i bgl-rptd}
 
   END.
   RUN showMsg ('',YES).
@@ -2922,25 +2900,6 @@ PROCEDURE fg-rdtlh:
       ASSIGN bfg-rdtlh.company = ipCompanyTo.
 
     {custom\rec_key.i bfg-rdtlh}
-
-  END.
-  RUN showMsg ('',YES).
-END PROCEDURE.
-
-PROCEDURE gl-freq:
-  DEFINE BUFFER bgl-freq FOR gl-freq.
-
-  RUN showMsg ('gl-freq',NO).
-  IF CAN-FIND(FIRST gl-freq WHERE gl-freq.company EQ ipCompanyTo) THEN
-  FOR EACH gl-freq EXCLUSIVE-LOCK WHERE gl-freq.company EQ ipCompanyTo:
-    DELETE gl-freq.
-  END.
-  FOR EACH gl-freq NO-LOCK WHERE gl-freq.company EQ ipCompanyFrom:
-    CREATE bgl-freq.
-    BUFFER-COPY gl-freq EXCEPT company rec_key TO bgl-freq
-      ASSIGN bgl-freq.company = ipCompanyTo.
-
-    {custom\rec_key.i bgl-freq}
 
   END.
   RUN showMsg ('',YES).

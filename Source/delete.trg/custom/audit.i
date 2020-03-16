@@ -171,8 +171,6 @@ WHEN "fraction" THEN
 RUN auditprg/fraction.p (ttbl_header.v_action).
 WHEN "gl-ctrl" THEN
 RUN auditprg/gl-ctrl.p (ttbl_header.v_action).
-WHEN "gl-freq" THEN
-RUN auditprg/gl-freq.p (ttbl_header.v_action).
 WHEN "gl-jrn" THEN
 RUN auditprg/gl-jrn.p (ttbl_header.v_action).
 WHEN "gl-jrnl" THEN

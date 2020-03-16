@@ -211,16 +211,12 @@ WHEN "fraction" THEN
 RUN auditprg/fraction.p (ttbl_header.v_action).
 WHEN "gl-ctrl" THEN
 RUN auditprg/gl-ctrl.p (ttbl_header.v_action).
-WHEN "gl-freq" THEN
-RUN auditprg/gl-freq.p (ttbl_header.v_action).
 WHEN "gl-jrn" THEN
 RUN auditprg/gl-jrn.p (ttbl_header.v_action).
 WHEN "gl-jrnl" THEN
 RUN auditprg/gl-jrnl.p (ttbl_header.v_action).
 WHEN "gl-rpt" THEN
 RUN auditprg/gl-rpt.p (ttbl_header.v_action).
-WHEN "gl-rptd" THEN
-RUN auditprg/gl-rptd.p (ttbl_header.v_action).
 WHEN "glhist" THEN
 RUN auditprg/glhist.p (ttbl_header.v_action).
 WHEN "gltrans" THEN
