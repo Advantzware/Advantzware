@@ -691,7 +691,8 @@ DO:
     DO TRANSACTION:
         ASSIGN
             job.est-no      = xest.est-no
-            job.create-date = TODAY
+
+            job.create-date = IF job.create-date EQ ? THEN TODAY ELSE job.create-date
             job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key
             job.stat          = "R"
             job.create-time = TIME.
