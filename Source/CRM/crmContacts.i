@@ -120,31 +120,31 @@ PROCEDURE pZohoCRM:
     
     RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    RUN pGetRefreshToken IN hdZohoProcs (
+    RUN Zoho_GetRefreshToken IN hdZohoProcs (
         INPUT  ipcCompany,
         OUTPUT cRefreshToken
         ).
         
     IF cRefreshToken EQ "" THEN
-        RETURN "Refresh Token Value is Blank".
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
         
-    RUN pGetClientID IN hdZohoProcs (
+    RUN Zoho_GetClientID IN hdZohoProcs (
         INPUT  ipcCompany,
         OUTPUT cClientID
         ).
         
     IF cClientID EQ "" THEN
-        RETURN "ClientID Value is Blank".
+        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
 
-    RUN pGetClientSecret IN hdZohoProcs (
+    RUN Zoho_GetClientSecret IN hdZohoProcs (
         INPUT  ipcCompany,
         OUTPUT cClientSecret
         ).
         
     IF cClientSecret EQ "" THEN
-        RETURN "ClientSecret Value is Blank".
+        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
     
-     RUN pGetAccessToken IN hdZohoProcs (
+     RUN Zoho_GetAccessToken IN hdZohoProcs (
          INPUT  cRefreshToken,
          INPUT  cClientID,
          INPUT  cClientSecret,
@@ -165,7 +165,7 @@ PROCEDURE pZohoCRM:
         IF NOT AVAILABLE cust THEN
             RETURN "Customer Record Not Available".
 
-        RUN pGetAccounts IN hdZohoProcs (
+        RUN Zoho_GetAccounts IN hdZohoProcs (
             INPUT        cAccessToken,
             INPUT        cust.cust-no,
             OUTPUT TABLE ttAccounts,
@@ -177,7 +177,7 @@ PROCEDURE pZohoCRM:
 
     END. /* if ipcreckey */
     ELSE DO:
-        RUN pGetAccounts IN hdZohoProcs (
+        RUN Zoho_GetAccounts IN hdZohoProcs (
             INPUT        cAccessToken,
             INPUT        "",
             OUTPUT TABLE ttAccounts,
@@ -196,7 +196,7 @@ PROCEDURE pZohoCRM:
                AND cust.cust-no EQ ttAccounts.tickerSymbol
              NO-ERROR.
         IF AVAILABLE cust THEN DO:
-            RUN pGetContacts IN hdZohoProcs (
+            RUN Zoho_GetContacts IN hdZohoProcs (
                 INPUT        cAccessToken,
                 INPUT        ttAccounts.accountName,
                 OUTPUT TABLE ttCRMContacts,
