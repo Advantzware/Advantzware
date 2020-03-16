@@ -121,31 +121,31 @@ PROCEDURE pZohoCRM:
     
     RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    RUN pGetRefreshToken IN hdZohoProcs (
+    RUN Zoho_GetRefreshToken IN hdZohoProcs (
         INPUT  ipcCompany,
         OUTPUT cRefreshToken
         ).
         
     IF cRefreshToken EQ "" THEN
-        RETURN "Refresh Token Value is Blank".
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
         
-    RUN pGetClientID IN hdZohoProcs (
+    RUN Zoho_GetClientID IN hdZohoProcs (
         INPUT  ipcCompany,
         OUTPUT cClientID
         ).
         
     IF cClientID EQ "" THEN
-        RETURN "ClientID Value is Blank".
+        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
 
-    RUN pGetClientSecret IN hdZohoProcs (
+    RUN Zoho_GetClientSecret IN hdZohoProcs (
         INPUT  ipcCompany,
         OUTPUT cClientSecret
         ).
         
     IF cClientSecret EQ "" THEN
-        RETURN "ClientSecret Value is Blank".
+        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
     
-     RUN pGetAccessToken IN hdZohoProcs (
+     RUN Zoho_GetAccessToken IN hdZohoProcs (
          INPUT  cRefreshToken,
          INPUT  cClientID,
          INPUT  cClientSecret,
@@ -157,7 +157,7 @@ PROCEDURE pZohoCRM:
     IF cAccessToken EQ "" THEN
         RETURN "AccessToken Value is Blank".
  
-    RUN pGetCustomers IN hdZohoProcs (
+    RUN Zoho_GetCustomers IN hdZohoProcs (
         INPUT        cAccessToken,
         OUTPUT TABLE ttCRMCustomers,
         OUTPUT       lSuccess,

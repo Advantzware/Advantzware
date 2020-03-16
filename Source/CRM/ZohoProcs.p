@@ -1,6 +1,6 @@
 
 /*------------------------------------------------------------------------
-    File        : ZohoProcs
+    File        : CRM/ZohoProcs
     Purpose     : Procedures related to calling Zoho CRM APIs
 
     Syntax      :
@@ -32,7 +32,95 @@ RUN FileSys_GetTempDirectory IN hdFileSysProcs(
     
 oModelParser = NEW ObjectModelParser().
                
-PROCEDURE pGetRefreshToken:
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE Zoho_UpdateRefreshToken:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcGrantToken   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientSecret AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRefreshToken AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCommand       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnURI     AS CHARACTER NO-UNDO INITIAL "https://www.dummy.com". /* dummy URL */
+    DEFINE VARIABLE cGrantType     AS CHARACTER NO-UNDO INITIAL "authorization_code". /* Grant Type */
+    DEFINE VARIABLE cAPIURL        AS CHARACTER NO-UNDO INITIAL "https://accounts.zoho.com/oauth/v2/token". /* API URL */
+    DEFINE VARIABLE cResponse      AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cResponseFile  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
+    
+    ASSIGN
+        cResponseFile            = cTempDir + "\zoho_refresh" + STRING(MTIME) + ".txt"
+        FIX-CODEPAGE (cResponse) = 'utf-8'
+        cCommand                 = SEARCH("curl.exe") + ' -X POST "'
+                                 + cAPIURL + '?code=' + ipcGrantToken 
+                                 + '^&client_id=' + ipcClientID 
+                                 + '^&client_secret=' + ipcClientSecret 
+                                 + '^&grant_type=' + cGrantType
+                                 + '^&redirect_uri=' + cReturnURI  + '"' 
+        .
+
+    /* execute CURL command with required parameters to call the API */
+    RUN OS_RunCommand IN hdOSProcs (
+        INPUT  cCommand,             /* Command string to run */
+        INPUT  cResponseFile,        /* File name to write the command output */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error excuting curl command"
+            . 
+            
+       OS-DELETE VALUE(cResponseFile).             
+       RETURN.
+    END.
+    
+    COPY-LOB FILE cResponseFile TO cResponse.
+
+    IF cResponse EQ "" THEN 
+        RETURN.
+   
+    ASSIGN
+        oObject         = CAST(oModelParser:Parse(INPUT cResponse),JsonObject).
+        opcRefreshToken = oObject:GetJsonText('refresh_token')
+        NO-ERROR.
+
+    IF opcRefreshToken NE "" THEN DO:
+        FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
+             WHERE bf-sys-ctrl.company EQ ipcCompany
+               AND bf-sys-ctrl.name    EQ "ZohoRefreshToken"
+             NO-ERROR.
+        IF AVAILABLE bf-sys-ctrl THEN
+            ASSIGN
+                bf-sys-ctrl.char-fld = opcRefreshToken
+                opcMessage           = "Success"
+                oplSuccess           = TRUE
+                .    
+    END.
+    ELSE
+        ASSIGN
+            opcMessage = "Error while generating refresh token"
+            oplSuccess = FALSE
+            .    
+        
+    OS-DELETE VALUE(cResponseFile).   
+END PROCEDURE.
+
+PROCEDURE Zoho_GetRefreshToken:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input company, output refresh token
@@ -54,10 +142,9 @@ PROCEDURE pGetRefreshToken:
         OUTPUT opcRefreshToken, 
         OUTPUT lFound
         ).
-    RETURN opcRefreshToken.
 END.
 
-PROCEDURE pGetClientID:
+PROCEDURE Zoho_GetClientID:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input company, output clientid
@@ -79,10 +166,9 @@ PROCEDURE pGetClientID:
         OUTPUT opcClientID, 
         OUTPUT lFound
         ).
-    RETURN opcClientID.
 END.
 
-PROCEDURE pGetClientSecret:
+PROCEDURE Zoho_GetClientSecret:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input company, output clientsecret
@@ -103,12 +189,10 @@ PROCEDURE pGetClientSecret:
         INPUT "",
         OUTPUT opcClientSecret, 
         OUTPUT lFound
-        ).
-        
-    RETURN opcClientSecret.
+        ).        
 END.
 
-PROCEDURE pGetAccessToken:
+PROCEDURE Zoho_GetAccessToken:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input refresh token,clientid and clientsecret output access token
@@ -131,23 +215,23 @@ PROCEDURE pGetAccessToken:
     
     ASSIGN
         oplSuccess               = YES
-        cResponseFile            = cTempDir + "\output.txt"
+        cResponseFile            = cTempDir + "\zoho_access" + STRING(MTIME) + ".txt"
         FIX-CODEPAGE (cResponse) = 'utf-8'
-        cCommand                 = SEARCH("curl.exe") + ' -X POST "' + 
-                                   cAPIURL + '?refresh_token=' + ipcRefreshToken + 
-                                   '^&client_id=' + ipcClientID + 
-                                   '^&client_secret=' + ipcClientSecret + 
-                                   '^&scope=' + cScope + 
-                                   '^&redirect_uri=' + cReturnURI + 
-                                   '^&grant_type=' + cGrantType + '"'
+        cCommand                 = SEARCH("curl.exe") + ' -X POST "' 
+                                 + cAPIURL + '?refresh_token=' + ipcRefreshToken 
+                                 + '^&client_id=' + ipcClientID 
+                                 + '^&client_secret=' + ipcClientSecret 
+                                 + '^&scope=' + cScope 
+                                 + '^&redirect_uri=' + cReturnURI 
+                                 + '^&grant_type=' + cGrantType + '"'
         .
 
     /* execute CURL command with required parameters to call the API */
     RUN OS_RunCommand IN hdOSProcs (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseFile,        /* File name to write the command output */
-        INPUT  TRUE,                  /* Run with SILENT option */
-        INPUT  FALSE,                 /* Run with NO-WAIT option */
+        INPUT  TRUE,                 /* Run with SILENT option */
+        INPUT  FALSE,                /* Run with NO-WAIT option */
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ) NO-ERROR.
@@ -169,12 +253,12 @@ PROCEDURE pGetAccessToken:
     ASSIGN
         oObject        = CAST(oModelParser:Parse(INPUT cResponse),JsonObject).
         opcAccessToken = oObject:GetJsonText('access_token')
-        .
+        NO-ERROR.
         
     OS-DELETE VALUE(cResponseFile).
 END PROCEDURE.
 
-PROCEDURE pGetCustomers:
+PROCEDURE Zoho_GetCustomers:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input access token output contacts
@@ -200,10 +284,10 @@ PROCEDURE pGetCustomers:
     ASSIGN
         oplSuccess                       = YES
         FIX-CODEPAGE (cResponseCustomers)= 'utf-8'
-        cResponseCustomersFile           = cTempDir + "\outputcustomers.txt"
-        cCommand                         = SEARCH("curl.exe") + ' "' + 
-                                           cAPIURL + '" -X GET -H "Authorization: Zoho-oauthtoken ' + 
-                                           ipcAccessToken + '"'
+        cResponseCustomersFile           = cTempDir + "\zoho_customers" + STRING(MTIME) + ".txt"
+        cCommand                         = SEARCH("curl.exe") + ' "' 
+                                         + cAPIURL + '" -X GET -H "Authorization: Zoho-oauthtoken ' 
+                                         + ipcAccessToken + '"'
         .
 
     /* execute CURL command with required parameters to call the API */
@@ -237,34 +321,34 @@ PROCEDURE pGetCustomers:
         oObject         = CAST(oModelParser:Parse(INPUT cResponseCustomers),JsonObject)
         jsonData        = oObject:GetJsonArray("data")
         iLengthProperty = jsonData:LENGTH
-        .
+        NO-ERROR.
 
     DO iCount = 1 TO iLengthProperty:
         ASSIGN
             CustomerObj            = jsonData:GetJsonObject(iCount)
             CustomersPropertyNames = CustomerObj:getNames()
-            .
+            NO-ERROR.
 
         CREATE ttCRMCustomers.
         DO iCount1 = 1 TO EXTENT(CustomersPropertyNames):
             CustomerPropertyName=CustomersPropertyNames[iCount1].
             CASE CustomerPropertyName:
                 WHEN "Account_Name" THEN
-                    ttCRMCustomers.crmName = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmName = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Billing_City" THEN
-                    ttCRMCustomers.crmCity = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmCity = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Billing_State" THEN
-                    ttCRMCustomers.crmState = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmState = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Billing_Code" THEN
-                    ttCRMCustomers.crmCode = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmCode = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Billing_Street" THEN
-                    ttCRMCustomers.crmStreet = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmStreet = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Billing Street 2" THEN
-                    ttCRMCustomers.crmStreet2 = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmStreet2 = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Phone" THEN
-                    ttCRMCustomers.crmPhone = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.crmPhone = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
                 WHEN "Ticker_Symbol" THEN
-                    ttCRMCustomers.tickerSymbol = STRING(CustomerObj:GetJsonText(CustomerPropertyName)).
+                    ttCRMCustomers.tickerSymbol = STRING(CustomerObj:GetJsonText(CustomerPropertyName)) NO-ERROR.
             END CASE.
 
         END.
@@ -273,7 +357,7 @@ PROCEDURE pGetCustomers:
     OS-DELETE VALUE(cResponseCustomersFile). 
 END PROCEDURE.
 
-PROCEDURE pGetContacts:
+PROCEDURE Zoho_GetContacts:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input access token output contacts
@@ -300,14 +384,14 @@ PROCEDURE pGetContacts:
     ASSIGN
         oplSuccess                       = YES
         FIX-CODEPAGE (cResponseContacts) = 'utf-8'
-        cResponseContactsFile            = cTempDir + "\outputcontacts.txt"
+        cResponseContactsFile            = cTempDir + "\zoho_contacts" + STRING(MTIME) + ".txt"
         ipcAccountName                   = REPLACE(ipcAccountName," ","%20")
         ipcAccountName                   = REPLACE(ipcAccountName,"(","")
         ipcAccountName                   = REPLACE(ipcAccountName,")","")
-        cCommand                         = SEARCH("curl.exe") + ' "' +
-                                           cAPIURL + '/search?criteria=Account_Name:equals:' + ipcAccountName + '"' +
-                                           ' -X GET -H "Authorization: Zoho-oauthtoken ' + 
-                                           ipcAccessToken + '"'
+        cCommand                         = SEARCH("curl.exe") + ' "' 
+                                         + cAPIURL + '/search?criteria=Account_Name:equals:' + ipcAccountName + '"' 
+                                         + ' -X GET -H "Authorization: Zoho-oauthtoken ' 
+                                         + ipcAccessToken + '"'
         .
 
     /* execute CURL command with required parameters to call the API */
@@ -342,26 +426,26 @@ PROCEDURE pGetContacts:
         oObject         = CAST(oModelParser:Parse(INPUT cResponseContacts),JsonObject)
         jsonData        = oObject:GetJsonArray("data")
         iLengthProperty = jsonData:LENGTH
-        .
+        NO-ERROR.
         
     DO iCount = 1 TO iLengthProperty:
         ASSIGN
             ContactObj            = jsonData:GetJsonObject(iCount)
             ContactsPropertyNames = ContactObj:getNames()
-            .
+            NO-ERROR.
             
         CREATE ttCRMContacts.
         DO iCount1 = 1 TO EXTENT(ContactsPropertyNames):
             ContactPropertyName=ContactsPropertyNames[iCount1].
             CASE ContactPropertyName:
                 WHEN "First_Name" THEN 
-                    ttCRMContacts.crmFirstName = STRING(ContactObj:GetJsonText(ContactPropertyName)).
+                    ttCRMContacts.crmFirstName = STRING(ContactObj:GetJsonText(ContactPropertyName)) NO-ERROR.
                 WHEN "Last_Name" THEN
-                    ttCRMContacts.crmLastName = STRING(ContactObj:GetJsonText(ContactPropertyName)).
+                    ttCRMContacts.crmLastName = STRING(ContactObj:GetJsonText(ContactPropertyName)) NO-ERROR.
                 WHEN "phone" THEN
-                    ttCRMContacts.crmPhone = STRING(ContactObj:GetJsonText(ContactPropertyName)).
+                    ttCRMContacts.crmPhone = STRING(ContactObj:GetJsonText(ContactPropertyName)) NO-ERROR.
                 WHEN "Email" THEN
-                    ttCRMContacts.crmEmail = STRING(ContactObj:GetJsonText(ContactPropertyName)).
+                    ttCRMContacts.crmEmail = STRING(ContactObj:GetJsonText(ContactPropertyName)) NO-ERROR.
             END CASE.
                 
         END.
@@ -370,7 +454,7 @@ PROCEDURE pGetContacts:
     OS-DELETE VALUE(cResponseContactsFile). 
 END PROCEDURE.
 
-PROCEDURE pGetAccounts:
+PROCEDURE Zoho_GetAccounts:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  input access token,customer number output accounts
@@ -397,16 +481,16 @@ PROCEDURE pGetAccounts:
     ASSIGN
         oplSuccess                       = YES
         FIX-CODEPAGE (cResponseAccounts) = 'utf-8'
-        cResponseAccountsFile            = cTempDir + "\outputaccounts.txt"
+        cResponseAccountsFile            = cTempDir + "\zoho_accounts" + STRING(MTIME) + ".txt"
         .
     IF ipcCustNo NE "" THEN
-        cCommand = SEARCH("curl.exe") + ' "' + 
-                   cAPIURL + '/search?criteria=Ticker_Symbol:equals:' + ipcCustNo + '"' + 
-                   ' -X GET -H "Authorization: Zoho-oauthtoken ' + ipcAccessToken + '"'.
+        cCommand = SEARCH("curl.exe") + ' "' 
+                 + cAPIURL + '/search?criteria=Ticker_Symbol:equals:' + ipcCustNo + '"' 
+                 + ' -X GET -H "Authorization: Zoho-oauthtoken ' + ipcAccessToken + '"'.
     ELSE
-        cCommand = SEARCH("curl.exe") + ' "' + 
-                   cAPIURL + '" -X GET -H "Authorization: Zoho-oauthtoken ' + 
-                   ipcAccessToken + '"'.
+        cCommand = SEARCH("curl.exe") + ' "' 
+                 + cAPIURL + '" -X GET -H "Authorization: Zoho-oauthtoken ' 
+                 + ipcAccessToken + '"'.
         
     /* execute CURL command with required parameters to call the API */
     RUN OS_RunCommand IN hdOSProcs (
@@ -440,22 +524,22 @@ PROCEDURE pGetAccounts:
         oObject         = CAST(oModelParser:Parse(INPUT cResponseAccounts),JsonObject)
         jsonData        = oObject:GetJsonArray("data")
         iLengthProperty = jsonData:LENGTH
-        .
+        NO-ERROR.
         
     DO iCount = 1 TO iLengthProperty:
         ASSIGN
             AccountObj            = jsonData:GetJsonObject(iCount)
             AccountsPropertyNames = AccountObj:getNames()
-            .
+            NO-ERROR.
             
         CREATE ttAccounts.
         DO iCount1 = 1 TO EXTENT(AccountsPropertyNames):
             AccountPropertyName=AccountsPropertyNames[iCount1].
             CASE AccountPropertyName:
                 WHEN "Account_Name" THEN 
-                    ttAccounts.accountName = STRING(AccountObj:GetJsonText(AccountPropertyName)).
+                    ttAccounts.accountName = STRING(AccountObj:GetJsonText(AccountPropertyName)) NO-ERROR.
                 WHEN "Ticker_Symbol" THEN
-                    ttAccounts.tickerSymbol = STRING(AccountObj:GetJsonText(AccountPropertyName)).
+                    ttAccounts.tickerSymbol = STRING(AccountObj:GetJsonText(AccountPropertyName)) NO-ERROR.
             END CASE.
                 
         END.
@@ -463,16 +547,4 @@ PROCEDURE pGetAccounts:
     END.
     OS-DELETE VALUE(cResponseAccountsFile). 
 END PROCEDURE.
-
-
-
-
-    
-
-
-
-
-
-
-
 
