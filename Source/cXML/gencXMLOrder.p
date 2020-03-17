@@ -731,6 +731,12 @@ PROCEDURE genOrderLinesLocal:
     opcReturnValue =  'Success'.
   ELSE
     opcReturnValue = 'No Items'.
+    
+  IF oe-ord.due-date NE dRequestedDeliveryDate THEN DO:
+      FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.
+      oe-ord.due-date = dRequestedDeliveryDate.
+  END.
+  
   RELEASE oe-ord.  
   RELEASE oe-ordl.
 END PROCEDURE.
@@ -756,6 +762,7 @@ PROCEDURE GetItemAndPart:
          WHERE itemfg.company EQ ipcCompany
            AND itemfg.def-loc EQ ipcWarehouseID
            AND itemfg.part-no EQ ipcSupplierPartID
+           AND itemfg.stat    EQ "A"
          NO-ERROR.
     IF NOT AVAILABLE itemfg THEN DO:
             oplSuccess = NO.
