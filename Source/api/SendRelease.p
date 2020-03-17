@@ -190,7 +190,7 @@
                 cShipToState       = STRING(shipto.ship-state)
                 cShipToZip         = STRING(shipto.ship-zip)
                 cShipToAddress3    = cShipToCity + " "
-                                   + cShipToCity + " "
+                                   + cShipToState + " "
                                    + cShipToZip
                 cShipToAddressFull = cShipToAddress1 + " " 
                                    + cShipToAddress2 + " "
