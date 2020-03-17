@@ -161,7 +161,48 @@ FOR EACH ttInputEst NO-LOCK:
           est-qty.qty[37] = ttInputEst.copy-rel[17] 
           est-qty.qty[38] = ttInputEst.copy-rel[18] 
           est-qty.qty[39] = ttInputEst.copy-rel[19] 
-          est-qty.qty[40] = ttInputEst.copy-rel[20]  .
+          est-qty.qty[40] = ttInputEst.copy-rel[20] .
+          
+          IF ttInputEst.copy-runship[1] NE ? AND ttInputEst.copy-runship[1] NE "" THEN 
+            est-qty.whsed[1] = logical(ttInputEst.copy-runship[1]) NO-ERROR .
+          IF ttInputEst.copy-runship[2] NE ? AND ttInputEst.copy-runship[2] NE "" THEN   
+          est-qty.whsed[2] = logical(ttInputEst.copy-runship[2]) NO-ERROR .
+          IF ttInputEst.copy-runship[3] NE ? AND ttInputEst.copy-runship[3] NE "" THEN 
+          est-qty.whsed[3] = logical(ttInputEst.copy-runship[3]) NO-ERROR .
+          IF ttInputEst.copy-runship[4] NE ? AND ttInputEst.copy-runship[4] NE "" THEN 
+          est-qty.whsed[4] = logical(ttInputEst.copy-runship[4]) NO-ERROR .
+          IF ttInputEst.copy-runship[5] NE ? AND ttInputEst.copy-runship[5] NE "" THEN 
+          est-qty.whsed[5] = logical(ttInputEst.copy-runship[5]) NO-ERROR .
+          IF ttInputEst.copy-runship[6] NE ? AND ttInputEst.copy-runship[6] NE "" THEN 
+          est-qty.whsed[6] = logical(ttInputEst.copy-runship[6]) NO-ERROR .
+          IF ttInputEst.copy-runship[7] NE ? AND ttInputEst.copy-runship[7] NE "" THEN 
+          est-qty.whsed[7] = logical(ttInputEst.copy-runship[7]) NO-ERROR .
+          IF ttInputEst.copy-runship[8] NE ? AND ttInputEst.copy-runship[8] NE "" THEN 
+          est-qty.whsed[8] = logical(ttInputEst.copy-runship[8]) NO-ERROR .
+          IF ttInputEst.copy-runship[9] NE ? AND ttInputEst.copy-runship[9] NE "" THEN 
+          est-qty.whsed[9] = logical(ttInputEst.copy-runship[9]) NO-ERROR .
+          IF ttInputEst.copy-runship[10] NE ? AND ttInputEst.copy-runship[10] NE "" THEN 
+          est-qty.whsed[10] = logical(ttInputEst.copy-runship[10]) NO-ERROR .
+          IF ttInputEst.copy-runship[11] NE ? AND ttInputEst.copy-runship[11] NE "" THEN 
+          est-qty.whsed[11] = logical(ttInputEst.copy-runship[11]) NO-ERROR .
+          IF ttInputEst.copy-runship[12] NE ? AND ttInputEst.copy-runship[12] NE "" THEN 
+          est-qty.whsed[12] = logical(ttInputEst.copy-runship[12]) NO-ERROR .
+          IF ttInputEst.copy-runship[13] NE ? AND ttInputEst.copy-runship[13] NE "" THEN 
+          est-qty.whsed[13] = logical(ttInputEst.copy-runship[13]) NO-ERROR .
+          IF ttInputEst.copy-runship[14] NE ? AND ttInputEst.copy-runship[14] NE "" THEN 
+          est-qty.whsed[14] = logical(ttInputEst.copy-runship[14]) NO-ERROR .
+          IF ttInputEst.copy-runship[15] NE ? AND ttInputEst.copy-runship[15] NE "" THEN 
+          est-qty.whsed[15] = logical(ttInputEst.copy-runship[15]) NO-ERROR .
+          IF ttInputEst.copy-runship[16] NE ? AND ttInputEst.copy-runship[16] NE "" THEN 
+          est-qty.whsed[16] = logical(ttInputEst.copy-runship[16]) NO-ERROR .
+          IF ttInputEst.copy-runship[17] NE ? AND ttInputEst.copy-runship[17] NE "" THEN 
+          est-qty.whsed[17] = logical(ttInputEst.copy-runship[17]) NO-ERROR .
+          IF ttInputEst.copy-runship[18] NE ? AND ttInputEst.copy-runship[18] NE "" THEN 
+          est-qty.whsed[18] = logical(ttInputEst.copy-runship[18]) NO-ERROR .
+          IF ttInputEst.copy-runship[19] NE ? AND ttInputEst.copy-runship[19] NE "" THEN 
+          est-qty.whsed[19] = logical(ttInputEst.copy-runship[19]) NO-ERROR .
+          IF ttInputEst.copy-runship[20] NE ? AND ttInputEst.copy-runship[20] NE "" THEN 
+          est-qty.whsed[20] = logical(ttInputEst.copy-runship[20]) NO-ERROR .
         
     IF eb.sman NE "" AND eb.comm EQ 0 THEN 
     DO:
