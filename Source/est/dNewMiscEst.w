@@ -1230,16 +1230,8 @@ DO:
 
             IF AVAILABLE style THEN do:
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
-                       sub-unit:SCREEN-VALUE   = style.spare-char-5                         
-                       .
-                       FIND FIRST flute NO-LOCK
-                           WHERE flute.company EQ cocode NO-ERROR .
-                        IF AVAIL flute THEN
-                        FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = style.style
-                        AND reftable.loc = flute.code
-                        AND reftable.code = "BOARD"
-                        NO-LOCK NO-ERROR. 
-                        board:screen-value = IF AVAIL reftable AND AVAIL flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
+                       sub-unit:SCREEN-VALUE   = style.spare-char-5.                        
+                       RUN pGetBoardFromStyle(style.style).
                        RUN pDefaultPackInfo .
             END.
         END.
@@ -1284,15 +1276,7 @@ DO:
             IF AVAILABLE style THEN do:
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
                        sub-unit:SCREEN-VALUE   = style.spare-char-5 .
-                        FIND FIRST flute NO-LOCK
-                           WHERE flute.company EQ cocode NO-ERROR .
-                        IF AVAIL flute THEN
-                        FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = style.style
-                        AND reftable.loc = flute.code
-                        AND reftable.code = "BOARD"
-                        NO-LOCK NO-ERROR. 
-                        board:screen-value = IF AVAIL reftable AND AVAIL flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
-                          
+                RUN pGetBoardFromStyle(style.style).                          
                 RUN pDefaultPackInfo .
             END.
         END.
@@ -2278,6 +2262,31 @@ PROCEDURE valid-sub-UnitCount :
             APPLY "entry" TO iUnitCount.
             oplOutError = YES .
         END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetBoardFromStyle D-Dialog 
+PROCEDURE pGetBoardFromStyle :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETE ipcStyle AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+    
+    FIND FIRST flute NO-LOCK
+       WHERE flute.company EQ cocode NO-ERROR .
+    IF AVAIL flute THEN
+      FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = ipcStyle 
+             AND reftable.loc = flute.code
+             AND reftable.code = "BOARD"
+             NO-LOCK NO-ERROR. 
+      board:screen-value = IF AVAIL reftable AND AVAIL flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
     END.
 
 END PROCEDURE.
