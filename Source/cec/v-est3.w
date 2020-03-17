@@ -3177,8 +3177,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCkeckMisEst V-table-Win 
-PROCEDURE pCkeckMisEst :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMiscEst V-table-Win 
+PROCEDURE pCheckMiscEst :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
