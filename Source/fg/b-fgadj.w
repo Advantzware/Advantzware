@@ -977,10 +977,8 @@ PROCEDURE local-assign-statement :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN BROWSE {&browse-name} fg-rctd.t-qty fg-rctd.ext-cost.
-   ASSIGN
-     fg-rctd.pur-uom = lv-uom
-     fg-rctd.cost-uom = lv-uom .
-         
+  fg-rctd.pur-uom = lv-uom.
+  fg-rctd.cost-uom = lv-uom.
 
 END PROCEDURE.
 
@@ -1053,9 +1051,6 @@ PROCEDURE local-create-record :
      fg-rctd.s-num        = 0
      fg-rctd.units-pallet = 1
      fg-rctd.cases-unit   = 1.
-     ASSIGN
-      ld-cost = 0
-      lv-uom  = "EA".
     IF cAdjustReason-Desc NE "" THEN
      ASSIGN fg-rctd.reject-code[1] = cAdjustReason-Desc.
     ELSE
@@ -1174,13 +1169,9 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
    /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL fg-rctd THEN
-  DO:
-     ASSIGN   
-      ld-cost = fg-rctd.ext-cost
-      lv-uom  = fg-rctd.pur-uom. 
-  END.    
-  
+  ASSIGN
+   ld-cost = 0
+   lv-uom  = "EA".
   /*IF NOT adm-new-record THEN RUN new-bin.*/
 
   DO WITH FRAME {&FRAME-NAME}:
