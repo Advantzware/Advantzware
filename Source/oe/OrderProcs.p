@@ -120,45 +120,6 @@ PROCEDURE CalcOrderCommission:
 
 END PROCEDURE.
 
-PROCEDURE CheckCreditHold:
-/*------------------------------------------------------------------------------
- Purpose: To chcek the customer credit hold status and invoice aging
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustomer    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplgCheckAging AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplgHold       AS LOGICAL   NO-UNDO.
-    
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
-    
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany,     /* Company Code */ 
-        INPUT "RELCREDT",     /* sys-ctrl name */
-        INPUT "L",            /* Output return value */
-        INPUT NO,             /* Use ship-to */
-        INPUT NO,             /* ship-to vendor */
-        INPUT "",             /* ship-to vendor value */
-        INPUT "",             /* shi-id value */
-        OUTPUT cReturnValue, 
-        OUTPUT lRecFound
-        ). 
-    IF lRecFound AND LOGICAL(cReturnValue) THEN DO:
-        FIND FIRST cust NO-LOCK
-             WHERE cust.company EQ ipcCompany
-               AND cust.cust-no EQ ipcCustomer
-                NO-ERROR.
-        IF AVAILABLE cust THEN      
-            RUN oe/CRcheck.p(
-                INPUT  ROWID(cust),
-                INPUT  iplgCheckAging, /* To check aging */
-                OUTPUT oplgHold
-                ).   
-    END.                  
-
-END PROCEDURE.
-
 PROCEDURE GetReleaseType:
 /*------------------------------------------------------------------------------
  Purpose:
