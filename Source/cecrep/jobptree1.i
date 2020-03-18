@@ -58,6 +58,8 @@ def {1} var v-loc-bin       as   char format "x(14)"                    no-undo.
 def {1} var v-set-hdr       as   char format "x(25)"                    no-undo.
 def {1} var v-board-code    as   char format "x(15)"                    no-undo.
 def {1} var v-board-dscr    as   char format "x(32)"                    no-undo.
+def {1} var dtCreateDdate   as   date                                   no-undo.
+
 DEFINE {1} VARIABLE cJobNumber AS CHAR NO-UNDO .
 def {1} workfile w-m no-undo
   FIELD m-code LIKE mach.m-code
@@ -89,12 +91,12 @@ FORM HEADER
        SKIP
        v-cus[3] AT 2 "Ord Date:" AT 39 v-ord-date /*"_____ _____ @ _____" AT 67*/   "Salesman:" AT 90 v-sman
        SKIP
-       v-cus[4] AT 2 "For Shipping Use Only" AT 39 /*"_____ _____ @ _____" AT 67*/  v-dept-note[31] AT 90 
+       v-cus[4] AT 2  /*"_____ _____ @ _____" AT 67*/  v-dept-note[31] AT 90 
        SKIP
-       "PO #:" AT 2 lv-ord-po    "Rel. Date:____________" AT 39 /*"_____ _____ @ _____" AT 67*/
+       "PO #:" AT 2 lv-ord-po    "Job Created Date:" AT 39 string(dtCreateDdate) /*"_____ _____ @ _____" AT 67*/
        "<P8><U>Order Information:</U><P10>" AT 100       
        SKIP
-       "Status:" AT 2 lv-status  "Rel. Qty:_____________" AT 39 /*"_____ _____ @ _____" AT 67*/
+       "Status:" AT 2 lv-status   /*"_____ _____ @ _____" AT 67*/
        "<B><P12>Cust Set/Box#:" AT 90 lv-cust-set "</B><P10>"  
        SKIP
     
