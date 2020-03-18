@@ -118,6 +118,11 @@ DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hLoadtagProcs AS HANDLE NO-UNDO.
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
     FIELD job-no2 LIKE job.job-no2.
@@ -989,8 +994,11 @@ DO:
        RUN system/userLogOut.p (NO, 0).
     */
   /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1266,7 +1274,10 @@ DO:
         END.
     END.
  */
-   APPLY "close" to this-procedure.
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    APPLY "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2406,6 +2417,250 @@ END.
 
 
 &UNDEFINE SELF-NAME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to execute the Outbound APIs
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLocationID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-shipto  FOR shipto.
+
+    ASSIGN
+        cAPIID       = "SendFinishedGood"
+        cTriggerID   = "CreateLoadtag"
+        .
+    
+    IF ipcJobNo NE "" THEN DO:
+        FIND FIRST bf-job NO-LOCK
+             WHERE bf-job.company EQ ipcCompany
+               AND bf-job.job-no  EQ ipcJobNo
+               AND bf-job.job-no2 EQ ipiJobNo2
+             NO-ERROR.
+        IF AVAILABLE bf-job THEN DO:
+            FOR EACH bf-job-hdr NO-LOCK
+                WHERE bf-job-hdr.company EQ bf-job.company
+                  AND bf-job-hdr.job     EQ bf-job.job
+                  AND bf-job-hdr.job-no  EQ bf-job.job-no
+                  AND bf-job-hdr.job-no2 EQ bf-job.job-no2:
+                FIND FIRST bf-itemfg NO-LOCK 
+                     WHERE bf-itemfg.company EQ bf-job-hdr.company
+                       AND bf-itemfg.i-no    EQ bf-job-hdr.i-no
+                     NO-ERROR.
+                IF AVAILABLE bf-itemfg THEN DO:
+                    ASSIGN
+                        cPrimaryID   = bf-itemfg.i-no
+                        cDescription = cAPIID + " triggered by " + cTriggerID
+                                     + " from r-loadtg.w for item " + cPrimaryID
+                        .
+                      
+                    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                        INPUT  ipcCompany,               /* Company Code (Mandatory) */
+                        INPUT  bf-job.loc,               /* Location Code (Mandatory) */
+                        INPUT  cAPIID,                   /* API ID (Mandatory) */
+                        INPUT  "",                       /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                        INPUT  cTriggerID,               /* Trigger ID (Mandatory) */
+                        INPUT  "itemfg",                 /* Comma separated list of table names for which data being sent (Mandatory) */
+                        INPUT  STRING(ROWID(bf-itemfg)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                        INPUT  cPrimaryID,               /* Primary ID for which API is called for (Mandatory) */   
+                        INPUT  cDescription,             /* Event's description (Optional) */
+                        OUTPUT lSuccess,                 /* Success/Failure flag */
+                        OUTPUT cMessage                  /* Status message */
+                        ) NO-ERROR.
+                END.
+            END.
+        END. 
+    END.
+    ELSE IF ipiPOID NE 0 THEN DO:
+        FIND FIRST bf-po-ord NO-LOCK
+             WHERE bf-po-ord.company EQ ipcCompany
+               AND bf-po-ord.po-no   EQ ipiPOID
+             NO-ERROR.
+        IF AVAILABLE bf-po-ord THEN DO:
+            IF bf-po-ord.type EQ "R" THEN
+                cLocationID = bf-po-ord.loc.
+            ELSE DO:
+                RUN oe/custxship.p (
+                    INPUT  bf-po-ord.company,
+                    INPUT  bf-po-ord.cust-no,
+                    INPUT  bf-po-ord.ship-id,
+                    BUFFER bf-shipto
+                    ).
+                IF AVAILABLE bf-shipto THEN
+                    cLocationID = bf-shipto.loc. 
+            END.
+            FOR EACH bf-po-ordl NO-LOCK
+                WHERE bf-po-ordl.company EQ bf-po-ord.company
+                  AND bf-po-ordl.po-no   EQ bf-po-ord.po-no:
+                FIND FIRST bf-itemfg NO-LOCK 
+                     WHERE bf-itemfg.company EQ bf-po-ordl.company
+                       AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
+                     NO-ERROR.
+                IF AVAILABLE bf-itemfg THEN DO:
+                    ASSIGN
+                        cPrimaryID   = bf-itemfg.i-no
+                        cDescription = cAPIID + " triggered by " + cTriggerID
+                                     + " from r-loadtg.w for item " + cPrimaryID
+                        .
+
+                    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                        INPUT  ipcCompany,               /* Company Code (Mandatory) */
+                        INPUT  cLocationID,              /* Location Code (Mandatory) */
+                        INPUT  cAPIID,                   /* API ID (Mandatory) */
+                        INPUT  "",                       /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                        INPUT  cTriggerID,               /* Trigger ID (Mandatory) */
+                        INPUT  "itemfg",                 /* Comma separated list of table names for which data being sent (Mandatory) */
+                        INPUT  STRING(ROWID(bf-itemfg)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                        INPUT  cPrimaryID,               /* Primary ID for which API is called for (Mandatory) */   
+                        INPUT  cDescription,             /* Event's description (Optional) */
+                        OUTPUT lSuccess,                 /* Success/Failure flag */
+                        OUTPUT cMessage                  /* Status message */
+                        ) NO-ERROR.  
+                END.                      
+            END.
+        END.
+    END.
+        
+    /* Reset context at the end of API calls to clear temp-table 
+       data inside OutboundProcs */
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTriggerForItem C-Win
+PROCEDURE pRunAPIOutboundTriggerForItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to trigger API Outbound events
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.   
+    DEFINE INPUT  PARAMETER ipcItemNo  AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLocationID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-shipto  FOR shipto.
+
+    ASSIGN
+        cAPIID       = "SendFinishedGood"
+        cTriggerID   = "CreateLoadtag"
+        .
+
+    FIND FIRST bf-itemfg NO-LOCK 
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.i-no    EQ ipcItemNo
+         NO-ERROR.
+    IF AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            cPrimaryID   = bf-itemfg.i-no
+            cDescription = cAPIID + " triggered by " + cTriggerID
+                         + " from r-loadtg.w for item " + cPrimaryID
+            .    
+        IF ipcJobNo NE "" THEN DO:
+            FIND FIRST bf-job NO-LOCK
+                 WHERE bf-job.company EQ ipcCompany
+                   AND bf-job.job-no  EQ ipcJobNo
+                   AND bf-job.job-no2 EQ ipiJobNo2
+                 NO-ERROR.
+            IF AVAILABLE bf-job THEN
+                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                    INPUT  ipcCompany,               /* Company Code (Mandatory) */
+                    INPUT  bf-job.loc,               /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                   /* API ID (Mandatory) */
+                    INPUT  "",                       /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                    INPUT  cTriggerID,               /* Trigger ID (Mandatory) */
+                    INPUT  "itemfg",                 /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(bf-itemfg)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,               /* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,             /* Event's description (Optional) */
+                    OUTPUT lSuccess,                 /* Success/Failure flag */
+                    OUTPUT cMessage                  /* Status message */
+                    ) NO-ERROR.
+        END.
+        ELSE IF ipiPOID NE 0 THEN DO:
+            FIND FIRST bf-po-ord NO-LOCK
+                 WHERE bf-po-ord.company EQ ipcCompany
+                   AND bf-po-ord.po-no   EQ ipiPOID
+                 NO-ERROR.
+            IF AVAILABLE bf-po-ord THEN DO:
+                IF bf-po-ord.type EQ "R" THEN
+                    cLocationID = bf-po-ord.loc.
+                ELSE DO:
+                    RUN oe/custxship.p (
+                        INPUT  bf-po-ord.company,
+                        INPUT  bf-po-ord.cust-no,
+                        INPUT  bf-po-ord.ship-id,
+                        BUFFER bf-shipto
+                        ).
+                    IF AVAILABLE bf-shipto THEN
+                        cLocationID = bf-shipto.loc. 
+                END.
+
+                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                    INPUT  ipcCompany,               /* Company Code (Mandatory) */
+                    INPUT  cLocationID,              /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                   /* API ID (Mandatory) */
+                    INPUT  "",                       /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                    INPUT  cTriggerID,               /* Trigger ID (Mandatory) */
+                    INPUT  "itemfg",                 /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(bf-itemfg)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,               /* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,             /* Event's description (Optional) */
+                    OUTPUT lSuccess,                 /* Success/Failure flag */
+                    OUTPUT cMessage                  /* Status message */
+                    ) NO-ERROR.  
+            END.
+        END.
+    END.
+        
+    /* Reset context at the end of API calls to clear temp-table 
+       data inside OutboundProcs */
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
@@ -3859,7 +4114,8 @@ PROCEDURE create-text-file :
 
       PUT SKIP.
       END.
-      FOR EACH w-ord:
+      FOR EACH w-ord
+          BREAK BY w-ord.i-no:
 
         IF tb_16ths THEN
           ASSIGN
@@ -4040,6 +4296,14 @@ PROCEDURE create-text-file :
           END. /*not SSLABEL, Centbox*/
 
         end. /*w-ord.total-tags > 0*/
+        IF FIRST-OF(w-ord.i-no) THEN
+            RUN pRunAPIOutboundTriggerForItem (
+                INPUT g_company,
+                INPUT w-ord.i-no,
+                INPUT w-ord.job-no,
+                INPUT w-ord.job-no2,
+                INPUT w-ord.po-no
+                ).        
         delete w-ord.
       end.
 
