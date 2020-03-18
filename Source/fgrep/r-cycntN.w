@@ -1553,19 +1553,22 @@ PROCEDURE GetSelectionList :
 ------------------------------------------------------------------------------*/
  DEF VAR cTmpList AS cha NO-UNDO.
 
+ DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
  iColumnLength = 0.
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-
+    
+    iEntryNumber = LOOKUP(ENTRY(i,cTmpList), cTextListToSelect).
+    
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(entry(iEntryNumber, cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF entry(iEntryNumber, cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
 
@@ -1731,6 +1734,7 @@ DEF VAR excelheader  AS CHAR                 NO-UNDO.
 DEF VAR lCountedDateSelected AS LOG NO-UNDO.
 DEF BUFFER bfg-bin FOR fg-bin .                                        
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 ASSIGN
@@ -1960,32 +1964,33 @@ ELSE DO:
 
    BUFFER bfg-bin:FIND-BY-ROWID(ROWID(fg-bin), NO-LOCK) .
    BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
-   DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+   DO i = 1 TO NUM-ENTRIES(cSelectedlist): 
+       iEntryNumber = LOOKUP(ENTRY(i,cSelectedList),cTextListToSelect).
+       cTmpField = entry(iEntryNumber, cFieldListToSelect).
        IF INDEX(cTmpField,".") > 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  hField = IF cTmpField BEGINS "i-name" OR cTmpField BEGINS "part-no" THEN BUFFER bitemfg:BUFFER-FIELD(cTmpField)
                           ELSE BUFFER bfg-bin:BUFFER-FIELD(cTmpField).
                  IF hField <> ? THEN DO:                 
-                     cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+                     cTmpField = substring(GetFieldValue(hField),1,int(entry(iEntryNumber, cFieldLength))).
                      /*IF ENTRY(i,cSelectedList) = "Job#" THEN
                         cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-bin.job-no2,"99") ELSE "".                  
                       */
                      /*IF ENTRY(i,cSelectedList) = "Tag" THEN cTmpField = SUBSTRING(cTmpField,16,8).*/
 
                      cDisplay = cDisplay + 
-                               IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
-                                 (cTmpField + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
-                               ELSE IF LENGTH(cTmpField) <  int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
-                                 (FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
+                               IF entry(iEntryNumber, cFieldType) = "C" THEN
+                                 (cTmpField + FILL(" ",int(entry(iEntryNumber, cFieldLength)) + 1 - LENGTH(cTmpField)))
+                               ELSE IF LENGTH(cTmpField) <  int(entry(iEntryNumber, cFieldLength)) THEN
+                                 (FILL(" ",int(entry(iEntryNumber, cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                                ELSE cTmpField.
                      cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
 
                  END.
                  ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cTmpField = substring(cFieldName,1,int( entry( iEntryNumber, cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",int(entry(iEntryNumber, cFieldLength)) + 1 ).
                     cExcelDisplay = cExcelDisplay + quoter(" ") + ",".
                  END.
        END.
@@ -2007,7 +2012,7 @@ ELSE DO:
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+                       FILL(" ",int(entry(iEntryNumber, cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
        END.
    END.
@@ -2139,7 +2144,7 @@ DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF BUFFER bitemfg FOR itemfg.
 DEF BUFFER bfg-bin FOR fg-bin.
-
+DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 ASSIGN 
@@ -2242,32 +2247,33 @@ FOR EACH tt-report
    BUFFER bfg-bin:FIND-BY-ROWID(ROWID(fg-bin), NO-LOCK) .
    BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
 
-   DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+   DO i = 1 TO NUM-ENTRIES(cSelectedlist):
+       iEntryNumber = LOOKUP(ENTRY(i,cSelectedList),cTextListToSelect).                              
+       cTmpField = entry(iEntryNumber, cFieldListToSelect).
        IF INDEX(cTmpField,".") > 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  hField = IF cTmpField BEGINS "i-name" OR cTmpField BEGINS "part-no" THEN BUFFER bitemfg:BUFFER-FIELD(cTmpField)
                           ELSE BUFFER bfg-bin:BUFFER-FIELD(cTmpField).
                  IF hField <> ? THEN DO:                 
-                     cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+                     cTmpField = substring(GetFieldValue(hField),1,int(entry(iEntryNumber, cFieldLength))).
                      /*IF ENTRY(i,cSelectedList) = "Job#" THEN
                         cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-bin.job-no2,"99") ELSE "".                  
                       */
                      /*IF ENTRY(i,cSelectedList) = "Tag" THEN cTmpField = SUBSTRING(cTmpField,16,8).*/
 
                      cDisplay = cDisplay + 
-                               IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
-                                 (cTmpField + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
-                               ELSE IF LENGTH(cTmpField) <  int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
-                                 (FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
+                               IF entry(iEntryNumber, cFieldType) = "C" THEN
+                                 (cTmpField + FILL(" ",int(entry(iEntryNumber, cFieldLength)) + 1 - LENGTH(cTmpField)))
+                               ELSE IF LENGTH(cTmpField) <  int(entry(iEntryNumber, cFieldLength)) THEN
+                                 (FILL(" ",int(entry(iEntryNumber, cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                                ELSE cTmpField.
                      cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
 
                  END.
                  ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cTmpField = substring(cFieldName,1,int( entry( iEntryNumber, cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",int(entry(iEntryNumber, cFieldLength)) + 1 ).
                     cExcelDisplay = cExcelDisplay + quoter(" ") + ",".
                  END.
        END.
@@ -2289,7 +2295,7 @@ FOR EACH tt-report
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+                       FILL(" ",int(entry(iEntryNumber, cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
        END.
    END.
