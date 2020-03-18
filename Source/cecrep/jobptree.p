@@ -22,6 +22,8 @@ DEFINE VARIABLE v-ink-5 AS cha FORM "X(30)" NO-UNDO.
 DEFINE VARIABLE v-ink-6 AS cha FORM "X(30)" NO-UNDO.
 DEFINE VARIABLE v-ink-7 AS cha FORM "X(30)" NO-UNDO.
 DEFINE VARIABLE v-ink-8 AS cha FORM "X(30)" NO-UNDO.
+DEFINE VARIABLE v-ink-9 AS cha FORM "X(30)" NO-UNDO.
+DEFINE VARIABLE v-ink-10 AS cha FORM "X(30)" NO-UNDO.
 DEFINE VARIABLE v-dept-note AS cha FORM "x(48)" EXTENT 50 NO-UNDO.
 DEFINE VARIABLE v-spec-note AS cha FORM "x(124)" EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-deptnote AS cha NO-UNDO.
@@ -501,6 +503,7 @@ ASSIGN
            lv-au = IF itemfg.alloc THEN "U" ELSE "A"
            vll-is-a-set = itemfg.isaset
            v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
+           dtCreateDdate = job.create-date.
 
        IF est.est-type = 6 THEN
           ASSIGN
@@ -554,9 +557,9 @@ ASSIGN
        "<=1><R+20><C66><FROM><C106><LINE><||3>"    /*item desc*/
        "<=1><R+8><C33><P8>                 <U>Dept Notes:</U> "
        "<=1><R+27><C1><FROM><C32><LINE><||3>"   /*packing*/
-       {cecrep/p-wastebox.i} 
-       "<=1><R+28><C66><FROM><C106><LINE><||3>"   /*Printint*/
-       "<=1><R+28><C96><FROM><R+11><LINE><||3>"
+        
+       "<=1><R+27><C66><FROM><C106><LINE><||3>"   /*Printint*/
+       "<=1><R+27><C96><FROM><R+13><LINE><||3>" 
        "<=1><R+35><C1><FROM><C32><LINE><||3>"   /*machine routing*/
       /* "<=1><R+35><C20.8><FROM><R+10><LINE><||3>" */
        "<=1><R+40><C66><FROM><C106><LINE><||3>"   /*sheets ordered*/
@@ -602,7 +605,7 @@ ASSIGN
         FOR EACH w-i:
           i = i + 1.
         END.
-        IF i LE 8 THEN DO i = i + 1 TO 8:
+        IF i LE 10 THEN DO i = i + 1 TO 10:
           CREATE w-i.
         END.
 
@@ -611,9 +614,8 @@ ASSIGN
         FIND FIRST xxprep WHERE xxprep.company EQ cocode
                             AND xxprep.code EQ xeb.die-no
                             NO-LOCK NO-ERROR.
-
-        ASSIGN
-        v-die-loc = ""
+        v-die-loc  = IF AVAIL xxprep THEN xxprep.loc-bin ELSE "" .
+        ASSIGN        
         v-coldscr = IF AVAILABLE xeb AND xeb.i-coldscr <> "" THEN xeb.i-coldscr ELSE "Plain"
         lv-ord-po = IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "".
 
@@ -624,11 +626,11 @@ ASSIGN
 
         RELEASE notes.
 
-        IF AVAILABLE b-itemfg THEN 
+        /*IF AVAILABLE b-itemfg THEN 
           FIND FIRST notes WHERE notes.rec_key EQ b-itemfg.rec_key 
                              AND notes.note_code = "LOC" NO-LOCK NO-ERROR.
 
-        IF AVAILABLE notes THEN v-die-loc = REPLACE(SUBSTRING(notes.note_text,1,10),CHR(10),"").
+        IF AVAILABLE notes THEN v-die-loc = REPLACE(SUBSTRING(notes.note_text,1,10),CHR(10),""). */
         cRepeatItem = "" .
         IF AVAILABLE b-itemfg THEN ASSIGN lv-fg-name = b-itemfg.i-name
                                           cRepeatItem = IF  b-itemfg.repeatItem THEN "Run All Sheets" ELSE "" .
@@ -664,9 +666,11 @@ ASSIGN
            v-ink-5 = ""
            v-ink-6 = ""
            v-ink-7 = ""
-           v-ink-8 = "".
+           v-ink-8 = ""
+           v-ink-9 = ""
+           v-ink-10 = "".
 
-        DO v-i = 1 TO 8:
+        DO v-i = 1 TO 10:
            IF b-eb.i-code[v-i] <> "" THEN DO:
                FIND FIRST w-i WHERE w-i.i-code = b-eb.i-code[v-i] NO-ERROR.
                IF AVAILABLE w-i THEN DO:
@@ -700,6 +704,14 @@ ASSIGN
                                           IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
                   ELSE IF v-ink-8 = "" THEN
                      ASSIGN v-ink-8 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                 ELSE IF v-ink-9 = "" THEN
+                     ASSIGN v-ink-9 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                 ELSE IF v-ink-10 = "" THEN
+                     ASSIGN v-ink-10 =  w-i.i-dscr +
                                          (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
                                           IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
                END. /* IF AVAIL w-i THEN DO: */
@@ -827,8 +839,8 @@ ASSIGN
            SKIP
              "Impressions:" AT 80 trim(string(v-dc-qty))    format "x(7)"
            SKIP
-           "D/C Style:" AT 80
-           SKIP              
+           /*"D/C Style:" AT 80
+           SKIP  */            
       WITH WIDTH 200 NO-BOX NO-LABEL FRAME shp-info STREAM-IO. 
 
       FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -851,15 +863,21 @@ ASSIGN
                 AND item.i-no    EQ xeb.tr-no NO-LOCK NO-ERROR.
           
       v-height = "HEIGHT: " + TRIM(STRING(b-eb.tr-dep,"ZZ9.99")).
+      
+      FIND FIRST xxprep WHERE xxprep.company EQ cocode
+                            AND xxprep.code EQ xeb.plate-no
+                            NO-LOCK NO-ERROR.
+        v-die-loc  = IF AVAIL xxprep THEN xxprep.loc-bin ELSE "" .
 
 
       DISPLAY "<P8><U>Packing:</U>" AT 13
-              "<U>Printing:</U>                   <U>Sheets:</U>" AT 125
-              "<P10>"SKIP
-              v-cas-desc AT 3 FORM "x(25)"
-              "<B>PRINTING PLATE #:" AT 80 xeb.plate-no FORMAT "x(15)" WHEN AVAILABLE xeb "</B>"
-              "<P8><U>Received:</U></P8>" AT 123
-              SKIP
+              "<C80><U>Printing:</U>                   <U><C98>Sheets:</U>" 
+              "<P10>" SKIP
+              
+              "<P8><B>PRINT PLATE:" AT 80 xeb.plate-no FORMAT "x(15)" WHEN AVAILABLE xeb "Loc:" /*(IF AVAIL xxprep THEN xxprep.loc ELSE "") "Bin:"*/ v-die-loc FORMAT "x(8)" "</B>"
+              "<P8><C98><U>Received:</U></P8>"
+              /*SKIP*/
+              "<P10><b>" v-cas-desc AT 3 FORM "x(25)" "</b><P10>" 
               "# Per Bndl:"        AT 3
               xeb.cas-cnt WHEN AVAILABLE xeb
               "<P10># Per Unit:" AT 3 xeb.tr-cnt WHEN AVAILABLE xeb
@@ -895,7 +913,7 @@ ASSIGN
          i = 0.
 
       PUT SKIP(3)
-          "<R-3><P8>  <U>Machine Routing:</U>    <U>MR STD</U>  <U>RUN STD</U>  <U> #/Hr</U>"
+          "<R-3><P8>  <U>Machine Routing:</U>    <U>MR STD</U>  <U>RUN STD</U>  "
           "<P8>"  SKIP.
       
       FOR EACH w-m BY w-m.dseq:
@@ -909,7 +927,7 @@ ASSIGN
            dSheetPerHours = v-sht-qty / ( iRunHours + (dMinute / 60)) .
         
         IF w-m.dscr <> "" THEN
-        DISPLAY "<C2><P8>" w-m.dscr FORMAT "x(20)"  cStdHours FORMAT "x(6)"  cRunHours FORMAT "x(6)"  dSheetPerHours FORMAT ">>>99.9" "<P10>"  /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
+        DISPLAY "<C2><P8>" w-m.dscr FORMAT "x(20)"  cStdHours FORMAT "x(6)"  cRunHours FORMAT "x(6)"  /*dSheetPerHours FORMAT ">>>99.9"*/ "<P10>"  /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
             WITH NO-BOX NO-LABELS FRAME oo1 WIDTH 150 NO-ATTR-SPACE DOWN STREAM-IO.
         
       END.
@@ -1093,17 +1111,19 @@ ASSIGN
 
         PUT 
             /* btr */
-            "<=1><R+30><C66.8><P10>Ink 1: " v-ink-1
-            "<=1><R+31><C66.8><P10>Ink 2: " v-ink-2
-            "<=1><R+32><C66.8><P10>Ink 3: " v-ink-3
-            "<=1><R+33><C66.8><P10>Ink 4: " v-ink-4
-            "<=1><R+34><C66.8><P10>Ink 5: " v-ink-5
-            "<=1><R+35><C66.8><P10>Ink 6: " v-ink-6
-            "<=1><R+36><C66.8><P10>Ink 7: " v-ink-7
-            "<=1><R+37><C66.8><P10>Ink 8: " v-ink-8
+            "<=1><R+29><C66.8><P10>Ink 1: " v-ink-1
+            "<=1><R+30><C66.8><P10>Ink 2: " v-ink-2
+            "<=1><R+31><C66.8><P10>Ink 3: " v-ink-3
+            "<=1><R+32><C66.8><P10>Ink 4: " v-ink-4
+            "<=1><R+33><C66.8><P10>Ink 5: " v-ink-5
+            "<=1><R+34><C66.8><P10>Ink 6: " v-ink-6
+            "<=1><R+35><C66.8><P10>Ink 7: " v-ink-7
+            "<=1><R+36><C66.8><P10>Ink 8: " v-ink-8
+            "<=1><R+37><C66.8><P10>Ink 9: " v-ink-9
+            "<=1><R+38><C66.8><P10>Ink 10: " v-ink-10
             /* was +30 */
-            "<=1><R+38><C66.8><P10>Color: " v-coldscr FORMAT "x(35)" "<FCourier New>"
-            "<=1><C66><R+39><FROM><C106><LINE><||3>".
+            "<=1><R+39><C66.8><P10>Color: " v-coldscr FORMAT "x(35)" "<FCourier New>"
+            /*"<=1><C66><R+39><FROM><C106><LINE><||3>"*/.
 
         /*PUT "<=1><R+30><C67><P14>" lv-checkbox-2
             "<=1><R+31.5><C67>" lv-checkbox-3 "<P10><FCourier New>".*/
