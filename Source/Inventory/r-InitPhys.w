@@ -514,7 +514,7 @@ SESSION:SET-WAIT-STATE ("general").
       INPUT fiToCycleCode,
       input fAddSpaceToList(fiWhseList),
       INPUT iSnapshotID,
-      INPUT ficSnapshotDesc,
+      INPUT ficSnapshotDesc + " - " + STRING(iSnapshotId),
       OUTPUT lSuccess
       ).  
       
