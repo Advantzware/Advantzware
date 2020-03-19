@@ -739,18 +739,19 @@ PROCEDURE pProcessRecord PRIVATE:
                                 ELSE
                                     0.01
                 NO-ERROR.
-                
-            RUN pValidatePoAccountNumber (
-                INPUT  ipbf-ttImportAP1.Company,
-                INPUT  iLinePONumber,
-                INPUT  iIndex,
-                INPUT  cLineAccount,
-                INPUT  dLineQuantity,
-                INPUT  dLinePrice,
-                INPUT-OUTPUT lHold,
-                OUTPUT lItemtype,
-                INPUT-OUTPUT cHoldNote
-                ).
+            
+            IF iLinePONumber NE 0 THEN    
+                RUN pValidatePoAccountNumber (
+                    INPUT  ipbf-ttImportAP1.Company,
+                    INPUT  iLinePONumber,
+                    INPUT  iIndex,
+                    INPUT  cLineAccount,
+                    INPUT  dLineQuantity,
+                    INPUT  dLinePrice,
+                    INPUT-OUTPUT lHold,
+                    OUTPUT lItemtype,
+                    INPUT-OUTPUT cHoldNote
+                    ).
             
             IF AVAILABLE ap-inv THEN DO:
                 FIND FIRST ap-invl NO-LOCK 
