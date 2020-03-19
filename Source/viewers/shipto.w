@@ -155,7 +155,8 @@ shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
 shipto.exportCustID shipto.dock-loc shipto.dock-hour shipto.del-chg ~
 shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
 shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill ~
-shipto.spare-char-3 shipto.siteID 
+shipto.overUnderEnabled shipto.overs shipto.unders shipto.spare-char-3 ~
+shipto.siteID 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
 &Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
@@ -168,7 +169,8 @@ shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
 shipto.spare-char-5 shipto.exportCustID shipto.dock-loc shipto.dock-hour ~
 shipto.del-chg shipto.del-time shipto.spare-int-1 shipto.spare-int-2 ~
 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
-shipto.bill shipto.spare-char-3 shipto.siteID 
+shipto.bill shipto.overUnderEnabled shipto.overs shipto.unders ~
+shipto.spare-char-3 shipto.siteID 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
 &Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber ~
@@ -241,11 +243,11 @@ DEFINE VARIABLE fi_sname AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 108 BY 10.48.
+     SIZE 107.8 BY 10.48.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 40 BY 18.81.
+     SIZE 40 BY 20.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -316,7 +318,7 @@ DEFINE FRAME F-Main
      shipto.tax-mandatory AT ROW 14.19 COL 87.8
           LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
-          SIZE 21.8 BY .81
+          SIZE 20.2 BY .81
      shipto.notes[1] AT ROW 16 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 94 BY 1
@@ -330,26 +332,26 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 94 BY 1
      ship_note AT ROW 16 COL 5 NO-LABEL
-     shipto.loc AT ROW 1.62 COL 125 COLON-ALIGNED
+     shipto.loc AT ROW 1.43 COL 125 COLON-ALIGNED
           LABEL "Warehouse"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           FONT 4
-     shipto.loc-bin AT ROW 2.57 COL 125 COLON-ALIGNED
+     shipto.loc-bin AT ROW 2.38 COL 125 COLON-ALIGNED
           LABEL "Bin"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     shipto.carrier AT ROW 3.52 COL 124.8 COLON-ALIGNED
+     shipto.carrier AT ROW 3.33 COL 124.8 COLON-ALIGNED
           LABEL "Carrier"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           FONT 4
-     shipto.dest-code AT ROW 4.48 COL 124.8 COLON-ALIGNED
+     shipto.dest-code AT ROW 4.29 COL 124.8 COLON-ALIGNED
           LABEL "Zone"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           FONT 4
-     shipto.pallet AT ROW 5.43 COL 124.8 COLON-ALIGNED
+     shipto.pallet AT ROW 5.24 COL 124.8 COLON-ALIGNED
           LABEL "Pallet"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -360,78 +362,99 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     shipto.spare-char-4 AT ROW 6.43 COL 124.8 COLON-ALIGNED
+     shipto.spare-char-4 AT ROW 6.24 COL 124.8 COLON-ALIGNED
           LABEL "Shipper ID"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     shipto.spare-char-5 AT ROW 7.43 COL 124.8 COLON-ALIGNED
+     shipto.spare-char-5 AT ROW 7.24 COL 124.8 COLON-ALIGNED
           LABEL "Member #"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     shipto.exportCustID AT ROW 8.43 COL 124.8 COLON-ALIGNED
+     shipto.exportCustID AT ROW 8.24 COL 124.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     shipto.dock-loc AT ROW 9.43 COL 124.8 COLON-ALIGNED
+     shipto.dock-loc AT ROW 9.24 COL 124.8 COLON-ALIGNED
           LABEL "Dock#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     shipto.dock-hour AT ROW 10.43 COL 124.8 COLON-ALIGNED
+     shipto.dock-hour AT ROW 10.24 COL 124.8 COLON-ALIGNED
           LABEL "Dock Hours" FORMAT "X(20)"
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     shipto.del-chg AT ROW 11.48 COL 129.4 COLON-ALIGNED
+     shipto.del-chg AT ROW 11.29 COL 129.4 COLON-ALIGNED
           LABEL "Charge"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
           FONT 4
-     shipto.del-time AT ROW 12.76 COL 129.6 COLON-ALIGNED HELP
+     shipto.del-time AT ROW 12.57 COL 129.6 COLON-ALIGNED HELP
           "Enter Transit Days to Delivery to this Ship To Location."
           LABEL "Transit  Days"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           FONT 4
-     shipto.spare-int-1 AT ROW 13.71 COL 129.6 COLON-ALIGNED HELP
+     shipto.spare-int-1 AT ROW 13.52 COL 129.6 COLON-ALIGNED HELP
           "Enter Days needed in advance of Ship Date that Sample are Sent?"
           LABEL "Samples"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           FONT 4
-     shipto.spare-int-2 AT ROW 14.67 COL 129.6 COLON-ALIGNED HELP
+     shipto.spare-int-2 AT ROW 14.48 COL 129.6 COLON-ALIGNED HELP
           "Enter Days for Dock Appointment in advance of Ship Date ."
           LABEL "Dock Appt"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           FONT 4
-     shipto.spare-int-3 AT ROW 15.62 COL 129.6 COLON-ALIGNED HELP
+     shipto.spare-int-3 AT ROW 15.43 COL 129.6 COLON-ALIGNED HELP
           "Days prior to the shipment date that a delivery is allowed."
           LABEL "Earliest Allowed"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           FONT 4
-     shipto.spare-int-4 AT ROW 16.62 COL 129.6 COLON-ALIGNED HELP
+     shipto.spare-int-4 AT ROW 16.43 COL 129.6 COLON-ALIGNED HELP
           "Enter Days after Targeted Release Date before Shipment is Late."
           LABEL "Latest Allowed"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           FONT 4
-     shipto.ship-meth AT ROW 17.86 COL 125 NO-LABEL
+     shipto.ship-meth AT ROW 17.62 COL 125 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Case", yes,
 "Pallet", no
           SIZE 23 BY .95
-     shipto.broker AT ROW 18.86 COL 115
+     shipto.broker AT ROW 18.52 COL 115
           LABEL "Broker?"
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
-     shipto.bill AT ROW 18.86 COL 146.2 RIGHT-ALIGNED
+     shipto.bill AT ROW 18.52 COL 146.2 RIGHT-ALIGNED
           LABEL "Billable"
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
+     shipto.overUnderEnabled AT ROW 19.91 COL 112
+          LABEL "Enabled"
+          VIEW-AS TOGGLE-BOX
+          SIZE 15.4 BY .81
+     shipto.overs AT ROW 19.33 COL 136.2 COLON-ALIGNED
+          LABEL "Over%" FORMAT ">>9.99%"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY .85
+          FONT 4
+     shipto.unders AT ROW 20.14 COL 136.2 COLON-ALIGNED
+          LABEL "Under%" FORMAT ">>9.99%"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY .85
+          FONT 4
      shipto.spare-char-3 AT ROW 14.1 COL 15 COLON-ALIGNED NO-LABEL FORMAT "x(45)"
           VIEW-AS FILL-IN 
           SIZE 43.4 BY 1
           FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      shipto.siteID AT ROW 15 COL 71 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS FILL-IN 
           SIZE 21.2 BY 1
@@ -443,20 +466,13 @@ DEFINE FRAME F-Main
           SIZE 3 BY .48 AT ROW 17.67 COL 2
      "E" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 18.38 COL 2
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "S" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 19.14 COL 2
      "Shp Meth.:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 17.95 COL 112.4
+          SIZE 12 BY .62 AT ROW 17.76 COL 112.4
      RECT-1 AT ROW 9.81 COL 1
      RECT-2 AT ROW 1.24 COL 110 WIDGET-ID 4
-     RECT-3 AT ROW 12.57 COL 111 WIDGET-ID 6
+     RECT-3 AT ROW 12.38 COL 111 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -490,7 +506,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.86
+         HEIGHT             = 20.33
          WIDTH              = 149.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -565,6 +581,10 @@ ASSIGN
 ASSIGN 
        shipto.notes[4]:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN shipto.overs IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR TOGGLE-BOX shipto.overUnderEnabled IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN shipto.pallet IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN shipto.phone IN FRAME F-Main
@@ -603,6 +623,8 @@ ASSIGN
    2 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
    NO-ENABLE 5                                                          */
+/* SETTINGS FOR FILL-IN shipto.unders IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -740,7 +762,25 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+     
+&Scoped-define SELF-NAME shipto.overUnderEnabled
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.overUnderEnabled V-table-Win
+ON VALUE-CHANGED OF shipto.overUnderEnabled IN FRAME F-Main /* overunderEnable? */
+DO:
+     IF shipto.overUnderEnabled:SCREEN-VALUE EQ "No" THEN
+     DO:
+         ASSIGN shipto.overs:SENSITIVE = NO
+                shipto.Unders:SENSITIVE = NO .         
+     END.
+     ELSE DO:
+         ASSIGN shipto.overs:SENSITIVE = YES
+                shipto.Unders:SENSITIVE = YES .
+     END.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME shipto.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.carrier V-table-Win
@@ -1118,6 +1158,13 @@ PROCEDURE enable-shipto :
     IF glShipNotesExpanded EQ YES THEN DO:
        ENABLE ship_note.
     END.
+    IF shipto.overUnderEnabled:SCREEN-VALUE EQ "No" THEN
+     DO:
+         DISABLE shipto.overs shipto.Unders.         
+     END.
+     ELSE DO:
+         ENABLE shipto.overs shipto.Unders .
+     END.
   END.
 
 END PROCEDURE.

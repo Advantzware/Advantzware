@@ -836,9 +836,12 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE cOldShipto AS CHARACTER NO-UNDO.
+   
   /* Code placed here will execute PRIOR to standard behavior. */
-
+   cOldShipto = IF AVAIL ar-inv THEN ar-inv.ship-id ELSE "" . 
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -849,9 +852,21 @@ PROCEDURE local-assign-record :
   DO WITH FRAME {&FRAME-NAME}:     
      ar-inv.ediInvoice = tbEdiInvoice:SCREEN-VALUE EQ "YES".  
   END. 
-  IF adm-adding-record THEN DO:
-    FIND FIRST cust WHERE cust.company = g_company
+  
+  FIND FIRST cust WHERE cust.company = g_company
                     AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+  FIND FIRST shipto WHERE shipto.company = g_company 
+                       AND shipto.cust-no = ar-inv.cust-no
+                       AND shipto.ship-id = ar-inv.ship-id
+                       NO-LOCK NO-ERROR.
+    IF cOldShipto NE ar-inv.ship-id then do:                    
+     RUN oe/GetOverUnderPct.p(INPUT cocode,INPUT ROWID(cust),INPUT ( IF AVAIL shipto THEN ROWID(shipto) ELSE ?), 
+                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                           ar-inv.over-pct = dOverPer.
+                           ar-inv.Under-pct = dUnderPer. 
+    END.
+                    
+  IF adm-adding-record THEN DO:    
     IF AVAIL cust THEN ASSIGN ar-inv.addr[1] = cust.addr[1]
                               ar-inv.addr[2] = cust.addr[2]
                               ar-inv.city = cust.city
