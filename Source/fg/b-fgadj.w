@@ -1169,9 +1169,13 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
    /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   ld-cost = 0
-   lv-uom  = "EA".
+  IF AVAIL fg-rctd THEN
+  DO:
+     ASSIGN
+      ld-cost = fg-rctd.ext-cost
+      lv-uom  = fg-rctd.pur-uom .      
+  END.
+  
   /*IF NOT adm-new-record THEN RUN new-bin.*/
 
   DO WITH FRAME {&FRAME-NAME}:
