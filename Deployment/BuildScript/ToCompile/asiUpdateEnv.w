@@ -4646,6 +4646,10 @@ PROCEDURE ipLoadOEAutoApproveNK1s:
                 ASSIGN
                     {&tablename}.company = company.company 
                     {&tablename}.log-fld = FALSE.
+                /* 64504 Remove any change that turns off CreditHold */
+                IF {&tablename}.name EQ "CreditHold" 
+                AND {&tablename}.log-fld EQ FALSE THEN ASSIGN 
+                    {&tablename}.log-fld = TRUE.
             END.
         END.
     END.
