@@ -184,7 +184,8 @@ PROCEDURE postMonitor:
                 
         FOR EACH asi._connect NO-LOCK WHERE 
             CAN-DO("REMC,SELF",asi._connect._connect-type) AND
-            asi._connect._connect-clienttype NE "SQLC":
+            asi._connect._connect-clienttype NE "SQLC" AND
+            asi._connect._connect-clienttype NE "APSV":
             IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(asi._connect._connect-time),"seconds") LE 30 THEN 
                 NEXT.                
             IF CAN-FIND (FIRST userLog WHERE 
@@ -201,7 +202,8 @@ PROCEDURE postMonitor:
         testasi:
         FOR EACH asi._connect NO-LOCK WHERE 
             CAN-DO("REMC,SELF",asi._connect._connect-type) AND
-            asi._connect._connect-clienttype NE "SQLC":
+            asi._connect._connect-clienttype NE "SQLC" AND 
+            asi._connect._connect-clienttype NE "APSV":
             IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(asi._connect._connect-time),"seconds") LE 30 THEN 
                 NEXT.                
             IF CAN-FIND (FIRST userLog WHERE 
@@ -215,7 +217,8 @@ PROCEDURE postMonitor:
         testaudit:
         FOR EACH audit._connect NO-LOCK WHERE 
             CAN-DO("REMC,SELF",audit._connect._connect-type) AND
-            audit._connect._connect-clienttype NE "SQLC": 
+            audit._connect._connect-clienttype NE "SQLC" AND 
+            audit._connect._connect-clienttype NE "APSV": 
             IF INTERVAL(DATETIME(TODAY, MTIME),fGetDtTmFromConnectTime(audit._connect._connect-time),"seconds") LE 30 THEN 
                 NEXT.                
             IF CAN-FIND (FIRST userLog WHERE 
