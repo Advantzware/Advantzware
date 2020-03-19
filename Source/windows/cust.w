@@ -557,7 +557,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-cstshp ).
-       RUN set-position IN h_p-cstshp ( 24.00 , 31.00 ) NO-ERROR.
+       RUN set-position IN h_p-cstshp ( 24.80 , 31.00 ) NO-ERROR.
        RUN set-size IN h_p-cstshp ( 1.67 , 92.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
