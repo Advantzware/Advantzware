@@ -4104,7 +4104,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type,Zone".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type,Zone,CreatedBy,CreateDate,CreateTime,PrintDate,PrintTime".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -8462,7 +8462,13 @@ PROCEDURE write-loadtag-line :
         "~"" w-ord.job-qty "~","
         "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"," 
         "~"" STRING(loadtag.pallet-no)  "~"," 
-        "~"" STRING(w-ord.zone)  "~"".
+        "~"" STRING(w-ord.zone)  "~","
+        "~"" loadtag.createUser "~","
+        "~"" STRING(loadtag.tag-date,"99/99/9999") "~","
+        "~"" STRING(loadtag.tag-time,"HH:MM") IF loadtag.tag-time LT 43410 THEN " AM" ELSE " PM" "~","
+        "~"" STRING(TODAY,"99/99/9999") "~","
+        "~"" STRING(TIME,"HH:MM") IF TIME LT 43140 THEN " AM" ELSE " PM" "~" ".
+        .
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
