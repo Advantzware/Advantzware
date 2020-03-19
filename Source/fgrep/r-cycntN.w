@@ -124,7 +124,7 @@ ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
                             "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no" 
-       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,7"
+       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9"
        cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c" 
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
@@ -1731,6 +1731,7 @@ DEF VAR excelheader  AS CHAR                 NO-UNDO.
 DEF VAR lCountedDateSelected AS LOG NO-UNDO.
 DEF BUFFER bfg-bin FOR fg-bin .                                        
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cPoNo AS CHARACTER NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 ASSIGN
@@ -1946,7 +1947,16 @@ ELSE DO:
    v-sellValue = IF AVAIL oe-ordl THEN oe-ordl.price * (1 - (oe-ordl.disc / 100)) 
                  ELSE itemfg.sell-price.
 
-  cSellUom = IF AVAIL oe-ordl THEN oe-ordl.pr-uom ELSE itemfg.sell-uom .   
+  cSellUom = IF AVAIL oe-ordl THEN oe-ordl.pr-uom ELSE itemfg.sell-uom .
+  cPoNo = IF fg-bin.po-no NE "" THEN fg-bin.po-no ELSE "" .
+   IF fg-bin.po-no NE "" THEN DO:
+    FIND FIRST po-ordl NO-LOCK
+      WHERE po-ordl.company EQ cocode 
+        AND po-ordl.po-no EQ  INTEGER(fg-bin.po-no) 
+        AND po-ordl.i-no EQ itemfg.i-no NO-ERROR . 
+    IF AVAIL po-ordl THEN
+       cPoNo = cPoNo + "-" + STRING(po-ordl.LINE,"99") .
+   END.
 
    IF fg-bin.pur-uom NE "" THEN
    DO:
@@ -2004,7 +2014,7 @@ ELSE DO:
                  WHEN "v-sellUom" THEN cVarValue = STRING(cSellUom).
                  WHEN "cFirstTrxDt" THEN cVarValue = IF dTrxDate <> ? THEN string(dTrxDate,"99/99/9999") ELSE "".
                  WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
-                 WHEN "po-no" THEN cVarValue = IF fg-bin.po-no NE "" THEN string(fg-bin.po-no,"x(7)") ELSE "" .
+                 WHEN "po-no" THEN cVarValue =  STRING(cPoNo,"x(9)") .
                  
             END CASE.
             cExcelVarValue = cVarValue.  
