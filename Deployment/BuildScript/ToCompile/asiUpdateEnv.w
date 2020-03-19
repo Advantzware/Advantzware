@@ -2593,6 +2593,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161401.
     IF fIntVer(cThisEntry) LT 16150000 THEN  
         RUN ipDataFix161500.
+    IF fIntVer(cThisEntry) LT 20010000 THEN  
+        RUN ipDataFix200100.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3039,6 +3041,31 @@ END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200100 C-Win
+PROCEDURE ipDataFix200100:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200100...").
+
+/*  64833 Set by default to output Estimate data */
+    FOR EACH sys-ctrl WHERE 
+        sys-ctrl.name EQ "CECostSave":
+        ASSIGN 
+            sys-ctrl.log-fld = TRUE
+            sys-ctrl.int-fld = 0.
+    END. 
+     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
