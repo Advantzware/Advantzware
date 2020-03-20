@@ -1187,6 +1187,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity2" THEN DO:
@@ -1195,6 +1196,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity3"  THEN DO:
@@ -1203,6 +1205,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity4" THEN DO:
@@ -1211,6 +1214,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity5"  THEN DO:
@@ -1219,6 +1223,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity6" THEN do:
@@ -1227,6 +1232,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity7" THEN DO:
@@ -1235,6 +1241,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity8" THEN DO:
@@ -1243,6 +1250,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity9"  THEN DO:
@@ -1251,6 +1259,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                        WHEN "levelQuantity10" THEN DO:
@@ -1259,6 +1268,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
                          END.
                        END.
                END CASE.
@@ -1403,60 +1413,70 @@ FOR EACH ttRptSelected:
             lc-header = lc-header + appendXLLine("Cost Per 1").
             lc-header = lc-header + appendXLLine("Setup 1").
             lc-header = lc-header + appendXLLine("Deviation Cost 1").
+            lc-header = lc-header + appendXLLine("Lead Time 1").
         END.
         WHEN "levelQuantity2"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 2").
             lc-header = lc-header + appendXLLine("Cost Per 2").
             lc-header = lc-header + appendXLLine("Setup 2").
             lc-header = lc-header + appendXLLine("Deviation Cost 2").
+            lc-header = lc-header + appendXLLine("Lead Time 2").
         END.
         WHEN "levelQuantity3"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 3").
             lc-header = lc-header + appendXLLine("Cost Per 3").
             lc-header = lc-header + appendXLLine("Setup 3").
             lc-header = lc-header + appendXLLine("Deviation Cost 3").
+            lc-header = lc-header + appendXLLine("Lead Time 3").
         END.
         WHEN "levelQuantity4"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 4").
             lc-header = lc-header + appendXLLine("Cost Per 4").
             lc-header = lc-header + appendXLLine("Setup 4").
             lc-header = lc-header + appendXLLine("Deviation Cost 4").
+            lc-header = lc-header + appendXLLine("Lead Time 4").
         END.
         WHEN "levelQuantity5"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 5").
             lc-header = lc-header + appendXLLine("Cost Per 5").
             lc-header = lc-header + appendXLLine("Setup 5").
             lc-header = lc-header + appendXLLine("Deviation Cost 5").
+            lc-header = lc-header + appendXLLine("Lead Time 5").
         END.
         WHEN "levelQuantity6"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 6").
             lc-header = lc-header + appendXLLine("Cost Per 6").
             lc-header = lc-header + appendXLLine("Setup 6").
             lc-header = lc-header + appendXLLine("Deviation Cost 6").
+            lc-header = lc-header + appendXLLine("Lead Time 6").
         END.
         WHEN "levelQuantity7"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 7").
             lc-header = lc-header + appendXLLine("Cost Per 7").
             lc-header = lc-header + appendXLLine("Setup 7").
             lc-header = lc-header + appendXLLine("Deviation Cost 7").
+            lc-header = lc-header + appendXLLine("Lead Time 7").
         END.
         WHEN "levelQuantity8"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 8").
             lc-header = lc-header + appendXLLine("Cost Per 8").
             lc-header = lc-header + appendXLLine("Setup 8").
             lc-header = lc-header + appendXLLine("Deviation Cost 8").
+            lc-header = lc-header + appendXLLine("Lead Time 8").
         END.
         WHEN "levelQuantity9"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 9").
             lc-header = lc-header + appendXLLine("Cost Per 9").
             lc-header = lc-header + appendXLLine("Setup 9").
             lc-header = lc-header + appendXLLine("Deviation Cost 9").
+            lc-header = lc-header + appendXLLine("Lead Time 9").
         END.
         WHEN "levelQuantity10"  THEN DO:
             lc-header = lc-header + appendXLLine("Level Quantity 10").
             lc-header = lc-header + appendXLLine("Cost Per 10").
             lc-header = lc-header + appendXLLine("Setup 10").
             lc-header = lc-header + appendXLLine("Deviation Cost 10").
+            lc-header = lc-header + appendXLLine("Lead Time 10").
         END.
        
       END CASE.
