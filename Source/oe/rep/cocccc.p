@@ -311,7 +311,7 @@ FOR EACH report
 /*                            ASSIGN cBoard = "12PT/ABC/C1S". */
 /*                           ELSE                             */
                             ASSIGN cBoard = cBoard + "/C1S".  
-                       END.
+/*                       END.  */
                        IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:
                         /*    IF AVAIL eb THEN                                  */
                         /*        FIND FIRST prodl NO-LOCK                      */
