@@ -3060,6 +3060,12 @@ PROCEDURE ipDataFix200100:
             sys-ctrl.int-fld = 0.
     END. 
      
+    /* 64504 Credit hold - Remove any change that turns off Credit Hold upon upgrade */
+    FOR EACH sys-ctrl WHERE 
+        sys-ctrl.name EQ "CreditHold":
+        ASSIGN 
+            sys-ctrl.log-fld = TRUE.
+    END. 
 
 END PROCEDURE.
 	
