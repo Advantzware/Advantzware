@@ -558,9 +558,7 @@ lcTableList =
 "fgcat," +
 "flute," +
 "account," +
-"gl-rptd," +
 "gl-ctrl," +
-"gl-freq," +
 "gl-jrn," +
 "gl-rpt," +
 "glhist," +

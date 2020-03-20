@@ -66,7 +66,7 @@ tg_ar-ctrl tg_bank tg_buyer tg_carr-mtx tg_carrier tg_ce-ctrl tg_costtype ~
 tg_crew tg_currency tg_cust tg_cust-markup tg_db-ctrl tg_e-item ~
 tg_cust-part tg_cust-prod-sales tg_custype tg_e-itemfg-vend tg_emp ~
 tg_e-item-cust tg_e-item-vend tg_e-itemfg tg_fg-act tg_fg-bin tg_fg-ctrl ~
-tg_fg-set tg_fgcat tg_flute tg_gl-ctrl tg_gl-rpt tg_gl-rptd tg_item ~
+tg_fg-set tg_fgcat tg_flute tg_gl-ctrl tg_gl-rpt tg_item ~
 tg_item-bom tg_item-spec tg_itemfg tg_itemfg-bom tg_itemfg-ink tg_loadtag ~
 tg_loc tg_itemfg-loc tg_itemfgdtl tg_jc-ctrl tg_mach tg_mach-adder ~
 tg_mach-calendar tg_mat-act tg_matprep tg_mmtx tg_mmty tg_mstd tg_oe-ctrl ~
@@ -82,7 +82,7 @@ tg_bank tg_buyer tg_carr-mtx tg_carrier tg_ce-ctrl tg_costtype tg_crew ~
 tg_currency tg_cust tg_cust-markup tg_db-ctrl tg_e-item tg_cust-part ~
 tg_cust-prod-sales tg_custype tg_e-itemfg-vend tg_emp tg_e-item-cust ~
 tg_e-item-vend tg_e-itemfg tg_fg-act tg_fg-bin tg_fg-ctrl tg_fg-set ~
-tg_fgcat tg_flute tg_gl-ctrl tg_gl-rpt tg_gl-rptd tg_item tg_item-bom ~
+tg_fgcat tg_flute tg_gl-ctrl tg_gl-rpt tg_item tg_item-bom ~
 tg_item-spec tg_itemfg tg_itemfg-bom tg_itemfg-ink tg_loadtag tg_loc ~
 tg_itemfg-loc tg_itemfgdtl tg_jc-ctrl tg_mach tg_mach-adder ~
 tg_mach-calendar tg_mat-act tg_matprep tg_mmtx tg_mmty tg_mstd tg_oe-ctrl ~
@@ -320,11 +320,6 @@ DEFINE VARIABLE tg_gl-ctrl AS LOGICAL INITIAL yes
 
 DEFINE VARIABLE tg_gl-rpt AS LOGICAL INITIAL yes 
      LABEL "gl-rpt?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 TOOLTIP "General Ledger Report Writer File" NO-UNDO.
-
-DEFINE VARIABLE tg_gl-rptd AS LOGICAL INITIAL yes 
-     LABEL "gl-rptd?" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "General Ledger Report Writer File" NO-UNDO.
 
@@ -602,7 +597,6 @@ DEFINE FRAME DEFAULT-FRAME
      tg_flute AT ROW 9.71 COL 4.8 WIDGET-ID 14
      tg_gl-ctrl AT ROW 9.71 COL 24.8 WIDGET-ID 66
      tg_gl-rpt AT ROW 9.71 COL 45 WIDGET-ID 84
-     tg_gl-rptd AT ROW 9.71 COL 66 WIDGET-ID 32
      tg_item AT ROW 9.71 COL 88.2 WIDGET-ID 46
      tg_item-bom AT ROW 10.62 COL 4.8 WIDGET-ID 16
      tg_item-spec AT ROW 10.62 COL 24.8 WIDGET-ID 68
@@ -877,7 +871,7 @@ PROCEDURE enable_UI :
           tg_cust-markup tg_db-ctrl tg_e-item tg_cust-part tg_cust-prod-sales 
           tg_custype tg_e-itemfg-vend tg_emp tg_e-item-cust tg_e-item-vend 
           tg_e-itemfg tg_fg-act tg_fg-bin tg_fg-ctrl tg_fg-set tg_fgcat tg_flute 
-          tg_gl-ctrl tg_gl-rpt tg_gl-rptd tg_item tg_item-bom tg_item-spec 
+          tg_gl-ctrl tg_gl-rpt tg_item tg_item-bom tg_item-spec 
           tg_itemfg tg_itemfg-bom tg_itemfg-ink tg_loadtag tg_loc tg_itemfg-loc 
           tg_itemfgdtl tg_jc-ctrl tg_mach tg_mach-adder tg_mach-calendar 
           tg_mat-act tg_matprep tg_mmtx tg_mmty tg_mstd tg_oe-ctrl 
@@ -892,7 +886,7 @@ PROCEDURE enable_UI :
          tg_currency tg_cust tg_cust-markup tg_db-ctrl tg_e-item tg_cust-part 
          tg_cust-prod-sales tg_custype tg_e-itemfg-vend tg_emp tg_e-item-cust 
          tg_e-item-vend tg_e-itemfg tg_fg-act tg_fg-bin tg_fg-ctrl tg_fg-set 
-         tg_fgcat tg_flute tg_gl-ctrl tg_gl-rpt tg_gl-rptd tg_item tg_item-bom 
+         tg_fgcat tg_flute tg_gl-ctrl tg_gl-rpt tg_item tg_item-bom 
          tg_item-spec tg_itemfg tg_itemfg-bom tg_itemfg-ink tg_loadtag tg_loc 
          tg_itemfg-loc tg_itemfgdtl tg_jc-ctrl tg_mach tg_mach-adder 
          tg_mach-calendar tg_mat-act tg_matprep tg_mmtx tg_mmty tg_mstd tg_oe-ctrl 

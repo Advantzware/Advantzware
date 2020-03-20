@@ -99,11 +99,9 @@ PROCEDURE fixTables:
   RUN fixFLUTE.
   RUN fixFRACTION.
   RUN fixGL-CTRL.
-  RUN fixGL-FREQ.
   RUN fixGL-JRN.
   RUN fixGL-JRNL.
   RUN fixGL-RPT.
-  RUN fixGL-RPTD.
   RUN fixGLHIST.
   RUN fixGLTRANS.
   RUN fixINV-HEAD.
@@ -1831,22 +1829,6 @@ PROCEDURE fixGL-CTRL:
   RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
 END PROCEDURE.
  
-PROCEDURE fixGL-FREQ:
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  DISABLE TRIGGERS FOR LOAD OF gl-freq.
- 
-  IF NOT CAN-FIND(FIRST gl-freq WHERE gl-freq.rec_key EQ '') THEN RETURN.
-  RUN msg ('Processing gl-freq ... ').
-  FOR EACH gl-freq EXCLUSIVE-LOCK WHERE gl-freq.rec_key EQ '':
-    ASSIGN
-      gl-freq.rec_key = nextRecKey()
-      i = i + 1.
-    RUN createRecKey (gl-freq.rec_key,'gl-freq').
-  END.
-  RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
-END PROCEDURE.
- 
 PROCEDURE fixGL-JRN:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
@@ -1891,22 +1873,6 @@ PROCEDURE fixGL-RPT:
       gl-rpt.rec_key = nextRecKey()
       i = i + 1.
     RUN createRecKey (gl-rpt.rec_key,'gl-rpt').
-  END.
-  RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
-END PROCEDURE.
- 
-PROCEDURE fixGL-RPTD:
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  DISABLE TRIGGERS FOR LOAD OF gl-rptd.
- 
-  IF NOT CAN-FIND(FIRST gl-rptd WHERE gl-rptd.rec_key EQ '') THEN RETURN.
-  RUN msg ('Processing gl-rptd ... ').
-  FOR EACH gl-rptd EXCLUSIVE-LOCK WHERE gl-rptd.rec_key EQ '':
-    ASSIGN
-      gl-rptd.rec_key = nextRecKey()
-      i = i + 1.
-    RUN createRecKey (gl-rptd.rec_key,'gl-rptd').
   END.
   RUN msg ('Fixed ' + STRING(i) + ' Records' + CHR(10)).
 END PROCEDURE.
