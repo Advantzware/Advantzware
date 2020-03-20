@@ -76,6 +76,7 @@ DEFINE VARIABLE iNumofCADForm    AS INTEGER NO-UNDO.
 DEFINE VARIABLE iProjectCount    AS INTEGER INIT 50 NO-UNDO.
 DEFINE VARIABLE lv-copy-qty      AS INTEGER EXTENT 20 NO-UNDO.
 DEFINE VARIABLE lv-copy-rel      AS INTEGER EXTENT 20 NO-UNDO.
+DEFINE VARIABLE cLogicalRunShip  AS CHARACTER EXTENT 20 NO-UNDO.
 DEFINE VARIABLE lv-crt-est-rowid AS ROWID   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
@@ -1056,9 +1057,10 @@ DO:
         DEFINE VARIABLE char-val2  AS cha   NO-UNDO.        
         DEFINE VARIABLE date-val   AS cha   NO-UNDO.
         DEFINE VARIABLE date-val2  AS cha   NO-UNDO.
+        DEFINE VARIABLE cLogicalVal  AS CHARACTER NO-UNDO.
 
     
-        run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE,ipriRowid, output char-val, output char-val2, output date-val, output date-val2) .
+        run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE,ipriRowid, output char-val, output char-val2, output date-val, output date-val2, OUTPUT cLogicalVal) .
         if char-val <> "?" 
            then assign quantity:screen-value = entry(1,char-val)
                        lv-copy-qty[1] = integer(entry(1,char-val))
@@ -1102,7 +1104,31 @@ DO:
                        lv-copy-rel[18] = integer(entry(18,char-val2))  
                        lv-copy-rel[19] = integer(entry(19,char-val2))  
                        lv-copy-rel[20] = integer(entry(20,char-val2)) 
-            .
+            .  
+          IF cLogicalVal NE "?"   THEN   
+             ASSIGN                   
+               cLogicalRunShip[1] = STRING(entry(1,cLogicalVal))
+               cLogicalRunShip[2] = STRING(entry(2,cLogicalVal))
+               cLogicalRunShip[3] = STRING(entry(3,cLogicalVal))
+               cLogicalRunShip[4] = STRING(entry(4,cLogicalVal))
+               cLogicalRunShip[5] = STRING(entry(5,cLogicalVal))
+               cLogicalRunShip[6] = STRING(entry(6,cLogicalVal))
+               cLogicalRunShip[7] = STRING(entry(7,cLogicalVal))
+               cLogicalRunShip[8] = STRING(entry(8,cLogicalVal))
+               cLogicalRunShip[9] = STRING(entry(9,cLogicalVal))
+               cLogicalRunShip[10] = STRING(entry(10,cLogicalVal))
+               cLogicalRunShip[11] = STRING(entry(11,cLogicalVal))
+               cLogicalRunShip[12] = STRING(entry(12,cLogicalVal))  
+               cLogicalRunShip[13] = STRING(entry(13,cLogicalVal))  
+               cLogicalRunShip[14] = STRING(entry(14,cLogicalVal))  
+               cLogicalRunShip[15] = STRING(entry(15,cLogicalVal))  
+               cLogicalRunShip[16] = STRING(entry(16,cLogicalVal))  
+               cLogicalRunShip[17] = STRING(entry(17,cLogicalVal))  
+               cLogicalRunShip[18] = STRING(entry(18,cLogicalVal))  
+               cLogicalRunShip[19] = STRING(entry(19,cLogicalVal))  
+               cLogicalRunShip[20] = STRING(entry(20,cLogicalVal)) . 
+            ELSE cLogicalRunShip[1] = "?" .   
+                
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1204,7 +1230,8 @@ DO:
 
             IF AVAILABLE style THEN do:
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
-                       sub-unit:SCREEN-VALUE   = style.spare-char-5.
+                       sub-unit:SCREEN-VALUE   = style.spare-char-5.                        
+                       RUN pGetBoardFromStyle(style.style).
                        RUN pDefaultPackInfo .
             END.
         END.
@@ -1230,7 +1257,7 @@ DO:
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
 
             IF AVAILABLE style THEN
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr.
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
         END.
     END.
 
@@ -1245,10 +1272,11 @@ DO:
         DO:
             FIND FIRST style NO-LOCK WHERE style.company = cocode
                 AND style.style EQ SELF:SCREEN-VALUE  NO-ERROR .
-
+                         
             IF AVAILABLE style THEN do:
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
-                       sub-unit:SCREEN-VALUE   = style.spare-char-5.
+                       sub-unit:SCREEN-VALUE   = style.spare-char-5 .
+                RUN pGetBoardFromStyle(style.style).                          
                 RUN pDefaultPackInfo .
             END.
         END.
@@ -1498,9 +1526,66 @@ PROCEDURE create-ttfrmout :
          ttInputEst.copy-rel[17] = lv-copy-rel[17] 
          ttInputEst.copy-rel[18] = lv-copy-rel[18] 
          ttInputEst.copy-rel[19] = lv-copy-rel[19] 
-         ttInputEst.copy-rel[20] = lv-copy-rel[20] .
+         ttInputEst.copy-rel[20] = lv-copy-rel[20] .    
      
-    
+     IF cLogicalRunShip[1] NE "" THEN
+        ASSIGN
+         ttInputEst.copy-runship[1] = cLogicalRunShip[1]
+         ttInputEst.copy-runship[2] = cLogicalRunShip[2]
+         ttInputEst.copy-runship[3] = cLogicalRunShip[3]
+         ttInputEst.copy-runship[4] = cLogicalRunShip[4]
+         ttInputEst.copy-runship[5] = cLogicalRunShip[5]
+         ttInputEst.copy-runship[6] = cLogicalRunShip[6]
+         ttInputEst.copy-runship[7] = cLogicalRunShip[7]
+         ttInputEst.copy-runship[8] = cLogicalRunShip[8]
+         ttInputEst.copy-runship[9] = cLogicalRunShip[9]
+         ttInputEst.copy-runship[10] = cLogicalRunShip[10]
+         ttInputEst.copy-runship[11] = cLogicalRunShip[11]
+         ttInputEst.copy-runship[12] = cLogicalRunShip[12]
+         ttInputEst.copy-runship[13] = cLogicalRunShip[13]
+         ttInputEst.copy-runship[14] = cLogicalRunShip[14]
+         ttInputEst.copy-runship[15] = cLogicalRunShip[15]
+         ttInputEst.copy-runship[16] = cLogicalRunShip[16]
+         ttInputEst.copy-runship[17] = cLogicalRunShip[17]
+         ttInputEst.copy-runship[18] = cLogicalRunShip[18]
+         ttInputEst.copy-runship[19] = cLogicalRunShip[19]
+         ttInputEst.copy-runship[20] = cLogicalRunShip[20].
+       ELSE do:  
+         FIND FIRST eb NO-LOCK 
+              WHERE eb.company EQ cocode
+               AND ROWID(eb) EQ ipriRowid NO-ERROR .    
+          IF AVAIL eb  THEN do:
+             FIND est-qty NO-LOCK
+              WHERE est-qty.company EQ eb.company
+                AND est-qty.est-no EQ eb.est-no
+                AND est-qty.eqty EQ eb.eqty 
+                 NO-ERROR.
+           IF AVAIL est-qty THEN DO:   
+              ASSIGN
+                ttInputEst.copy-runship[1] = string(est-qty.whsed[1])
+                ttInputEst.copy-runship[2] = string(est-qty.whsed[2])
+                ttInputEst.copy-runship[3] = string(est-qty.whsed[3])
+                ttInputEst.copy-runship[4] = string(est-qty.whsed[4])
+                ttInputEst.copy-runship[5] = string(est-qty.whsed[5])
+                ttInputEst.copy-runship[6] = string(est-qty.whsed[6])
+                ttInputEst.copy-runship[7] = string(est-qty.whsed[7])
+                ttInputEst.copy-runship[8] = string(est-qty.whsed[8])
+                ttInputEst.copy-runship[9] = string(est-qty.whsed[9])
+                ttInputEst.copy-runship[10] = string(est-qty.whsed[10])
+                ttInputEst.copy-runship[11] = string(est-qty.whsed[11])
+                ttInputEst.copy-runship[12] = string(est-qty.whsed[12])
+                ttInputEst.copy-runship[13] = string(est-qty.whsed[13])
+                ttInputEst.copy-runship[14] = string(est-qty.whsed[14])
+                ttInputEst.copy-runship[15] = string(est-qty.whsed[15])
+                ttInputEst.copy-runship[16] = string(est-qty.whsed[16])
+                ttInputEst.copy-runship[17] = string(est-qty.whsed[17])
+                ttInputEst.copy-runship[18] = string(est-qty.whsed[18])
+                ttInputEst.copy-runship[19] = string(est-qty.whsed[19])
+                ttInputEst.copy-runship[20] = string(est-qty.whsed[20]).                
+           END.
+         END.  
+       END.
+          
     ttInputEst.riParentEst = lv-crt-est-rowid .
 
     FIND FIRST item WHERE item.company = cocode
@@ -2177,6 +2262,31 @@ PROCEDURE valid-sub-UnitCount :
             APPLY "entry" TO iUnitCount.
             oplOutError = YES .
         END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetBoardFromStyle D-Dialog 
+PROCEDURE pGetBoardFromStyle :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETE ipcStyle AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+    
+    FIND FIRST flute NO-LOCK
+       WHERE flute.company EQ cocode NO-ERROR .
+    IF AVAIL flute THEN
+      FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = ipcStyle 
+             AND reftable.loc = flute.code
+             AND reftable.code = "BOARD"
+             NO-LOCK NO-ERROR. 
+      board:screen-value = IF AVAIL reftable AND AVAIL flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
     END.
 
 END PROCEDURE.

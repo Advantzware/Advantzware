@@ -96,8 +96,14 @@ ll-sort-asc = NO /*oeinq*/  .
      EACH ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
                                AND oe-ordl.i-no    EQ oe-boll.i-no   ~
                                AND oe-ordl.ord-no    EQ oe-boll.ord-no   ~
-                               AND oe-ordl.part-no BEGINS fi_part-no OUTER-JOIN
+                               AND oe-ordl.part-no BEGINS fi_part-no
 
+&SCOPED-DEFINE for-each41                   ~
+    FOR EACH oe-bolh NO-LOCK                ~
+        WHERE oe-bolh.company EQ g_company  ~
+          AND oe-bolh.posted  EQ tb_posted  ~
+          AND oe-bolh.deleted EQ NO  
+                       
 &SCOPED-DEFINE sortby-log                                                     ~
     IF lv-sort-by EQ "ord-no"   THEN STRING(oe-boll.ord-no,"9999999999") ELSE ~
     IF lv-sort-by EQ "bol-no"   THEN string(oe-bolh.bol-no,"9999999999") ELSE ~
@@ -899,7 +905,7 @@ PROCEDURE first-query :
         AND CAN-FIND(FIRST oe-boll
                      WHERE oe-boll.company EQ oe-bolh.company
                        AND oe-boll.b-no    EQ oe-bolh.b-no)
-      USE-INDEX post NO-LOCK
+      USE-INDEX b-no NO-LOCK
       BREAK BY oe-bolh.b-no DESC:
     IF FIRST-OF(oe-bolh.b-no) THEN li = li + 1.
     lv-b-no = oe-bolh.b-no.
@@ -910,7 +916,7 @@ PROCEDURE first-query :
       OPEN QUERY {&browse-name}           ~
         {&for-each11}                     ~
               AND oe-boll.b-no GE lv-b-no ~
-            USE-INDEX posted NO-LOCK,      ~
+            USE-INDEX b-no NO-LOCK,      ~
             {&for-each21},                ~
             {&for-each31}
 

@@ -121,7 +121,7 @@ DEFINE BUTTON btn-print
      SIZE 13 BY 1.29.
 
 DEFINE BUTTON btn-quote 
-     LABEL "&Quote" 
+     LABEL "+ &Quote" 
      SIZE 12 BY 1.29.
 
 DEFINE BUTTON Btn-Save 

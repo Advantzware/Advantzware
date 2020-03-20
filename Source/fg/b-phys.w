@@ -1013,9 +1013,11 @@ PROCEDURE crt-transfer :
   END.
 
   IF TRIM(fg-rctd.tag) NE "" THEN
-  FOR EACH b-fg-rctd WHERE recid(b-fg-rctd) <> RECID(fg-rctd) 
-                       AND b-fg-rctd.i-no = fg-rctd.i-no
-                       AND b-fg-rctd.tag = fg-rctd.tag:
+  FOR EACH b-fg-rctd 
+      WHERE b-fg-rctd.company  EQ fg-rctd.company           
+        AND b-fg-rctd.i-no     EQ fg-rctd.i-no
+        AND b-fg-rctd.tag      EQ fg-rctd.tag
+        AND RECID(b-fg-rctd)   NE RECID(fg-rctd): 
       DELETE b-fg-rctd.
   END.
 

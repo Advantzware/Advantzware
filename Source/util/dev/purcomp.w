@@ -558,9 +558,7 @@ lcTableList =
 "fgcat," +
 "flute," +
 "account," +
-"gl-rptd," +
 "gl-ctrl," +
-"gl-freq," +
 "gl-jrn," +
 "gl-rpt," +
 "glhist," +
@@ -584,7 +582,6 @@ lcTableList =
 "job-mat," +
 "job-mch," +
 "job-prep," +
-"job-set," +
 "loadtag," +
 "mach," +
 "mach-adder," +

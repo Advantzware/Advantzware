@@ -595,8 +595,8 @@
             ELSE ASSIGN  /* EA */ 
                 deUseCost = deUseCost * ar-invl.inv-qty * v-slsp[1] / 100.
             ASSIGN 
-                v-cost = deUseCost
-                v-prof = v-amt - deUseCost
+                v-cost = IF deUseCost NE 0 THEN deUseCost ELSE v-cost
+                v-prof = v-amt - v-cost
                 v-prof = IF v-prof EQ ? THEN 0 ELSE v-prof
                 v-gp   = ROUND(v-prof / v-amt * 100 , 2)
                 v-gp   = IF v-gp EQ ? THEN 0 ELSE v-gp. 

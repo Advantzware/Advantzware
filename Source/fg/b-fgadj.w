@@ -978,6 +978,7 @@ PROCEDURE local-assign-statement :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN BROWSE {&browse-name} fg-rctd.t-qty fg-rctd.ext-cost.
   fg-rctd.pur-uom = lv-uom.
+  fg-rctd.cost-uom = lv-uom.
 
 END PROCEDURE.
 
