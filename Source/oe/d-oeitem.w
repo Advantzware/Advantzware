@@ -2939,13 +2939,13 @@ oplRelFlg2 = llRelFlg2.
     ASSIGN liNumShipTo = liNumShipTo + 1.
   END.
   opiNumShipTo = liNumShipTo.
-  
+   
   /* Now must always prompt if also prompting for ship-from */
   IF liNumShipTo GT 1 OR llOeShipFromLog THEN DO:
     /* If it's OESHIPTO and they've alread chosen a v-ship-id, then keep it for the next item */
     IF NOT (oeship-cha = "OESHIPTO" AND v-ship-id GT "") THEN DO:
-
-       IF oe-ord.est-no EQ "" AND b-oe-ordl.est-no NE "" THEN do:
+                        
+       IF oe-ord.est-no EQ "" AND b-oe-ordl.est-no NE "" AND oeship-cha EQ "EstShipto" THEN do:
            FOR EACH eb
                WHERE eb.company  EQ b-oe-ordl.company
                AND eb.est-no   EQ b-oe-ordl.est-no
