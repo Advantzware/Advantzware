@@ -44,42 +44,52 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD LevelCostPerUOM01       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 1" HELP "Optional - decimal"
     FIELD LevelSetup01            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 1" HELP "Optional - decimal" 
     FIELD DeviationCost1          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 1" HELP "Optional - Decimal"
+    FIELD LeadTime1               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 1" HELP "Optional - Integer"
     FIELD LevelQuantity02         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 2" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM02       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 2" HELP "Optional - decimal"
     FIELD LevelSetup02            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 2" HELP "Optional - decimal" 
     FIELD DeviationCost2          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 2" HELP "Optional - Decimal"
+    FIELD LeadTime2               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 2" HELP "Optional - Integer"
     FIELD LevelQuantity03         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 3" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM03       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 3" HELP "Optional - decimal"
     FIELD LevelSetup03            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 3" HELP "Optional - decimal" 
     FIELD DeviationCost3          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 3" HELP "Optional - Decimal"
+    FIELD LeadTime3               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 3" HELP "Optional - Integer"
     FIELD LevelQuantity04         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 4" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM04       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 4" HELP "Optional - decimal"
     FIELD LevelSetup04            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 4" HELP "Optional - decimal" 
     FIELD DeviationCost4          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 4" HELP "Optional - Decimal"
+    FIELD LeadTime4               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 4" HELP "Optional - Integer"
     FIELD LevelQuantity05         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 5" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM05       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 5" HELP "Optional - decimal"
     FIELD LevelSetup05            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 5" HELP "Optional - decimal" 
     FIELD DeviationCost5          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 5" HELP "Optional - Decimal"
+    FIELD LeadTime5               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 5" HELP "Optional - Integer"
     FIELD LevelQuantity06         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 6" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM06       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 6" HELP "Optional - decimal"
     FIELD LevelSetup06            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 6" HELP "Optional - decimal" 
     FIELD DeviationCost6          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 6" HELP "Optional - Decimal"
+    FIELD LeadTime6               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 6" HELP "Optional - Integer"
     FIELD LevelQuantity07         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 7" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM07       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 7" HELP "Optional - decimal"
     FIELD LevelSetup07            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 7" HELP "Optional - decimal" 
     FIELD DeviationCost7          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 7" HELP "Optional - Decimal"
+    FIELD LeadTime7               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 7" HELP "Optional - Integer"
     FIELD LevelQuantity08         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 8" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM08       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 8" HELP "Optional - decimal"
     FIELD LevelSetup08            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 8" HELP "Optional - decimal" 
     FIELD DeviationCost8          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 8" HELP "Optional - Decimal"
+    FIELD LeadTime8               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 8" HELP "Optional - Integer"
     FIELD LevelQuantity09         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 9" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM09       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 9" HELP "Optional - decimal"
     FIELD LevelSetup09            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 9" HELP "Optional - decimal" 
     FIELD DeviationCost9          AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 9" HELP "Optional - Decimal"
+    FIELD LeadTime9               AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 9" HELP "Optional - Integer"
     FIELD LevelQuantity10         AS DECIMAL   FORMAT ">,>>>,>>9.9<<" INITIAL 0 COLUMN-LABEL "Level Quantity 10" HELP "Optional - decimal" 
     FIELD LevelCostPerUOM10       AS DECIMAL   FORMAT ">>,>>9.9999" INITIAL 0 COLUMN-LABEL "Cost Per 10" HELP "Optional - decimal"
     FIELD LevelSetup10            AS DECIMAL   FORMAT "->>,>>9.99" INITIAL 0 COLUMN-LABEL "Setup 10" HELP "Optional - decimal"
     FIELD DeviationCost10         AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 10" HELP "Optional - Decimal"
+    FIELD LeadTime10              AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 10" HELP "Optional - Integer"
     
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
@@ -165,25 +175,25 @@ PROCEDURE pProcessRecord PRIVATE:
     
    DO iCount = 1 TO 10:
        IF iCount EQ 1 AND ipbf-ttImportVendCostMtx.LevelQuantity01 NE 0 THEN
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity01,ipbf-ttImportVendCostMtx.LevelCostPerUOM01,ipbf-ttImportVendCostMtx.LevelSetup01,ipbf-ttImportVendCostMtx.DeviationCost1) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity01,ipbf-ttImportVendCostMtx.LevelCostPerUOM01,ipbf-ttImportVendCostMtx.LevelSetup01,ipbf-ttImportVendCostMtx.DeviationCost1,ipbf-ttImportVendCostMtx.LeadTime1) .
        ELSE IF iCount EQ 2 AND ipbf-ttImportVendCostMtx.LevelQuantity02 NE 0 THEN
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity02, ipbf-ttImportVendCostMtx.LevelCostPerUOM02,ipbf-ttImportVendCostMtx.LevelSetup02,ipbf-ttImportVendCostMtx.DeviationCost2) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity02, ipbf-ttImportVendCostMtx.LevelCostPerUOM02,ipbf-ttImportVendCostMtx.LevelSetup02,ipbf-ttImportVendCostMtx.DeviationCost2,ipbf-ttImportVendCostMtx.LeadTime2) .
        ELSE IF iCount EQ 3 AND ipbf-ttImportVendCostMtx.LevelQuantity03 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity03, ipbf-ttImportVendCostMtx.LevelCostPerUOM03,ipbf-ttImportVendCostMtx.LevelSetup03,ipbf-ttImportVendCostMtx.DeviationCost3) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity03, ipbf-ttImportVendCostMtx.LevelCostPerUOM03,ipbf-ttImportVendCostMtx.LevelSetup03,ipbf-ttImportVendCostMtx.DeviationCost3,ipbf-ttImportVendCostMtx.LeadTime3) .
        ELSE IF iCount EQ 4 AND ipbf-ttImportVendCostMtx.LevelQuantity04 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity04, ipbf-ttImportVendCostMtx.LevelCostPerUOM04,ipbf-ttImportVendCostMtx.LevelSetup04,ipbf-ttImportVendCostMtx.DeviationCost4) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity04, ipbf-ttImportVendCostMtx.LevelCostPerUOM04,ipbf-ttImportVendCostMtx.LevelSetup04,ipbf-ttImportVendCostMtx.DeviationCost4,ipbf-ttImportVendCostMtx.LeadTime4) .
        ELSE IF iCount EQ 5 AND ipbf-ttImportVendCostMtx.LevelQuantity05 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity05, ipbf-ttImportVendCostMtx.LevelCostPerUOM05,ipbf-ttImportVendCostMtx.LevelSetup05,ipbf-ttImportVendCostMtx.DeviationCost5) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity05, ipbf-ttImportVendCostMtx.LevelCostPerUOM05,ipbf-ttImportVendCostMtx.LevelSetup05,ipbf-ttImportVendCostMtx.DeviationCost5,ipbf-ttImportVendCostMtx.LeadTime5) .
        ELSE IF iCount EQ 6 AND ipbf-ttImportVendCostMtx.LevelQuantity06 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity06, ipbf-ttImportVendCostMtx.LevelCostPerUOM06,ipbf-ttImportVendCostMtx.LevelSetup06,ipbf-ttImportVendCostMtx.DeviationCost6) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity06, ipbf-ttImportVendCostMtx.LevelCostPerUOM06,ipbf-ttImportVendCostMtx.LevelSetup06,ipbf-ttImportVendCostMtx.DeviationCost6,ipbf-ttImportVendCostMtx.LeadTime6) .
        ELSE IF iCount EQ 7 AND ipbf-ttImportVendCostMtx.LevelQuantity07 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity07, ipbf-ttImportVendCostMtx.LevelCostPerUOM07,ipbf-ttImportVendCostMtx.LevelSetup07,ipbf-ttImportVendCostMtx.DeviationCost7) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity07, ipbf-ttImportVendCostMtx.LevelCostPerUOM07,ipbf-ttImportVendCostMtx.LevelSetup07,ipbf-ttImportVendCostMtx.DeviationCost7,ipbf-ttImportVendCostMtx.LeadTime7) .
        ELSE IF iCount EQ 8 AND ipbf-ttImportVendCostMtx.LevelQuantity08 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity08, ipbf-ttImportVendCostMtx.LevelCostPerUOM08,ipbf-ttImportVendCostMtx.LevelSetup08,ipbf-ttImportVendCostMtx.DeviationCost8) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity08, ipbf-ttImportVendCostMtx.LevelCostPerUOM08,ipbf-ttImportVendCostMtx.LevelSetup08,ipbf-ttImportVendCostMtx.DeviationCost8,ipbf-ttImportVendCostMtx.LeadTime8) .
        ELSE IF iCount EQ 9 AND ipbf-ttImportVendCostMtx.LevelQuantity09 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity09, ipbf-ttImportVendCostMtx.LevelCostPerUOM09,ipbf-ttImportVendCostMtx.LevelSetup09,ipbf-ttImportVendCostMtx.DeviationCost9) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity09, ipbf-ttImportVendCostMtx.LevelCostPerUOM09,ipbf-ttImportVendCostMtx.LevelSetup09,ipbf-ttImportVendCostMtx.DeviationCost9,ipbf-ttImportVendCostMtx.LeadTime9) .
        ELSE IF iCount EQ 10 AND ipbf-ttImportVendCostMtx.LevelQuantity10 NE 0 THEN                                                                                                                                                                                           
-           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity10, ipbf-ttImportVendCostMtx.LevelCostPerUOM10,ipbf-ttImportVendCostMtx.LevelSetup10,ipbf-ttImportVendCostMtx.DeviationCost10) .
+           RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity10, ipbf-ttImportVendCostMtx.LevelCostPerUOM10,ipbf-ttImportVendCostMtx.LevelSetup10,ipbf-ttImportVendCostMtx.DeviationCost10,ipbf-ttImportVendCostMtx.LeadTime10) .
    END.
               
     FIND CURRENT bf-vendItemCost NO-LOCK NO-ERROR .
@@ -355,6 +365,7 @@ PROCEDURE pAssignVendCostValue PRIVATE:
     DEFINE INPUT PARAMETER ipdCostUom AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdSetup AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdDevi AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLead AS INTEGER NO-UNDO.
 
     CREATE vendItemCostLevel .
     ASSIGN
@@ -362,7 +373,8 @@ PROCEDURE pAssignVendCostValue PRIVATE:
         vendItemCostLevel.quantityBase   = ipdQty
         vendItemCostLevel.costPerUOM     = ipdCostUom
         vendItemCostLevel.costSetup      = ipdSetup
-        vendItemCostLevel.costDeviation  = ipdDevi.
+        vendItemCostLevel.costDeviation  = ipdDevi
+        vendItemCostLevel.leadTimeDays   = ipiLead.
     
 FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
 RELEASE vendItemCostLevel .
