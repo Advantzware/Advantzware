@@ -28,6 +28,8 @@ DEFINE VARIABLE list-name AS cha NO-UNDO.
 
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSnapshotFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSnapId AS INTEGER NO-UNDO.
+DEFINE VARIABLE iSnapshotCount AS INTEGER NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -68,15 +70,14 @@ DEFINE VARIABLE cNk1Char AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-25 RECT-26 RECT-27 RECT-28 ~
-fiSnapshotID btChooseFile fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm ~
-tgSkipUnscanned fiFromItem fiEndItem fiToBin fiFromBin fiFromCycleCode ~
-fiToCycleCode fiWhseList tb_fullReport tb_show-fo tb_show-vo tb_prep ~
-tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiSnapshotID fiSnapshotDescription ~
-fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm tgSkipUnscanned fiFromItem ~
-fiEndItem fiToBin fiFromBin fiFromCycleCode fiToCycleCode fiWhseList ~
-tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep ~
-tb_excel2 tb_runExcel fi_file2 
+cbSnapshot fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm tgSkipUnscanned ~
+fiFromItem fiEndItem fiToBin fiFromBin fiFromCycleCode fiToCycleCode ~
+fiWhseList tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel ~
+tb_exclude_prep tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS cbSnapshot fiTransDate fiTransTimeHr ~
+fiTransTimeMin cbAmPm tgSkipUnscanned fiFromItem fiEndItem fiToBin ~
+fiFromBin fiFromCycleCode fiToCycleCode fiWhseList tb_fullReport tb_show-fo ~
+tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -101,10 +102,6 @@ FUNCTION fAddSpaceToList RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btChooseFile 
-     LABEL "Choose" 
-     SIZE 15 BY 1.14.
-
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
@@ -118,6 +115,13 @@ DEFINE VARIABLE cbAmPm AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "AM","PM" 
      DROP-DOWN-LIST
      SIZE 8 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbSnapshot AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Snapshot" 
+     VIEW-AS COMBO-BOX INNER-LINES 30
+     LIST-ITEM-PAIRS "",""
+     DROP-DOWN-LIST
+     SIZE 102 BY 1 TOOLTIP "Select a snapshot" NO-UNDO.
 
 DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "To Item" 
@@ -138,15 +142,6 @@ DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U
      LABEL "From Item" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiSnapshotDescription AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 58 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiSnapshotID AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
-     LABEL "Snapshot ID" 
-     VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzz" 
      LABEL "To Bin" 
@@ -253,9 +248,7 @@ DEFINE VARIABLE tgSkipUnscanned AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiSnapshotID AT ROW 2.43 COL 26 COLON-ALIGNED WIDGET-ID 38
-     btChooseFile AT ROW 2.43 COL 41 WIDGET-ID 34
-     fiSnapshotDescription AT ROW 2.43 COL 54 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     cbSnapshot AT ROW 2.67 COL 11 COLON-ALIGNED WIDGET-ID 92
      fiTransDate AT ROW 5.05 COL 27 COLON-ALIGNED WIDGET-ID 42
      fiTransTimeHr AT ROW 6 COL 27.2 COLON-ALIGNED WIDGET-ID 50
      fiTransTimeMin AT ROW 6 COL 33.2 COLON-ALIGNED NO-LABEL WIDGET-ID 58
@@ -282,14 +275,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 28.29 COL 55
      "Warehouse List (comma separated):" VIEW-AS TEXT
           SIZE 36 BY .62 AT ROW 14.05 COL 4 WIDGET-ID 46
-     ":" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 6.24 COL 33.2 WIDGET-ID 52
-          FONT 0
      "Posting Options" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 4.33 COL 9 WIDGET-ID 82
           FGCOLOR 9 
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 15
+          SIZE 21 BY .71 AT ROW 1.48 COL 4
           BGCOLOR 2 
      "(Date on the history tab)" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 5.29 COL 47.4 WIDGET-ID 44
@@ -303,6 +293,9 @@ DEFINE FRAME FRAME-A
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 23.91 COL 11
           FGCOLOR 9 
+     ":" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 6.24 COL 33.2 WIDGET-ID 52
+          FONT 0
      RECT-7 AT ROW 1.95 COL 2
      RECT-25 AT ROW 8.95 COL 7 WIDGET-ID 70
      RECT-26 AT ROW 4.57 COL 7 WIDGET-ID 72
@@ -373,8 +366,6 @@ ASSIGN
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-/* SETTINGS FOR FILL-IN fiSnapshotDescription IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiWhseList IN FRAME FRAME-A
    ALIGN-L                                                              */
 ASSIGN 
@@ -455,17 +446,25 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME btChooseFile
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btChooseFile C-Win
-ON CHOOSE OF btChooseFile IN FRAME FRAME-A /* Choose */
-DO:
-  APPLY 'F1' TO fiSnapshotID.
+&Scoped-define SELF-NAME cbSnapshot
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbSnapshot C-Win
+ON VALUE-CHANGED OF cbSnapshot IN FRAME FRAME-A 
+DO:  
+   DEFINE VARIABLE cSavePgmName AS CHARACTER NO-UNDO.
+   ASSIGN {&self-name}.
+   iSnapID = INTEGER(cbSnapshot).
+    v-prgmname = "SnapShot" + STRING(INTEGER(cbSnapshot)).
+    {custom/usrprint.i}
+    ASSIGN fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999")
+           fiTranstimeHr:SCREEN-VALUE  = SUBSTRING(STRING(TIME, "HH:MM"), 1, 2)
+           fiTransTimeMin:SCREEN-VALUE = SUBSTRING(STRING(TIME, "HH:MM"), 4, 2)
+           cbAmPm = IF TIME GE 12 * 60 * 60 THEN "PM" else "AM"
+           .
+    v-prgmname = cSavePgmName.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -487,19 +486,26 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-        ASSIGN   fi_file2        
-                 fiFromItem
-                 fiEndItem
-                 fiWhseList                        
-                 fiFromBin  
-                 fiToBin 
-                 tb_show-vo
-                 tb_prep   
-                 tb_show-fo
-                 tb_excel  
-                 tb_exclude_prep
-                 fiTransDate
-                 .
+  ASSIGN   
+         fi_file2        
+         fiFromItem
+         fiEndItem
+         fiWhseList                        
+         fiFromBin  
+         fiToBin 
+         tb_show-vo
+         tb_prep   
+         tb_show-fo
+         tb_excel  
+         tb_exclude_prep
+         fiTransDate
+         cbSnapshot
+         .
+  IF cbSnapshot EQ "" THEN DO:
+    MESSAGE "You must choose a snapshot from the list "
+    VIEW-AS ALERT-BOX.
+    RETURN.
+  END.
   
   RUN validateWhseList (INPUT fiWhseList,  OUTPUT cInvalidValues, OUTPUT lValidEntry).
   IF NOT lValidEntry THEN DO:
@@ -594,33 +600,6 @@ DO:
             END.              
         END.
     END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiSnapshotID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSnapshotID C-Win
-ON VALUE-CHANGED OF fiSnapshotID IN FRAME FRAME-A /* Snapshot ID */
-DO:
-    DEFINE VARIABLE cSavePgmName AS CHARACTER NO-UNDO.
-    FIND FIRST inventorySnapshot NO-LOCK 
-        WHERE inventorySnapshot.inventorySnapshotId
-         EQ INTEGER(fiSnapshotID:SCREEN-VALUE)
-        NO-ERROR.
-    IF AVAIL inventorySnapshot THEN 
-      fiSnapshotDescription:SCREEN-VALUE = inventorySnapshot.snapshotDesc.
-    /* On new snapshot id, try to find user-print from r-initPhys.w */
-    cSavePgmName = v-prgmname.
-    v-prgmname = "SnapShot" + STRING(INTEGER(fiSnapshotID:SCREEN-VALUE)).
-    {custom/usrprint.i}
-    ASSIGN fiTransDate:SCREEN-VALUE = STRING(TODAY, "99/99/9999")
-           fiTranstimeHr:SCREEN-VALUE  = SUBSTRING(STRING(TIME, "HH:MM"), 1, 2)
-           fiTransTimeMin:SCREEN-VALUE = SUBSTRING(STRING(TIME, "HH:MM"), 4, 2)
-           cbAmPm = IF TIME GE 12 * 60 * 60 THEN "PM" else "AM"
-           .
-    v-prgmname = cSavePgmName.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -822,6 +801,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
   RUN enable_UI.
 
+  FOR EACH inventorySnapshot NO-LOCK
+    WHERE (inventorySnapshot.itemType = ipcInventoryType
+           OR ipcInventoryType EQ "All")
+    BY inventorySnapshot.inventorySnapshotID DESCENDING
+    iSnapshotCount = 1 TO 29:        
+
+     cbSnapshot:ADD-LAST(inventorySnapshot.snapshotDesc, STRING(inventorySnapshot.inventorySnapshotID)).
+  END.
+  
    v-prgmname = IF ipcInventoryType EQ "RM" then "r-fgPhys." ELSE "r-rmPhys.".
 
   {methods/nowait.i}
@@ -878,17 +866,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiSnapshotID fiSnapshotDescription fiTransDate fiTransTimeHr 
-          fiTransTimeMin cbAmPm tgSkipUnscanned fiFromItem fiEndItem fiToBin 
-          fiFromBin fiFromCycleCode fiToCycleCode fiWhseList tb_fullReport 
-          tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 
-          tb_runExcel fi_file2 
+  DISPLAY cbSnapshot fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm 
+          tgSkipUnscanned fiFromItem fiEndItem fiToBin fiFromBin fiFromCycleCode 
+          fiToCycleCode fiWhseList tb_fullReport tb_show-fo tb_show-vo tb_prep 
+          tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-25 RECT-26 RECT-27 RECT-28 fiSnapshotID btChooseFile 
-         fiTransDate fiTransTimeHr fiTransTimeMin cbAmPm tgSkipUnscanned 
-         fiFromItem fiEndItem fiToBin fiFromBin fiFromCycleCode fiToCycleCode 
-         fiWhseList tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel 
-         tb_exclude_prep tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
+  ENABLE RECT-7 RECT-25 RECT-26 RECT-27 RECT-28 cbSnapshot fiTransDate 
+         fiTransTimeHr fiTransTimeMin cbAmPm tgSkipUnscanned fiFromItem 
+         fiEndItem fiToBin fiFromBin fiFromCycleCode fiToCycleCode fiWhseList 
+         tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep 
+         tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -903,7 +890,7 @@ DEF VAR iTransTime AS INTEGER NO-UNDO.
 iTransTime = (INTEGER(fiTransTimeHr) * 60 * 60) + (INTEGER(fiTransTimeMin) * 60).
 IF cbAmPm = "PM" THEN 
   iTransTime = iTransTime + (12 * 60 * 60).
-
+iSnapID = INTEGER(cbSnapshot).
 SESSION:SET-WAIT-STATE ("general").
     DEFINE VARIABLE h AS HANDLE.  
     IF ipcInventoryType EQ "FG" THEN 
@@ -929,7 +916,7 @@ SESSION:SET-WAIT-STATE ("general").
         INPUT tb_show-fo, /* snapshot only */
         INPUT tb_excel,   /* loc changed */
         INPUT tb_exclude_prep,  /* dups in scan */
-        INPUT fiSnapshotID,
+        INPUT STRING(iSnapID),
         INPUT tgSkipUnscanned        
         ).
 

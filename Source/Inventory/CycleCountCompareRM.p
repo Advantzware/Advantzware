@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : CycleCountCompare.p
     Purpose     : 
@@ -96,23 +95,22 @@ DEFINE TEMP-TABLE ttSnapShot
     INDEX ITEM cCompany cFGItemID   
     .
     
-DEFINE TEMP-TABLE ttDupTags
-    FIELD i-no       LIKE rm-bin.i-no
-    FIELD tag        LIKE rm-bin.tag
-    FIELD i-no2      LIKE rm-bin.i-no
-    FIELD loc1       LIKE rm-bin.loc
-    FIELD loc2       LIKE rm-bin.loc
-    FIELD transTypes AS CHARACTER.
-    
-DEFINE TEMP-TABLE ttOrphanedBins
-    FIELD loc LIKE rm-bin.loc COLUMN-LABEL "Warehouse"
-    FIELD i-no LIKE rm-bin.i-no COLUMN-LABEL "Item #" FORMAT "x(22)"
-    FIELD tag LIKE rm-bin.tag COLUMN-LABEL "Tag #" FORMAT "x(30)"
-    FIELD loc-bin LIKE rm-bin.loc-bin COLUMN-LABEL "Bin"
+DEFINE TEMP-TABLE ttProblems
+    FIELD i-no       LIKE fg-bin.i-no
+    FIELD tag        LIKE fg-bin.tag
+    FIELD loc1       LIKE fg-bin.loc
+    FIELD i-no2      LIKE fg-bin.i-no 
+    FIELD loc2       LIKE fg-bin.loc
+    FIELD transTypes AS CHARACTER
     FIELD lInactiveWithBin AS LOGICAL 
     FIELD lNoitem AS LOGICAL
     FIELD lOnHandNobin AS LOGICAL     
+    FIELD lNoCostFound AS LOGICAL 
+    FIELD lNoMSFFound AS LOGICAL
+    FIELD lDuplicateFound AS LOGICAL 
     .
+
+    
 DEF TEMP-TABLE ttToPost
   FIELD rRmRctd AS ROWID
   FIELD r-no    LIKE rm-rctd.r-no 
@@ -166,28 +164,33 @@ PROCEDURE exportSnapshot:
     DEFINE VARIABLE lNoCostMSF   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lInvalidItems AS LOGICAL NO-UNDO.
-    
+    DEFINE VARIABLE cProblemTextFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE icnt       AS INT.
     oplSuccess = YES.
-    gcProblemsFile = gcProblemsFile + USERID("ASI") + STRING(TIME) + ".txt".
-    RUN pCheckBinDups (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).
- 
-    RUN pCheckInvalidItems (OUTPUT lNoCostMSF, OUTPUT lInvalidItems).
+    gcProblemsFile = gcProblemsFile + USERID("ASI") + STRING(TIME) + ".csv".
     
-    IF lBinDups OR (lInvalidItems AND ipcValidItemSelect NE "Valid") THEN 
-    DO:
-        oplSuccess = NO.
-        MESSAGE "Cannot initialize because some items have issues to resolve." SKIP 
+    EMPTY TEMP-TABLE ttProblems.
+    
+    RUN pCheckBinDups (INPUT ipcCompany, INPUT ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).    
+         
+    RUN pCheckInvalidItems (INPUT ipcCompany, INPUT ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lNoCostMSF, OUTPUT lInvalidItems ).
+ 
+    RUN pReportProblems.
+    
+    FIND FIRST ttProblems NO-ERROR. 
+    IF AVAIL ttProblems THEN DO:
+        MESSAGE "Some items have issues to resolve." SKIP 
             "Click OK to view a report."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START notepad.exe VALUE(gcProblemsFile).
+       
+        OS-COMMAND NO-WAIT START excel.exe VALUE(gcProblemsFile).
+          
+        MESSAGE "Continue with the snapshot anyway?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  UPDATE lChoice AS LOGICAL.
+        IF NOT lChoice THEN DO:               
+          oplSuccess = NO.
         RETURN.
     END.
-    ELSE IF lNoCostMSF THEN DO:        
-        MESSAGE "Warning: Some items have a missing cost or MSF." SKIP 
-            "Do you want to view a report of these items?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  UPDATE lChoice AS LOGICAL.
-        IF lChoice THEN 
-          OS-COMMAND NO-WAIT START notepad.exe VALUE(gcProblemsFile).        
     END.
     
     FOR EACH rm-bin NO-LOCK
@@ -205,9 +208,12 @@ PROCEDURE exportSnapshot:
         AND item.cc-code LE ipcToCycleCode
         AND (IF ipcValidItemSelect EQ "ValidOnly" THEN item.stat EQ "A" ELSE TRUE)
         :
-
-            /* ttSnapShot.cCostUom   = rm-bin.costUom */ /* not  on rm-bin */
-
+        icnt = icnt + 1.
+        /* Index is unique by stock id but we allow user to continue */
+        FIND FIRST inventoryStockSnapshot EXCLUSIVE-LOCK
+                    WHERE inventoryStockSnapshot.inventoryStockID EQ rm-bin.tag
+                    NO-ERROR.
+        IF NOT AVAIL inventoryStockSnapshot THEN DO:
         CREATE inventoryStockSnapshot.
         ASSIGN                      
             inventoryStockSnapshot.inventoryStockID    = rm-bin.tag    
@@ -227,6 +233,8 @@ PROCEDURE exportSnapshot:
             inventoryStockSnapshot.createdBy           = USERID("ASI")                
             inventoryStockSnapshot.inventorySnapshotID = ipiSnapShotID 
             .      
+        END.
+        
         FOR LAST rm-rdtlh NO-LOCK 
             WHERE rm-rdtlh.company EQ rm-bin.company 
             AND rm-rdtlh.tag EQ rm-bin.tag 
@@ -242,10 +250,10 @@ PROCEDURE exportSnapshot:
                 inventoryStockSnapshot.blankNo = rm-rdtlh.b-num
                 .             
         END.            
-        
+        FIND FIRST inventoryStockSnapshot NO-LOCK NO-ERROR.
     END.
     oplSuccess = NO.
-    FIND FIRST inventoryStockSnapshot NO-LOCK 
+    FIND FIRST inventoryStockSnapshot EXCLUSIVE-LOCK 
         WHERE inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
         NO-ERROR.
     IF AVAIL inventoryStockSnapshot THEN DO:
@@ -264,7 +272,7 @@ PROCEDURE exportSnapshot:
         inventorySnapshot.snapshotDesc                = ipcSnapshotDesc
         .
     END.
-    
+    FIND CURRENT inventorySnapshot NO-LOCK NO-ERROR.
 END PROCEDURE.
 
 PROCEDURE pBuildCompareTable PRIVATE:
@@ -723,7 +731,7 @@ PROCEDURE pCheckBinDups:
     DEFINE VARIABLE cDupOutputFile AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-rm-bin FOR rm-bin.
 
-    EMPTY TEMP-TABLE ttDupTags.
+    EMPTY TEMP-TABLE ttProblems.
     lIsDups = NO.
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.qty GT 0
@@ -748,35 +756,18 @@ PROCEDURE pCheckBinDups:
         IF AVAILABLE bf-rm-bin THEN 
         DO:
             lIsDups = YES.
-            CREATE ttDupTags.
+            CREATE ttProblems.
             ASSIGN 
-                ttDupTags.i-no = rm-bin.i-no
-                ttDupTags.tag  = rm-bin.tag
-                ttDupTags.loc1 = rm-bin.loc + " " + rm-bin.loc-bin
-                ttDupTags.i-no2 = bf-rm-bin.i-no                
-                ttDupTags.loc2 = bf-rm-bin.loc + " " + bf-rm-bin.loc-bin
+                ttProblems.i-no = rm-bin.i-no
+                ttProblems.tag  = rm-bin.tag
+                ttProblems.loc1 = rm-bin.loc + " " + rm-bin.loc-bin
+                ttProblems.i-no2 = bf-rm-bin.i-no                
+                ttProblems.loc2 = bf-rm-bin.loc + " " + bf-rm-bin.loc-bin
                 .
         END.
     END.
     
-    FIND FIRST ttDupTags NO-ERROR.
-    IF AVAIL ttDupTags THEN DO:
-        OUTPUT STREAM sOutput TO VALUE(gcProblemsFile) APPEND.
-        PUT STREAM sOutput SKIP(1) "Tag number Exists in Two Bins:" SKIP (1).
-        FOR EACH ttDupTags
-            BREAK BY ttDupTags.tag:
-            IF FIRST-OF(ttDupTags.tag) THEN 
-            DISPLAY STREAM sOutput  
-                ttDupTags.i-no COLUMN-LABEL "Item #" FORMAT 'X(22)'
-                ttDupTags.tag COLUMN-LABEL "Tag" FORMAT "X(30)"
-                ttDupTags.transTypes COLUMN-LABEL "Transaction Types" FORMAT "X(12)" 
-                ttDupTags.i-no2 COLUMN-LABEL "Second item number" FORMAT 'X(22)'
-                ttDupTags.Loc1 COLUMN-LABEL "Location 1" 
-                ttDupTags.Loc2 COLUMN-LABEL "Location 2" 
-                WITH WIDTH 250 STREAM-IO.        
-        END.
-        OUTPUT STREAM sOutput CLOSE.
-    END.
+
     oplNoDups = lIsDups.
     
 
@@ -792,7 +783,7 @@ PROCEDURE pCheckCountDups:
     DEFINE VARIABLE cDupOutputFile AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
 
-    EMPTY TEMP-TABLE ttDupTags.
+    EMPTY TEMP-TABLE ttProblems.
     lIsDups = FALSE. 
     FOR EACH rm-rctd NO-LOCK
         WHERE rm-rctd.company EQ cocode
@@ -807,11 +798,11 @@ PROCEDURE pCheckCountDups:
         IF AVAILABLE bf-rm-rctd THEN 
         DO:
             lIsDups = TRUE. 
-            CREATE ttDupTags.
+            CREATE ttProblems.
             ASSIGN 
-                ttDupTags.i-no       = rm-rctd.i-no
-                ttDupTags.tag        = rm-rctd.tag
-                ttDupTags.transTypes = rm-rctd.rita-code + "," + bf-rm-rctd.rita-code
+                ttProblems.i-no       = rm-rctd.i-no
+                ttProblems.tag        = rm-rctd.tag
+                ttProblems.transTypes = rm-rctd.rita-code + "," + bf-rm-rctd.rita-code
                 .
         END.
     END.
@@ -822,11 +813,11 @@ PROCEDURE pCheckCountDups:
         OUTPUT STREAM sOutput TO VALUE(cDupOutputFile).
         PUT STREAM sOutput UNFORMATTED 
             "Item#,Tag#,Transaction Types Found" SKIP.
-        FOR EACH ttDupTags:
+        FOR EACH ttProblems:
             PUT STREAM sOutput UNFORMATTED  
-                '"' ttDupTags.i-no '",'
-                '="' ttDupTags.tag '",'
-                '"' ttDupTags.transTypes '",'
+                '"' ttProblems.i-no '",'
+                '="' ttProblems.tag '",'
+                '"' ttProblems.transTypes '",'
                 SKIP.              
         END.
         OUTPUT STREAM sOutput CLOSE.
@@ -843,6 +834,10 @@ PROCEDURE pCheckInvalidItems:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.  
     DEFINE OUTPUT PARAMETER oplNoCostMSF AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplInvalidItems AS LOGICAL NO-UNDO.
     
@@ -861,26 +856,27 @@ PROCEDURE pCheckInvalidItems:
         lInvalidItems = FALSE
         .
         
-    OUTPUT STREAM sOutput TO VALUE(gcProblemsFile) APPEND.        
-    PUT STREAM sOutput SKIP(1) "No cost or MSF section:" SKIP (1).        
+  
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.qty GT 0
           AND rm-bin.tag GT "" 
+          AND rm-bin.i-no GE ipcFgItemStart
+          AND rm-bin.i-no LE ipcFgItemEnd
+           AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0
         :
         FIND FIRST ITEM no-lock
             WHERE ITEM.company EQ cocode 
               AND ITEM.i-no EQ rm-bin.i-no
             NO-ERROR.
         IF NOT AVAIL item OR (item.q-onh EQ 0 AND rm-bin.qty GT 0) OR (item.stat EQ "I" AND rm-bin.qty GT 0) THEN DO:
-            CREATE ttOrphanedBins.             
+            CREATE ttProblems.             
             ASSIGN 
-                ttOrphanedBins.loc              = rm-bin.loc
-                ttOrphanedBins.i-no             = rm-bin.i-no
-                ttOrphanedBins.tag              = rm-bin.tag
-                ttOrphanedBins.loc-bin          = rm-bin.loc-bin
-                ttOrphanedBins.lInactiveWithBin = (AVAIL(item) AND item.stat EQ "I" AND rm-bin.qty GT 0)
-                ttOrphanedBins.lNoitem          = NOT AVAIL(item)
-                ttOrphanedBins.lOnHandNobin     = (AVAIL(item) AND item.q-onh EQ 0 AND rm-bin.qty GT 0) 
+                ttProblems.loc1              = rm-bin.loc + rm-bin.loc-bin
+                ttProblems.i-no             = rm-bin.i-no
+                ttProblems.tag              = rm-bin.tag                
+                // ttProblems.lInactiveWithBin = (AVAIL(item) AND item.stat EQ "I" AND rm-bin.qty GT 0)
+                ttProblems.lNoitem          = NOT AVAIL(item)
+                ttProblems.lOnHandNobin     = (AVAIL(item) AND item.q-onh EQ 0 AND rm-bin.qty GT 0) 
                 lInvalidItems                   = TRUE     
                 .
         END.       
@@ -898,36 +894,20 @@ PROCEDURE pCheckInvalidItems:
                                 + (IF lNoCost AND lNoMSF THEN " AND " ELSE ",")
                                 + (IF lNoMSF THEN "No MSF" else "")
                                 .        
-        IF lNoCost OR lNoMSF THEN 
-            DISPLAY STREAM sOutput  
-                rm-bin.i-no COLUMN-LABEL "Item #" FORMAT 'X(22)'
-                rm-bin.tag COLUMN-LABEL "Tag" FORMAT "X(30)"
-                cProblemList COLUMN-LABEL "Problem Description" FORMAT "X(32)" 
-              WITH WIDTH 250 STREAM-IO.
+            IF lNoCost OR lNoMSF THEN DO:
+                CREATE ttProblems.
+                ASSIGN 
+                    ttProblems.loc1             = rm-bin.loc + " " + rm-bin.loc-bin
+                    ttProblems.i-no             = rm-bin.i-no
+                    ttProblems.tag              = rm-bin.tag
+                    ttProblems.lNoCostFound     = lNoCost
+                    ttProblems.lNoMSFFound      = lNoMSF
+                    lInvalidItems               = TRUE    
+                    .
+            END.
     END.
     
-    FIND FIRST ttOrphanedBins NO-ERROR.
-    IF AVAIL ttOrphanedBins THEN DO:
-        PUT STREAM sOutput SKIP(1) "Items with other problems section:" SKIP (1).
-        FOR EACH ttOrphanedBins NO-LOCK
-               :
                   
-              cProblemList = 
-                  IF ttOrphanedBins.lInactiveWithBin THEN "Inactive item has inventory"
-                    ELSE (IF ttOrphanedBins.lNoitem THEN "Bin exists without item master" 
-                        ELSE (IF ttOrphanedBins.lOnHandNobin THEN "Item has a quantity on hand but no bin" ELSE ""))
-                    .  
-              
-              DISP STREAM sOutput
-                ttOrphanedBins.loc 
-                ttOrphanedBins.i-no
-                ttOrphanedBins.tag 
-                ttOrphanedBins.loc-bin
-                cProblemList COLUMN-LABEL "Problem Description"    
-                WITH STREAM-IO WIDTH 200.                   
-        END.
-    END.
-    OUTPUT STREAM sOutput CLOSE.  
 
 END PROCEDURE.
 
@@ -1774,6 +1754,51 @@ PROCEDURE pRemoveZeroCounts:
         DELETE rm-rctd.
     END. 
           
+END PROCEDURE.
+
+PROCEDURE pReportProblems PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/* output stream */
+/* put header for each problem type */
+/* for each ttProblems for each problem type */
+DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO.
+    FIND FIRST ttProblems NO-ERROR.
+    IF AVAIL ttProblems THEN DO:
+        OUTPUT STREAM sOutput TO VALUE(gcProblemsFile) APPEND.
+        PUT STREAM sOutput SKIP(1) "Problem Description,Item#,Tag#,2nd Item,Loc/bin,Loc/bin2" SKIP (1).
+        FOR EACH ttProblems
+            BREAK BY ttProblems.tag:
+
+            cProblemList = "".
+            IF ttProblems.lNoCostFound THEN 
+                cProblemList = cProblemList + " No Cost,".
+            IF ttProblems.lNoMSFFound THEN 
+                cProblemList = cProblemList + " No MSF,".
+            IF ttProblems.lInactiveWithBin THEN 
+                cProblemList = cProblemList + " Inactive Item with quantity,".
+            IF ttProblems.lNoitem THEN 
+                cProblemList = cProblemList + " No item for bin,".
+            IF ttProblems.lOnHandNobin THEN 
+                cProblemList = cProblemList + " On Hand Qty but no bin,".
+            IF ttProblems.lDuplicateFound THEN 
+                cProblemList = cProblemList + " Duplicate Tag,".
+            cProblemList = TRIM(TRIM(cProblemList,",")).
+            IF FIRST-OF(ttProblems.tag) THEN 
+            EXPORT STREAM sOutput DELIMITER ","
+                cProblemList
+                ttProblems.i-no 
+                ttProblems.tag 
+                ttProblems.transTypes  
+                ttProblems.i-no2 
+                ttProblems.Loc1  
+                ttProblems.Loc2  
+                .        
+        END.
+        OUTPUT STREAM sOutput CLOSE.
+    END.
 END PROCEDURE.
 
 PROCEDURE reportComparison:
