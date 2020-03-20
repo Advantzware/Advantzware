@@ -45,6 +45,7 @@ CREATE WIDGET-POOL.
 
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cOutDir AS CHAR NO-UNDO.
+DEF VAR lVerbose AS LOG NO-UNDO INITIAL FALSE.
 
 ASSIGN
     cocode = gcompany
@@ -66,9 +67,9 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fiDate rsOpen fiStartJob fiStartJob2 ~
-fiEndJob fiEndJob2 rsPurge btn-process btn-cancel eHelp 
+fiEndJob fiEndJob2 rsPurge tbVerbose btn-process btn-cancel eHelp 
 &Scoped-Define DISPLAYED-OBJECTS fiText-2 fiDate rsOpen fiStartJob ~
-fiStartJob2 fiEndJob fiEndJob2 fiText-3 rsPurge fiText1 eHelp 
+fiStartJob2 fiEndJob fiEndJob2 rsPurge tbVerbose fiText-3 eHelp fiText1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -145,6 +146,11 @@ DEFINE VARIABLE rsPurge AS CHARACTER
 "Simulate Only", "L"
      SIZE 42 BY .95 NO-UNDO.
 
+DEFINE VARIABLE tbVerbose AS LOGICAL INITIAL no 
+     LABEL "Write log entries for all child records deleted?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 58 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -154,18 +160,19 @@ DEFINE FRAME DEFAULT-FRAME
      rsOpen AT ROW 4.1 COL 6 NO-LABEL
      fiStartJob AT ROW 5.29 COL 39 COLON-ALIGNED
      fiStartJob2 AT ROW 5.29 COL 50.8 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fiEndJob AT ROW 5.29 COL 60.2 COLON-ALIGNED
-     fiEndJob2 AT ROW 5.29 COL 72 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiText-3 AT ROW 5.29 COL 79 NO-LABEL NO-TAB-STOP 
+     fiEndJob AT ROW 5.29 COL 62 COLON-ALIGNED
+     fiEndJob2 AT ROW 5.29 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      rsPurge AT ROW 6.71 COL 6 NO-LABEL
+     tbVerbose AT ROW 7.91 COL 6
+     fiText-3 AT ROW 5.29 COL 85 NO-LABEL NO-TAB-STOP 
      btn-process AT ROW 7.19 COL 75
      btn-cancel AT ROW 8.86 COL 75
-     fiText1 AT ROW 9.33 COL 2 NO-LABEL NO-TAB-STOP 
      eHelp AT ROW 10.29 COL 1 NO-LABEL
+     fiText1 AT ROW 9.33 COL 2 NO-LABEL NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 99.8 BY 24.14
+         SIZE 104.2 BY 24.14
          FONT 5
          DEFAULT-BUTTON btn-cancel.
 
@@ -188,11 +195,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Purge Jobs"
          HEIGHT             = 24.14
-         WIDTH              = 99.8
+         WIDTH              = 104.2
          MAX-HEIGHT         = 24.14
-         MAX-WIDTH          = 103.8
+         MAX-WIDTH          = 104.2
          VIRTUAL-HEIGHT     = 24.14
-         VIRTUAL-WIDTH      = 103.8
+         VIRTUAL-WIDTH      = 104.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -214,7 +221,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-   FRAME-NAME                                                           */
+   FRAME-NAME Custom                                                    */
 ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
@@ -390,9 +397,9 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN purge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
+                RUN purge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).
             ELSE 
-                RUN PrePurge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).   
+                RUN PrePurge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).   
         END.
     END.
     ELSE DO: /* Closed and open jobs, full table scan */
@@ -414,9 +421,9 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN purge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
+                RUN purge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).
             ELSE 
-                RUN PrePurge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
+                RUN PrePurge ("job", ROWID(job), lVerbose, OUTPUT lSuccess, OUTPUT cMessage).
         END.         
     END.
 
@@ -471,7 +478,7 @@ END.
 
 &Scoped-define SELF-NAME fiStartJob2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartJob2 C-Win
-ON LEAVE OF fiStartJob2 IN FRAME DEFAULT-FRAME /* job2 */
+ON LEAVE OF fiStartJob2 IN FRAME DEFAULT-FRAME
 OR LEAVE OF fiEndJob2
 DO:
     CASE SELF:NAME: 
@@ -516,6 +523,19 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbVerbose
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbVerbose C-Win
+ON VALUE-CHANGED OF tbVerbose IN FRAME DEFAULT-FRAME /* Write log entries for all child records deleted? */
+DO:
+    ASSIGN 
+        lVerbose = SELF:CHECKED.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -599,10 +619,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiText-2 fiDate rsOpen fiStartJob fiStartJob2 fiEndJob fiEndJob2 
-          fiText-3 rsPurge fiText1 eHelp 
+          rsPurge tbVerbose fiText-3 eHelp fiText1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE fiDate rsOpen fiStartJob fiStartJob2 fiEndJob fiEndJob2 rsPurge 
-         btn-process btn-cancel eHelp 
+         tbVerbose btn-process btn-cancel eHelp 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
