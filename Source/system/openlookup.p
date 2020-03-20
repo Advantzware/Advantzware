@@ -651,4 +651,44 @@ CASE ip-lookupField:
            OUTPUT op-lookupField,
            /* RecID of the row selected when a row is selected in the browse */
            OUTPUT op-recVal) NO-ERROR.
+    WHEN "naics" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "naics",
+           /* The source field for which the lookup screen is called for */
+           INPUT "naicsID",
+           /* DB Table from which data is to be fetched */
+           INPUT "naics",
+           /* List of fields which are required in the query */
+           INPUT "naicsID,description,inActive",
+           /* List of fields which should be displayed in the browse */
+           INPUT "naicsID,description,inActive",
+           /* List of field labels to override the default database field label */
+           INPUT "NAICS ID,Description",
+           /* List of field formats to override the default database field format */
+           INPUT "",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "6,,,",
+           /* List of fields for which field level search is enabled */
+           INPUT "naicsID,description,inActive",
+           /* List of fields for which sorting is enabled */
+           INPUT "naicsID,description,inActive",
+           /* Where clause to select specific records */
+           INPUT "" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "naicsID,description,inActive",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.       
 END CASE.

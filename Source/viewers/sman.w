@@ -52,7 +52,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -63,16 +63,18 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR sman.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS sman.sname sman.commbasis sman.scomm ~
-sman.netpct sman.territory sman.hasMembers
+&Scoped-Define ENABLED-FIELDS sman.sname sman.salesManager sman.commbasis ~
+sman.salesManager2 sman.scomm sman.netpct sman.salesManager3 sman.territory ~
+sman.hasMembers 
 &Scoped-define ENABLED-TABLES sman
 &Scoped-define FIRST-ENABLED-TABLE sman
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS sman.sman sman.sname sman.commbasis ~
-sman.scomm sman.netpct sman.territory sman.hasMembers
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btnGroupLookup 
+&Scoped-Define DISPLAYED-FIELDS sman.sman sman.sname sman.salesManager ~
+sman.commbasis sman.salesManager2 sman.scomm sman.netpct sman.salesManager3 ~
+sman.territory sman.hasMembers 
 &Scoped-define DISPLAYED-TABLES sman
 &Scoped-define FIRST-DISPLAYED-TABLE sman
-&Scoped-Define DISPLAYED-OBJECTS terr_dscr F1 btnGroupLookup
+&Scoped-Define DISPLAYED-OBJECTS terr_dscr F1 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -110,6 +112,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnGroupLookup 
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
+     LABEL "" 
+     SIZE 4.4 BY 1.05.
+
 DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
@@ -122,13 +129,11 @@ DEFINE VARIABLE terr_dscr AS CHARACTER FORMAT "x(20)"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 65 BY 6.2.
+     SIZE 65 BY 6.19.
 
-
-DEFINE BUTTON btnGroupLookup 
-     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
-     LABEL "" 
-     SIZE 4.4 BY 1.05.
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 33.2 BY 6.19.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -143,7 +148,7 @@ DEFINE FRAME F-Main
           LABEL "Name"
           VIEW-AS FILL-IN 
           SIZE 29 BY 1
-          BGCOLOR 15 FONT 4
+          BGCOLOR 15 FONT 4       
      sman.commbasis AT ROW 2.43 COL 17.6 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS "Gross Profit","G",
@@ -151,7 +156,7 @@ DEFINE FRAME F-Main
                      "Margin","M"
           DROP-DOWN-LIST
           SIZE 22 BY 1
-          FONT 4
+          FONT 4     
      sman.scomm AT ROW 3.62 COL 17.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -159,19 +164,34 @@ DEFINE FRAME F-Main
      sman.netpct AT ROW 3.62 COL 36 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-          FONT 4
+          FONT 4      
      sman.territory AT ROW 4.81 COL 17.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
           BGCOLOR 15 FONT 4
      terr_dscr AT ROW 4.81 COL 27 COLON-ALIGNED NO-LABEL
-     sman.hasMembers AT ROW 6.00 COL 18.6 COLON-ALIGNED
-         LABEL "Has Group Members"
-         VIEW-AS TOGGLE-BOX
-         SIZE 30 BY .81
-     btnGroupLookup AT ROW 6.00 COL 51
+     sman.hasMembers AT ROW 6 COL 20.6
+          VIEW-AS TOGGLE-BOX
+          SIZE 30 BY .81
+     btnGroupLookup AT ROW 6 COL 51
+     sman.salesManager AT ROW 1.62 COL 86.4 COLON-ALIGNED
+          LABEL "Sales Manager 1" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+          BGCOLOR 15 FONT 4
+     sman.salesManager2 AT ROW 2.91 COL 86.4 COLON-ALIGNED
+          LABEL "Sales Manager 2" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+          BGCOLOR 15 FONT 4
+     sman.salesManager3 AT ROW 4.19 COL 86.4 COLON-ALIGNED
+          LABEL "Sales Manager 3" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+          BGCOLOR 15 FONT 4     
      F1 AT ROW 4.81 COL 26 NO-LABEL
      RECT-1 AT ROW 1 COL 1
+     RECT-2 AT ROW 1 COL 66 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -205,8 +225,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 5
-         WIDTH              = 65.
+         HEIGHT             = 6.19
+         WIDTH              = 99.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -229,7 +249,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -239,6 +259,12 @@ ASSIGN
 ASSIGN 
        F1:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN sman.salesManager IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN sman.salesManager2 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN sman.salesManager3 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN sman.sman IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN sman.sname IN FRAME F-Main
@@ -247,8 +273,6 @@ ASSIGN
    4                                                                    */
 /* SETTINGS FOR FILL-IN terr_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btnGroupLookup IN FRAME Corr
-                                                                         */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -268,31 +292,27 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME sman.territory
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.territory V-table-Win
-ON LEAVE OF sman.territory IN FRAME F-Main /* Sales Territory */
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
+ON HELP OF FRAME F-Main
 DO:
-  {methods/dispflds.i}
+   def var lv-handle as handle no-undo.
+   def var char-val as cha no-undo.
+   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+
+   CASE Focus:name :
+     when "salesManager" OR when "salesManager2" OR when "salesManager3" then do:
+           RUN windows/l-sman.w (sman.company, OUTPUT char-val).
+          IF char-val <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = ENTRY(1,char-val).               
+           return no-apply.  
+     end.          
+  end case.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.hasMembers V-table-Win
-ON VALUE-CHANGED OF sman.hasMembers IN FRAME F-Main /* HsaMembers */
-DO:
-    DEFINE VARIABLE v-date-change-reason AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE v-added-rowid AS ROWID NO-UNDO .
-    
-    IF sman.hasMembers:SCREEN-VALUE EQ "Yes" AND AVAIL sman THEN DO:
-        RUN oe/d-salegrp.w (INPUT sman.rec_key, INPUT sman.sman:SCREEN-VALUE )  .
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btnGroupLookup
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupLookup V-table-Win
@@ -306,6 +326,78 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME sman.hasMembers
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.hasMembers V-table-Win
+ON VALUE-CHANGED OF sman.hasMembers IN FRAME F-Main /* Has Group Members */
+DO:
+    DEFINE VARIABLE v-date-change-reason AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE v-added-rowid AS ROWID NO-UNDO .
+    
+    IF sman.hasMembers:SCREEN-VALUE EQ "Yes" AND AVAIL sman THEN DO:
+        RUN oe/d-salegrp.w (INPUT sman.rec_key, INPUT sman.sman:SCREEN-VALUE )  .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME sman.territory
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.territory V-table-Win
+ON LEAVE OF sman.territory IN FRAME F-Main /* Sales Territory */
+DO:
+  {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME sman.salesManager
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.salesManager V-table-Win
+ON LEAVE OF sman.salesManager IN FRAME F-Main /* manager1 */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-sales-manager(1,OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME sman.salesManager2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.salesManager2 V-table-Win
+ON LEAVE OF sman.salesManager2 IN FRAME F-Main /* manager2 */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-sales-manager(2,OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME sman.salesManager3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sman.salesManager3 V-table-Win
+ON LEAVE OF sman.salesManager3 IN FRAME F-Main /* manager3 */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-sales-manager(3,OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
 
 
 &UNDEFINE SELF-NAME
@@ -516,9 +608,17 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
-
+   RUN valid-sales-manager(1,OUTPUT lCheckError) NO-ERROR.
+   IF lCheckError THEN RETURN NO-APPLY.
+   
+   RUN valid-sales-manager(2,OUTPUT lCheckError) NO-ERROR.
+   IF lCheckError THEN RETURN NO-APPLY.
+   
+   RUN valid-sales-manager(3,OUTPUT lCheckError) NO-ERROR.
+   IF lCheckError THEN RETURN NO-APPLY.
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -534,6 +634,20 @@ PROCEDURE local-update-record :
       IF sman.commbasis NE "M" THEN
          smanmtrx.netpct = 0.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    ENABLE btnGroupLookup WITH FRAME {&FRAME-NAME}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,21 +675,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
-PROCEDURE proc-enable :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    ENABLE btnGroupLookup WITH FRAME {&FRAME-NAME}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -596,3 +695,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sales-manager V-table-Win 
+PROCEDURE valid-sales-manager :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiManager AS INTEGER NO-UNDO .
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cSalesManager AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+  RUN util/Validate.p PERSISTENT SET hdValidator.
+  
+  {methods/lValidateError.i YES}    
+
+  DO WITH FRAME {&frame-name}:
+     IF ipiManager EQ 1 THEN
+      cSalesManager = sman.salesManager:SCREEN-VALUE .
+     ELSE IF ipiManager EQ 2 THEN
+      cSalesManager = sman.salesManager2:SCREEN-VALUE .
+     ELSE IF ipiManager EQ 3 THEN
+      cSalesManager = sman.salesManager3:SCREEN-VALUE .
+    IF cSalesManager NE "" THEN do:                   
+          RUN pIsValidSalesRep IN hdValidator (cSalesManager, NO, sman.company, OUTPUT lValid, OUTPUT cValidNote).       
+          IF NOT lValid THEN DO:
+             MESSAGE "Sales Manager is Invalid. Try Help." VIEW-AS ALERT-BOX ERROR.
+             oplReturnError = TRUE .
+             IF ipiManager EQ 1 THEN
+              APPLY "entry" TO sman.salesManager. 
+             ELSE IF ipiManager EQ 2 THEN
+              APPLY "entry" TO sman.salesManager2.
+             ELSE IF ipiManager EQ 3 THEN
+              APPLY "entry" TO sman.salesManager3.  
+          END.   
+    END.    
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
