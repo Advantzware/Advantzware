@@ -486,16 +486,6 @@ for each ar-ledger
   ar-ledger.cust-no = v-new-cust.
 end.
 
-for each job-set
-    where job-set.company eq cocode
-      and job-set.cust-no eq v-cust
-    transaction:
-
-  DISPLAY job-set.job-no + "-" + STRING(job-set.job-no2,"99") WITH DOWN.
-
-  job-set.cust-no = v-new-cust.
-end.
-
 for each wiptag
     where wiptag.company eq cocode
       and wiptag.cust-no eq v-cust
