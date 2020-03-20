@@ -87,7 +87,7 @@ DEFINE QUERY external_tables FOR vendItemCost.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCostLevel.quantityFrom vendItemCostLevel.quantityTo vendItemCostLevel.costPerUom vendItemCostLevel.costSetup vendItemCostLevel.costDeviation   
+&Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCostLevel.quantityFrom vendItemCostLevel.quantityTo vendItemCostLevel.costPerUom vendItemCostLevel.costSetup vendItemCostLevel.costDeviation vendItemCostLevel.leadTimeDays  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table    
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table vendItemCostLevel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table vendItemCostLevel
@@ -133,6 +133,7 @@ DEFINE BROWSE Browser-Table
       vendItemCostLevel.costPerUom COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
       vendItemCostLevel.costSetup COLUMN-LABEL "Setup" FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.costDeviation COLUMN-LABEL "Devi" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.leadTimeDays COLUMN-LABEL "Lead" FORMAT "->>>>>>9.9<":U WIDTH 15
   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

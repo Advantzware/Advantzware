@@ -98,9 +98,9 @@ IF lRecFound THEN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 ~
-Btn_Cancel dFrom-2 cDevLabel RECT-21 
+Btn_Cancel dFrom-2 cDevLabel RECT-21 iLeadTime 
 &Scoped-Define DISPLAYED-OBJECTS dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 ~
-dFrom-2 cDevLabel cPriceUom 
+dFrom-2 cDevLabel cPriceUom iLeadTime 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -168,9 +168,14 @@ DEFINE VARIABLE dToQty1 AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0
      SIZE 16.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
+DEFINE VARIABLE iLeadTime AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 6.67
+     SIZE 58 BY 8.57
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-21
@@ -181,27 +186,30 @@ DEFINE RECTANGLE RECT-21
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     Btn_OK AT ROW 8.38 COL 39
+     Btn_OK AT ROW 10.14 COL 39
      dFrom1 AT ROW 3.76 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 218
      dToQty1 AT ROW 3.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
-     dEaCost1 AT ROW 6.62 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 266
-     dSetup1 AT ROW 6.62 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 276
-     dDev1 AT ROW 6.62 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 360
-     Btn_Cancel AT ROW 8.38 COL 49
+     dEaCost1 AT ROW 6.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 266
+     dSetup1 AT ROW 6.19 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 276
+     dDev1 AT ROW 6.19 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 360
+     Btn_Cancel AT ROW 10.14 COL 49
      dFrom-2 AT ROW 3.76 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 380
-     cDevLabel AT ROW 5.62 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     cDevLabel AT ROW 5.19 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 288
      cPriceUom AT ROW 1.48 COL 40.6 COLON-ALIGNED
+     iLeadTime AT ROW 8.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 382
      "Quantity Range" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 2.76 COL 31.6 WIDGET-ID 242
      "Quantity To" VIEW-AS TEXT
           SIZE 14.2 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
      "Cost Per" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 5.62 COL 3 WIDGET-ID 264
+          SIZE 12 BY 1 AT ROW 5.19 COL 3 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 5.62 COL 22.2 WIDGET-ID 278
+          SIZE 12 BY 1 AT ROW 5.19 COL 22.2 WIDGET-ID 278
+     "Lead Time" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 7.48 COL 3 WIDGET-ID 384
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 82
-     RECT-21 AT ROW 8.14 COL 38
-     SPACE(0.19) SKIP(0.28)
+     RECT-21 AT ROW 9.91 COL 38
+     SPACE(0.19) SKIP(0.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -489,9 +497,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 dFrom-2 cDevLabel cPriceUom 
+          iLeadTime 
       WITH FRAME D-Dialog.
   ENABLE Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 Btn_Cancel dFrom-2 
-         cDevLabel RECT-21 
+         cDevLabel RECT-21 iLeadTime 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -522,7 +531,8 @@ PROCEDURE pAssignValues :
             vendItemCostLevel.quantityBase    = decimal(dToQty1:SCREEN-VALUE)  
             vendItemCostLevel.costPerUOM    = decimal(dEaCost1:SCREEN-VALUE) 
             vendItemCostLevel.costSetup     = decimal(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE) . 
+            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE) 
+            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE). 
     END.
     opRowid = ROWID(vendItemCostLevel) .
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
@@ -558,7 +568,8 @@ PROCEDURE pCreateValues :
             vendItemCostLevel.quantityBase    = decimal(dToQty1:SCREEN-VALUE)  
             vendItemCostLevel.costPerUOM    = decimal(dEaCost1:SCREEN-VALUE) 
             vendItemCostLevel.costSetup     = decimal(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE) . 
+            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE)
+            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE). 
     END.
     
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
@@ -598,7 +609,8 @@ PROCEDURE pDisplayValue :
                 dEaCost1:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)
                 dSetup1:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)
                 dDev1:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                cPriceUom:SCREEN-VALUE = vendItemCost.vendorUOM .
+                cPriceUom:SCREEN-VALUE = vendItemCost.vendorUOM 
+                iLeadTime:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays).
         IF ipcType EQ "Copy" THEN
             dToQty1:SCREEN-VALUE  = "0" .
       DISABLE dFrom1 dFrom-2 cDevLabel.
@@ -607,7 +619,7 @@ PROCEDURE pDisplayValue :
               dDev1:HIDDEN = TRUE
               cDevLabel:HIDDEN = TRUE .
       IF ipcType EQ "View" THEN
-          DISABLE dFrom1 dFrom-2 dToQty1 dEaCost1 dSetup1 dDev1 .
+          DISABLE dFrom1 dFrom-2 dToQty1 dEaCost1 dSetup1 dDev1 iLeadTime .
         
       opRowid = iprRowid2 .
     END.
