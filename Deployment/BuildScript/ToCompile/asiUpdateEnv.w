@@ -4520,6 +4520,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadNaicsData C-Win
+PROCEDURE ipLoadNaicsData:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading NAICS Records").
+
+    &SCOPED-DEFINE tablename naics
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadNewUserData C-Win 
 PROCEDURE ipLoadNewUserData :
 /*------------------------------------------------------------------------------
@@ -6071,6 +6102,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadZmessage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
         RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
+        RUN ipLoadNaicsData IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

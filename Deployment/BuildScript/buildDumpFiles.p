@@ -204,3 +204,10 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile naics
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
