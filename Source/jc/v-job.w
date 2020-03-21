@@ -1769,7 +1769,7 @@ PROCEDURE Rebuild-Stds :
          IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
              cItemPurOrManuf = IF itemfg.pur-man EQ TRUE THEN "purchased" ELSE "manufactured" .
              cEbPurOrManuf = IF eb.pur-man EQ TRUE THEN "purchased" ELSE "manufactured" .
-             MESSAGE "FG Item file indicates item " itemfg.i-no " is " cItemPurOrManuf " while estimate " 
+             MESSAGE "FG Item file indicates item " job-hdr.i-no " is " cItemPurOrManuf " while estimate " 
                      "indicates it is " cEbPurOrManuf " - These should be set the same."  VIEW-AS ALERT-BOX WARNING . 
              LEAVE .
          END.
