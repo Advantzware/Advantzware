@@ -1632,7 +1632,7 @@ FOR EACH tt-report:
 END.
 
 EMPTY TEMP-TABLE tt-report2.
-
+MAIN-APPAY:
 FOR EACH ap-pay
     WHERE ap-pay.company    EQ cocode
       AND ap-pay.vend-no    GE begin_vend
@@ -1681,9 +1681,10 @@ FOR EACH ap-pay
                                            " CD#" + bank.bank-code)      
             and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
                 /*use-index ap-ledger */NO-LOCK NO-ERROR.
-    END.
-
-
+    END.   
+    IF tb_post-date THEN DO:
+       IF NOT AVAIL ap-ledger THEN NEXT MAIN-APPAY. 
+    END.    
   ASSIGN
      v-vend-name = ""
      li = li + 1.
