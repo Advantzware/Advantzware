@@ -155,7 +155,7 @@ shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
 shipto.exportCustID shipto.dock-loc shipto.dock-hour shipto.del-chg ~
 shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
 shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill ~
-shipto.overUnderEnabled shipto.overs shipto.unders shipto.spare-char-3 ~
+shipto.overUnderEnabled shipto.oversPercent shipto.undersPercent shipto.spare-char-3 ~
 shipto.siteID 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
@@ -169,7 +169,7 @@ shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
 shipto.spare-char-5 shipto.exportCustID shipto.dock-loc shipto.dock-hour ~
 shipto.del-chg shipto.del-time shipto.spare-int-1 shipto.spare-int-2 ~
 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
-shipto.bill shipto.overUnderEnabled shipto.overs shipto.unders ~
+shipto.bill shipto.overUnderEnabled shipto.oversPercent shipto.undersPercent ~
 shipto.spare-char-3 shipto.siteID 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
@@ -434,12 +434,12 @@ DEFINE FRAME F-Main
           LABEL "Enabled"
           VIEW-AS TOGGLE-BOX
           SIZE 15.4 BY .81
-     shipto.overs AT ROW 19.33 COL 136.2 COLON-ALIGNED
+     shipto.oversPercent AT ROW 19.33 COL 136.2 COLON-ALIGNED
           LABEL "Over%" FORMAT ">>9.99%"
           VIEW-AS FILL-IN 
           SIZE 10 BY .85
           FONT 4
-     shipto.unders AT ROW 20.14 COL 136.2 COLON-ALIGNED
+     shipto.undersPercent AT ROW 20.14 COL 136.2 COLON-ALIGNED
           LABEL "Under%" FORMAT ">>9.99%"
           VIEW-AS FILL-IN 
           SIZE 10 BY .85
@@ -581,7 +581,7 @@ ASSIGN
 ASSIGN 
        shipto.notes[4]:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN shipto.overs IN FRAME F-Main
+/* SETTINGS FOR FILL-IN shipto.oversPercent IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX shipto.overUnderEnabled IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -623,7 +623,7 @@ ASSIGN
    2 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
    NO-ENABLE 5                                                          */
-/* SETTINGS FOR FILL-IN shipto.unders IN FRAME F-Main
+/* SETTINGS FOR FILL-IN shipto.undersPercent IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -769,12 +769,12 @@ ON VALUE-CHANGED OF shipto.overUnderEnabled IN FRAME F-Main /* overunderEnable? 
 DO:
      IF shipto.overUnderEnabled:SCREEN-VALUE EQ "No" THEN
      DO:
-         ASSIGN shipto.overs:SENSITIVE = NO
-                shipto.Unders:SENSITIVE = NO .         
+         ASSIGN shipto.oversPercent:SENSITIVE = NO
+                shipto.undersPercent:SENSITIVE = NO .         
      END.
      ELSE DO:
-         ASSIGN shipto.overs:SENSITIVE = YES
-                shipto.Unders:SENSITIVE = YES .
+         ASSIGN shipto.oversPercent:SENSITIVE = YES
+                shipto.undersPercent:SENSITIVE = YES .
      END.
 
 END.
@@ -1160,10 +1160,10 @@ PROCEDURE enable-shipto :
     END.
     IF shipto.overUnderEnabled:SCREEN-VALUE EQ "No" THEN
      DO:
-         DISABLE shipto.overs shipto.Unders.         
+         DISABLE shipto.oversPercent shipto.undersPercent.         
      END.
      ELSE DO:
-         ENABLE shipto.overs shipto.Unders .
+         ENABLE shipto.oversPercent shipto.undersPercent .
      END.
   END.
 

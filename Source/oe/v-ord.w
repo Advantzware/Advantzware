@@ -1744,8 +1744,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.ship-id V-table-Win
 ON VALUE-CHANGED OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
-  IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:        
-      FIND FIRST shipto NO-LOCK 
+  IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:      
+       FIND FIRST shipto NO-LOCK 
           WHERE shipto.company EQ g_company 
           AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
           AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
@@ -7391,12 +7391,14 @@ PROCEDURE pGetOverUnderPct :
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT AVAIL cust THEN
-      FIND FIRST cust NO-LOCK
-           WHERE cust.company EQ cocode
-             AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-         NO-ERROR.
-    RUN oe/GetOverUnderPct.p(INPUT cocode,INPUT ROWID(cust),INPUT ( IF AVAIL shipto THEN ROWID(shipto) ELSE ?), 
+    IF NOT AVAIL shipto THEN
+    FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ g_company 
+          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+          NO-ERROR.
+    IF AVAIL shipto THEN      
+    RUN oe/GetOverUnderPct.p(ROWID(shipto), 
                            OUTPUT dOverPer , OUTPUT dUnderPer ) .
                            oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
                            oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
