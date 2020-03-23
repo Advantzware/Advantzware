@@ -625,7 +625,7 @@ PROCEDURE set-buttons :
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lButtonUnitCalc AS LOGICAL NO-UNDO .
 
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"MiscButton-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
     RUN pCheckMiscEst IN WIDGET-HANDLE(char-hdl) (OUTPUT lButtonUnitCalc).
    
