@@ -131,6 +131,28 @@ RUN methods/prgsecur.p
              OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+             
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
+
+RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+                          
+DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "FGReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+             
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -959,6 +981,19 @@ DO:
         RUN valid-po-no (1) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+        IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:       
+            RUN CheckPOLineStatus IN hdOrderProcs(
+                INPUT cocode,
+                INPUT INTEGER(fg-rctd.po-no:SCREEN-VALUE),
+                INPUT INTEGER(fg-rctd.po-line:SCREEN-VALUE)
+                ) NO-ERROR.
+             
+            IF ERROR-STATUS:ERROR THEN DO:
+                APPLY "ENTRY":U TO fg-rctd.po-no.
+                RETURN NO-APPLY.
+            END.    
+        END.            
+
         IF NOT CAN-FIND(FIRST tt-fg-rctd WHERE tt-rowid EQ ROWID(fg-rctd)) THEN
             RUN update-ttt.
   
@@ -979,7 +1014,18 @@ DO:
         RUN valid-job-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    
-
+        IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:         
+            RUN CheckJobStatus IN hdJobProcs(
+                INPUT cocode,
+                INPUT fg-rctd.job-no:SCREEN-VALUE,
+                INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE)
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                APPLY "ENTRY":U TO fg-rctd.job-no2.
+                RETURN NO-APPLY. 
+            END.    
+        END.   
+        
         RUN valid-job-no2 NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         IF lv-prev-job2 <> fg-rctd.job-no2:SCREEN-VALUE  AND
@@ -1422,6 +1468,16 @@ ON LEAVE OF fg-rctd.job-no2 IN FRAME Dialog-Frame
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
+            IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:         
+                RUN CheckJobStatus IN hdJobProcs(
+                    INPUT cocode,
+                    INPUT fg-rctd.job-no:SCREEN-VALUE,
+                    INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE)
+                    ) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                    RETURN NO-APPLY. 
+            END.
+            
             RUN valid-job-no2 NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1616,6 +1672,16 @@ DO:
 
             RUN valid-po-no (1) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+         
+            IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+                RUN CheckPOLineStatus IN hdOrderProcs(
+                    INPUT cocode,
+                    INPUT INTEGER(fg-rctd.po-no:SCREEN-VALUE),
+                    INPUT INTEGER(fg-rctd.po-line:SCREEN-VALUE)
+                    ) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                    RETURN NO-APPLY.
+            END.      
             IF lMultipleAdds THEN
                 APPLY "WINDOW-CLOSE":U TO FRAME {&FRAME-NAME}.
         END.

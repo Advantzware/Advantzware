@@ -116,6 +116,28 @@ DO TRANSACTION:
     {sys/inc/poholdreceipts.i}  /* ticket 17372 */
 END.
 
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
+
+RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+
+DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "RMReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -882,6 +904,15 @@ DO:
 
         RUN valid-po-no (1) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+            RUN CheckPOLineStatus IN hdOrderProcs(
+                INPUT cocode,
+                INPUT INTEGER(rm-rctd.po-no:SCREEN-VALUE   IN BROWSE {&BROWSE-NAME}),
+                INPUT INTEGER(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                ) NO-ERROR. 
+            IF ERROR-STATUS:ERROR THEN 
+                RETURN NO-APPLY.
+        END.    
     END.
 END.
 
@@ -1027,6 +1058,17 @@ DO:
 
         RUN valid-job-no2 NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
+        IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+            RUN CheckJobStatus IN hdJobProcs(
+                    INPUT cocode,
+                    INPUT rm-rctd.job-no:SCREEN-VALUE  IN BROWSE {&BROWSE-NAME},
+                    INPUT INTEGER(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                    ) NO-ERROR.
+     
+                IF ERROR-STATUS:ERROR THEN 
+                    RETURN NO-APPLY.
+            END.        
     END.
 END.
 
@@ -1229,6 +1271,19 @@ DO:
 
             ELSE RUN check-for-job-mat.
         END.
+        
+        IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:      
+            RUN CheckPOLineStatus IN hdOrderProcs(
+                INPUT cocode,
+                INPUT INTEGER(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
+                INPUT INTEGER(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                )NO-ERROR.
+                     
+            IF ERROR-STATUS:ERROR THEN DO:
+                APPLY "ENTRY":U TO rm-rctd.po-no IN BROWSE {&BROWSE-NAME}.
+                RETURN NO-APPLY.
+            END. 
+        END.  
 
         RUN valid-i-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -3588,6 +3643,19 @@ PROCEDURE valid-all :
 
     RUN valid-po-no (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+    
+    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:      
+        RUN CheckPOLineStatus IN hdOrderProcs(
+            INPUT cocode,
+            INPUT INTEGER(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
+            INPUT INTEGER(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+            )NO-ERROR.
+                 
+        IF ERROR-STATUS:ERROR THEN DO:
+            APPLY "ENTRY":U TO rm-rctd.po-no IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.
+        END. 
+    END.        
 
     IF NOT CAN-FIND(FIRST tt-rm-rctd WHERE tt-rowid EQ ROWID(rm-rctd)) THEN
         RUN update-ttt.
@@ -3597,6 +3665,19 @@ PROCEDURE valid-all :
 
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+
+    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO: 
+        RUN CheckJobStatus IN hdJobProcs (
+            INPUT cocode,
+            INPUT rm-rctd.job-no:SCREEN-VALUE  IN BROWSE {&BROWSE-NAME},
+            INPUT INTEGER(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+            ) NO-ERROR.
+     
+        IF ERROR-STATUS:ERROR THEN DO: 
+            APPLY "ENTRY":U TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
+            RETURN ERROR.        
+        END.
+    END.        
 
     RUN valid-s-num NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
