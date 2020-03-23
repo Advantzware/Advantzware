@@ -716,8 +716,7 @@ DO:
                     RUN rm/l-locbin.w (rm-rctd.company,rm-rctd.loc:screen-value, OUTPUT char-val).
                     IF char-val <> "" THEN
                         ASSIGN lv-focus:SCREEN-VALUE    = ENTRY(1,char-val)
-                            rm-rctd.loc:screen-value = ENTRY(2,char-val)
-                            rm-rctd.qty:screen-value = ENTRY(3,char-val).   
+                            rm-rctd.loc:screen-value = ENTRY(2,char-val).                                
                 END.
         END CASE.
 
