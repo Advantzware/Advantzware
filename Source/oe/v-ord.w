@@ -1044,7 +1044,8 @@ DO:
                                                                shipto.ship-state,
                                                                shipto.ship-zip).
                  IF shipto.tax-code NE "" THEN
-                     oe-ord.tax-gr:screen-value = shipto.tax-code .
+                     oe-ord.tax-gr:screen-value = shipto.tax-code . 
+                RUN pGetOverUnderPct.
               END.
          END.  
          WHEN "sman" THEN DO:
@@ -1733,6 +1734,23 @@ DO:
                oe-ord.tax-gr:screen-value    =  shipto.tax-code .
             
        END.      
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ord.ship-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.ship-id V-table-Win
+ON VALUE-CHANGED OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
+DO:
+  IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:      
+       FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ g_company 
+          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+          NO-ERROR.
+       RUN pGetOverUnderPct.
   END.
 END.
 
@@ -3542,9 +3560,7 @@ PROCEDURE display-cust-detail :
             oe-ord.last-date:screen-value = STRING(DATE(oe-ord.ord-date:Screen-value) + 
                                                    cust.ship-days)
             oe-ord.due-date:screen-value  = oe-ord.last-date:screen-value
-            oe-ord.terms:screen-value     = cust.terms
-            oe-ord.over-pct:screen-value  = STRING(cust.over-pct)
-            oe-ord.under-pct:screen-value = STRING(cust.under-pct)
+            oe-ord.terms:screen-value     = cust.terms                
             oe-ord.fob-code:screen-value  = cust.fob-code
             oe-ord.frt-pay:screen-value   = IF oe-ord.frt-pay EQ "" THEN
                                             cust.frt-pay ELSE oe-ord.frt-pay
@@ -3673,6 +3689,8 @@ PROCEDURE display-cust-detail :
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4]
               oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value .
+                            
+     RUN pGetOverUnderPct.        
 
     IF cust.active EQ "X" THEN fi_type:screen-value = "T".
 
@@ -3954,9 +3972,7 @@ IF AVAIL xest THEN DO:
              oe-ord.contact:screen-value   = cust.contact
              oe-ord.last-date:SCREEN-VALUE = STRING(oe-ord.ord-date + cust.ship-days)
              oe-ord.due-date:SCREEN-VALUE  = oe-ord.last-date:SCREEN-VALUE
-             oe-ord.terms:screen-value     = cust.terms
-             oe-ord.over-pct:screen-value  = STRING(cust.over-pct)
-             oe-ord.under-pct:screen-value = STRING(cust.under-pct)
+             oe-ord.terms:screen-value     = cust.terms               
              oe-ord.fob-code:screen-value  = cust.fob-code
              oe-ord.tax-gr:screen-value    = cust.tax-gr
              oe-ord.csrUser_id:SCREEN-VALUE = IF xest.csrUser_id NE "" THEN xest.csrUser_id ELSE cust.csrUser_id
@@ -3987,7 +4003,8 @@ IF AVAIL xest THEN DO:
               ls-ship-i[4] = shipto.notes[4].
     IF AVAIL shipto AND shipto.tax-code NE "" THEN
         oe-ord.tax-gr:screen-value    = shipto.tax-code .
-
+        
+    RUN pGetOverUnderPct.            
 
       IF lastship-cha = "Stock/Custom" THEN DO:
           /* If order has no estimate. */
@@ -7355,6 +7372,36 @@ PROCEDURE valid-type :
       APPLY "entry" TO fi_type.
       RETURN ERROR.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct V-table-Win 
+PROCEDURE pGetOverUnderPct :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT AVAIL shipto THEN
+    FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ g_company 
+          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+          NO-ERROR.
+    IF AVAIL shipto THEN      
+    RUN oe/GetOverUnderPct.p(ROWID(shipto), 
+                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                           oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
+                           oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
   END.
 
   {methods/lValidateError.i NO}
