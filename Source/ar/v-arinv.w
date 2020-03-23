@@ -859,8 +859,8 @@ PROCEDURE local-assign-record :
                        AND shipto.cust-no = ar-inv.cust-no
                        AND shipto.ship-id = ar-inv.ship-id
                        NO-LOCK NO-ERROR.
-    IF cOldShipto NE ar-inv.ship-id then do:                    
-     RUN oe/GetOverUnderPct.p(INPUT cocode,INPUT ROWID(cust),INPUT ( IF AVAIL shipto THEN ROWID(shipto) ELSE ?), 
+    IF cOldShipto NE ar-inv.ship-id AND AVAIL shipto then do:                    
+     RUN oe/GetOverUnderPct.p(ROWID(shipto),  
                            OUTPUT dOverPer , OUTPUT dUnderPer ) .
                            ar-inv.over-pct = dOverPer.
                            ar-inv.Under-pct = dUnderPer. 
