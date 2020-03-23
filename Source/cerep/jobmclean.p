@@ -235,8 +235,7 @@ DEFINE        VARIABLE vs-wid              AS cha     NO-UNDO.
 DEFINE        VARIABLE vs-dep              AS cha     NO-UNDO.
 DEFINE BUFFER bf-ink    FOR wrk-ink.
 DEFINE BUFFER bf-jobhdr FOR job-hdr.
-DEFINE BUFFER bff-job-hdr FOR job-hdr .
-
+DEFIN VARIABLE iJobQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-job-cnt  AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-prev-job AS cha     NO-UNDO.
 
@@ -1371,14 +1370,9 @@ FOR EACH job-hdr NO-LOCK
                                 
                               PUT v-fill SKIP  .
                               iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .
-                              iEbTotalblQty  = eb.bl-qty  .
-                               FIND FIRST bff-job-hdr NO-LOCK
-                                   WHERE bff-job-hdr.company EQ cocode 
-                                     AND bff-job-hdr.job-no EQ bf-jobhdr.job-no 
-                                     AND bff-job-hdr.job-no2 EQ bf-jobhdr.job-no2
-                                     AND bff-job-hdr.frm EQ bf-jobhdr.frm
-                                     AND bff-job-hdr.blank-no EQ eb.blank-no NO-ERROR .                                
-                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF AVAIL bff-job-hdr THEN bff-job-hdr.qty ELSE bf-jobhdr.qty .
+                              iEbTotalblQty  = eb.bl-qty  .                                  
+                              RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) .        
+                              iEbTotalOverQty = IF AVAIL oe-ordl THEN( eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                               IF cSetFGItem NE "" THEN do:
                                   FIND FIRST fg-set WHERE fg-set.company = eb.company
                                       AND fg-set.set-no = cSetFGItem
@@ -1447,13 +1441,8 @@ FOR EACH job-hdr NO-LOCK
                                      k = K + 1 .
                                      iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .
                                      iEbTotalblQty  = bff-eb.bl-qty  .
-                                     FIND FIRST bff-job-hdr NO-LOCK
-                                          WHERE bff-job-hdr.company EQ cocode 
-                                            AND bff-job-hdr.job-no EQ bf-jobhdr.job-no 
-                                            AND bff-job-hdr.job-no2 EQ bf-jobhdr.job-no2
-                                            AND bff-job-hdr.frm EQ bf-jobhdr.frm
-                                            AND bff-job-hdr.blank-no EQ bff-eb.blank-no NO-ERROR .
-                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF AVAIL bff-job-hdr THEN bff-job-hdr.qty ELSE bf-jobhdr.qty .
+                                     RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,bff-eb.blank-no, OUTPUT iJobQty ) .
+                                     iEbTotalOverQty = IF AVAIL oe-ordl THEN (bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                                      IF cSetFGItem NE "" THEN do:
                                          FIND FIRST fg-set WHERE fg-set.company = eb.company
                                              AND fg-set.set-no = cSetFGItem
@@ -2113,3 +2102,25 @@ PROCEDURE pPrintMiscItems :
 END PROCEDURE.
 
 
+PROCEDURE pGetJobQty :
+    /*------------------------------------------------------------------------------
+      Purpose:     Print header
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiFornNo AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO .
+    DEFINE OUTPUT PARAMETER opiReturnQty AS INTEGER NO-UNDO .
+    DEFINE BUFFER bff-job-hdr FOR job-hdr.
+     
+     FIND FIRST bff-job-hdr NO-LOCK
+          WHERE bff-job-hdr.company EQ cocode 
+            AND bff-job-hdr.job-no EQ ipcJobNo 
+            AND bff-job-hdr.job-no2 EQ ipiJobNo2
+            AND bff-job-hdr.frm EQ ipiFornNo
+            AND bff-job-hdr.blank-no EQ ipiBlankNo NO-ERROR .
+      opiReturnQty = IF AVAIL bff-job-hdr THEN bff-job-hdr.qty ELSE 0 .
+
+END PROCEDURE.
