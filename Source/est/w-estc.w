@@ -709,6 +709,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-inkpak , 'TableIO':U , h_v-est3 ).
        RUN add-link IN adm-broker-hdl ( h_q-est3 , 'Record':U , h_v-est3 ).
        RUN add-link IN adm-broker-hdl ( h_vp-stkpn , 'stack':U , h_v-est3 ).
+       RUN add-link IN adm-broker-hdl ( h_p-inkpak , 'MiscButton':U , h_v-est3 ).
 
        /* Links to SmartViewer h_v-naveb-2. */
        RUN add-link IN adm-broker-hdl ( h_q-est3 , 'nav-itm':U , h_v-naveb-2 ).
