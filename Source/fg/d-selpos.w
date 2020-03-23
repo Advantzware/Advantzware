@@ -54,6 +54,28 @@ ASSIGN
 
 DEF VAR lv-num-rec AS INT NO-UNDO.
 
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdJobprocs   AS HANDLE NO-UNDO.
+
+RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+                          
+DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,                                   /* Company Code */ 
+    INPUT IF ip-item-type THEN "RMReceiptRules"     /* sys-ctrl name */
+          ELSE "FGReceiptRules",                   
+    INPUT "I",                                     /* Output return value */
+    INPUT NO,                                      /* Use ship-to */
+    INPUT NO,                                      /* ship-to vendor */
+    INPUT "",                                      /* ship-to vendor value */
+    INPUT "",                                      /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -150,7 +172,7 @@ DEFINE BROWSE BROWSE-2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 135 BY 12.38
-         BGCOLOR 8  ROW-HEIGHT-CHARS .52 /*FIT-LAST-COLUMN*/.
+         BGCOLOR 8  ROW-HEIGHT-CHARS .52.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -234,6 +256,7 @@ ON CHOOSE OF btn_all IN FRAME D-Dialog /* Import Entire PO */
 DO:
   FOR EACH tt-pol:
     selekt = YES.
+    APPLY "VALUE-CHANGED":U TO tt-pol.selekt IN BROWSE {&BROWSE-NAME}.
   END.
   APPLY "choose" TO btn_ok.
 END.
@@ -253,6 +276,9 @@ ON 'mouse-select-click':U OF tt-pol.selekt OR
 DO:
   tt-pol.selekt:SCREEN-VALUE IN BROWSE {&browse-name} =
       STRING(NOT (tt-pol.selekt:SCREEN-VALUE IN BROWSE {&browse-name} EQ "yes"),"yes/no").
+  IF tt-pol.selekt:SCREEN-VALUE  EQ "YES" THEN 
+      APPLY "VALUE-CHANGED":U TO tt-pol.selekt IN BROWSE {&BROWSE-NAME}. 
+      
 END.
 
 ON 'leave':U OF tt-pol.selekt IN BROWSE {&browse-name}
@@ -261,6 +287,36 @@ DO:
     RETURN.
 END.
 
+ON "VALUE-CHANGED":U OF tt-pol.selekt IN BROWSE {&browse-name} DO:    
+    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+        RUN CheckPOLineStatus IN hdOrderProcs(
+            INPUT cocode,
+            INPUT po-ord.po-no,
+            INPUT po-ordl.line
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN 
+                tt-pol.selekt = NO
+                tt-pol.selekt:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "NO"
+                .
+            RETURN.        
+        END.  
+        
+        RUN CheckJobStatus IN hdJobProcs(
+            INPUT cocode,
+            INPUT po-ordl.job-no,
+            INPUT po-ordl.job-no2
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN 
+                tt-pol.selekt = NO
+                tt-pol.selekt:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "NO"
+                .
+            RETURN.        
+        END.                   
+                        
+    END.    
+END.    
 /* ***************************  Main Block  *************************** */
 FIND FIRST po-ord WHERE ROWID(po-ord) EQ ip-rowid NO-LOCK NO-ERROR.
 IF NOT AVAIL po-ord THEN RETURN.
