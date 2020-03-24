@@ -3264,23 +3264,19 @@ PROCEDURE processJobMat :
   
         IF w-job-mat.this-is-a-rm THEN 
         DO:
+  
             /* Create tt-ei and tt-eiv for e-itemvend of an item */
             IF lNewVendorItemCost THEN RUN RevCreateTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
             ELSE RUN createTtEivVend (INPUT cocode, INPUT ROWID(w-job-mat), INPUT v-po-best, OUTPUT gvrItem).
         END.
         ELSE 
-        DO:            
+        DO:
             /* Create tt-eiv for a w-job-mat and itemfg */
-            FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ Cocode
-                AND itemfg.i-no    EQ w-job-mat.i-no
-                NO-ERROR.
-            IF NOT AVAIL itemfg THEN RETURN.
-            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT  rowid(itemfg), INPUT  ROWID(w-job-mat)).
-            ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).            
+            IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT  cocode, INPUT  ROWID(w-job-mat)).
+            ELSE RUN createTtEivItemfg (INPUT  cocode, INPUT  ROWID(w-job-mat)).
         END.
+  
         /* Just a prompt to create a line */
-        
         RUN promptCreatePoLine.
 
         /* User choose not to create, so don't continue with this item */
@@ -3859,12 +3855,11 @@ PROCEDURE RevCreateTtEiv:
                     
         
       END. /* each vendcostitem */
-    END. /* if est-no <> "" */
+    END. /* if est-no <> "" */ 
     v-index = 0.
     IF NOT CAN-FIND(FIRST tt-eiv) THEN
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
 /*        AND vendItemCost.estimateNo EQ bf-w-job-mat.est-no*/
-          AND vendItemCost.estimateNo EQ ""
 /*        AND vendItemCost.formNo EQ bf-w-job-mat.frm       */
 /*        AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no */
           AND vendItemCost.ItemID    EQ itemfg.i-no
