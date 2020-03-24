@@ -89,7 +89,7 @@ IF lRecFound THEN
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btPOScores Btn-Save Btn-Cancel btn-auto-calc 
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel btn-auto-calc 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -194,6 +194,11 @@ END.
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR BUTTON btPOScores IN FRAME Panel-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btPOScores:HIDDEN IN FRAME Panel-Frame           = TRUE.
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */

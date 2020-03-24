@@ -77,8 +77,8 @@ IF lFound THEN vic-log = IF cReturn = "Yes" THEN YES ELSE No.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR po-ord, po-ordl.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-poScores Btn-ord Btn-View Btn-Save ~
-Btn-Add Btn-copy Btn-Delete btn-scores btn-recost 
+&Scoped-Define ENABLED-OBJECTS Btn-ord Btn-View Btn-Save Btn-Add Btn-copy ~
+Btn-Delete btn-scores btn-recost 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -243,6 +243,11 @@ ASSIGN
 ASSIGN 
        Btn-ord:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
+
+/* SETTINGS FOR BUTTON Btn-poScores IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn-poScores:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
        btn-recost:PRIVATE-DATA IN FRAME F-Main     = 
