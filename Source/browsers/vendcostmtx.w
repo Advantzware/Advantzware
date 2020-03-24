@@ -80,6 +80,23 @@ DEFINE VARIABLE cVendItemCostItemType AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostEst# AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
+DEFINE VARIABLE iCount          AS INTEGER NO-UNDO.
+DEFINE VARIABLE iVendCostItemID AS INTEGER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iRtnInt         AS INTEGER NO-UNDO.
+
+/* this is to get Number of records to load in the browser */
+RUN sys/ref/nk1look.p (
+    INPUT cocode, 
+    INPUT "VendItemBrowse", 
+    INPUT "I" /* Integer */, 
+    INPUT NO ,
+    INPUT NO ,
+    INPUT "" /* cust */, 
+    INPUT "" /* ship-to*/,
+    OUTPUT iRtnInt, 
+    OUTPUT lRecFound
+    ).
 
 FIND FIRST users NO-LOCK WHERE 
     users.user_id EQ USERID(LDBNAME(1)) 
@@ -345,7 +362,7 @@ DEFINE BROWSE Browser-Table
       vendItemCost.customerID FORMAT "x(10)":U WIDTH 13 LABEL-BGCOLOR 14
       vendItemCost.estimateNo COLUMN-LABEL "Est" FORMAT "x(8)":U
             WIDTH 13 LABEL-BGCOLOR 14
-      get-eff-date() @ dtEffDate COLUMN-LABEL "Effective" COLUMN-FONT 14
+      get-eff-date() @ dtEffDate COLUMN-LABEL "Effective"
       vendItemCost.expirationDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(30)":U
       fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(30)":U
@@ -479,19 +496,19 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "vendItemCost"
      _FldNameList[1]   > asi.vendItemCost.itemType
-"vendItemCost.itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.vendItemCost.itemID
-"vendItemCost.itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.vendItemCost.vendorID
-"vendItemCost.vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.vendItemCost.customerID
-"vendItemCost.customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.vendItemCost.estimateNo
-"vendItemCost.estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"get-eff-date() @ dtEffDate" "Effective" ? ? ? ? 14 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-eff-date() @ dtEffDate" "Effective" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.vendItemCost.expirationDate
-"vendItemCost.expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "fGetLevel(1) @ cLevel[1]" "Level 1" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
@@ -1090,6 +1107,7 @@ PROCEDURE local-open-query :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.    
+    iCount=0.
     
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1101,10 +1119,23 @@ PROCEDURE local-open-query :
     IF ll-show-all THEN 
     DO:
         RUN set-defaults.
-    &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-           {&for-eachblank} NO-LOCK
-            
+
+        {&for-eachblank} NO-LOCK
+        USE-INDEX vendItemCostID:
+            ASSIGN
+                iCount          = iCount + 1
+                iVendCostItemID = VendItemCost.VendItemCostID
+                .
+            IF iCount GE iRtnInt THEN
+                LEAVE.
+        END.
+
+        &SCOPED-DEFINE open-query                   ~
+            OPEN QUERY {&browse-name}               ~
+                {&for-eachblank}                          ~
+                AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
+                USE-INDEX vendItemCostID
+
         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
     END.
@@ -1211,7 +1242,7 @@ PROCEDURE openQueryOne :
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcValue AS CHARACTER NO-UNDO.
-     
+    iCount = 0.
     tb_exactMatch = YES.
      
     RUN get-attribute IN adm-broker-hdl ('OneVendItemCostVendor').
@@ -1231,15 +1262,25 @@ PROCEDURE openQueryOne :
 /*    DISPLAY fi_i-no fi_vend-no cb_itemType fi_est-no WITH FRAME {&frame-name}.*/
 /*    RUN query-go.*/
 
-    &SCOPED-DEFINE open-query ~
-          OPEN QUERY {&browse-name} ~
-            {&for-each-ExactMatch} ~
-               NO-LOCK
+    {&for-each-ExactMatch} NO-LOCK
+     USE-INDEX vendItemCostID:
+         ASSIGN
+             iCount          = iCount + 1
+             iVendCostItemID = VendItemCost.VendItemCostID
+             .
+        IF iCount GE iRtnInt THEN
+            LEAVE.
+     END.
+     &SCOPED-DEFINE open-query                   ~
+        OPEN QUERY {&browse-name}               ~
+            {&for-each-ExactMatch}                          ~
+            AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
+            USE-INDEX vendItemCostID
 
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
+     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
                     
-    RUN dispatch ('display-fields').    
+     RUN dispatch ('display-fields').    
    
 END PROCEDURE.
 
@@ -1254,12 +1295,25 @@ PROCEDURE query-first :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  
-  &SCOPED-DEFINE open-query                   ~
-      OPEN QUERY {&browse-name}               ~
-        {&for-each1}                      NO-LOCK
+    iCount = 0.
+    
+    {&for-each1} NO-LOCK
+    USE-INDEX vendItemCostID:
+        ASSIGN
+            iCount          = iCount + 1
+            iVendCostItemID = VendItemCost.VendItemCostID
+            .
+        IF iCount GE iRtnInt THEN
+            LEAVE.
+    END.
+
+    &SCOPED-DEFINE open-query                   ~
+        OPEN QUERY {&browse-name}               ~
+            {&for-each1}                          ~
+            AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
+            USE-INDEX vendItemCostID
             
-IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}.
   
 END PROCEDURE.
@@ -1275,30 +1329,52 @@ PROCEDURE query-go :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  
+    iCount = 0.
     DO WITH FRAME {&frame-name} :
       ASSIGN fi_i-no tb_exactMatch tb_in-est. 
     END.
     
     IF tb_exactMatch THEN DO:
-      &SCOPED-DEFINE open-query                   ~
-          OPEN QUERY {&browse-name}               ~
-            {&for-each-ExactMatch}                          ~
-               NO-LOCK        
- 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}. 
-    END.
-    ELSE DO: 
-     &SCOPED-DEFINE open-query                   ~
-          OPEN QUERY {&browse-name}               ~
-            {&for-each1}                          ~
-               NO-LOCK
     
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+        {&for-each-ExactMatch} NO-LOCK
+         USE-INDEX vendItemCostID:
+             ASSIGN
+                 iCount          = iCount + 1
+                  iVendCostItemID = VendItemCost.VendItemCostID
+                 .
+            IF iCount GE iRtnInt THEN
+                LEAVE.
+         END.
+         &SCOPED-DEFINE open-query                   ~
+             OPEN QUERY {&browse-name}               ~
+                 {&for-each-ExactMatch}                          ~
+                  AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
+                  USE-INDEX vendItemCostID
+    
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}. 
+     END.
+     ELSE DO: 
+         {&for-each1} NO-LOCK
+          USE-INDEX vendItemCostID:
+              ASSIGN
+                  iCount          = iCount + 1
+                  iVendCostItemID = VendItemCost.VendItemCostID
+                  .
+              IF iCount GE iRtnInt THEN
+                  LEAVE.
+          END.
+
+          &SCOPED-DEFINE open-query                   ~
+              OPEN QUERY {&browse-name}               ~
+                  {&for-each1}                          ~
+                   AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
+                   USE-INDEX vendItemCostID
+    
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                        ELSE {&open-query} {&sortby-phrase-desc}.
           
-    END.
+      END.
    
 /*    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.  */
 /*                    ELSE {&open-query} {&sortby-phrase-desc}.*/
