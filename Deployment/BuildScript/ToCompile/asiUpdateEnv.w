@@ -3072,6 +3072,14 @@ PROCEDURE ipDataFix200100:
         ASSIGN 
             userPwdHist.pwd = ENCODE(userPwdHist.pwd).
     END.
+    
+    /* 64885 - Load inventoryStatusType data */
+    INPUT FROM VALUE(cUpdDataDir + "\inventoryStatusType.d") NO-ECHO.
+    REPEAT:
+        CREATE inventoryStatusType.
+        IMPORT inventoryStatusType.
+    END.
+    
             
 END PROCEDURE.
 	
