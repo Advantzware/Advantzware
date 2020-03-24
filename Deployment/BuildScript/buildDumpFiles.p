@@ -211,3 +211,9 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile inventoryStatusType
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
