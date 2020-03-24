@@ -130,6 +130,11 @@ DEFINE BUTTON btnHTML
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "HTML".
 
+DEFINE BUTTON btnPageFormat 
+     IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.9 TOOLTIP "Page Format".
+
 DEFINE BUTTON btnPDF 
      IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
@@ -157,7 +162,7 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 70 BY 2.38
+     SIZE 63 BY 2.38
      BGCOLOR 15 .
 
 DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
@@ -170,7 +175,7 @@ DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom"
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 66 BY 2.38.
+     SIZE 74 BY 2.38.
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -236,6 +241,50 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME outputFrame
+     btnPageFormat AT ROW 1.48 COL 143 HELP
+          "Page Format" WIDGET-ID 652
+     btnRunResults AT ROW 1.48 COL 87 HELP
+          "Results Grid" WIDGET-ID 254
+     btnCSV AT ROW 1.48 COL 95 HELP
+          "Excel CSV" WIDGET-ID 140
+     btnHTML AT ROW 1.48 COL 127 HELP
+          "HTML" WIDGET-ID 144
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svSetAlignment AT ROW 1.71 COL 72 NO-LABEL WIDGET-ID 646
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
+     btnView AT ROW 1.48 COL 151 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     btnPrint AT ROW 1.48 COL 135 HELP
+          "Printer" WIDGET-ID 644
+     btnDOCX AT ROW 1.48 COL 111 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnPDF AT ROW 1.48 COL 119 HELP
+          "PDF" WIDGET-ID 146
+     btnXLS AT ROW 1.48 COL 103 HELP
+          "Excel XLS" WIDGET-ID 150
+     "Set Alignment" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 1 COL 72 WIDGET-ID 650
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
+     RECT-PANEL AT ROW 1.24 COL 86 WIDGET-ID 256
+     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 5.24
+         BGCOLOR 15 
+         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
+
 DEFINE FRAME resultsFrame
      btnSaveResults AT ROW 1 COL 2 HELP
           "Jasper Viewer" WIDGET-ID 254
@@ -246,48 +295,6 @@ DEFINE FRAME resultsFrame
          AT COL 1 ROW 6.48
          SIZE 10 BY 2.38
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
-
-DEFINE FRAME outputFrame
-     btnRunResults AT ROW 1.48 COL 95 HELP
-          "Results Grid" WIDGET-ID 254
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
-     btnCSV AT ROW 1.48 COL 103 HELP
-          "Excel CSV" WIDGET-ID 140
-     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
-     btnHTML AT ROW 1.48 COL 135 HELP
-          "HTML" WIDGET-ID 144
-     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     btnView AT ROW 1.48 COL 151 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnAddEmail AT ROW 2.19 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
-     btnPrint AT ROW 1.48 COL 143 HELP
-          "Printer" WIDGET-ID 644
-     btnDOCX AT ROW 1.48 COL 119 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnPDF AT ROW 1.48 COL 127 HELP
-          "PDF" WIDGET-ID 146
-     btnXLS AT ROW 1.48 COL 111 HELP
-          "Excel XLS" WIDGET-ID 150
-     "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1 COL 79 WIDGET-ID 650
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
-     RECT-PANEL AT ROW 1.24 COL 94 WIDGET-ID 256
-     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 160 BY 5.24
-         BGCOLOR 15 
-         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -345,6 +352,9 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
 
 /* SETTINGS FOR FRAME outputFrame
                                                                         */
+ASSIGN 
+       btnPageFormat:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
+
 ASSIGN 
        btnPrint:AUTO-RESIZE IN FRAME outputFrame      = TRUE.
 
@@ -504,6 +514,17 @@ END.
 ON CHOOSE OF btnHTML IN FRAME outputFrame
 DO:
     RUN pRunSubject (YES, "HTML", USERID("ASI"), cPrgmName).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPageFormat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPageFormat C-Win
+ON CHOOSE OF btnPageFormat IN FRAME outputFrame
+DO:
+    RUN pPageFormat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -761,9 +782,9 @@ PROCEDURE enable_UI :
           svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
           svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnRunResults svRecipients svSetAlignment btnCSV svShowAll 
-         svShowReportHeader btnHTML svShowReportFooter svShowPageHeader 
-         svShowPageFooter btnView svShowGroupHeader svShowGroupFooter 
+  ENABLE btnPageFormat btnRunResults btnCSV btnHTML svRecipients svSetAlignment 
+         svShowAll svShowReportHeader btnView svShowReportFooter 
+         svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
          svShowParameters btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
@@ -778,8 +799,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure C-Win
-PROCEDURE pDeleteProcedure:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteProcedure C-Win 
+PROCEDURE pDeleteProcedure :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -792,7 +813,7 @@ PROCEDURE pDeleteProcedure:
    DELETE PROCEDURE hDynCalcField.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -857,6 +878,48 @@ PROCEDURE pGetSettings :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPageFormat C-Win
+PROCEDURE pPageFormat:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cPageOrientation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPageFormat      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPageHeight      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPageWidth       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lContinue        AS LOGICAL   NO-UNDO.
+
+    ASSIGN
+        iPageFormat      = dynParamValue.pageFormat
+        cPageOrientation = dynParamValue.pageOrientation
+        iPageWidth       = dynParamValue.pageWidth
+        iPageHeight      = dynParamValue.pageHeight
+        .
+    RUN AOA/dynPageFormat.w (
+        INPUT-OUTPUT iPageFormat,
+        INPUT-OUTPUT cPageOrientation,
+        INPUT-OUTPUT iPageWidth,
+        INPUT-OUTPUT iPageHeight,
+        OUTPUT lContinue
+        ).
+    IF lContinue THEN
+    DO TRANSACTION:
+        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+        ASSIGN
+            dynParamValue.pageFormat      = iPageFormat
+            dynParamValue.pageOrientation = cPageOrientation
+            dynParamValue.pageWidth       = iPageWidth
+            dynParamValue.pageHeight      = iPageHeight
+            .
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* do trans */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
