@@ -1266,24 +1266,31 @@ PROCEDURE pJasperReport :
     iMargin = IF CAN-DO("pdf,view,docx",ipcType) THEN 20 ELSE 0.
 
     CASE ipcReport:
-        WHEN "Open" THEN
-        PUT UNFORMATTED
-            "<?xml version=~"1.0~" encoding=~"UTF-8~"?>" SKIP
-            "<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->" SKIP
-            "<jasperReport xmlns=~"http://jasperreports.sourceforge.net/jasperreports~" "
-            "xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" "
-            "xsi:schemaLocation=~"http://jasperreports.sourceforge.net/jasperreports "
-            "http://jasperreports.sourceforge.net/xsd/jasperreport.xsd~" "
-            "name=~"" REPLACE(aoaTitle," ","") "~" "
-            "pageWidth=~"" ipiSize "~" "
-            "orientation=~"Landscape~" "
-            "columnWidth=~"" ipiSize - 40 "~" "
-            "leftMargin=~"" iMargin "~" "
-            "rightMargin=~"" iMargin "~" "
-            "topMargin=~"" iMargin "~" "
-            "bottomMargin=~"" iMargin "~" "
-            "isIgnorePagination=~"" TRIM(STRING(CAN-DO("csv,xls",ipcType),"true/false")) "~""
-            ">" SKIP.
+        WHEN "Open" THEN DO:
+            PUT UNFORMATTED
+                "<?xml version=~"1.0~" encoding=~"UTF-8~"?>" SKIP
+                "<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->" SKIP
+                "<jasperReport xmlns=~"http://jasperreports.sourceforge.net/jasperreports~" "
+                "xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" "
+                "xsi:schemaLocation=~"http://jasperreports.sourceforge.net/jasperreports "
+                "http://jasperreports.sourceforge.net/xsd/jasperreport.xsd~" "
+                "name=~"" REPLACE(aoaTitle," ","") "~" "
+                .
+            IF AVAILABLE dynParamValue AND dynParamValue.pageHeight GT 0 THEN
+            PUT UNFORMATTED
+                "pageHeight=~"" dynParamValue.pageHeight "~" "
+                . 
+            PUT UNFORMATTED
+                "pageWidth=~"" ipiSize "~" "
+                "columnWidth=~"" ipiSize - iMargin * 2 "~" "
+                "orientation=~"" IF AVAILABLE dynParamValue THEN dynParamValue.pageOrientation ELSE "Landscape" ""~" "
+                "leftMargin=~"" iMargin "~" "
+                "rightMargin=~"" iMargin "~" "
+                "topMargin=~"" iMargin "~" "
+                "bottomMargin=~"" iMargin "~" "
+                "isIgnorePagination=~"" TRIM(STRING(CAN-DO("csv,xls",ipcType),"true/false")) "~""
+                ">" SKIP.
+        END. /* open */
         WHEN "Close" THEN
         PUT UNFORMATTED
             "</jasperReport>" SKIP
