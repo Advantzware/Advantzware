@@ -1466,7 +1466,7 @@ PROCEDURE ipChangePassword :
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
         FIND FIRST userPwdHist EXCLUSIVE WHERE
             userPwdHist.user_id = _user._userID AND
-            userPwdHist.pwd = cNewPassword AND
+            userPwdHist.pwd = ENCODE(cNewPassword) AND
             userPwdHist.pwdDate = today NO-ERROR.
         IF NOT AVAIL userPwdHist THEN DO:
             CREATE userPwdHist.
@@ -1478,7 +1478,7 @@ PROCEDURE ipChangePassword :
                 userPwdHist.createUser = USERID(LDBNAME(1)).
         END.
         ASSIGN
-            userPwdHist.pwd = cNewPassword
+            userPwdHist.pwd = ENCODE(cNewPassword)
             userPwdHist.updateDate = TODAY
             userPwdHist.updateTime = TIME
             userPwdHist.updateUser = USERID(LDBNAME(1))

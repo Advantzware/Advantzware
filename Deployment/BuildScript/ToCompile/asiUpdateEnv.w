@@ -3066,7 +3066,13 @@ PROCEDURE ipDataFix200100:
         ASSIGN 
             sys-ctrl.log-fld = TRUE.
     END. 
-
+    
+    /* 64876 - Encrypt passwords in userPwdHist */
+    FOR EACH userPwdHist:
+        ASSIGN 
+            userPwdHist.pwd = ENCODE(userPwdHist.pwd).
+    END.
+            
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
