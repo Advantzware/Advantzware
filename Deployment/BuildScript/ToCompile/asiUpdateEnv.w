@@ -3066,7 +3066,21 @@ PROCEDURE ipDataFix200100:
         ASSIGN 
             sys-ctrl.log-fld = TRUE.
     END. 
-
+    
+    /* 64876 - Encrypt passwords in userPwdHist */
+    FOR EACH userPwdHist:
+        ASSIGN 
+            userPwdHist.pwd = ENCODE(userPwdHist.pwd).
+    END.
+    
+    /* 64885 - Load inventoryStatusType data */
+    INPUT FROM VALUE(cUpdDataDir + "\inventoryStatusType.d") NO-ECHO.
+    REPEAT:
+        CREATE inventoryStatusType.
+        IMPORT inventoryStatusType.
+    END.
+    
+            
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
