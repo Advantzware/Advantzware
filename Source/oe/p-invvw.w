@@ -512,8 +512,16 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE lInitial AS LOGICAL NO-UNDO .
+          .
 DO WITH FRAME Panel-Frame:
+
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"TableIO-TARGET", OUTPUT char-hdl).
+     
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN pGetInvHead IN WIDGET-HANDLE(char-hdl) (OUTPUT lInitial)  .
+     IF lInitial AND panel-state EQ "add-only" THEN
+        ASSIGN panel-state = "initial" .
 
   IF panel-state = 'disable-all':U THEN DO:
 
