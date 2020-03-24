@@ -411,7 +411,7 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Save Options for Cost Calc",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSBOLPassword" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "BOL password if tag scanned is not on the BOL and the driver scans a tag from a different job#",
