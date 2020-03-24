@@ -81,7 +81,6 @@ DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
 
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
-DEF VAR fg-uom-list  AS CHAR NO-UNDO.
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-post-date AS DATE INITIAL TODAY.
 
@@ -112,7 +111,6 @@ DO TRANSACTION :
    FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "CASETAG" NO-LOCK NO-ERROR.
    IF AVAIL sys-ctrl THEN v-case-tag = sys-ctrl.log-fld.
-   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 END.
 
@@ -2037,7 +2035,7 @@ PROCEDURE post-finish-goods :
               IF itemfg.prod-uom EQ "M" THEN
                 b-oe-ordl.cost = itemfg.total-std-cost.
               ELSE
-                RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
+                RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
                                         THEN "EA" ELSE itemfg.prod-uom),
                                        "M", 0, 0, 0, 0,
                                        itemfg.total-std-cost, OUTPUT b-oe-ordl.cost).

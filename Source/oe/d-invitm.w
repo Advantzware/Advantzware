@@ -61,8 +61,6 @@ if avail sys-ctrl then
    v-print-head = sys-ctrl.log-fld
    v-print-fmt  = sys-ctrl.char-fld.
 
-DEF VAR fg-uom-list AS cha NO-UNDO.
-RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 {oe/oe-sysct1.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
@@ -434,6 +432,7 @@ ON HELP OF FRAME Dialog-Frame /* Invoice Item Detail */
 DO:
      def var char-val as cha no-undo.
      def var look-recid as recid no-undo. 
+     DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
     
      FIND FIRST inv-head WHERE inv-head.company = g_company 
                            AND inv-head.r-no = inv-line.r-no NO-LOCK NO-ERROR.
@@ -488,9 +487,19 @@ DO:
                if char-val <> "" then focus:screen-value = entry(1,char-val).         
           end.*/
           when "pr-uom" then do:
+               RUN pSetValidUOMList(g_company,inv-line.i-no:SCREEN-VALUE).
                run windows/l-stduom.w (g_company,lv-uom-list,inv-line.pr-uom:screen-value, output char-val).
                if char-val <> "" then inv-line.pr-uom:screen-value = entry(1,char-val).  
-               {oe/ordltot.i inv-line inv-qty}
+               RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+                inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+               //{oe/ordltot.i inv-line inv-qty}
           end.
           when "po-no" then do:
                run windows/l-ponopo.w (g_company,yes,focus:screen-value, output char-val).
@@ -676,9 +685,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.disc Dialog-Frame
 ON VALUE-CHANGED OF inv-line.disc IN FRAME Dialog-Frame /* Discount */
 DO:
-  {oe/ordltot.i inv-line inv-qty}
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  
+  RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+    inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
 END.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -795,7 +813,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.inv-qty Dialog-Frame
 ON VALUE-CHANGED OF inv-line.inv-qty IN FRAME Dialog-Frame /* Qty Invoice */
 DO:
-  {oe/ordltot.i inv-line inv-qty}
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+    
+    RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+                inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+  //{oe/ordltot.i inv-line inv-qty}
   glInvQtyChanged = YES. /*if there is an order, the new ship qty 
                     should be applied to ordl - 05281303*/
 END.
@@ -865,7 +894,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.pr-uom Dialog-Frame
 ON VALUE-CHANGED OF inv-line.pr-uom IN FRAME Dialog-Frame /* UOM */
 DO:
-  {oe/ordltot.i inv-line inv-qty}
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  
+  RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+   inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+  //{oe/ordltot.i inv-line inv-qty}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -890,7 +930,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.price Dialog-Frame
 ON VALUE-CHANGED OF inv-line.price IN FRAME Dialog-Frame /* Price */
 DO:
-  {oe/ordltot.i inv-line inv-qty}
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  
+  RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+  inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+  //{oe/ordltot.i inv-line inv-qty}
   price-ent = YES.
 END.
 
@@ -902,7 +953,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.qty Dialog-Frame
 ON LEAVE OF inv-line.qty IN FRAME Dialog-Frame /* Qty Order */
 DO:
-   {oe/ordltot.i inv-line qty}
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  
+  RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+  inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+  //{oe/ordltot.i inv-line qty}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1013,6 +1075,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.ship-qty Dialog-Frame
 ON VALUE-CHANGED OF inv-line.ship-qty IN FRAME Dialog-Frame /* Qty Ship */
 DO:
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+    
   IF inv-line.ord-no EQ 0 THEN DO:
     ASSIGN
      inv-line.qty:SCREEN-VALUE     = {&self-name}:SCREEN-VALUE
@@ -1035,8 +1099,18 @@ DO:
                inv-line.pr-uom:SCREEN-VALUE = STRING(xinv-line.pr-uom).
       
     END.
-
-    {oe/ordltot.i inv-line inv-qty}
+  
+ 
+    RUN Conv_CalcTotalPrice(g_company, 
+                        inv-line.i-no:SCREEN-VALUE,
+                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.price:SCREEN-VALUE),
+                        inv-line.pr-uom:SCREEN-VALUE,
+                        DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
+                        0,    
+                        OUTPUT dTotalPrice).
+    inv-line.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+  //{oe/ordltot.i inv-line inv-qty}
 
   END.
   
@@ -1405,217 +1479,42 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-total Dialog-Frame 
-PROCEDURE update-total :
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValidUOMList Dialog-Frame
+PROCEDURE pSetValidUOMList PRIVATE:
 /*------------------------------------------------------------------------------
-  Purpose:      oe/oe-invup.p
-  Parameters:  <none>
-  Notes:       
+ Purpose:  Given company and get, set the global UOM list variable
+ Notes:
 ------------------------------------------------------------------------------*/
-  DEF BUFFER xinv-head FOR inv-head.
-  DEF BUFFER xinv-line FOR inv-line.
-  def var v-line               like inv-line.line.
-  def var hold_invoice_id      as   recid no-undo.
-  def var v-cred-lim           as   log no-undo.
-  def var v-tax                as   DEC NO-UNDO.
-  DEF VAR v-basis LIKE sman.commbasis NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
 
-
-  FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ inv-head.company NO-LOCK NO-ERROR.
-
-  v-cred-lim = inv-head.bol-no eq 0 and inv-head.terms ne "CASH" and
-               not program-name(2) begins "oe/oe-bolp3.".
-
-  find first cust where cust.company = inv-head.company
-                    and cust.cust-no = inv-head.cust-no.
-  find xinv-head of inv-line.   
-  if (inv-head.bol-no ne 0                       and
-      not program-name(2) begins "oe/oe-invde."  and
-      not program-name(2) begins "oe/oe-bolp3.") or
-      v-cred-lim                                 THEN cust.ord-bal = cust.ord-bal - xinv-head.t-inv-rev.
-
-  ASSIGN xinv-head.t-inv-tax  = 0
-         xinv-head.t-inv-cost = 0
-         xinv-head.t-comm     = 0
-         xinv-head.t-inv-rev  = 0
-         v-line               = 0.
-
-
-  /* Find the tax record. */
-  FIND FIRST stax WHERE 
-        stax.company = cocode AND
-        stax.tax-group = xinv-head.tax-gr NO-LOCK NO-ERROR.
-
-  for each xinv-line of xinv-head:
-    find first itemfg
-        {sys/look/itemfgrlW.i}
-          and itemfg.i-no eq xinv-line.i-no
-        no-lock no-error.
-
-    assign
-     save_id = recid(xinv-line)
-     v-i-item = xinv-line.i-no
-     v-i-qty = xinv-line.ship-qty.
-
-    if xinv-line.pr-uom begins "L" AND xinv-line.pr-uom NE "LB" then
-      xinv-line.t-price = xinv-line.price *
-                         if xinv-line.inv-qty lt 0 then -1 else 1.
-
-    else
-    if xinv-line.pr-uom eq "CS" and avail itemfg then 
-      xinv-line.t-price = xinv-line.inv-qty /
-                         (if xinv-line.cas-cnt ne 0 then
-                            xinv-line.cas-cnt
-                          else
-                          if avail itemfg and itemfg.case-count ne 0 then
-                            itemfg.case-count else 1) *
-                         xinv-line.price.
-    
-    ELSE IF LOOKUP(xinv-line.pr-uom,fg-uom-list) GT 0 THEN
-        xinv-line.t-price = xinv-line.inv-qty * xinv-line.price.
-    else do:
-      find first uom
-          where uom.uom  eq xinv-line.pr-uom
-            and uom.mult ne 0
-          no-lock no-error.
-      xinv-line.t-price = xinv-line.inv-qty /
-                         (if avail uom then uom.mult else 1000) *
-                         xinv-line.price.
-    end.
-   
-    IF xinv-line.disc NE 0 THEN
-      xinv-line.t-price = 
-          IF v-print-fmt EQ "Dayton" THEN 
-            (xinv-line.t-price - ROUND(xinv-line.t-price * xinv-line.disc / 100,2))
-          ELSE
-            ROUND(xinv-line.t-price * (1 - (xinv-line.disc / 100)),2).
-
-    /* Calculate tax for header record. */
-    if xinv-line.tax then do:
-
-        RUN ar/calctax2.p (xinv-head.tax-gr,NO,xinv-line.t-price,xinv-head.company,xinv-line.i-no,OUTPUT v-tax).
-/*       /* Determine which tax program to run (standard or varied tax calculation). */        */
-/*       /* If the itemfg varied tax flag is set... */                                         */
-/*       IF AVAIL itemfg AND itemfg.spare-char-2 = "YES" AND                                   */
-/*           /* And the dollar limit is setup in tax code 5... */                              */
-/*           AVAIL stax AND stax.tax-code1[5] = "" AND stax.tax-dscr1[5] = "Dollar Limit" AND  */
-/*                stax.tax-rate1[5] > 0 AND                                                    */
-/*           /* and the invoice price exceeds the dollar limit... */                           */
-/*           xinv-line.t-price > stax.tax-rate1[5] THEN                                        */
-/*           /* then run the varied tax rate calculation program. */                           */
-/*           RUN ar/calcvtax.p (xinv-head.tax-gr, no,xinv-line.t-price, output v-tax).         */
-/*       /* Else run the standard tax rate calculation program. */                             */
-/*       ELSE                                                                                  */
-/*           RUN ar/calctax.p (xinv-head.tax-gr, no,xinv-line.t-price, output v-tax).          */
-    
-      /* Accumulate tax to invoice header record. */
-      ASSIGN xinv-head.t-inv-tax = (xinv-head.t-inv-tax + v-tax).
-    END.
-      
-    assign
-     xinv-head.t-inv-cost  = xinv-head.t-inv-cost +
-                             round((xinv-line.cost *
-                                   (xinv-line.inv-qty / 1000)),2)
-     xinv-head.t-comm      = xinv-head.t-comm +
-                             xinv-line.comm-amt[1] +
-                             xinv-line.comm-amt[2] +
-                             xinv-line.comm-amt[3]
-     xinv-head.t-inv-rev   = xinv-head.t-inv-rev + xinv-line.t-price
-     v-line                = v-line + 1.
-  end.
-
-  FOR EACH inv-misc of xinv-head where inv-misc.bill eq "Y" NO-LOCK:
-    IF inv-misc.tax THEN DO:
-
-        RUN ar/calctax2.p (inv-head.tax-gr,NO,inv-misc.amt,inv-head.company,inv-misc.inv-i-no,OUTPUT v-tax).
-/*         /* Find itemfg. */                                                                    */
-/*         FIND FIRST itemfg NO-LOCK WHERE                                                       */
-/*             itemfg.company = inv-misc.company AND                                             */
-/*             itemfg.i-no = inv-misc.inv-i-no NO-ERROR.                                         */
-/*         /* Determine which tax program to run (standard or varied tax calculation). */        */
-/*         /* If the itemfg varied tax flag is set... */                                         */
-/*         IF AVAIL itemfg AND itemfg.spare-char-2 = "YES" AND                                   */
-/*             /* And the dollar limit is setup in tax code 5... */                              */
-/*             AVAIL stax AND stax.tax-code1[5] = "" AND stax.tax-dscr1[5] = "Dollar Limit" AND  */
-/*                   stax.tax-rate1[5] > 0 AND                                                   */
-/*             /* and the invoice price exceeds the dollar limit... */                           */
-/*             inv-misc.amt > stax.tax-rate1[5] THEN                                             */
-/*             /* then run the varied tax rate calculation program. */                           */
-/*             RUN ar/calcvtax.p (inv-head.tax-gr, no,inv-misc.amt, output v-tax).               */
-/*                                                                                               */
-/*         /* Else run the standard tax rate calculation program. */                             */
-/*         ELSE                                                                                  */
-/*             RUN ar/calctax.p (xinv-head.tax-gr, no,inv-misc.amt, output v-tax).               */
-
-       ASSIGN xinv-head.t-inv-tax = xinv-head.t-inv-tax + v-tax.
-    END. /* IF inv-misc.tax */
-
-    ASSIGN xinv-head.t-inv-rev = xinv-head.t-inv-rev + inv-misc.amt.
-
-      FIND FIRST prep
-          WHERE prep.company EQ inv-misc.company
-            AND prep.code    EQ inv-misc.charge
-          NO-LOCK NO-ERROR.
-      IF AVAIL prep
-      AND prep.commissionable THEN 
-      DO k = 1 TO 3:
-        IF inv-misc.s-man[k] NE "" THEN DO:
-              RUN custom/combasis.p (xinv-head.company, inv-misc.s-man[k],
-                                 (IF AVAIL cust THEN cust.type ELSE ""),
-                                 (IF AVAIL prep THEN prep.fgcat ELSE ""), 0,
-                                 (IF AVAIL cust THEN cust.cust-no ELSE ""),
-                                 OUTPUT v-basis).
-
-              ASSIGN xinv-head.t-comm = xinv-head.t-comm +
-                   ROUND((inv-misc.amt - IF v-basis EQ "G" THEN inv-misc.cost ELSE 0) *
-                         (inv-misc.s-pct[k] / 100) * (inv-misc.s-comm[k] / 100),2).
-        END.
-      END.
-  END. /* FOR EACH inv-misc */
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
  
-  if xinv-head.f-bill then do:
-     run ar/calctax.p (xinv-head.tax-gr, yes,
-                    xinv-head.t-inv-freight, output v-tax).
-     ASSIGN xinv-head.t-inv-tax = xinv-head.t-inv-tax + v-tax
-            xinv-head.t-inv-rev = xinv-head.t-inv-rev + xinv-head.t-inv-freight.
-  end.
-  xinv-head.t-inv-rev = xinv-head.t-inv-rev + xinv-head.t-inv-tax.
-  
-  /*if v-cred-lim and xinv-head.stat ne "H" then do:
-     if cust.cr-hold-invdays gt 0 then do:
-        run oe/creditid.p (input recid(cust), output hold_invoice_id).
-        if hold_invoice_id ne ? then do:
-           message "Customer has exceeded invoice age limit. Invoice will be put on HOLD."
-                   VIEW-AS ALERT-BOX WARNING .
-           xinv-head.stat = "H".
-        end.
-     end.
-     ELSE if cust.acc-bal + cust.ord-bal + xinv-head.t-inv-rev gt cust.cr-lim then do:    
-          message "Customer has exceeded credit limit. Invoice will be put on HOLD."
-                   VIEW-AS ALERT-BOX WARNING .
-          xinv-head.stat = "H".
-     end.
-     ELSE if cust.ord-bal + xinv-head.t-inv-rev gt cust.ord-lim then do:
-          message "WARNING: Customer has exceeded order limit. Invoice will be put on HOLD."
-                  VIEW-AS ALERT-BOX WARNING.
-          xinv-head.stat = "H".
-     end.
-  end.
-    
-  if (inv-head.bol-no ne 0                       and
-      not program-name(2) begins "oe/oe-invde."  and
-      not program-name(2) begins "oe/oe-bolp3.") or
-      v-cred-lim                                 THEN  cust.ord-bal = cust.ord-bal + xinv-head.t-inv-rev.*/
+DEFINE BUFFER bf-itemfg FOR itemfg.
 
-  IF v-cred-lim AND xinv-head.stat NE "H" THEN
-    RUN oe/creditck.p (ROWID(xinv-head), NO).
+    IF ipcItemID NE "" THEN DO:
+       FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+    END.
+    IF AVAILABLE bf-itemfg THEN DO: 
+        RUN Conv_GetValidPriceUOMsForItem(ROWID(bf-itemfg), OUTPUT lv-uom-list, OUTPUT lError, OUTPUT cMessage).
+    END.
+    ELSE DO: 
+        RUN Conv_GetValidPriceUOMs(OUTPUT lv-uom-list).
+    END.
 
-  FIND CURRENT inv-line.
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no Dialog-Frame 
 PROCEDURE valid-i-no :
@@ -1725,15 +1624,15 @@ PROCEDURE valid-uom :
   DO WITH FRAME {&FRAME-NAME}:
       cUom = inv-line.pr-uom:SCREEN-VALUE.
 
-      RUN pIsValidUOM IN hdValidator (cUom, YES, OUTPUT lValid, OUTPUT cValidMessage).
-      IF NOT lValid THEN DO:
-          MESSAGE  cValidMessage
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          oplReturnError = YES .
-          lCheckError = YES .
-          APPLY "entry" TO inv-line.pr-uom .
-      END.
-
+/*      RUN pIsValidUOM IN hdValidator (cUom, YES, OUTPUT lValid, OUTPUT cValidMessage).*/
+/*      IF NOT lValid THEN DO:                                                          */
+/*          MESSAGE  cValidMessage                                                      */
+/*              VIEW-AS ALERT-BOX INFO BUTTONS OK.                                      */
+/*          oplReturnError = YES .                                                      */
+/*          lCheckError = YES .                                                         */
+/*          APPLY "entry" TO inv-line.pr-uom .                                          */
+/*      END.                                                                            */
+      RUN pSetValidUOMList(g_company,inv-line.i-no:SCREEN-VALUE).
       RUN pIsValidFromList IN hdValidator ("Uom", cUom, lv-uom-list, OUTPUT lValid, OUTPUT cValidMessage). 
       
       IF NOT lValid AND NOT lCheckError THEN DO:

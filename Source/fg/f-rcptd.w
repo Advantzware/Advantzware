@@ -52,7 +52,6 @@ DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 DEF VAR ll-qty-case-ent AS LOG NO-UNDO.
 DEF VAR lv-num-rec AS INT NO-UNDO.
-def var fg-uom-list  as char NO-UNDO.
 DEF VAR lv-frst-rno LIKE fg-rctd.r-no NO-UNDO.
 DEF VAR lv-rct-date-checked AS LOG NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
@@ -81,8 +80,6 @@ DO TRANSACTION:
   {sys/inc/oeship.i}
   {sys/inc/fgsecur.i}
 END.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 &SCOPED-DEFINE item-key-phrase TRUE
 &SCOPED-DEFINE init-proc init-proc
@@ -1376,7 +1373,7 @@ PROCEDURE create-from-po :
 
       ld = po-ordl.ord-qty.
 
-      IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
+      IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
         RUN sys/ref/convquom.p (po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
                                 ld, OUTPUT ld).
 
@@ -1755,7 +1752,7 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
      v-wid = po-ordl.s-wid
      v-rec-qty = v-rec-qty + po-ordl.t-rec-qty.
 
-    IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
+    IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
        RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                               v-rec-qty, OUTPUT v-rec-qty).
 
@@ -1847,14 +1844,14 @@ END.
 
 /* convert cost pr-uom*/
 IF lv-from-uom EQ lv-cost-uom               OR
-   (LOOKUP(lv-from-uom,fg-uom-list) GT 0 AND
-    LOOKUP(lv-cost-uom,fg-uom-list) GT 0)   THEN.
+   (DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no:SCREEN-VALUE, lv-from-uom) AND
+    DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no:SCREEN-VALUE, lv-cost-uom))   THEN.
 ELSE
   RUN rm/convcuom.p(lv-from-uom, lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-cost, OUTPUT lv-out-cost).
   
-IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
+IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no:SCREEN-VALUE, lv-cost-uom) THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).
@@ -1878,7 +1875,6 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
        INPUT v-wid,
        INPUT v-dep,
        INPUT lv-out-ea,
-       INPUT fg-uom-list,
        OUTPUT lv-out-cost).
 
  END.

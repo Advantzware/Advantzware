@@ -143,9 +143,8 @@ PROCEDURE BuildVendItemCosts:
             ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + "Not Yet Effective,".
         
         IF ttVendItemCost.quantityTargetUOM NE ttVendItemCost.vendorUOM THEN
-            RUN pConvertQuantity(ipcCompany, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
-                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-                OUTPUT ttVendItemCost.quantityTargetInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
+                ipdBasisWeight, ipdDimLength, ipdDimWidth, ipdDimDepth,0, OUTPUT ttVendItemCost.quantityTargetInVendorUOM, OUTPUT oplError, OUTPUT opcMessage).
         IF ipcDimUOM NE bf-vendItemCost.dimUOM THEN 
         DO:
             RUN pConvertDim(ipcCompany, ipdDimLength, ipcDimUOM, bf-vendItemCost.dimUOM, 
@@ -309,9 +308,9 @@ PROCEDURE GetVendorCostNextBreak:
             opcCostUOM = bf-vendItemCost.vendorUOM.
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO: 
-            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
-                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-                OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+                ipdBasisWeight, ipdDimLength, ipdDimWidth, ipdDimDepth,0, OUTPUT dQuantityInVendorUOM, OUTPUT oplError, OUTPUT opcMessage).
+
         END.
         ELSE 
             dQuantityInVendorUOM = ipdQuantity. 
@@ -372,9 +371,9 @@ PROCEDURE GetVendorCost:
             opcCostUOM = bf-vendItemCost.vendorUOM.
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO: 
-            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
-                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-                OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+                ipdBasisWeight, ipdDimLength, ipdDimWidth, ipdDimDepth,0, OUTPUT dQuantityInVendorUOM, OUTPUT oplError, OUTPUT opcMessage).
+
         END.
         ELSE 
             dQuantityInVendorUOM = ipdQuantity. 
@@ -1116,49 +1115,6 @@ PROCEDURE pConvertDim PRIVATE:
 
     /*Refactor - support for non IN uom as assumed now*/
     opdDimInToUOM = ipdDimInFromUOM.
-
-END PROCEDURE.
-
-PROCEDURE pConvertQuantity PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:  Converts given value in given uom to desired UOM, based on additional
-     item specs
-     Notes:
-     Syntax:
-         RUN pConvertQuantity(cCompany, dQtyInFromUOM, cFromUOM, cToUOM, 
-            dBasisWeight, cBasisWeightUOM, dLength, dWidth, dDepth, cDimUOM,
-            OUTPUT dQtyInToUOM, OUTPUT oplError, INPUT-OUTPUT iopcMessage).
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQtyInFromUOM AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdQtyInToUOM AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE dBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dDimLengthInIN          AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dDimWidthInIN           AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dDimDepthInIN           AS DECIMAL NO-UNDO.
-
-    /*Refactor handling of non-assumed UOMs of "IN" and "LBS/MSF" and handle error & message propagation*/
-    ASSIGN 
-        dBasisWeightInLBSPerMSF = ipdBasisWeight
-        dDimLengthInIN          = ipdDimLength
-        dDimWidthInIN           = ipdDimWidth
-        dDimDepthInIN           = ipdDimDepth
-        .
-
-    RUN custom/convquom.p(ipcCompany, ipcFromUOM, ipcToUOM, 
-        dBasisWeightInLBSPerMSF, dDimLengthInIN, dDimWidthInIN, dDimDepthInIN,
-        ipdQtyInFromUOM, OUTPUT opdQtyInToUOM).      
 
 END PROCEDURE.
 

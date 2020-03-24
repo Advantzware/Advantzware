@@ -59,7 +59,6 @@ DEFINE VARIABLE lv-job-no2        AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE lv-setup          AS DECIMAL       NO-UNDO.
 DEFINE VARIABLE lv-adder          AS DECIMAL       DECIMALS 4 NO-UNDO.
 DEFINE VARIABLE lv-msf            AS DECIMAL       DECIMALS 3 NO-UNDO.
-DEFINE VARIABLE fg-uom-list       AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE ll-add-setup      AS LOG           NO-UNDO.
 DEFINE VARIABLE lv-save-fld       AS CHARACTER     EXTENT 2 NO-UNDO.
 DEFINE VARIABLE v-bin             AS CHARACTER     NO-UNDO.
@@ -1539,8 +1538,6 @@ DO TRANSACTION:
     FIND CURRENT sys-ctrl NO-LOCK.
 END.
 v-bin = sys-ctrl.char-fld.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -4725,9 +4722,7 @@ FUNCTION display-msf RETURNS DECIMAL
    
         IF AVAILABLE po-ordl THEN 
         DO:
-            IF rm-rctd.pur-uom EQ "EA" /*OR
-         (NOT po-ordl.item-type AND
-          LOOKUP(rm-rctd.pur-uom,fg-uom-list) GT 0)*/ THEN
+            IF rm-rctd.pur-uom EQ "EA" THEN
                 lv-msf = IF v-corr THEN ((v-len * v-wid * .007 * rm-rctd.qty) / 1000)
                 ELSE ((v-len * v-wid) / 144) * (rm-rctd.qty / 1000).
             ELSE 
@@ -4809,9 +4804,7 @@ FUNCTION display-msf-screen RETURNS DECIMAL
    
         IF AVAILABLE po-ordl THEN 
         DO:
-            IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ "EA" /*OR
-         (NOT po-ordl.item-type AND
-          LOOKUP(rm-rctd.pur-uom:screen-value in BROWSE {&browse-name},fg-uom-list) GT 0)*/ THEN
+            IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ "EA" THEN
                 lv-msf = IF v-corr THEN ((v-len * v-wid * .007 * DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name})) / 1000)
                 ELSE ((v-len * v-wid) / 144) * (DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}) / 1000).
             ELSE 

@@ -63,7 +63,7 @@
   
   IF po-ordl.pr-qty-uom{2} EQ "EA"       OR
      (NOT po-ordl.item-type AND
-      LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) GT 0
+      DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom)
       AND po-ordl.pr-qty-uom{2} NE "CS") THEN DO:
  
 
@@ -105,8 +105,8 @@
   
   IF po-ordl.cons-uom{2} NE po-ordl.pr-qty-uom{2} AND
      (po-ordl.item-type                           OR
-      LOOKUP(po-ordl.cons-uom{2},fg-uom-list)   EQ 0 OR
-      LOOKUP(po-ordl.pr-qty-uom{2},fg-uom-list) EQ 0)       THEN DO:
+      NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom{2}) OR
+      NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom{2}))       THEN DO:
     
     IF (po-ordl.pr-qty-uom{2} EQ "CS" 
         /* OR po-ordl.spare-int-1 EQ 1 */) AND AVAIL(itemfg) THEN DO:
@@ -145,8 +145,8 @@
     /* Get quantity in the same UOM as the cost */
     IF {3} po-ordl.pr-qty-uom NE {3} po-ordl.pr-uom     AND
        (po-ordl.item-type                                 OR
-        LOOKUP({3} po-ordl.pr-qty-uom,fg-uom-list) EQ 0 OR
-        LOOKUP({3} po-ordl.pr-uom,fg-uom-list)     EQ 0)  THEN DO:
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, {3} po-ordl.pr-qty-uom) OR
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, {3} po-ordl.pr-uom))  THEN DO:
        
       IF po-ordl.pr-qty-uom{2} EQ "CS" AND AVAIL(itemfg) THEN DO:
         /* Convert quantity to EA */

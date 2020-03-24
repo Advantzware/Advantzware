@@ -332,7 +332,10 @@ PROCEDURE CalculateLinePrice:
                 iopdPrice       = ttItemLines.dPrice
                 iopcPriceUOM    = ttItemLines.cPriceUOM
                 .
-        RUN GetPriceTotal (ttItemLines.dQuantity,
+        RUN Conv_CalcTotalPrice (
+            ttItemLines.cCompany,
+            ttItemLines.cFGItemID,
+            ttItemLines.dQuantity,
             ttItemLines.dPrice,
             ttItemLines.cPriceUOM,
             ttItemLines.iCaseCount,
@@ -557,61 +560,6 @@ PROCEDURE GetPriceMatrixPriceSimple:
         OUTPUT oplMatrixMatchFound, OUTPUT cMessage, 
         INPUT-OUTPUT iopdPrice, INPUT-OUTPUT iopcUOM, 
         OUTPUT lQtyMatchFound, OUTPUT lQtyWithinMatrixRange).
-
-END PROCEDURE.
-
-PROCEDURE GetPriceTotal:
-    /*------------------------------------------------------------------------------
-     Purpose: Given Price Line Inputs, calculate a total price
-     Notes: Replaces oe/GetPriceTotal.p
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcPriceUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiCaseCount AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDiscount AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdPriceTotal AS DECIMAL NO-UNDO.
-
-    DEFINE VARIABLE cFGUomList AS CHARACTER NO-UNDO.
-    DEFINE BUFFER bf-uom FOR uom.
-
-    RUN sys/ref/uom-ea.p (OUTPUT cFGUomList).
-
-    IF ipdQuantity EQ 0 THEN
-        opdPriceTotal = 0.
-    CASE ipcPriceUOM:
-        WHEN "LOT" OR 
-        WHEN "L" THEN 
-            opdPriceTotal = ipdPrice * IF ipdQuantity LT 0 THEN -1 ELSE 1.
-        WHEN "CS" THEN 
-            DO:
-                IF ipiCaseCount EQ 0 THEN 
-                    ipiCaseCount = 1.
-                opdPriceTotal = ipdQuantity / ipiCaseCount * ipdPrice.
-            END. 
-        WHEN "C" THEN 
-            opdPriceTotal = ipdQuantity / 100 * ipdPrice.
-        WHEN "M" THEN            
-            opdPriceTotal = ipdQuantity / 1000 * ipdPrice.
-    END CASE.    
-    IF opdPriceTotal EQ 0 THEN 
-    DO:
-        IF LOOKUP(ipcPriceUom, cFGUomList) GT 0 THEN
-            opdPriceTotal = ipdQuantity * ipdPrice.
-
-        ELSE 
-        DO:
-            FIND FIRST bf-uom
-                WHERE bf-uom.uom  EQ ipcPriceUom
-                AND bf-uom.mult NE 0
-                NO-LOCK NO-ERROR.
-            IF AVAIL bf-uom THEN
-                opdPriceTotal = ipdQuantity / bf-uom.mult * ipdPrice.
-            ELSE
-                opdPriceTotal = ipdQuantity * ipdPrice.
-        END.
-    END.
-    opdPriceTotal = opdPriceTotal - opdPriceTotal * ipdDiscount / 100.
 
 END PROCEDURE.
 

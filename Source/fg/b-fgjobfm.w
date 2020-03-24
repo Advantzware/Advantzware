@@ -47,7 +47,6 @@ def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 DEF VAR glvNewRow AS ROWID NO-UNDO.
 def var ll-help-run as log no-undo. /* set on browse help, reset row-entry */
-def var fg-uom-list  as char NO-UNDO.
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
 
@@ -84,7 +83,6 @@ DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 DEF VAR lv-closed-checked AS LOG NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "L", no, no, "", "", 
     Output lvReturnChar, output lvFound).

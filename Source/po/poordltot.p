@@ -12,13 +12,11 @@ DEF VAR v-basis-w AS DEC NO-UNDO. /* for po/po-adder2.p */
 DEF VAR v-len LIKE po-ordl.s-len NO-UNDO.
 DEF VAR v-wid LIKE po-ordl.s-wid NO-UNDO.
 DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR v-ord-qty AS DEC NO-UNDO.
 DEF VAR v-tot-msf AS DEC NO-UNDO.
 /* ip-type needed for include file podisdet2 */
 DEFINE VARIABLE ip-type AS CHARACTER NO-UNDO.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 FIND po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-ERROR.
 

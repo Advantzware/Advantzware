@@ -930,7 +930,6 @@ PROCEDURE CreateOrder :
                              oe-ordl.part-dscr2 =  itemfg.part-dscr2 
                             .
 
-                   {oe/ordltot3.i oe-ordl qty oe-ordl  }
                    
                   RUN pAutoCreateShipTo (INPUT cocode, 
                                         INPUT oe-ord.cust-no, 

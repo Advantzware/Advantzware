@@ -72,7 +72,8 @@ DEF NEW SHARED VAR v-create-job AS LOG NO-UNDO.
 DEF VAR lv-ordl-recid AS RECID NO-UNDO.
 DEF VAR lv-change-prom-date AS LOG NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
 DEF VAR lv-change-cst-po AS LOG NO-UNDO.    /* flag for updateing oe-ordl.po-no */
-DEF VAR lv-uom-list AS CHAR NO-UNDO.
+DEF VAR cUOMListQty AS cha INIT "M,EA,L,CS,C,LB,DRM,ROL,PLT,PKG,SET,DOZ,BDL" NO-UNDO.
+DEF VAR cUOMListPrice AS cha INIT "M,EA,L,CS,C,LB,DRM,ROL,PLT,PKG,SET,DOZ,BDL" NO-UNDO.
 DEF VAR lv-valid-uom AS CHAR NO-UNDO.
 DEF VAR v-valtype AS cha INIT "O,R,C" NO-UNDO.
 DEF VAR v-duelist AS cha INIT "AM,ASAP,BY,CPU,CR,HFR,HOLD,HOT,INK,MH,MUST,NB4,NCUST,NITEM,NCNI,OE,ON,PPR,RWRK,RUSH,TOOL,WO,$$$" NO-UNDO.
@@ -144,8 +145,6 @@ DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEFINE VARIABLE lInvoiceFound AS LOGICAL     NO-UNDO.
-DEF VAR lUseItemUoM AS LOG NO-UNDO.
-DEF VAR lItemHasUoM AS LOG NO-UNDO.
 
 DEF TEMP-TABLE tt-qty-price
 FIELD oeordl-rowid AS ROWID
@@ -257,11 +256,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceWarning", "L" /* Logical */, NO /* 
 IF v-rec-found THEN
     lOEPriceWarning = LOGICAL(v-rtn-char) NO-ERROR.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUoM", "L" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT v-rtn-char, OUTPUT v-rec-found).
-IF v-rec-found THEN ASSIGN 
-    lUseItemUoM = LOGICAL(v-rtn-char) NO-ERROR.                        
+                     
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -498,7 +493,8 @@ FUNCTION fnPrevOrder RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
-  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ) FORWARD.
+  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL, 
+   ipcItemID AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1084,12 +1080,12 @@ DO:
               END.
          END.
          WHEN "fi_qty-uom" THEN DO:
-              RUN get-valid-uom (lw-focus).
+              RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE).
               RUN windows/l-stduom.w (g_company,lv-valid-uom,oe-ordl.pr-uom:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
          END.
          WHEN "pr-uom" THEN DO:
-              RUN get-valid-uom (lw-focus).
+              RUN get-valid-uom (lw-focus, oe-ordl.i-no:SCREEN-VALUE).
               RUN windows/l-stduom.w (g_company,lv-valid-uom,oe-ordl.pr-uom:screen-value, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
@@ -1442,12 +1438,22 @@ DO:
   DEF VAR lv-case-qty AS INT NO-UNDO.
   DEF VAR lv-uom AS CHAR NO-UNDO.
   DEF VAR op-value AS LOG NO-UNDO .
-
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+    
   RUN valid-cas-cnt (INPUT "NOMSG").
   RUN valid-uom (fi_qty-uom:HANDLE) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    {oe/ordltot.i oe-ordl qty oe-ordl}  
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    //{oe/ordltot.i oe-ordl qty oe-ordl}  
     
 END.
 
@@ -1469,6 +1475,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.disc d-oeitem
 ON LEAVE OF oe-ordl.disc IN FRAME d-oeitem /* Discount */
 DO:
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+    
     IF DEC(oe-ordl.disc:SCREEN-VALUE) GT 100 THEN
     DO:
        MESSAGE "Discount % Cannot Be Greater Than 100."
@@ -1480,7 +1488,16 @@ DO:
        /*oe-ordl.t-price:screen-value = string( (input oe-ordl.qty *
                          input oe-ordl.price) - round( ((input oe-ordl.qty *
                          input oe-ordl.price) * input oe-ordl.disc) / 100, 2) ). */
-      {oe/ordltot.i oe-ordl qty oe-ordl  }
+      RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    //{oe/ordltot.i oe-ordl qty oe-ordl  }
     END.
     
 END.
@@ -1667,6 +1684,7 @@ DO:
   DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 
+
   IF LASTKEY EQ -1 AND NOT historyButton THEN DO:
     IF ll-bypass THEN ll-bypass = NO.
     RETURN.
@@ -1700,11 +1718,12 @@ DO:
   IF oe-ordl.part-no:SCREEN-VALUE EQ "" THEN
       ASSIGN oe-ordl.part-no:SCREEN-VALUE = SELF:SCREEN-VALUE .
 
-    IF lUseItemUoM
-    AND DYNAMIC-FUNCTION("fGetValidUoMsForItem",oe-ord.company,"FG",SELF:SCREEN-VALUE) NE "" THEN ASSIGN 
-        lv-uom-list = DYNAMIC-FUNCTION("fGetValidUoMsForItem",oe-ord.company,"FG",SELF:SCREEN-VALUE).
-    ELSE ASSIGN 
-        lv-uom-list = DYNAMIC-FUNCTION("fGetValidItemUoMs",oe-ord.company,"FG").
+    RUN pSetValidUOMList(g_company, oe-ordl.i-no:SCREEN-VALUE).
+/*    IF lUseItemUoM  THEN DO:                                                                         */
+/*        cUOMListQty = DYNAMIC-FUNCTION("fGetValidUoMsForItem",oe-ord.company,"FG",SELF:SCREEN-VALUE).*/
+/*    END.                                                                                             */
+/*    ELSE ASSIGN                                                                                      */
+/*        cUOMListQty = DYNAMIC-FUNCTION("fGetValidItemUoMs",oe-ord.company,"FG").                     */
 
  IF /*self:modified and*/ SELF:screen-value <> "0" AND NOT ll-ok-i-no /* done in leave trigger */
  THEN DO: 
@@ -2159,7 +2178,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.pr-uom d-oeitem
 ON LEAVE OF oe-ordl.pr-uom IN FRAME d-oeitem /* UOM */
 DO:    
-    
+   DEFINE VARIABLE dTotalPrice AS DECIMAL.
   IF LASTKEY NE -1 THEN DO:
 
     IF TRIM(oe-ordl.pr-uom:SCREEN-VALUE)EQ "" THEN DO:
@@ -2177,7 +2196,15 @@ DO:
        oeestcom-log = YES THEN
        RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
        
-    {oe/ordltot.i oe-ordl qty oe-ordl}
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
 
   END.
 END.
@@ -2223,7 +2250,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.price d-oeitem
 ON VALUE-CHANGED OF oe-ordl.price IN FRAME d-oeitem /* Price */
 DO:
-  {oe/ordltot.i oe-ordl qty oe-ordl}
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+//  {oe/ordltot.i oe-ordl qty oe-ordl}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3293,6 +3330,7 @@ DEF VAR lxUom LIKE oe-ordl.pr-uom NO-UNDO.
 DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
 DEF VAR lcChoice AS CHAR NO-UNDO.
 DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
+DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 
 DO WITH FRAME {&FRAME-NAME}:
     RUN oe/d-quotedprices.w("Button",cocode,
@@ -3323,7 +3361,16 @@ DO WITH FRAME {&FRAME-NAME}:
                 .
         END.
     END CASE.
-    {oe/ordltot.i oe-ordl qty oe-ordl} 
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    //{oe/ordltot.i oe-ordl qty oe-ordl} 
 END.
 
 END PROCEDURE.
@@ -4220,7 +4267,8 @@ PROCEDURE display-est-detail :
   DEF VAR v-tmp-price-2 AS DEC NO-UNDO.
   DEF VAR v-price-per-1000 AS DEC NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
 
@@ -4495,7 +4543,16 @@ PROCEDURE display-est-detail :
    oe-ordl.price:SCREEN-VALUE  = STRING(lv-price)
    oe-ordl.pr-uom:SCREEN-VALUE = STRING(lv-pr-uom).
 
-  {oe/ordltot.i oe-ordl qty oe-ordl}
+  RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+  //{oe/ordltot.i oe-ordl qty oe-ordl}
 
   oe-ordl.rec_key = est.rec_key.
 
@@ -4646,6 +4703,7 @@ PROCEDURE display-fgitem :
   DEF VAR lv-calc-qty AS DEC NO-UNDO.
   DEF VAR lv-case-qty AS INT NO-UNDO.
   DEF VAR lv-uom AS CHAR NO-UNDO.
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 
   IF NOT AVAIL oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
@@ -4729,8 +4787,16 @@ DO WITH FRAME {&FRAME-NAME}:
               IF oe-ordl.est-no:SCREEN-VALUE NE "" AND
                  oeestcom-log = YES THEN
                  RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
-
-              {oe/ordltot.i oe-ordl qty oe-ordl}
+                 RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+                  oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+              //{oe/ordltot.i oe-ordl qty oe-ordl}
            END.           
         END. 
      END.     /* oe-ordl.est-no <> "" */
@@ -5168,9 +5234,10 @@ PROCEDURE display-item :
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
 /*        DISPLAY oe-ordl.whsed WITH FRAME {&FRAME-NAME}. */
 
-    IF AVAIL itemfg THEN
+    IF AVAIL itemfg THEN DO:
         ASSIGN spare-dec-1:SCREEN-VALUE = STRING(itemfg.spare-dec-1).
-
+        RUN pSetValidUOMList(itemfg.company, itemfg.i-no).
+    END.
     IF oe-ordl.vend-no:SCREEN-VALUE EQ "0" THEN
         ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".   /*task 03201407 */
 
@@ -5866,7 +5933,7 @@ PROCEDURE get-price :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR lv-price-ent LIKE price-ent NO-UNDO.
-
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT price-ent                           AND
@@ -5898,8 +5965,16 @@ PROCEDURE get-price :
 
         FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
         DISPLAY oe-ordl.price oe-ordl.pr-uom oe-ordl.t-price.
-
-        {oe/ordltot.i oe-ordl qty oe-ordl}
+        RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+        oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        //{oe/ordltot.i oe-ordl qty oe-ordl}
       END.
 
       price-ent = lv-price-ent.
@@ -5959,8 +6034,16 @@ PROCEDURE get-price-hidden :
         RUN oe/oe-price.p.
 
         FIND xoe-ordl WHERE ROWID(xoe-ordl) EQ lv-rowid NO-ERROR.
-
-        {oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
+        RUN Conv_CalcTotalPrice(cocode, 
+                        bf-oe-ordl.i-no,
+                        bf-oe-ordl.qty,
+                        bf-oe-ordl.price,
+                        bf-oe-ordl.pr-uom,
+                        bf-oe-ordl.disc,
+                        bf-oe-ordl.cas-cnt,    
+                        OUTPUT bf-oe-ordl.t-price).
+    
+        //{oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
         IF lv-save-xoe-ordl NE ? THEN
             FIND xoe-ordl WHERE ROWID(xoe-ordl) = lv-save-xoe-ordl
                EXCLUSIVE-LOCK NO-ERROR.
@@ -6004,27 +6087,29 @@ PROCEDURE get-valid-uom :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
-
+  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+  
   DEF VAR li AS INT NO-UNDO.
 
-
+  IF ipcFGITem NE "" THEN 
+    RUN pSetValidUOMList(g_company, ipcFGITem).
   lv-valid-uom = "".
 
   IF ip-focus:NAME EQ "fi_qty-uom" THEN DO:
-    DO li = 1 TO NUM-ENTRIES(lv-uom-list):
-      IF ENTRY(li,lv-uom-list) NE "L" THEN
-        lv-valid-uom = lv-valid-uom + TRIM(ENTRY(li,lv-uom-list)) + ",".
+    DO li = 1 TO NUM-ENTRIES(cUOMListQty):
+      IF ENTRY(li,cUOMListQty) NE "L" THEN
+        lv-valid-uom = lv-valid-uom + TRIM(ENTRY(li,cUOMListQty)) + ",".
     END.
     lv-valid-uom = TRIM(lv-valid-uom,",").
   END.
   IF ip-focus:NAME EQ "pr-uom" THEN DO:
-    DO li = 1 TO NUM-ENTRIES(lv-uom-list):
-      IF ENTRY(li,lv-uom-list) NE "PLT" THEN          
-        lv-valid-uom = lv-valid-uom + TRIM(ENTRY(li,lv-uom-list)) + ",".              
+    DO li = 1 TO NUM-ENTRIES(cUOMListPrice):
+      IF ENTRY(li,cUOMListPrice) NE "PLT" THEN          
+        lv-valid-uom = lv-valid-uom + TRIM(ENTRY(li,cUOMListPrice)) + ",".              
       END.
     lv-valid-uom = TRIM(lv-valid-uom,",").
   END.
-  IF lv-valid-uom EQ "" THEN lv-valid-uom = lv-uom-list.
+  IF lv-valid-uom EQ "" THEN lv-valid-uom = cUOMListQty.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6239,7 +6324,7 @@ PROCEDURE leave-qty :
   DEF VAR v-set AS cha NO-UNDO.
   DEF VAR v-qty AS INT NO-UNDO.
   DEF VAR v-checkset AS LOG NO-UNDO.
-
+  DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
  
   DO WITH FRAME {&FRAME-NAME}:
      IF (ll-help-ran AND lv-help-qty = int(oe-ordl.qty:SCREEN-VALUE)) THEN DO:
@@ -6349,7 +6434,16 @@ PROCEDURE leave-qty :
 
        RUN oe/oe-frtcl.p.  /* Calculate Freight  */
 
-       {oe/ordltot.i oe-ordl qty oe-ordl}
+       RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+        oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        //{oe/ordltot.i oe-ordl qty oe-ordl}
      END.
   END.
 
@@ -6616,6 +6710,7 @@ PROCEDURE OnSaveButton :
     DEFINE VARIABLE lPMBlock             AS LOGICAL.
     DEFINE VARIABLE lPricehold           AS LOGICAL.
     DEFINE VARIABLE cPriceHoldMessage    AS CHARACTER.
+    DEFINE VARIABLE dTotalPrice          AS DECIMAL   NO-UNDO.
 
     DEF BUFFER b-oe-ordl FOR oe-ordl.
     DEF BUFFER b-oe-ord  FOR oe-ord.
@@ -6746,7 +6841,16 @@ PROCEDURE OnSaveButton :
         IF ll-price-mod THEN oe-ordl.price:SCREEN-VALUE = lv-price.
         IF ll-pruom-mod THEN oe-ordl.pr-uom:SCREEN-VALUE = lv-pruom.
 
-    {oe/ordltot.i oe-ordl qty oe-ordl}
+        RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+        oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        //{oe/ordltot.i oe-ordl qty oe-ordl}
     END.
 
     IF ll-reopen THEN 
@@ -7424,6 +7528,7 @@ PROCEDURE prev-quote-proc :
    DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
    DEF VAR lxQNo LIKE quoteitm.q-no NO-UNDO.
    DEF VAR lcChoice AS CHAR NO-UNDO.
+   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
       FOR EACH quotehd FIELDS(q-no) WHERE
@@ -7504,7 +7609,16 @@ PROCEDURE prev-quote-proc :
 /*                       lv-price = STRING(lv-price-dec)         */
 /*                       oe-ordl.price:SCREEN-VALUE = lv-price   */
 /*                       oe-ordl.pr-uom:SCREEN-VALUE = lv-pruom. */
-                    {oe/ordltot.i oe-ordl qty oe-ordl} 
+                    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+                    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+                    //{oe/ordltot.i oe-ordl qty oe-ordl} 
                 
              END. /* Do with frame */
             
@@ -7515,6 +7629,44 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValidUOMList d-oeitem
+PROCEDURE pSetValidUOMList PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given company and get, set the global UOM list variable
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ 
+DEFINE BUFFER bf-itemfg FOR itemfg.
+
+    IF ipcItemID NE "" THEN DO:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+
+    END.
+    IF AVAILABLE bf-itemfg THEN DO: 
+        RUN Conv_GetValidOrderQtyUOMsForItem(ROWID(bf-itemfg), OUTPUT cUOMListQty, OUTPUT lError, OUTPUT cMessage).
+        RUN Conv_GetValidPriceUOMsForItem(ROWID(bf-itemfg), OUTPUT cUOMListPrice, OUTPUT lError, OUTPUT cMessage).
+    END.
+    ELSE DO: 
+        RUN Conv_GetValidOrderQtyUOMs(OUTPUT cUOMListQty).
+        RUN Conv_GetValidPriceUOMs(OUTPUT cUOMListPrice).
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setQtyPrice d-oeitem 
 PROCEDURE setQtyPrice :
@@ -8504,10 +8656,6 @@ PROCEDURE updateInvoicePrice :
 DEFINE INPUT  PARAMETER iprOeOrdl AS ROWID       NO-UNDO.
 DEFINE INPUT  PARAMETER ipdPrice  AS DECIMAL     NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUom    AS CHARACTER   NO-UNDO.
-DEF VAR fg-uom-list AS cha NO-UNDO.
-
-
-RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 FIND bf-oe-ordl WHERE ROWID(bf-oe-ordl) EQ iprOeOrdl
@@ -8548,38 +8696,46 @@ FIND itemfg
     AND itemfg.i-no    EQ inv-line.i-no
   NO-LOCK NO-ERROR.
 
+    RUN Conv_CalcTotalPrice(inv-line.company, 
+                        inv-line.i-no,
+                        inv-line.inv-qty,
+                        inv-line.price,
+                        inv-line.pr-uom,
+                        inv-line.disc,
+                        inv-line.cas-cnt,    
+                        OUTPUT inv-line.t-price).
 /* This section should be merged with code from oe/oe-bolp7.i */
-inv-line.t-price = inv-line.inv-qty / 1000 * inv-line.price.
-
-IF inv-line.pr-uom BEGINS "L" AND inv-line.pr-uom NE "LB" THEN
-         inv-line.t-price = inv-line.price *
-                           IF inv-line.inv-qty LT 0 THEN -1 ELSE IF inv-line.inv-qty EQ 0 THEN 0 ELSE 1.
-ELSE IF inv-line.pr-uom EQ "CS" THEN
-    inv-line.t-price = inv-line.inv-qty /
-                           (IF inv-line.cas-cnt NE 0 THEN
-                             inv-line.cas-cnt
-                            ELSE
-                            IF itemfg.case-count NE 0 THEN
-                              itemfg.case-count ELSE 1) *
-                           inv-line.price.
-ELSE IF LOOKUP(inv-line.pr-uom,fg-uom-list) GT 0 THEN
-       inv-line.t-price = inv-line.inv-qty * inv-line.price.
-ELSE
-  FOR EACH uom
-      WHERE uom.uom  EQ inv-line.pr-uom
-        AND uom.mult NE 0
-      NO-LOCK:
-    inv-line.t-price = inv-line.inv-qty / uom.mult * inv-line.price.
-    LEAVE.
-  END.
-inv-line.t-price = ROUND(inv-line.t-price,2).
-
-IF inv-line.disc NE 0 THEN
-   inv-line.t-price = 
-        IF ll-calc-disc-first THEN 
-          (inv-line.t-price - ROUND(inv-line.t-price * inv-line.disc / 100,2))
-        ELSE
-          ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).
+/*inv-line.t-price = inv-line.inv-qty / 1000 * inv-line.price.                                            */
+/*                                                                                                        */
+/*IF inv-line.pr-uom BEGINS "L" AND inv-line.pr-uom NE "LB" THEN                                          */
+/*         inv-line.t-price = inv-line.price *                                                            */
+/*                           IF inv-line.inv-qty LT 0 THEN -1 ELSE IF inv-line.inv-qty EQ 0 THEN 0 ELSE 1.*/
+/*ELSE IF inv-line.pr-uom EQ "CS" THEN                                                                    */
+/*    inv-line.t-price = inv-line.inv-qty /                                                               */
+/*                           (IF inv-line.cas-cnt NE 0 THEN                                               */
+/*                             inv-line.cas-cnt                                                           */
+/*                            ELSE                                                                        */
+/*                            IF itemfg.case-count NE 0 THEN                                              */
+/*                              itemfg.case-count ELSE 1) *                                               */
+/*                           inv-line.price.                                                              */
+/*ELSE IF LOOKUP(inv-line.pr-uom,fg-uom-list) GT 0 THEN                                                   */
+/*       inv-line.t-price = inv-line.inv-qty * inv-line.price.                                            */
+/*ELSE                                                                                                    */
+/*  FOR EACH uom                                                                                          */
+/*      WHERE uom.uom  EQ inv-line.pr-uom                                                                 */
+/*        AND uom.mult NE 0                                                                               */
+/*      NO-LOCK:                                                                                          */
+/*    inv-line.t-price = inv-line.inv-qty / uom.mult * inv-line.price.                                    */
+/*    LEAVE.                                                                                              */
+/*  END.                                                                                                  */
+/*inv-line.t-price = ROUND(inv-line.t-price,2).                                                           */
+/*                                                                                                        */
+/*IF inv-line.disc NE 0 THEN                                                                              */
+/*   inv-line.t-price =                                                                                   */
+/*        IF ll-calc-disc-first THEN                                                                      */
+/*          (inv-line.t-price - ROUND(inv-line.t-price * inv-line.disc / 100,2))                          */
+/*        ELSE                                                                                            */
+/*          ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).                                      */
 /* Note: inv-line.t-cost does not change when price changes */
 
 DEF VAR i AS INT NO-UNDO.
@@ -9215,7 +9371,8 @@ PROCEDURE valid-uom :
 
   IF ip-focus:SENSITIVE THEN
   DO WITH FRAME {&FRAME-NAME}:
-    RUN get-valid-uom (ip-focus).
+    
+    RUN get-valid-uom (ip-focus, oe-ordl.i-no:SCREEN-VALUE).
 
     IF ip-focus:SCREEN-VALUE EQ "" THEN
        ip-focus:SCREEN-VALUE = IF ip-focus:NAME EQ "fi_qty-uom" THEN "EA"
@@ -9224,17 +9381,15 @@ PROCEDURE valid-uom :
 
     lv-uom = ip-focus:SCREEN-VALUE.
 
-    IF NOT CAN-FIND(FIRST uom
-                    WHERE uom.uom EQ lv-uom
-                      AND CAN-DO(lv-valid-uom,uom.uom)) THEN DO:
-      MESSAGE "UOM is invalid, try help..."
-          VIEW-AS ALERT-BOX ERROR.
-      RETURN ERROR.
+    IF NOT CAN-DO(lv-valid-uom, lv-uom) THEN DO:
+        MESSAGE "UOM is invalid, try help..."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
     END.
     IF ip-focus:NAME EQ "fi_qty-uom" THEN DO:
         
       ASSIGN
-       ld = fOEScreenUOMConvert(DEC(oe-ordl.qty:SCREEN-VALUE), lv-uom, DEC(oe-ordl.cas-cnt:SCREEN-VALUE))
+       ld = fOEScreenUOMConvert(DEC(oe-ordl.qty:SCREEN-VALUE), lv-uom, DEC(oe-ordl.cas-cnt:SCREEN-VALUE), oe-ordl.i-no:SCREEN-VALUE)
        oe-ordl.qty:SCREEN-VALUE = STRING(ld)
        ip-focus:SCREEN-VALUE    = "EA".
 
@@ -9831,40 +9986,16 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
 FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
-  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ):
+  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL, ipcItemID AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyInEA AS DECIMAL NO-UNDO.
+
+    RUN Conv_QtyToEA(oe-ord.company, ipcItemID, ipdStartQuantity, ipcUOM, ipdCount, OUTPUT dQtyInEA).
+    RETURN dQtyInEa.
     
-    IF lUseItemUoM
-    AND DYNAMIC-FUNCTION("fIsValidItemUoM",oe-ord.company,"FG",oe-ordl.i-no:SCREEN-VALUE IN FRAME {&frame-name},ipcUom) NE "" THEN DO:
-        MESSAGE oe-ord.company SKIP oe-ordl.i-no SKIP INT(ipdStartQuantity) SKIP ipcUoM VIEW-AS ALERT-BOX.
-        ASSIGN 
-            ipdStartQuantity = DECIMAL(DYNAMIC-FUNCTION("fGetItemBaseQtyPerUoM",oe-ord.company,"FG",oe-ordl.i-no:SCREEN-VALUE,int(ipdStartQuantity),ipcUoM)).
-        MESSAGE ipdStartQuantity VIEW-AS ALERT-BOX.
-        RETURN ipdStartQuantity.
-    END. 
-    ELSE DO:
-        CASE ipcUOM:
-            WHEN "CS" THEN 
-                dMultiplier = ipdCount. 
-            WHEN "PLT" THEN 
-                dMultiplier = ipdCount. /*refactor?*/
-            WHEN "C" THEN 
-                dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
-            OTHERWISE DO:
-                FIND FIRST uom NO-LOCK 
-                WHERE uom.uom EQ ipcUOM NO-ERROR.
-                IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
-                    dMultiplier = uom.mult.
-                ELSE 
-                    dMultiplier = 1.
-            END.
-        END CASE.
-        RETURN ipdStartQuantity * dMultiplier.
-    END.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -44,7 +44,6 @@ DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
-DEF VAR fg-uom-list  AS CHAR NO-UNDO.
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-post-date AS DATE INITIAL TODAY.
 
@@ -103,8 +102,6 @@ DO TRANSACTION:
           AND sys-ctrl.name    EQ "CASETAG" NO-LOCK NO-ERROR.
    IF AVAIL sys-ctrl THEN v-case-tag = sys-ctrl.log-fld.
 END.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 &SCOPED-DEFINE item-key-phrase TRUE
 &SCOPED-DEFINE init-proc init-proc
@@ -1579,8 +1576,8 @@ IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&br
 
   /* convert cost pr-uom*/
   IF fg-rctd.cost-uom EQ lv-cost-uom               OR
-     (LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 AND
-      LOOKUP(lv-cost-uom,fg-uom-list)      GT 0)   THEN
+     (DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) AND
+      DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, lv-cost-uom))   THEN
     lv-out-cost = fg-rctd.std-cost.
   ELSE
     RUN rm/convcuom.p(fg-rctd.cost-uom, lv-cost-uom,                   
@@ -1604,7 +1601,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
      v-wid = po-ordl.s-wid
      v-rec-qty = po-ordl.t-rec-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
-    IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
+    IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
        RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                               v-rec-qty, OUTPUT v-rec-qty).
     IF iFGUnderOver EQ 0 AND v-rec-qty GT (po-ordl.ord-qty * 
@@ -1686,8 +1683,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
   lv-out-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}). 
   
   IF fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom               OR
-     (LOOKUP(fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},fg-uom-list) GT 0 AND
-      LOOKUP(lv-cost-uom,fg-uom-list)                                            GT 0)   THEN
+     (DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}) AND
+      DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, lv-cost-uom))   THEN
     lv-out-cost = DEC(fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
   ELSE
     RUN rm/convcuom.p(fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}, lv-cost-uom,                   
@@ -1695,7 +1692,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                       fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-out-cost).
 END.
   
-IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
+IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, lv-cost-uom) THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).

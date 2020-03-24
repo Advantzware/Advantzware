@@ -51,7 +51,6 @@ DEF VAR v-msf AS DEC FORMAT ">,>>9.999" EXTENT 6.
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-print-fmt  AS CHAR NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR lv-list-name LIKE list-name EXTENT 2 NO-UNDO.
 DEF VAR t-setup AS LOG NO-UNDO.
 DEF VAR lInvFrt AS LOG NO-UNDO.
@@ -131,7 +130,6 @@ DEF TEMP-TABLE tt-set
 
 {sys/ref/fgoecost.i}
 DEF TEMP-TABLE tt-inv LIKE w-inv.
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DEF STREAM st-email.
 DEF STREAM logFile.

@@ -57,7 +57,6 @@ DEFINE VARIABLE lv-prev-job2        AS cha       NO-UNDO.
 DEFINE VARIABLE lv-new-job-ran      AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-qty-case-ent     AS LOG       NO-UNDO.
 DEFINE VARIABLE lv-num-rec          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE fg-uom-list         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-frst-rno         LIKE fg-rctd.r-no NO-UNDO.
 DEFINE VARIABLE lv-rct-date-checked AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-set-parts        AS LOG       NO-UNDO.
@@ -85,8 +84,6 @@ DEFINE TEMP-TABLE w-rowid
 {oe/d-selbin.i NEW}
 {fg/fullset.i NEW}
 {fg/d-selpos.i NEW}
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DEFINE VARIABLE char-hdl            AS cha       NO-UNDO.   
 
@@ -1959,7 +1956,7 @@ PROCEDURE create-from-po :
                 tt-fg-rctd.qty-case     = 1
                 ld                      = po-ordl.ord-qty
                 .
-            IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
+            IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
                 RUN sys/ref/convquom.p (po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
                     ld, OUTPUT ld).
             {sys/inc/roundup.i ld}
@@ -2996,8 +2993,8 @@ PROCEDURE get-set-full-qty :
                     lv-calc-cost = ip-cost-to-set.
                     lv-recalc-cost = lv-calc-cost.
                     IF fg-rctd.cost-uom EQ b-fg-rctd.cost-uom               OR
-                        (LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 AND
-                        LOOKUP(b-fg-rctd.cost-uom,fg-uom-list) GT 0)   THEN.
+                        (DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) AND
+                         DYNAMIC-FUNCTION("Conv_IsEAUOM", b-fg-rctd.company, b-fg-rctd.i-no, b-fg-rctd.cost-uom))   THEN.
                     ELSE
                         RUN rm/convcuom.p(fg-rctd.cost-uom, b-fg-rctd.cost-uom, 
                             v-bwt, v-len, v-wid, v-dep,
