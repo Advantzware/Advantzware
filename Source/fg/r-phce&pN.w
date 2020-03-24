@@ -1061,7 +1061,9 @@ postit:
          gltrans.jrnl    = "OEINV"
          gltrans.tr-date = udate
          gltrans.period  = uperiod
-         gltrans.trnum   = v-trnum.
+         gltrans.trnum   = v-trnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
 
         if work-job.fg then
           assign

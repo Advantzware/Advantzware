@@ -1030,7 +1030,9 @@ PROCEDURE gl-from-work :
                 gltrans.tr-amt  = debits - credits
                 gltrans.tr-date = TODAY
                 gltrans.tr-dscr = "Production Job Costing"
-                gltrans.trnum   = ip-trnum.
+                gltrans.trnum   = ip-trnum
+                gltrans.createdBy   = USERID(LDBNAME(1)) 
+                gltrans.createdDate = today.
 
             assign
                 debits  = 0

@@ -1069,7 +1069,9 @@ PROCEDURE post-gl :
        gltrans.tr-date = tran-date
        gltrans.tr-amt  = wkdistrib.amount
        gltrans.period  = tran-period
-       gltrans.trnum   = v-trnum.
+       gltrans.trnum   = v-trnum
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today.
       RELEASE gltrans.
     end.    /* each wkdistrib */
 

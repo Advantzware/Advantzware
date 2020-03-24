@@ -1139,7 +1139,9 @@ gltrans.tr-dscr = "CREDIT/DEBIT MEMO"
 gltrans.tr-date = tran-date
 gltrans.tr-amt  = + g2
 gltrans.period  = tran-period
-gltrans.trnum   = xtrnum.
+gltrans.trnum   = xtrnum
+gltrans.createdBy   = USERID(LDBNAME(1)) 
+gltrans.createdDate = today.
 IF gltrans.tr-amt LT 0 THEN gltrans.jrnl = "CRMEM".
 
 RELEASE gltrans.
@@ -1152,7 +1154,9 @@ FOR EACH work-job BREAK BY work-job.actnum:
   gltrans.jrnl    = "OEINV"
   gltrans.tr-date = tran-date
   gltrans.period  = tran-period
-  gltrans.trnum   = xtrnum.
+  gltrans.trnum   = xtrnum
+  gltrans.createdBy   = USERID(LDBNAME(1)) 
+  gltrans.createdDate = today.
 
   IF work-job.fg THEN
     ASSIGN

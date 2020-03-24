@@ -996,6 +996,8 @@ PROCEDURE post-gl :
             gltrans.tr-amt  = ap-disl.amt
             gltrans.period  = tran-period
             gltrans.trnum   = xtrnum
+            gltrans.createdBy   = USERID(LDBNAME(1)) 
+            gltrans.createdDate = today
             ap-disl.posted  = true.
          end.  /* each line */
 
@@ -1040,7 +1042,9 @@ PROCEDURE post-gl :
          gltrans.tr-date = tran-date
          gltrans.tr-amt  = -(ap-dis.check-amt)
          gltrans.period  = tran-period
-         gltrans.trnum   = xtrnum.
+         gltrans.trnum   = xtrnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
 
          bank.last-chk = IF lv-chkno-posted >= bank.last-chk THEN lv-chkno-posted
                          ELSE bank.last-chk.

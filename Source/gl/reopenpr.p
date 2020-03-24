@@ -70,7 +70,9 @@ do while avail glhist:
       create gltrans.
       buffer-copy glhist to gltrans
       assign
-       gltrans.trnum = glhist.tr-num.
+       gltrans.trnum = glhist.tr-num
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today.
        
       delete glhist.
     end.

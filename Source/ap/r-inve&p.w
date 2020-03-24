@@ -975,6 +975,8 @@ DO TRANSACTION ON ERROR UNDO postit:
        gltrans.tr-amt  = ap-invl.amt
        gltrans.trnum   = v-trnum
        gltrans.period  = tran-period
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today
        ap-invl.posted  = YES.
 
       FIND FIRST po-ordl
@@ -1257,7 +1259,9 @@ DO TRANSACTION ON ERROR UNDO postit:
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = lv-frt-total
      gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
+     gltrans.trnum   = v-trnum
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
 
     g2 = g2 + lv-frt-total.
   END.
@@ -1271,7 +1275,9 @@ DO TRANSACTION ON ERROR UNDO postit:
    gltrans.tr-date = tran-date
    gltrans.tr-amt  = - g2
    gltrans.period  = tran-period
-   gltrans.trnum   = v-trnum.
+   gltrans.trnum   = v-trnum
+   gltrans.createdBy   = USERID(LDBNAME(1)) 
+   gltrans.createdDate = today.
 
   FOR EACH work-gl BREAK BY work-gl.actnum:
     ASSIGN
@@ -1288,7 +1294,9 @@ DO TRANSACTION ON ERROR UNDO postit:
        gltrans.tr-amt  = debits - credits
        gltrans.tr-date = tran-date
        gltrans.tr-dscr = "AP for FG Receipts from PO"
-       gltrans.trnum   = v-trnum.
+       gltrans.trnum   = v-trnum
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today.
 
       ASSIGN
        debits  = 0

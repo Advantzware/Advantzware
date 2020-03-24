@@ -2259,7 +2259,9 @@ PROCEDURE post-gl :
          gltrans.tr-date = tran-date
          gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-03 dec(tt-report.key-05))
          gltrans.period  = tran-period
-         gltrans.trnum   = v-trnum.
+         gltrans.trnum   = v-trnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
         RELEASE gltrans.
       END. /* last actnum */
     END. /* each work-line */
@@ -2287,7 +2289,9 @@ PROCEDURE post-gl :
          gltrans.actnum  = tt-report.key-02
          gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-03 dec(tt-report.key-05))
          gltrans.period  = tran-period
-         gltrans.trnum   = v-trnum.
+         gltrans.trnum   = v-trnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
       END. /* last actnum */
     END. /* each work-misc */
                                            /** POST SALES TAX TO G/L TRANS **/
@@ -2314,7 +2318,9 @@ PROCEDURE post-gl :
          gltrans.tr-date = tran-date
          gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-03 dec(tt-report.key-05))
          gltrans.period  = tran-period
-         gltrans.trnum   = v-trnum.
+         gltrans.trnum   = v-trnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
         RELEASE gltrans.
       END. /* last actnum */
     END. /* each work-tax */
@@ -2339,7 +2345,9 @@ PROCEDURE post-gl :
          gltrans.tr-date = tran-date
          gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = tran-period
-         gltrans.trnum   = v-trnum.
+         gltrans.trnum   = v-trnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
 
         RELEASE gltrans.
       END. /* last actnum */
@@ -2364,7 +2372,9 @@ PROCEDURE post-gl :
          gltrans.jrnl    = "OEINV"
          gltrans.tr-date = tran-date
          gltrans.period  = tran-period
-         gltrans.trnum   = v-trnum.
+         gltrans.trnum   = v-trnum
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
 
         IF tmp-work-job.fg THEN
           ASSIGN
@@ -2391,7 +2401,9 @@ PROCEDURE post-gl :
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = v-post-freight
      gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
+     gltrans.trnum   = v-trnum
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
     RELEASE gltrans. 
                                            /** POST DISCOUNT TO G/L TRANS **/
     CREATE tt-gl.
@@ -2405,7 +2417,9 @@ PROCEDURE post-gl :
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = v-post-disc
      gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
+     gltrans.trnum   = v-trnum
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
     RELEASE gltrans.
 
                                            /** POST CASH TO G/L TRANS **/
@@ -2422,6 +2436,8 @@ PROCEDURE post-gl :
        gltrans.tr-amt  = v-post-cash
        gltrans.period  = tran-period
        gltrans.trnum   = v-trnum
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today
        v-post-cash = - v-post-cash.
       RELEASE gltrans.
     END.
@@ -2437,7 +2453,9 @@ PROCEDURE post-gl :
      gltrans.tr-date = tran-date
      gltrans.tr-amt  = v-post-total
      gltrans.period  = tran-period
-     gltrans.trnum   = v-trnum.
+     gltrans.trnum   = v-trnum
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
     RELEASE gltrans.
   END.
 

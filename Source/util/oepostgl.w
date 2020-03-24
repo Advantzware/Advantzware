@@ -766,7 +766,9 @@ FOR EACH ar-inv
          gltrans.tr-date = ar-ledger.tr-date
          gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
-         gltrans.trnum   = ar-ledger.tr-num.
+         gltrans.trnum   = ar-ledger.tr-num
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
       end. /* last actnum */
     end. /* each work-line */
                                               /** POST MISC. TO G/L TRANS **/
@@ -788,7 +790,9 @@ FOR EACH ar-inv
          gltrans.actnum  = tt-report.key-02
          gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
-         gltrans.trnum   = ar-ledger.tr-num.
+         gltrans.trnum   = ar-ledger.tr-num
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
       end. /* last actnum */
     end. /* each work-misc */
                                            /** POST SALES TAX TO G/L TRANS **/
@@ -810,7 +814,9 @@ FOR EACH ar-inv
          gltrans.tr-date = ar-ledger.tr-date
          gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
-         gltrans.trnum   = ar-ledger.tr-num.
+         gltrans.trnum   = ar-ledger.tr-num
+         gltrans.createdBy   = USERID(LDBNAME(1)) 
+         gltrans.createdDate = today.
       end. /* last actnum */
     end. /* each work-tax */
 
@@ -822,7 +828,9 @@ FOR EACH ar-inv
        gltrans.jrnl    = "OEINV"
        gltrans.tr-date = ar-ledger.tr-date
        gltrans.period  = period.pnum
-       gltrans.trnum   = ar-ledger.tr-num.
+       gltrans.trnum   = ar-ledger.tr-num
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today.
 
       if work-job.fg then
         assign
@@ -844,7 +852,9 @@ FOR EACH ar-inv
      gltrans.tr-date = ar-ledger.tr-date
      gltrans.tr-amt  = v-post-freight
      gltrans.period  = period.pnum
-     gltrans.trnum   = ar-ledger.tr-num.
+     gltrans.trnum   = ar-ledger.tr-num
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
 
                                            /** POST DISCOUNT TO G/L TRANS **/
     create gltrans.
@@ -856,7 +866,9 @@ FOR EACH ar-inv
      gltrans.tr-date = ar-ledger.tr-date
      gltrans.tr-amt  = v-post-disc
      gltrans.period  = period.pnum
-     gltrans.trnum   = ar-ledger.tr-num.
+     gltrans.trnum   = ar-ledger.tr-num
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
                                            /** POST CASH TO G/L TRANS **/
     if v-post-cash ne 0 then do:
       create gltrans.
@@ -868,7 +880,9 @@ FOR EACH ar-inv
        gltrans.tr-date = ar-ledger.tr-date
        gltrans.tr-amt  = v-post-cash
        gltrans.period  = period.pnum
-       gltrans.trnum   = ar-ledger.tr-num.
+       gltrans.trnum   = ar-ledger.tr-num
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today.
     end.
                                                   /** OFFSET ENTRY TO G/L **/
     create gltrans.
@@ -880,7 +894,9 @@ FOR EACH ar-inv
      gltrans.tr-date = ar-ledger.tr-date
      gltrans.tr-amt  = v-post-total
      gltrans.period  = period.pnum
-     gltrans.trnum   = ar-ledger.tr-num.
+     gltrans.trnum   = ar-ledger.tr-num
+     gltrans.createdBy   = USERID(LDBNAME(1)) 
+     gltrans.createdDate = today.
   END.
 END.
 

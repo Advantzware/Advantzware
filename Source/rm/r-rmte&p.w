@@ -1652,6 +1652,8 @@ PROCEDURE gl-from-work :
        gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "RM Issue to Job"
                                                  ELSE "RM Receipt"
        gltrans.trnum   = ip-trnum
+       gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today
        debits  = 0
        credits = 0.
 

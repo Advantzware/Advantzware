@@ -844,6 +844,8 @@ PROCEDURE post-gl :
              gltrans.tr-amt    = -1 * ar-cashl.amt-paid
              gltrans.period    = tran-period
              gltrans.trnum     = v-trnum
+             gltrans.createdBy   = USERID(LDBNAME(1)) 
+             gltrans.createdDate = today
              /*ar-cashl.amt-paid = -1 * ar-cashl.amt-paid*/ .
 
            RELEASE gltrans.
@@ -860,7 +862,9 @@ PROCEDURE post-gl :
               gltrans.tr-date = tran-date
               gltrans.tr-amt  = -1 * ar-cashl.amt-disc
               gltrans.period  = tran-period
-              gltrans.trnum   = v-trnum.
+              gltrans.trnum   = v-trnum
+              gltrans.createdBy   = USERID(LDBNAME(1)) 
+              gltrans.createdDate = today.
 
              RELEASE gltrans.
 
@@ -899,6 +903,8 @@ PROCEDURE post-gl :
              gltrans.tr-date = tran-date
              gltrans.period  = tran-period
              gltrans.trnum   = v-trnum
+             gltrans.createdBy   = USERID(LDBNAME(1)) 
+             gltrans.createdDate = today
              lv-rowid        = ROWID(gltrans).
           END.
           gltrans.tr-amt = gltrans.tr-amt + t1.

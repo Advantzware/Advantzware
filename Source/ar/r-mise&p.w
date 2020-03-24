@@ -920,7 +920,9 @@ DO TRANSACTION:
       gltrans.tr-date = tran-date
       gltrans.period  = tran-period
       gltrans.trnum   = xtrnum
-      gltrans.tr-amt  = - ar-mcash.check-amt.
+      gltrans.tr-amt  = - ar-mcash.check-amt
+      gltrans.createdBy   = USERID(LDBNAME(1)) 
+      gltrans.createdDate = today.
      RELEASE gltrans.
 
      CREATE ar-ledger.
@@ -947,7 +949,9 @@ DO TRANSACTION:
         gltrans.tr-date = tran-date
         gltrans.period  = tran-period
         gltrans.trnum   = xtrnum
-        gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
+        gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt)
+        gltrans.createdBy   = USERID(LDBNAME(1)) 
+        gltrans.createdDate = today.
        RELEASE gltrans.
 
        CREATE gltrans.
@@ -960,7 +964,9 @@ DO TRANSACTION:
         gltrans.tr-date = tran-date
         gltrans.period  = tran-period
         gltrans.trnum   = xtrnum
-        gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt).
+        gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt)
+        gltrans.createdBy   = USERID(LDBNAME(1)) 
+        gltrans.createdDate = today.
        RELEASE gltrans.
     END.
 
@@ -978,7 +984,9 @@ DO TRANSACTION:
     gltrans.tr-date = tran-date
     gltrans.period  = tran-period
     gltrans.trnum   = xtrnum
-    gltrans.tr-amt  = w-bank.bal.
+    gltrans.tr-amt  = w-bank.bal
+    gltrans.createdBy   = USERID(LDBNAME(1)) 
+    gltrans.createdDate = today.
    RELEASE gltrans.
  END.
 END. /* DO TRANS */

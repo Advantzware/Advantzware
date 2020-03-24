@@ -880,6 +880,8 @@ PROCEDURE post-gl :
             gltrans.tr-amt  = - (ap-payl.amt-paid - ap-payl.amt-disc)
             gltrans.period  = tran-period
             gltrans.trnum   = xtrnum
+            gltrans.createdBy   = USERID(LDBNAME(1)) 
+            gltrans.createdDate = today
             ap-payl.posted  = true.
 
          find first bank where bank.company = cocode and
@@ -923,7 +925,9 @@ PROCEDURE post-gl :
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = g1 - g2   /* DAR  -  g2 - g1  */
       gltrans.period  = tran-period
-      gltrans.trnum   = xtrnum.
+      gltrans.trnum   = xtrnum
+      gltrans.createdBy   = USERID(LDBNAME(1)) 
+      gltrans.createdDate = today.
       RELEASE gltrans.
 
       /* Recalc Rm Bins whose cost has been changed by APCRMEMO sys-ctrl param */

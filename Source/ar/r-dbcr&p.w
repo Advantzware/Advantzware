@@ -1000,7 +1000,9 @@ postit:
       gltrans.tr-date = tran-date
       gltrans.tr-amt  = + g2
       gltrans.period  = tran-period
-      gltrans.trnum   = xtrnum.
+      gltrans.trnum   = xtrnum
+      gltrans.createdBy   = USERID(LDBNAME(1)) 
+      gltrans.createdDate = today.
     IF gltrans.tr-amt < 0 THEN
     gltrans.jrnl = "CRMEM".
 

@@ -411,7 +411,9 @@ for each gltrans
    glhist.tr-dscr = gltrans.tr-dscr
    glhist.tr-date = gltrans.tr-date
    glhist.tr-num  = gltrans.trnum
-   glhist.tr-amt  = gltrans.tr-amt.
+   glhist.tr-amt  = gltrans.tr-amt
+   glhist.createdBy = USERID(LDBNAME(1)) 
+   glhist.createdDate = today .
 
   delete gltrans.
 end.

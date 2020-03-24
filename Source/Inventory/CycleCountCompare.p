@@ -1694,7 +1694,9 @@ PROCEDURE pPostCounts:
                     gltrans.jrnl    = "OEINV"
                     gltrans.tr-date = udate
                     gltrans.period  = uperiod
-                    gltrans.trnum   = v-trnum.
+                    gltrans.trnum   = v-trnum
+                    gltrans.createdBy   = USERID(LDBNAME(1)) 
+                    gltrans.createdDate = today.
 
                 IF work-job.fg THEN
                     ASSIGN

@@ -1053,7 +1053,9 @@ DO TRANSACTION:
             gltrans.company = cocode
             gltrans.tr-amt  = gl-jrnl.tr-amt
             gltrans.period  = gl-jrn.period
-            gltrans.trnum   = xtrnum.
+            gltrans.trnum   = xtrnum
+            gltrans.createdBy   = USERID(LDBNAME(1)) 
+            gltrans.createdDate = today.
 /*
             gltrans.trnum   = gl-jrn.journal. /* 9508 CAH was jrnl.line */
 */
@@ -1068,7 +1070,9 @@ DO TRANSACTION:
             gltrans.company = cocode
             gltrans.tr-amt  = gl-jrnl.tr-amt
             gltrans.period  = gl-jrn.period
-            gltrans.trnum   = xtrnum.
+            gltrans.trnum   = xtrnum
+            gltrans.createdBy   = USERID(LDBNAME(1)) 
+            gltrans.createdDate = today.
 /*
             gltrans.trnum   = gl-jrn.journal. /* 9508 CAH was jrnl.line */
 */

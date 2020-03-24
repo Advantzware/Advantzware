@@ -924,7 +924,9 @@ PROCEDURE pPostGL:
                     gltrans.tr-amt  = tt-ap-invl.amt
                     gltrans.trnum   = iTransNum
                     gltrans.period  = iPeriod
-                    ap-invl.posted  = YES
+                    gltrans.createdBy   = USERID(LDBNAME(1)) 
+                    gltrans.createdDate = today
+                    ap-invl.posted  = YES                    
                     .    
                 RELEASE gltrans.
                 FIND FIRST po-ordl
@@ -1230,6 +1232,8 @@ PROCEDURE pPostGL:
                     gltrans.tr-amt  = (ACCUM TOTAL BY tt-report.actnum tt-report.curr-amt - (ap-inv.net + ap-inv.freight)) * -1
                     gltrans.period  = iPeriod
                     gltrans.trnum   = iTransNum
+                    gltrans.createdBy   = USERID(LDBNAME(1)) 
+       	            gltrans.createdDate = today
                     .
                 RELEASE gltrans.
             END. /* last-of actnum */
@@ -1246,6 +1250,8 @@ PROCEDURE pPostGL:
                 gltrans.tr-amt  = (ACCUM TOTAL ap-inv.freight * tt-report.ex-rate)
                 gltrans.period  = iPeriod
                 gltrans.trnum   = iTransNum
+                gltrans.createdBy   = USERID(LDBNAME(1)) 
+       gltrans.createdDate = today
                 .
             RELEASE gltrans.
         END. /* dfrttotal ne 0 */
@@ -1264,6 +1270,8 @@ PROCEDURE pPostGL:
                     gltrans.tr-amt  = (ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt)
                     gltrans.period  = iPeriod
                     gltrans.trnum   = iTransNum
+                    gltrans.createdBy   = USERID(LDBNAME(1)) 
+                    gltrans.createdDate = today
                     .
                 RELEASE gltrans.
             END. /* last-of actnum */
@@ -1278,6 +1286,8 @@ PROCEDURE pPostGL:
             gltrans.tr-amt  = - dAmount
             gltrans.period  = iPeriod
             gltrans.trnum   = iTransNum
+            gltrans.createdBy   = USERID(LDBNAME(1)) 
+            gltrans.createdDate = today
             .
         RELEASE gltrans.
     END. /* postit: transaction */

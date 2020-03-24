@@ -846,7 +846,9 @@ do transaction on error undo, leave:
     gltrans.tr-date = udate
     gltrans.tr-amt  = v-tot-amt-paid
     gltrans.period  = uperiod
-    gltrans.trnum   = v-trans-num.
+    gltrans.trnum   = v-trans-num
+    gltrans.createdBy   = USERID(LDBNAME(1)) 
+    gltrans.createdDate = today.
 
    if v-tot-amt-disc ne 0 then do:
      create gltrans.
@@ -858,7 +860,9 @@ do transaction on error undo, leave:
       gltrans.tr-date = udate
       gltrans.tr-amt  = v-tot-amt-disc
       gltrans.period  = uperiod
-      gltrans.trnum   = v-trans-num.
+      gltrans.trnum   = v-trans-num
+      gltrans.createdBy   = USERID(LDBNAME(1)) 
+      gltrans.createdDate = today.
    end.
 
    for each w-disb break by w-actnum:
@@ -880,7 +884,9 @@ do transaction on error undo, leave:
         gltrans.tr-amt  = ((accum sub-total by w-actnum w-amt-paid) +
                            (accum sub-total by w-actnum w-amt-disc)) * -1 
         gltrans.period  = uperiod
-        gltrans.trnum   = v-trans-num.
+        gltrans.trnum   = v-trans-num
+        gltrans.createdBy   = USERID(LDBNAME(1)) 
+        gltrans.createdDate = today.
      end.
    end.
 
@@ -893,7 +899,9 @@ do transaction on error undo, leave:
     gltrans.tr-date = udate
     gltrans.tr-amt  = (v-tot-amt-paid + v-tot-amt-disc) * -1
     gltrans.period  = uperiod
-    gltrans.trnum   = v-trans-num.
+    gltrans.trnum   = v-trans-num
+    gltrans.createdBy   = USERID(LDBNAME(1)) 
+    gltrans.createdDate = today.
 end. /* postit */
 
 END PROCEDURE.

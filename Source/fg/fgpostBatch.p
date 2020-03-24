@@ -968,7 +968,9 @@ PROCEDURE fg-post:
                 gltrans.jrnl    = "ADJUST"
                 gltrans.tr-date = v-post-date
                 gltrans.period  = period.pnum
-                gltrans.trnum   = v-trnum.
+                gltrans.trnum   = v-trnum
+                gltrans.createdBy   = USERID(LDBNAME(1)) 
+                gltrans.createdDate = today.
 
             IF work-job.fg THEN
                 ASSIGN
@@ -1154,6 +1156,8 @@ PROCEDURE gl-from-work:
                 gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "FG Receipt from Job"
                                                  ELSE "FG Receipt from PO"
                 gltrans.trnum   = ip-trnum
+                gltrans.createdBy   = USERID(LDBNAME(1)) 
+                gltrans.createdDate = today
                 debits          = 0
                 credits         = 0.
 
