@@ -31,19 +31,19 @@ FUNCTION fAddSpacesToString RETURNS CHARACTER
 
 PROCEDURE CheckJobStatus:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: To check a job's status
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
     
-    FIND FIRST job-hdr NO-LOCK 
-         WHERE job-hdr.company EQ ipcCompany
-           AND job-hdr.job-No  EQ ipcJobNo
-           AND job-hdr.job-No2 EQ ipiJobNo2
+    FIND FIRST job NO-LOCK 
+         WHERE job.company EQ ipcCompany
+           AND job.job-No  EQ ipcJobNo
+           AND job.job-No2 EQ ipiJobNo2
          NO-ERROR.  
-    IF AVAILABLE job-hdr AND NOT job-hdr.opened THEN DO:   
+    IF AVAILABLE job AND NOT job.opened THEN DO:
         RUN DisplayMessage("19").
         RETURN ERROR.
     END. 

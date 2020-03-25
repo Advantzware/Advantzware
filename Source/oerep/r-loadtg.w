@@ -276,14 +276,15 @@ DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
 
-DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
 
-RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN po/PoProcs.p    PERSISTENT SET hdPoProcs.
 RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
                           
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -297,6 +298,7 @@ RUN sys/ref/nk1look.p (
     OUTPUT lRecFound
     ). 
 
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3774,8 +3776,8 @@ PROCEDURE create-loadtag :
   
   FIND CURRENT loadtag NO-LOCK NO-ERROR.
 
-  IF v-fgrecpt AND lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-      RUN CheckPOLineStatus IN hdOrderProcs(
+  IF v-fgrecpt AND glCheckClosedStatus THEN DO:
+      RUN CheckPOLineStatus IN hdPoProcs(
         INPUT cocode,
         INPUT w-ord.po-no,
         INPUT w-ord.po-line

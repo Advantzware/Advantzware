@@ -120,27 +120,6 @@ PROCEDURE CalcOrderCommission:
 
 END PROCEDURE.
 
-PROCEDURE CheckPOLineStatus:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiPoNo    AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
-    
-    FIND FIRST po-ordl NO-LOCK
-         WHERE po-ordl.company EQ ipcCompany
-           AND po-ordl.po-no   EQ ipiPoNo
-           AND po-ordl.line    EQ ipiPoLine
-         NO-ERROR.
-    IF AVAILABLE po-ordl AND NOT po-ordl.opened THEN DO:
-        RUN DisplayMessage("19").
-        RETURN ERROR.
-    END. 
-
-END PROCEDURE.
-
 PROCEDURE GetReleaseType:
 /*------------------------------------------------------------------------------
  Purpose:

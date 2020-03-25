@@ -130,15 +130,16 @@ DO TRANSACTION:
    {sys/inc/sspostvt.i}
 END.
 
-DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdjobProcs   AS HANDLE NO-UNDO.
 
-RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN po/POProcs.p    PERSISTENT SET hdPoProcs.
 RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 
                           
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -151,6 +152,8 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.    
 
 DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
 
@@ -535,8 +538,8 @@ DO:
          APPLY "ENTRY" TO scr-po-line.
          RETURN NO-APPLY.
       END.*/
-      ELSE IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-          RUN CheckPOLineStatus IN hdOrderProcs(
+      ELSE IF glCheckClosedStatus THEN DO:
+          RUN CheckPOLineStatus IN hdPoProcs(
               INPUT cocode,
               INPUT INTEGER(begin_po-no:SCREEN-VALUE),
               INPUT INTEGER(scr-po-line:SCREEN-VALUE)
@@ -723,8 +726,8 @@ DO:
   
             RELEASE po-ordl.
          END.
-         IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-             RUN CheckPOLineStatus IN hdOrderProcs(
+         IF glCheckClosedStatus THEN DO:
+             RUN CheckPOLineStatus IN hdPoProcs(
                  INPUT cocode,
                  INPUT INTEGER(begin_po-no:SCREEN-VALUE),
                  INPUT INTEGER(scr-po-line:SCREEN-VALUE)
