@@ -45,9 +45,12 @@ DEF TEMP-TABLE tt-glinq NO-UNDO
     FIELD jrnl LIKE gltrans.jrnl       LABEL "Ref#"
     FIELD tr-dscr AS CHAR FORMAT "X(60)" LABEL "Description"
     FIELD tr-amt LIKE gltrans.tr-amt   LABEL "Amount"
-    FIELD tr-num LIKE gltrans.trnum
+    FIELD tr-num LIKE gltrans.trnum FORMAT "9999999"  LABEL "Run #" 
     FIELD tr-from AS cha      FORM "x(30)"    LABEL "Inquiry From" 
     FIELD actnum LIKE gltrans.actnum LABEL "Account#"
+    FIELD createdBy LIKE gltrans.createdBy LABEL "Created By"
+    FIELD createdDate LIKE gltrans.createdDate LABEL "Created Date"
+    FIELD posted LIKE gltrans.posted LABEL "Posted"
     INDEX tr-date IS PRIMARY tr-date.
 
 ASSIGN cocode = g_company
@@ -89,7 +92,7 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt tt-glinq.tr-from   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt tt-glinq.tr-from tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-glinq
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-glinq
@@ -231,6 +234,10 @@ DEFINE BROWSE br_table
       tt-glinq.actnum LABEL-BGCOLOR 14 tt-glinq.tr-date LABEL-BGCOLOR 14 tt-glinq.jrnl LABEL-BGCOLOR 14
       tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 tt-glinq.tr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
       tt-glinq.tr-from FORM "x(30)" LABEL-BGCOLOR 14
+      tt-glinq.createdBy  LABEL-BGCOLOR 14
+      tt-glinq.createdDate LABEL-BGCOLOR 14
+      tt-glinq.posted LABEL-BGCOLOR 14
+      tt-glinq.tr-num FORMAT "9999999" LABEL-BGCOLOR 14  WIDTH 12
      ENABLE tt-glinq.actnum tt-glinq.tr-date  tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -539,6 +546,22 @@ DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-amt.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-amt {&sortby-des}.
       END.
+      WHEN "createdBy" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy {&sortby-des}.
+      END.
+      WHEN "createdDate" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdDate {&sortby-des}.
+      END.
+      WHEN "posted" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.posted.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.posted {&sortby-des}.
+      END.
+      WHEN "tr-num" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-num.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-num {&sortby-des}.
+      END.
   END CASE.
 
 END.
@@ -807,7 +830,11 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-from = "GL History "
              tt-glinq.actnum = glhist.actnum
              tt-glinq.tr-num = glhist.tr-num
-             lv-close-bal = lv-close-bal + glhist.tr-amt.
+             lv-close-bal = lv-close-bal + glhist.tr-amt
+             tt-glinq.createdBy = glhist.createdBy
+             tt-glinq.createdDate = glhist.createdDate
+             tt-glinq.posted = glhist.posted
+             tt-glinq.tr-num = glhist.tr-num.
 
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(glhist.tr-dscr).
@@ -828,6 +855,10 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-amt = gltran.tr-amt
              tt-glinq.tr-from = "GL Transaction " + string(gltran.trnum)
              tt-glinq.actnum = gltrans.actnum
+             tt-glinq.tr-num = gltrans.trnum
+             tt-glinq.createdBy = gltrans.createdBy
+             tt-glinq.createdDate = gltrans.createdDate
+             tt-glinq.posted = gltrans.posted
              tt-glinq.tr-num = gltrans.trnum
              lv-close-bal = lv-close-bal + gltrans.tr-amt.
 
