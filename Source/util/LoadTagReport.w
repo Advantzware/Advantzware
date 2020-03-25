@@ -699,8 +699,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE iOrderQty     AS INTEGER   NO-UNDO .
     DEFINE VARIABLE dOrderQtyUnit AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE iOrderPartial AS INTEGER   NO-UNDO .
-    DEFINE VARIABLE iOrderCasCnt  AS INTEGER   NO-UNDO .
-    DEFINE VARIABLE cJobNo        AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iOrderCasesUnit AS INTEGER   NO-UNDO .
+    DEFINE VARIABLE cJobNo          AS CHARACTER NO-UNDO .
 
 
     {sys/form/r-top.f} 
@@ -717,7 +717,7 @@ PROCEDURE run-report :
         iOrderQty  FORMAT ">>>,>>>,>>9"
         dOrderQtyUnit FORMAT ">>>,>>>,>>9" 
         iOrderPartial SPACE(6)
-        iOrderCasCnt FORMAT ">>>,>>>,>>9" SPACE(4) 
+        iOrderCasesUnit FORMAT ">>>,>>>,>>9" SPACE(4) 
         loadtag.tag-no   FORMAT "x(20)"
         loadtag.qty-case FORMAT ">>>,>>>,>>9"  SPACE(2)
         loadtag.partial  FORMAT ">>>,>>9"  SPACE(5)
@@ -806,7 +806,7 @@ PROCEDURE run-report :
             iOrderQty     = (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0).
             dOrderQtyUnit = (IF AVAILABLE oe-ordl THEN ( oe-ordl.qty / Max(oe-ordl.cas-cnt,1) ) ELSE 0).
             iOrderPartial = (IF AVAILABLE oe-ordl THEN oe-ordl.partial ELSE 0).
-            iOrderCasCnt  = (IF AVAILABLE oe-ordl THEN oe-ordl.cas-cnt ELSE 0).
+            iOrderCasesUnit  = (IF AVAILABLE oe-ordl THEN oe-ordl.cases-unit ELSE 0).
             cJobNo = loadtag.job-no + "-" + string(loadtag.job-no,"99") .
             IF cJobNo EQ "-" THEN cJobNo = "" .
             DISPLAY
@@ -819,7 +819,7 @@ PROCEDURE run-report :
                 iOrderQty 
                 dOrderQtyUnit 
                 iOrderPartial 
-                iOrderCasCnt 
+                iOrderCasesUnit 
                 loadtag.tag-no
                 loadtag.qty-case
                 loadtag.partial
@@ -839,7 +839,7 @@ PROCEDURE run-report :
                     '"' STRING(iOrderQty)              '",'
                     '"' STRING(dOrderQtyUnit)          '",'
                     '"' STRING(iOrderPartial)          '",'
-                    '"' STRING(iOrderCasCnt)           '",'
+                    '"' STRING(iOrderCasesUnit)        '",'
                     '"' loadtag.tag-no                 '",'
                     '"' loadtag.qty-case               '",'
                     '"' loadtag.partial                '",'
