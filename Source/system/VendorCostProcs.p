@@ -1435,7 +1435,7 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                         AND opbf-vendItemCost.blankNo EQ ipiBlankNo
                         AND opbf-vendItemCost.vendorID EQ ""
                         NO-ERROR.
-                     IF NOT AVAILABLE opbf-vendItemCost THEN 
+                    IF NOT AVAILABLE opbf-vendItemCost THEN 
                         FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
                         {&RequiredCriteria}
                         AND opbf-vendItemCost.estimateNo EQ ipcEstimateNo
@@ -1642,6 +1642,39 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
+PROCEDURE VendCost_GetVendorItemID:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorItemId AS CHARACTER NO-UNDO.
+    
+    FIND FIRST vendItemCost NO-LOCK 
+        WHERE vendItemCost.company EQ ipcCompany
+        AND vendItemCost.itemID EQ ipcItemID
+        AND vendItemCost.itemType EQ ipcItemType 
+        AND vendItemCost.vendorID EQ ipcVendorID
+        AND vendItemCost.estimateNo = ""
+        NO-ERROR.
+    IF AVAILABLE vendItemCost AND vendItemCost.vendorItemID NE "" THEN
+        opcVendorItemID = vendItemCost.vendorItemID.
+    ELSE DO:
+        IF ipcItemType EQ "FG" THEN DO:
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ ipcCompany
+                AND itemfg.i-no EQ ipcItemID
+                NO-ERROR.
+            IF AVAILABLE itemfg AND itemfg.vend-no EQ ipcVendorID THEN 
+                opcVendorItemID = itemfg.vend-item.
+            ELSE IF AVAILABLE itemfg AND itemfg.vend2-no EQ ipcVendorID THEN 
+                opcVendorItemID = itemfg.vend2-item.                     
+        END.
+    END.
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

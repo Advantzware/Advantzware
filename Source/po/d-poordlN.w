@@ -761,6 +761,8 @@ DO:
     DEFINE VARIABLE lv-i-no      AS CHARACTER     NO-UNDO.
     DEFINE VARIABLE lv-item-type AS LOGICAL       NO-UNDO.
     DEFINE VARIABLE lw-focus     AS WIDGET-HANDLE NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 
     ASSIGN
@@ -850,7 +852,21 @@ DO:
                 RUN windows/l-stduom.w (g_company,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
              END.
              ELSE DO:
-                RUN sys/ref/uom-fg.p  (NO, OUTPUT uom-list).
+                 FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ g_company
+                AND itemfg.i-no EQ po-ordl.i-no:SCREEN-VALUE
+                NO-ERROR.
+                lError = YES.
+                IF AVAILABLE itemfg THEN 
+                    IF lw-focus:NAME EQ "pr-uom" THEN
+                        RUN Conv_GetValidCostUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+                    ELSE  
+                        RUN Conv_GetValidPOQtyUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+                IF lError THEN  
+                    IF lw-focus:NAME EQ "pr-uom" THEN
+                        RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+                    ELSE  
+                        RUN Conv_GetValidPOQtyUOMs(ROWID(itemfg), OUTPUT uom-list).
                 RUN windows/l-stduom.w (g_company,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).              
              END.
              IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
@@ -2930,6 +2946,10 @@ PROCEDURE display-fgitem :
     DEFINE VARIABLE lv-cost   LIKE po-ordl.cost NO-UNDO.
     DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAccountDesc AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
 
     FIND FIRST itemfg NO-LOCK WHERE /*itemfg.company eq cocode and
                   itemfg.i-no eq po-ordl.i-no use-index i-no */
@@ -2986,24 +3006,29 @@ PROCEDURE display-fgitem :
                 po-ordl.cons-uom:SCREEN-VALUE = "EA"
                 scr-cons-uom:SCREEN-VALUE     = po-ordl.cons-uom:SCREEN-VALUE.
 
-        IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" THEN 
-        DO:
-            /* First convert to EA */
+/*        IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" THEN                                                                     */
+/*        DO:                                                                                                             */
+/*            /* First convert to EA */                                                                                   */
+/*            IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE) OR*/
+/*               NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE,po-ordl.pr-uom:SCREEN-VALUE)  THEN*/
+/*                RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE, "EA",                                             */
+/*                    0, v-len, v-wid, v-dep,                                                                             */
+/*                    DEC(po-ordl.cons-cost:SCREEN-VALUE), OUTPUT lv-cost).                                               */
+/*                                                                                                                        */
+/*            /* Now convert EA to cases */                                                                               */
+/*            lv-cost = DEC(po-ordl.cons-cost:SCREEN-VALUE) * itemfg.case-count.                                          */
+/*        END.                                                                                                            */
+/*        ELSE                                                                                                            */
             IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE) OR
                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE,po-ordl.pr-uom:SCREEN-VALUE)  THEN
-                RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE, "EA",
-                    0, v-len, v-wid, v-dep,
-                    DEC(po-ordl.cons-cost:SCREEN-VALUE), OUTPUT lv-cost).
-      
-            /* Now convert EA to cases */
-            lv-cost = DEC(po-ordl.cons-cost:SCREEN-VALUE) * itemfg.case-count.
-        END.
-        ELSE
-            IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE) OR
-               NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE,po-ordl.pr-uom:SCREEN-VALUE)  THEN
-                RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE,
-                    0, v-len, v-wid, v-dep,
-                    DEC(po-ordl.cons-cost:SCREEN-VALUE), OUTPUT lv-cost).
+                RUN Conv_ValueFromUOMtoUOM(cocode, 
+                    po-ordl.i-no:SCREEN-VALUE, po-ordl.item-type:SCREEN-VALUE, 
+                    DEC(po-ordl.cons-cost:SCREEN-VALUE), po-ordl.cons-uom:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE, 
+                    0, v-len, v-wid,  v-dep, 0, 
+                    OUTPUT lv-cost, OUTPUT lError, OUTPUT cMessage).
+/*                RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE,*/
+/*                    0, v-len, v-wid, v-dep,                                                       */
+/*                    DEC(po-ordl.cons-cost:SCREEN-VALUE), OUTPUT lv-cost).                         */
 
         ASSIGN
             po-ordl.cost:SCREEN-VALUE  = STRING(lv-cost)
@@ -3038,16 +3063,8 @@ PROCEDURE display-fgitem :
 /*        ELSE IF itemfg.vend-no EQ po-ord.vend-no THEN po-ordl.vend-i-no:SCREEN-VALUE = itemfg.vend-item.                           */
 /*            ELSE IF itemfg.vend2-no EQ po-ord.vend-no THEN po-ordl.vend-i-no:SCREEN-VALUE = itemfg.vend2-item.                     */
 
-        FIND FIRST vendItemCost WHERE vendItemCost.company = itemfg.company
-                                  AND vendItemCost.itemID = itemfg.i-no
-                                  AND vendItemCost.itemType = "FG" 
-                                  AND vendItemCost.vendorID = po-ord.vend-no
-                                  AND vendItemCost.estimateNo = ""
-                                  NO-LOCK NO-ERROR.
-        IF available vendItemCost AND vendItemCost.vendorItemID NE "" THEN po-ordl.vend-i-no:SCREEN-VALUE = vendItemCost.vendorItemID.
-        ELSE IF itemfg.vend-no EQ po-ord.vend-no THEN po-ordl.vend-i-no:SCREEN-VALUE = itemfg.vend-item.
-        ELSE IF itemfg.vend2-no EQ po-ord.vend-no THEN po-ordl.vend-i-no:SCREEN-VALUE = itemfg.vend2-item.                          
-
+        RUN VendCost_GetVendorItemID(itemfg.company, itemfg.i-no, "FG", po-ord.vend-no, OUTPUT cVendorItemID).
+        po-ordl.vend-i-no:SCREEN-VALUE = cVendorItemID.
         RUN fg-qtys (ROWID(itemfg)).
     END.
     

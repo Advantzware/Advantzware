@@ -80,7 +80,6 @@ DEFINE            VARIABLE v-exist-item           AS LOGICAL   INIT YES NO-UNDO.
 DEFINE            VARIABLE v-uom-list             AS CHARACTER NO-UNDO INIT "C,CS,EA,L,LB,LF,LOT,M,MSF,SHT,TON,BF".
 DEFINE            VARIABLE pr-uom-list            AS CHARACTER NO-UNDO INIT "EA,LB,M,MSF,TON,BF".
 DEFINE            VARIABLE cons-uom-list          AS CHARACTER NO-UNDO INIT "M,LF,EA,LB,TON".
-DEFINE            VARIABLE fg-uom-list            AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE v-item-cost            AS DECIMAL   FORMAT ">>,>>9.9999" INIT 0 NO-UNDO.
 DEFINE            VARIABLE v-setup-cost           AS DECIMAL   FORMAT ">>,>>9.9999" INIT 0 NO-UNDO.
 DEFINE            VARIABLE gvcVendNo              LIKE vend.vend-no INIT "" NO-UNDO.
@@ -417,7 +416,6 @@ IF lRecFound THEN
     
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -777,8 +775,8 @@ PROCEDURE brdLenCheck :
     IF v-len               EQ 0                       AND
         bf-po-ordl.cons-uom    EQ "EA"                    AND
         (bf-po-ordl.item-type OR
-        LOOKUP(bf-po-ordl.pr-qty-uom,fg-uom-list) EQ 0 OR
-        LOOKUP(bf-po-ordl.pr-uom,fg-uom-list)     EQ 0)   AND
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   AND
         (bf-po-ordl.pr-qty-uom NE bf-po-ordl.cons-uom OR
         bf-po-ordl.pr-uom     NE bf-po-ordl.cons-uom)        THEN 
     DO:
@@ -1395,8 +1393,8 @@ PROCEDURE calcExtCost :
 
         IF bf-po-ordl.pr-qty-uom NE bf-po-ordl.pr-uom            AND
             (bf-po-ordl.item-type                           OR
-            LOOKUP(bf-po-ordl.pr-qty-uom,fg-uom-list) EQ 0 OR
-            LOOKUP(bf-po-ordl.pr-uom,fg-uom-list)     EQ 0)   THEN
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   THEN
 
             RUN sys/ref/convquom.p(bf-po-ordl.pr-qty-uom, bf-po-ordl.pr-uom,
                 v-basis-w, v-len, v-wid, v-dep,
@@ -1733,8 +1731,8 @@ PROCEDURE checkZeroQty :
 
         IF bf-po-ordl.pr-qty-uom EQ bf-po-ordl.cons-uom           OR
             (NOT bf-po-ordl.item-type                       AND
-            LOOKUP(bf-po-ordl.pr-qty-uom,fg-uom-list) GT 0 AND
-            LOOKUP(bf-po-ordl.cons-uom,fg-uom-list)   GT 0)     THEN
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) AND
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.cons-uom))     THEN
             bf-po-ordl.cons-qty = bf-po-ordl.ord-qty.
         ELSE
             RUN sys/ref/convquom.p(bf-po-ordl.pr-qty-uom, bf-po-ordl.cons-uom,
@@ -1743,8 +1741,8 @@ PROCEDURE checkZeroQty :
       
         IF bf-po-ordl.pr-uom EQ bf-po-ordl.cons-uom           OR
             (NOT bf-po-ordl.item-type                     AND
-            LOOKUP(bf-po-ordl.pr-uom,fg-uom-list)   GT 0 AND
-            LOOKUP(bf-po-ordl.cons-uom,fg-uom-list) GT 0)   THEN
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-uom) AND
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.cons-uom))   THEN
             bf-po-ordl.cons-cost = bf-po-ordl.cost.
         ELSE
             RUN sys/ref/convcuom.p(bf-po-ordl.pr-uom, bf-po-ordl.cons-uom,
@@ -2857,8 +2855,8 @@ PROCEDURE initRptRecs :
 
         IF v-job-mat-uom EQ v-uom-comp                 OR
             (NOT bf-w-job-mat.this-is-a-rm             AND
-            LOOKUP(v-job-mat-uom,fg-uom-list) GT 0 AND
-            LOOKUP(v-uom-comp,fg-uom-list)    GT 0)    THEN
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-w-job-mat.i-no, v-job-mat-uom) AND
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-w-job-mat.i-no, v-uom-comp))    THEN
             v-qty-comp = v-job-mat-qty.
         ELSE
             RUN sys/ref/convquom.p(v-job-mat-uom, v-uom-comp,
@@ -2877,8 +2875,8 @@ PROCEDURE initRptRecs :
 
         IF v-job-mat-uom EQ v-uom-comp                 OR
             (NOT bf-w-job-mat.this-is-a-rm             AND
-            LOOKUP(v-job-mat-uom,fg-uom-list) GT 0 AND
-            LOOKUP(v-uom-comp,fg-uom-list)    GT 0)    THEN
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-w-job-mat.i-no, v-job-mat-uom) AND
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-w-job-mat.i-no, v-uom-comp))    THEN
             v-qty-comp1 = v-job-mat-qty.
         ELSE
             RUN sys/ref/convquom.p(v-job-mat-uom, v-uom-comp,
@@ -4255,7 +4253,7 @@ PROCEDURE setPoOrdlFg :
   
         IF bf-po-ordl.pr-qty-uom NE "EA"                    AND
             (bf-po-ordl.item-type OR
-            LOOKUP(bf-po-ordl.pr-qty-uom,fg-uom-list) EQ 0) THEN
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom)) THEN
             RUN sys/ref/convquom.p("EA", bf-po-ordl.pr-qty-uom,
                 bf-w-job-mat.basis-w, bf-w-job-mat.len, bf-w-job-mat.wid, bf-w-job-mat.dep,
                 bf-po-ordl.ord-qty, OUTPUT bf-po-ordl.ord-qty).

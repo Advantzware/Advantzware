@@ -492,7 +492,7 @@ DO:
                if char-val <> "" then inv-line.pr-uom:screen-value = entry(1,char-val).  
                RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),

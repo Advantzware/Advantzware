@@ -306,7 +306,11 @@ PROCEDURE Conv_QuantityFromUOMtoUOM:
     /*------------------------------------------------------------------------------
      Purpose:  Given all inputs for an item, run a conversion of quantity from one
      value to another
-     Notes:
+     Notes: 
+         Conv_QuantityFromUOMtoUOM(cCompany, cItemID, cItemType, 
+                                dOldQty, cOldQtyUOM, cNewQtyUOM, 
+                                dBasisWeight, dDimLength, dDimWidth, dDimDepth, dCount, 
+                                OUTPUT dNewQty, OUTPUT lError, OUTPUT cMessage).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
@@ -394,6 +398,7 @@ PROCEDURE Conv_QuantityFromUOMToUOMForItem:
     END.
 
 END PROCEDURE.
+
 PROCEDURE Conv_ValueFromUOMtoUOM:
     /*------------------------------------------------------------------------------
      Purpose:  Given all inputs for an item, run a conversion of quantity from one
@@ -585,10 +590,18 @@ PROCEDURE pBuildUOMsForItemFG PRIVATE:
         IF ipbf-itemfg.case-count NE 0 THEN 
         DO:
             RUN pAddUOM("CS", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty,POQty,Cost").
+            RUN pAddUOM("PLT", YES, "EA","Pallet", ipbf-itemfg.case-count * ipbf-itemfg.case-pall, cSourceItemMaster, "Price,OrderQty,POQty,Cost").
             RUN pAddUOM("BDL", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty").
-            RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / MAX(ipbf-itemfg.t-sqft, 1), cSourceItemMaster, "Cost").
-            RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / MAX(ipbf-itemfg.t-sqft, 1), cSourceItemMaster, "Cost").
-            RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / MAX(ipbf-itemfg.t-sqin, 1), cSourceItemMaster, "Cost").
+            IF ipbf-itemfg.t-sqft GT 0 THEN DO:
+                RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / ipbf-itemfg.t-sqft, cSourceItemMaster, "Cost").
+                RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / ipbf-itemfg.t-sqft, cSourceItemMaster, "Cost").
+            END.
+            IF ipbf-itemfg.t-sqin GT 0 THEN DO:
+                RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / ipbf-itemfg.t-sqin, cSourceItemMaster, "Cost").
+            END.
+            IF ipbf-itemfg.weight-100 GT 0 THEN DO:
+                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").
+            END.
         END.            
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-itemfg.company, ipbf-itemfg.i-no, "FG", YES).
@@ -764,6 +777,7 @@ PROCEDURE pGetBuffersByValues PRIVATE:
             NO-ERROR.
         
 END PROCEDURE.
+
 PROCEDURE pGetMultiplier PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Get multiplier from one UOM to another
@@ -789,6 +803,8 @@ PROCEDURE pGetMultiplier PRIVATE:
             opcMessage = "UOM: " + ipcToUOM + " not valid".
         RETURN.
     END.
+    ELSE 
+        opcMessage = "To UOM: " + ipcToUOM + " Source: " + bf-to-ttUOM.uomSource + " Factor: " + STRING(bf-to-ttUOM.multiplierToBase).
     FIND FIRST bf-from-ttUOM NO-LOCK 
         WHERE bf-from-ttUOM.uom EQ ipcFromUOM
         AND NOT bf-from-ttUOM.isOverridden
@@ -800,6 +816,8 @@ PROCEDURE pGetMultiplier PRIVATE:
             opcMessage = "UOM: " + ipcFromUOM + " not valid".
         RETURN.
     END.
+    ELSE 
+        opcMessage = opcMessage + "| From UOM: " + ipcToUOM + " Source: " + bf-to-ttUOM.uomSource + " Factor: " + STRING(bf-to-ttUOM.multiplierToBase).
     IF bf-to-ttUOM.uomBase EQ bf-from-ttUOM.uomBase THEN 
     DO:
         opdMultiplier = bf-from-ttUOM.multiplierToBase.
@@ -848,6 +866,7 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
         WHERE itemfg.company EQ ipcCompany
         AND itemfg.i-no EQ ipcItemID
         NO-ERROR.
+        
     RUN pBuildBaseUOMs.        
     IF fUseItemUOM(ipcCompany) AND AVAILABLE itemfg THEN
         RUN pBuildUOMs(ROWID(itemfg)).

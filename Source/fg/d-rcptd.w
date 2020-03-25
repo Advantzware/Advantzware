@@ -3500,10 +3500,14 @@ PROCEDURE pGetCostsFromPO PRIVATE :
     DEFINE VARIABLE dCostFreight      AS DECIMAL.
     DEFINE VARIABLE dCostFreightPerEA AS DECIMAL.
     DEFINE VARIABLE lFound            AS LOGICAL.
+    DEFINE VARIABLE lError            AS LOGICAL.
+    DEFINE VARIABLE cMessage          AS CHARACTER.
     
     RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
-    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
-    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
+    RUN Conv_ValueFromUOMtoUOM(ipcCompany, ipcFGItemID, "FG",opdCostPerUOM, opcCostUOM, "EA", 0,0,0,0,0, OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cMessage).
+    RUN Conv_ValueFromUOMtoUOM(ipcCompany, ipcFGItemID, "FG", dCostFreight, opcCostUOM, "EA", 0,0,0,0,0, OUTPUT dCostFreightPerEA, OUTPUT lError, OUTPUT cMessage).
+/*    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).      */
+/*    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).*/
     ASSIGN 
         opdCostTotal        = ipdQty * dCostPerEA
         opdCostTotalFreight = ipdQty * dCostFreightPerEA.
