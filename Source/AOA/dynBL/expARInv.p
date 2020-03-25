@@ -418,7 +418,7 @@ PROCEDURE pBusinessLogic:
                 btt-report.rec-id  = RECID(ar-invl)
                 btt-report.key-01  = tt-report.key-09
                 btt-report.key-02  = ar-invl.i-no
-                btt-report.key-03  = STRING(ar-invl.inv-no,"9999999")
+                btt-report.key-03  = STRING(ar-invl.inv-no,"999999")
                 btt-report.key-08  = tt-report.key-08
                 btt-report.key-09  = tt-report.key-09
                 btt-report.key-10  = "ar-invl"
@@ -544,7 +544,7 @@ PROCEDURE pBusinessLogic:
                     . 
             END. /* if avail */
                
-            RUN salecost (
+            RUN pSaleCost (
                 "4",
                 ROWID(ar-invl),
                 cJobNo,
@@ -552,7 +552,7 @@ PROCEDURE pBusinessLogic:
                 iQty[1],
                 OUTPUT dCost[1]
                 ).
-            RUN salecost (
+            RUN pSaleCost (
                 "2",
                 ROWID(ar-invl),
                 cJobNo,
@@ -560,7 +560,7 @@ PROCEDURE pBusinessLogic:
                 iQty[1],
                 OUTPUT dCost1[1]
                 ).
-            RUN salecost (
+            RUN pSaleCost (
                 "3",
                 ROWID(ar-invl),
                 cJobNo,
