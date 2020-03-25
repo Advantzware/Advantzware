@@ -301,9 +301,24 @@ ON CHOOSE OF Btn_apply-jobqty IN FRAME Dialog-Frame /* Apply to Job Quantities *
 DO:
     DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
     DEFINE BUFFER bf-tt-job-hdr FOR tt-job-hdr .
+    DEFINE BUFFER bf-tt-job-hdr-selected FOR tt-job-hdr.
+    
     DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&displayed-objects}.
-
+     /* The below code will make sure to increase the job quantity by overrun percentage
+        of all blanks for a selected FORM */
+     FOR EACH bf-tt-job-hdr
+         WHERE bf-tt-job-hdr.IS-SELECTED
+         BREAK BY bf-tt-job-hdr.frm:
+         IF LAST-OF(bf-tt-job-hdr.frm) THEN DO:
+             FOR EACH bf-tt-job-hdr-selected
+                 WHERE bf-tt-job-hdr-selected.frm    EQ bf-tt-job-hdr.frm
+                   AND ROWID(bf-tt-job-hdr-selected) NE ROWID(bf-tt-job-hdr):
+                 bf-tt-job-hdr-selected.IS-SELECTED = TRUE.
+             END.
+         END.
+     END.
+             
      FOR EACH bf-tt-job-hdr WHERE bf-tt-job-hdr.IS-SELECTED
             EXCLUSIVE-LOCK BY bf-tt-job-hdr.frm:
          bf-tt-job-hdr.qty = bf-tt-job-hdr.org-qty + (bf-tt-job-hdr.org-qty * dOverRun * .01) .
