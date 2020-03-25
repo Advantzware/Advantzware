@@ -3144,6 +3144,7 @@ PROCEDURE local-update-record :
     END.
 
     RUN auto-add-tt.
+    ASSIGN adm-adding-record = NO .
     
 END PROCEDURE.
 
