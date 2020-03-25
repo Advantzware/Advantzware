@@ -59,11 +59,11 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
-                           "Amt MSF,Discount,Amount,Currency Code" 
+                           "Amt MSF,Discount,Amount,Currency Code,Created By,Created Date,Posted,Run#" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
-                            "msf,dis,amt,curr-code"
-       cFieldLength = "10,30,8,8,35,8,12,7,6,13," + "10,10,14,13"
-       cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c" 
+                            "msf,dis,amt,curr-code,createdby,createddate,posted,run"
+       cFieldLength = "10,30,8,8,35,8,12,7,6,13," + "10,10,14,13,10,12,6,7"
+       cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1789,6 +1789,10 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
                          WHEN "curr-code"  THEN cVarValue = STRING(gltrans.curr-code[1]) .
+                         WHEN "createdby"  THEN cVarValue = STRING(gltrans.createdBy,"x(10)") .
+                         WHEN "createddate"  THEN cVarValue = IF gltrans.createdDate NE ? THEN STRING(gltrans.createdDate,"99/99/9999") ELSE "" .
+                         WHEN "posted"  THEN cVarValue = STRING(gltrans.posted) .
+                         WHEN "run"  THEN cVarValue = STRING(gltrans.trnum,"9999999") .
 
                     END CASE.
 
@@ -1844,6 +1848,10 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
                          WHEN "curr-code"  THEN cVarValue = STRING(glhist.curr-code[1]) .
+                         WHEN "createdby"  THEN cVarValue = STRING(glhist.createdBy,"x(10)") .
+                         WHEN "createddate"  THEN cVarValue = IF glhist.createdDate NE ? THEN STRING(glhist.createdDate,"99/99/9999") ELSE "" .
+                         WHEN "posted"  THEN cVarValue = STRING(glhist.posted) .
+                         WHEN "run"  THEN cVarValue = STRING(glhist.tr-num,"9999999") .
 
                     END CASE.
 
@@ -1957,6 +1965,10 @@ do:
                          WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
                          WHEN "curr-code"  THEN cVarValue = STRING(ap-inv.curr-code[1]) .
+                         WHEN "createdby"  THEN cVarValue = "" .
+                         WHEN "createddate"  THEN cVarValue = "" .
+                         WHEN "posted"  THEN cVarValue = "" .
+                         WHEN "run"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -2005,6 +2017,10 @@ end.
                          WHEN "account"  THEN cVarValue = "" .
                          WHEN "acc-desc"  THEN cVarValue = "" .
                          WHEN "curr-code" THEN cVarValue = "".
+                         WHEN "createdby"  THEN cVarValue = "" .
+                         WHEN "createddate"  THEN cVarValue = "" .
+                         WHEN "posted"  THEN cVarValue = "" .
+                         WHEN "run"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -2049,6 +2065,10 @@ end.
                           WHEN "account"  THEN cVarValue = "" .
                          WHEN "acc-desc"  THEN cVarValue = "" .
                          WHEN "curr-code" THEN cVarValue = "".
+                         WHEN "createdby"  THEN cVarValue = "" .
+                         WHEN "createddate"  THEN cVarValue = "" .
+                         WHEN "posted"  THEN cVarValue = "" .
+                         WHEN "run"  THEN cVarValue = "" .
 
                     END CASE.
 
