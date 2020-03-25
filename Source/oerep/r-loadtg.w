@@ -8507,9 +8507,9 @@ PROCEDURE write-loadtag-line :
         "~"" STRING(w-ord.zone)  "~","
         "~"" loadtag.createUser "~","
         "~"" STRING(loadtag.tag-date,"99/99/9999") "~","
-        "~"" STRING(loadtag.tag-time,"HH:MM") IF loadtag.tag-time LT 43140 THEN " AM" ELSE " PM" "~","
+        "~"" STRING(loadtag.tag-time,"HH:MM AM") "~","
         "~"" STRING(TODAY,"99/99/9999") "~","
-        "~"" STRING(TIME,"HH:MM") IF TIME LT 43140 THEN " AM" ELSE " PM" "~" ".
+        "~"" STRING(TIME,"HH:MM AM") "~" ".
         .
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
