@@ -97,9 +97,6 @@ RUN sys/ref/nk1look.p (
     OUTPUT iRtnInt, 
     OUTPUT lRecFound
     ).
-    
-IF iRtnInt EQ 0 THEN
-    iRtnInt = 25. /* default value if NK1 setting don't has value / not found */
  
 FIND FIRST users NO-LOCK WHERE 
     users.user_id EQ USERID(LDBNAME(1)) 
