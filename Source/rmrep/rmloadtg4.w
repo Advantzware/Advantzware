@@ -153,6 +153,29 @@ DEFINE TEMP-TABLE tt-po-print LIKE w-po
 
 tmpstore = FILL("_",50).
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
+
+DEFINE VARIABLE hdPoProcs AS HANDLE NO-UNDO.
+
+RUN po/POProcs.p PERSISTENT SET hdPoProcs.
+                          
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "RMReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
+    
 DO TRANSACTION:
    /*{sys/inc/bardir.i}*/
 END.
@@ -1100,8 +1123,30 @@ PROCEDURE create-loadtag :
    loadtag.sts          = "Printed"
    loadtag.tag-date     = TODAY
    loadtag.tag-time     = TIME.
+   
+   FIND CURRENT loadtag NO-LOCK NO-ERROR.
+
   IF v-rmrecpt THEN DO:
     EMPTY TEMP-TABLE tt-mat.
+  
+    IF glCheckClosedStatus THEN DO:
+
+        RUN CheckPOLineStatus IN hdPoProcs(
+            INPUT cocode,
+            INPUT w-po.po-no,
+            INPUT w-po.line
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            LEAVE.
+            
+        RUN CheckJobStatus IN hdJobProcs(
+            INPUT cocode,
+            INPUT w-po.job-no,
+            INPUT w-po.job-no2
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            LEAVE. 
+    END.      
 
     /*RELEASE job.
     IF w-po.job-no NE "" AND w-po.s-num EQ ? THEN
@@ -1200,8 +1245,6 @@ PROCEDURE create-loadtag :
   END.  /* if v-rmrecpt */
 
   FIND CURRENT rm-rctd NO-LOCK NO-ERROR.
-  FIND CURRENT loadtag NO-LOCK NO-ERROR.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

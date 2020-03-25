@@ -130,6 +130,30 @@ DO TRANSACTION:
    {sys/inc/sspostvt.i}
 END.
 
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdjobProcs   AS HANDLE NO-UNDO.
+
+RUN po/POProcs.p    PERSISTENT SET hdPoProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+
+                          
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "RMReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.    
 
 DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
 
@@ -514,6 +538,17 @@ DO:
          APPLY "ENTRY" TO scr-po-line.
          RETURN NO-APPLY.
       END.*/
+      ELSE IF glCheckClosedStatus THEN DO:
+          RUN CheckPOLineStatus IN hdPoProcs(
+              INPUT cocode,
+              INPUT INTEGER(begin_po-no:SCREEN-VALUE),
+              INPUT INTEGER(scr-po-line:SCREEN-VALUE)
+              ) NO-ERROR.
+          IF ERROR-STATUS:ERROR THEN DO:
+              APPLY "ENTRY":U TO begin_po-no.
+              RETURN NO-APPLY. 
+          END.       
+      END.    
       ELSE IF po-ordl.item-type EQ NO THEN
       DO:
          op-error = YES.
@@ -691,6 +726,17 @@ DO:
   
             RELEASE po-ordl.
          END.
+         IF glCheckClosedStatus THEN DO:
+             RUN CheckPOLineStatus IN hdPoProcs(
+                 INPUT cocode,
+                 INPUT INTEGER(begin_po-no:SCREEN-VALUE),
+                 INPUT INTEGER(scr-po-line:SCREEN-VALUE)
+                 ) NO-ERROR.
+             IF ERROR-STATUS:ERROR THEN DO:
+                 APPLY "ENTRY":U TO begin_po-no.
+                 RETURN NO-APPLY. 
+             END.       
+         END. 
       END.
 END.
 

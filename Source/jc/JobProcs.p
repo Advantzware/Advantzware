@@ -28,6 +28,28 @@ FUNCTION fAddSpacesToString RETURNS CHARACTER
 /* ***************************  Main Block  *************************** */
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE CheckJobStatus:
+/*------------------------------------------------------------------------------
+ Purpose: To check a job's status
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    
+    FIND FIRST job NO-LOCK 
+         WHERE job.company EQ ipcCompany
+           AND job.job-No  EQ ipcJobNo
+           AND job.job-No2 EQ ipiJobNo2
+         NO-ERROR.  
+    IF AVAILABLE job AND NOT job.opened THEN DO:
+        RUN DisplayMessage("19").
+        RETURN ERROR.
+    END. 
+
+END PROCEDURE.
+
 PROCEDURE GetSecondaryJobForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns all available secondary job list for a given jobID

@@ -279,6 +279,29 @@ DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
 
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
+
+RUN po/PoProcs.p    PERSISTENT SET hdPoProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+                          
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "FGReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3753,6 +3776,26 @@ PROCEDURE create-loadtag :
             rfidtag.rfidtag = cRfidTag /* string(dRFIDTag)*/.
      RELEASE oe-ctrl.
   END.
+  
+  FIND CURRENT loadtag NO-LOCK NO-ERROR.
+
+  IF v-fgrecpt AND glCheckClosedStatus THEN DO:
+      RUN CheckPOLineStatus IN hdPoProcs(
+        INPUT cocode,
+        INPUT w-ord.po-no,
+        INPUT w-ord.po-line
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        LEAVE.
+ 
+    RUN CheckJobStatus IN hdJobProcs(
+        INPUT cocode,
+        INPUT w-ord.job-no,
+        INPUT w-ord.job-no2
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        LEAVE. 
+  END.
 
   IF v-fgrecpt AND NOT tb_ret THEN DO:
     IF AVAIL itemfg THEN DO:
@@ -3993,7 +4036,6 @@ PROCEDURE create-loadtag :
                           INPUT fg-rctd.i-no, INPUT 0 /* new qty */, 
                           INPUT fg-rctd.std-cost /* cost to set */, OUTPUT lv-full-qty).
 
-  FIND CURRENT loadtag NO-LOCK NO-ERROR.
   FIND CURRENT fg-rctd NO-LOCK NO-ERROR.
 
 
