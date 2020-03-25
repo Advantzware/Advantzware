@@ -165,14 +165,15 @@ DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
 &Scoped-define NEW NEW
 {rmrep/ttLoadTag.i}
 
-DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
 
-RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN po/POProcs.p    PERSISTENT SET hdPoProcs.
 RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
                           
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -185,6 +186,8 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
+    
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1029,8 +1032,8 @@ DO:
     RUN valid-po-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-        RUN CheckPOLineStatus IN hdOrderProcs(
+    IF glCheckClosedStatus THEN DO:
+        RUN CheckPOLineStatus IN hdPoProcs(
             INPUT cocode,
             INPUT INTEGER(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
             INPUT INTEGER(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -1154,7 +1157,7 @@ DO:
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+    IF glCheckClosedStatus THEN DO:
         RUN CheckJobStatus IN hdJobProcs(
             INPUT cocode,
             INPUT rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
@@ -1287,8 +1290,8 @@ DO:
         RUN display-po-info.
       END.
     END.
-  IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-      RUN CheckPOLineStatus IN hdOrderProcs(
+  IF glCheckClosedStatus THEN DO:
+      RUN CheckPOLineStatus IN hdPoProcs(
           INPUT cocode,
           INPUT INTEGER(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
           INPUT INTEGER(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -3019,8 +3022,8 @@ PROCEDURE local-update-record :
   RUN valid-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   
-  IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-      RUN CheckPOLineStatus IN hdOrderProcs(
+  IF glCheckClosedStatus THEN DO:
+      RUN CheckPOLineStatus IN hdPoProcs(
           INPUT cocode,
           INPUT INTEGER(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
           INPUT INTEGER(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -3043,7 +3046,7 @@ PROCEDURE local-update-record :
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   
-  IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+  IF glCheckClosedStatus THEN DO:
       RUN CheckJobStatus IN hdJobProcs(
           INPUT cocode,
           INPUT rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},

@@ -154,12 +154,13 @@ DEFINE TEMP-TABLE tt-po-print LIKE w-po
 tmpstore = FILL("_",50).
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
-DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPoProcs AS HANDLE NO-UNDO.
 
-RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN po/POProcs.p PERSISTENT SET hdPoProcs.
                           
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -172,6 +173,8 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
     
 DO TRANSACTION:
    /*{sys/inc/bardir.i}*/
@@ -1126,9 +1129,9 @@ PROCEDURE create-loadtag :
   IF v-rmrecpt THEN DO:
     EMPTY TEMP-TABLE tt-mat.
   
-    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+    IF glCheckClosedStatus THEN DO:
 
-        RUN CheckPOLineStatus IN hdOrderProcs(
+        RUN CheckPOLineStatus IN hdPoProcs(
             INPUT cocode,
             INPUT w-po.po-no,
             INPUT w-po.line

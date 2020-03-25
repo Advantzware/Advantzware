@@ -104,14 +104,15 @@ DEFINE VARIABLE lv-do-what AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bpo-ordl FOR po-ordl.
 
-DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
 
-RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+RUN po/POProcs.p    PERSISTENT SET hdPOProcs.
 RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
                           
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -124,6 +125,8 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -911,8 +914,8 @@ DO:
     RUN valid-po-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    IF AVAILABLE po-ordl AND lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-        RUN CheckPOLineStatus IN hdOrderProcs(
+    IF AVAILABLE po-ordl AND glCheckClosedStatus THEN DO:
+        RUN CheckPOLineStatus IN hdPoProcs(
             INPUT cocode,
             INPUT po-ordl.po-no,
             INPUT po-ordl.line
@@ -1014,7 +1017,7 @@ DO:
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+    IF glCheckClosedStatus THEN DO:
         RUN CheckJobStatus IN hdJobProcs(
             INPUT cocode,
             INPUT rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
@@ -1125,8 +1128,8 @@ DO:
       END.
     END.
     
-    IF AVAILABLE po-ordl AND lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-        RUN CheckPOLineStatus IN hdOrderProcs(
+    IF AVAILABLE po-ordl AND glCheckClosedStatus THEN DO:
+        RUN CheckPOLineStatus IN hdPoProcs(
             INPUT cocode,
             INPUT po-ordl.po-no,
             INPUT po-ordl.line
@@ -2218,8 +2221,8 @@ PROCEDURE local-update-record :
   RUN valid-po-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   
-  IF AVAILABLE po-ordl AND lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
-      RUN CheckPOLineStatus IN hdOrderProcs(
+  IF AVAILABLE po-ordl AND glCheckClosedStatus THEN DO:
+      RUN CheckPOLineStatus IN hdPoProcs(
           INPUT cocode,
           INPUT po-ordl.po-no,
           INPUT po-ordl.line
@@ -2244,7 +2247,7 @@ PROCEDURE local-update-record :
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   
-  IF lRecFound AND INTEGER(cReturnValue) EQ 1 THEN DO:
+  IF glCheckClosedStatus THEN DO:
     RUN CheckJobStatus IN hdJobProcs(
         INPUT cocode,
         INPUT rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
