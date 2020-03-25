@@ -93,8 +93,6 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportRmRctd.poLine, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.po-line).                                         
     RUN pAssignValueC (ipbf-ttImportRmRctd.RmItem, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.i-no).                                 
     RUN pAssignValueC (ipbf-ttImportRmRctd.iName, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.i-name).                                       
-    RUN pAssignValueC (ipbf-ttImportRmRctd.purUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.pur-uom).                                 
-    RUN pAssignValueC (ipbf-ttImportRmRctd.costUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost-uom).                                   
     RUN pAssignValueCToDt (ipbf-ttImportRmRctd.rctDate, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.rct-date).                             
     RUN pAssignValueD (ipbf-ttImportRmRctd.diameter, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.diameter).                                 
     RUN pAssignValueD (ipbf-ttImportRmRctd.rollLf, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.roll-lf).                             
@@ -107,26 +105,30 @@ PROCEDURE pProcessRecord PRIVATE:
     IF avail ITEM THEN DO:
       IF ipbf-ttImportRmRctd.purUom NE item.cons-uom THEN
       DO:
-         RUN sys/ref/convquom.p(ipbf-ttImportRmRctd.purUom, item.cons-uom,
+         RUN sys/ref/convquom.p(item.cons-uom, ipbf-ttImportRmRctd.purUom,
                           item.basis-w, 
                           IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
                           IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
                           item.s-dep,
                           ipbf-ttImportRmRctd.qty ,
-                          OUTPUT ipbf-ttImportRmRctd.qty).           
+                          OUTPUT ipbf-ttImportRmRctd.qty).
+         ipbf-ttImportRmRctd.purUom = item.cons-uom .                  
       END. 
       IF ipbf-ttImportRmRctd.costUom NE item.cons-uom THEN
       DO:
-          RUN sys/ref/convquom.p(ipbf-ttImportRmRctd.costUom, item.cons-uom,
+          RUN sys/ref/convquom.p(item.cons-uom,ipbf-ttImportRmRctd.costUom,
                           item.basis-w, 
                           IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
                           IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
                           item.s-dep,
                           ipbf-ttImportRmRctd.cost ,
-                          OUTPUT ipbf-ttImportRmRctd.cost).          
+                          OUTPUT ipbf-ttImportRmRctd.cost). 
+           ipbf-ttImportRmRctd.costUom = item.cons-uom .              
       END.        
     END.
     
+    RUN pAssignValueC (ipbf-ttImportRmRctd.purUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.pur-uom).                                 
+    RUN pAssignValueC (ipbf-ttImportRmRctd.costUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost-uom). 
     RUN pAssignValueD (ipbf-ttImportRmRctd.qty, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.qty).                                                   
     RUN pAssignValueD (ipbf-ttImportRmRctd.cost, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost).
     
