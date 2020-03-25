@@ -418,7 +418,7 @@ PROCEDURE pBusinessLogic:
                 btt-report.rec-id  = RECID(ar-invl)
                 btt-report.key-01  = tt-report.key-09
                 btt-report.key-02  = ar-invl.i-no
-                btt-report.key-03  = STRING(ar-invl.inv-no,"999999")
+                btt-report.key-03  = STRING(ar-invl.inv-no,"9999999")
                 btt-report.key-08  = tt-report.key-08
                 btt-report.key-09  = tt-report.key-09
                 btt-report.key-10  = "ar-invl"
