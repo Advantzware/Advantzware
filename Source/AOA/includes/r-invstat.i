@@ -85,13 +85,13 @@ DEFINE TEMP-TABLE ttProdSum NO-UNDO
 
 /* Local Variable Definitions ---                                       */
 
-FUNCTION fCustomerName RETURNS CHARACTER PRIVATE
-    (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER):
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ ipcCompany
-           AND cust.cust-no EQ ipcCustNo
+FUNCTION fSalesRepName RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER, ipcSalesRep AS CHARACTER):
+    FIND FIRST sman NO-LOCK
+         WHERE sman.company EQ ipcCompany
+           AND sman.sman EQ ipcSalesRep
          NO-ERROR.
-    RETURN IF AVAILABLE cust THEN REPLACE(cust.name,",","") ELSE "".
+    RETURN IF AVAILABLE sman THEN REPLACE(sman.sname,",","") ELSE "".
 END FUNCTION.
 
 FUNCTION fItemDescription RETURNS CHARACTER PRIVATE
@@ -157,8 +157,6 @@ PROCEDURE pAddJobItem PRIVATE:
     DEFINE INPUT PARAMETER iplHasOrder         AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdtOrderDate       AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER ipdtDueDate         AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSalesRep         AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSalesRepName     AS CHARACTER NO-UNDO.
     
     DEFINE PARAMETER BUFFER opbf-ttJobItem FOR ttJobItem.
     
@@ -168,7 +166,6 @@ PROCEDURE pAddJobItem PRIVATE:
     ASSIGN 
         opbf-ttJobItem.cCompany                = ipcCompany
         opbf-ttJobItem.cCustomerID             = CAPS(ipcCustomerID)
-        opbf-ttJobItem.cCustomerName           = fCustomerName (ipcCompany, ipcCustomerID)
         opbf-ttJobItem.cItemID                 = CAPS(ipcItemID)
         opbf-ttJobItem.cItemDescription        = fItemDescription (ipcCompany, ipcItemID)
         opbf-ttJobItem.xxcJobID                = ipcJobID
@@ -194,8 +191,16 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.cJob                    = IF ipcJobID NE "" THEN ipcJobID + "-" + STRING(ipiJobID2,"99") ELSE ""
         opbf-ttJobItem.dtOrderDate             = ipdtOrderDate
         opbf-ttJobItem.dtDueDate               = ipdtDueDate
-        opbf-ttJobItem.cSalesRep               = ipcSalesRep
-        opbf-ttJobItem.cSalesRepName           = ipcSalesRepName
+        .
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ ipcCompany
+           AND cust.cust-no EQ ipcCustomerID
+         NO-ERROR.
+    IF AVAILABLE cust THEN
+    ASSIGN
+        opbf-ttJobItem.cCustomerName = REPLACE(cust.name,",","")
+        opbf-ttJobItem.cSalesRep     = cust.sman
+        opbf-ttJobItem.cSalesRepName = fSalesRepName (ipcCompany, cust.sman)
         .
     FIND FIRST ttProdSum
          WHERE ttProdSum.cCompany         EQ ipcCompany
@@ -303,8 +308,6 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE BUFFER bf-ttJobItem      FOR ttJobItem.
     DEFINE BUFFER bf-comp-ttJobItem FOR ttJobItem.
     
-    DEFINE VARIABLE cSalesRep     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSalesRepName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSource       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtOrderDate   AS DATE      NO-UNDO.
     DEFINE VARIABLE dtDueDate     AS DATE      NO-UNDO.
@@ -344,8 +347,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake       = NO
             dtOrderDate   = ?
             dtDueDate     = ?
-            cSalesRep     = ""
-            cSalesRepName = ""
             .
         RUN pGetQuantityMadeAsOf (
             job-hdr.company,
@@ -382,8 +383,6 @@ PROCEDURE pBuildJobItem PRIVATE:
                 ASSIGN
                     dtOrderDate   = oe-ord.ord-date
                     dtDueDate     = oe-ord.due-date
-                    cSalesRep     = oe-ord.sman[1]
-                    cSalesRepName = oe-ord.sname[1]
                     .
             END. 
         END.
@@ -429,8 +428,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
-            cSalesRep,
-            cSalesRepName,
             BUFFER bf-ttJobItem
             ).
         IF itemfg.isaset THEN DO:
@@ -450,8 +447,6 @@ PROCEDURE pBuildJobItem PRIVATE:
                     lNoMake       = fg-set.noReceipt
                     dtOrderDate   = ?
                     dtDueDate     = ?
-                    cSalesRep     = ""
-                    cSalesRepName = ""
                     .
                 IF AVAILABLE bf-ttJobItem THEN 
                 RUN pAnalyzeItem (
@@ -494,8 +489,6 @@ PROCEDURE pBuildJobItem PRIVATE:
                     NO,
                     dtOrderDate,
                     dtDueDate,
-                    cSalesRep,
-                    cSalesRepName,
                     BUFFER bf-comp-ttJobItem
                     ).
             END.            
@@ -534,8 +527,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake       = NO
             dtOrderDate   = oe-ord.ord-date
             dtDueDate     = oe-ord.due-date
-            cSalesRep     = oe-ord.sman[1]
-            cSalesRepName = oe-ord.sname[1]
             .
             RUN pGetInvoicedAmountForMiscAsOf (
                 oe-ord.company,
@@ -564,8 +555,6 @@ PROCEDURE pBuildJobItem PRIVATE:
                 lHasOrder,
                 dtOrderDate,
                 dtDueDate,
-                cSalesRep,
-                cSalesRepName,
                 BUFFER bf-ttJobItem
                 ).
     END.
