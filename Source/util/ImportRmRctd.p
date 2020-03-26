@@ -105,7 +105,7 @@ PROCEDURE pProcessRecord PRIVATE:
     IF avail ITEM THEN DO:
       IF ipbf-ttImportRmRctd.purUom NE item.cons-uom THEN
       DO:
-         RUN sys/ref/convquom.p(item.cons-uom, ipbf-ttImportRmRctd.purUom,
+         RUN sys/ref/convquom.p(ipbf-ttImportRmRctd.purUom, item.cons-uom,
                           item.basis-w, 
                           IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
                           IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
@@ -116,7 +116,7 @@ PROCEDURE pProcessRecord PRIVATE:
       END. 
       IF ipbf-ttImportRmRctd.costUom NE item.cons-uom THEN
       DO:
-          RUN sys/ref/convquom.p(item.cons-uom,ipbf-ttImportRmRctd.costUom,
+          RUN sys/ref/convcuom.p(ipbf-ttImportRmRctd.costUom, item.cons-uom,
                           item.basis-w, 
                           IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
                           IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
