@@ -1159,10 +1159,11 @@ PROCEDURE assignCC :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DO WITH FRAME {&FRAME-NAME}:
-   vend.payment-type = cb_paytype:SCREEN-VALUE IN FRAME {&frame-name}.
-   vend.spare-char-1 = cb_codetype:SCREEN-VALUE IN FRAME {&frame-name}.
-END.
+DEFINE INPUT PARAMETER ipcPayType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCodeType AS CHARACTER NO-UNDO.
+
+vend.payment-type = ipcPayType.
+vend.spare-char-1 = ipcCodeType.
 
 END PROCEDURE.
 
@@ -1325,11 +1326,14 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 /* gdm - 07080903 */
 DEF VAR v-old-poexport LIKE vend.po-export NO-UNDO.
-
+DEFINE VARIABLE cPayType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCodeType AS CHARACTER NO-UNDO.
 ASSIGN v-old-poexport = vend.po-export.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  cPayType = cb_paytype:SCREEN-VALUE IN FRAME {&frame-name}.
+  cCodeType = cb_codetype:SCREEN-VALUE IN FRAME {&frame-name}.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1341,7 +1345,7 @@ ASSIGN v-old-poexport = vend.po-export.
 /* gdm - 07080903 end */
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN assignCC.
+  RUN assignCC(cPayType,cCodeType).
   IF adm-new-record THEN DO:
      IF vend-log-f THEN 
          RUN vend-new-log(vend-char-f).
