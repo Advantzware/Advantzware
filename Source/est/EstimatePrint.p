@@ -86,7 +86,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
 RUN pBuildSections(ipiEstCostHeaderID, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-    RUN Output_InitializeXprint(ipcOutputFile, YES, YES, gcFont, 11,"") .
+    RUN Output_InitializeXprint(ipcOutputFile, YES, NO, gcFont, 11,"") .
     RUN pProcessSections(ipcSectionStyle).
     RUN Output_Close.
     RUN Output_PrintXprintFile(ipcOutputFile).

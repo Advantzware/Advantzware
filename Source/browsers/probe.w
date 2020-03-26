@@ -2243,15 +2243,15 @@ PROCEDURE import-price :
 
  FOR EACH bff-probe NO-LOCK
      WHERE bff-probe.company = eb.company 
-       and bff-probe.est-no = eb.est-no 
-       AND bff-probe.probe-date ne ?
+       AND bff-probe.est-no = eb.est-no 
+       AND bff-probe.probe-date NE ?
        AND (lcheckflg OR ( NOT lcheckflg AND rowid(bff-probe) EQ ROWID(probe))) :
 
   RUN save-fields.
 
   DO WITH FRAME {&FRAME-NAME}:
 
-    REPOSITION {&browse-name} TO ROWID rowid(bff-probe) NO-ERROR.
+    REPOSITION {&browse-name} TO ROWID ROWID(bff-probe) NO-ERROR.
 
     IF est.est-type NE 8 THEN
       FOR EACH quotehd OF est NO-LOCK,
@@ -2932,7 +2932,7 @@ DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
 
 ASSIGN 
     iEstCostHeaderID = INT64(ipbf-probe.spare-char-2)
-    cOutputFile = SESSION:TEMP-DIRECTORY + ipbf-probe.spare-char-2 + ".xpr"
+    cOutputFile = SESSION:TEMP-DIRECTORY + TRIM(ipbf-probe.est-no) + ipbf-probe.probe-user + STRING(TIME) + ".xpr"
     .
 
 RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile, gcEstimateFormat, gcEstimateFont).
@@ -4185,8 +4185,8 @@ PROCEDURE pCheckMultiRecords :
   i = 0 .
   FOR EACH bff-probe NO-LOCK
      WHERE bff-probe.company = eb.company 
-       and bff-probe.est-no = eb.est-no 
-       AND bff-probe.probe-date ne ?:
+       AND bff-probe.est-no = eb.est-no 
+       AND bff-probe.probe-date NE ?:
      i = i + 1 .
      IF i GE 2 THEN DO:
         oplMultiRecords = YES .
@@ -4319,7 +4319,7 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
     ASSIGN 
         dPrice = 0
         dMatPct = 0.
-    IF ip-type EQ 2 THEN do:
+    IF ip-type EQ 2 THEN DO:
         IF AVAILABLE probe THEN 
             dPrice = DEC(probe.sell-price:{&SVB}).
         IF dPrice GT 0 THEN 
