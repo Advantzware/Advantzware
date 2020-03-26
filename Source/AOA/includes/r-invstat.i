@@ -27,6 +27,8 @@ DEFINE TEMP-TABLE ttJobItem NO-UNDO
     FIELD dPriceTotalProduced        AS DECIMAL   LABEL "Sell Value of Produced" FORMAT "->,>>>,>>9.99"
     FIELD dPriceTotalShipped         AS DECIMAL   LABEL "Sell Value of Shipped"  FORMAT "->,>>>,>>9.99"
     FIELD dPriceTotalBalanceToRun    AS DECIMAL   LABEL "Sell Value to Run"      FORMAT "->,>>>,>>9.99"
+    FIELD dtAsOfDate                 AS DATE      LABEL "As Of Date"             FORMAT "99/99/9999"
+    FIELD cAsOfDateOption            AS CHARACTER LABEL "As Of Date Option"      FORMAT "x(20)"
     FIELD cSource                    AS CHARACTER
     FIELD cLineType                  AS CHARACTER
     FIELD lNoMake                    AS LOGICAL 
@@ -96,23 +98,38 @@ END FUNCTION.
 
 FUNCTION fItemDescription RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER):
+        
+    DEFINE VARIABLE cItemDescription AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bItemFG FOR itemfg.
+    DEFINE BUFFER bPrep   FOR prep.
     
     FIND FIRST bItemFG NO-LOCK
          WHERE bItemFG.company EQ ipcCompany
            AND bItemFG.i-no    EQ ipcItemID
          NO-ERROR.
-    RETURN IF AVAILABLE bItemFG THEN bItemFG.i-name ELSE "".
+    IF AVAILABLE bItemFG THEN
+    cItemDescription = bItemFG.i-name.
+    ELSE DO:
+        FIND FIRST bPrep NO-LOCK
+             WHERE bPrep.company EQ ipcCompany
+               AND bPrep.code    EQ ipcItemID
+             NO-ERROR.
+        IF AVAILABLE bPrep THEN
+        cItemDescription = bPrep.dscr.
+    END.
+
+    RETURN cItemDescription.
+
 END FUNCTION.
 
 FUNCTION fProductDescription RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcProductCategory AS CHARACTER):
-    FIND FIRST procat NO-LOCK
-         WHERE procat.company EQ ipcCompany
-           AND procat.procat  EQ ipcProductCategory
+    FIND FIRST fgcat NO-LOCK
+         WHERE fgcat.company EQ ipcCompany
+           AND fgcat.procat  EQ ipcProductCategory
          NO-ERROR.
-    RETURN IF AVAILABLE procat THEN procat.dscr ELSE "".
+    RETURN IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
 END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
@@ -160,7 +177,9 @@ PROCEDURE pAddJobItem PRIVATE:
     
     DEFINE PARAMETER BUFFER opbf-ttJobItem FOR ttJobItem.
     
-    IF ipdPricePerEA EQ 0 THEN RETURN.
+    &IF {&subjectID} EQ 94 &THEN
+    IF lIncludeZeroPricePer EQ NO AND ipdPricePerEA EQ 0 THEN RETURN.
+    &ENDIF
 
     CREATE opbf-ttJobItem.
     ASSIGN 
@@ -191,6 +210,8 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.cJob                    = IF ipcJobID NE "" THEN ipcJobID + "-" + STRING(ipiJobID2,"99") ELSE ""
         opbf-ttJobItem.dtOrderDate             = ipdtOrderDate
         opbf-ttJobItem.dtDueDate               = ipdtDueDate
+        opbf-ttJobItem.dtAsOfDate              = dtAsOfDate
+        opbf-ttJobItem.cAsOfDateOption         = cAsOfDateOption
         .
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ ipcCompany
@@ -356,8 +377,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             ipdtAsOf,
             OUTPUT dQtyProd
             ).                
-        IF job-hdr.ord-no NE 0 THEN 
-        DO: /*This will be the case for all non-stock jobs*/
+        IF job-hdr.ord-no NE 0 THEN DO: /*This will be the case for all non-stock jobs*/
             FIND FIRST oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ job-hdr.company
                   AND oe-ordl.ord-no  EQ job-hdr.ord-no
@@ -375,16 +395,16 @@ PROCEDURE pBuildJobItem PRIVATE:
                     dPricePer  = IF oe-ordl.pr-uom EQ "M" THEN oe-ordl.price / 1000 ELSE oe-ordl.price
                     lHasOrder  = YES
                     .
-                FIND FIRST oe-ord NO-LOCK
-                     WHERE oe-ord.company EQ job-hdr.company
-                       AND oe-ord.ord-no  EQ job-hdr.ord-no
-                     NO-ERROR.
-                IF AVAILABLE oe-ord THEN
-                ASSIGN
-                    dtOrderDate   = oe-ord.ord-date
-                    dtDueDate     = oe-ord.due-date
-                    .
-            END. 
+            END.
+            FIND FIRST oe-ord NO-LOCK
+                 WHERE oe-ord.company EQ job-hdr.company
+                   AND oe-ord.ord-no  EQ job-hdr.ord-no
+                 NO-ERROR.
+            IF AVAILABLE oe-ord THEN
+            ASSIGN
+                dtOrderDate   = oe-ord.ord-date
+                dtDueDate     = oe-ord.due-date
+                .
         END.
         ELSE DO:
             RUN pGetQuantityOnHandAsOf (
@@ -445,8 +465,6 @@ PROCEDURE pBuildJobItem PRIVATE:
                     dQtyOnHand    = 0
                     dPricePer     = 0
                     lNoMake       = fg-set.noReceipt
-                    dtOrderDate   = ?
-                    dtDueDate     = ?
                     .
                 IF AVAILABLE bf-ttJobItem THEN 
                 RUN pAnalyzeItem (
