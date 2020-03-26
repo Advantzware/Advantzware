@@ -544,7 +544,7 @@ PROCEDURE pBusinessLogic:
                     . 
             END. /* if avail */
                
-            RUN salecost (
+            RUN pSaleCost (
                 "4",
                 ROWID(ar-invl),
                 cJobNo,
@@ -552,7 +552,7 @@ PROCEDURE pBusinessLogic:
                 iQty[1],
                 OUTPUT dCost[1]
                 ).
-            RUN salecost (
+            RUN pSaleCost (
                 "2",
                 ROWID(ar-invl),
                 cJobNo,
@@ -560,7 +560,7 @@ PROCEDURE pBusinessLogic:
                 iQty[1],
                 OUTPUT dCost1[1]
                 ).
-            RUN salecost (
+            RUN pSaleCost (
                 "3",
                 ROWID(ar-invl),
                 cJobNo,
