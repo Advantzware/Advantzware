@@ -185,7 +185,7 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-mach.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-est.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
@@ -1197,43 +1197,43 @@ FUNCTION getValue-estf RETURNS CHARACTER
         END.
         WHEN "i-code2[1]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[1]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[1]) ELSE string(eb.i-code[1]) .
         END.
          WHEN "i-code2[2]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[2]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[2]) ELSE string(eb.i-code[2]).
         END.
          WHEN "i-code2[3]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[3]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[3]) ELSE string(eb.i-code[3]).
         END.
          WHEN "i-code2[4]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[4]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[4]) ELSE string(eb.i-code[4]).
         END.
          WHEN "i-code2[5]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[5]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[5]) ELSE string(eb.i-code[5]).
         END.
          WHEN "i-code2[6]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[6]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[6]) ELSE string(eb.i-code[6]).
         END.
          WHEN "i-code2[7]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[7]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[7]) ELSE string(eb.i-code[7]).
         END.
          WHEN "i-code2[8]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[8]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[8]) ELSE string(eb.i-code[8]).
         END.
          WHEN "i-code2[9]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[9]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[9]) ELSE string(eb.i-code[9]).
         END.
          WHEN "i-code2[10]"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.i-code[10]).
+            lc-return = IF ipcIndustry EQ "F" THEN string(eb.i-code2[10]) ELSE string(eb.i-code[10]).
         END.
         WHEN "board"  THEN DO:
             IF AVAIL ef THEN
