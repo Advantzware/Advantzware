@@ -384,7 +384,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_sman-2 ).
-       RUN set-position IN h_sman-2 ( 7.43 , 48.00 ) NO-ERROR.
+       RUN set-position IN h_sman-2 ( 7.43 , 28.00 ) NO-ERROR.
        /* Size in UIB:  ( 5.00 , 65.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

@@ -317,7 +317,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'BrwsCustomers|View Customer|Ship To|Sold To|Totals|Pricing|Credit Status' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'BrwsCustomers|View Customer|Ship To|Sold To|Totals/Sales|Pricing|Credit Status' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -672,7 +672,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust-5 ).
-       RUN set-position IN h_cust-5 ( 5.29 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_cust-5 ( 5.29 , 6.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 107.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -680,7 +680,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust-tot ).
-       RUN set-position IN h_cust-tot ( 7.43 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_cust-tot ( 7.43 , 6.00 ) NO-ERROR.
        /* Size in UIB:  ( 13.81 , 107.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
