@@ -804,7 +804,7 @@ PROCEDURE run-report :
             END.
                
             iOrderQty     = (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0).
-            dOrderQtyUnit = (IF AVAILABLE oe-ordl THEN ( oe-ordl.qty / Max(oe-ordl.cas-cnt,1) ) ELSE 0).
+            dOrderQtyUnit = oe-ordl.cas-cnt.
             iOrderPartial = (IF AVAILABLE oe-ordl THEN oe-ordl.partial ELSE 0).
             iOrderCasesUnit  = (IF AVAILABLE oe-ordl THEN oe-ordl.cases-unit ELSE 0).
             cJobNo = loadtag.job-no + "-" + string(loadtag.job-no,"99") .
