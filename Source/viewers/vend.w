@@ -132,7 +132,7 @@ vend.code-1099 vend.terms vend.disc-% vend.rebate-% vend.frt-pay ~
 vend.disc-days vend.carrier vend.fob-code vend.loc 
 &Scoped-define ENABLED-TABLES vend
 &Scoped-define FIRST-ENABLED-TABLE vend
-&Scoped-Define ENABLED-OBJECTS cb_codetype cb_paytype RECT-1 RECT-29 ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-29 ~
 RECT-30 RECT-31 
 &Scoped-Define DISPLAYED-FIELDS vend.vend-no vend.active vend.name ~
 vend.add1 vend.add2 vend.city vend.state vend.zip vend.country vend.Postal ~
@@ -1206,8 +1206,7 @@ PROCEDURE disable-vend-fields :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE vend.po-export.
-/*    DISABLE tb_cc tb_billpay.*/
+    DISABLE vend.po-export cb_codetype cb_paytype.     
   END.
 
 END PROCEDURE.
@@ -1284,9 +1283,10 @@ PROCEDURE enable-vend-fields :
              RUN epCanAccess IN hPgmSecurity ("viewers/vend.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
 
-IF lResult THEN
-     ENABLE vend.po-export.
-/*    ENABLE tb_cc tb_billpay.*/
+    IF lResult THEN
+       ENABLE vend.po-export.
+       
+    ENABLE cb_codetype cb_paytype.
   END.
 
 END PROCEDURE.
