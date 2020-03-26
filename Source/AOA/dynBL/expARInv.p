@@ -708,7 +708,7 @@ PROCEDURE pSaleCost:
         END.
 
         IF ip-type EQ 1 THEN
-            RUN boardCost (
+            RUN pBoardCost (
                 ar-invl.company,
                 ip-job-no,
                 ip-job-no2,                            
@@ -719,7 +719,7 @@ PROCEDURE pSaleCost:
                 OUTPUT op-cost
                 ).
         IF ip-type EQ 4 THEN
-            RUN boardCostM (
+            RUN pBoardCostM (
                 ar-invl.company,
                 ip-job-no,
                 ip-job-no2,                            
