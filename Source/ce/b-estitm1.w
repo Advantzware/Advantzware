@@ -3971,13 +3971,14 @@ PROCEDURE local-assign-record :
           INPUT eb.form-no,    
           INPUT eb.blank-no
           ).
-  END.        
-  ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN 
-      RUN update-e-itemfg-vend.
-
-  IF NOT adm-new-record 
+  END.    
+      
+  ELSE IF NOT adm-new-record 
      AND cOldFGItem NE eb.stock-no 
      AND eb.pur-man THEN DO:
+     
+     RUN update-e-itemfg-vend.
+             
       IF CAN-FIND(FIRST vendItemCost
                   WHERE vendItemCost.company    EQ cocode
                     AND vendItemCost.ItemID     EQ cOldFGItem
@@ -3991,7 +3992,7 @@ PROCEDURE local-assign-record :
               INPUT eb.form-no,
               INPUT eb.blank-no,
               INPUT cOldFGItem, /* Old FG Item */
-              INPUT eb.stock-no /* New F Item */
+              INPUT eb.stock-no /* New FG Item */
               ).                            
   END.
 
@@ -5471,70 +5472,31 @@ PROCEDURE update-e-itemfg-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
-   DEF BUFFER bf-e-itemfg FOR e-itemfg.
-   DEF VAR vcUOM AS cha NO-UNDO.
+   DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
+   DEFINE BUFFER e-itemfg-vend    FOR e-itemfg-vend.
 
-   IF est.est-type > 1 THEN DO: /* set est - copy for all forms*/
-       FOR EACH e-itemfg-vend
-                   WHERE e-itemfg-vend.company EQ eb.company
-                     AND e-itemfg-vend.est-no = eb.est-no
-                     AND e-itemfg-vend.eqty = eb.eqty.
-           
-           DELETE e-itemfg-vend.
-       END.
-
-      FOR EACH e-itemfg-vend
-                   WHERE e-itemfg-vend.company EQ eb.company
-                     AND e-itemfg-vend.est-no = eb.est-no
-                     AND e-itemfg-vend.eqty = viEQtyPrev
-            /* AND e-itemfg-vend.form-no = eb.form-no
-             AND e-itemfg-vend.blank-no = eb.blank-no
-             AND e-itemfg-vend.i-no    EQ eb.stock-no*/
-            /*AND e-itemfg-vend.vend-no EQ ""*/  :
-
-       CREATE bf-e-itemfg-vend.
-       BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
-       
-       DELETE e-itemfg-vend.
-
-       
-
-       /*FIND FIRST bf-e-itemfg WHERE
-                 bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
-                 bf-e-itemfg.i-no EQ bf-e-itemfg-vend.i-no
-                 NO-LOCK NO-ERROR.
-
-       IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       
-      END.
-   END.   /* end of set est */
-   ELSE FOR EACH e-itemfg-vend
-                   WHERE e-itemfg-vend.company EQ eb.company
-                     AND e-itemfg-vend.est-no = eb.est-no
-                     AND e-itemfg-vend.eqty = viEQtyPrev
-                     AND e-itemfg-vend.form-no = eb.form-no
-                     AND e-itemfg-vend.blank-no = eb.blank-no
-                     AND e-itemfg-vend.i-no    EQ eb.stock-no
-            /*AND e-itemfg-vend.vend-no EQ ""*/  :
-
-       CREATE bf-e-itemfg-vend.
-       BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.       
-
-       DELETE e-itemfg-vend.       
-
-       /*FIND FIRST bf-e-itemfg WHERE
-                 bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
-                 bf-e-itemfg.i-no EQ bf-e-itemfg-vend.i-no
-                 NO-LOCK NO-ERROR.
-
-       IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       
-
-   END.
-
+    FOR EACH e-itemfg-vend NO-LOCK
+        WHERE e-itemfg-vend.company  EQ eb.company 
+          AND e-itemfg-vend.est-no   EQ eb.est-no
+          AND e-itemfg-vend.form-no  EQ eb.form-no
+          AND e-itemfg-vend.blank-no EQ eb.blank-no
+          AND e-itemfg-vend.i-no     EQ cOldFGItem:
+        FIND FIRST bf-e-itemfg-vend EXCLUSIVE-LOCK
+             WHERE bf-e-itemfg-vend.company  EQ e-itemfg-vend.company
+               AND bf-e-itemfg-vend.est-no   EQ e-itemfg-vend.est-no
+               AND bf-e-itemfg-vend.form-no  EQ e-itemfg-vend.form-no
+               AND bf-e-itemfg-vend.blank-no EQ e-itemfg-vend.blank-no
+               AND bf-e-itemfg-vend.i-no     EQ e-itemfg-vend.i-no
+            NO-ERROR.
+        IF AVAILABLE bf-e-itemfg-vend THEN DO:
+            ASSIGN 
+                bf-e-itemfg-vend.i-no = eb.stock-no
+                bf-e-itemfg-vend.eQty = IF bf-e-itemfg-vend.eQty NE eb.eQty THEN eb.eQty 
+                                        ELSE bf-e-itemfg-vend.eQty
+                .                                   
+        END.                 
+    END.
+    RELEASE bf-e-itemfg-vend. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
