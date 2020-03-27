@@ -67,7 +67,9 @@ DEF VAR li-lot-no AS CHAR NO-UNDO.
 DEF VAR li-cost AS DEC NO-UNDO.
 DEF VAR lv-relase AS CHAR NO-UNDO.
 DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
 
 DEFINE TEMP-TABLE w-rowid FIELD w-rowid AS CHAR
@@ -85,6 +87,11 @@ END.
 DO TRANSACTION:
     {sys\inc\BOLWeight.i} 
 END.
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1792,7 +1799,8 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       OR v-partial  NE oe-boll.partial
       OR v-pallets  NE oe-boll.tot-pallets 
       OR adm-new-record)
-      AND (v-freight EQ oe-boll.freight) THEN DO:
+      AND (v-freight EQ oe-boll.freight)
+      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
     
       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
     END.
@@ -2593,8 +2601,10 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
             RUN oe/pallcalc.p (ROWID(bf-oe-boll), OUTPUT bf-oe-boll.tot-pallets).
             oe-bolh.tot-pallets = oe-bolh.tot-pallets + bf-oe-boll.tot-pallets.
    END. /* each oe-boll */
-   RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dTotFreight).   
-   oe-bolh.freight = dTotFreight.
+   IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
+       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dTotFreight).   
+       oe-bolh.freight = dTotFreight.
+   END.
    FIND CURRENT oe-bolh NO-LOCK.
    opdFreight = dTotFreight.
 END PROCEDURE.

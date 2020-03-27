@@ -4,7 +4,7 @@
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
-{methods/triggers/write.i}
+/*{methods/triggers/write.i}*/
 
 {custom/globdefs.i}
 
@@ -16,6 +16,9 @@ DEF BUFFER b-oe-rel FOR oe-rel.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li-next-ordno AS INT NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF oe-rel.
 DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
@@ -25,6 +28,13 @@ ASSIGN
  locode = g_loc.
 
 {sys/inc/oeuserid.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.
+
 IF {&TABLENAME}.ord-no EQ 0 AND USERID("ASI") EQ "ASI" THEN DO:
     MESSAGE "Internal Error - Please Call ASI" SKIP
         "An order with order number 0 was created." SKIP
@@ -107,7 +117,8 @@ FOR EACH b-oe-ordl NO-LOCK
   END.
 END.
 
-IF {&TABLENAME}.t-freight NE old-{&TABLENAME}.t-freight THEN
+IF {&TABLENAME}.t-freight NE old-{&TABLENAME}.t-freight 
+  AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
   RUN oe/ordfrate.p (ROWID({&TABLENAME})).
 
 RUN oe/calcordt.p (ROWID({&TABLENAME})).
