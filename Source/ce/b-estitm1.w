@@ -3973,28 +3973,32 @@ PROCEDURE local-assign-record :
           ).
   END.    
       
-  ELSE IF NOT adm-new-record 
-     AND cOldFGItem NE eb.stock-no 
-     AND eb.pur-man THEN DO:
+  ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:
      
-     RUN update-e-itemfg-vend.
-             
-      IF CAN-FIND(FIRST vendItemCost
-                  WHERE vendItemCost.company    EQ cocode
-                    AND vendItemCost.ItemID     EQ cOldFGItem
-                    AND vendItemCost.estimateNo EQ eb.est-no
-                    AND vendItemCost.formNo     EQ eb.form-no
-                    AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
-                    
-          RUN UpdateVendItemCost(
-              INPUT cocode,
-              INPUT eb.est-no,
-              INPUT eb.form-no,
-              INPUT eb.blank-no,
-              INPUT cOldFGItem, /* Old FG Item */
-              INPUT eb.stock-no /* New FG Item */
-              ).                            
-  END.
+      IF cOldFGItem NE eb.stock-no THEN DO:
+          
+          RUN update-e-itemfg-vend.
+                   
+          IF CAN-FIND(FIRST vendItemCost
+                      WHERE vendItemCost.company    EQ cocode
+                        AND vendItemCost.ItemID     EQ cOldFGItem
+                        AND vendItemCost.estimateNo EQ eb.est-no
+                        AND vendItemCost.formNo     EQ eb.form-no
+                        AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
+                        
+              RUN UpdateVendItemCost(
+                  INPUT cocode,
+                  INPUT eb.est-no,
+                  INPUT eb.form-no,
+                  INPUT eb.blank-no,
+                  INPUT cOldFGItem, /* Old FG Item */
+                  INPUT eb.stock-no /* New FG Item */
+                  ).    
+      END.      
+      ELSE IF eb.eqty NE viEQtyPrev THEN 
+          RUN update-e-itemfg-vend.                         
+  END.    
+
 
   ll-new-shipto = NO.
   RUN valid-eb-reckey.
