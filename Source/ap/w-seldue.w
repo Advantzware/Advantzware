@@ -214,7 +214,7 @@ DEFINE VARIABLE lv-proamt AS DECIMAL FORMAT "$->>>,>>>,>>9.99":U INITIAL ?
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 147 BY 5.24.
+     SIZE 160.8 BY 5.24.
 
 DEFINE VARIABLE tb_discount AS LOGICAL INITIAL no 
      LABEL "Include Invoices Available for Discount" 
@@ -246,7 +246,7 @@ DEFINE BROWSE BROWSE-1
     ENABLE tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 149 BY 16.67
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 162 BY 16.67
          BGCOLOR 8 FONT 0.
 
 
@@ -276,7 +276,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.2 ROW 1
-         SIZE 149 BY 23.71
+         SIZE 162.4 BY 23.71
          FONT 6.
 
 
@@ -298,7 +298,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Payment Selection by Due Date"
          HEIGHT             = 23.71
-         WIDTH              = 149
+         WIDTH              = 162.6
          MAX-HEIGHT         = 53.71
          MAX-WIDTH          = 384
          VIRTUAL-HEIGHT     = 53.71
@@ -417,25 +417,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
-ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
-DO:
-  DEF VAR li AS INT NO-UNDO.
-  FIND FIRST ap-inv WHERE ap-inv.company = g_company 
-                        AND ap-inv.vend-no = tt-sel.vend-no
-                        AND ap-inv.posted  = YES
-                        AND ap-inv.inv-no = tt-sel.inv-no NO-LOCK NO-ERROR.
-  
-  
-  IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
-  tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
-   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main W-Win
 ON HELP OF FRAME F-Main
@@ -477,6 +458,25 @@ ANYWHERE
 DO:
     APPLY "tab" TO SELF.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
+ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
+DO:
+  DEF VAR li AS INT NO-UNDO.
+  FIND FIRST ap-inv WHERE ap-inv.company = g_company 
+                        AND ap-inv.vend-no = tt-sel.vend-no
+                        AND ap-inv.posted  = YES
+                        AND ap-inv.inv-no = tt-sel.inv-no NO-LOCK NO-ERROR.
+  
+  
+  IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+  tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1241,7 +1241,9 @@ DO:
     
     ASSIGN tt-sel.amt-due:SCREEN-VALUE IN BROWSE {&browse-name}
                   = string(dec(tt-sel.inv-bal:SCREEN-VALUE) - dec(tt-sel.disc-amt:SCREEN-VALUE))
-           tt-sel.amt-paid:SCREEN-VALUE = tt-sel.amt-due:SCREEN-VALUE.
+           tt-sel.amt-paid:SCREEN-VALUE = tt-sel.amt-due:SCREEN-VALUE
+           tt-sel.amt-due
+           tt-sel.amt-paid.
     
     lv-pre-disc = dec(tt-sel.disc-amt:SCREEN-VALUE).
 
@@ -1691,8 +1693,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPaymentAmount W-Win
-PROCEDURE pCheckPaymentAmount:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPaymentAmount W-Win 
+PROCEDURE pCheckPaymentAmount :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1722,7 +1724,7 @@ PROCEDURE pCheckPaymentAmount:
     VIEW-AS ALERT-BOX ERROR.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
