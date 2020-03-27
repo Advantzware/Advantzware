@@ -45,6 +45,14 @@ CREATE WIDGET-POOL.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
+/*For mach-rek*/
+DEFINE NEW SHARED VARIABLE fil_id              AS RECID     NO-UNDO.
+DEFINE NEW SHARED BUFFER xest FOR est.
+DEFINE NEW SHARED BUFFER xef  FOR ef.
+DEFINE NEW SHARED BUFFER xeb  FOR eb.
+
+DEFINE NEW SHARED VARIABLE chosen AS LOGICAL FORMAT "y/n" NO-UNDO.
+DEFINE NEW SHARED VARIABLE  head AS CHARACTER FORMAT "x(78)" EXTENT 20 NO-UNDO.
 
 assign
  cocode = gcompany
@@ -61,13 +69,14 @@ assign
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_est end_est begin_mach ~
-end_mach btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_mach end_mach 
+end_mach tgImportStds btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_mach end_mach ~
+tgImportStds 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -115,6 +124,11 @@ DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 10.48.
 
+DEFINE VARIABLE tgImportStds AS LOGICAL INITIAL no 
+     LABEL "Import Machine Standards Also" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 34 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -127,6 +141,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Machine Code"
      end_mach AT ROW 10.29 COL 64 COLON-ALIGNED HELP
           "Enter Ending Machine Code"
+     tgImportStds AT ROW 12.19 COL 30 WIDGET-ID 2
      btn-process AT ROW 16.24 COL 21
      btn-cancel AT ROW 16.24 COL 53
      "Selection Parameters" VIEW-AS TEXT
@@ -222,16 +237,14 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -241,7 +254,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -368,9 +381,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_est end_est begin_mach end_mach 
+  DISPLAY begin_est end_est begin_mach end_mach tgImportStds 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_est end_est begin_mach end_mach btn-process btn-cancel 
+  ENABLE RECT-17 begin_est end_est begin_mach end_mach tgImportStds btn-process 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -391,6 +405,7 @@ def var fest        as   cha                format ">>>>>".
 def var test        like fest               init 99999.
 def var fmch        like est-op.m-code.
 def var tmch        like fmch               init "zzzzzz".
+DEFINE VARIABLE lImportStandards AS LOGICAL NO-UNDO.
 
 session:set-wait-state("General").
 
@@ -399,14 +414,17 @@ do with frame {&frame-name}:
    begin_est
    end_est
    begin_mach
-   end_mach.
+   end_mach
+   tgImportStds
+   .
 end.
 
 assign
  fest = string(begin_est)
  test = string(end_est)
  fmch = begin_mach
- tmch = end_mach.
+ tmch = end_mach
+ lImportStandards = tgImportStds.
 
 session:set-wait-state("").
 
