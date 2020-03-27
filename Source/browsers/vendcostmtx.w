@@ -1120,21 +1120,9 @@ PROCEDURE local-open-query :
     DO:
         RUN set-defaults.
 
-        {&for-eachblank} NO-LOCK
-        USE-INDEX vendItemCostID:
-            ASSIGN
-                iCount          = iCount + 1
-                iVendCostItemID = VendItemCost.VendItemCostID
-                .
-            IF iCount GE iRtnInt THEN
-                LEAVE.
-        END.
-
         &SCOPED-DEFINE open-query                   ~
             OPEN QUERY {&browse-name}               ~
-                {&for-eachblank}                          ~
-                AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
-                USE-INDEX vendItemCostID
+                {&for-eachblank}  NO-LOCK
 
         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
