@@ -42,6 +42,12 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lCreated       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -66,23 +72,24 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIOutbound.userName APIOutbound.password ~
-APIOutbound.requestHandler APIOutbound.responseHandler 
+&Scoped-Define ENABLED-FIELDS APIOutbound.saveFile APIOutbound.userName ~
+APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define ENABLED-TABLES APIOutbound
 &Scoped-define FIRST-ENABLED-TABLE APIOutbound
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edEndPoint ~
 edRequestData 
 &Scoped-Define DISPLAYED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
-APIOutbound.userName APIOutbound.password APIOutbound.requestHandler ~
-APIOutbound.responseHandler 
+APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.userName ~
+APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
 &Scoped-Define DISPLAYED-OBJECTS fiMessage tgActive edEndPoint ~
-cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType edRequestData 
+cbRequestDataType cbRequestVerb tgSSLEnabled cbAuthType edRequestData 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 &Scoped-define ADM-CREATE-FIELDS APIOutbound.apiID APIOutbound.clientID 
+&Scoped-define ADM-ASSIGN-FIELDS APIOutbound.saveFileFolder 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -154,11 +161,11 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 155 BY 5.91.
+     SIZE 154.6 BY 6.14.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 154.8 BY 1.91.
+     SIZE 154.8 BY 1.67.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -189,21 +196,29 @@ DEFINE VARIABLE tgSSLEnabled AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      fiMessage AT ROW 1.24 COL 2.2 NO-LABEL WIDGET-ID 52
-     APIOutbound.apiID AT ROW 2.91 COL 21 COLON-ALIGNED WIDGET-ID 2
+     APIOutbound.apiID AT ROW 2.57 COL 21 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     APIOutbound.clientID AT ROW 2.91 COL 78 COLON-ALIGNED WIDGET-ID 6
+     APIOutbound.clientID AT ROW 2.57 COL 78 COLON-ALIGNED WIDGET-ID 6
           LABEL "Client ID"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     tgActive AT ROW 2.91 COL 126.6 WIDGET-ID 28
-     edEndPoint AT ROW 4.29 COL 23 NO-LABEL WIDGET-ID 34
-     cbRequestVerb AT ROW 7.05 COL 21 COLON-ALIGNED WIDGET-ID 42
-     cbRequestDataType AT ROW 7.19 COL 92 COLON-ALIGNED WIDGET-ID 40
-     tgSSLEnabled AT ROW 7.19 COL 114 WIDGET-ID 38
+     tgActive AT ROW 2.67 COL 126.6 WIDGET-ID 28
+     edEndPoint AT ROW 3.76 COL 23 NO-LABEL WIDGET-ID 34
+     APIOutbound.saveFileFolder AT ROW 6.33 COL 40 WIDGET-ID 58
+          VIEW-AS FILL-IN 
+          SIZE 94.8 BY 1
+          BGCOLOR 15 FGCOLOR 0 
+     APIOutbound.saveFile AT ROW 6.43 COL 22.8 WIDGET-ID 60
+          VIEW-AS TOGGLE-BOX
+          SIZE 14 BY .81
+          BGCOLOR 15 FGCOLOR 0 
+     cbRequestDataType AT ROW 7.43 COL 92 COLON-ALIGNED WIDGET-ID 40
+     cbRequestVerb AT ROW 7.48 COL 21 COLON-ALIGNED WIDGET-ID 42
+     tgSSLEnabled AT ROW 7.52 COL 114 WIDGET-ID 38
      APIOutbound.userName AT ROW 9.33 COL 21 COLON-ALIGNED WIDGET-ID 24
           LABEL "Username"
           VIEW-AS FILL-IN 
@@ -231,7 +246,7 @@ DEFINE FRAME F-Main
      "End Point:" VIEW-AS TEXT
           SIZE 11.6 BY .62 AT ROW 4.33 COL 10 WIDGET-ID 36
      RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
-     RECT-2 AT ROW 8.86 COL 2 WIDGET-ID 30
+     RECT-2 AT ROW 9.1 COL 2 WIDGET-ID 30
      RECT-3 AT ROW 11.48 COL 2 WIDGET-ID 44
      RECT-4 AT ROW 14.05 COL 2 WIDGET-ID 46
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 54
@@ -322,6 +337,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN APIOutbound.responseHandler IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN APIOutbound.saveFileFolder IN FRAME F-Main
+   NO-ENABLE ALIGN-L 2                                                  */
 /* SETTINGS FOR TOGGLE-BOX tgActive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tgSSLEnabled IN FRAME F-Main
@@ -343,6 +360,50 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME APIOutbound.saveFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIOutbound.saveFile V-table-Win
+ON VALUE-CHANGED OF APIOutbound.saveFile IN FRAME F-Main /* Save File */
+DO:
+
+    IF {&SELF-NAME}:CHECKED THEN
+        saveFileFolder:SENSITIVE = TRUE.
+    ELSE DO:
+        ASSIGN
+            saveFileFolder:SENSITIVE = FALSE 
+            saveFileFolder:SCREEN-VALUE = ""
+            .
+    END.      
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME APIOutbound.saveFileFolder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIOutbound.saveFileFolder V-table-Win
+ON HELP OF APIOutbound.saveFileFolder IN FRAME F-Main /* Saved File Folder */
+DO:
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid    AS LOGICAL  NO-UNDO.
+   
+    SYSTEM-DIALOG
+    GET-DIR cFileName 
+    TITLE "Select Directory"
+    UPDATE lvalid.
+      
+    IF lValid THEN 
+        SELF:SCREEN-VALUE = cFileName.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -675,6 +736,7 @@ PROCEDURE pEnableFields :
         cbAuthType:SENSITIVE        = TRUE
         edEndPoint:READ-ONLY        = FALSE
         edRequestData:READ-ONLY     = FALSE
+        saveFileFolder:SENSITIVE    = IF adm-new-record THEN FALSE ELSE saveFile:checked
         .
 END PROCEDURE.
 
@@ -713,6 +775,21 @@ PROCEDURE pFieldValidations :
         END.
     END.
     
+    IF saveFile:CHECKED THEN DO:
+        IF saveFileFolder:SCREEN-VALUE EQ "" THEN DO:
+            opcMessage =  "File location cannot be empty".
+            RETURN.
+        END.    
+    
+        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+            INPUT  saveFileFolder:SCREEN-VALUE,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+        
+        IF NOT oplSuccess THEN
+            RETURN.   
+    END.             
     oplSuccess = TRUE.
 END PROCEDURE.
 
@@ -737,6 +814,7 @@ PROCEDURE pSetDefaults :
         tgSSLEnabled:CHECKED           = FALSE
         cbAuthType:SCREEN-VALUE        = "basic"
         edRequestData:SCREEN-VALUE     = ""
+        saveFile:CHECKED               = FALSE
         .
 END PROCEDURE.
 
