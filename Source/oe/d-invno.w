@@ -69,7 +69,7 @@ DEFINE BUTTON btn-ok
      SIZE 22 BY 1.19
      FONT 6.
 
-DEFINE VARIABLE begin_inv-no AS INTEGER FORMAT ">>>>>>":U
+DEFINE VARIABLE begin_inv-no AS INTEGER FORMAT ">>>>>>>":U
      LABEL "Invoice #" 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1 NO-UNDO.
