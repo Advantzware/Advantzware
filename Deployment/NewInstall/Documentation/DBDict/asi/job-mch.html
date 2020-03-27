@@ -15,7 +15,7 @@
   <script src="../stylechooser.js" type="text/javascript"></script>
   <script src="../dbchooser.js"    type="text/javascript"></script>
   <script src="../htmldict.js"     type="text/javascript"></script>
-  <title> Schema asi.job-mch</title>
+  <title> Schema ASI.job-mch</title>
 </head>
 
 <body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
@@ -35,7 +35,7 @@
     <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
   </tr>
 </table>
-<h1>asi.job-mch</h1>
+<h1>ASI.job-mch</h1>
 <p>Machine Data Used For A Job</p>
 <hr>
 <div class="clearboth">
@@ -47,7 +47,7 @@
       <tr class="shadedrow"><th>Dumpname </th>
                             <td> job-mch      </td></tr>
       <tr class="shadedrow"><th>Label    </th>     
-                            <td> ?      </td></tr>
+                            <td> Job Machines      </td></tr>
       <tr class="shadedrow"><th>Val.exp  </th>     
                             <td> ?      </td></tr>
       <tr class="shadedrow"><th>Val.msg  </th>     
@@ -285,6 +285,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>840</td>
+    <td>job-mchID</td>
+    <td><a href="00-cross-j.html#job-mchID"><small>X</small></a></td>
+    <td>Job-mchID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>210</td>
     <td>job-no</td>
     <td><a href="00-cross-j.html#job-no"><small>X</small></a></td>
@@ -295,7 +306,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>220</td>
     <td>job-no2</td>
     <td><a href="00-cross-j.html#job-no2"><small>X</small></a></td>
@@ -306,7 +317,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Sub number to track reorders, etc.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>400</td>
     <td>lag-time</td>
     <td><a href="00-cross-l.html#lag-time"><small>X</small></a></td>
@@ -317,7 +328,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>300</td>
     <td>line</td>
     <td><a href="00-cross-l.html#line"><small>X</small></a></td>
@@ -328,7 +339,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>10</td>
     <td>m-code</td>
     <td><a href="00-cross-m.html#m-code"><small>X</small></a></td>
@@ -339,7 +350,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
     <td>D: Operation number that identifies the specific machine or operation.</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>530</td>
     <td>mr-complete</td>
     <td><a href="00-cross-m.html#mr-complete"><small>X</small></a></td>
@@ -350,7 +361,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>640</td>
     <td>mr-cont</td>
     <td><a href="00-cross-m.html#mr-cont"><small>X</small></a></td>
@@ -361,7 +372,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total make ready contribution rate for this operation.</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>160</td>
     <td>mr-fixoh</td>
     <td><a href="00-cross-m.html#mr-fixoh"><small>X</small></a></td>
@@ -372,7 +383,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total Make Ready fixed overhead rate for this operation.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>280</td>
     <td>mr-hr</td>
     <td><a href="00-cross-m.html#mr-hr"><small>X</small></a></td>
@@ -383,7 +394,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>570</td>
     <td>mr-profit</td>
     <td><a href="00-cross-m.html#mr-profit"><small>X</small></a></td>
@@ -394,7 +405,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>140</td>
     <td>mr-rate</td>
     <td><a href="00-cross-m.html#mr-rate"><small>X</small></a></td>
@@ -405,7 +416,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total Make Ready labor rate for this operation.</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>580</td>
     <td>mr-trate</td>
     <td><a href="00-cross-m.html#mr-trate"><small>X</small></a></td>
@@ -416,7 +427,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total of MR direct and overhead rates.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>150</td>
     <td>mr-varoh</td>
     <td><a href="00-cross-m.html#mr-varoh"><small>X</small></a></td>
@@ -427,7 +438,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total Make Ready variable overhead rate.</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>120</td>
     <td>mr-waste</td>
     <td><a href="00-cross-m.html#mr-waste"><small>X</small></a></td>
@@ -438,7 +449,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Standard quantity wasted in make ready.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>480</td>
     <td>n-on</td>
     <td><a href="00-cross-n.html#n-on"><small>X</small></a></td>
@@ -449,7 +460,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>360</td>
     <td>n-out</td>
     <td><a href="00-cross-n.html#n-out"><small>X</small></a></td>
@@ -460,7 +471,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>810</td>
     <td>n_out</td>
     <td><a href="00-cross-n.html#n_out"><small>X</small></a></td>
@@ -471,7 +482,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>820</td>
     <td>n_out_div</td>
     <td><a href="00-cross-n.html#n_out_div"><small>X</small></a></td>
@@ -482,7 +493,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>240</td>
     <td>pass</td>
     <td><a href="00-cross-p.html#pass"><small>X</small></a></td>
@@ -493,7 +504,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>390</td>
     <td>queue-time</td>
     <td><a href="00-cross-q.html#queue-time"><small>X</small></a></td>
@@ -504,7 +515,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>370</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
@@ -515,7 +526,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>540</td>
     <td>run-complete</td>
     <td><a href="00-cross-r.html#run-complete"><small>X</small></a></td>
@@ -526,7 +537,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>650</td>
     <td>run-cont</td>
     <td><a href="00-cross-r.html#run-cont"><small>X</small></a></td>
@@ -537,7 +548,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total run contribution rate for this operation.</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>590</td>
     <td>run-fixoh</td>
     <td><a href="00-cross-r.html#run-fixoh"><small>X</small></a></td>
@@ -548,7 +559,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Fixed overhead rate.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>250</td>
     <td>run-hr</td>
     <td><a href="00-cross-r.html#run-hr"><small>X</small></a></td>
@@ -559,7 +570,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>600</td>
     <td>run-profit</td>
     <td><a href="00-cross-r.html#run-profit"><small>X</small></a></td>
@@ -570,7 +581,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>320</td>
     <td>run-qty</td>
     <td><a href="00-cross-r.html#run-qty"><small>X</small></a></td>
@@ -581,7 +592,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>610</td>
     <td>run-rate</td>
     <td><a href="00-cross-r.html#run-rate"><small>X</small></a></td>
@@ -592,7 +603,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Direct labor rate. (Crew size * chosen labor rate)</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>620</td>
     <td>run-trate</td>
     <td><a href="00-cross-r.html#run-trate"><small>X</small></a></td>
@@ -603,7 +614,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Total running rate. (Direct labor + overhead)</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>630</td>
     <td>run-varoh</td>
     <td><a href="00-cross-r.html#run-varoh"><small>X</small></a></td>
@@ -614,7 +625,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Variable overhead rate.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>811</td>
     <td>sbLiveUpdate</td>
     <td><a href="00-cross-s.html#sbLiveUpdate"><small>X</small></a></td>
@@ -625,7 +636,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>380</td>
     <td>seq-no</td>
     <td><a href="00-cross-s.html#seq-no"><small>X</small></a></td>
@@ -636,7 +647,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>660</td>
     <td>spare-char-1</td>
     <td><a href="00-cross-s.html#spare-char-1"><small>X</small></a></td>
@@ -647,7 +658,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>670</td>
     <td>spare-char-2</td>
     <td><a href="00-cross-s.html#spare-char-2"><small>X</small></a></td>
@@ -658,7 +669,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>680</td>
     <td>spare-char-3</td>
     <td><a href="00-cross-s.html#spare-char-3"><small>X</small></a></td>
@@ -669,7 +680,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>690</td>
     <td>spare-char-4</td>
     <td><a href="00-cross-s.html#spare-char-4"><small>X</small></a></td>
@@ -680,7 +691,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>700</td>
     <td>spare-char-5</td>
     <td><a href="00-cross-s.html#spare-char-5"><small>X</small></a></td>
@@ -691,7 +702,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>710</td>
     <td>spare-dec-1</td>
     <td><a href="00-cross-s.html#spare-dec-1"><small>X</small></a></td>
@@ -702,7 +713,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>720</td>
     <td>spare-dec-2</td>
     <td><a href="00-cross-s.html#spare-dec-2"><small>X</small></a></td>
@@ -713,7 +724,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>730</td>
     <td>spare-dec-3</td>
     <td><a href="00-cross-s.html#spare-dec-3"><small>X</small></a></td>
@@ -724,7 +735,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>740</td>
     <td>spare-dec-4</td>
     <td><a href="00-cross-s.html#spare-dec-4"><small>X</small></a></td>
@@ -735,7 +746,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>750</td>
     <td>spare-dec-5</td>
     <td><a href="00-cross-s.html#spare-dec-5"><small>X</small></a></td>
@@ -746,7 +757,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>760</td>
     <td>spare-int-1</td>
     <td><a href="00-cross-s.html#spare-int-1"><small>X</small></a></td>
@@ -757,7 +768,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>770</td>
     <td>spare-int-2</td>
     <td><a href="00-cross-s.html#spare-int-2"><small>X</small></a></td>
@@ -768,7 +779,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>780</td>
     <td>spare-int-3</td>
     <td><a href="00-cross-s.html#spare-int-3"><small>X</small></a></td>
@@ -779,7 +790,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>790</td>
     <td>spare-int-4</td>
     <td><a href="00-cross-s.html#spare-int-4"><small>X</small></a></td>
@@ -790,7 +801,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>800</td>
     <td>spare-int-5</td>
     <td><a href="00-cross-s.html#spare-int-5"><small>X</small></a></td>
@@ -801,7 +812,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>260</td>
     <td>speed</td>
     <td><a href="00-cross-s.html#speed"><small>X</small></a></td>
@@ -812,7 +823,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>340</td>
     <td>start-date</td>
     <td><a href="00-cross-s.html#start-date"><small>X</small></a></td>
@@ -823,7 +834,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>490</td>
     <td>start-date-su</td>
     <td><a href="00-cross-s.html#start-date-su"><small>X</small></a></td>
@@ -834,7 +845,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>430</td>
     <td>start-seq-no</td>
     <td><a href="00-cross-s.html#start-seq-no"><small>X</small></a></td>
@@ -845,7 +856,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>350</td>
     <td>start-time</td>
     <td><a href="00-cross-s.html#start-time"><small>X</small></a></td>
@@ -856,7 +867,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>500</td>
     <td>start-time-su</td>
     <td><a href="00-cross-s.html#start-time-su"><small>X</small></a></td>
@@ -867,7 +878,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>450</td>
     <td>stat</td>
     <td><a href="00-cross-s.html#stat"><small>X</small></a></td>
@@ -878,7 +889,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>460</td>
     <td>stat1</td>
     <td><a href="00-cross-s.html#stat1"><small>X</small></a></td>
@@ -889,7 +900,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>470</td>
     <td>stat2</td>
     <td><a href="00-cross-s.html#stat2"><small>X</small></a></td>
@@ -900,7 +911,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>270</td>
     <td>wst-prct</td>
     <td><a href="00-cross-w.html#wst-prct"><small>X</small></a></td>
@@ -1737,6 +1748,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>840</td>
+    <td>job-mchID</td>
+    <td><a href="00-cross-j.html#job-mchID"><small>X</small></a></td>
+    <td>Job-mchID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -1941,13 +1963,13 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="job-set.html">job-set</a>&nbsp;&nbsp; <a href="misc-act.html">misc-act</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; </td>
+      <td><a href="job-hdr.html">job-hdr</a>&nbsp;&nbsp; <a href="misc-act.html">misc-act</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 27-3-2020 12:01</small></i></td></tr>
 </table>
 </body>
 </html>

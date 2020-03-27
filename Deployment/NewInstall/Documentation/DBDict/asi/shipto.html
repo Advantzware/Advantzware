@@ -15,7 +15,7 @@
   <script src="../stylechooser.js" type="text/javascript"></script>
   <script src="../dbchooser.js"    type="text/javascript"></script>
   <script src="../htmldict.js"     type="text/javascript"></script>
-  <title> Schema asi.shipto</title>
+  <title> Schema ASI.shipto</title>
 </head>
 
 <body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
@@ -35,8 +35,8 @@
     <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
   </tr>
 </table>
-<h1>asi.shipto</h1>
-<p></p>
+<h1>ASI.shipto</h1>
+<p>Ship To File Maintenance</p>
 <hr>
 <div class="clearboth">
   <div class="tbdetcol">
@@ -47,7 +47,7 @@
       <tr class="shadedrow"><th>Dumpname </th>
                             <td> shipto      </td></tr>
       <tr class="shadedrow"><th>Label    </th>     
-                            <td> ?      </td></tr>
+                            <td> A/R Customer Ship To Master      </td></tr>
       <tr class="shadedrow"><th>Val.exp  </th>     
                             <td> ?      </td></tr>
       <tr class="shadedrow"><th>Val.msg  </th>     
@@ -428,6 +428,30 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>780</td>
+    <td>oversPercent</td>
+    <td><a href="00-cross-o.html#oversPercent"><small>X</small></a></td>
+    <td>Over Allowance</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Allowed Overship Percentage
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>800</td>
+    <td>overUnderEnabled</td>
+    <td><a href="00-cross-o.html#overUnderEnabled"><small>X</small></a></td>
+    <td>Over/Under Enabled</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Over/Under ship allowed
+</td>
+  </tr>
+  <tr class="evenrow">
     <td>240</td>
     <td>pallet</td>
     <td><a href="00-cross-p.html#pallet"><small>X</small></a></td>
@@ -626,6 +650,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>770</td>
+    <td>siteID</td>
+    <td><a href="00-cross-s.html#siteID"><small>X</small></a></td>
+    <td>Site ID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Ship to site identifier</td>
+  </tr>
+  <tr class="oddrow">
     <td>590</td>
     <td>spare-char-1</td>
     <td><a href="00-cross-s.html#spare-char-1"><small>X</small></a></td>
@@ -636,7 +671,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>600</td>
     <td>spare-char-2</td>
     <td><a href="00-cross-s.html#spare-char-2"><small>X</small></a></td>
@@ -647,7 +682,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>610</td>
     <td>spare-char-3</td>
     <td><a href="00-cross-s.html#spare-char-3"><small>X</small></a></td>
@@ -658,7 +693,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>620</td>
     <td>spare-char-4</td>
     <td><a href="00-cross-s.html#spare-char-4"><small>X</small></a></td>
@@ -669,7 +704,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>630</td>
     <td>spare-char-5</td>
     <td><a href="00-cross-s.html#spare-char-5"><small>X</small></a></td>
@@ -680,7 +715,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>640</td>
     <td>spare-dec-1</td>
     <td><a href="00-cross-s.html#spare-dec-1"><small>X</small></a></td>
@@ -691,7 +726,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>650</td>
     <td>spare-dec-2</td>
     <td><a href="00-cross-s.html#spare-dec-2"><small>X</small></a></td>
@@ -702,7 +737,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>660</td>
     <td>spare-dec-3</td>
     <td><a href="00-cross-s.html#spare-dec-3"><small>X</small></a></td>
@@ -713,7 +748,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>670</td>
     <td>spare-dec-4</td>
     <td><a href="00-cross-s.html#spare-dec-4"><small>X</small></a></td>
@@ -724,7 +759,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>680</td>
     <td>spare-dec-5</td>
     <td><a href="00-cross-s.html#spare-dec-5"><small>X</small></a></td>
@@ -735,7 +770,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>690</td>
     <td>spare-int-1</td>
     <td><a href="00-cross-s.html#spare-int-1"><small>X</small></a></td>
@@ -746,7 +781,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>700</td>
     <td>spare-int-2</td>
     <td><a href="00-cross-s.html#spare-int-2"><small>X</small></a></td>
@@ -757,7 +792,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>710</td>
     <td>spare-int-3</td>
     <td><a href="00-cross-s.html#spare-int-3"><small>X</small></a></td>
@@ -768,7 +803,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>720</td>
     <td>spare-int-4</td>
     <td><a href="00-cross-s.html#spare-int-4"><small>X</small></a></td>
@@ -779,7 +814,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>730</td>
     <td>spare-int-5</td>
     <td><a href="00-cross-s.html#spare-int-5"><small>X</small></a></td>
@@ -790,7 +825,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>750</td>
     <td>statusCode</td>
     <td><a href="00-cross-s.html#statusCode"><small>X</small></a></td>
@@ -801,7 +836,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>130</td>
     <td>tax-code</td>
     <td><a href="00-cross-t.html#tax-code"><small>X</small></a></td>
@@ -812,7 +847,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>140</td>
     <td>tax-dscr</td>
     <td><a href="00-cross-t.html#tax-dscr"><small>X</small></a></td>
@@ -823,7 +858,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>550</td>
     <td>tax-mandatory</td>
     <td><a href="00-cross-t.html#tax-mandatory"><small>X</small></a></td>
@@ -834,7 +869,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>V: <i>tb</i></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>490</td>
     <td>time-in</td>
     <td><a href="00-cross-t.html#time-in"><small>X</small></a></td>
@@ -845,7 +880,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>500</td>
     <td>time-inx</td>
     <td><a href="00-cross-t.html#time-inx"><small>X</small></a></td>
@@ -856,7 +891,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>510</td>
     <td>time-out</td>
     <td><a href="00-cross-t.html#time-out"><small>X</small></a></td>
@@ -867,7 +902,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>520</td>
     <td>time-outx</td>
     <td><a href="00-cross-t.html#time-outx"><small>X</small></a></td>
@@ -878,7 +913,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>280</td>
     <td>trailer</td>
     <td><a href="00-cross-t.html#trailer"><small>X</small></a></td>
@@ -889,7 +924,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>530</td>
     <td>truck#</td>
     <td><a href="00-cross-t.html#truck#"><small>X</small></a></td>
@@ -899,6 +934,18 @@
     <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>790</td>
+    <td>undersPercent</td>
+    <td><a href="00-cross-u.html#undersPercent"><small>X</small></a></td>
+    <td>Under Allowance</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Allowed Undership Percentage
+</td>
   </tr>
   <tr class="oddrow">
     <td>320</td>
@@ -1803,6 +1850,53 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="oddrow">
+    <td>770</td>
+    <td>siteID</td>
+    <td><a href="00-cross-s.html#siteID"><small>X</small></a></td>
+    <td>Site ID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Ship to site identifier</td>
+  </tr>
+  <tr class="evenrow">
+    <td>780</td>
+    <td>oversPercent</td>
+    <td><a href="00-cross-o.html#oversPercent"><small>X</small></a></td>
+    <td>Over Allowance</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Allowed Overship Percentage
+</td>
+  </tr>
+  <tr class="oddrow">
+    <td>790</td>
+    <td>undersPercent</td>
+    <td><a href="00-cross-u.html#undersPercent"><small>X</small></a></td>
+    <td>Under Allowance</td>
+    <td>decimal-2</td>
+    <td>&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Allowed Undership Percentage
+</td>
+  </tr>
+  <tr class="evenrow">
+    <td>800</td>
+    <td>overUnderEnabled</td>
+    <td><a href="00-cross-o.html#overUnderEnabled"><small>X</small></a></td>
+    <td>Over/Under Enabled</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Over/Under ship allowed
+</td>
+  </tr>
 </table>
 </div>
 
@@ -1835,66 +1929,72 @@
     <td>integer</td>
   </tr>
   <tr class="evenrow">
+    <td>iSiteID</td>
+    <td>        </td>
+    <td>siteID (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
     <td>rec_key</td>
     <td>        </td>
     <td>rec_key (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>ship-id</td>
     <td>        </td>
     <td>company (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>cust-no (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>ship-id (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>ship-id2</td>
     <td>        </td>
     <td>company (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>ship-id (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>ship-name</td>
     <td>        </td>
     <td>company (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>cust-no (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>ship-name (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>ship-no2</td>
     <td>        </td>
     <td>company (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>ship-no (+)</td>
@@ -1931,7 +2031,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 27-3-2020 12:01</small></i></td></tr>
 </table>
 </body>
 </html>
