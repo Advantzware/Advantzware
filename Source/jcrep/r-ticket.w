@@ -143,6 +143,11 @@ DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("oerep/r-bolprt.w","", OUTPUT lResult).
 DELETE OBJECT hPgmSecurity.
@@ -3027,6 +3032,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
+PROCEDURE pCallOutboundAPI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To call outbound api 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+    DEFINE INPUT PARAMETER iplReprint AS LOGICAL NO-UNDO.  
+
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE ipbf-job THEN DO:
+        IF iplReprint THEN 
+            cTriggerID = "RePrintJob".
+        ELSE 
+            cTriggerID = "PrintJob".
+            
+        ASSIGN  
+            cAPIId       = "SendJob"
+            cPrimaryID   = ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-ticket.w for Job: " + cPrimaryID
+            .
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
+            INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  "",                         /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-Job)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).
+        /* Reset context at the end of API calls to clear temp-table 
+           data inside OutboundProcs */
+        RUN Outbound_ResetContext IN hdOutboundProcs. 
+    END.                       
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
