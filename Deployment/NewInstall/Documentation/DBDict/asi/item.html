@@ -15,7 +15,7 @@
   <script src="../stylechooser.js" type="text/javascript"></script>
   <script src="../dbchooser.js"    type="text/javascript"></script>
   <script src="../htmldict.js"     type="text/javascript"></script>
-  <title> Schema asi.item</title>
+  <title> Schema ASI.item</title>
 </head>
 
 <body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
@@ -35,7 +35,7 @@
     <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
   </tr>
 </table>
-<h1>asi.item</h1>
+<h1>ASI.item</h1>
 <p>Raw Materials Inventory File</p>
 <hr>
 <div class="clearboth">
@@ -47,7 +47,7 @@
       <tr class="shadedrow"><th>Dumpname </th>
                             <td> item      </td></tr>
       <tr class="shadedrow"><th>Label    </th>     
-                            <td> Raw Materials Inventory      </td></tr>
+                            <td> Raw Material Master      </td></tr>
       <tr class="shadedrow"><th>Val.exp  </th>     
                             <td> ?      </td></tr>
       <tr class="shadedrow"><th>Val.msg  </th>     
@@ -1110,6 +1110,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>1040</td>
+    <td>stat</td>
+    <td><a href="00-cross-s.html#stat"><small>X</small></a></td>
+    <td>Status</td>
+    <td>character</td>
+    <td>X</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>220</td>
     <td>std-uom</td>
     <td><a href="00-cross-s.html#std-uom"><small>X</small></a></td>
@@ -1120,7 +1131,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>260</td>
     <td>stocked</td>
     <td><a href="00-cross-s.html#stocked"><small>X</small></a></td>
@@ -1131,7 +1142,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>V: <i>tb</i></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>860</td>
     <td>tax-rcpt</td>
     <td><a href="00-cross-t.html#tax-rcpt"><small>X</small></a></td>
@@ -1142,7 +1153,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>870</td>
     <td>tax-rcpt-actnum</td>
     <td><a href="00-cross-t.html#tax-rcpt-actnum"><small>X</small></a></td>
@@ -1153,7 +1164,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>550</td>
     <td>u-lyr</td>
     <td><a href="00-cross-u.html#u-lyr"><small>X</small></a></td>
@@ -1164,7 +1175,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>530</td>
     <td>u-ptd</td>
     <td><a href="00-cross-u.html#u-ptd"><small>X</small></a></td>
@@ -1175,7 +1186,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>540</td>
     <td>u-ytd</td>
     <td><a href="00-cross-u.html#u-ytd"><small>X</small></a></td>
@@ -1186,7 +1197,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>380</td>
     <td>vend-item</td>
     <td><a href="00-cross-v.html#vend-item"><small>X</small></a></td>
@@ -1197,7 +1208,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>360</td>
     <td>vend-no</td>
     <td><a href="00-cross-v.html#vend-no"><small>X</small></a></td>
@@ -1208,7 +1219,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>390</td>
     <td>vend2-item</td>
     <td><a href="00-cross-v.html#vend2-item"><small>X</small></a></td>
@@ -1219,7 +1230,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>370</td>
     <td>vend2-no</td>
     <td><a href="00-cross-v.html#vend2-no"><small>X</small></a></td>
@@ -1230,7 +1241,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>820</td>
     <td>weight-100</td>
     <td><a href="00-cross-w.html#weight-100"><small>X</small></a></td>
@@ -1241,7 +1252,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Weight of the finished good per 100 units.</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>710</td>
     <td>yield</td>
     <td><a href="00-cross-y.html#yield"><small>X</small></a></td>
@@ -2419,6 +2430,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>1040</td>
+    <td>stat</td>
+    <td><a href="00-cross-s.html#stat"><small>X</small></a></td>
+    <td>Status</td>
+    <td>character</td>
+    <td>X</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -2655,7 +2677,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 27-3-2020 12:01</small></i></td></tr>
 </table>
 </body>
 </html>

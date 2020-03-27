@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: write of e-itemfg-vend</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: write of e-itemfg-vend</h1>
+<div class="progressCode">
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">UPDATE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME e-itemfg-vend
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR WRITE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">OLD BUFFER</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">write</span><!--src-keyword-->.i}</span><!--src-prep-->
+<span class="src-prep">{sys/inc/<span class="src-keyword">var</span><!--src-keyword-->.i <span class="src-keyword">NEW</span><!--src-keyword--> SHARED}</span><!--src-p<span class="src-keyword">SHARED</span><!--src-keyword-->
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">FOR</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> lVendCostMtx <span class="src-keyword">AS LOGICAL NO-UNDO</span><!--src-keyword--> .
+ 
+ cocode = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company.
+ 
+ <span class="src-keyword">FIND FIRST</span><!--src-keyword--> sys-ctrl
+    <span class="src-keyword">WHERE</span><!--src-keyword--> sys-ctrl.company <span class="src-keyword">EQ</span><!--src-keyword--> cocode
+      <span class="src-keyword">AND</span><!--src-keyword--> sys-ctrl.<span class="src-keyword">name    EQ</span><!--src-keyword--> <span class="src-char">"VendCostMatrix"</span><!--src-char-->
+    <span class="src-keyword">NO-LOCK NO-ERROR</span><!--src-keyword-->.
+ 
+<span class="src-keyword">ASSIGN</span><!--src-keyword--> lVendCostMtx = <span class="src-keyword">IF AVAIL</span><!--src-keyword--> sys-ctrl <span class="src-keyword">THEN LOGICAL</span><!--src-keyword-->(sys-ctrl.log-fld) <span class="src-keyword">ELSE NO NO-ERROR</span><!--src-keyword--> .
+ 
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->     <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[27] <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->   <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[28] <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->   <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[29] <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->   <span class="src-keyword">AND</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[30] <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->   <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+  <span class="src-keyword">FIND FIRST</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">NO-LOCK</span><!--src-keyword-->
+      <span class="src-keyword">WHERE</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.vend-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->
+        <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no
+        <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.eqty     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.eqty
+        <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.form-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.form-no
+        <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.blank-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.blank-no
+        <span class="src-keyword">AND ROWID</span><!--src-keyword-->(b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)   <span class="src-keyword">NE ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)
+      <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+  <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">THEN</span><!--src-keyword-->
+    <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[27] = b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[27]
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[28] = b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[28]
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[29] = b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[29]
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[30] = b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[30].
+  <span class="src-keyword">ELSE</span><!--src-keyword-->
+    <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[28] = <span class="src-number">999</span><!--src-number-->.<span class="src-number">9999</span><!--src-number-->
+     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.roll-w[30] = <span class="src-number">999</span><!--src-number-->.<span class="src-number">9999</span><!--src-number-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-prep">{custom/e-itemfg-edit.i <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->}
+ 
+<span class="src-keyword">ASSIGN</span><!--src-keyword--> 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.updated-date = <span class="src-keyword">TODAY</span><!--src-keyword--> 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.updated-id = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">"asi"</span><!--src-char-->)
+    .
+</div><!--progresscode-->
+</body>
+</html>

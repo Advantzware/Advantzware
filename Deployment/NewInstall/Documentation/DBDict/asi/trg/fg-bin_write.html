@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: write of fg-bin</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: write of fg-bin</h1>
+<div class="progressCode">
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">UPDATE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME fg-bin
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR WRITE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">OLD BUFFER</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> li <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
+ 
+<span class="src-prep">{sys/inc/<span class="src-keyword">var</span><!--src-keyword-->.i <span class="src-keyword">NEW</span><!--src-keyword--> SHARED}</span><!--src-p<span class="src-keyword">SHARED</span><!--src-keyword-->
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">write</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+ 
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> loadtag.    
+ 
+cocode = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company. 
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">-1</span><!--src-number-->.
+ 
+<span class="src-comment">/*  Removing for 28873 - do not know the purpose of this code calculation          */</span><!--src-comment-->
+<span class="src-comment">/*IF {&amp;TABLENAME}.case-count NE old-{&amp;TABLENAME}.case-count AND                    */</span><!--src-comment-->
+<span class="src-comment">/*   old-{&amp;TABLENAME}.case-count EQ old-{&amp;TABLENAME}.qty    THEN                   */</span><!--src-comment-->
+<span class="src-comment">/*  {&amp;TABLENAME}.partial-count = {&amp;TABLENAME}.partial-count + old-{&amp;TABLENAME}.qty.*/</span><!--src-comment-->
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count = <span class="src-number">0</span><!--src-number-->
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-total = <span class="src-number">0</span><!--src-number-->.
+ 
+<span class="src-keyword">ELSE DO</span><!--src-keyword-->:
+  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+    li = <span class="src-keyword">TRUNC</span><!--src-keyword-->((<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count) / <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count,<span class="src-number">0</span><!--src-number-->).
+ 
+    <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->                     <span class="src-keyword">AND</span><!--src-keyword-->
+       <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">-1</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+      li = <span class="src-keyword">TRUNC</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty / <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count,<span class="src-number">0</span><!--src-number-->).
+ 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">-</span><!--src-keyword--> (li <span class="src-keyword">*</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count).
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">LE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->                       <span class="src-keyword">OR</span><!--src-keyword-->
+     (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">AND</span><!--src-keyword-->
+      <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->)                            <span class="src-keyword">THEN</span><!--src-keyword-->
+    <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count    = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count = <span class="src-number">0</span><!--src-number-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-total = <span class="src-number">0</span><!--src-number-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.case-count <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">-1</span><!--src-number-->.
+ 
+<span class="src-comment">/*IF {&amp;TABLENAME}.i-no NE ""                                          AND
+   ({&amp;TABLENAME}.std-tot-cost NE old-{&amp;TABLENAME}.std-tot-cost OR
+    {&amp;TABLENAME}.std-mat-cost NE old-{&amp;TABLENAME}.std-mat-cost OR
+    {&amp;TABLENAME}.std-lab-cost NE old-{&amp;TABLENAME}.std-lab-cost OR
+    {&amp;TABLENAME}.std-fix-cost NE old-{&amp;TABLENAME}.std-fix-cost OR
+    {&amp;TABLENAME}.std-var-cost NE old-{&amp;TABLENAME}.std-var-cost)     THEN
+  RUN fg/updfgcst.p ({&amp;TABLENAME}.i-no).*/</span><!--src-comment-->
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> cocode <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->                                                         <span class="src-keyword">AND</span><!--src-keyword-->
+   (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.std-tot-cost <span class="src-keyword">EQ</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.std-tot-cost <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">1000</span><!--src-number--> <span class="src-keyword">OR</span><!--src-keyword-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.std-tot-cost <span class="src-keyword">EQ</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.std-tot-cost / <span class="src-number">1000</span><!--src-number-->)  <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-keyword">IF TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.tag) <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> fg-rdtlh
+      <span class="src-keyword">WHERE</span><!--src-keyword--> fg-rdtlh.company     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.loc         <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.loc
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.tag         <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.tag
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.loc-bin     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.loc-bin
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.cust-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cust-no
+        <span class="src-keyword">AND</span><!--src-keyword--> (fg-rdtlh.cost       <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">OR</span><!--src-keyword-->
+             fg-rdtlh.cost       <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">?</span><!--src-number-->)
+      <span class="src-keyword">USE-INDEX</span><!--src-keyword--> tag,
+ 
+      <span class="src-keyword">FIRST</span><!--src-keyword--> fg-rcpth
+      <span class="src-keyword">WHERE</span><!--src-keyword--> fg-rcpth.r-no    <span class="src-keyword">EQ</span><!--src-keyword--> fg-rdtlh.r-no
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rcpth.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rcpth.job-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rcpth.job-no2 <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no2
+      <span class="src-keyword">USE-INDEX</span><!--src-keyword--> r-no <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+ 
+    <span class="src-comment">/* WFK- Per Joe, cost should never be recalculated from bin cost */</span><!--src-comment-->
+    <span class="src-comment">/* IF {&amp;TABLENAME}.pur-uom EQ "M" THEN */</span><!--src-comment-->
+      fg-rdtlh.cost = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.std-tot-cost.
+    <span class="src-comment">/*
+    ELSE
+      RUN sys/ref/convcuom.p({&amp;TABLENAME}.pur-uom, "M", 0, 0, 0, 0,
+                             {&amp;TABLENAME}.std-tot-cost,
+                             OUTPUT fg-rdtlh.cost). */</span><!--src-comment-->
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">ELSE</span><!--src-keyword-->
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> fg-rcpth
+      <span class="src-keyword">WHERE</span><!--src-keyword--> fg-rcpth.company   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rcpth.i-no      <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rcpth.job-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rcpth.job-no2   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no2
+      <span class="src-keyword">USE-INDEX</span><!--src-keyword--> i-no <span class="src-keyword">NO-LOCK</span><!--src-keyword-->,
+ 
+      <span class="src-keyword">FIRST</span><!--src-keyword--> fg-rdtlh
+      <span class="src-keyword">WHERE</span><!--src-keyword--> fg-rdtlh.r-no        <span class="src-keyword">EQ</span><!--src-keyword--> fg-rcpth.r-no
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.loc         <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.loc
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.loc-bin     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.loc-bin
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.tag         <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.tag
+        <span class="src-keyword">AND</span><!--src-keyword--> fg-rdtlh.cust-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cust-no
+        <span class="src-keyword">AND</span><!--src-keyword--> (fg-rdtlh.cost       <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">OR</span><!--src-keyword-->
+             fg-rdtlh.cost       <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">?</span><!--src-number-->)
+      <span class="src-keyword">USE-INDEX</span><!--src-keyword--> rm-rdtl:
+ 
+    <span class="src-comment">/* WFK- Per Joe, cost should never be recalculated from bin cost */</span><!--src-comment-->
+    <span class="src-comment">/* IF {&amp;TABLENAME}.pur-uom EQ "M" THEN */</span><!--src-comment-->
+      fg-rdtlh.cost = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.std-tot-cost.
+      <span class="src-comment">/*
+    ELSE
+      RUN sys/ref/convcuom.p({&amp;TABLENAME}.pur-uom, "M", 0, 0, 0, 0,
+                             {&amp;TABLENAME}.std-tot-cost,
+                             OUTPUT fg-rdtlh.cost). */</span><!--src-comment-->
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-comment">/*
+IF {&amp;TABLENAME}.cases-unit EQ 0                   AND
+   NOT CAN-FIND(FIRST loadtag
+                WHERE loadtag.company     EQ {&amp;TABLENAME}.company
+                  AND loadtag.item-type   EQ NO
+                  AND loadtag.i-no        EQ {&amp;TABLENAME}.i-no
+                  AND loadtag.tag-no      EQ {&amp;TABLENAME}.tag
+                  AND loadtag.is-case-tag EQ NO) THEN
+  IF TRIM({&amp;TABLENAME}.tag) NE "" THEN
+  FOR EACH fg-rdtlh
+      WHERE fg-rdtlh.company     EQ {&amp;TABLENAME}.company
+        AND fg-rdtlh.loc         EQ {&amp;TABLENAME}.loc
+        AND fg-rdtlh.tag         EQ {&amp;TABLENAME}.tag
+        AND fg-rdtlh.loc-bin     EQ {&amp;TABLENAME}.loc-bin
+        AND fg-rdtlh.stacks-unit GT 0
+        AND fg-rdtlh.rita-code   EQ "R"
+      USE-INDEX tag,
+ 
+      FIRST fg-rcpth
+      WHERE fg-rcpth.r-no    EQ fg-rdtlh.r-no
+        AND fg-rcpth.i-no    EQ {&amp;TABLENAME}.i-no
+        AND fg-rcpth.job-no  EQ {&amp;TABLENAME}.job-no
+        AND fg-rcpth.job-no2 EQ {&amp;TABLENAME}.job-no2
+      USE-INDEX i-no NO-LOCK:
+    {&amp;TABLENAME}.cases-unit = fg-rdtlh.stacks-unit.
+    LEAVE.
+  END.
+ 
+  ELSE
+  FOR EACH fg-rcpth
+      WHERE fg-rcpth.company   EQ {&amp;TABLENAME}.company
+        AND fg-rcpth.i-no      EQ {&amp;TABLENAME}.i-no
+        AND fg-rcpth.job-no    EQ {&amp;TABLENAME}.job-no
+        AND fg-rcpth.job-no2   EQ {&amp;TABLENAME}.job-no2
+        AND fg-rcpth.rita-code EQ "R"
+      USE-INDEX i-no NO-LOCK,
+ 
+      FIRST fg-rdtlh
+      WHERE fg-rdtlh.r-no        EQ fg-rcpth.r-no
+        AND fg-rdtlh.loc         EQ {&amp;TABLENAME}.loc
+        AND fg-rdtlh.loc-bin     EQ {&amp;TABLENAME}.loc-bin
+        AND fg-rdtlh.tag         EQ {&amp;TABLENAME}.tag
+        AND fg-rdtlh.stacks-unit GT 0
+      USE-INDEX rm-rdtl NO-LOCK
+ 
+      BY fg-rcpth.trans-date
+      BY fg-rcpth.r-no
+      BY fg-rdtlh.rec_key:
+    {&amp;TABLENAME}.cases-unit = fg-rdtlh.stacks-unit.
+    LEAVE.
+  END.
+*/</span><!--src-comment-->
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">?</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.partial-count = <span class="src-number">0</span><!--src-number-->.
+ 
+<span class="src-keyword">IF TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.tag) <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN RUN</span><!--src-keyword--> fg/uploadtg.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)).
+ 
+<span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
+</div><!--progresscode-->
+</body>
+</html>
