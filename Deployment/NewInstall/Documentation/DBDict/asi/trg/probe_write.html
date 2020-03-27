@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: write of probe</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: write of probe</h1>
+<div class="progressCode">
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">UPDATE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME probe
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR WRITE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">OLD BUFFER</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> xeb <span class="src-keyword">FOR</span><!--src-keyword--> eb.
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-sys-ctrl <span class="src-keyword">FOR</span><!--src-keyword--> sys-ctrl.
+ 
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> li <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-round <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-use-margin <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> vmclean2 <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">write</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-prep">{sys/inc/<span class="src-keyword">var</span><!--src-keyword-->.i <span class="src-keyword">NEW</span><!--src-keyword--> SHARED}</span><!--src-p<span class="src-keyword">SHARED</span><!--src-keyword-->
+ 
+<span class="src-keyword">FIND FIRST</span><!--src-keyword--> est
+    <span class="src-keyword">WHERE</span><!--src-keyword--> est.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+      <span class="src-keyword">AND</span><!--src-keyword--> est.est-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no
+    <span class="src-keyword">NO-LOCK NO-ERROR</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF AVAIL</span><!--src-keyword--> est <span class="src-keyword">THEN</span><!--src-keyword-->
+<span class="src-keyword">DO</span><!--src-keyword-->:
+   <span class="src-keyword">IF</span><!--src-keyword--> est.est-type <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">5</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+      <span class="src-keyword">find first</span><!--src-keyword--> b-sys-ctrl
+          <span class="src-keyword">where</span><!--src-keyword--> b-sys-ctrl.company <span class="src-keyword">eq</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+            <span class="src-keyword">and</span><!--src-keyword--> b-sys-ctrl.<span class="src-keyword">name    eq</span><!--src-keyword--> <span class="src-char">"CERUNF"</span><!--src-char-->
+          <span class="src-keyword">no-lock no-error</span><!--src-keyword-->.
+   <span class="src-keyword">ELSE</span><!--src-keyword-->
+      <span class="src-keyword">find first</span><!--src-keyword--> b-sys-ctrl
+          <span class="src-keyword">where</span><!--src-keyword--> b-sys-ctrl.company <span class="src-keyword">eq</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+            <span class="src-keyword">and</span><!--src-keyword--> b-sys-ctrl.<span class="src-keyword">name    eq</span><!--src-keyword--> <span class="src-char">"CERUNC"</span><!--src-char-->
+          <span class="src-keyword">no-lock no-error</span><!--src-keyword-->.
+ 
+   <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-sys-ctrl <span class="src-keyword">AND</span><!--src-keyword--> b-sys-ctrl.char-fld <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"Fibre"</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword-->
+      <span class="src-keyword">RUN</span><!--src-keyword--> est/usemargin.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(est), <span class="src-keyword">OUTPUT</span><!--src-keyword--> ll-use-margin).
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> ll-use-margin = <span class="src-keyword">NO THEN</span><!--src-keyword-->
+<span class="src-keyword">DO</span><!--src-keyword-->:
+   <span class="src-keyword">find first</span><!--src-keyword--> b-sys-ctrl <span class="src-keyword">WHERE</span><!--src-keyword-->
+        b-sys-ctrl.company <span class="src-keyword">eq</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company <span class="src-keyword">AND</span><!--src-keyword-->
+        b-sys-ctrl.<span class="src-keyword">name    eq</span><!--src-keyword--> <span class="src-char">"SETPRINT"</span><!--src-char-->
+        <span class="src-keyword">no-lock no-error</span><!--src-keyword-->.
+ 
+   <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-sys-ctrl <span class="src-keyword">THEN</span><!--src-keyword-->
+      vmclean2 = b-sys-ctrl.char-fld <span class="src-keyword">eq</span><!--src-keyword--> <span class="src-char">"McLean"</span><!--src-char-->.
+ 
+   <span class="src-keyword">IF</span><!--src-keyword--> est.est-type <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">6</span><!--src-number--> <span class="src-keyword">AND</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.set-chg <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">AND</span><!--src-keyword--> vmclean2 <span class="src-keyword">THEN</span><!--src-keyword-->
+      <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+         <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.net-profit   = ((<span class="src-number">1</span><!--src-number--> <span class="src-keyword">-</span><!--src-keyword--> (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.full-cost / <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.sell-price)) <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">100</span><!--src-number-->) <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.set-chg
+         <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.gross-profit = ((<span class="src-number">1</span><!--src-number--> <span class="src-keyword">-</span><!--src-keyword--> (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.fact-cost / <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.sell-price)) <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">100</span><!--src-number-->) <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.set-chg.
+   <span class="src-keyword">ELSE</span><!--src-keyword-->
+      <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+         <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.net-profit   = (<span class="src-number">1</span><!--src-number--> <span class="src-keyword">-</span><!--src-keyword--> (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.full-cost / <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.sell-price)) <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">100</span><!--src-number-->
+         <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.gross-profit = (<span class="src-number">1</span><!--src-number--> <span class="src-keyword">-</span><!--src-keyword--> (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.fact-cost / <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.sell-price)) <span class="src-keyword">*</span><!--src-keyword--> <span class="src-number">100</span><!--src-number-->.
+ 
+   <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.market-price = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.net-profit + <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.comm.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF AVAIL</span><!--src-keyword--> est <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+  <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+   cocode = est.company
+   locode = est.loc.
+ 
+  <span class="src-comment">/*IF old-{&amp;TABLENAME}.company NE "" AND
+     old-{&amp;TABLENAME}.est-no  NE "" THEN
+    ASSIGN
+     est.gsa-mat      = {&amp;TABLENAME}.gsa-mat
+     est.gsa-lab      = {&amp;TABLENAME}.gsa-lab
+     est.gsa-war      = {&amp;TABLENAME}.gsa-war
+     est.gsa-war-amt  = {&amp;TABLENAME}.gsa-war-amt
+     est.gsa-war-hdl  = {&amp;TABLENAME}.gsa-war-hdl
+     est.gsa-war-tot  = {&amp;TABLENAME}.gsa-war-tot
+     est.gsa-war-u-c  = {&amp;TABLENAME}.gsa-war-u-c
+     est.gsa-war-cnt  = {&amp;TABLENAME}.gsa-war-cnt
+     est.gsa-war-uni  = {&amp;TABLENAME}.gsa-war-uni
+     est.gsa-war-pal  = {&amp;TABLENAME}.gsa-war-pal
+     est.gsa-war-per  = {&amp;TABLENAME}.gsa-war-per
+     est.gsa-war-u-p  = {&amp;TABLENAME}.gsa-war-u-p.*/</span><!--src-comment-->
+ 
+  <span class="src-comment">/*IF est.est-type LE 4                      AND
+     {&amp;TABLENAME}.gross-profit LT {&amp;TABLENAME}.net-profit THEN DO:
+ 
+    FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
+ 
+    FIND FIRST xeb
+        WHERE xeb.company EQ {&amp;TABLENAME}.company
+          AND xeb.est-no  EQ {&amp;TABLENAME}.est-no
+          AND xeb.form-no NE 0
+          AND xeb.comm    NE 0
+        NO-LOCK NO-ERROR.
+ 
+    {ce/markup.i}
+ 
+    FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ {&amp;TABLENAME}.company
+           AND sys-ctrl.name    EQ "CEROUND"
+         NO-LOCK NO-ERROR.
+    ll-round = AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "Dollar".
+ 
+    {&amp;TABLENAME}.sell-price = {&amp;TABLENAME}.full-cost /
+                              (1 - (({&amp;TABLENAME}.net-profit + v-com) / 100)).
+ 
+    IF ll-round THEN {&amp;TABLENAME}.sell-price = ROUND({&amp;TABLENAME}.sell-price,0).
+ 
+    {&amp;TABLENAME}.gross-profit = ((1 - ({&amp;TABLENAME}.fact-cost / {&amp;TABLENAME}.sell-price)) * 100) - v-com.
+ 
+    RUN ce/uprobeit.p (ROWID({&amp;TABLENAME})).
+  END.*/</span><!--src-comment-->
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
+</div><!--progresscode-->
+</body>
+</html>

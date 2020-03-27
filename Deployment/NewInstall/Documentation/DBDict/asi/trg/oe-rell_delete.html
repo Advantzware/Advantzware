@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: delete of oe-rell</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: delete of oe-rell</h1>
+<div class="progressCode">
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">DELETE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME oe-rell
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR DELETE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">delete</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">FOR</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-oe-ordl <span class="src-keyword">FOR</span><!--src-keyword--> oe-ordl.
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-itemfg <span class="src-keyword">FOR</span><!--src-keyword--> itemfg.
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-itemfg-loc <span class="src-keyword">FOR</span><!--src-keyword--> itemfg-loc.
+ 
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> cocode <span class="src-keyword">AS CHAR NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> li <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> lv-q-alloc <span class="src-keyword">LIKE</span><!--src-keyword--> b-itemfg.q-alloc <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> lv-q-back <span class="src-keyword">LIKE</span><!--src-keyword--> b-itemfg.q-back <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+ 
+ 
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> b-oe-ordl.
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> itemfg.
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> oe-rel.
+ 
+ 
+cocode = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company.
+<span class="src-prep">{sys/inc/oereordr.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">FIND FIRST</span><!--src-keyword--> oe-ordl <span class="src-keyword">NO-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> oe-ordl.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+      <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.ord-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no
+      <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+      <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.<span class="src-keyword">line    EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">line</span><!--src-keyword-->
+    <span class="src-keyword">USE-INDEX</span><!--src-keyword--> item-ord 
+    <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+<span class="src-keyword">IF AVAILABLE</span><!--src-keyword--> oe-ordl 
+    <span class="src-keyword">AND</span><!--src-keyword--> oe-rell.s-code  <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">"I"</span><!--src-char-->
+    <span class="src-keyword">AND CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> oe-relh <span class="src-keyword">WHERE</span><!--src-keyword--> oe-relh.r-no <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.r-no)
+    <span class="src-keyword">AND NOT CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> oe-boll
+                        <span class="src-keyword">WHERE</span><!--src-keyword--> oe-boll.company  <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.company
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.r-no     <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.r-no
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.ord-no   <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.ord-no
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.i-no     <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.i-no
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.<span class="src-keyword">line     EQ</span><!--src-keyword--> oe-rell.<span class="src-keyword">line</span><!--src-keyword-->
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.rel-no   <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.rel-no
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.b-ord-no <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.b-ord-no
+                        <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.po-no    <span class="src-keyword">EQ</span><!--src-keyword--> oe-rell.po-no
+                        <span class="src-keyword">USE-INDEX</span><!--src-keyword--> ord-no) <span class="src-keyword">THEN</span><!--src-keyword--> 
+    <span class="src-keyword">DO</span><!--src-keyword-->:
+ 
+    <span class="src-keyword">FIND</span><!--src-keyword--> b-oe-ordl <span class="src-keyword">WHERE ROWID</span><!--src-keyword-->(b-oe-ordl) <span class="src-keyword">EQ ROWID</span><!--src-keyword-->(oe-ordl)
+        <span class="src-keyword">EXCLUSIVE-LOCK NO-WAIT NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-oe-ordl <span class="src-keyword">THEN</span><!--src-keyword--> b-oe-ordl.t-rel-qty = b-oe-ordl.t-rel-qty <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty.
+ 
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.b-ord-no <span class="src-keyword">GE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+ 
+    <span class="src-keyword">FIND FIRST</span><!--src-keyword--> itemfg <span class="src-keyword">NO-LOCK</span><!--src-keyword-->
+        <span class="src-keyword">WHERE</span><!--src-keyword--> itemfg.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> itemfg.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF AVAILABLE</span><!--src-keyword--> itemfg <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+ 
+        <span class="src-keyword">FIND</span><!--src-keyword--> b-itemfg <span class="src-keyword">WHERE ROWID</span><!--src-keyword-->(b-itemfg) <span class="src-keyword">EQ ROWID</span><!--src-keyword-->(itemfg)
+            <span class="src-keyword">EXCLUSIVE-LOCK NO-WAIT NO-ERROR</span><!--src-keyword-->.
+        <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-itemfg <span class="src-keyword">THEN</span><!--src-keyword-->
+            <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+                b-itemfg.q-back  = b-itemfg.q-back <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty
+                .
+    <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+    <span class="src-keyword">RUN</span><!--src-keyword--> fg/chkfgloc.p (<span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no, <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.loc).
+    <span class="src-keyword">FOR EACH</span><!--src-keyword--> itemfg-loc <span class="src-keyword">NO-LOCK</span><!--src-keyword-->
+        <span class="src-keyword">WHERE</span><!--src-keyword--> itemfg-loc.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> itemfg-loc.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">AND</span><!--src-keyword--> itemfg-loc.loc     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.loc
+        :
+ 
+        <span class="src-keyword">IF</span><!--src-keyword--> itemfg-loc.q-back  <span class="src-keyword">NE</span><!--src-keyword--> lv-q-back  <span class="src-keyword">THEN</span><!--src-keyword--> 
+        <span class="src-keyword">DO</span><!--src-keyword-->:
+            <span class="src-keyword">FIND</span><!--src-keyword--> b-itemfg-loc <span class="src-keyword">WHERE ROWID</span><!--src-keyword-->(b-itemfg-loc) <span class="src-keyword">EQ ROWID</span><!--src-keyword-->(itemfg-loc)
+                <span class="src-keyword">EXCLUSIVE-LOCK NO-WAIT NO-ERROR</span><!--src-keyword-->.
+            <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-itemfg-loc <span class="src-keyword">THEN</span><!--src-keyword-->
+                <span class="src-keyword">ASSIGN</span><!--src-keyword-->           
+                    b-itemfg-loc.q-back  = b-itemfg-loc.q-back <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty
+                    .
+        <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+        <span class="src-keyword">LEAVE</span><!--src-keyword-->.
+    <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* For each itemfg-loc */</span><!--src-comment-->
+<span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* If b-ord-no gt 0 */</span><!--src-comment-->
+ 
+<span class="src-keyword">IF NOT CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+    <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no
+    <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+    <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">line     EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">line</span><!--src-keyword-->
+    <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.r-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.r-no
+    <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.rel-no   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.rel-no
+    <span class="src-keyword">AND</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.b-ord-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.b-ord-no
+    <span class="src-keyword">AND ROWID</span><!--src-keyword-->(b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)   <span class="src-keyword">NE ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)
+    <span class="src-keyword">USE-INDEX</span><!--src-keyword--> ord-no) <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+ 
+    <span class="src-keyword">FOR EACH</span><!--src-keyword--> oe-ordl
+        <span class="src-keyword">WHERE</span><!--src-keyword--> oe-ordl.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.ord-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no
+        <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+        <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.<span class="src-keyword">line    EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">line</span><!--src-keyword-->
+        <span class="src-keyword">USE-INDEX</span><!--src-keyword--> item-ord <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+        <span class="src-keyword">FIND</span><!--src-keyword--> b-oe-ordl <span class="src-keyword">WHERE ROWID</span><!--src-keyword-->(b-oe-ordl) <span class="src-keyword">EQ ROWID</span><!--src-keyword-->(oe-ordl)
+            <span class="src-keyword">EXCLUSIVE-LOCK NO-WAIT NO-ERROR</span><!--src-keyword-->.
+        <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-oe-ordl <span class="src-keyword">THEN</span><!--src-keyword--> b-oe-ordl.rel-stat = <span class="src-keyword">NO</span><!--src-keyword-->.
+    <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+    <span class="src-keyword">FOR EACH</span><!--src-keyword--> oe-rel <span class="src-keyword">WHERE</span><!--src-keyword--> oe-rel.r-no = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.link-no 
+    <span class="src-comment">/*oe-rel.link-no EQ {&amp;TABLENAME}.r-no USE-INDEX link*/</span><!--src-comment--> :
+        <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+            oe-rel.rel-no   = <span class="src-number">0</span><!--src-number-->
+            oe-rel.b-ord-no = <span class="src-number">0</span><!--src-number-->
+            oe-rel.link-no  = <span class="src-number">0</span><!--src-number-->.
+ 
+        <span class="src-keyword">FIND FIRST</span><!--src-keyword--> truck-run-print <span class="src-keyword">WHERE</span><!--src-keyword-->
+            truck-run-print.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company <span class="src-keyword">AND</span><!--src-keyword-->
+            truck-run-print.oe-rel-r-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.r-no
+            <span class="src-keyword">EXCLUSIVE-LOCK NO-ERROR</span><!--src-keyword-->.
+ 
+        <span class="src-keyword">IF AVAIL</span><!--src-keyword--> truck-run-print <span class="src-keyword">THEN</span><!--src-keyword-->
+        <span class="src-keyword">DO</span><!--src-keyword-->:
+            <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+                truck-run-print.rel-no = <span class="src-number">0</span><!--src-number-->
+                truck-run-print.b-ord-no = <span class="src-number">0</span><!--src-number-->
+                truck-run-print.link-no = <span class="src-number">0</span><!--src-number-->.
+ 
+            <span class="src-keyword">RELEASE</span><!--src-keyword--> truck-run-print.
+        <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+    <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* Each oe-rel */</span><!--src-comment-->
+<span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* If can't find any remaining releases */</span><!--src-comment-->
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> oe-rel <span class="src-keyword">WHERE</span><!--src-keyword--> oe-rel.r-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.link-no <span class="src-keyword">USE-INDEX</span><!--src-keyword--> seq-no:
+    <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+        oe-rel.qty = oe-rel.qty <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.Qty
+        .  
+    <span class="src-keyword">IF</span><!--src-keyword--> oe-rel.qty <span class="src-keyword">&lt;</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword--> oe-rel.qty = <span class="src-number">0</span><!--src-number-->.
+ 
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> oe-rel
+    <span class="src-keyword">WHERE</span><!--src-keyword--> oe-rel.company  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+    <span class="src-keyword">AND</span><!--src-keyword--> oe-rel.ord-no   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no
+    <span class="src-keyword">AND</span><!--src-keyword--> oe-rel.rel-no   <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.rel-no
+    <span class="src-keyword">AND</span><!--src-keyword--> oe-rel.b-ord-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.b-ord-no
+    <span class="src-keyword">AND</span><!--src-keyword--> oe-rel.i-no     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
+    <span class="src-keyword">AND</span><!--src-keyword--> oe-rel.<span class="src-keyword">line     EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">line</span><!--src-keyword-->
+    <span class="src-keyword">USE-INDEX</span><!--src-keyword--> ord-item:
+ 
+    <span class="src-comment">/* In case this was not done in the prior loop */</span><!--src-comment-->
+    <span class="src-keyword">IF</span><!--src-keyword--> oe-rel.r-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.link-no <span class="src-keyword">THEN</span><!--src-keyword--> 
+        <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+            oe-rel.qty = oe-rel.qty <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.Qty
+            .
+    <span class="src-keyword">IF</span><!--src-keyword--> oe-rel.qty <span class="src-keyword">&lt;</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword--> oe-rel.qty = <span class="src-number">0</span><!--src-number-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.rec_key) <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword-->
+    <span class="src-keyword">FOR EACH</span><!--src-keyword--> reftable <span class="src-keyword">WHERE</span><!--src-keyword--> reftable.rec_key <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.rec_key:
+        <span class="src-keyword">DELETE</span><!--src-keyword--> reftable.
+    <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
+    <span class="src-keyword">FOR EACH</span><!--src-keyword--> oe-rel
+        <span class="src-keyword">WHERE</span><!--src-keyword--> oe-rel.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+        <span class="src-keyword">AND</span><!--src-keyword--> oe-rel.ord-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no:
+        <span class="src-keyword">RUN</span><!--src-keyword--> oe/rel-stat.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(oe-rel), <span class="src-keyword">OUTPUT</span><!--src-keyword--> oe-rel.stat).
+    <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+</div><!--progresscode-->
+</body>
+</html>

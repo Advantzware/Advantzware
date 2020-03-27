@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: write of ef-nsh</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: write of ef-nsh</h1>
+<div class="progressCode">
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">UPDATE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME ef-nsh
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR WRITE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">OLD BUFFER</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">write</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">FOR</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-comment">/* DEFINE VARIABLE v-len-in  LIKE {&amp;TABLENAME}.len-in  NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-wid-in  LIKE {&amp;TABLENAME}.wid-in  NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-dep-in  LIKE {&amp;TABLENAME}.dep-in  NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-n-out-l LIKE {&amp;TABLENAME}.n-out-l NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-n-out-w LIKE {&amp;TABLENAME}.n-out-w NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-n-out-d LIKE {&amp;TABLENAME}.n-out-d NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-len-out LIKE {&amp;TABLENAME}.len-out NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-wid-out LIKE {&amp;TABLENAME}.wid-out NO-UNDO INIT 0.  */</span><!--src-comment-->
+<span class="src-comment">/* DEFINE VARIABLE v-dep-out LIKE {&amp;TABLENAME}.dep-out NO-UNDO INIT 0.  */</span><!--src-comment-->
+ 
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> est.
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> ef.
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no = <span class="src-keyword">FILL</span><!--src-keyword-->(<span class="src-char">" "</span><!--src-char-->,<span class="src-number">8</span><!--src-number--> <span class="src-keyword">- LENGTH</span><!--src-keyword-->(<span class="src-keyword">TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no))) +
+                      <span class="src-keyword">TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no).
+ 
+<span class="src-keyword">FIND FIRST</span><!--src-keyword--> ef <span class="src-keyword">OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">NO-LOCK NO-ERROR</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF AVAIL</span><!--src-keyword--> ef <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+ 
+<span class="src-comment">/*     /* ------ stacey's change ------ */                           */</span><!--src-comment-->
+<span class="src-comment">/*     MESSAGE "Recalculate totals"                                  */</span><!--src-comment-->
+<span class="src-comment">/*         VIEW-AS ALERT-BOX INFO BUTTONS OK.                        */</span><!--src-comment-->
+<span class="src-comment">/*                                                                   */</span><!--src-comment-->
+<span class="src-comment">/*     /* Multiply WLD from all ef-nsh records. */                   */</span><!--src-comment-->
+<span class="src-comment">/*     FOR EACH b-{&amp;TABLENAME} OF ef NO-LOCK:                        */</span><!--src-comment-->
+<span class="src-comment">/*         IF b-{&amp;TABLENAME}.pass-no = 1 THEN                        */</span><!--src-comment-->
+<span class="src-comment">/*             ASSIGN v-len-in = b-{&amp;TABLENAME}.len-in               */</span><!--src-comment-->
+<span class="src-comment">/*                    v-wid-in = b-{&amp;TABLENAME}.wid-in               */</span><!--src-comment-->
+<span class="src-comment">/*                    v-dep-in = b-{&amp;TABLENAME}.dep-in               */</span><!--src-comment-->
+<span class="src-comment">/*                    v-n-out-l = b-{&amp;TABLENAME}.n-out-l             */</span><!--src-comment-->
+<span class="src-comment">/*                    v-n-out-w = b-{&amp;TABLENAME}.n-out-w             */</span><!--src-comment-->
+<span class="src-comment">/*                    v-n-out-d = b-{&amp;TABLENAME}.n-out-d             */</span><!--src-comment-->
+<span class="src-comment">/*                    v-len-out = b-{&amp;TABLENAME}.len-out             */</span><!--src-comment-->
+<span class="src-comment">/*                    v-wid-out = b-{&amp;TABLENAME}.wid-out             */</span><!--src-comment-->
+<span class="src-comment">/*                    v-dep-out = b-{&amp;TABLENAME}.dep-out.            */</span><!--src-comment-->
+<span class="src-comment">/*         ELSE                                                      */</span><!--src-comment-->
+<span class="src-comment">/*         ASSIGN v-len-in = (v-len-in * b-{&amp;TABLENAME}.len-in)      */</span><!--src-comment-->
+<span class="src-comment">/*                v-wid-in = (v-wid-in * b-{&amp;TABLENAME}.wid-in)      */</span><!--src-comment-->
+<span class="src-comment">/*                v-dep-in = (v-dep-in * b-{&amp;TABLENAME}.dep-in)      */</span><!--src-comment-->
+<span class="src-comment">/*                v-n-out-l = (v-n-out-l * b-{&amp;TABLENAME}.n-out-l)   */</span><!--src-comment-->
+<span class="src-comment">/*                v-n-out-w = (v-n-out-w * b-{&amp;TABLENAME}.n-out-w)   */</span><!--src-comment-->
+<span class="src-comment">/*                v-n-out-d = (v-n-out-d * b-{&amp;TABLENAME}.n-out-d)   */</span><!--src-comment-->
+<span class="src-comment">/*                v-len-out = (v-len-out * b-{&amp;TABLENAME}.len-out)   */</span><!--src-comment-->
+<span class="src-comment">/*                v-wid-out = (v-wid-out * b-{&amp;TABLENAME}.wid-out)   */</span><!--src-comment-->
+<span class="src-comment">/*                v-dep-out = (v-dep-out * b-{&amp;TABLENAME}.dep-out).  */</span><!--src-comment-->
+<span class="src-comment">/*     END.                                                          */</span><!--src-comment-->
+<span class="src-comment">/*                                                                   */</span><!--src-comment-->
+<span class="src-comment">/*     MESSAGE "ef totals before update"                             */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.gsh-len" ef.gsh-len  SKIP                          */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.gsh-wid" ef.gsh-wid   SKIP                         */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.gsh-dep" ef.gsh-dep SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.n-out-l" ef.n-out-l SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.n-out" ef.n-out   SKIP                             */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.n-out-d" ef.n-out-d SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.nsh-len" ef.nsh-len SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.nsh-wid" ef.nsh-wid SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.nsh-dep" ef.nsh-dep                                */</span><!--src-comment-->
+<span class="src-comment">/*         VIEW-AS ALERT-BOX INFO BUTTONS OK.                        */</span><!--src-comment-->
+<span class="src-comment">/*                                                                   */</span><!--src-comment-->
+<span class="src-comment">/*     /* Update final totals to the ef record. */                   */</span><!--src-comment-->
+<span class="src-comment">/*     FIND CURRENT ef EXCLUSIVE-LOCK NO-ERROR NO-WAIT.              */</span><!--src-comment-->
+<span class="src-comment">/*     ASSIGN ef.gsh-len = v-len-in                                  */</span><!--src-comment-->
+<span class="src-comment">/*            ef.gsh-wid = v-wid-in                                  */</span><!--src-comment-->
+<span class="src-comment">/*            ef.gsh-dep = v-dep-in                                  */</span><!--src-comment-->
+<span class="src-comment">/*            ef.n-out-l = v-n-out-l                                 */</span><!--src-comment-->
+<span class="src-comment">/*            ef.n-out   = v-n-out-w                                 */</span><!--src-comment-->
+<span class="src-comment">/*            ef.n-out-d = v-n-out-d                                 */</span><!--src-comment-->
+<span class="src-comment">/*            ef.nsh-len = v-len-out                                 */</span><!--src-comment-->
+<span class="src-comment">/*            ef.nsh-wid = v-wid-out                                 */</span><!--src-comment-->
+<span class="src-comment">/*            ef.nsh-dep = v-dep-out.                                */</span><!--src-comment-->
+<span class="src-comment">/*                                                                   */</span><!--src-comment-->
+<span class="src-comment">/*     /* Release lock. */                                           */</span><!--src-comment-->
+<span class="src-comment">/*     FIND CURRENT ef NO-LOCK.                                      */</span><!--src-comment-->
+<span class="src-comment">/*                                                                   */</span><!--src-comment-->
+<span class="src-comment">/*     MESSAGE "ef totals after update"                              */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.gsh-len" ef.gsh-len  SKIP                          */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.gsh-wid" ef.gsh-wid   SKIP                         */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.gsh-dep" ef.gsh-dep SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.n-out-l" ef.n-out-l SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.n-out" ef.n-out   SKIP                             */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.n-out-d" ef.n-out-d SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.nsh-len" ef.nsh-len SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.nsh-wid" ef.nsh-wid SKIP                           */</span><!--src-comment-->
+<span class="src-comment">/*            "ef.nsh-dep" ef.nsh-dep                                */</span><!--src-comment-->
+<span class="src-comment">/*         VIEW-AS ALERT-BOX INFO BUTTONS OK.                        */</span><!--src-comment-->
+ 
+ 
+<span class="src-comment">/*   IF {&amp;TABLENAME}.pass-no EQ 1 THEN DO:     */</span><!--src-comment-->
+<span class="src-comment">/*     FIND CURRENT ef.                        */</span><!--src-comment-->
+<span class="src-comment">/*                                             */</span><!--src-comment-->
+<span class="src-comment">/*     MESSAGE "ef.n-out: " ef.n-out SKIP      */</span><!--src-comment-->
+<span class="src-comment">/*             "ef.n-out-l: " ef.n-out-l SKIP  */</span><!--src-comment-->
+<span class="src-comment">/*             "ef.n-out-d: " ef.n-out-d       */</span><!--src-comment-->
+<span class="src-comment">/*         VIEW-AS ALERT-BOX INFO BUTTONS OK.  */</span><!--src-comment-->
+<span class="src-comment">/*     ASSIGN                                  */</span><!--src-comment-->
+<span class="src-comment">/*      ef.gsh-len = {&amp;TABLENAME}.len-in       */</span><!--src-comment-->
+<span class="src-comment">/*      ef.gsh-wid = {&amp;TABLENAME}.wid-in       */</span><!--src-comment-->
+<span class="src-comment">/*      ef.gsh-dep = {&amp;TABLENAME}.dep-in       */</span><!--src-comment-->
+<span class="src-comment">/*      ef.n-out-l = {&amp;TABLENAME}.n-out-l      */</span><!--src-comment-->
+<span class="src-comment">/*      ef.n-out   = {&amp;TABLENAME}.n-out-w      */</span><!--src-comment-->
+<span class="src-comment">/*      ef.n-out-d = {&amp;TABLENAME}.n-out-d      */</span><!--src-comment-->
+<span class="src-comment">/*      ef.nsh-len = {&amp;TABLENAME}.len-out      */</span><!--src-comment-->
+<span class="src-comment">/*      ef.nsh-wid = {&amp;TABLENAME}.wid-out      */</span><!--src-comment-->
+<span class="src-comment">/*      ef.nsh-dep = {&amp;TABLENAME}.dep-out.     */</span><!--src-comment-->
+<span class="src-comment">/*     FIND CURRENT ef NO-LOCK.                */</span><!--src-comment-->
+<span class="src-comment">/*                                             */</span><!--src-comment-->
+<span class="src-comment">/*                                             */</span><!--src-comment-->
+<span class="src-comment">/*     MESSAGE "ef.n-out: " ef.n-out SKIP      */</span><!--src-comment-->
+<span class="src-comment">/*             "ef.n-out-l: " ef.n-out-l SKIP  */</span><!--src-comment-->
+<span class="src-comment">/*             "ef.n-out-d: " ef.n-out-d       */</span><!--src-comment-->
+<span class="src-comment">/*         VIEW-AS ALERT-BOX INFO BUTTONS OK.  */</span><!--src-comment-->
+<span class="src-comment">/*                                             */</span><!--src-comment-->
+<span class="src-comment">/*   END. /* IF {&amp;TABLENAME}.pass-no EQ 1 */   */</span><!--src-comment-->
+ 
+  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pass-no <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pass-no <span class="src-keyword">AND</span><!--src-keyword-->
+     old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pass-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->                    <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">OF</span><!--src-keyword--> ef
+      <span class="src-keyword">WHERE</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.orig-no <span class="src-keyword">EQ</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pass-no
+        <span class="src-keyword">AND ROWID</span><!--src-keyword-->(b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)  <span class="src-keyword">NE ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->):
+     <span class="src-keyword">ASSIGN</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.orig-no = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pass-no.
+  <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* FOR EACH b-{&amp;TABLENAME} OF ef */</span><!--src-comment-->
+<span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* IF AVAIL ef  */</span><!--src-comment-->
+ 
+<span class="src-keyword">FIND FIRST</span><!--src-keyword--> est
+    <span class="src-keyword">WHERE</span><!--src-keyword--> est.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+      <span class="src-keyword">AND</span><!--src-keyword--> est.est-no  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no
+    <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF AVAIL</span><!--src-keyword--> est <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+  <span class="src-keyword">ASSIGN</span><!--src-keyword-->
+   est.updated-date = <span class="src-keyword">TODAY</span><!--src-keyword-->
+   est.updated-id   = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">"nosweat"</span><!--src-char-->)
+   est.mod-date     = est.updated-date.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
+</div><!--progresscode-->
+</body>
+</html>
