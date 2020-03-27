@@ -38,6 +38,11 @@ DEFINE VARIABLE ipContainerHandle AS HANDLE    NO-UNDO.
 
 {schedule/scopDir.i}
 
+DEFINE TEMP-TABLE resourceList NO-UNDO
+    FIELD resource AS CHARACTER
+        INDEX resourceList IS PRIMARY resource
+        .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -692,9 +697,12 @@ PROCEDURE pReturnToPending :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE asiCompany   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE beginEstType AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE endEstType   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE asiCompany       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE beginEstType     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE endEstType       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE resourceUse      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE resourceName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE scheduleResource AS CHARACTER NO-UNDO.
 
     MESSAGE
         "WARNING: This process will return all" SKIP
@@ -703,6 +711,14 @@ PROCEDURE pReturnToPending :
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
     IF NOT lContinue THEN RETURN.
     SESSION:SET-WAIT-STATE("General").
+    INPUT FROM VALUE(SEARCH('{&data}/' + ipID + '/resourceList.dat')) NO-ECHO.
+    IMPORT resourceUse.
+    REPEAT:
+        IMPORT resourceName.
+        CREATE resourceList.
+        resourceList.resource = resourceName.
+    END. /* repeat */
+    INPUT CLOSE.
     DISABLE TRIGGERS FOR LOAD OF job-mch.
     IF VALID-HANDLE(ipContainerHandle) THEN
     RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
@@ -717,11 +733,6 @@ PROCEDURE pReturnToPending :
        ,FIRST est OF job NO-LOCK
         WHERE est.est-type GE beginEstType
           AND est.est-type LE endEstType
-        BREAK BY est.est-type
-              BY job-hdr.job-no
-              BY job-hdr.job-no2
-              BY job-hdr.frm
-              BY job-hdr.blank-no
         :
         FOR EACH job-mch EXCLUSIVE-LOCK
             WHERE job-mch.company EQ job.company
@@ -729,11 +740,12 @@ PROCEDURE pReturnToPending :
               AND job-mch.job-no EQ job.job-no
               AND job-mch.job-no2 EQ job.job-no2
               AND job-mch.run-complete EQ NO
-            BREAK BY job-mch.job
-                  BY job-mch.frm
-                  BY job-mch.blank-no
-                  BY job-mch.line
+           ,FIRST mach NO-LOCK
+            WHERE mach.company EQ job-mch.company
+              AND mach.m-code  EQ job-mch.m-code
             :
+            scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
+            {{&loads}/resourceUse.i scheduleResource}
             ASSIGN
                 job-mch.end-date      = ?
                 job-mch.end-date-su   = ?
