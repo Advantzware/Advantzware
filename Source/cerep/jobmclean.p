@@ -1988,10 +1988,10 @@ PROCEDURE pPrintMiscItems :
     DEFINE INPUT PARAMETER ipiForm AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipcMatTypes AS CHARACTER NO-UNDO.
-   
+    
     DEFINE BUFFER bf-eb FOR eb.
     DEFINE BUFFER bf-job-mat FOR job-mat.
-    
+    MAIN-XJOBMAT:
     FOR EACH xjob-mat NO-LOCK
         WHERE xjob-mat.company EQ job-hdr.company
         AND xjob-mat.job     EQ job-hdr.job
@@ -2004,14 +2004,46 @@ PROCEDURE pPrintMiscItems :
         AND bf-item.i-no    EQ xjob-mat.rm-i-no  
         AND CAN-DO(ipcMatTypes, bf-item.mat-type)
         BREAK BY bf-item.i-no :
+             
+        FIND FIRST estPacking NO-LOCK
+            WHERE estPacking.company  EQ cocode
+            AND estPacking.estimateNo EQ ipcEstimate
+            AND estPacking.FormNo     EQ 0
+            AND estPacking.BlankNo    EQ 0
+            AND estPacking.rmItemID   EQ xjob-mat.rm-i-no  NO-ERROR .
+        IF AVAIL estPacking THEN NEXT MAIN-XJOBMAT. 
         
         IF LAST-OF(bf-item.i-no) THEN do:
-            PUT 
-                "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  
-                "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+            IF ipiForm EQ 0 THEN DO:
+                FIND FIRST bf-eb NO-LOCK 
+                    WHERE bf-eb.company EQ cocode
+                      AND bf-eb.est-no EQ ipcEstimate
+                      AND bf-eb.form-no EQ 0
+                      AND bf-eb.blank-no EQ 0
+                   NO-ERROR.
+                 IF AVAIL bf-eb AND  bf-item.i-no EQ bf-eb.layer-pad THEN DO: 
+                   PUT
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  .
+                   IF bf-eb.lp-up NE 0 THEN
+                      PUT "<C32><b>Qty: </b>" trim(string(bf-eb.lp-up)) + " / " + ( IF  bf-eb.spare-char-3 EQ "C" THEN "Case" ELSE IF bf-eb.spare-char-3 EQ "P" THEN "Pallet" ELSE "") FORMAT "x(18)".                    
+                   PUT  "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.                   
+                 END.  /*  layer pad*/ 
+                 ELSE IF AVAIL bf-eb AND bf-item.i-no EQ bf-eb.divider THEN DO: 
+                   PUT
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  .
+                   IF bf-eb.div-up NE 0 THEN
+                      PUT "<C32><b>Qty: </b>" trim(string(bf-eb.div-up)) + " / " + ( IF  bf-eb.spare-char-4 EQ "C" THEN "Case" ELSE IF bf-eb.spare-char-4 EQ "P" THEN "Pallet" ELSE "") FORMAT "x(18)".                    
+                   PUT  "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.                   
+                 END.  /*  layer pad*/ 
+            END.  /* ipiForm EQ 0*/
+            ELSE do:
+                PUT 
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+            END.
             
         END.
-    END.
+    END.   
 
     IF ipiForm EQ 0 THEN DO:  /*To work around defect that doesn't include 0 form layers, pad, and enhanced packing in job-mat*/
         FOR EACH estPacking NO-LOCK
@@ -2025,10 +2057,21 @@ PROCEDURE pPrintMiscItems :
                 WHERE bf-item.company  EQ cocode
                 AND bf-item.i-no     EQ estPacking.rmItemID
                 NO-ERROR.
-            IF AVAIL bf-item AND LAST-OF(estPacking.rmItemID) THEN do:
+            FIND FIRST bf-job-mat NO-LOCK 
+                WHERE bf-job-mat.company EQ cocode
+                AND bf-job-mat.job EQ job-hdr.job
+                AND bf-job-mat.job-no EQ job-hdr.job-no
+                AND bf-job-mat.job-no2 EQ job-hdr.job-no2
+                AND bf-job-mat.frm EQ 0
+                AND bf-job-mat.blank-no EQ 0
+                AND bf-job-mat.i-no EQ estPacking.rmItemID
+                NO-ERROR.    
+            IF AVAIL bf-item AND LAST-OF(estPacking.rmItemID) AND AVAIL bf-job-mat THEN do:  
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no).
+                    IF estPacking.quantity NE 0 THEN
+                    PUT "<C32><b>Qty: </b>" trim(string(estPacking.quantity)) + " / " + ( IF  estPacking.quantityPer EQ "C" THEN "Case" ELSE IF  estPacking.quantityPer EQ "P" THEN "Pallet" ELSE "Lot") FORMAT "x(18)".                    
+                    PUT "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
     
             END.
         END.
@@ -2053,10 +2096,13 @@ PROCEDURE pPrintMiscItems :
                 AND bf-job-mat.blank-no EQ 0
                 AND bf-job-mat.i-no EQ bf-eb.divider
                 NO-ERROR.
-            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
+            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN do: 
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  .
+                IF bf-eb.div-up NE 0 THEN
+                      PUT "<C32><b>Qty: </b>" trim(string(bf-eb.div-up)) + " / " + ( IF  bf-eb.spare-char-4 EQ "C" THEN "Case" ELSE IF bf-eb.spare-char-4 EQ "P" THEN "Pallet" ELSE "") FORMAT "x(18)".                    
+                PUT  "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+            END.    
         END.
         IF AVAILABLE bf-eb AND bf-eb.layer-pad NE "" THEN DO:
             FIND FIRST bf-item NO-LOCK
@@ -2072,10 +2118,13 @@ PROCEDURE pPrintMiscItems :
                 AND bf-job-mat.blank-no EQ 0
                 AND bf-job-mat.i-no EQ bf-eb.layer-pad
                 NO-ERROR.    
-            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
+            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN do: 
                 PUT
-                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)  .
+                IF bf-eb.lp-up NE 0 THEN
+                      PUT "<C32><b>Qty: </b>" trim(string(bf-eb.lp-up)) + " / " + ( IF  bf-eb.spare-char-3 EQ "C" THEN "Case" ELSE IF bf-eb.spare-char-3 EQ "P" THEN "Pallet" ELSE "") FORMAT "x(18)".                    
+                PUT  "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+            END.
         END.
     END.
                                  
