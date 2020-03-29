@@ -3052,6 +3052,10 @@ PROCEDURE ipDataFix200100:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 200100...").
 
+    DISABLE TRIGGERS FOR LOAD OF sys-ctrl.
+    DISABLE TRIGGERS FOR LOAD OF userPwdHist.
+    DISABLE TRIGGERS FOR LOAD OF inventoryStatusType.
+
 /*  64833 Set by default to output Estimate data */
     FOR EACH sys-ctrl WHERE 
         sys-ctrl.name EQ "CECostSave":

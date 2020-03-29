@@ -771,8 +771,8 @@ DO:
             VIEW-AS ALERT-BOX ERROR.
         ASSIGN 
             slAvailDbs:{&SV} = ?.
-        RETURN NO-APPLY.
         RUN pLog("Can't overwrite PROD DB.  Prevented.").
+        RETURN NO-APPLY.
     END.
 
     RUN pLog("User chose the EXECUTE button").
