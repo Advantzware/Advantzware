@@ -300,16 +300,18 @@ FOR EACH report
                     ELSE DO:  
                       ASSIGN cBoard = bf-item.i-name.
                        IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "EXE1002" AND 
-                           AVAIL eb AND eb.est-type LE 4 THEN do: 
-                           IF cBoard EQ ".020 SBS" THEN
-                            ASSIGN cBoard = "20PT/SBS/C1S".
-                           ELSE IF cBoard EQ ".018 SBS" THEN
-                            ASSIGN cBoard = "18PT/SBS/C1S". 
-                           ELSE IF cBoard EQ ".012 ABC" THEN
-                            ASSIGN cBoard = "12PT/ABC/C1S".
-                           ELSE
+                           AVAIL eb AND eb.est-type LE 4 THEN 
+/*  Revert change from 61413                                  */                         
+/*                           do:                              */
+/*                           IF cBoard EQ ".020 SBS" THEN     */
+/*                            ASSIGN cBoard = "20PT/SBS/C1S". */
+/*                           ELSE IF cBoard EQ ".018 SBS" THEN*/
+/*                            ASSIGN cBoard = "18PT/SBS/C1S". */
+/*                           ELSE IF cBoard EQ ".012 ABC" THEN*/
+/*                            ASSIGN cBoard = "12PT/ABC/C1S". */
+/*                           ELSE                             */
                             ASSIGN cBoard = cBoard + "/C1S".  
-                       END.
+/*                       END.  */
                        IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:
                         /*    IF AVAIL eb THEN                                  */
                         /*        FIND FIRST prodl NO-LOCK                      */

@@ -352,9 +352,9 @@ PROCEDURE pPrintCheckHeaderRecords:
             cCheckPayeeName2      = vend.remit
             cCheckPayeeAddress1   = vend.r-add1
             cCheckPayeeAddress2   = vend.r-add2
-            cCheckPayeeCity       = vend.city
-            cCheckPayeeState      = vend.state
-            cCheckPayeeZipCode    = vend.zip
+            cCheckPayeeCity       = vend.r-city
+            cCheckPayeeState      = vend.r-state
+            cCheckPayeeZipCode    = vend.r-zip
             cCheckPayeeCountry    = vend.r-country
             cCheckPaymentData     = vend.check-memo
             cCheckMailInstruction = IF vend.country BEGINS "CA" THEN /* country validation for Canada */
@@ -562,13 +562,13 @@ PROCEDURE pPrintACHHeaderRecords:
             cACHIndividualID          = vend.vend-no
             cACHReceiverAddress1      = vend.r-add1
             cACHReceiverAddress2      = vend.r-add2
-            cACHReceiverCity          = vend.city
-            cACHReceiverState         = vend.state
-            cACHReceiverZip           = vend.zip
+            cACHReceiverCity          = vend.r-city
+            cACHReceiverState         = vend.r-state
+            cACHReceiverZip           = vend.r-zip
             cACHReceiverABA           = STRING(vend.bank-rtn,"999999999")
             cACHReceiverAccountNumber = vend.bank-acct
             cACHDiscretionaryData     = vend.check-memo
-            cACHCanadianIndicator     = IF vend.country BEGINS "CA" THEN
+            cACHCanadianIndicator     = IF vend.r-country BEGINS "CA" THEN
                                             "C"
                                         ELSE
                                             ""

@@ -32,7 +32,6 @@ fgcat,~
 flute,~
 gl-ctrl,~
 gl-rpt,~
-gl-rptd,~
 item,~
 item-bom,~
 item-spec,~

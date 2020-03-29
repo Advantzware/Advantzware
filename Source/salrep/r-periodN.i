@@ -626,7 +626,8 @@
         and cust.cust-no eq tt-report.key-09
       no-lock:
 
-    tt-report.key-01 = cust.name.
+    tt-report.key-01 = cust.cust-no + cust.name.
+    tt-report.key-07 = cust.name.
 
   end.
 
@@ -655,7 +656,7 @@ ASSIGN dPerAmt = 0 .
       create w-sum.
       assign
        w-sum.cust-no = tt-report.key-09
-       w-sum.name    = tt-report.key-01.
+       w-sum.name    = tt-report.key-07.
     end.
 
 

@@ -29,3 +29,5 @@
 -d mdy              # Date format
 -yy 1950            # Year cutover for century
 -debugalert
+-numsep 44			# Use comma for thousands separator
+-numdec 46			# Use period for decimal separator

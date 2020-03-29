@@ -67,8 +67,6 @@ FOR EACH  oe-boll NO-LOCK
     
     CREATE ttBOLLine.
     ASSIGN
-        ttBOlLine.WarehouseID      = oe-boll.loc
-        ttBOlLine.LocationID       = oe-boll.loc-bin
         ttBOlLine.PrimaryID        = oe-boll.i-no
         ttBOlLine.InventoryStockID = oe-boll.tag
         ttBOlLine.ItemType         = cItemFG /* finished goods */
@@ -81,8 +79,8 @@ FOR EACH  oe-boll NO-LOCK
      
     RUN api\inbound\GetInventoryDetails.p (
         INPUT  oe-boll.company, /* Company */
-        INPUT  oe-boll.loc,     /* Location */
-        INPUT  oe-boll.loc-bin, /* Bin */
+        INPUT  "",              /* Location */
+        INPUT  "",              /* Bin */
         INPUT  oe-boll.tag,     /* Tag */
         INPUT  oe-boll.i-no,    /* Primary ID */
         INPUT  oe-boll.job-no,  /* Job Number */
@@ -104,7 +102,7 @@ FOR EACH  oe-boll NO-LOCK
     
     FOR EACH ttItem:
          
-        BUFFER-COPY ttItem EXCEPT ttItem.WarehouseID ttItem.LocationID ttItem.PrimaryID ttItem.InventoryStockID ttItem.ItemType TO ttBOLLine.
+        BUFFER-COPY ttItem EXCEPT ttItem.PrimaryID ttItem.InventoryStockID ttItem.ItemType TO ttBOLLine.
         
         /* Fetch Inventory Status */
         IF NOT lBOLPosted THEN DO:

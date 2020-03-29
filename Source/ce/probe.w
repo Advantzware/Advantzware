@@ -2664,7 +2664,7 @@ DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
 
 ASSIGN 
     iEstCostHeaderID = INT64(ipbf-probe.spare-char-2)
-    cOutputFile = SESSION:TEMP-DIRECTORY + ipbf-probe.spare-char-2 + ".xpr"
+    cOutputFile = SESSION:TEMP-DIRECTORY + TRIM(ipbf-probe.est-no) + ipbf-probe.probe-user + STRING(TIME) + ".xpr"
     .
 
 RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile, gcEstimateFormat, gcEstimateFont).

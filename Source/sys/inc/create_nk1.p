@@ -41,7 +41,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
-           + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig"
+           + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,"
+           + "RMReceiptRules,FGReceiptRules"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -411,7 +412,7 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Save Options for Cost Calc",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "SSBOLPassword" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "BOL password if tag scanned is not on the BOL and the driver scans a tag from a different job#",
@@ -833,7 +834,40 @@ CASE ip-nk1-value:
         INPUT "Configuration file for Check printing (JSON)",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
-             
+    WHEN "VendItemBrowse" THEN   
+    RUN sys/inc/addnk1.p (
+        INPUT cocode, 
+        INPUT ip-nk1-value, 
+        INPUT NO /* Prompt? */,
+        INPUT "Int val = # of records to load in the browse that meet desired criteria",
+        INPUT "" /* Char Value */, 
+        INPUT 25 /* Int value */,
+        INPUT NO /* Logical value */, 
+        INPUT 0 /* dec value*/
+        ). 
+    WHEN "RMReceiptRules" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                 /* Prompt? */
+            INPUT "RM Receipt Rules", /* Description */
+            INPUT "",                 /* Char Value */
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ). 
+    WHEN "FGReceiptRules" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                 /* Prompt? */
+            INPUT "FG Receipt Rules", /* Description */
+            INPUT "",                 /* Char Value */
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ).             
+                   
 END CASE.
 ELSE
 CASE ip-nk1-value:

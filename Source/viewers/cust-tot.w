@@ -53,7 +53,7 @@ DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -64,19 +64,21 @@ DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.ytd-sales cust.lyr-sales cust.cost[1] ~
-cust.cost[5] cust.cost[6] cust.comm[1] cust.comm[5] cust.comm[6] ~
-cust.ytd-msf cust.lyytd-msf cust.hibal cust.hibal-date cust.num-inv ~
-cust.lpay cust.lpay-date cust.avg-pay cust.ord-bal cust.acc-bal ~
-cust.on-account 
+&Scoped-Define ENABLED-FIELDS cust.ytd-sales cust.lyr-sales ~
+cust.accountType cust.cost[1] cust.cost[5] cust.cost[6] cust.splitType ~
+cust.parentCust cust.comm[1] cust.comm[5] cust.comm[6] cust.marketSegment ~
+cust.ytd-msf cust.lyytd-msf cust.naicsCode cust.hibal cust.hibal-date ~
+cust.num-inv cust.lpay cust.lpay-date cust.avg-pay cust.ord-bal ~
+cust.acc-bal cust.on-account 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS cust.ytd-sales cust.lyr-sales cust.cost[1] ~
-cust.cost[5] cust.cost[6] cust.comm[1] cust.comm[5] cust.comm[6] ~
-cust.ytd-msf cust.lyytd-msf cust.hibal cust.hibal-date cust.num-inv ~
-cust.lpay cust.lpay-date cust.avg-pay cust.ord-bal cust.acc-bal ~
-cust.on-account 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 
+&Scoped-Define DISPLAYED-FIELDS cust.ytd-sales cust.lyr-sales ~
+cust.accountType cust.cost[1] cust.cost[5] cust.cost[6] cust.splitType ~
+cust.parentCust cust.comm[1] cust.comm[5] cust.comm[6] cust.marketSegment ~
+cust.ytd-msf cust.lyytd-msf cust.naicsCode cust.hibal cust.hibal-date ~
+cust.num-inv cust.lpay cust.lpay-date cust.avg-pay cust.ord-bal ~
+cust.acc-bal cust.on-account 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS ptd-sales ptd-profit ytd-profit lyr-profit ~
@@ -163,8 +165,12 @@ DEFINE VARIABLE ytd-profit-pct AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0
      BGCOLOR 7 FGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 107 BY 13.81.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 42 BY 13.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -179,7 +185,7 @@ DEFINE FRAME F-Main
      cust.lyr-sales AT ROW 1.95 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4
+          BGCOLOR 15 FONT 4     
      cust.cost[1] AT ROW 3.14 COL 26 COLON-ALIGNED
           LABEL "Costs"
           VIEW-AS FILL-IN 
@@ -192,7 +198,7 @@ DEFINE FRAME F-Main
      cust.cost[6] AT ROW 3.14 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4
+          BGCOLOR 15 FONT 4      
      ptd-profit AT ROW 4.33 COL 26 COLON-ALIGNED
      ytd-profit AT ROW 4.33 COL 51 COLON-ALIGNED NO-LABEL
      lyr-profit AT ROW 4.33 COL 75 COLON-ALIGNED NO-LABEL
@@ -211,7 +217,7 @@ DEFINE FRAME F-Main
      cust.comm[6] AT ROW 6.71 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4
+          BGCOLOR 15 FONT 4      
      total-msf AT ROW 7.91 COL 26 COLON-ALIGNED HELP
           "Enter Total MSF"
      cust.ytd-msf AT ROW 7.91 COL 51 COLON-ALIGNED NO-LABEL
@@ -221,7 +227,7 @@ DEFINE FRAME F-Main
      cust.lyytd-msf AT ROW 7.95 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4
+          BGCOLOR 15 FONT 4     
      cust.hibal AT ROW 9.57 COL 26 COLON-ALIGNED
           LABEL "High Balance"
           VIEW-AS FILL-IN 
@@ -237,6 +243,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      cust.lpay AT ROW 10.76 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
@@ -264,20 +277,62 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     RECT-1 AT ROW 1 COL 1
-     "Period to Date" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 30
-     "Prior Year" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 81
+     cust.accountType AT ROW 2.86 COL 128 COLON-ALIGNED
+          HELP "Account type is used for sales reporting"
+          LABEL "Account Type" FORMAT "x(6)"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "","",
+                     "Split","S",
+                     "Originated","O",
+                     "Handed","H"
+          DROP-DOWN-LIST 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4 
+     cust.splitType AT ROW 4.24 COL 128 COLON-ALIGNED
+          HELP "Split type used for sales reporting"
+          LABEL "Split Type" FORMAT ">>9"
+          VIEW-AS COMBO-BOX INNER-LINES 10
+          LIST-ITEM-PAIRS "0","0",
+                     "1","1",
+                     "2","2",
+                     "3","3",
+                     "4","4",
+                     "5","5",
+                     "6","6",
+                     "7","7",
+                     "8","8",
+                     "9","9"                     
+          DROP-DOWN-LIST 
+          SIZE 6.8 BY 1
+          BGCOLOR 15 FONT 4 
+     cust.parentCust AT ROW 5.62 COL 128 COLON-ALIGNED
+          HELP "Master customer account"
+          LABEL "Parent Customer" FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 14.8 BY 1
+          BGCOLOR 15 FONT 4
+     cust.marketSegment AT ROW 7.05 COL 128 COLON-ALIGNED
+          HELP "Market segment for sales reporting"
+          LABEL "Market Segment" FORMAT "x(16)"
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
+          BGCOLOR 15 FONT 4
+     cust.naicsCode AT ROW 8.57 COL 128 COLON-ALIGNED
+          HELP "NAICS Code’, link to NaicsTable, Default = 999999"
+          LABEL "NAICS Code" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 FONT 4     
+     "Reporting Data" VIEW-AS TEXT
+          SIZE 21 BY 1.19 AT ROW 1.24 COL 125 WIDGET-ID 2
      "Year to Date" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 56
+     "Prior Year" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.24 COL 81
+     "Period to Date" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 30
+     RECT-1 AT ROW 1 COL 1
+     RECT-2 AT ROW 1 COL 108 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -335,11 +390,13 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cust.accountType IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.avg-pay IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.comm[1] IN FRAME F-Main
@@ -362,14 +419,22 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.lyr-sales IN FRAME F-Main
    4                                                                    */
+/* SETTINGS FOR FILL-IN cust.marketSegment IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN cust.naicsCode IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.num-inv IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN cust.parentCust IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ptd-profit IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ptd-profit-pct IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ptd-sales IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN cust.splitType IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN total-msf IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ytd-profit IN FRAME F-Main
@@ -396,6 +461,33 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+&Scoped-define SELF-NAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
+ON HELP OF FRAME F-Main
+DO:
+   def var lv-handle as handle no-undo.
+   def var char-val as cha no-undo.
+   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+
+   CASE Focus:name :
+     when "parentCust" then do:
+           RUN system/openlookup.p (cust.company, "cust-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = cMainField.               
+           return no-apply.  
+     end.
+     when "naicsCode" then do:
+          RUN system/openlookup.p (cust.company, "naics", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN focus:SCREEN-VALUE in frame {&frame-name} = cMainField.
+           return no-apply.  
+     end.     
+  end case.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME cust.cost[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.cost[1] V-table-Win
@@ -461,6 +553,36 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cust.parentCust
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.parentCust V-table-Win
+ON LEAVE OF cust.parentCust IN FRAME F-Main /* YTD Sales */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-cust(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cust.naicsCode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.naicsCode V-table-Win
+ON LEAVE OF cust.naicsCode IN FRAME F-Main /* YTD Sales */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-naics(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 
 &UNDEFINE SELF-NAME
@@ -573,6 +695,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/ 
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+     
+  RUN valid-cust(OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.
+  
+  RUN valid-naics(OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.
+            
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE lyytd-tot V-table-Win 
 PROCEDURE lyytd-tot :
 /*------------------------------------------------------------------------------
@@ -657,4 +805,70 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust V-table-Win 
+PROCEDURE valid-cust :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+  DEFINE BUFFER bf-cust FOR cust .
+  {methods/lValidateError.i YES}    
+
+  DO WITH FRAME {&frame-name}:
+    IF cust.parentCust:SCREEN-VALUE NE "" THEN do:
+          FIND FIRST bf-cust NO-LOCK
+               WHERE bf-cust.company EQ cust.company 
+                 AND bf-cust.cust-no EQ cust.parentCust:SCREEN-VALUE NO-ERROR .
+          IF AVAIL bf-cust AND bf-cust.active EQ "I" THEN DO: 
+             MESSAGE "Customer is Inactive. Try Help." VIEW-AS ALERT-BOX ERROR.
+             oplReturnError = TRUE .
+             APPLY "entry" TO cust.parentCust.
+          END.
+          IF NOT AVAIL bf-cust THEN DO:
+             MESSAGE "Customer is Invalid. Try Help." VIEW-AS ALERT-BOX ERROR.
+             oplReturnError = TRUE .
+             APPLY "entry" TO cust.parentCust. 
+          END.   
+    END.    
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-naics V-table-Win 
+PROCEDURE valid-naics :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+  DEFINE BUFFER bf-naics FOR naics .
+  {methods/lValidateError.i YES}    
+
+  DO WITH FRAME {&frame-name}:    
+          FIND FIRST bf-naics NO-LOCK
+               WHERE bf-naics.naicsID EQ cust.naicsCode:SCREEN-VALUE NO-ERROR .
+          IF AVAIL bf-naics AND bf-naics.inActive EQ YES THEN DO: 
+             MESSAGE "NACIS Code is Inactive. Try Help." VIEW-AS ALERT-BOX ERROR.
+             oplReturnError = TRUE .
+             APPLY "entry" TO cust.naicsCode.
+          END.
+          IF NOT AVAIL bf-naics THEN DO:
+             MESSAGE "NACIS Code is Invalid. Try Help." VIEW-AS ALERT-BOX ERROR.
+             oplReturnError = TRUE .
+             APPLY "entry" TO cust.naicsCode. 
+          END.        
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

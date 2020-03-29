@@ -107,62 +107,73 @@ PROCEDURE pZohoCRM:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiRows    AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE cAuthToken  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cConnection AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hWebService AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSalesSoap  AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lcAccounts  AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE iCnt        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lDone       AS LOGICAL   NO-UNDO.
-
-    RUN pGetAuthToken  (ipcCompany, OUTPUT cAuthToken).
-    IF cAuthToken EQ "" THEN
-    RETURN "Authorization Token Value is Blank".
+    DEFINE VARIABLE lcAccounts    AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE iCnt          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdZohoProcs   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cRefreshToken AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientSecret AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccessToken  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
-    RUN pGetConnection (ipcCompany, OUTPUT cConnection).
-    IF cConnection EQ "" THEN
-    RETURN "Web Service Connection is Blank".
+    lSuccess = YES.
     
-    CREATE SERVER hWebService.
-    hWebService:CONNECT(cConnection) NO-ERROR.
-    IF NOT hWebService:CONNECTED() THEN DO:
-        DELETE OBJECT hWebService.
-        RETURN "Web Service Connection Failed".
-    END.
-
-    RUN Service1Soap SET hSalesSoap ON hWebService.
+    RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    DO WHILE TRUE:
-        RUN HelpCrmZohoAcc IN hSalesSoap (
-            "Accounts",
-            "",
-            "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol,Phone,Billing Street,Billing Street 2,Billing City,Billing State,Billing Code)&fromIndex="
-          + STRING(iCnt + 1)
-          + "&toIndex="
-          + STRING(iCnt + 25)
-          + "&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
-            "getRecords",
-            cAuthToken,
-            OUTPUT lcAccounts
-            ).
-    
-        IF INDEX(STRING(lcAccounts),"<code>4422</code>") NE 0 THEN
-        RETURN "No Data Returned".
-    
-        OUTPUT TO "c:\temp\Accounts.xml".
-        PUT UNFORMATTED STRING(lcAccounts) SKIP.
-        OUTPUT CLOSE.
-        RUN pXML ("c:\temp\Accounts.xml", "Accounts").
+    RUN Zoho_GetRefreshToken IN hdZohoProcs (
+        INPUT  ipcCompany,
+        OUTPUT cRefreshToken
+        ).
         
-        FOR EACH ttCRMCustomers
-            WHERE ttCRMCustomers.tickerSymbol EQ ""
-            :
-            DELETE ttCRMCustomers.
-            lDone = YES.
-        END. /* each ttCRMCustomers */
-        IF lDone THEN LEAVE.
-        iCnt = iCnt + 25.
-    END. /* while true */
+    IF cRefreshToken EQ "" THEN
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
+        
+    RUN Zoho_GetClientID IN hdZohoProcs (
+        INPUT  ipcCompany,
+        OUTPUT cClientID
+        ).
+        
+    IF cClientID EQ "" THEN
+        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+
+    RUN Zoho_GetClientSecret IN hdZohoProcs (
+        INPUT  ipcCompany,
+        OUTPUT cClientSecret
+        ).
+        
+    IF cClientSecret EQ "" THEN
+        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+    
+     RUN Zoho_GetAccessToken IN hdZohoProcs (
+         INPUT  cRefreshToken,
+         INPUT  cClientID,
+         INPUT  cClientSecret,
+         OUTPUT cAccessToken,
+         OUTPUT lSuccess,
+         OUTPUT cMessage
+         ).
+     
+    IF cAccessToken EQ "" THEN
+        RETURN "AccessToken Value is Blank".
+ 
+    RUN Zoho_GetCustomers IN hdZohoProcs (
+        INPUT        cAccessToken,
+        OUTPUT TABLE ttCRMCustomers,
+        OUTPUT       lSuccess,
+        OUTPUT       cMessage
+        ) NO-ERROR.
+    
+    IF NOT lSuccess THEN
+        RETURN cMessage.                                                                                                                                                   
+    
+    FOR EACH ttCRMCustomers
+        WHERE ttCRMCustomers.tickerSymbol EQ "" 
+           OR ttCRMCustomers.tickerSymbol EQ "null":
+   
+        DELETE ttCRMCustomers.
+        
+    END. /* each ttCRMCustomers */
 
     FOR EACH ttCRMCustomers:
         opiRows = opiRows + 1.

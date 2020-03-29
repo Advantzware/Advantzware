@@ -32,6 +32,7 @@ DEFINE VARIABLE gcGlueMatTypes                        AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITIAL "I,V".
 DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
 DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
+DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
@@ -982,7 +983,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                 WHERE bf-mach.company EQ bf-est-op.company
                 AND bf-mach.m-code EQ bf-est-op.m-code 
                 BY bf-est-op.line:
-                IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
+                IF bf-mach.p-type EQ "B" OR bf-mach.p-type EQ "A" OR bf-mach.p-type EQ "P" THEN  /*Last machine before a blank fed*/
                     ASSIGN 
                         opbf-estCostOperation.isBlankMaker = YES
                         opbf-estCostOperation.outputType   = "B"
@@ -1292,8 +1293,10 @@ PROCEDURE pAddLeaf PRIVATE:
                 AND bf-estCostBlank.blankNo EQ ttLeaf.iBlankNo
                 NO-ERROR.
             IF AVAILABLE bf-estCostBlank THEN 
-                ASSIGN 
-                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn
+                ASSIGN
+                    /*Only add Window Area if material is a Window - i.e. cut out*/ 
+                    bf-estCostBlank.blankAreaWindow    = IF CAN-DO(gcWindowMatTypes, bf-item.mat-type) THEN bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn ELSE 0
+                    //bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn
                     bf-estCostBlank.blankAreaNetWindow = bf-estCostBlank.blankArea - bf-estCostBlank.blankAreaWindow
                     ttLeaf.estBlankID                  = bf-estCostBlank.estCostBlankID
                     .
@@ -1704,6 +1707,14 @@ PROCEDURE pBuildProbe PRIVATE:
                 bf-probe.tot-lbs  = bf-probe.tot-lbs + estCostForm.grossQtyRequiredTotalArea * 1000 //Refactor - assumes Area is MSF
                 .
         END.    
+        FOR EACH estCostBlank NO-LOCK 
+            WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            AND estCostBlank.formNo NE 0
+            :
+            ASSIGN 
+                bf-probe.bsf = bf-probe.bsf + estCostBlank.quantityPerSet * estCostBlank.blankArea  / 144 //Refactor - assumes area is SQIN.
+                .
+        END.
     END.
     ASSIGN 
         bf-probe.fact-cost    = ipbf-estCostHeader.costTotalFactory / dQtyInM
@@ -3067,6 +3078,11 @@ PROCEDURE pCalcEstMaterial PRIVATE:
             ipbf-estCostMaterial.costTotalPerMFinishedNoWaste    = ipbf-estCostMaterial.costTotalNoWaste / (ipbf-estCostForm.quantityFGOnForm / 1000)
             ipbf-estCostMaterial.costTotalPerMFinishedSetupWaste = ipbf-estCostMaterial.costTotalSetupWaste  / (ipbf-estCostForm.quantityFGOnForm / 1000)
             ipbf-estCostMaterial.costTotalPerMFinishedRunWaste   = ipbf-estCostMaterial.costTotalRunWaste / (ipbf-estCostForm.quantityFGOnForm / 1000)
+            .
+    ELSE 
+        ASSIGN 
+            ipbf-estCostMaterial.costPerUOM = 0
+            ipbf-estCostMaterial.costSetup = 0
             .        
     
 END PROCEDURE.
@@ -3615,7 +3631,10 @@ PROCEDURE pProcessPacking PRIVATE:
         AND bf-estCostBlank.estCostBlankID EQ ttPack.estBlankID:
         
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ttPack.cItemID, bf-estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
-        
+        ASSIGN 
+            dPalletsProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit * bf-estCostBlank.quantitySubUnitsPerUnit)
+            dCasesProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit)
+            . 
         CASE ttPack.cQtyMultiplier:
             WHEN "P" THEN 
                 bf-estCostMaterial.quantityRequiredNoWaste = dPalletsProRata * ttPack.dQtyMultiplier.

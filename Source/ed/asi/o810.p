@@ -161,7 +161,7 @@ PROCEDURE edi-ar.ip:
         v-shipto-city    = ar-inv.sold-city
         v-shipto-state   = ar-inv.sold-state
         v-shipto-zip     = ar-inv.sold-zip
-        v-ShipTo-code    = ar-inv.sold-id.
+        v-ShipTo-code    = IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id.
     FIND FIRST cust NO-LOCK 
         WHERE cust.company EQ ar-inv.company
           AND cust.cust-no EQ ar-inv.cust-no
@@ -170,10 +170,10 @@ PROCEDURE edi-ar.ip:
         cCustCountry = cust.country.        
     FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
         AND shipto.cust-no EQ ar-inv.cust-no
-        AND shipto.ship-id EQ ar-inv.sold-id
+        AND shipto.ship-id EQ IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id
         NO-ERROR.
     IF AVAILABLE shipto THEN 
-        ASSIGN v-shipto-code    = ar-inv.sold-id
+        ASSIGN v-shipto-code    = IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id
             v-shipto-name    = shipto.ship-name
             v-shipto-addr[1] = shipto.ship-addr[1]
             v-shipto-addr[2] = shipto.ship-addr[2]
@@ -638,7 +638,7 @@ PROCEDURE edi-010.ip:
                     bystore.city  = inv-head.sold-city
                     bystore.state = inv-head.sold-state
                     bystore.zip   = inv-head.sold-zip
-                    by_code       = inv-head.sold-no
+                    by_code       = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to
                     .
             ELSE IF AVAILABLE ar-inv THEN ASSIGN
                         bystore.name  = ar-inv.sold-name
@@ -647,7 +647,7 @@ PROCEDURE edi-010.ip:
                         bystore.city  = ar-inv.sold-city
                         bystore.state = ar-inv.sold-state
                         bystore.zip   = ar-inv.sold-zip        
-                        by_code       = ar-inv.sold-id
+                        by_code       = IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id
                         .
             IF v-shipto-name NE "" THEN 
                 ASSIGN 
@@ -1350,7 +1350,7 @@ PROCEDURE edi-oe.ip:
         v-shipto-city    = inv-head.sold-city
         v-shipto-state   = inv-head.sold-state
         v-shipto-zip     = inv-head.sold-zip
-        v-ShipTo-code    = inv-head.sold-no.
+        v-ShipTo-code    = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
     FIND FIRST cust NO-LOCK 
       WHERE cust.company EQ inv-head.company
         AND cust.cust-no EQ inv-head.cust-no
@@ -1359,10 +1359,10 @@ PROCEDURE edi-oe.ip:
       cCustCountry = cust.country.
     FIND FIRST shipto NO-LOCK WHERE shipto.company EQ inv-head.company
         AND shipto.cust-no EQ inv-head.cust-no
-        AND shipto.ship-id EQ inv-head.sold-no
+        AND shipto.ship-id EQ IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to
         NO-ERROR.
     IF AVAILABLE shipto THEN 
-        ASSIGN v-shipto-code    = inv-head.sold-no
+        ASSIGN v-shipto-code    = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to
             v-shipto-name    = shipto.ship-name
             v-shipto-addr[1] = shipto.ship-addr[1]
             v-shipto-addr[2] = shipto.ship-addr[2]

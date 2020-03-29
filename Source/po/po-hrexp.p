@@ -36,8 +36,8 @@ DEF VAR v-line AS CHAR NO-UNDO.
 DEF VAR li-style AS INT NO-UNDO.
 DEFINE VARIABLE iNumericAdder AS INTEGER NO-UNDO.
 DEFINE VARIABLE cAssignedCustId AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iAdderCount AS INTEGER.
-
+DEFINE VARIABLE iAdderCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE iTempAdder AS INTEGER NO-UNDO.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -281,17 +281,16 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             WHERE reftable.reftable EQ "util/b-hrms-x.w"
               AND reftable.company  EQ xitem.company
               AND reftable.code2    EQ xitem.i-no
-            NO-LOCK:
-          DEFINE VAR iTempAdder AS INT.
-          iTempAdder = INT(reftable.code) NO-ERROR.
-          IF NOT ERROR-STATUS:ERROR THEN 
-             v-adder[i] = STRING(INT(reftable.code),"9999").
-
-          ASSIGN
-           i          = i + 1
-           .
-             
-          IF i GE 6 THEN LEAVE.
+            NO-LOCK:          
+              ASSIGN
+                  i          = i + 1
+              .
+              
+              iTempAdder = INT(reftable.code) NO-ERROR.
+              IF NOT ERROR-STATUS:ERROR THEN 
+                 v-adder[i] = STRING(INT(reftable.code),"9999").
+                 
+              IF i GE 6 THEN LEAVE.
         END.
       END.
     END.

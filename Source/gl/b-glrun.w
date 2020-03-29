@@ -65,7 +65,7 @@ DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glhist.tr-num tt-glhist.actnum tt-glhist.jrnl tt-glhist.tr-dscr tt-glhist.tr-amt tt-glhist.tr-date   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glhist.tr-num tt-glhist.actnum tt-glhist.jrnl tt-glhist.tr-dscr tt-glhist.tr-amt tt-glhist.tr-date tt-glhist.createdBy tt-glhist.createdDate tt-glhist.posted   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH tt-glhist, ~
@@ -153,6 +153,9 @@ DEFINE BROWSE br_table
       tt-glhist.tr-dscr LABEL "Reference"   FORMAT "x(40)"
       tt-glhist.tr-amt  LABEL "Amount"
       tt-glhist.tr-date LABEL "Date"
+      tt-glhist.createdBy LABEL "Created By" 
+      tt-glhist.createdDate LABEL "Created Date"
+      tt-glhist.posted LABEL "Posted"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 18.57

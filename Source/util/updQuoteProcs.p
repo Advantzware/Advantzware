@@ -16,23 +16,24 @@ PROCEDURE UpdateExpireDate:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprRowID AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCostPart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustPart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtNewExpire AS DATE NO-UNDO.
     DEFINE VARIABLE lCheckPartNo AS LOGICAL NO-UNDO .
     DEFINE BUFFER bf-quoteitm FOR quoteitm .  
 
     FIND FIRST quotehd EXCLUSIVE-LOCK
-              WHERE rowid(quotehd) EQ iprRowID NO-ERROR .
-    IF AVAILABLE quotehd THEN do:                   
+              WHERE ROWID(quotehd) EQ iprRowID NO-ERROR .
+    IF AVAILABLE quotehd THEN DO:                   
         lCheckPartNo = NO .
         FOR EACH bf-quoteitm NO-LOCK
             WHERE bf-quoteitm.company EQ quotehd.company
               AND bf-quoteitm.q-no EQ  quotehd.q-no
-              AND bf-quoteitm.part-no NE ipcCostPart
+              AND bf-quoteitm.part-no NE ipcCustPart
               AND bf-quoteitm.cust-no EQ quotehd.cust-no :
             lCheckPartNo = YES .
         END.
         IF NOT lCheckPartNo THEN
-            ASSIGN quotehd.expireDate = TODAY .
+            ASSIGN quotehd.expireDate = ipdtNewExpire .
     END.
     FIND CURRENT quotehd NO-LOCK NO-ERROR .
 
@@ -44,6 +45,8 @@ PROCEDURE UpdateExpireCustFGItem:
          Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprRowID AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtNewExpire AS DATE NO-UNDO.
+    
     FIND FIRST quoteitm NO-LOCK
         WHERE ROWID(quoteitm) EQ iprRowID NO-ERROR .
     IF AVAILABLE quoteitm THEN 
@@ -57,7 +60,7 @@ PROCEDURE UpdateExpireCustFGItem:
             AND cust.cust-no NE "" NO-ERROR .
 
         IF AVAILABLE cust AND cust.ACTIVE EQ "I" AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) THEN
-            ASSIGN quotehd.expireDate = TODAY .
+            ASSIGN quotehd.expireDate = ipdtNewExpire .
 
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ quoteitm.company
@@ -65,7 +68,7 @@ PROCEDURE UpdateExpireCustFGItem:
             AND itemfg.i-no NE "" NO-ERROR .
 
         IF AVAILABLE itemfg AND itemfg.stat EQ "I" AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) THEN
-            ASSIGN quotehd.expireDate = TODAY .
+            ASSIGN quotehd.expireDate = ipdtNewExpire .
 
         FIND CURRENT quotehd NO-LOCK NO-ERROR .
     END.
@@ -76,7 +79,9 @@ PROCEDURE UpdateExpireDate_allQuote:
          Purpose: Public wrapper procedure to update Expire Date
          Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprRowID AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtNewExpire AS DATE NO-UNDO.
+    
     DEFINE BUFFER bf-quotehd  FOR quotehd .
     DEFINE BUFFER bf-quoteitm FOR quoteitm .
 
@@ -99,11 +104,11 @@ PROCEDURE UpdateExpireDate_allQuote:
             BY bf-quotehd.quo-date:
             IF NOT LAST(bf-quotehd.quo-date) AND (bf-quotehd.expireDate GT TODAY OR bf-quotehd.expireDate EQ ?) THEN 
             DO:                    
-                RUN UpdateExpireDate(rowid(bf-quotehd),bf-quoteitm.part-no) .
+                RUN UpdateExpireDate(ROWID(bf-quotehd),bf-quoteitm.part-no, ipdtNewExpire) .
             END.
             ELSE IF LAST(bf-quotehd.quo-date) THEN 
                 DO:                 
-                    RUN UpdateExpireCustFGItem (ROWID(bf-quoteitm)) .
+                    RUN UpdateExpireCustFGItem (ROWID(bf-quoteitm), ipdtNewExpire) .
                 END.
         END.
     END.

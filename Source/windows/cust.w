@@ -317,7 +317,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'BrwsCustomers|View Customer|Ship To|Sold To|Totals|Pricing|Credit Status' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'BrwsCustomers|View Customer|Ship To|Sold To|Totals/Sales|Pricing|Credit Status' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -557,7 +557,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-cstshp ).
-       RUN set-position IN h_p-cstshp ( 24.00 , 31.00 ) NO-ERROR.
+       RUN set-position IN h_p-cstshp ( 24.80 , 31.00 ) NO-ERROR.
        RUN set-size IN h_p-cstshp ( 1.67 , 92.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -672,7 +672,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust-5 ).
-       RUN set-position IN h_cust-5 ( 5.29 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_cust-5 ( 5.29 , 6.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 107.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -680,7 +680,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_cust-tot ).
-       RUN set-position IN h_cust-tot ( 7.43 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_cust-tot ( 7.43 , 6.00 ) NO-ERROR.
        /* Size in UIB:  ( 13.81 , 107.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

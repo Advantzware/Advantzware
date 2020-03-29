@@ -28,6 +28,7 @@ DEF VAR lPurge AS LOG NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cocode AS CHAR NO-UNDO.
 DEF VAR locode AS CHAR NO-UNDO.
+DEF VAR lVerbose AS LOG NO-UNDO.
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -146,6 +147,10 @@ PROCEDURE pPurgeJob PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+&Scoped-define ACTION DELETE
+&Scoped-define DBNAME ASI
+&Scoped-define TABLENAME job
+
     DEF INPUT PARAMETER iprRowid AS ROWID.
     DEF OUTPUT PARAMETER oplSuccess AS LOG INITIAL TRUE.
     DEF OUTPUT PARAMETER opcMessage AS CHAR INITIAL "OK".
@@ -160,7 +165,7 @@ PROCEDURE pPurgeJob PRIVATE:
     DISABLE TRIGGERS FOR LOAD OF mat-act.        
     DISABLE TRIGGERS FOR LOAD OF mch-act.        
     DISABLE TRIGGERS FOR LOAD OF misc-act.        
-    DISABLE TRIGGERS FOR LOAD OF job.
+/*    DISABLE TRIGGERS FOR LOAD OF job.*/
     DISABLE TRIGGERS FOR LOAD OF reftable.
 
     DO TRANSACTION:
@@ -448,11 +453,13 @@ PROCEDURE PrePurge:
     ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
     DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
+    DEF INPUT PARAMETER iplVerbose AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
     
     ASSIGN 
-        lPurge = FALSE.
+        lPurge = FALSE
+        lVerbose = iplVerbose.
     
     CASE ipcTable:
         WHEN "job" THEN RUN pPurgeJob (iprRowid, OUTPUT oplSuccess, OUTPUT opcMessage).
@@ -477,11 +484,13 @@ PROCEDURE Purge:
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
     DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
+    DEF INPUT PARAMETER iplVerbose AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
     
     ASSIGN 
-        lPurge = TRUE.
+        lPurge = TRUE
+        lVerbose = iplVerbose.
     
     CASE ipcTable:
         WHEN "job" THEN RUN pPurgeJob (iprRowid, OUTPUT oplSuccess, OUTPUT opcMessage).
@@ -617,15 +626,17 @@ FUNCTION pfWriteLine RETURNS LOGICAL PRIVATE
     END.
     ELSE 
     DO:
-        ASSIGN 
-            cOutline = cTime + "   " + cAction + cTable + " WHERE ".
-        DO iCtr = 1 TO NUM-ENTRIES(cNames,"|"):
+        IF lVerbose THEN DO:
             ASSIGN 
-                cOutline = cOutline + ENTRY(iCtr,cNames,"|") + "=" + ENTRY(iCtr,cData,"|") + " AND ".
-        END.
-        ASSIGN 
-            cOutline = SUBSTRING(cOutline, 1, LENGTH(cOutline) - 5) + ".".
-        PUT STREAM listfile UNFORMATTED cOutline + CHR(10).
+                cOutline = cTime + "   " + cAction + cTable + " WHERE ".
+            DO iCtr = 1 TO NUM-ENTRIES(cNames,"|"):
+                ASSIGN 
+                    cOutline = cOutline + ENTRY(iCtr,cNames,"|") + "=" + ENTRY(iCtr,cData,"|") + " AND ".
+            END.
+            ASSIGN 
+                cOutline = SUBSTRING(cOutline, 1, LENGTH(cOutline) - 5) + ".".
+            PUT STREAM listfile UNFORMATTED cOutline + CHR(10).
+        END. 
     END.
          
     RETURN TRUE.

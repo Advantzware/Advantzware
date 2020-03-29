@@ -86,83 +86,103 @@ FOR EACH ttInputEst NO-LOCK:
           est-qty.eqty   = ttInputEst.iQuantity
           est-qty.qty[1] = ttInputEst.iQuantity .
           est-qty.qty[21] = ttInputEst.copy-rel[1] .
-
+          IF ttInputEst.copy-runship[1] EQ "Yes" OR ttInputEst.copy-runship[1] EQ "No" THEN 
+             est-qty.whsed[1] = logical(ttInputEst.copy-runship[1]) NO-ERROR .
           IF ttInputEst.copy-qty[2] GT 0 THEN
             ASSIGN
               est-qty.qty[2] = ttInputEst.copy-qty[2] 
-              est-qty.qty[22] = ttInputEst.copy-rel[2].
+              est-qty.qty[22] = ttInputEst.copy-rel[2]
+              est-qty.whsed[2] = logical(ttInputEst.copy-runship[2]).
           IF ttInputEst.copy-qty[3] GT 0 THEN
             ASSIGN 
               est-qty.qty[3] = ttInputEst.copy-qty[3]
-              est-qty.qty[23] = ttInputEst.copy-rel[3]  .
+              est-qty.qty[23] = ttInputEst.copy-rel[3]
+              est-qty.whsed[3] = logical(ttInputEst.copy-runship[3]).
           IF ttInputEst.copy-qty[4] GT 0 THEN
             ASSIGN
                est-qty.qty[4] = ttInputEst.copy-qty[4] 
-               est-qty.qty[24] = ttInputEst.copy-rel[4].
+               est-qty.qty[24] = ttInputEst.copy-rel[4]
+               est-qty.whsed[4] = logical(ttInputEst.copy-runship[4]).
           IF ttInputEst.copy-qty[5] GT 0 THEN
             ASSIGN
               est-qty.qty[5] = ttInputEst.copy-qty[5]
-              est-qty.qty[25] = ttInputEst.copy-rel[5] .
+              est-qty.qty[25] = ttInputEst.copy-rel[5] 
+              est-qty.whsed[5] = logical(ttInputEst.copy-runship[5]).
           IF ttInputEst.copy-qty[6] GT 0 THEN
             ASSIGN
               est-qty.qty[6] = ttInputEst.copy-qty[6] 
-              est-qty.qty[26] = ttInputEst.copy-rel[6].
+              est-qty.qty[26] = ttInputEst.copy-rel[6]
+              est-qty.whsed[6] = logical(ttInputEst.copy-runship[6]).
           IF ttInputEst.copy-qty[7] GT 0 THEN
             ASSIGN
               est-qty.qty[7] = ttInputEst.copy-qty[7] 
-              est-qty.qty[27] = ttInputEst.copy-rel[7] .
+              est-qty.qty[27] = ttInputEst.copy-rel[7]
+              est-qty.whsed[7] = logical(ttInputEst.copy-runship[7]).
           IF ttInputEst.copy-qty[8] GT 0 THEN
             ASSIGN
               est-qty.qty[8] = ttInputEst.copy-qty[8] 
-              est-qty.qty[28] = ttInputEst.copy-rel[8] .
+              est-qty.qty[28] = ttInputEst.copy-rel[8]
+              est-qty.whsed[8] = logical(ttInputEst.copy-runship[8]).
           IF ttInputEst.copy-qty[9] GT 0 THEN
             ASSIGN
               est-qty.qty[9] = ttInputEst.copy-qty[9] 
-              est-qty.qty[29] = ttInputEst.copy-rel[9].
+              est-qty.qty[29] = ttInputEst.copy-rel[9]
+              est-qty.whsed[9] = logical(ttInputEst.copy-runship[9]).
           IF ttInputEst.copy-qty[10] GT 0 THEN
              ASSIGN
               est-qty.qty[10] = ttInputEst.copy-qty[10] 
-               est-qty.qty[30] = ttInputEst.copy-rel[10].
+               est-qty.qty[30] = ttInputEst.copy-rel[10]
+               est-qty.whsed[10] = logical(ttInputEst.copy-runship[10]).
           IF ttInputEst.copy-qty[11] GT 0 THEN
             ASSIGN
               est-qty.qty[11] = ttInputEst.copy-qty[11] 
-              est-qty.qty[31] = ttInputEst.copy-rel[11] .
+              est-qty.qty[31] = ttInputEst.copy-rel[11]
+              est-qty.whsed[11] = logical(ttInputEst.copy-runship[11]).
           IF ttInputEst.copy-qty[12] GT 0 THEN
             ASSIGN
               est-qty.qty[12] = ttInputEst.copy-qty[12] 
-              est-qty.qty[32] = ttInputEst.copy-rel[12].
+              est-qty.qty[32] = ttInputEst.copy-rel[12]
+              est-qty.whsed[12] = logical(ttInputEst.copy-runship[12]).
           IF ttInputEst.copy-qty[13] GT 0 THEN
             ASSIGN
               est-qty.qty[13] = ttInputEst.copy-qty[13] 
-              est-qty.qty[33] = ttInputEst.copy-rel[13].
+              est-qty.qty[33] = ttInputEst.copy-rel[13]
+              est-qty.whsed[13] = logical(ttInputEst.copy-runship[13]).
           IF ttInputEst.copy-qty[14] GT 0 THEN
             ASSIGN
               est-qty.qty[14] = ttInputEst.copy-qty[14] 
-              est-qty.qty[34] = ttInputEst.copy-rel[14].
+              est-qty.qty[34] = ttInputEst.copy-rel[14]
+              est-qty.whsed[14] = logical(ttInputEst.copy-runship[14]).
           IF ttInputEst.copy-qty[15] GT 0 THEN
             ASSIGN
               est-qty.qty[15] = ttInputEst.copy-qty[15] 
-              est-qty.qty[35] = ttInputEst.copy-rel[15].
+              est-qty.qty[35] = ttInputEst.copy-rel[15]
+              est-qty.whsed[15] = logical(ttInputEst.copy-runship[15]).
           IF ttInputEst.copy-qty[16] GT 0 THEN
             ASSIGN
               est-qty.qty[16] = ttInputEst.copy-qty[16]
-              est-qty.qty[36] = ttInputEst.copy-rel[16]  .
+              est-qty.qty[36] = ttInputEst.copy-rel[16] 
+              est-qty.whsed[16] = logical(ttInputEst.copy-runship[16]).
           IF ttInputEst.copy-qty[17] GT 0 THEN
             ASSIGN
               est-qty.qty[17] = ttInputEst.copy-qty[17] 
-              est-qty.qty[37] = ttInputEst.copy-rel[17].
+              est-qty.qty[37] = ttInputEst.copy-rel[17]
+              est-qty.whsed[17] = logical(ttInputEst.copy-runship[17]).
           IF ttInputEst.copy-qty[18] GT 0 THEN
             ASSIGN
               est-qty.qty[18] = ttInputEst.copy-qty[18] 
-              est-qty.qty[38] = ttInputEst.copy-rel[18] .
+              est-qty.qty[38] = ttInputEst.copy-rel[18]
+              est-qty.whsed[18] = logical(ttInputEst.copy-runship[18]).
           IF ttInputEst.copy-qty[19] GT 0 THEN
             ASSIGN
               est-qty.qty[19] = ttInputEst.copy-qty[19] 
-              est-qty.qty[39] = ttInputEst.copy-rel[19] .
+              est-qty.qty[39] = ttInputEst.copy-rel[19]
+              est-qty.whsed[19] = logical(ttInputEst.copy-runship[19]).
           IF ttInputEst.copy-qty[20] GT 0 THEN
              ASSIGN
               est-qty.qty[20] = ttInputEst.copy-qty[20] 
-              est-qty.qty[40] = ttInputEst.copy-rel[20] .
+              est-qty.qty[40] = ttInputEst.copy-rel[20]
+              est-qty.whsed[20] = logical(ttInputEst.copy-runship[20]).
      END.
     
 

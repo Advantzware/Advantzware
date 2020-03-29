@@ -922,17 +922,6 @@ procedure gl-ctrl_rec_key:
       rec_key.table_name = "gl-ctrl".
   end.
 end procedure.
-run gl-freq_rec_key.
-procedure gl-freq_rec_key:
-  for each gl-freq exclusive:
-    create rec_key.
-    assign
-      gl-freq.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-
-      rec_key.rec_key = gl-freq.rec_key
-      rec_key.table_name = "gl-freq".
-  end.
-end procedure.
 run gl-jrn_rec_key.
 procedure gl-jrn_rec_key:
   for each gl-jrn exclusive:

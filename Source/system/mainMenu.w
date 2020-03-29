@@ -95,6 +95,7 @@ DEFINE VARIABLE iThisVersion      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iTickerInterval   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iProfileStartTime AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSaveBgColor      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lAdmin            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCloseMenu        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lEulaAccepted     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
@@ -102,7 +103,6 @@ DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lOK               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUpgradeAvail     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserExit         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lViewTaskResults  AS LOGICAL   NO-UNDO INITIAL ?.
 
@@ -145,7 +145,7 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters menuTreeFilter btnMoveDown btnMoveUp ~
+&Scoped-define searchFilters btnMoveDown menuTreeFilter btnMoveUp ~
 searchSelections btnRemove btnFavorite svFavoriteText 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -172,6 +172,8 @@ DEFINE SUB-MENU m_Help
        MENU-ITEM m_SysCtrl_Usage LABEL "SysCtrl Usage" 
        MENU-ITEM m_Profiler     LABEL "Start/Stop Profiler"
        MENU-ITEM m_Advantzware_Version LABEL "Advantzware Version"
+       RULE
+       MENU-ITEM m_CheckUpgrade_Advantzware LABEL "Check/Upgrade Advantzware"
        RULE
        MENU-ITEM m_Exit         LABEL "Exit"          .
 
@@ -386,10 +388,10 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 68 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 98 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 91
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "User ID:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 91
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 61
      boxes AT ROW 8.62 COL 57
@@ -437,13 +439,13 @@ DEFINE FRAME menuTreeFrame
 DEFINE FRAME searchFrame
      BtnFavorites AT ROW 1 COL 1 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
      btnMoveDown AT ROW 5.76 COL 1 HELP
           "Move Favorite Down" WIDGET-ID 58
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
      btnMoveUp AT ROW 3.38 COL 1 HELP
           "Move Favorite Up" WIDGET-ID 56
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
      searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
      btnRemove AT ROW 4.57 COL 1 HELP
           "Remove Favorite" WIDGET-ID 26
@@ -1159,21 +1161,7 @@ DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
 &ELSE
-    IF lUpgradeAvail THEN DO:
-        MESSAGE 
-            "A system update is available.  Would you like to install it now?" SKIP 
-            "(Choosing 'Yes' will close this window and open the download" SKIP 
-            "page in your web browser.  The download page will have further" skip
-            "instructions for installing and applying the upgrade.)" 
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdate AS LOG.
-        IF lUpdate THEN DO:            
-            OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
-            QUIT.
-        END.
-    END.
-    ELSE DO:
-        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
-    END.
+    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
 &ENDIF
 END.
 
@@ -1205,6 +1193,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME m_CheckUpgrade_Advantzware
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_CheckUpgrade_Advantzware MAINMENU
+ON CHOOSE OF MENU-ITEM m_CheckUpgrade_Advantzware /* Check/Upgrade Advantzware */
+DO:
+    RUN pCheckUpgradeAdvantzware.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME m_Exit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Exit MAINMENU
 ON CHOOSE OF MENU-ITEM m_Exit /* Exit */
@@ -1220,8 +1219,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Profiler MAINMENU
 ON CHOOSE OF MENU-ITEM m_Profiler /* Start/Stop Profiler */
 DO:
-        RUN pOnOffProfiler.
- END.
+    RUN pOnOffProfiler.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1365,8 +1364,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF lfound THEN
         iTickerInterval = INTEGER(cTickerInterval).
     END. /* if found */
-    IF iTickerInterval EQ 0 THEN
-    iTickerInterval = 1.
+/*    IF iTickerInterval EQ 0 THEN*/
+/*    iTickerInterval = 1.        */
     RUN spGetSessionParam ("PSTimer", OUTPUT cDebug).
     chCtrlFrame:PSTimer:Interval = IF cDebug NE "" THEN 0
                                    ELSE iTickerInterval * 1000.
@@ -1457,7 +1456,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList btnMoveUp 
+  ENABLE BtnFavorites btnMoveDown menuTreeFilter btnMoveUp favoritesList 
          searchSelections btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
@@ -1536,6 +1535,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpgradeAdvantzware MAINMENU 
+PROCEDURE pCheckUpgradeAdvantzware :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE upgradeLink   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVersion      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hSalesSoap    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hWebService   AS HANDLE    NO-UNDO.
+
+    IF lAdmin THEN DO:
+        RUN sys/ref/nk1look.p (
+            g_company,"ASIHelpService","C",NO,NO,"","",
+            OUTPUT cHelpService,OUTPUT lFound
+            ).
+        CREATE SERVER hWebService.
+        hWebService:CONNECT(cHelpService) NO-ERROR.
+        IF hWebService:CONNECTED() THEN DO:
+            RUN Service1Soap SET hSalesSoap ON hWebService .
+            RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
+            ASSIGN
+                cThisVer     = "{&awversion}"
+                iThisVersion = fIntVer(cThisVer)
+                iLastVersion = fIntVer(cVersion)
+                .
+            IF iLastVersion GT iThisVersion THEN DO:
+                RUN sys/ref/nk1look.p (
+                    g_company,"MENULINKUPGRADE","DS",NO,NO,"","",
+                    OUTPUT upgradeLink,OUTPUT lFound
+                    ).
+                OS-COMMAND NO-WAIT START VALUE(upgradeLink).
+                QUIT.
+            END. /* different version */
+            ELSE
+            RUN displayMessage ("24").
+        END. /* if connected */
+        ELSE
+        RUN displayMessage ("24").
+    END. /* if user admin */
+    ELSE
+    RUN displayMessage ("23").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetFavorites MAINMENU 
 PROCEDURE pGetFavorites :
 /*------------------------------------------------------------------------------
@@ -1561,8 +1610,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMenuSettings MAINMENU
-PROCEDURE pGetMenuSettings:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMenuSettings MAINMENU 
+PROCEDURE pGetMenuSettings :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1570,13 +1619,7 @@ PROCEDURE pGetMenuSettings:
     DEFINE VARIABLE cNK1Value     AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hWebService   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSalesSoap    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cVersion      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCanProfile   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO. 
@@ -1756,59 +1799,11 @@ PROCEDURE pGetMenuSettings:
             ).         
        
         IF NOT lCanProfile THEN
-            MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.             
-        IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
-            RUN sys/ref/nk1look.p (
-                g_company,"ASIHelpService","C",NO,NO,"","",
-                OUTPUT cHelpService,OUTPUT lFound
-                ).
-            CREATE SERVER hWebService.
-            hWebService:CONNECT(cHelpService) NO-ERROR.
-            IF hWebService:CONNECTED() THEN DO:
-                RUN Service1Soap SET hSalesSoap ON hWebService .
-                RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                ASSIGN
-                    cThisVer     = "{&awversion}"
-                    iLastVersion = fIntVer(cVersion)
-                    iThisVersion = fIntVer(cThisVer)
-                    .                                   .
-                IF iLastVersion GT iThisVersion THEN DO:
-                    lUpgradeAvail = TRUE.
-                    RUN sys/ref/nk1look.p (
-                        g_company,"MENULINKUPGRADE","C",NO,NO,"","",
-                        OUTPUT cNK1Value[1],OUTPUT lFound
-                        ).
-                    RUN sys/ref/nk1look.p (
-                        g_company,"MENULINKUPGRADE","DS",NO,NO,"","",
-                        OUTPUT cNK1Value[2],OUTPUT lFound
-                        ).
-                    RUN sys/ref/nk1look.p (
-                        g_company,"MENULINKUPGRADE","I",NO,NO,"","",
-                        OUTPUT cNK1Value[3],OUTPUT lFound
-                        ).
-                    RUN sys/ref/nk1look.p (
-                        g_company,"MENULINKUPGRADE","L",NO,NO,"","",
-                        OUTPUT cNK1Value[4],OUTPUT lFound
-                        ).
-                    IF SEARCH(cNK1Value[1]) NE ? AND
-                       cNK1Value[2] NE "" THEN DO:
-                        ASSIGN
-                            menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
-                            menuLinkZoHo:HIDDEN         = NO
-                            menuLinkZoHo:SENSITIVE      = YES
-                            menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
-                            menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
-                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available. Click to download."
-                            .
-                        menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
-                    END. /* if avail */
-                END. /* different version */
-            END. /* if connected */
-        END. /* if user admin */
+        MENU-item m_Profiler:SENSITIVE IN MENU m_help = FALSE.             
     END. /* with frame */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

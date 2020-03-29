@@ -31,6 +31,8 @@ DEFINE VARIABLE gcResponseHandler  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcRequestVerb      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcClientID         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcAPIID            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glSaveFile         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcSaveFileFolder   AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcCommandResult   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCommand         AS CHARACTER NO-UNDO.
@@ -42,9 +44,14 @@ DEFINE VARIABLE gcSuccess         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAPIConfigFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdOSProcs         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-RUN system/OSProcs.p PERSISTENT SET hdOSProcs.
+DEFINE VARIABLE hdOSProcs         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs    AS HANDLE    NO-UNDO.
+
+RUN system/OSProcs.p       PERSISTENT SET hdOSProcs.
+RUN system/FileSysProcs.p  PERSISTENT SET hdFileSysProcs.
 
 ASSIGN
     gcParentProgram = ipcParentProgram
@@ -68,6 +75,8 @@ FOR FIRST APIOutbound NO-LOCK
         gcResponseHandler  = APIOutbound.responseHandler
         gcAPIID            = APIOutbound.apiID
         glAPIConfigFound   = YES
+        glSaveFile         = APIOutbound.saveFile
+        gcSaveFileFolder   = APIOutbound.saveFileFolder
         .
 END.
 
@@ -143,7 +152,19 @@ END.
 /* Put Request Data from a variable into a Temporary file */
 COPY-LOB glcRequestData TO FILE gcRequestFile.
 
-/* execute CURL command with required parameters to call the API */
+IF glSaveFile THEN DO:
+        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+        INPUT  gcSaveFileFolder,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    
+    IF lSuccess THEN 
+        OS-COPY VALUE (gcRequestFile) VALUE (gcSaveFileFolder).
+          
+END.    
+
+/* execute CURL command with requiredif  parameters to call the API */
 RUN OS_RunCommand IN hdOSProcs (
     INPUT  gcCommand,             /* Command string to run */
     INPUT  gcResponseFile,        /* File name to write the command output */

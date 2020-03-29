@@ -37,11 +37,19 @@ DEFINE VARIABLE gdDecimalFactor  AS DECIMAL   NO-UNDO INITIAL 6.25.
 DEFINE VARIABLE gcPanelLinkTypePO       AS CHARACTER NO-UNDO INITIAL "P".
 DEFINE VARIABLE gcPanelLinkTypeEstimate AS CHARACTER NO-UNDO INITIAL "E".
 DEFINE VARIABLE gcPanelLinkTypeStyle    AS CHARACTER NO-UNDO INITIAL "S".
+DEFINE VARIABLE gcValidPanelDecimals    AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
+DO iIndex = 0 TO 63:
+    gcValidPanelDecimals = gcValidPanelDecimals + "," + SUBSTRING(STRING(iIndex / 64), 1, 3).    
+END.
 
+gcValidPanelDecimals = TRIM(gcValidPanelDecimals).
 //RUN ProcessStyleFormula(ipcCompany, ipcFormula, ipdL, ipdW, ipdD, ipdG, ipdT, ipdK, ipdF, ipdB, ipdO, ipdI, OUTPUT opdCalculation).
 
 /* **********************  Internal Procedures  *********************** */
@@ -101,6 +109,68 @@ PROCEDURE CalculatePanels:
                                  OUTPUT ttPanel.dPanelSizeFromFormula).
         ttPanel.dPanelSize = ttPanel.dPanelSizeFromFormula + ttPanel.dScoringAllowance.
     END.
+END PROCEDURE.
+
+PROCEDURE GetSizeFactor:
+/*------------------------------------------------------------------------------
+ Purpose: Fetch the decimal factor from NK1 CECSCRN
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdSizeFactor AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSizeFormat AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplDecimalLog AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
+    
+    ASSIGN
+        opcSizeFormat = "Decimal"
+        opdSizeFactor = 1
+        oplDecimalLog = FALSE
+        .
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,     /* Company Code */ 
+        INPUT "CECSCRN",      /* sys-ctrl name */
+        INPUT "C",            /* Output return value */
+        INPUT NO,             /* Use ship-to */
+        INPUT NO,             /* ship-to vendor */
+        INPUT "",             /* ship-to vendor value */
+        INPUT "",             /* shi-id value */
+        OUTPUT cReturnChar, 
+        OUTPUT lRecFound
+        ).
+    
+    IF cReturnChar EQ "16th's" THEN
+        ASSIGN
+            opcSizeFormat = "16th's"
+            opdSizeFactor = 6.25
+            .
+    ELSE IF cReturnChar EQ "32nd's" THEN
+        ASSIGN
+            opcSizeFormat = "32nd's"
+            opdSizeFactor = 3.125
+            .
+    ELSE IF cReturnChar EQ "Decimal" THEN DO:
+        RUN sys/ref/nk1look.p (
+            INPUT ipcCompany,     /* Company Code */ 
+            INPUT "CECSCRN",      /* sys-ctrl name */
+            INPUT "L",            /* Output return value */
+            INPUT NO,             /* Use ship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cReturnChar, 
+            OUTPUT lRecFound
+            ).
+
+        ASSIGN
+            opcSizeFormat = "Decimal"
+            opdSizeFactor = 1
+            oplDecimalLog = LOGICAL(cReturnChar)
+            .
+    END.            
 END PROCEDURE.
 
 PROCEDURE GetPanelDetailsForEstimate:
@@ -749,6 +819,80 @@ PROCEDURE pCreatePanelDetail PRIVATE:
     RELEASE bf-panelDetail.
 END PROCEDURE.
 
+PROCEDURE SwitchPanelSizeFormat:
+/*------------------------------------------------------------------------------
+ Purpose: Converts the size format among 16th's, 32nd's and decimal
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCurrentSizeFormat  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSwitchToSizeFormat AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPanelSize          AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdPanelSize          AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE dCurrentSizeFactor  AS DECIMAL NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dSwitchToSizeFactor AS DECIMAL NO-UNDO INITIAL 1.
+    
+    opdPanelSize = ipdPanelSize.    
+    IF ipcCurrentSizeFormat EQ ipcSwitchToSizeFormat THEN
+        RETURN.
+    
+    IF ipcCurrentSizeFormat NE "16th's" AND
+       ipcCurrentSizeFormat NE "32nd's" AND
+       ipcCurrentSizeFormat NE "Decimal" THEN
+        RETURN.
+
+    IF ipcSwitchToSizeFormat NE "16th's" AND
+       ipcSwitchToSizeFormat NE "32nd's" AND
+       ipcSwitchToSizeFormat NE "Decimal" THEN
+        RETURN.
+
+    IF ipcCurrentSizeFormat EQ "16th's" THEN
+        dCurrentSizeFactor = 6.25.
+    ELSE IF ipcCurrentSizeFormat EQ "32nd's" THEN
+        dCurrentSizeFactor = 3.125.
+    ELSE IF ipcCurrentSizeFormat EQ "Decimal" THEN
+        dCurrentSizeFactor = 1.
+    
+    IF ipcSwitchToSizeFormat EQ "16th's" THEN
+        dSwitchToSizeFactor = 6.25.
+    ELSE IF ipcSwitchToSizeFormat EQ "32nd's" THEN
+        dSwitchToSizeFactor = 3.125.
+    ELSE IF ipcSwitchToSizeFormat EQ "Decimal" THEN
+        dSwitchToSizeFactor = 1.
+    
+    ASSIGN
+        opdPanelSize = TRUNCATE(ipdPanelSize,0) + ((ipdPanelSize - TRUNCATE(ipdPanelSize,0)) * dCurrentSizeFactor)
+        opdPanelSize = TRUNCATE(opdPanelSize,0) + ((opdPanelSize - TRUNCATE(opdPanelSize,0)) / dSwitchToSizeFactor)
+        .
+    
+END PROCEDURE.
+
+PROCEDURE SwitchPanelSizeFormatForttPanel:
+/*------------------------------------------------------------------------------
+ Purpose: Converts the ttPanel records as per input size format
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCurrentSizeFormat  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcSwitchToSizeFormat AS CHARACTER NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER TABLE                 FOR ttPanel.
+
+    FOR EACH ttPanel:
+        RUN SwitchPanelSizeFormat (
+            INPUT  ipcCurrentSizeFormat,
+            INPUT  ipcSwitchToSizeFormat,
+            INPUT  ttPanel.dPanelSize,
+            OUTPUT ttPanel.dPanelSize
+            ).
+
+        RUN SwitchPanelSizeFormat (
+            INPUT  ipcCurrentSizeFormat,
+            INPUT  ipcSwitchToSizeFormat,
+            INPUT  ttPanel.dScoringAllowance,
+            OUTPUT ttPanel.dScoringAllowance
+            ).
+    END.
+END PROCEDURE.
+
 PROCEDURE UpdatePanelDetailsForEstimate:
 /*------------------------------------------------------------------------------
  Purpose: Updates/Creates panelHeader and panelDetail records for a given Estimate
@@ -854,7 +998,7 @@ PROCEDURE UpdatePanelDetailsForPO:
     IF AVAILABLE bf-panelHeader THEN DO:
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            RUN pUpdatePanelHeader (
+            RUN pUpdatePanelDetail (
                 INPUT  bf-panelHeader.company,
                 INPUT  bf-panelHeader.panelHeaderID,
                 INPUT  ttPanel.cPanelType,
@@ -916,7 +1060,7 @@ PROCEDURE UpdatePanelDetailsForStyle:
     IF AVAILABLE bf-panelHeader THEN DO:
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            RUN pUpdatePanelHeader (
+            RUN pUpdatePanelDetail (
                 INPUT  bf-panelHeader.company,
                 INPUT  bf-panelHeader.panelHeaderID,
                 INPUT  ttPanel.cPanelType,
@@ -931,5 +1075,52 @@ PROCEDURE UpdatePanelDetailsForStyle:
     END.
             
     RELEASE bf-panelHeader. 
+END PROCEDURE.
+
+PROCEDURE ValidatePanelSize:
+/*------------------------------------------------------------------------------
+ Purpose: Validate the size of the panel given a size format 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdInput       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSizeFormat  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplDecimalFlag AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE dDecimalValue      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cInputDecimalValue AS CHARACTER NO-UNDO.
+    
+    IF ipcSizeFormat EQ "Decimal" THEN
+        dDecimalValue = 1.
+    ELSE IF ipcSizeFormat EQ "16th's" THEN
+        dDecimalValue = 0.16.
+    ELSE IF ipcSizeFormat EQ "32nd's" THEN
+        dDecimalValue = 0.32.
+
+    IF ipdInput - TRUNCATE(ipdInput,0) GE dDecimalValue THEN DO:
+        ASSIGN
+            opcMessage = "Can not have more than " + STRING(dDecimalValue - 0.01) + " as decimal"
+            oplSuccess = FALSE
+            .
+        RETURN.
+    END.
+
+    cInputDecimalValue = SUBSTRING(STRING(ipdInput - TRUNCATE(ipdInput, 0)), 1, 3).
+
+    IF iplDecimalFlag AND ipcSizeFormat EQ "Decimal" THEN DO:
+        IF LOOKUP(cInputDecimalValue, gcValidPanelDecimals) EQ 0 THEN DO:
+            ASSIGN
+                opcMessage = "Invalid dimension"
+                oplSuccess = FALSE
+                .            
+            RETURN.
+        END.
+    END.
+        
+    ASSIGN
+        opcMessage = "Success"
+        oplSuccess = TRUE
+        .  
 END PROCEDURE.
 

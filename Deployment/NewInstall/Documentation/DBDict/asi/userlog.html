@@ -15,7 +15,7 @@
   <script src="../stylechooser.js" type="text/javascript"></script>
   <script src="../dbchooser.js"    type="text/javascript"></script>
   <script src="../htmldict.js"     type="text/javascript"></script>
-  <title> Schema asi.userLog</title>
+  <title> Schema ASI.userLog</title>
 </head>
 
 <body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
@@ -35,8 +35,8 @@
     <td class="navbar" style="width:20%; text-align:right;"><a href="../htmldict.html"target="_top">HtmlDict 11</a></td>
   </tr>
 </table>
-<h1>asi.userLog</h1>
-<p>Tracks usre logins and logouts.</p>
+<h1>ASI.userLog</h1>
+<p>Tracks user logins and logouts.</p>
 <hr>
 <div class="clearboth">
   <div class="tbdetcol">
@@ -47,7 +47,7 @@
       <tr class="shadedrow"><th>Dumpname </th>
                             <td> userlog      </td></tr>
       <tr class="shadedrow"><th>Label    </th>     
-                            <td> ?      </td></tr>
+                            <td> User Log      </td></tr>
       <tr class="shadedrow"><th>Val.exp  </th>     
                             <td> ?      </td></tr>
       <tr class="shadedrow"><th>Val.msg  </th>     
@@ -95,6 +95,160 @@
     <th>Initial</th>
     <th>Mand</th>
     <th>Description</th>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>asiLimbo</td>
+    <td><a href="00-cross-a.html#asiLimbo"><small>X</small></a></td>
+    <td>ASI Limbo</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>230</td>
+    <td>asiLoginDtTm</td>
+    <td><a href="00-cross-a.html#asiLoginDtTm"><small>X</small></a></td>
+    <td>ASI Login DtTm</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>220</td>
+    <td>asiPID</td>
+    <td><a href="00-cross-a.html#asiPID"><small>X</small></a></td>
+    <td>ASI PID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>asiTTY</td>
+    <td><a href="00-cross-a.html#asiTTY"><small>X</small></a></td>
+    <td>ASI TTY</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>asiType</td>
+    <td><a href="00-cross-a.html#asiType"><small>X</small></a></td>
+    <td>ASI Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>asiUserID</td>
+    <td><a href="00-cross-a.html#asiUserID"><small>X</small></a></td>
+    <td>ASI UserID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>asiUsrNo</td>
+    <td><a href="00-cross-a.html#asiUsrNo"><small>X</small></a></td>
+    <td>ASI UsrNo</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>340</td>
+    <td>audLimbo</td>
+    <td><a href="00-cross-a.html#audLimbo"><small>X</small></a></td>
+    <td>AUD Limbo</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>300</td>
+    <td>audLoginDtTm</td>
+    <td><a href="00-cross-a.html#audLoginDtTm"><small>X</small></a></td>
+    <td>AUD Login DtTm</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>audPID</td>
+    <td><a href="00-cross-a.html#audPID"><small>X</small></a></td>
+    <td>AUD PID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>330</td>
+    <td>audTTY</td>
+    <td><a href="00-cross-a.html#audTTY"><small>X</small></a></td>
+    <td>AUD TTY</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>320</td>
+    <td>audType</td>
+    <td><a href="00-cross-a.html#audType"><small>X</small></a></td>
+    <td>AUD Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>310</td>
+    <td>audUserID</td>
+    <td><a href="00-cross-a.html#audUserID"><small>X</small></a></td>
+    <td>AUD UserID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>audUsrNo</td>
+    <td><a href="00-cross-a.html#audUsrNo"><small>X</small></a></td>
+    <td>AUD UsrNo</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
   </tr>
   <tr class="oddrow">
     <td>160</td>
@@ -163,6 +317,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>350</td>
+    <td>mode</td>
+    <td><a href="00-cross-m.html#mode"><small>X</small></a></td>
+    <td>Mode</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>190</td>
     <td>notifyAutoLogout</td>
     <td><a href="00-cross-n.html#notifyAutoLogout"><small>X</small></a></td>
@@ -173,7 +338,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>200</td>
     <td>notifyDisable</td>
     <td><a href="00-cross-n.html#notifyDisable"><small>X</small></a></td>
@@ -184,7 +349,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>180</td>
     <td>notifyLocked</td>
     <td><a href="00-cross-n.html#notifyLocked"><small>X</small></a></td>
@@ -192,6 +357,17 @@
     <td>logical</td>
     <td>yes/no</td>
     <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>360</td>
+    <td>processID</td>
+    <td><a href="00-cross-p.html#processID"><small>X</small></a></td>
+    <td>Process ID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -449,6 +625,182 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>210</td>
+    <td>asiUsrNo</td>
+    <td><a href="00-cross-a.html#asiUsrNo"><small>X</small></a></td>
+    <td>ASI UsrNo</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>220</td>
+    <td>asiPID</td>
+    <td><a href="00-cross-a.html#asiPID"><small>X</small></a></td>
+    <td>ASI PID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>230</td>
+    <td>asiLoginDtTm</td>
+    <td><a href="00-cross-a.html#asiLoginDtTm"><small>X</small></a></td>
+    <td>ASI Login DtTm</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>asiUserID</td>
+    <td><a href="00-cross-a.html#asiUserID"><small>X</small></a></td>
+    <td>ASI UserID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>250</td>
+    <td>asiType</td>
+    <td><a href="00-cross-a.html#asiType"><small>X</small></a></td>
+    <td>ASI Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>260</td>
+    <td>asiTTY</td>
+    <td><a href="00-cross-a.html#asiTTY"><small>X</small></a></td>
+    <td>ASI TTY</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>270</td>
+    <td>asiLimbo</td>
+    <td><a href="00-cross-a.html#asiLimbo"><small>X</small></a></td>
+    <td>ASI Limbo</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>280</td>
+    <td>audUsrNo</td>
+    <td><a href="00-cross-a.html#audUsrNo"><small>X</small></a></td>
+    <td>AUD UsrNo</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>audPID</td>
+    <td><a href="00-cross-a.html#audPID"><small>X</small></a></td>
+    <td>AUD PID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>300</td>
+    <td>audLoginDtTm</td>
+    <td><a href="00-cross-a.html#audLoginDtTm"><small>X</small></a></td>
+    <td>AUD Login DtTm</td>
+    <td>datetime</td>
+    <td>99/99/9999 HH:MM:SS.SSS</td>
+    <td>?</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>310</td>
+    <td>audUserID</td>
+    <td><a href="00-cross-a.html#audUserID"><small>X</small></a></td>
+    <td>AUD UserID</td>
+    <td>character</td>
+    <td>x(16)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>320</td>
+    <td>audType</td>
+    <td><a href="00-cross-a.html#audType"><small>X</small></a></td>
+    <td>AUD Type</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>330</td>
+    <td>audTTY</td>
+    <td><a href="00-cross-a.html#audTTY"><small>X</small></a></td>
+    <td>AUD TTY</td>
+    <td>character</td>
+    <td>x(24)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>340</td>
+    <td>audLimbo</td>
+    <td><a href="00-cross-a.html#audLimbo"><small>X</small></a></td>
+    <td>AUD Limbo</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>350</td>
+    <td>mode</td>
+    <td><a href="00-cross-m.html#mode"><small>X</small></a></td>
+    <td>Mode</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>360</td>
+    <td>processID</td>
+    <td><a href="00-cross-p.html#processID"><small>X</small></a></td>
+    <td>Process ID</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -547,7 +899,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 25-10-2018 10:20</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 27-3-2020 12:01</small></i></td></tr>
 </table>
 </body>
 </html>

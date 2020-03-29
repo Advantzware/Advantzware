@@ -181,20 +181,20 @@ PROCEDURE GetFreightForCarrierZone:
                 ASSIGN 
                     dCostMultiplier = ipdTotalWeight / 100
                     dQtyToLookup    = ipdTotalWeight
-                    opcMessage      = "Freight Calculated from carrier charge based on total weight of " + STRING(ipdTotalWeight,">>,>>>,>>9.99")
+                    opcMessage      = "Freight Calculated from carrier charge based on total weight of " + STRING(ipdTotalWeight,"->>,>>>,>>9.99")
                     .
                 
             WHEN "P" THEN 
                 ASSIGN 
                     dCostMultiplier = ipdTotalPallets
                     dQtyToLookup    = ipdTotalPallets
-                    opcMessage      = "Freight Calculated from carrier charge based on total pallets of " + STRING(ipdTotalPallets,">>,>>>,>>9")
+                    opcMessage      = "Freight Calculated from carrier charge based on total pallets of " + STRING(ipdTotalPallets,"->>,>>>,>>9")
                     .
             OTHERWISE /*MSF*/
             ASSIGN 
                 dCostMultiplier = ipdTotalMSF
                 dQtyToLookup    = ipdTotalMSF
-                opcMessage      = "Freight Calculated from carrier charge based on total MSF of " + STRING(ipdTotalMSF,">>,>>>,>>9.99")
+                opcMessage      = "Freight Calculated from carrier charge based on total MSF of " + STRING(ipdTotalMSF,"->>,>>>,>>9.99")
                 .
         END CASE. 
         IF dCostMultiplier EQ ? THEN dCostMultiplier = 0.

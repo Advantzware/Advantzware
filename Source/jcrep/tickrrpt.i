@@ -101,8 +101,16 @@ for each job-hdr NO-LOCK
           AND (tb_app-unprinted EQ NO OR
               (tb_app-unprinted AND job.pr-printed = NO AND
                job.opened = YES AND job.cs-to-pr = YES))
-          NO-LOCK:
-
+          NO-LOCK 
+          BREAK BY job-hdr.job-no
+                BY job-hdr.job-no2 :
+         /* Trigger Outbound API to send Job XML */        
+    IF lExportXML AND (FIRST-OF(job-hdr.job-no) OR FIRST-OF(job-hdr.job-no2)) THEN 
+        RUN pCallOutboundAPI(
+            BUFFER job,
+            INPUT reprint
+            ) NO-ERROR. 
+        
     IF tb_prompt-ship THEN
     DO:
       FIND CURRENT job-hdr EXCLUSIVE-LOCK NO-ERROR.      

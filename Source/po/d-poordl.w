@@ -4037,7 +4037,9 @@ PROCEDURE getJobFarmInfo :
       
             ASSIGN 
                 po-ordl.cust-no:SCREEN-VALUE = lcCust-no
-                po-ordl.ord-qty:SCREEN-VALUE = STRING(bfJob-farm.qty, po-ordl.ord-qty:FORMAT).
+                po-ordl.ord-qty:SCREEN-VALUE = STRING(bfJob-farm.qty, po-ordl.ord-qty:FORMAT)
+                po-ordl.pr-qty-uom:SCREEN-VALUE = bfjob-farm.qty-uom
+                .
         END. /* avail bfJob-farm */
     END. /* do */
 

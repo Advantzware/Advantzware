@@ -23,7 +23,6 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 DEF OUTPUT PARAM op-copied AS LOG NO-UNDO.
 
 DEF BUFFER b-gl-rpt FOR gl-rpt.
-DEF BUFFER b-gl-rptd FOR gl-rptd.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -594,23 +593,6 @@ PROCEDURE run-process :
          b-gl-rpt.rpt     = new-rpt.
       END.
 
-      FOR EACH gl-rptd NO-LOCK
-          WHERE gl-rptd.company EQ gl-rpt.company
-            AND gl-rptd.rpt     EQ gl-rpt.rpt
-            AND gl-rptd.line    EQ gl-rpt.line:
-
-        IF NOT CAN-FIND(FIRST b-gl-rptd
-                        WHERE b-gl-rptd.company EQ end_company
-                          AND b-gl-rptd.rpt     EQ new-rpt
-                          AND b-gl-rptd.line    EQ gl-rptd.line
-                          AND b-gl-rptd.seq     EQ gl-rptd.seq) THEN DO:
-          CREATE b-gl-rptd.
-          BUFFER-COPY gl-rptd EXCEPT rec_key TO b-gl-rptd
-          ASSIGN
-           b-gl-rptd.company = end_company
-           b-gl-rptd.rpt     = new-rpt.
-        END.
-      END.
     END.
   END.
 

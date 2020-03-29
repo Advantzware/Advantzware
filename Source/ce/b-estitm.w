@@ -153,11 +153,13 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 
 {cec/tt-eb-set-part.i "new"}
 
-DEF VAR viEQtyPrev AS INT NO-UNDO.
-DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lAccessCreateFG AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -212,25 +214,25 @@ ef.f-col ef.f-pass ef.f-coat ef.f-coat-p eb.pur-man est.est-date
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br-estitm eb
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br-estitm ef
 &Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-br-estitm est
-&Scoped-define QUERY-STRING-br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
-  AND eb.est-no = est-qty.est-no NO-LOCK, ~
-      FIRST ef WHERE ef.company = eb.company ~
-  AND ef.est-no = eb.est-no ~
-  AND ef.eqty = est-qty.eqty ~
-  AND ef.form-no = eb.form-no NO-LOCK ~
+&Scoped-define QUERY-STRING-br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
+  AND ef.est-no = est-qty.est-no ~
+  AND ef.eqty = est-qty.eqty NO-LOCK, ~
+      EACH eb WHERE eb.company = ef.company ~
+  AND eb.est-no = ef.est-no ~
+  AND eb.form-no = ef.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no
-&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH eb WHERE eb.company = est-qty.company ~
-  AND eb.est-no = est-qty.est-no NO-LOCK, ~
-      FIRST ef WHERE ef.company = eb.company ~
-  AND ef.est-no = eb.est-no ~
-  AND ef.eqty = est-qty.eqty ~
-  AND ef.form-no = eb.form-no NO-LOCK ~
+&Scoped-define OPEN-QUERY-br-estitm OPEN QUERY br-estitm FOR EACH ef WHERE ef.company = est-qty.company ~
+  AND ef.est-no = est-qty.est-no ~
+  AND ef.eqty = est-qty.eqty NO-LOCK, ~
+      EACH eb WHERE eb.company = ef.company ~
+  AND eb.est-no = ef.est-no ~
+  AND eb.form-no = ef.form-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no.
-&Scoped-define TABLES-IN-QUERY-br-estitm eb ef
-&Scoped-define FIRST-TABLE-IN-QUERY-br-estitm eb
-&Scoped-define SECOND-TABLE-IN-QUERY-br-estitm ef
+&Scoped-define TABLES-IN-QUERY-br-estitm ef eb
+&Scoped-define FIRST-TABLE-IN-QUERY-br-estitm ef
+&Scoped-define SECOND-TABLE-IN-QUERY-br-estitm eb
 
 
 /* Definitions for FRAME Corr                                           */
@@ -304,8 +306,8 @@ FUNCTION display-cw-dim RETURNS DECIMAL
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br-estitm FOR 
-      eb, 
-      ef SCROLLING.
+      ef, 
+      eb SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -3116,7 +3118,7 @@ PROCEDURE custom-row-changed :
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(ef), ROWID(eb)).
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
@@ -3125,7 +3127,7 @@ PROCEDURE custom-row-changed :
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(ef), ROWID(eb)).
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
@@ -3949,8 +3951,43 @@ PROCEDURE local-assign-record :
       FIND CURRENT bff-itemfg NO-LOCK NO-ERROR .
   END.
   ASSIGN lCheckPurMan = NO .
-  IF adm-new-record AND eb.pur-man THEN RUN create-e-itemfg-vend.
-  ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN RUN update-e-itemfg-vend.
+  
+  IF adm-new-record AND eb.pur-man THEN DO:
+      RUN create-e-itemfg-vend.
+      RUN CreateVendItemCost(
+          INPUT cocode,    
+          INPUT eb.stock-no,      
+          INPUT eb.est-no,    
+          INPUT eb.form-no,    
+          INPUT eb.blank-no
+          ).
+  END.        
+
+  ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:
+     
+      IF cOldFGItem NE eb.stock-no THEN DO:
+          
+          RUN update-e-itemfg-vend.
+                   
+          IF CAN-FIND(FIRST vendItemCost
+                      WHERE vendItemCost.company    EQ cocode
+                        AND vendItemCost.ItemID     EQ cOldFGItem
+                        AND vendItemCost.estimateNo EQ eb.est-no
+                        AND vendItemCost.formNo     EQ eb.form-no
+                        AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
+                        
+              RUN UpdateVendItemCost(
+                  INPUT cocode,
+                  INPUT eb.est-no,
+                  INPUT eb.form-no,
+                  INPUT eb.blank-no,
+                  INPUT cOldFGItem, /* Old FG Item */
+                  INPUT eb.stock-no /* New FG Item */
+                  ).    
+      END.      
+      ELSE IF eb.eqty NE viEQtyPrev THEN 
+          RUN update-e-itemfg-vend.                         
+  END.    
 
   ll-new-shipto = NO.
   RUN valid-eb-reckey.
@@ -4180,6 +4217,20 @@ PROCEDURE local-delete-record :
     FIND bb WHERE ROWID(bb) EQ ROWID(eb) NO-ERROR.
     FIND bf WHERE ROWID(bf) EQ ROWID(ef) NO-ERROR.
     FIND best WHERE ROWID(best) EQ ROWID(est) NO-ERROR.
+    
+    IF CAN-FIND(FIRST vendItemCost
+            WHERE vendItemCost.company    EQ cocode
+              AND vendItemCost.ItemID     EQ bb.stock-no
+              AND vendItemCost.estimateNo EQ bb.est-no
+              AND vendItemCost.formNo     EQ bb.form-no
+              AND vendItemCost.blankNo    EQ bb.blank-no) THEN 
+    RUN DeleteVendItemCost (
+        INPUT cocode,    
+        INPUT bb.est-no,  
+        INPUT bb.stock-no,
+        INPUT bb.form-no, 
+        INPUT bb.blank-no
+        ).
 
     ll-dum = BROWSE {&browse-name}:DELETE-CURRENT-ROW().
 
@@ -4280,6 +4331,7 @@ PROCEDURE local-enable-fields :
   DEF BUFFER enable-eb FOR eb.
     
   /* Code placed here will execute PRIOR to standard behavior. */
+  cOldFGItem = eb.stock-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
   {custom/checkuse.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -4672,7 +4724,7 @@ PROCEDURE mass-delete :
   DEF VAR lv-delete AS CHAR NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
-
+  DEFINE BUFFER bf-ef FOR ef.
 
   RUN check-delete NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -4703,7 +4755,11 @@ PROCEDURE mass-delete :
         ).
     FOR EACH tt-eb 
         WHERE tt-eb.selected:
-        RUN repo-query (tt-eb.row-id).
+        FIND FIRST bf-ef NO-LOCK
+             WHERE bf-ef.company EQ tt-eb.company 
+               AND bf-ef.est-no  EQ tt-eb.est-no 
+               AND bf-ef.form-no EQ tt-eb.form-no NO-ERROR .
+        RUN repo-query (ROWID(bf-ef), tt-eb.row-id).
         IF AVAILABLE eb THEN 
             RUN dispatch ("delete-record").
     END.
@@ -5059,11 +5115,11 @@ PROCEDURE repo-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+    DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+    DEF INPUT PARAM ip-rowidEb AS ROWID NO-UNDO.
 
-  IF NOT AVAIL eb OR ROWID(eb) NE ip-rowid THEN DO WITH FRAME {&FRAME-NAME}:
-    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+  IF NOT AVAIL eb OR ROWID(eb) NE ip-rowidEb THEN DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid,ip-rowidEb NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
   END.
 
@@ -5424,72 +5480,31 @@ PROCEDURE update-e-itemfg-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
-   DEF BUFFER bf-e-itemfg FOR e-itemfg.
-   DEF VAR vcUOM AS cha NO-UNDO.
+   DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
+   DEFINE BUFFER e-itemfg-vend    FOR e-itemfg-vend.
 
-   IF est.est-type > 1 THEN DO: /* set est - copy for all forms*/
-       FOR EACH e-itemfg-vend
-                   WHERE e-itemfg-vend.company EQ eb.company
-                     AND e-itemfg-vend.est-no = eb.est-no
-                     AND e-itemfg-vend.eqty = eb.eqty.
-
-           DELETE e-itemfg-vend.
-       END.
-
-      FOR EACH e-itemfg-vend
-                   WHERE e-itemfg-vend.company EQ eb.company
-                     AND e-itemfg-vend.est-no = eb.est-no
-                     AND e-itemfg-vend.eqty = viEQtyPrev
-            /* AND e-itemfg-vend.form-no = eb.form-no
-             AND e-itemfg-vend.blank-no = eb.blank-no
-             AND e-itemfg-vend.i-no    EQ eb.stock-no*/
-            /*AND e-itemfg-vend.vend-no EQ ""*/  :
-
-       CREATE bf-e-itemfg-vend.
-       BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
-      
-       DELETE e-itemfg-vend.
-
-       
-
-       /*FIND FIRST bf-e-itemfg WHERE
-                 bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
-                 bf-e-itemfg.i-no EQ bf-e-itemfg-vend.i-no
-                 NO-LOCK NO-ERROR.
-
-       IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-     
-      END.
-   END.   /* end of set est */
-   ELSE FOR EACH e-itemfg-vend
-                   WHERE e-itemfg-vend.company EQ eb.company
-                     AND e-itemfg-vend.est-no = eb.est-no
-                     AND e-itemfg-vend.eqty = viEQtyPrev
-                     AND e-itemfg-vend.form-no = eb.form-no
-                     AND e-itemfg-vend.blank-no = eb.blank-no
-                     AND e-itemfg-vend.i-no    EQ eb.stock-no
-            /*AND e-itemfg-vend.vend-no EQ ""*/  :
-
-       CREATE bf-e-itemfg-vend.
-       BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
-       
-
-       DELETE e-itemfg-vend.
-
-       
-
-       /*FIND FIRST bf-e-itemfg WHERE
-                 bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
-                 bf-e-itemfg.i-no EQ bf-e-itemfg-vend.i-no
-                 NO-LOCK NO-ERROR.
-
-       IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       
-   END.
-
+    FOR EACH e-itemfg-vend NO-LOCK
+        WHERE e-itemfg-vend.company  EQ eb.company 
+          AND e-itemfg-vend.est-no   EQ eb.est-no
+          AND e-itemfg-vend.form-no  EQ eb.form-no
+          AND e-itemfg-vend.blank-no EQ eb.blank-no
+          AND e-itemfg-vend.i-no     EQ cOldFGItem:
+        FIND FIRST bf-e-itemfg-vend EXCLUSIVE-LOCK
+             WHERE bf-e-itemfg-vend.company  EQ e-itemfg-vend.company
+               AND bf-e-itemfg-vend.est-no   EQ e-itemfg-vend.est-no
+               AND bf-e-itemfg-vend.form-no  EQ e-itemfg-vend.form-no
+               AND bf-e-itemfg-vend.blank-no EQ e-itemfg-vend.blank-no
+               AND bf-e-itemfg-vend.i-no     EQ e-itemfg-vend.i-no
+            NO-ERROR.
+        IF AVAILABLE bf-e-itemfg-vend THEN DO:
+            ASSIGN 
+                bf-e-itemfg-vend.i-no = eb.stock-no
+                bf-e-itemfg-vend.eQty = IF bf-e-itemfg-vend.eQty NE eb.eQty THEN eb.eQty 
+                                        ELSE bf-e-itemfg-vend.eQty
+                .                                   
+        END.                 
+    END. 
+    RELEASE bf-e-itemfg-vend. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

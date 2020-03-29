@@ -17,6 +17,8 @@
     /* Allow user to force transactions to be on a different date */
     IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
         fg-rctd.rct-date = ipdtTransDate.
+    IF ipiTransTime NE ? AND ipiTransTime NE 0 THEN 
+        fg-rctd.trans-time = ipiTransTime.
 
     release b2-fg-bin.        
             
@@ -149,6 +151,8 @@
 
       create fg-rdtlh.      
       {fg/fg-rdtl.i fg-rdtlh {1}fg-rctd}
+      IF ipiTransTime NE ? AND ipiTransTime NE 0 THEN 
+        {1}fg-rctd.trans-time = ipiTransTime.
     end.
 
   create fg-rcpth.

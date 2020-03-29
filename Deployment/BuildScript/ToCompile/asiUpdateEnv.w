@@ -2593,6 +2593,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161401.
     IF fIntVer(cThisEntry) LT 16150000 THEN  
         RUN ipDataFix161500.
+    IF fIntVer(cThisEntry) LT 20010000 THEN  
+        RUN ipDataFix200100.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3039,6 +3041,56 @@ END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200100 C-Win
+PROCEDURE ipDataFix200100:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200100...").
+
+    DISABLE TRIGGERS FOR LOAD OF sys-ctrl.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
+    DISABLE TRIGGERS FOR LOAD OF userPwdHist.
+    DISABLE TRIGGERS FOR LOAD OF inventoryStatusType.
+
+/*  64833 Set by default to output Estimate data */
+    FOR EACH sys-ctrl WHERE 
+        sys-ctrl.name EQ "CECostSave":
+        ASSIGN 
+            sys-ctrl.log-fld = TRUE
+            sys-ctrl.int-fld = 0.
+    END. 
+     
+    /* 64504 Credit hold - Remove any change that turns off Credit Hold upon upgrade */
+    FOR EACH sys-ctrl WHERE 
+        sys-ctrl.name EQ "CreditHold":
+        ASSIGN 
+            sys-ctrl.log-fld = TRUE.
+    END. 
+    
+    /* 64876 - Encrypt passwords in userPwdHist */
+    FOR EACH userPwdHist:
+        IF userPwdHist.pwd NE ENCODE(userPwdHist.pwd) THEN ASSIGN 
+            userPwdHist.pwd = ENCODE(userPwdHist.pwd).
+    END.
+    
+    /* 64885 - Load inventoryStatusType data */
+    INPUT FROM VALUE(cUpdDataDir + "\inventoryStatusType.d") NO-ECHO.
+    REPEAT:
+        CREATE inventoryStatusType.
+        IMPORT inventoryStatusType.
+    END.
+    
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -4493,6 +4545,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadNaicsData C-Win
+PROCEDURE ipLoadNaicsData:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading NAICS Records").
+
+    &SCOPED-DEFINE tablename naics
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadNewUserData C-Win 
 PROCEDURE ipLoadNewUserData :
 /*------------------------------------------------------------------------------
@@ -4619,6 +4702,10 @@ PROCEDURE ipLoadOEAutoApproveNK1s:
                 ASSIGN
                     {&tablename}.company = company.company 
                     {&tablename}.log-fld = FALSE.
+                /* 64504 Remove any change that turns off CreditHold */
+                IF {&tablename}.name EQ "CreditHold" 
+                AND {&tablename}.log-fld EQ FALSE THEN ASSIGN 
+                    {&tablename}.log-fld = TRUE.
             END.
         END.
     END.
@@ -6040,6 +6127,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadZmessage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
         RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
+        RUN ipLoadNaicsData IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

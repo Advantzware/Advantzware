@@ -38,12 +38,14 @@ END PROCEDURE.
 PROCEDURE dynValAuditTable:
     {&defInputParam}    
     DEFINE VARIABLE cFieldLabel AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO INITIAL "All,All".
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lTables     AS LOGICAL   NO-UNDO.
 
     RUN pGetWidgetByName (iphWidget, "types", OUTPUT hWidget).
-    lTables = CAN-DO("LOG,TRACK",hWidget:SCREEN-VALUE) EQ NO.
+    ASSIGN
+        lTables = CAN-DO("LOG,TRACK",hWidget:SCREEN-VALUE) EQ NO
+        hWidget:LIST-ITEM-PAIRS = "All,All"
+        .
     RUN pGetWidgetByName (iphWidget, "fields", OUTPUT hWidget).
     IF lTables THEN
     FOR EACH ASI._file NO-LOCK
@@ -56,46 +58,37 @@ PROCEDURE dynValAuditTable:
         IF FIRST-OF(ASI._field._field-name) THEN DO:
             IF CAN-FIND(FIRST AuditHdr
                         WHERE AuditHdr.AuditDB    EQ "ASI"
-                          AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN 
-            ASSIGN
-                cFieldLabel = IF ASI._field._Label NE ? THEN ASI._field._Label ELSE ""
-                cFields     = cFields + ","
-                            + cFieldLabel + " ("
-                            + ASI._field._field-name  + "),"
-                            + ASI._field._field-name
-                            .
+                          AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO:
+                cFieldLabel = IF ASI._field._Label NE ? THEN ASI._field._Label ELSE "".
+                hWidget:ADD-LAST (cFieldLabel + " (" + ASI._field._field-name  + ")", ASI._field._field-name).
+            END. /* if can-find */
         END. /* if first-of */
     END. /* each _file */
-    ASSIGN
-        hWidget:LIST-ITEM-PAIRS = cFields
-        hWidget:SCREEN-VALUE    = "All"
-        .
+    hWidget:SCREEN-VALUE = "All".
     RETURN "".
 END PROCEDURE.
 
 PROCEDURE dynValAuditType:
     {&defInputParam}
     DEFINE VARIABLE cTableLabel AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTables     AS CHARACTER NO-UNDO INITIAL "All,All".
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lTables     AS LOGICAL   NO-UNDO.
     
     RUN pGetWidgetByName (iphWidget, "tables", OUTPUT hWidget).
-    lTables = CAN-DO("LOG,TRACK",iphWidget:SCREEN-VALUE) EQ NO.
+    ASSIGN
+        lTables = CAN-DO("LOG,TRACK",iphWidget:SCREEN-VALUE) EQ NO
+        hWidget:LIST-ITEM-PAIRS = "All,All"
+        .
     IF lTables THEN
     FOR EACH ASI._file NO-LOCK
         WHERE ASI._file._Tbl-type EQ "T"
         :
         IF CAN-FIND(FIRST AuditHdr
                     WHERE AuditHdr.AuditDB    EQ "ASI"
-                      AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN 
-        ASSIGN
-            cTableLabel = IF ASI._file._file-label NE ? THEN ASI._file._file-label ELSE ""
-            cTables     = cTables + ","
-                        + cTableLabel + " ("
-                        + ASI._file._file-name  + "),"
-                        + ASI._file._file-name
-                        .
+                      AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO:
+            cTableLabel = IF ASI._file._file-label NE ? THEN ASI._file._file-label ELSE "".
+            hWidget:ADD-LAST (cTableLabel + " (" + ASI._file._file-name  + ")", ASI._file._file-name).
+        END. /* if can-find */
     END. /* each _file */
     IF iphWidget:SCREEN-VALUE EQ "All" OR lTables EQ NO THEN
     FOR EACH prgrms NO-LOCK
@@ -105,17 +98,12 @@ PROCEDURE dynValAuditType:
         IF CAN-FIND(FIRST AuditHdr
                     WHERE AuditHdr.AuditDB    EQ "ASI"
                       AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN
-        cTables = cTables + "," + "["
+        hWidget:ADD-LAST ("["
                   + prgrms.mnemonic + "] "
                   + prgrms.prgTitle
-                  + " (" + prgrms.prgmname + "),"
-                  + prgrms.prgmname
-                  .
+                  + " (" + prgrms.prgmname + ")", prgrms.prgmname).
     END. /* each prgrms */
-    ASSIGN
-        hWidget:LIST-ITEM-PAIRS = cTables
-        hWidget:SCREEN-VALUE    = "All"
-        .
+    hWidget:SCREEN-VALUE = "All".
     RUN dynValAuditTable (hWidget).
     RETURN "".
 END PROCEDURE.
@@ -162,6 +150,15 @@ PROCEDURE dynValCustype:
         CAN-FIND(FIRST custype
                  WHERE custype.company EQ cCompany
                    AND custype.custype EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValEmployee:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST emp
+                 WHERE emp.company EQ cCompany
+                   AND emp.emp-id  EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 

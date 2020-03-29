@@ -1,4 +1,4 @@
-/* subjectID95Defs.i - auto generated 03.03.2020 @  6:41:10 pm */
+/* subjectID95Defs.i - auto generated 03.25.2020 @  7:38:46 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
@@ -17,6 +17,7 @@ DEFINE VARIABLE cStartFGItem AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStartFGItemDescriptn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndFGItem AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndFGItemDescriptn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIncludeZeroPricePer AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cProductCategoryList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSvRecipients AS CHARACTER NO-UNDO.
@@ -48,6 +49,7 @@ PROCEDURE pAssignParamVariables:
         cStartFGItemDescriptn = DYNAMIC-FUNCTION("fGetDynParamValue","startFGItemDescriptn")
         cEndFGItem = DYNAMIC-FUNCTION("fGetDynParamValue","endFGItem")
         cEndFGItemDescriptn = DYNAMIC-FUNCTION("fGetDynParamValue","endFGItemDescriptn")
+        lIncludeZeroPricePer = DYNAMIC-FUNCTION("fGetDynParamValue","IncludeZeroPricePer") EQ "YES"
         lCustList = DYNAMIC-FUNCTION("fGetDynParamValue","custList") EQ "YES"
         cProductCategoryList = DYNAMIC-FUNCTION("fGetDynParamValue","ProductCategoryList")
         cSvRecipients = DYNAMIC-FUNCTION("fGetDynParamValue","svRecipients")

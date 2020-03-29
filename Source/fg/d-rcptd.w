@@ -131,6 +131,29 @@ RUN methods/prgsecur.p
              OUTPUT lAllowUserOverRun, /* Allowed? Yes/NO */
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+             
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
+
+RUN po/POProcs.p    PERSISTENT SET hdPoProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
+                          
+DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "FGReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.             
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -959,6 +982,19 @@ DO:
         RUN valid-po-no (1) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+        IF glCheckClosedStatus THEN DO:       
+            RUN CheckPOLineStatus IN hdPoProcs(
+                INPUT cocode,
+                INPUT INTEGER(fg-rctd.po-no:SCREEN-VALUE),
+                INPUT INTEGER(fg-rctd.po-line:SCREEN-VALUE)
+                ) NO-ERROR.
+             
+            IF ERROR-STATUS:ERROR THEN DO:
+                APPLY "ENTRY":U TO fg-rctd.po-no.
+                RETURN NO-APPLY.
+            END.    
+        END.            
+
         IF NOT CAN-FIND(FIRST tt-fg-rctd WHERE tt-rowid EQ ROWID(fg-rctd)) THEN
             RUN update-ttt.
   
@@ -979,7 +1015,18 @@ DO:
         RUN valid-job-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    
-
+        IF glCheckClosedStatus THEN DO:         
+            RUN CheckJobStatus IN hdJobProcs(
+                INPUT cocode,
+                INPUT fg-rctd.job-no:SCREEN-VALUE,
+                INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE)
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN DO:
+                APPLY "ENTRY":U TO fg-rctd.job-no.
+                RETURN NO-APPLY. 
+            END.    
+        END.   
+        
         RUN valid-job-no2 NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         IF lv-prev-job2 <> fg-rctd.job-no2:SCREEN-VALUE  AND
@@ -1422,6 +1469,18 @@ ON LEAVE OF fg-rctd.job-no2 IN FRAME Dialog-Frame
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
+            IF glCheckClosedStatus THEN DO:         
+                RUN CheckJobStatus IN hdJobProcs(
+                    INPUT cocode,
+                    INPUT fg-rctd.job-no:SCREEN-VALUE,
+                    INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE)
+                    ) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN DO:
+                    APPLY "ENTRY":U TO fg-rctd.job-no.
+                    RETURN NO-APPLY.
+                END.     
+            END.
+            
             RUN valid-job-no2 NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1616,6 +1675,16 @@ DO:
 
             RUN valid-po-no (1) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+         
+            IF glCheckClosedStatus THEN DO:
+                RUN CheckPOLineStatus IN hdPoProcs(
+                    INPUT cocode,
+                    INPUT INTEGER(fg-rctd.po-no:SCREEN-VALUE),
+                    INPUT INTEGER(fg-rctd.po-line:SCREEN-VALUE)
+                    ) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                    RETURN NO-APPLY.
+            END.      
             IF lMultipleAdds THEN
                 APPLY "WINDOW-CLOSE":U TO FRAME {&FRAME-NAME}.
         END.
@@ -2027,6 +2096,12 @@ PROCEDURE create-from-po :
                 fg-rctd.ext-cost
                 fg-rctd.frt-cost
                 fg-rctd.po-line
+                fg-rctd.i-no
+                fg-rctd.i-name
+                fg-rctd.loc
+                fg-rctd.loc-bin
+                fg-rctd.qty-case
+                fg-rctd.cases-unit                 
                     WITH FRAME {&FRAME-NAME}.
             IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
             DO:
@@ -2045,13 +2120,15 @@ PROCEDURE create-from-po :
     lMultipleAdds = iCount GT 1.
 
     IF NOT ip-set-parts AND lMultipleAdds THEN RUN fg/invrecpt.p (rwRowid, 1).
-    
+      
     IF lMultipleAdds EQ NO AND op-rowid NE ? THEN do:
         FIND FIRST fg-rctd NO-LOCK
             WHERE ROWID(fg-rctd) EQ op-rowid
             NO-ERROR.
-        IF AVAIL fg-rctd THEN
+        IF AVAIL fg-rctd THEN do:
            fg-rctd.tag:SCREEN-VALUE IN FRAME {&frame-name} = fg-rctd.tag .
+           lv-item-recid = RECID(fg-rctd) .
+        END.
     END.
 END PROCEDURE.
 

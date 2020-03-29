@@ -178,6 +178,30 @@ RUN methods/prgsecur.p
 
 IF lAllowUserOverRun THEN ASSIGN iFGUnderOver = 0 .
 
+DEFINE VARIABLE hdPoProcs    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
+
+RUN po/POProcs.p    PERSISTENT SET hdPoProcs.
+RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
+                          
+DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "FGReceiptRules", /* sys-ctrl name */
+    INPUT "I",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cReturnValue, 
+    OUTPUT lRecFound
+    ). 
+ 
+ glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1072,6 +1096,19 @@ DO:
   IF LASTKEY NE -1 THEN DO:
 
     DEF VAR op-error AS LOG NO-UNDO.
+    
+    IF glCheckClosedStatus THEN DO:
+        RUN CheckJobStatus IN hdJobProcs(
+            INPUT cocode,
+            INPUT fg-rctd.job-no:SCREEN-VALUE  IN BROWSE {&BROWSE-NAME}, 
+            INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+            ) NO-ERROR.
+            
+        IF ERROR-STATUS:ERROR THEN DO:
+            APPLY "ENTRY":U TO fg-rctd.tag IN BROWSE {&BROWSE-NAME}.
+            RETURN NO-APPLY. 
+        END.
+    END.  
 
     RUN valid-job-no2(OUTPUT op-error).
     IF op-error THEN RETURN NO-APPLY.
@@ -1119,6 +1156,20 @@ DO:
 
      RUN valid-po-no (1,OUTPUT op-error).
      IF op-error THEN RETURN NO-APPLY.
+     
+     IF glCheckClosedStatus 
+         AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
+             
+         RUN CheckPOLineStatus IN hdPoProcs(
+             INPUT cocode,
+             INPUT INTEGER(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
+             INPUT loadtag.line
+             ) NO-ERROR.
+         IF ERROR-STATUS:ERROR THEN DO:
+             APPLY "ENTRY":U TO fg-rctd.tag IN BROWSE {&BROWSE-NAME}.
+             RETURN NO-APPLY.
+         END.    
+     END. 
   END.
 END.
 
@@ -2468,8 +2519,33 @@ PROCEDURE local-update-record :
   RUN valid-po-no (1,OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
   
+  IF glCheckClosedStatus AND fg-rctd.po-no:SCREEN-VALUE NE "" THEN DO:
+      RUN CheckPOLineStatus IN hdPoProcs(
+          INPUT cocode,
+          INPUT INTEGER(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
+          INPUT loadtag.line
+          ) NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN DO:
+          APPLY "ENTRY":U TO fg-rctd.tag IN BROWSE {&BROWSE-NAME}.
+          RETURN NO-APPLY.
+      END.    
+  END. 
+  
   RUN valid-job-no(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
+  
+  IF glCheckClosedStatus THEN DO:
+      RUN CheckJobStatus IN hdJobProcs(
+          INPUT cocode,
+          INPUT fg-rctd.job-no:SCREEN-VALUE  IN BROWSE {&BROWSE-NAME}, 
+          INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          ) NO-ERROR.
+          
+      IF ERROR-STATUS:ERROR THEN DO:
+          APPLY "ENTRY":U TO fg-rctd.tag IN BROWSE {&BROWSE-NAME}.
+          RETURN NO-APPLY. 
+      END.
+  END.  
 
   RUN valid-job-no2(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.

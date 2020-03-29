@@ -817,8 +817,25 @@ DO:
                 INPUT STRING(ROWID(oe-bolh))
                 ).
         END.
+        WHEN "SendJob" THEN DO:
+            FIND FIRST job NO-LOCK
+                 WHERE job.company EQ cCompany
+                   AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                   AND job.job-no2 EQ INTEGER(TRIM((ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))))
+                 NO-ERROR.
+            IF NOT AVAILABLE job THEN DO:
+                MESSAGE "Invalid Job Number"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.                
+            END. 
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "job",
+                INPUT STRING(ROWID(job))
+                ).                      
+        END.    
+        
     END CASE.
-
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,
         INPUT iAPIOutboundID,
@@ -974,13 +991,28 @@ DO:
                 OUTPUT lookupField, 
                 OUTPUT recVal
                 ).      
-        END.        
+        END.
+        WHEN "SendJob" THEN DO:  
+            RUN system/openlookup.p (
+                cCompany, 
+                "Job-no",            /* lookup field */
+                0,                   /* Subject ID */
+                "",                  /* User ID */
+                0,                   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ).       
+        END.    
     END CASE.
 
     IF lookupField NE "" THEN DO:
         IF fiAPIID:SCREEN-VALUE EQ "SendPurchaseOrderLineStatus" THEN
             fiPrimaryKey:SCREEN-VALUE = ENTRY(2,returnFields,"|") 
                                       + "-" + ENTRY(4,returnFields,"|").
+        ELSE IF fiAPIID:SCREEN-VALUE EQ "SendJob" THEN
+            fiPrimaryKey:SCREEN-VALUE = ENTRY(4,returnFields,"|")
+                                     + "-" + ENTRY(6,returnFields,"|").                            
         ELSE
             fiPrimaryKey:SCREEN-VALUE = ENTRY(1,lookupField).
         

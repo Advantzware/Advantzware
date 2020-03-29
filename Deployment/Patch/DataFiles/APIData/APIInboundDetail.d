@@ -3,7 +3,7 @@ PSC
 filename=APIInboundDetail
 records=0000000000000
 ldbname=ASI
-timestamp=2020/01/31-13:36:30
+timestamp=2020/03/27-11:55:48
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP

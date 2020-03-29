@@ -411,7 +411,7 @@ PROCEDURE local-open-query :
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN get-eb-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).
-      IF lv-rowid NE ? THEN RUN repo-query (lv-rowid).
+      IF lv-rowid NE ? THEN RUN repo-query (lv-frst-rowid2, lv-rowid).
     END.
   END.
 
@@ -450,13 +450,16 @@ PROCEDURE lookup-eb :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR rowid-val AS ROWID NO-UNDO.
+  DEF VAR rowid-valEF AS ROWID NO-UNDO.
 
-
-  rowid-val = ROWID(eb).
+  ASSIGN
+    rowid-val = ROWID(eb)
+    rowid-valEF = IF AVAILABLE ef THEN ROWID(ef) ELSE ?
+    .
 
   RUN windows/l-esteb.w (g_company, g_loc, est.est-no, INPUT-OUTPUT rowid-val).
 
-  RUN repo-query (rowid-val).
+  RUN repo-query (rowid-valEF, rowid-val).
 
 END PROCEDURE.
 
@@ -559,19 +562,19 @@ PROCEDURE repo-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER iprRowIDEF AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER iprRowIDEB AS ROWID NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
 
-  DEF VAR li AS INT NO-UNDO.
-  
+  DEF VAR li AS INT NO-UNDO.  
 
-  IF NOT AVAIL eb OR ROWID(eb) NE ip-rowid THEN DO:
+  IF NOT AVAIL eb OR ROWID(eb) NE iprRowIDEB THEN DO:
     RUN dispatch ('get-first':U).
     IF CAN-FIND(FIRST b-eb WHERE b-eb.company EQ est.company
                              AND b-eb.est-no  EQ est.est-no
-                             AND ROWID(b-eb)  EQ ip-rowid) THEN
-    DO WHILE AVAIL eb AND ROWID(eb) NE ip-rowid:
+                             AND ROWID(b-eb)  EQ iprRowIDEB) THEN
+    DO WHILE AVAIL eb AND ROWID(eb) NE iprRowIDEB:
       li = li + 1.
       IF li GT 200 THEN LEAVE.
       RUN dispatch ('get-next':U).

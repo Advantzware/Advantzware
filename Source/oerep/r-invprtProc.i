@@ -1314,7 +1314,7 @@ PROCEDURE build-list1:
                     OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
                    ) 
                AND ("{&head}" NE "ar-inv" 
-                    OR (tb_open-inv AND {&head}.{&due} GT 0 AND cInvoiceType EQ "ar-inv")
+                    OR (tb_open-inv AND {&head}.{&due} NE 0 AND cInvoiceType EQ "ar-inv")
                     OR ( NOT tb_open-inv AND cInvoiceType EQ "ar-inv")
                    ) 
                AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date

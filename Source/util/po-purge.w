@@ -39,6 +39,8 @@ assign
  locode = gloc.
 
 def var v-process as log no-undo.
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -303,7 +305,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
+  END.   
+  
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+  RUN epCanAccess IN hPgmSecurity ("util/po-purge.w", "", OUTPUT lResult).
+  DELETE OBJECT hPgmSecurity.
+  IF NOT lResult THEN DO:
+     MESSAGE "Access is denied." VIEW-AS ALERT-BOX .
+     APPLY "close" TO THIS-PROCEDURE.
+     RETURN .
   END.
+    
   RUN enable_UI.
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

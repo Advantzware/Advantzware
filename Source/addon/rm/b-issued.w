@@ -1097,13 +1097,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 DO:
-   IF LASTKEY NE -1 THEN DO:
-      IF INTEGER(SELF:SCREEN-VALUE) EQ 0 AND 
-          rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-        MESSAGE "Sheet # cannot be 0. Press F1 for help"
-          VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        RETURN NO-APPLY.
-      END.
+   IF LASTKEY NE -1 THEN DO:      
+      RUN valid-s-num NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
 END.
 
@@ -3362,9 +3358,41 @@ PROCEDURE valid-s-num :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lSetJob AS LOGICAL NO-UNDO .
+DEFINE BUFFER bf-job-hdr FOR job-hdr .
   DO WITH FRAME {&FRAME-NAME}:  
-    IF INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND 
-        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
+     ASSIGN
+       cJobNo = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+       cJobNo = FILL(" ",6 - LENGTH(TRIM(cJobNo))) + TRIM(cJobNo).
+
+      RELEASE bf-job-hdr.
+
+      FIND FIRST job
+          WHERE job.company EQ cocode
+            AND job.job-no  EQ cJobNo
+            AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          USE-INDEX job-no NO-LOCK NO-ERROR.
+
+      IF AVAIL job THEN
+      FIND FIRST bf-job-hdr
+          WHERE bf-job-hdr.company EQ job.company
+            AND bf-job-hdr.job     EQ job.job
+            AND bf-job-hdr.job-no  EQ job.job-no
+            AND bf-job-hdr.job-no2     EQ job.job-no2
+          NO-LOCK NO-ERROR.
+
+      IF AVAIL bf-job-hdr THEN DO:
+        FIND FIRST est
+            WHERE est.company EQ bf-job-hdr.company
+              AND est.est-no  EQ bf-job-hdr.est-no
+            NO-LOCK NO-ERROR.
+       IF AVAIL est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN 
+       lSetJob  = TRUE .
+      END.
+      
+    IF NOT lSetJob AND INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND 
+        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:                        
       MESSAGE "Sheet # may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
       RETURN ERROR.

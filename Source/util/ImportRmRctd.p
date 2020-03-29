@@ -82,9 +82,7 @@ PROCEDURE pProcessRecord PRIVATE:
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
     RUN pAssignValueC (ipbf-ttImportRmRctd.loc, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.loc).                                                   
     RUN pAssignValueC (ipbf-ttImportRmRctd.locBin, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.loc-bin).                                                   
-    RUN pAssignValueC (ipbf-ttImportRmRctd.tag, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.tag).                               
-    RUN pAssignValueD (ipbf-ttImportRmRctd.qty, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.qty).                                                   
-    RUN pAssignValueD (ipbf-ttImportRmRctd.cost, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost).                                                   
+    RUN pAssignValueC (ipbf-ttImportRmRctd.tag, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.tag).                                                        
     RUN pAssignValueC (ipbf-ttImportRmRctd.ritaCode, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.rita-code).                                       
     RUN pAssignValueI (ipbf-ttImportRmRctd.sNum, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.s-num).                                         
     RUN pAssignValueI (ipbf-ttImportRmRctd.bNum, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.b-num).                      
@@ -95,13 +93,45 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportRmRctd.poLine, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.po-line).                                         
     RUN pAssignValueC (ipbf-ttImportRmRctd.RmItem, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.i-no).                                 
     RUN pAssignValueC (ipbf-ttImportRmRctd.iName, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.i-name).                                       
-    RUN pAssignValueC (ipbf-ttImportRmRctd.purUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.pur-uom).                                 
-    RUN pAssignValueC (ipbf-ttImportRmRctd.costUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost-uom).                                   
     RUN pAssignValueCToDt (ipbf-ttImportRmRctd.rctDate, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.rct-date).                             
     RUN pAssignValueD (ipbf-ttImportRmRctd.diameter, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.diameter).                                 
     RUN pAssignValueD (ipbf-ttImportRmRctd.rollLf, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.roll-lf).                             
     RUN pAssignValueD (ipbf-ttImportRmRctd.rollWt, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.roll-wt).                                 
     RUN pAssignValueC (ipbf-ttImportRmRctd.enteredBy, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.enteredBy).
+    
+    FIND FIRST ITEM NO-LOCK
+       WHERE ITEM.company EQ ipbf-ttImportRmRctd.Company
+         AND ITEM.i-no EQ ipbf-ttImportRmRctd.RmItem NO-ERROR .
+    IF avail ITEM THEN DO:
+      IF ipbf-ttImportRmRctd.purUom NE item.cons-uom THEN
+      DO:
+         RUN sys/ref/convquom.p(ipbf-ttImportRmRctd.purUom, item.cons-uom,
+                          item.basis-w, 
+                          IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
+                          IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
+                          item.s-dep,
+                          ipbf-ttImportRmRctd.qty ,
+                          OUTPUT ipbf-ttImportRmRctd.qty).
+         ipbf-ttImportRmRctd.purUom = item.cons-uom .                  
+      END. 
+      IF ipbf-ttImportRmRctd.costUom NE item.cons-uom THEN
+      DO:
+          RUN sys/ref/convcuom.p(ipbf-ttImportRmRctd.costUom, item.cons-uom,
+                          item.basis-w, 
+                          IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
+                          IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
+                          item.s-dep,
+                          ipbf-ttImportRmRctd.cost ,
+                          OUTPUT ipbf-ttImportRmRctd.cost). 
+           ipbf-ttImportRmRctd.costUom = item.cons-uom .              
+      END.        
+    END.
+    
+    RUN pAssignValueC (ipbf-ttImportRmRctd.purUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.pur-uom).                                 
+    RUN pAssignValueC (ipbf-ttImportRmRctd.costUom, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost-uom). 
+    RUN pAssignValueD (ipbf-ttImportRmRctd.qty, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.qty).                                                   
+    RUN pAssignValueD (ipbf-ttImportRmRctd.cost, iplIgnoreBlanks, INPUT-OUTPUT bf-rm-rctd.cost).
+    
 
     IF bf-rm-rctd.rct-date EQ ? THEN 
         ASSIGN  bf-rm-rctd.rct-date = TODAY . 

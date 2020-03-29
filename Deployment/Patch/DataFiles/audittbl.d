@@ -67,7 +67,7 @@
 "cust-part" yes yes yes yes
 "cust-prod-sales" yes yes yes yes
 "custype" yes yes yes yes
-"cxml" yes yes yes yes
+"cxml" no no no no
 "db-ctrl" yes yes yes yes
 "dep-table" yes yes yes yes
 "dept" yes yes yes yes
@@ -180,7 +180,7 @@
 "inv-misc" yes yes yes yes
 "inventorySnapshot" yes yes yes yes
 "inventoryStock" yes yes yes yes
-"inventoryStockAlias" yes yes yes yes
+"inventoryStockAlias" no no no no
 "inventoryStockSnapshot" yes yes yes yes
 "inventoryTransaction" yes yes yes yes
 "InvoiceLines" yes yes yes yes
@@ -275,7 +275,7 @@
 "panelDetail" yes yes yes no
 "panelHeader" yes yes yes no
 "parmfile" yes yes yes yes
-"patchhst" yes yes yes yes
+"patchhst" no no no no
 "payment-type" yes yes yes yes
 "pc-misc" yes yes yes yes
 "pc-prdd" yes yes yes yes
@@ -402,7 +402,7 @@
 "users" yes yes yes yes
 "usersman" yes yes yes yes
 "uservend" yes yes yes yes
-"usr" yes yes yes yes
+"usr" no no no no
 "usr-grp" yes yes yes yes
 "usr-menu" yes yes yes yes
 "usrx" yes yes yes yes

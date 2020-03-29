@@ -32,6 +32,7 @@ def var init-dir          as char no-undo.
 DEF VAR v-EDIBOLPost-log AS LOG NO-UNDO.
 DEF VAR v-EDIBOLPost-char AS CHAR FORMAT "X(200)" NO-UNDO.
 DEFINE VARIABLE lSingleBOL AS LOGICAL NO-UNDO.
+DEF VAR lGeneratecXML AS LOG NO-UNDO.
 
 DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 
@@ -1409,20 +1410,26 @@ DO:
                    FIND FIRST cust NO-LOCK
                         WHERE cust.company EQ oe-bolh.company
                           AND cust.cust-no EQ oe-bolh.cust-no 
-                        NO-ERROR.
-                        
-                   IF AVAILABLE cust AND cust.ACTIVE EQ "X"
-                       AND oe-bolh.ship-id EQ oe-boll.loc THEN DO:
-                       IF lSingleBOL THEN     
-                           MESSAGE "BOL " STRING(oe-bolh.bol-no) " Cannot Transfer to the same location " + oe-boll.loc 
-                               VIEW-AS ALERT-BOX ERROR.
-                       ELSE 
-                           RUN pCreatettExceptionBOL(
-                               INPUT "Cannot transfer to the same location",
-                               INPUT ROWID(oe-boll)
+                        NO-ERROR.  
+                   IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
+                           RUN oe/custxship.p(
+                               INPUT oe-bolh.company,
+                               INPUT oe-bolh.cust-no,
+                               INPUT oe-bolh.ship-id,
+                               BUFFER shipto
                                ).
-                       DELETE tt-post.
-                       NEXT mainblock.
+                       IF AVAILABLE shipto AND oe-boll.loc EQ shipto.loc THEN DO:      
+                           IF lSingleBOL THEN     
+                               MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                                   VIEW-AS ALERT-BOX ERROR.
+                           ELSE 
+                               RUN pCreatettExceptionBOL(
+                                   INPUT "Cannot transfer to the same location",
+                                   INPUT ROWID(oe-boll)
+                                   ).
+                           DELETE tt-post.
+                           NEXT mainblock.
+                       END.    
                    END.
                
                    FIND FIRST oe-ordl NO-LOCK
@@ -4869,6 +4876,47 @@ PROCEDURE run-report :
   FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
   IF NOT AVAIL report THEN LEAVE.
 
+  for each report where report.term-id eq v-term-id,
+    first oe-bolh where recid(oe-bolh)   eq report.rec-id,
+
+    first cust
+    where cust.company eq cocode
+      and cust.cust-no eq oe-bolh.cust-no
+    no-lock
+    break by oe-bolh.bol-no:
+
+    /* rstark 05291402 */
+     FIND FIRST sys-ctrl NO-LOCK
+       WHERE sys-ctrl.company EQ  cocode
+         AND sys-ctrl.name    EQ 'cXMLASN' NO-ERROR.
+    IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
+        FIND FIRST sys-ctrl-shipto OF sys-ctrl NO-LOCK
+            WHERE sys-ctrl-shipto.cust-vend EQ YES
+              AND sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no
+              AND sys-ctrl-shipto.log-fld EQ YES
+            NO-ERROR.
+        IF AVAIL sys-ctrl-shipto THEN 
+                lGeneratecXML = YES.
+      END. /* avail sys-ctrl */
+    /* key-10 set in oerep/r-bolprt.w (build-work) */
+    IF lGeneratecXML AND 
+        ((tb_reprint EQ NO AND report.key-10 EQ 'no') 
+         OR (tb_reprint EQ YES AND report.key-10 EQ 'yes')) THEN DO:
+        lGeneratecXML = YES.
+    END. /* if not printed */
+    ELSE lGeneratecXML = NO.
+
+     IF lGeneratecXML THEN DO:
+        FOR EACH oe-boll 
+            WHERE oe-boll.company EQ oe-bolh.company 
+              AND oe-boll.b-no eq oe-bolh.b-no
+            BREAK BY oe-boll.ord-no:
+
+           IF FIRST-OF(oe-boll.ord-no) THEN
+             RUN cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no, INPUT oe-boll.ord-no).
+        END.
+     END.    
+  END.
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}

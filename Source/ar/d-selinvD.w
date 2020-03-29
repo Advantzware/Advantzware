@@ -36,7 +36,7 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 
 DEF TEMP-TABLE tt-inv FIELD selekt AS LOG LABEL "Selected"
                       FIELD row-id AS ROWID
-                      FIELD inv-no LIKE ar-inv.inv-no 
+                      FIELD inv-no LIKE ar-inv.inv-no FORMAT ">>>>>>9"
                       FIELD inv-date LIKE ar-inv.inv-date
                       FIELD net LIKE ar-inv.net
                       FIELD paid LIKE ar-inv.paid 
@@ -143,7 +143,7 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-inv.inv-no     LABEL "Invoice#"
+      tt-inv.inv-no     LABEL "Invoice#"  FORMAT ">>>>>>9"
       tt-inv.inv-date   LABEL "Inv Date"
       tt-inv.net        LABEL "Net"
       tt-inv.paid       LABEL "Amt Paid"

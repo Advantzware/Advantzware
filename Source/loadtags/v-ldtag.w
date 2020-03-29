@@ -60,21 +60,22 @@ DEFINE QUERY external_tables FOR loadtag.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS loadtag.sts loadtag.i-no loadtag.i-name ~
 loadtag.ord-no loadtag.po-no loadtag.loc loadtag.loc-bin loadtag.tag-date ~
-loadtag.shift loadtag.job-no loadtag.job-no2 loadtag.qty-case ~
-loadtag.case-bundle loadtag.pallet-count loadtag.misc-dec[1] ~
-loadtag.misc-char[2] loadtag.partial loadtag.misc-dec[2] ~
-loadtag.misc-char[1] loadtag.tot-cases loadtag.misc-dec[3] loadtag.crew ~
-loadtag.completed 
+loadtag.shift loadtag.createUser loadtag.job-no loadtag.job-no2 ~
+loadtag.qty-case loadtag.case-bundle loadtag.pallet-count ~
+loadtag.misc-dec[1] loadtag.misc-char[2] loadtag.partial ~
+loadtag.misc-dec[2] loadtag.misc-char[1] loadtag.tot-cases ~
+loadtag.misc-dec[3] loadtag.crew loadtag.completed 
 &Scoped-define ENABLED-TABLES loadtag
 &Scoped-define FIRST-ENABLED-TABLE loadtag
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS loadtag.tag-no loadtag.sts loadtag.i-no ~
 loadtag.i-name loadtag.ord-no loadtag.po-no loadtag.spare-char-1 ~
-loadtag.loc loadtag.loc-bin loadtag.tag-date loadtag.shift loadtag.job-no ~
-loadtag.job-no2 loadtag.qty-case loadtag.case-bundle loadtag.pallet-count ~
-loadtag.misc-dec[1] loadtag.misc-char[2] loadtag.partial ~
-loadtag.misc-dec[2] loadtag.misc-char[1] loadtag.tot-cases ~
-loadtag.misc-dec[3] loadtag.crew loadtag.completed 
+loadtag.loc loadtag.loc-bin loadtag.tag-date loadtag.shift ~
+loadtag.createUser loadtag.job-no loadtag.job-no2 loadtag.qty-case ~
+loadtag.case-bundle loadtag.pallet-count loadtag.misc-dec[1] ~
+loadtag.misc-char[2] loadtag.partial loadtag.misc-dec[2] ~
+loadtag.misc-char[1] loadtag.tot-cases loadtag.misc-dec[3] loadtag.crew ~
+loadtag.completed 
 &Scoped-define DISPLAYED-TABLES loadtag
 &Scoped-define FIRST-DISPLAYED-TABLE loadtag
 &Scoped-Define DISPLAYED-OBJECTS rfidtag v-tagtime textField-1 textField-2 ~
@@ -202,6 +203,9 @@ DEFINE FRAME F-Main
      loadtag.shift AT ROW 4.81 COL 129 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
+     loadtag.createUser AT ROW 5.95 COL 62.6 COLON-ALIGNED WIDGET-ID 18
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
      loadtag.job-no AT ROW 6 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -245,10 +249,6 @@ DEFINE FRAME F-Main
           LABEL "Partial Qty"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     loadtag.misc-dec[2] AT ROW 13.48 COL 68 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Loaded Pallet Wt" FORMAT "->>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -256,6 +256,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     loadtag.misc-dec[2] AT ROW 13.48 COL 68 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Loaded Pallet Wt" FORMAT "->>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      loadtag.misc-char[1] AT ROW 13.48 COL 97.2 COLON-ALIGNED HELP
           "" WIDGET-ID 10
           LABEL "Vendor Tag#" FORMAT "x(25)"
@@ -426,6 +430,22 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME loadtag.createUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loadtag.createUser V-table-Win
+ON LEAVE OF loadtag.createUser IN FRAME F-Main /* Create User */
+DO:
+    RUN pValidUser NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        MESSAGE "Invalid user, please try again..."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.         
+    END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME loadtag.misc-dec[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loadtag.misc-dec[1] V-table-Win
@@ -612,8 +632,11 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-
+  
+    ASSIGN 
+        loadtag.upd-date = TODAY
+        loadtag.upd-time = TIME
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -732,6 +755,23 @@ PROCEDURE print-loadtag :
    find CURRENT loadtag NO-LOCK NO-ERROR.
    IF AVAIL loadtag THEN 
       loadtag.sts:SCREEN-VALUE IN FRAME {&FRAME-NAME} = loadtag.sts.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidUser V-table-Win 
+PROCEDURE pValidUser PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FIND FIRST users NO-LOCK 
+         WHERE users.user_id EQ loadtag.createUser:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+         NO-ERROR.
+    IF NOT AVAILABLE users THEN 
+        RETURN ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

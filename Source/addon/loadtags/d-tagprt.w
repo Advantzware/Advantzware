@@ -753,7 +753,8 @@ PROCEDURE create-text-file :
       IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN
          PUT UNFORMATTED ",COUNTER#,RFIDTag".
 
-      PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,PalletCode,PalletID".
+      PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,PalletCode,PalletID" +
+                      ",CreatedBy,CreateDate,CreateTime,PrintDate,PrintTime".
       
       PUT SKIP.
 
@@ -2371,7 +2372,12 @@ PROCEDURE write-loadtag-line :
     "~"" removeChars(w-ord.lot) "~","
  /*bpv 05231205 */   
     "~"" w-ord.pallt-no "~"," 
-    "~"" ipi-pallet-id "~"," .
+    "~"" ipi-pallet-id "~"," 
+    "~"" loadtag.createUser "~","
+    "~"" STRING(loadtag.tag-date,"99/99/9999") "~","
+    "~"" STRING(loadtag.tag-time,"HH:MM AM") "~","
+    "~"" STRING(TODAY,"99/99/9999") "~","
+    "~"" STRING(TIME,"HH:MM AM") "~" ".
 
  PUT SKIP.
 

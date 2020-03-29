@@ -26,6 +26,7 @@ DEFINE VARIABLE giRowsPerPage       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcContinue          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcNumError          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowAllQuantities AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glShowProfitPercent AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcQtyMasterInd      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcSIMONListInclude  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcSIMONListSeparate AS CHARACTER NO-UNDO.
@@ -36,6 +37,7 @@ ASSIGN
     gcContinue          = CHR(187)
     giRowsPerPage       = 64
     glShowAllQuantities = NO
+    glShowProfitPercent = YES
     gcQtyMasterInd      = "*"
     gcSIMONListInclude  = "I,M"
     gcSIMONListSeparate = "S,O,N"
@@ -86,7 +88,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
 RUN pBuildSections(ipiEstCostHeaderID, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-    RUN Output_InitializeXprint(ipcOutputFile, YES, YES, gcFont, 11,"") .
+    RUN Output_InitializeXprint(ipcOutputFile, YES, NO, gcFont, 11,"") .
     RUN pProcessSections(ipcSectionStyle).
     RUN Output_Close.
     RUN Output_PrintXprintFile(ipcOutputFile).
@@ -132,12 +134,16 @@ PROCEDURE pBuildSections PRIVATE:
         CASE ipcSectionStyle:
             WHEN "McLean" THEN 
                 DO:
-                    cSectionBy = "By Form With Summary First Mult Qty".
+                    ASSIGN 
+                        glShowProfitPercent = NO
+                        cSectionBy = "By Form With Summary First Mult Qty"
+                        .
                     IF bf-estCostHeader.estType EQ "Combo/Tandem" THEN DO:
                         FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
                         RUN est\dRefQty.w (INPUT-OUTPUT bf-estCostHeader.quantityReference).
                         FIND CURRENT bf-estCostHeader NO-LOCK.
                     END.
+                    
                 END.
             WHEN "Standard" THEN 
                 cSectionBy = "By Form With Summary First".
@@ -255,7 +261,7 @@ PROCEDURE pPrintForm PRIVATE:
     RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, glShowAllQuantities, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, glShowAllQuantities, glShowProfitPercent, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
 END PROCEDURE.
@@ -493,6 +499,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     DEFINE INPUT PARAMETER iplPerQuantity AS LOGICAL.
+    DEFINE INPUT PARAMETER iplPrintProfitPercent AS LOGICAL.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
@@ -510,6 +517,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE VARIABLE dCostPerM      AS DECIMAL   EXTENT 10.
     DEFINE VARIABLE dCostTotalPerM AS DECIMAL.
     DEFINE VARIABLE dCostTotal     AS DECIMAL.
+    DEFINE VARIABLE dProfitPercent AS DECIMAL.
     DEFINE VARIABLE lLineStarted   AS LOGICAL   NO-UNDO.
 
     FIND FIRST bf-PrimaryestCostHeader NO-LOCK 
@@ -604,7 +612,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                         ASSIGN 
                             dCostTotal     = dCostTotal + estCostSummary.costTotal
                             dCostTotalPerM = dCostTotalPerM + estCostSummary.costTotalPerMFinished
-                            .
+                           .
                     END.
                 END.
             END.
@@ -623,7 +631,13 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
         END.
     END.
-            
+    IF iplPrintProfitPercent THEN DO:
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        dProfitPercent = 100 * (ipbf-estCostForm.sellPrice - ipbf-estCostForm.costTotalFull) / ipbf-estCostForm.sellPrice.
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Profit % ", YES, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] , dProfitPercent , 6, 2, NO, YES, YES, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "%", YES, NO, NO).
+    END.
             
 END PROCEDURE.
 

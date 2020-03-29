@@ -327,13 +327,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 by w-oe-rell.i-no
                 by w-oe-rell.po-no
                 by w-oe-rell.ord-no:
-
-        IF FIRST-OF(w-oe-rell.set-no) THEN
-           ASSIGN v-tot-rqty = 0
-                  sw = NO
-                  swm = NO. 
-
-        IF FIRST-OF(w-oe-rell.ord-no) THEN
+        
            ASSIGN v-tot-rqty = 0
                   sw = NO
                   swm = NO.
@@ -342,7 +336,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            v-rel-qty = v-rel-qty + w-oe-rell.qty
            v-tot-rqty = v-tot-rqty + w-oe-rell.qty.
         
-        if last-of(w-oe-rell.po-no) then do:
+        
            EMPTY TEMP-TABLE w-bin.
           
            i = 0.
@@ -836,9 +830,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              down {2} with frame rel-mid.
             
            END.  /* for eacn w-bin*/
-           v-rel-qty = 0 .
-           
-        end.  /* last-of(w-oe-rell.po-no) */
+           v-rel-qty = 0 .           
+        
       end. /* for each w-oe-rell */
 
  

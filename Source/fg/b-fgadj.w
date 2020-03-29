@@ -651,7 +651,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.cases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cases Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF fg-rctd.cases IN BROWSE Browser-Table /* Units */
+ON LEAVE OF fg-rctd.cases IN BROWSE Browser-Table /* Units */
 DO:
   RUN calc-qty.
 END.
@@ -662,7 +662,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.qty-case
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF fg-rctd.qty-case IN BROWSE Browser-Table /* Qty/Unit */
+ON LEAVE OF fg-rctd.qty-case IN BROWSE Browser-Table /* Qty/Unit */
 DO:
   RUN calc-qty.
 END.
@@ -673,7 +673,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
+ON LEAVE OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
 DO:
   RUN calc-qty.
 END.
@@ -978,6 +978,7 @@ PROCEDURE local-assign-statement :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN BROWSE {&browse-name} fg-rctd.t-qty fg-rctd.ext-cost.
   fg-rctd.pur-uom = lv-uom.
+  fg-rctd.cost-uom = lv-uom.
 
 END PROCEDURE.
 
@@ -1168,9 +1169,13 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
    /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   ld-cost = 0
-   lv-uom  = "EA".
+  IF AVAIL fg-rctd THEN
+  DO:
+     ASSIGN
+      //ld-cost = fg-rctd.ext-cost
+      lv-uom  = fg-rctd.pur-uom .      
+  END.
+  
   /*IF NOT adm-new-record THEN RUN new-bin.*/
 
   DO WITH FRAME {&FRAME-NAME}:

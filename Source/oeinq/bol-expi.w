@@ -96,13 +96,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_date end_date ~
 begin_bol-no end_bol-no begin_ord-no end_ord-no begin_cust-no end_cust-no ~
-begin_i-no end_i-no begin_cust-po end_cust-po tb_posted tb_unposted ~
-sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel ~
-fi_file btn-ok btn-cancel 
+begin_i-no end_i-no begin_cust-po end_cust-po rd_print tb_posted ~
+tb_unposted sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
+tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_bol-no ~
 end_bol-no begin_ord-no end_ord-no begin_cust-no end_cust-no begin_i-no ~
-end_i-no begin_cust-po end_cust-po tb_posted tb_unposted sl_avail ~
-sl_selected tb_excel tb_runExcel fi_file 
+end_i-no begin_cust-po end_cust-po lbl_print rd_print tb_posted tb_unposted ~
+sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -241,6 +241,17 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-bolitm.c
      SIZE 43 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_print AS CHARACTER FORMAT "X(256)":U INITIAL "Print By?" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Detail" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Summary", "Summary",
+"Detail", "Detail"
+     SIZE 26.6 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 101 BY 7.86.
@@ -281,7 +292,7 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_unposted AS LOGICAL INITIAL yes 
      LABEL "UnPosted?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81 NO-UNDO.
+     SIZE 16 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -311,8 +322,10 @@ DEFINE FRAME rd-bolexp
           "Enter Beginning Customer PO #" WIDGET-ID 152
      end_cust-po AT ROW 7.29 COL 71 COLON-ALIGNED HELP
           "Enter Ending Customer PO#" WIDGET-ID 160
-     tb_posted AT ROW 9 COL 53.6 RIGHT-ALIGNED WIDGET-ID 162
-     tb_unposted AT ROW 9 COL 71.6 RIGHT-ALIGNED WIDGET-ID 164
+     lbl_print AT ROW 8.86 COL 63.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     rd_print AT ROW 8.86 COL 75.2 NO-LABEL WIDGET-ID 168
+     tb_posted AT ROW 9 COL 49.4 RIGHT-ALIGNED WIDGET-ID 162
+     tb_unposted AT ROW 9 COL 62.4 RIGHT-ALIGNED WIDGET-ID 164
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 12.38 COL 44.2 HELP
@@ -331,13 +344,13 @@ DEFINE FRAME rd-bolexp
      btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
+     "Selected Columns" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Selected Columns" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
      RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
@@ -418,6 +431,16 @@ ASSIGN
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME rd-bolexp     = 
+                "parm".
+
+/* SETTINGS FOR FILL-IN lbl_print IN FRAME rd-bolexp
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_print:PRIVATE-DATA IN FRAME rd-bolexp     = 
+                "rd_print".
+
+ASSIGN 
+       rd_print:PRIVATE-DATA IN FRAME rd-bolexp     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME rd-bolexp
@@ -801,6 +824,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_print
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_print rd-bolexp
+ON VALUE-CHANGED OF rd_print IN FRAME rd-bolexp
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail rd-bolexp
 ON DEFAULT-ACTION OF sl_avail IN FRAME rd-bolexp
@@ -1094,14 +1128,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_date end_date begin_bol-no end_bol-no begin_ord-no end_ord-no 
           begin_cust-no end_cust-no begin_i-no end_i-no begin_cust-po 
-          end_cust-po tb_posted tb_unposted sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
+          end_cust-po lbl_print rd_print tb_posted tb_unposted sl_avail 
+          sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME rd-bolexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_date end_date begin_bol-no end_bol-no 
          begin_ord-no end_ord-no begin_cust-no end_cust-no begin_i-no end_i-no 
-         begin_cust-po end_cust-po tb_posted tb_unposted sl_avail sl_selected 
-         Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         begin_cust-po end_cust-po rd_print tb_posted tb_unposted sl_avail 
+         sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME rd-bolexp.
   VIEW FRAME rd-bolexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-bolexp}
@@ -1182,6 +1216,11 @@ DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-item FOR item.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE iQtyShipped AS INTEGER NO-UNDO .
+DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotalSqft AS DECIMAL NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
@@ -1207,44 +1246,93 @@ FOR EACH  oe-bolh WHERE oe-bolh.company EQ cocode
     AND (oe-boll.ord-no   GE begin_ord-no /*OR fi_ord-no EQ 0*/ ) 
     AND (oe-boll.ord-no   LE end_ord-no /*OR fi_ord-no EQ 0*/ ) 
     AND oe-boll.po-no     GE begin_cust-po 
-    AND oe-boll.po-no     LE end_cust-po BY oe-bolh.bol-no DESC  :
-  
-    v-excel-detail-lines = "".
+    AND oe-boll.po-no     LE end_cust-po BREAK BY oe-bolh.bol-no DESC BY oe-boll.i-no  :
+             
+    IF rd_print EQ "Summary" THEN 
+    DO:
+    
+        IF FIRST-OF(oe-boll.i-no) THEN
+            ASSIGN iQtyShipped = 0
+                dWeight     = 0
+                dFreight    = 0
+                dTotSqft    = 0.   
+    
+        iQtyShipped = iQtyShipped + oe-boll.qty .
+        dWeight = dWeight + oe-boll.weight .
+        dFreight = dFreight + oe-boll.freight.
+        IF dWeight EQ ? THEN dWeight = 0 .
+        IF dFreight EQ ? THEN dFreight = 0 .
+        IF LAST-OF(oe-boll.i-no) THEN 
+        do:
+            v-excel-detail-lines = "". 
 
-    FOR EACH ttRptSelected:
-        v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER oe-bolh,BUFFER oe-boll,ttRptSelected.FieldList)).
-/*         CASE ttRptSelected.FieldList:                                                               */
-/*             WHEN "itemfg.i-no" THEN                                                                 */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
-/*             WHEN "itemfg.procat" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.procat).          */
-/*             WHEN "itemfg.i-name" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-name).          */
-/*             WHEN "itemfg.part-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-no).         */
-/*             WHEN "itemfg.est-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.est-no).          */
-/*             WHEN "itemfg.item" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.item).           */
-/*             WHEN "itemfg.cust-no" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cust-no).         */
-/*             WHEN "itemfg.part-dscr1" THEN                                                           */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.part-dscr1).      */
-/*             WHEN "itemfg.i-code" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-code).          */
-/*             WHEN "itemfg.cad-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.cad-no).          */
-/*             WHEN "itemfg.spc-no" THEN                                                               */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.spc-no).          */
-/*             WHEN "itemfg.stocked" THEN                                                              */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.stocked)). */
-/*             WHEN "itemfg.q-onh" THEN                                                                */
-/*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.q-onh)).   */
-/*         END CASE.                                                                                   */
+            FOR EACH ttRptSelected:            
+                IF lookup(ttRptSelected.FieldList,"qty,weight,freight,tot-sqft") EQ 0 THEN 
+                DO:
+                    v-excel-detail-lines = v-excel-detail-lines + 
+                        appendXLLine(getValue-itemfg(BUFFER oe-bolh,BUFFER oe-boll,ttRptSelected.FieldList)).  
+                END.
+                ELSE 
+                do:
+                    CASE ttRptSelected.FieldList:                                                               
+                        WHEN "qty" THEN                                                               
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(iQtyShipped)). 
+                        WHEN "weight" THEN                                                               
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(dWeight)).
+                        WHEN "freight" THEN                                                               
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(dFreight)).                       
+                        WHEN "tot-sqft" THEN 
+                            do:
+                   
+                                FIND FIRST oe-ord NO-LOCK
+                                    WHERE oe-ord.company EQ cocode
+                                    AND oe-ord.ord-no EQ oe-boll.ord-no
+                                    NO-ERROR.
+                                IF AVAIL oe-ord AND oe-ord.est-no NE "" THEN 
+                                    FIND FIRST eb NO-LOCK
+                                        WHERE eb.company EQ cocode 
+                                        AND eb.est-no EQ oe-ord.est-no
+                                        AND eb.stock-no EQ oe-boll.i-no NO-ERROR .
+                                   
+                                FIND FIRST itemfg NO-LOCK
+                                    WHERE itemfg.company EQ cocode
+                                    AND itemfg.i-no EQ oe-boll.i-no
+                                    NO-ERROR. 
+                                IF AVAIL oe-ord AND oe-ord.est-no NE "" AND AVAIL eb THEN 
+                                do:
+                                    dTotSqft = DECIMAL((IF v-corr THEN (eb.t-sqin * .007)
+                                    ELSE (eb.t-sqin / 144)) * iQtyShipped )    .
+                                END.
+                                ELSE IF AVAIL itemfg THEN 
+                                    do:
+                                        RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
+                                        ASSIGN 
+                                            dTotSqft = DECIMAL(dTotalSqft * iQtyShipped )    .
+                                    END.
+                                    ELSE dTotSqft = 0 .
+                                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(dTotSqft)).
+                            END.
+                    END CASE.                                                                                 
+                END.
+            END.
+            PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+        END.   /* LAST-OF(oe-boll.i-no)*/        
+        
     END.
+    ELSE 
+    DO:
+        v-excel-detail-lines = "".
 
-    PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+        FOR EACH ttRptSelected:
+            v-excel-detail-lines = v-excel-detail-lines + 
+                appendXLLine(getValue-itemfg(BUFFER oe-bolh,BUFFER oe-boll,ttRptSelected.FieldList)).
+
+        END.
+
+        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+    
+    END.   /* detail */
+    
 END.
 
 IF tb_excel THEN DO:
@@ -1553,9 +1641,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                lc-return = STRING(shipto.ship-zip)    .
             END.
             ELSE lc-return = "" .
-        END.
-
-       WHEN "tot-sqft" THEN DO:
+        END.  
+        WHEN "tot-sqft" THEN DO:
            FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ cocode
                 AND oe-ord.ord-no EQ ipb-oe-boll.ord-no

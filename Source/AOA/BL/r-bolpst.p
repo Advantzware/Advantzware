@@ -715,6 +715,10 @@ PROCEDURE pPostBols :
                   BY bf-oe-bolh.ord-no
                   BY bf-oe-bolh.rel-no
             :
+            /* Create tt-fg-bin */
+            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN
+                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
+                            
             /* Find out if autoSelectingTags for this customer */
             RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
                 OUTPUT cAutoSelectShipFrom, OUTPUT lRecordFound).
@@ -1006,8 +1010,7 @@ PROCEDURE pRunReport :
         FIND oe-bolh NO-LOCK WHERE RECID(oe-bolh) EQ w-bolh.w-recid NO-ERROR.
         IF NOT AVAILABLE oe-bolh THEN
         NEXT MAINBLOK.
-        IF lPrintInvoice AND lCheckQty THEN
-        RUN oe/bolcheck.p (ROWID(oe-bolh)).
+
         v-tot-post = v-tot-post + 1.
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-bolh.company
@@ -1026,7 +1029,7 @@ PROCEDURE pRunReport :
                 RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").    
                 ELSE 
                 RUN pCreateNoPostRec ("BOL is on Hold Status").           
-                DELETE w-bolh.
+/*                DELETE w-bolh.*/
                 NEXT mainblok.           
             END.      
             FIND FIRST w-except NO-LOCK 
@@ -1037,7 +1040,7 @@ PROCEDURE pRunReport :
                     RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped for BOL " + STRING(w-bolh.bol-no)).
                 ELSE 
                     RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped").   
-                DELETE w-bolh. 
+/*                DELETE w-bolh.*/
                 NEXT MAINBLOK.                                                  
             END.
             IF NOT oe-bolh.deleted THEN DO:

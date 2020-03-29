@@ -623,7 +623,12 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lButtonUnitCalc AS LOGICAL NO-UNDO .
 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"MiscButton-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+    RUN pCheckMiscEst IN WIDGET-HANDLE(char-hdl) (OUTPUT lButtonUnitCalc).
+   
 
 DO WITH FRAME Panel-Frame:
 
@@ -775,6 +780,8 @@ DO WITH FRAME Panel-Frame:
 
     IF NOT lPostSec THEN
          btn-stds:SENSITIVE = NO.
+    IF lButtonUnitCalc THEN
+      btn-unitcalc:SENSITIVE = NO .     
   END.
 
 END. /* DO WITH FRAME */
