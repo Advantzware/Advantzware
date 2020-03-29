@@ -1,0 +1,6 @@
+"000" "Normal Inventory" no no "202003238114304735927" 03/23/20 0 "asi" 03/23/20 0 "asi"
+"001" "Quarantine-Unavailable" no yes "202003238114304735928" 03/23/20 0 "asi" 03/23/20 0 "asi"
+"002" "Unknown-Needs Verification" no yes "202003238114304735929" 03/23/20 0 "asi" 03/23/20 0 "asi"
+"003" "Damaged Product" no yes "202003238114304735930" 03/23/20 0 "asi" 03/23/20 0 "asi"
+"004" "Missing-Need to Locate" no yes "202003238114304735931" 03/23/20 0 "asi" 03/23/20 0 "asi"
+"005" "Returned from Customer" no no "202003238114304735932" 03/23/20 0 "asi" 03/23/20 0 "asi"
