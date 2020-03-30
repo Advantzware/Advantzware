@@ -42,7 +42,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
            + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,"
-           + "RMReceiptRules,FGReceiptRules"
+           + "RMReceiptRules,FGReceiptRules,POLoadtag"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -867,7 +867,17 @@ CASE ip-nk1-value:
             INPUT NO,                 /* Logical value */ 
             INPUT 0                   /* dec value*/
             ).             
-                   
+    WHEN "POLoadtag" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                 /* Prompt? */
+            INPUT "Format of the POLoadtag", /* Description */
+            INPUT "",                 /* Char Value */
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ).               
 END CASE.
 ELSE
 CASE ip-nk1-value:
