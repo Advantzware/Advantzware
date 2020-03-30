@@ -48,17 +48,9 @@ FOR EACH po-ordl NO-LOCK
      
     FIND FIRST cust NO-LOCK 
         WHERE cust.company EQ cocode
-        AND cust.cust-no EQ po-ordl.cust-no NO-ERROR .
-     
-    IF ipcPrintFormat EQ "POLoadtag1" THEN 
-    DO:
-        {po/poLoadtagNoLogo.i}
-    END.
-    ELSE IF ipcPrintFormat EQ "POLoadtag2" THEN 
-        DO:
-            {po/poLoadtagLogo.i } 
-        END.      
-     
+        AND cust.cust-no EQ po-ordl.cust-no NO-ERROR .      
+   
+        {po/poLoadTagPrint.i}     
 END.
 
 

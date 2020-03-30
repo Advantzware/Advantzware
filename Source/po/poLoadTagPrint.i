@@ -1,12 +1,11 @@
- /*op/poLoadtagNoLogo.i */                
-
+ /*op/poLoadtagprint.i */      
         
         PUT  "<FArial>".
         PUT  "<C+25><#1>".
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
 
-        PUT "<R13.5><P12><C8><B>- - - - - - - - - - - - - - - - - - - - - - - - - - - - -  FOLD HERE  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</B>" SKIP . 
+        PUT "<R16.5><P12><C8><B>- - - - - - - - - - - - - - - - - - - - - - - - - - - - -  FOLD HERE  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</B>" SKIP . 
 
         PUT "<||><R19><C8><#4><FROM><R23><C78><RECT>" SKIP.            
         
@@ -62,12 +61,14 @@
               string(string(po-ordl.po-no) + "-" + STRING(po-ordl.LINE,"99")) FORMAT "x(20)" ">"
             "<C39>" string(string(po-ordl.po-no) + "-" + STRING(po-ordl.LINE,"99"),"x(20)")  "<=#1><R+5>" .
        
-       PUT "<||><R57.5><C19><#13><FROM><R64><C60><RECT>" SKIP. 
+        IF ipcPrintFormat EQ "POLoadtag2" THEN 
+        DO: 
+            PUT "<||><R57.5><C19><#13><FROM><R64><C60><RECT>" SKIP. 
 
-        PUT UNFORMATTED   
-               "<C20><R58><#1><R+5><C+40><IMAGE#1=" ls-full-img1.
-        
+            PUT UNFORMATTED   
+                   "<C20><R58><#1><R+5><C+40><IMAGE#1=" ls-full-img1.
+        END.
         PUT "<FCourier New>".
         
         PAGE.
-   
+    
