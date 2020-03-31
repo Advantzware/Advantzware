@@ -910,7 +910,10 @@ FUNCTION fGetPerQty RETURNS CHARACTER
             cReturn = "Case".
         WHEN 'P' THEN 
             cReturn = "Pallet".
-        OTHERWISE cReturn = "Lot" .
+        WHEN 'L' THEN 
+            cReturn = "Lot".     
+        OTHERWISE cReturn = "Each" .
+
     END CASE.
     RETURN cReturn .
 
