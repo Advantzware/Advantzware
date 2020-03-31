@@ -270,9 +270,11 @@ PROCEDURE Get_Active_Machines :
     /*IF INDEX(itemlist,emplogin.machine) NE 0 THEN*/
     IF LOOKUP(emplogin.machine,itemlist,"@") > 0 THEN
     NEXT.
-    FIND FIRST mach WHERE mach.company = company_code
-                      AND mach.m-code = emplogin.machine
-                    NO-LOCK NO-ERROR.
+    FIND FIRST mach NO-LOCK 
+         WHERE mach.company EQ company_code
+           AND mach.m-code  EQ emplogin.machine
+           AND NOT mach.obsolete
+         NO-ERROR.
     IF NOT AVAILABLE mach THEN
     NEXT.
     itemlist = IF itemlist = '' THEN CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'
@@ -310,7 +312,9 @@ PROCEDURE Get_Machines :
   {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
   {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code',OUTPUT employee_code)"}
   itemlist = ''.
-  FOR EACH mach NO-LOCK WHERE mach.company = company_code:
+  FOR EACH mach NO-LOCK 
+      WHERE mach.company = company_code
+        AND NOT mach.obsolete:
     IF CAN-FIND(FIRST emplogin WHERE emplogin.company = company_code
                                  AND emplogin.employee = employee_code
                                  AND emplogin.machine = mach.m-code

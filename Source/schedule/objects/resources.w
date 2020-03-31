@@ -801,7 +801,11 @@ PROCEDURE getResources :
   INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/resources.dat')) NO-ECHO.
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT ^ resourceName.
-    IF CAN-FIND(ttblAvail WHERE ttblAvail.resource EQ resourceName) THEN NEXT.
+    IF CAN-FIND(ttblAvail WHERE ttblAvail.resource EQ resourceName) OR  
+        CAN-FIND(FIRST mach
+                 WHERE mach.m-code EQ resourceName 
+                   AND mach.obsolete) THEN 
+        NEXT.
     CREATE ttblAvail.
     ttblAvail.resource = resourceName.
   END.
@@ -810,6 +814,10 @@ PROCEDURE getResources :
   IMPORT useResource.
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT resourceName.
+    IF CAN-FIND(FIRST mach
+                WHERE mach.m-code EQ resourceName 
+                  AND mach.obsolete) THEN 
+        NEXT.
     CREATE ttblList.
     ttblList.resource = resourceName.
     /*
@@ -823,6 +831,10 @@ PROCEDURE getResources :
   INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/priorityList.dat')) NO-ECHO.
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT resourceName priorityValue.
+    IF CAN-FIND(FIRST mach
+                WHERE mach.m-code EQ resourceName 
+                  AND mach.obsolete) THEN 
+        NEXT.
     CREATE priorityList.
     ASSIGN
       priorityList.resource = resourceName
