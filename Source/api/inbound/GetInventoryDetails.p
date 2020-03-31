@@ -223,7 +223,11 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
              WHERE itemfg.company EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
                AND itemfg.i-no    EQ hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
              NO-ERROR.
-             
+        
+        FIND FIRST inventoryStatusType NO-LOCK
+             WHERE inventoryStatusType.statusID EQ hdBuffer:BUFFER-FIELD("statusId"):BUFFER-VALUE 
+             NO-ERROR.
+              
         CREATE ttItem.
         ASSIGN
             ttItem.WarehouseID             = hdBuffer:BUFFER-FIELD("loc"):BUFFER-VALUE
@@ -260,7 +264,12 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
                                                   itemfg.stackHeight
                                               ELSE
                                                   0
-
+            ttItem.TagStatus               = hdBuffer:BUFFER-FIELD("statusId"):BUFFER-VALUE
+            ttItem.OnHold                  = hdBuffer:BUFFER-FIELD("onHold"):BUFFER-VALUE
+            ttItem.StatusDescription       = IF AVAILABLE inventorystatusType THEN
+                                                 inventoryStatusType.description
+                                             ELSE
+                                                 ""
             .
         
         hdQuery:GET-NEXT().
