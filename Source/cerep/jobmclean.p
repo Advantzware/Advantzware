@@ -1989,6 +1989,7 @@ PROCEDURE pPrintMiscItems :
     DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipcMatTypes AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cPackUom AS CHARACTER NO-UNDO .
     DEFINE BUFFER bf-eb FOR eb.
     DEFINE BUFFER bf-job-mat FOR job-mat.
     MAIN-XJOBMAT:
@@ -2066,11 +2067,12 @@ PROCEDURE pPrintMiscItems :
                 AND bf-job-mat.blank-no EQ 0
                 AND bf-job-mat.i-no EQ estPacking.rmItemID
                 NO-ERROR.    
-            IF AVAIL bf-item AND LAST-OF(estPacking.rmItemID) AND AVAIL bf-job-mat THEN do:  
+            IF AVAIL bf-item AND LAST-OF(estPacking.rmItemID) AND AVAIL bf-job-mat THEN do: 
+                cPackUom  = IF estPacking.quantityPer EQ "C" THEN "Case" ELSE IF estPacking.quantityPer EQ "P" THEN "Pallet" ELSE IF estPacking.quantityPer EQ "L" THEN "Lot" ELSE "EA" .
                 PUT
                     "<P10><C20><b>Code: </B>" STRING(bf-item.i-no).
                     IF estPacking.quantity NE 0 THEN
-                    PUT "<C32><b>Qty: </b>" trim(string(estPacking.quantity)) + " / " + ( IF  estPacking.quantityPer EQ "C" THEN "Case" ELSE IF  estPacking.quantityPer EQ "P" THEN "Pallet" ELSE "Lot") FORMAT "x(18)".                    
+                    PUT "<C32><b>Qty: </b>" trim(string(estPacking.quantity)) + " / " + (cPackUom) FORMAT "x(18)".                    
                     PUT "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
     
             END.
