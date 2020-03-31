@@ -4,7 +4,7 @@
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
-/*{methods/triggers/write.i}*/
+{methods/triggers/write.i}
 
 {custom/globdefs.i}
 
