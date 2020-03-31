@@ -19,7 +19,6 @@ DEFINE VARIABLE v-set-qty      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE v-cost         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE ldQty          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE li             AS INTEGER   NO-UNDO.
-DEFINE VARIABLE fg-uom-list    AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
@@ -57,8 +56,6 @@ DEFINE TEMP-TABLE tt-del-fg-rctd
 DEFINE TEMP-TABLE tt-del-fg-rcpts
     FIELD fg-rcpts-row AS ROWID.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-  
 FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAILABLE fg-rctd THEN
@@ -522,7 +519,7 @@ PROCEDURE processComponent:
     END.
     v-cost = fg-rctd.ext-cost / fg-rctd.t-qty.
 
-    IF LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 THEN 
+    IF DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) THEN 
         fg-rctd.std-cost = v-cost.
     ELSE
         RUN sys/ref/convcuom.p("EA", fg-rctd.cost-uom, 0, 0, 0, 0,

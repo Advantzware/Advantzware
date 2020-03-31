@@ -891,7 +891,15 @@ PROCEDURE CreateOrder :
                              oe-ordl.part-dscr2 =  itemfg.part-dscr2 
                             .
 
-                   {oe/ordltot3.i oe-ordl qty oe-ordl  }
+                   RUN Conv_CalcTotalPrice(oe-ordl.company, 
+                        oe-ordl.i-no,
+                        oe-ordl.qty,
+                        oe-ordl.price,
+                        oe-ordl.pr-uom,
+                        oe-ordl.disc,
+                        oe-ordl.cas-cnt,    
+                        OUTPUT oe-ordl.t-price).
+                   //{oe/ordltot3.i oe-ordl qty oe-ordl  }
 
                   RUN pAutoCreateShipTo (INPUT cocode, 
                         INPUT oe-ord.cust-no, 
@@ -1336,7 +1344,15 @@ DEFINE INPUT PARAMETER ipriOeOrdl AS ROWID NO-UNDO.
                         .                  
             END. /* est-no <> "" */
         END.
-        {oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
+        RUN Conv_CalcTotalPrice(bf-oe-ordl.company, 
+                        bf-oe-ordl.i-no,
+                        bf-oe-ordl.qty,
+                        bf-oe-ordl.price,
+                        bf-oe-ordl.pr-uom,
+                        bf-oe-ordl.disc,
+                        bf-oe-ordl.cas-cnt,    
+                        OUTPUT bf-oe-ordl.t-price).
+        //{oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
     END. /*ELSE bf-oe-ordl is available */
 
 

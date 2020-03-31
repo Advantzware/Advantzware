@@ -15,7 +15,6 @@ def var v-cost     as dec no-undo.
 def var v-add-cost as dec no-undo.
 def var v-qty-comp as dec no-undo.
 def var v-setup like e-item-vend.setup no-undo.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 
 def  var v-basis-w like item.basis-w no-undo.
 def  var v-len like item.s-len no-undo.
@@ -33,7 +32,6 @@ DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-cost AS DEC DECIMALS 4 EXTENT 20
     FIELD setups AS DEC DECIMALS 2 EXTENT 20.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 find xjob-mat where recid(xjob-mat) eq v-recid1 no-lock.
 
@@ -55,7 +53,7 @@ ASSIGN v-basis-w = IF AVAIL ITEM THEN ITEM.basis-w ELSE v-basis-w
 do with frame po-ordlf:
   IF po-ordl.pr-uom EQ "EA"                    OR
      (NOT po-ordl.item-type AND
-      LOOKUP(po-ordl.pr-uom,fg-uom-list) EQ 0) THEN
+      NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom)) THEN
      v-tot-cost = po-ordl.cost.
 
   ELSE

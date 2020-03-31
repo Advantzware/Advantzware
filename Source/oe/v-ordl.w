@@ -607,13 +607,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.cas-cnt V-table-Win
 ON LEAVE OF oe-ordl.cas-cnt IN FRAME F-Main /* Count */
 DO:
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
     if int(oe-ordl.cas-cnt:screen-value) > int(oe-ordl.qty:screen-value) then do:
        message "Unit count may not be greater than quantity." skip
                "Setting unit count to equal quantity. "
                view-as alert-box information.
        oe-ordl.cas-cnt:screen-value = oe-ordl.qty:screen-value.        
     end.
-    {oe/ordltot.i oe-ordl qty oe-ordl}
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    //{oe/ordltot.i oe-ordl qty oe-ordl}
 
 END.
 
@@ -904,7 +914,8 @@ END.
 ON LEAVE OF oe-ordl.pr-uom IN FRAME F-Main /* UOM */
 DO:
     def var lv-out-cost as dec no-undo.
-
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+    
     if lastkey = -1 then return.
     {&methods/lValidateError.i YES}
 
@@ -925,7 +936,16 @@ DO:
                                dec(oe-ordl.cost:screen-value), output lv-out-cost).
      assign oe-ordl.cost:screen-value = string(lv-out-cost).
 
-    {oe/ordltot.i oe-ordl qty oe-ordl}
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    //{oe/ordltot.i oe-ordl qty oe-ordl}
     {&methods/lValidateError.i NO}
 END.
 
@@ -938,10 +958,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.price V-table-Win
 ON LEAVE OF oe-ordl.price IN FRAME F-Main /* Price */
 DO:
+    DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 /*    oe-ordl.t-price:screen-value = string(int(oe-ordl.qty:screen-value) * 
                                           dec(oe-ordl.price:screen-value) / 1000). 
 */
-   {oe/ordltot.i oe-ordl qty oe-ordl}
+   RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+   //{oe/ordltot.i oe-ordl qty oe-ordl}
 
 END.
 
@@ -976,7 +1006,8 @@ DO:
    def var v-set as cha no-undo.
    def var v-qty as int no-undo.
    def var v-checkset as log no-undo.
-
+   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+   
    if dec(oe-ordl.qty:screen-value) = 0 then do:
       message "Quantity can not be 0. " view-as alert-box error.
       return no-apply.
@@ -1044,7 +1075,16 @@ DO:
     end.
     run oe/oe-frtcl.p.  /* Calculate Freight  */
 
-   {oe/ordltot.i oe-ordl qty oe-ordl}
+   RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.qty:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.price:SCREEN-VALUE),
+                        oe-ordl.pr-uom:SCREEN-VALUE,
+                        DECIMAL(oe-ordl.disc:SCREEN-VALUE),
+                        DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
+                        OUTPUT dTotalPrice).
+    oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    //{oe/ordltot.i oe-ordl qty oe-ordl}
 
 END.
 

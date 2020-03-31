@@ -61,7 +61,6 @@ DEF VAR ld-sets AS DEC DECIMALS 10 NO-UNDO.
 DEF VAR ll-calc-disc-FIRST AS LOG NO-UNDO.
 DEF VAR v-cost AS DEC EXTENT 4 NO-UNDO.
 DEF VAR v-basis LIKE sman.commbasis INIT "" NO-UNDO.
-DEF VAR fg-uom-list AS cha NO-UNDO.
 DEF BUFFER b-reftable FOR reftable.
 DEF BUFFER b-reftable3 FOR reftable.
 DEF VAR ls AS CHAR NO-UNDO.
@@ -79,8 +78,6 @@ DEF VAR v-rtn-char AS CHAR NO-UNDO.
 DEF VAR v-rec-found AS LOG NO-UNDO.
 DEF VAR invstatus-char AS CHAR NO-UNDO.
 DEF VAR invstatus-log AS LOG NO-UNDO.
-
-RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 
 DEF TEMP-TABLE w-inv NO-UNDO FIELD w-rowid AS ROWID.
 

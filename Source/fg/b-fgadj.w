@@ -651,7 +651,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.cases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cases Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.cases IN BROWSE Browser-Table /* Units */
+ON VALUE-CHANGED OF fg-rctd.cases IN BROWSE Browser-Table /* Units */
 DO:
   RUN calc-qty.
 END.
@@ -662,7 +662,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.qty-case
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.qty-case IN BROWSE Browser-Table /* Qty/Unit */
+ON ENTRY OF fg-rctd.qty-case IN BROWSE Browser-Table /* Qty/Unit */
 DO:
   RUN calc-qty.
 END.
@@ -673,7 +673,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
+ON VALUE-CHANGED OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
 DO:
   RUN calc-qty.
 END.
@@ -1172,7 +1172,7 @@ PROCEDURE local-enable-fields :
   IF AVAIL fg-rctd THEN
   DO:
      ASSIGN
-      //ld-cost = fg-rctd.ext-cost
+      ld-cost = fg-rctd.ext-cost
       lv-uom  = fg-rctd.pur-uom .      
   END.
   

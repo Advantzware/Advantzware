@@ -93,6 +93,14 @@ PROCEDURE getPrice:
                         .                  
             END. /* est-no <> "" */
         END.
-        {oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
+        RUN Conv_CalcTotalPrice(bf-oe-ordl.company, 
+                        bf-oe-ordl.i-no,
+                        bf-oe-ordl.qty,
+                        bf-oe-ordl.price,
+                        bf-oe-ordl.pr-uom,
+                        bf-oe-ordl.disc,
+                        bf-oe-ordl.cas-cnt,    
+                        OUTPUT bf-oe-ordl.t-price).
+        //{oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
     END. /*ELSE bf-oe-ordl is available */
 END PROCEDURE.
