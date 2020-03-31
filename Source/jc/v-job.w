@@ -1202,6 +1202,7 @@ PROCEDURE local-delete-record :
 
   /* set attrib rec-deleted for reopen-query */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
 
 
@@ -1210,6 +1211,7 @@ PROCEDURE local-delete-record :
 
   
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
   /* Code placed here will execute AFTER standard behavior.    */
   {&methods/lValidateError.i NO}
