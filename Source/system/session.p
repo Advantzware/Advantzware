@@ -530,6 +530,8 @@ PROCEDURE displayMessageQuestion:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcOutput    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
 
     FIND FIRST zMessage NO-LOCK
          WHERE zMessage.msgID EQ ipcMessageID       
@@ -541,8 +543,34 @@ PROCEDURE displayMessageQuestion:
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.  
-    ELSE IF zMessage.userSuppress THEN
+    ELSE IF zMessage.userSuppress AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN
          opcOutput = zMessage.rtnValue.
+         
+    ELSE IF zMessage.userSuppress AND zMessage.rtnValue EQ "" AND
+            zMessage.msgType EQ "QUESTION-YN" THEN DO:
+            MESSAGE "Message # " + zMessage.msgID + " requires an answer that is not defined, " +
+                "so please respond here with the desired response."  SKIP   
+                fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage.
+                opcOutput = STRING(lMessage).
+                       
+    END. 
+    
+    ELSE IF zMessage.msgType NE "QUESTION-YN" AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN DO:
+        IF zMessage.userSuppress THEN 
+            opcOutput = zMessage.rtnValue.
+        ELSE DO:
+            MESSAGE "User must enter a valid response, " +
+                "so please respond here with the desired response."  SKIP   
+                fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage.
+                opcOutput = STRING(lMessage).
+        END.                          
+    END.                  
     ELSE DO:
         CASE zMessage.msgType:
             WHEN "QUESTION-YN" THEN DO:
@@ -550,7 +578,7 @@ PROCEDURE displayMessageQuestion:
                     fMessageText(ipcMessageID)
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
                 TITLE fMessageTitle()
-                UPDATE lMessage AS LOGICAL.
+                UPDATE lMessage.
                 opcOutput = STRING(lMessage).
             END.
             /* Deal with these options in next phase */
