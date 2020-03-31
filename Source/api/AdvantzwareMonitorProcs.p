@@ -270,8 +270,8 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
 
     IF opcBrokerStatus EQ cResourceStatusRunning THEN DO:
         CREATE SERVER hdServer.
-        lSuccess = hdServer:CONNECT("-URL AppServerDC://localhost:" + cAppServerPort + "/" + ipcBrokerName) NO-ERROR.
-        IF lSuccess THEN DO:        
+
+        IF hdServer:CONNECT("-URL AppServerDC://localhost:" + cAppServerPort + "/" + ipcBrokerName) THEN DO:        
             RUN api\ASStatus.p  ON hdServer (
                 OUTPUT lSuccess, 
                 OUTPUT opcMessage
@@ -279,8 +279,6 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
                             
             hdServer:DISCONNECT().
         END.
-        ELSE
-            opcMessage = "AppServer restart required".
         
         IF NOT lSuccess THEN
             opcBrokerStatus = cResourceStatusStopped.

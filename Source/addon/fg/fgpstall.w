@@ -50,7 +50,6 @@ def var v-msf as dec format ">,>>9.999" extent 6.
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF {1} SHARED var v-print-fmt  as char NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR lv-list-name LIKE list-name EXTENT 2 NO-UNDO.
 DEF VAR ip-rowid AS ROWID NO-UNDO.
 DEF VAR t-setup AS LOG NO-UNDO.
@@ -78,7 +77,6 @@ DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
 
 {fg/invrecpt.i NEW}
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DEF STREAM st-email.
 DEF STREAM logFile.
@@ -1549,7 +1547,7 @@ PROCEDURE fg-post :
             IF itemfg.prod-uom EQ "M" THEN
               b-oe-ordl.cost = itemfg.total-std-cost.
             ELSE
-              RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
+              RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
                                       THEN "EA" ELSE itemfg.prod-uom),
                                      "M", 0, 0, 0, 0,
                                      itemfg.total-std-cost, OUTPUT b-oe-ordl.cost).

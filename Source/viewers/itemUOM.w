@@ -47,6 +47,7 @@ ASSIGN
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -68,13 +69,11 @@ ASSIGN
 DEFINE QUERY external_tables FOR ItemUOM.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS itemUoM.descr itemUoM.convFactor ~
-itemUoM.isStock itemUoM.canPurchase itemUoM.canSell ~
-itemUoM.isDefaultPurchaseUoM itemUoM.isDefaultSellUoM itemUoM.inactive 
+itemUoM.canPurchase itemUoM.canSell itemUoM.inactive 
 &Scoped-define ENABLED-TABLES itemUoM
 &Scoped-define FIRST-ENABLED-TABLE itemUoM
 &Scoped-Define DISPLAYED-FIELDS itemUoM.UOM itemUoM.descr ~
-itemUoM.convFactor itemUoM.isStock itemUoM.canPurchase itemUoM.canSell ~
-itemUoM.isDefaultPurchaseUoM itemUoM.isDefaultSellUoM itemUoM.inactive ~
+itemUoM.convFactor itemUoM.canPurchase itemUoM.canSell itemUoM.inactive ~
 itemUoM.createdBy itemUoM.createdDtTm itemUoM.updatedBy itemUoM.updatedDtTm 
 &Scoped-define DISPLAYED-TABLES itemUoM
 &Scoped-define FIRST-DISPLAYED-TABLE itemUoM
@@ -86,6 +85,7 @@ itemUoM.createdBy itemUoM.createdDtTm itemUoM.updatedBy itemUoM.updatedDtTm
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -108,12 +108,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ***********************  Control Definitions  ********************** */
+
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 50 BY 17.38.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -131,22 +134,15 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 21.6 BY 1
           BGCOLOR 15 
-     itemUoM.isStock AT ROW 4.81 COL 16 WIDGET-ID 18
+     itemUoM.canPurchase AT ROW 6.48 COL 8 WIDGET-ID 20
+          LABEL "Valid for PO Quantity and Cost"
           VIEW-AS TOGGLE-BOX
-          SIZE 16 BY .81
-     itemUoM.canPurchase AT ROW 5.76 COL 16 WIDGET-ID 20
+          SIZE 33 BY .81
+     itemUoM.canSell AT ROW 7.48 COL 8 WIDGET-ID 22
+          LABEL "Valid for Order Quantity and Price"
           VIEW-AS TOGGLE-BOX
-          SIZE 17 BY .81
-     itemUoM.canSell AT ROW 6.71 COL 16 WIDGET-ID 22
-          VIEW-AS TOGGLE-BOX
-          SIZE 12 BY .81
-     itemUoM.isDefaultPurchaseUoM AT ROW 7.67 COL 16 WIDGET-ID 24
-          VIEW-AS TOGGLE-BOX
-          SIZE 20 BY .81
-     itemUoM.isDefaultSellUoM AT ROW 8.62 COL 16 WIDGET-ID 26
-          VIEW-AS TOGGLE-BOX
-          SIZE 20 BY .81
-     itemUoM.inactive AT ROW 9.57 COL 16 WIDGET-ID 16
+          SIZE 37 BY .81
+     itemUoM.inactive AT ROW 8.48 COL 8 WIDGET-ID 16
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
      itemUoM.createdBy AT ROW 13.62 COL 14 COLON-ALIGNED WIDGET-ID 30
@@ -172,6 +168,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          FGCOLOR 1 .
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -215,6 +212,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -226,6 +226,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR TOGGLE-BOX itemUoM.canPurchase IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX itemUoM.canSell IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemUoM.createdBy IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN itemUoM.createdDtTm IN FRAME F-Main
@@ -243,6 +247,7 @@ ASSIGN
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
+
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
@@ -251,6 +256,10 @@ ASSIGN
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
+
+ 
+
+
 
 /* ************************  Control Triggers  ************************ */
 
@@ -281,13 +290,13 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
-/* ***************************  Main Block  *************************** */
 
-  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
 
@@ -295,6 +304,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -443,3 +453,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

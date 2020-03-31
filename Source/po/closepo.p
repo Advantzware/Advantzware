@@ -11,7 +11,6 @@ DEF INPUT PARAM ip-cls-rec-qty AS LOG NO-UNDO.
 DEF VAR v-factor AS INT NO-UNDO.
 DEF VAR v-cons-qty AS INT NO-UNDO.
 DEF VAR v-continue AS LOG INIT YES NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 
 FIND FIRST po-ord WHERE ROWID(po-ord) EQ ip-rowid NO-ERROR.
 
@@ -20,7 +19,6 @@ IF AVAIL po-ord THEN DO:
 
   IF v-factor EQ -1 AND ip-cls-rec-qty THEN
   DO:
-     RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
      FOR EACH po-ordl WHERE 
          po-ordl.company EQ po-ord.company AND
@@ -42,7 +40,7 @@ IF AVAIL po-ord THEN DO:
                  NO-LOCK NO-ERROR.
 
             IF AVAIL itemfg THEN DO:
-               IF LOOKUP(po-ordl.cons-uom,fg-uom-list) GT 0 THEN
+               IF DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom) THEN
                   v-cons-qty = po-ordl.cons-qty.
                ELSE
                   RUN sys/ref/convquom.p(po-ordl.cons-uom, "EA",

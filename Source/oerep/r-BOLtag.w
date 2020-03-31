@@ -3426,13 +3426,10 @@ PROCEDURE post-return :
    DEF VAR v-cost AS DEC NO-UNDO.
    DEF VAR choice AS LOG NO-UNDO.
    DEF VAR v-post-date AS DATE INIT TODAY NO-UNDO.
-   DEF VAR fg-uom-list AS cha NO-UNDO.
    DEF VAR li-tag-no AS INT NO-UNDO.
    DEF VAR ll-qty-changed AS LOG NO-UNDO.
    DEF VAR ll-whs-item AS LOG NO-UNDO.
 
-
-   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
    FOR EACH w-fg-rctd:
        DELETE w-fg-rctd.

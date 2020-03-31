@@ -115,7 +115,6 @@ def var char_units      as char no-undo.
 def var copy_count      as int no-undo initial 2.
 def var n               as int no-undo initial 0.
 DEF VAR var-display-warning AS LOG NO-UNDO.
-def var fg-uom-list  as char NO-UNDO.
 
 /* Vars for create-text-file */
 DEF VAR lv-text AS cha NO-UNDO.
@@ -184,8 +183,6 @@ DEF VAR UserlabelPath AS cha NO-UNDO.
 
 /* gdm - 06100901 */
 DEF VAR v-txtflg AS LOG NO-UNDO.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DO TRANSACTION:
    {sys/inc/fgpofrt.i}

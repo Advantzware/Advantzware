@@ -185,8 +185,8 @@
             
             IF tt-ei.std-uom NE po-ordl.pr-qty-uom          AND
                 (po-ordl.item-type                                        OR
-                LOOKUP(tt-ei.std-uom,fg-uom-list)                  EQ 0 OR
-                LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0)  THEN 
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, tt-ei.std-uom) OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom))  THEN 
             DO:
                IF po-ordl.pr-qty-uom EQ "CS" AND po-ordl.item-type NE TRUE THEN 
                 DO:
@@ -250,8 +250,8 @@
                 END.
                 IF tt-ei.std-uom NE po-ordl.pr-qty-uom           AND
                     (po-ordl.item-type                                        OR
-                    LOOKUP(tt-ei.std-uom,fg-uom-list)                  EQ 0 OR
-                    LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0)  THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, tt-ei.std-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom))  THEN 
                 DO:
                     IF po-ordl.pr-qty-uom EQ "CS" AND po-ordl.item-type NE TRUE THEN 
                     DO:
@@ -272,8 +272,8 @@
                 END.
                 IF tt-ei.std-uom NE po-ordl.pr-uom           AND
                     (po-ordl.item-type                                    OR
-                    LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
-                    LOOKUP(po-ordl.pr-uom,fg-uom-list) EQ 0)  THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, tt-ei.std-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom))  THEN 
                 DO:
                     IF po-ordl.pr-uom EQ "CS" AND po-ordl.item-type NE TRUE THEN 
                     DO:
@@ -293,8 +293,8 @@
                 END.
                 IF po-ordl.pr-uom NE po-ordl.cons-uom AND
                     (po-ordl.item-type                                      OR
-                    LOOKUP(po-ordl.pr-uom,fg-uom-list)   EQ 0 OR
-                    LOOKUP(po-ordl.cons-uom,fg-uom-list) EQ 0)     THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom))  THEN 
                 DO:
                     IF po-ordl.pr-uom EQ "CS" AND po-ordl.item-type NE TRUE THEN 
                     DO:
@@ -323,8 +323,8 @@
                 DO:            
                     IF tt-ei.std-uom NE po-ordl.pr-uom           AND
                         (po-ordl.item-type                                    OR
-                        LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
-                        LOOKUP(po-ordl.pr-uom,fg-uom-list) EQ 0)  THEN 
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, tt-ei.std-uom) OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom))  THEN 
                     DO:
                         /* IF 'CS' then convert to EA first */
                         RUN sys/ref/convcuom.p(tt-ei.std-uom,
@@ -344,8 +344,8 @@
                         po-ordl.setup = (v-setup).
                     IF po-ordl.pr-uom NE po-ordl.cons-uom AND
                         (po-ordl.item-type                                      OR
-                        LOOKUP(po-ordl.pr-uom,fg-uom-list)   EQ 0 OR
-                        LOOKUP(po-ordl.cons-uom,fg-uom-list) EQ 0)     THEN 
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom) OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom))     THEN 
                     DO:
                         /* Convert cost from CS to EA first */
                         IF po-ordl.pr-uom EQ "CS" AND po-ordl.item-type NE TRUE THEN
@@ -375,8 +375,8 @@
                 v-ord-qty = DEC(fi_pb-qty).
                 IF po-ordl.pr-qty-uom NE po-ordl.pr-uom AND
                     (po-ordl.item-type                                        OR
-                    LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 OR
-                    LOOKUP(po-ordl.pr-uom,fg-uom-list)     EQ 0)     THEN
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom))     THEN
    
                     RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                         po-ordl.pr-uom,
@@ -400,8 +400,8 @@
                 v-ord-qty = DEC(po-ordl.ord-qty).
                 IF po-ordl.pr-qty-uom NE po-ordl.pr-uom AND
                     (po-ordl.item-type                                        OR
-                    LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 OR
-                    LOOKUP(po-ordl.pr-uom,fg-uom-list)     EQ 0)     THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-uom))     THEN 
                 DO:
        
                     IF po-ordl.pr-qty-uom EQ "CS" OR po-ordl.pr-uom EQ "CS" THEN 

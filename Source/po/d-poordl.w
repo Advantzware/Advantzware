@@ -123,7 +123,6 @@ DEFINE            VARIABLE ll-poord-warned    AS LOG       NO-UNDO.
 DEFINE            VARIABLE ll-pojob-warned    AS LOG       NO-UNDO.
 DEFINE            VARIABLE ll-new-job-mat     AS LOG       INIT YES NO-UNDO.
 DEFINE            VARIABLE ll-ans             AS LOG       NO-UNDO.
-DEFINE            VARIABLE fg-uom-list        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE ll-rm-fg-set       AS LOG       NO-UNDO.
 DEFINE            VARIABLE ld-prev-setup      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-roll-len        AS DECIMAL   NO-UNDO.
@@ -165,8 +164,6 @@ DO TRANSACTION:
     {sys/inc/poscreen.i} /* Tab Order*/
     {sys/ref/postatus.i} 
 END.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
@@ -2998,8 +2995,8 @@ PROCEDURE display-fgitem :
         IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" THEN 
         DO:
             /* First convert to EA */
-            IF LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
-                LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0 THEN
+            IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE) OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) THEN
                 RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE, "EA",
                     0, v-len, v-wid, v-dep,
                     DEC(po-ordl.cons-cost:SCREEN-VALUE), OUTPUT lv-cost).
@@ -3008,8 +3005,8 @@ PROCEDURE display-fgitem :
             lv-cost = DEC(po-ordl.cons-cost:SCREEN-VALUE) * itemfg.case-count.
         END.
         ELSE
-            IF LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
-                LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0 THEN
+            IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE) OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) THEN
                 RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE,
                     0, v-len, v-wid, v-dep,
                     DEC(po-ordl.cons-cost:SCREEN-VALUE), OUTPUT lv-cost).
@@ -4476,17 +4473,6 @@ PROCEDURE new-setup :
                                         ld-prev-setup +
                                         DEC(po-ordl.setup:SCREEN-VALUE)
                 po-ordl.t-cost:SCREEN-VALUE = STRING(ld).
-        /*po-ordl.cons-cost:SCREEN-VALUE = STRING(ld / DEC(po-ordl.cons-qty:SCREEN-VALUE))
-        ld                             = DEC(po-ordl.cons-cost:SCREEN-VALUE).
-       IF po-ordl.cons-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
-          (po-ordl.item-type:SCREEN-VALUE EQ "yes"                OR
-           LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
-           LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0)     THEN
-         RUN sys/ref/convcuom.p(po-ordl.cons-uom:SCREEN-VALUE,
-                                po-ordl.pr-uom:SCREEN-VALUE,
-                                v-basis-w, v-len, v-wid, v-dep,
-                                ld, OUTPUT ld).
-       po-ordl.cost:SCREEN-VALUE = STRING(ld).*/
         END.
 
         ld-prev-setup = DEC(po-ordl.setup:SCREEN-VALUE).
@@ -4631,7 +4617,7 @@ PROCEDURE po-adder2 :
 
         IF po-ordl.pr-uom:SCREEN-VALUE EQ "EA"                    OR
             (NOT po-ordl.item-type AND
-            LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list) EQ 0) THEN
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE)) THEN
             v-tot-cost = ip-cost.
 
         ELSE
@@ -6034,6 +6020,9 @@ PROCEDURE valid-uom :
     DEFINE INPUT PARAMETER ip-field AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lv-uom   LIKE uom.uom NO-UNDO.
     DEFINE VARIABLE uom-list AS CHARACTER INIT "" NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
         RELEASE item.
         lv-uom = IF ip-field EQ "pr-uom" THEN po-ordl.pr-uom:SCREEN-VALUE
@@ -6044,14 +6033,30 @@ PROCEDURE valid-uom :
                 AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
                 NO-ERROR.
         IF AVAILABLE item THEN RUN sys/ref/uom-rm.p (item.mat-type, OUTPUT uom-list).
-        ELSE RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list). /* for fgitem */
+        ELSE DO:
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ g_company
+                AND itemfg.i-no EQ po-ordl.i-no:SCREEN-VALUE
+                NO-ERROR.
+                lError = YES.
+                IF AVAILABLE itemfg THEN 
+                    IF ip-field EQ "pr-uom" THEN
+                        RUN Conv_GetValidCostUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+                    ELSE  
+                        RUN Conv_GetValidPOQtyUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+                IF lError THEN  
+                    IF ip-field EQ "pr-uom" THEN
+                        RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+                    ELSE  
+                        RUN Conv_GetValidPOQtyUOMs(ROWID(itemfg), OUTPUT uom-list).
+        END.  
         IF uom-list EQ "" THEN
             uom-list = IF ip-field EQ "pr-uom" THEN pr-uom-list
             ELSE lv-uom-list.
         IF AVAILABLE item AND INDEX("MOXY789@",ITEM.mat-type) GT 0 AND ip-field EQ "pr-uom" THEN
             uom-list = uom-list + ",L".
-        IF po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
-            uom-list = uom-list + ",CS".
+/*        IF po-ordl.item-type:SCREEN-VALUE NE "RM" THEN*/
+/*            uom-list = uom-list + ",CS".              */
         IF LOOKUP(lv-uom,uom-list) LE 0 THEN 
         DO:
             MESSAGE "UOM must be " + TRIM(uom-list) VIEW-AS ALERT-BOX ERROR.
@@ -6401,8 +6406,8 @@ PROCEDURE vend-cost :
                 v-qty  = DEC(po-ordl.ord-qty:SCREEN-VALUE).
             IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE          AND
                 (po-ordl.item-type                                        OR
-                LOOKUP(tt-ei.std-uom,fg-uom-list)                  EQ 0 OR
-                LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN 
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom))  THEN 
             DO:
                 IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
                 DO:
@@ -6463,8 +6468,8 @@ PROCEDURE vend-cost :
                 END.
                 IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE           AND
                     (po-ordl.item-type                                        OR
-                    LOOKUP(tt-ei.std-uom,fg-uom-list)                  EQ 0 OR
-                    LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE))  THEN 
                 DO:
                     IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
                     DO:
@@ -6485,8 +6490,8 @@ PROCEDURE vend-cost :
                 END.
                 IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
                     (po-ordl.item-type                                    OR
-                    LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
-                    LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE))  THEN 
                 DO:
                     IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
                     DO:
@@ -6506,8 +6511,8 @@ PROCEDURE vend-cost :
                 END.
                 IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
                     (po-ordl.item-type                                      OR
-                    LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0 OR
-                    LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0)     THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN 
                 DO:
                     IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
                     DO:
@@ -6536,8 +6541,8 @@ PROCEDURE vend-cost :
                 DO:            
                     IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
                         (po-ordl.item-type                                    OR
-                        LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
-                        LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN 
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN 
                     DO:
                         /* IF 'CS' then convert to EA first */
                         RUN sys/ref/convcuom.p(tt-ei.std-uom,
@@ -6557,8 +6562,8 @@ PROCEDURE vend-cost :
                         po-ordl.setup:SCREEN-VALUE = STRING(v-setup,po-ordl.setup:FORMAT).
                     IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
                         (po-ordl.item-type                                      OR
-                        LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0 OR
-                        LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0)     THEN 
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN  
                     DO:
                         /* Convert cost from CS to EA first */
                         IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
@@ -6579,8 +6584,8 @@ PROCEDURE vend-cost :
                     DO:
                         IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
                             (po-ordl.item-type                                    OR
-                            LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
-                            LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN 
+                            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
+                            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN 
                         DO:
                             /* If CS, convert to EA first */
                             RUN sys/ref/convcuom.p(tt-ei.std-uom,
@@ -6645,8 +6650,8 @@ PROCEDURE vend-cost :
                 v-ord-qty = DEC(fi_pb-qty:SCREEN-VALUE).
                 IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
                     (po-ordl.item-type                                        OR
-                    LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
-                    LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)     EQ 0)     THEN
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN
    
                     RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
                         po-ordl.pr-uom:SCREEN-VALUE,
@@ -6671,8 +6676,8 @@ PROCEDURE vend-cost :
                 v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
                 IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
                     (po-ordl.item-type                                        OR
-                    LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
-                    LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)     EQ 0)     THEN 
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN 
                 DO:
        
                     IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" OR po-ordl.pr-uom:SCREEN-VALUE EQ "CS" THEN 

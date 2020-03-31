@@ -6,7 +6,6 @@ DEF OUTPUT PARAM op-cost  LIKE fg-rctd.frt-cost NO-UNDO.
 DEF VAR ld-qty AS DEC NO-UNDO.
 DEF VAR ld-wgt AS DEC EXTENT 2 NO-UNDO.
 DEF VAR ld-cst AS DEC EXTENT 2 NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR uom-list AS CHAR NO-UNDO.
 
 FIND po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
@@ -24,7 +23,6 @@ IF AVAIL po-ordl THEN DO:
         po-ordl.company EQ po-ord.company AND
         po-ordl.po-no EQ po-ord.po-no NO-LOCK:
       IF NOT po-ordl.item-type THEN DO:
-        RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
         FIND FIRST itemfg
             WHERE itemfg.company EQ po-ordl.company
@@ -33,7 +31,7 @@ IF AVAIL po-ordl THEN DO:
 
         ld-qty = po-ordl.ord-qty.
 
-        IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
+        IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
           RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "EA",
                                  0, po-ordl.s-len, po-ordl.s-wid, 0,
                                  ld-qty, OUTPUT ld-qty).

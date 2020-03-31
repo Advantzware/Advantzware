@@ -3049,7 +3049,15 @@ PROCEDURE get-price-hidden :
         /* Depends on xoeitem */
         RUN oe/oe-price.p.
         FIND xoe-ordl WHERE ROWID(xoe-ordl) EQ lv-rowid NO-ERROR.
-        {oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
+        RUN Conv_CalcTotalPrice(bf-oe-ordl.company, 
+                        bf-oe-ordl.i-no,
+                        bf-oe-ordl.qty,
+                        bf-oe-ordl.price,
+                        bf-oe-ordl.pr-uom,
+                        bf-oe-ordl.disc,
+                        bf-oe-ordl.cas-cnt,    
+                        OUTPUT bf-oe-ordl.t-price).
+        //{oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
         IF lv-save-xoe-ordl NE ? THEN
         FIND xoe-ordl WHERE ROWID(xoe-ordl) = lv-save-xoe-ordl
         EXCLUSIVE-LOCK NO-ERROR.

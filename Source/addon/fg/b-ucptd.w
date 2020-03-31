@@ -46,7 +46,6 @@ DEF VAR ll-help-run AS LOG NO-UNDO.
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 DEF VAR v-post-date AS DATE INITIAL TODAY.
-def var fg-uom-list  as char NO-UNDO.
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-prgmname AS CHAR INIT "b-rcptd." NO-UNDO.
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
@@ -812,7 +811,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DO TRANSACTION:
    {sys/inc/closejob.i FGPost}

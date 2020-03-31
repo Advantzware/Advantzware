@@ -11,7 +11,6 @@ DEF INPUT PARAM ip-factor AS INT NO-UNDO.
 DEF VAR v-cons-qty AS INT NO-UNDO.
 DEF VAR ld AS DEC NO-UNDO.
 DEF VAR lv-stat LIKE po-ordl.stat NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR ll-reopen AS LOG NO-UNDO.
 
 
@@ -24,8 +23,6 @@ IF ip-factor EQ 2 THEN
    ll-reopen = YES.
 ELSE
   ll-reopen = NO.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 FIND FIRST po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-ERROR.
 IF AVAIL po-ordl THEN DO:
@@ -82,7 +79,7 @@ IF AVAIL po-ordl THEN DO:
           AND itemfg.i-no    EQ po-ordl.i-no
         USE-INDEX i-no NO-ERROR.
     IF AVAIL itemfg THEN DO:
-      IF LOOKUP(po-ordl.cons-uom,fg-uom-list) GT 0 THEN
+      IF DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom) THEN
         v-cons-qty = po-ordl.cons-qty.
       ELSE
         RUN sys/ref/convquom.p(po-ordl.cons-uom, "EA",

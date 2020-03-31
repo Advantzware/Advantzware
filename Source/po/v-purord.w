@@ -64,13 +64,11 @@ DEFINE            VARIABLE lv-recid           AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE fg-uom-list        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE cRtnChar           AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE lPOChangeDueDate   AS LOGICAL   NO-UNDO.
 DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
 FIELD std-uom AS CHARACTER.

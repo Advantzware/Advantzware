@@ -20,13 +20,10 @@ DEF VAR v-len LIKE {&TABLENAME}.s-len NO-UNDO.
 DEF VAR v-wid LIKE {&TABLENAME}.s-wid NO-UNDO.
 DEF VAR v-dep LIKE {&TABLENAME}.s-len NO-UNDO.
 DEF VAR ll-error AS LOG NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
 /*DEF VAR cReturn AS CHAR NO-UNDO.*/
 DEF VAR poPaperClip-int AS INT NO-UNDO.
 {sys/inc/venditemcost.i}
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 RUN po/updordpo.p (BUFFER {&TABLENAME}).
 
@@ -81,8 +78,8 @@ IF {&TABLENAME}.pr-uom NE "" THEN DO:
 
     IF {&TABLENAME}.pr-qty-uom NE {&TABLENAME}.pr-uom       AND
        ({&TABLENAME}.item-type                           OR
-        LOOKUP({&TABLENAME}.pr-qty-uom,fg-uom-list) EQ 0 OR
-        LOOKUP({&TABLENAME}.pr-uom,fg-uom-list)     EQ 0)   THEN
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, {&TABLENAME}.pr-qty-uom) OR
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, {&TABLENAME}.pr-uom))   THEN
       RUN sys/ref/convquom.p({&TABLENAME}.pr-qty-uom, {&TABLENAME}.pr-uom,
                              v-basis-w, v-len, v-wid, v-dep,
                              ld-qty, OUTPUT ld-qty).
