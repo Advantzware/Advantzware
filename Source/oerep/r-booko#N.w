@@ -1345,7 +1345,6 @@ PROCEDURE CalcPoMSF :
   def var factor# as decimal no-undo.
   DEF VAR ll-ea AS LOG INIT NO NO-UNDO.
   DEF VAR lv-uom LIKE po-ordl.pr-qty-uom INIT NO NO-UNDO.
-  DEF VAR fg-uom-list AS CHAR NO-UNDO.
   DEF VAR v-out-qty AS INT NO-UNDO.
 
 
@@ -1394,11 +1393,9 @@ PROCEDURE CalcPoMSF :
             END.
          END.
 
-      RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-
       IF po-ordl.pr-qty-uom{2} EQ "EA"       OR
         (NOT po-ordl.item-type AND
-         LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) GT 0) THEN
+         DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom)) THEN
         opTotalMsf = IF v-corr THEN ((v-len * v-wid * .007 * dec(po-ordl.ord-qty{2})) / 1000)
                            ELSE ((((v-len * v-wid) / 144) * dec(po-ordl.ord-qty{2})) / 1000).
       else do:
@@ -1943,12 +1940,15 @@ for each oe-ord
         find first itemfg {sys/look/itemfgrlW.i} 
                    and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
-        RUN GetPriceTotal IN hdPriceProcs (oe-ordl.qty,
-                                       oe-ordl.price,
-                                       oe-ordl.pr-uom,
-                                       IF AVAIL itemfg THEN itemfg.case-count ELSE 0,
-                                       oe-ordl.disc,
-                                       OUTPUT v-ext-price).
+         RUN Conv_CalcTotalPrice (oe-ordl.company,
+                                 oe-ordl.i-no,
+                                 oe-ordl.qty,
+                                 oe-ordl.price,
+                                 oe-ordl.pr-uom,
+                                 IF AVAIL itemfg THEN itemfg.case-count ELSE 0,
+                                 oe-ordl.disc,
+                                 OUTPUT v-ext-price).
+                                 
        
        /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +

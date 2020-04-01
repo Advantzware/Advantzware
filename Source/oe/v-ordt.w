@@ -36,6 +36,9 @@ DEF VAR v-tax-rate AS DEC NO-UNDO.
 DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
 DEF VAR lv-prev-value AS CHAR NO-UNDO.
 DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 SUBSCRIBE TO "DispOrdTot" ANYWHERE.
 {oe/oe-sysct1.i NEW}
 
@@ -49,6 +52,11 @@ FIND FIRST ce-ctrl
 DO TRANSACTION:
    {sys/inc/fgsecur.i}
 END.
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -560,7 +568,8 @@ PROCEDURE local-assign-statement :
      oe-ord.t-cost.
   END.
 
-  IF oe-ord.t-freight NE lv-freight THEN
+  IF oe-ord.t-freight NE lv-freight 
+    AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
     RUN oe/ordfrate.p (ROWID(oe-ord)).
 
   IF AVAIL cust THEN DO:

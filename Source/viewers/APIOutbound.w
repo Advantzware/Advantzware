@@ -764,16 +764,7 @@ PROCEDURE pFieldValidations :
     IF APIOutbound.clientID:SCREEN-VALUE EQ "" THEN DO:
         opcMessage = "Client ID cannot be empty".
         RETURN.
-    END.
-    
-    IF cbAuthType:SCREEN-VALUE EQ "basic" THEN DO:        
-        IF APIOutbound.userName:SCREEN-VALUE EQ "" OR 
-           APIOutbound.password:SCREEN-VALUE EQ "" THEN DO:
-            opcMessage = "Username and Password cannot be empty for "
-                       + "Authentication Type: basic".
-            RETURN.
-        END.
-    END.
+    END.    
     
     IF saveFile:CHECKED THEN DO:
         IF saveFileFolder:SCREEN-VALUE EQ "" THEN DO:

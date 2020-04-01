@@ -12,7 +12,7 @@ def var v-cost     as dec no-undo.
 def var v-add-cost as dec no-undo.
 def var v-qty-comp as dec no-undo.
 def var v-setup like e-item-vend.setup no-undo.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
+
 DEF VARIABLE dadder-setup AS DECIMAL NO-UNDO .
 
 def shared var v-part-dscr1 as char format "x(30)".
@@ -34,7 +34,6 @@ DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-cost AS DEC DECIMALS 4 EXTENT 20
     FIELD setups AS DEC DECIMALS 2 EXTENT 20.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 find xjob-mat where recid(xjob-mat) eq v-recid1 no-lock.
 

@@ -124,6 +124,7 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -221,6 +222,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cOeShipChar = cRtnChar NO-ERROR.
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.    
 
 /* transaction */
 {sys/inc/f16to32.i}
@@ -4402,17 +4408,18 @@ PROCEDURE hold-approve :
                     IF lv-uom NE "M" THEN
                         RUN sys/ref/convcuom.p(lv-uom, "M", 0, 0, 0, 0,
                             oe-ordl.cost, OUTPUT oe-ordl.cost).
-
-                    RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-                    oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
+                    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN do: 
+                        RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+                        oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
+                    END.    
                     FIND CURRENT oe-ordl NO-LOCK.
                     RELEASE oe-ordl.
                 END. /* Each oe-ordl */
                 FIND CURRENT oe-ord NO-LOCK.
             END. /* Transaction, set default values */
 
-
-            RUN oe/ordfrate.p (ROWID(oe-ord)).
+            IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
+               RUN oe/ordfrate.p (ROWID(oe-ord)).
 
             FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
             IF AVAIL xoe-ord THEN RUN oe/oe-comm.p.

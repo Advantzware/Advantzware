@@ -37,6 +37,9 @@ DEF VAR vfob-code AS CHAR NO-UNDO.
 DEF VAR vfrt-list AS CHAR NO-UNDO.
 DEF VAR vfob-list AS CHAR NO-UNDO.
 DEF VAR rell-ctr AS INTE NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
 DEF VAR  v-chkflg AS LOG NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
@@ -51,6 +54,11 @@ DO TRANSACTION:
    /* gdm - 03110902 */
 
 END.
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRetChar NO-ERROR.
 
 ASSIGN
    v-relpost-hld = relpost-chr

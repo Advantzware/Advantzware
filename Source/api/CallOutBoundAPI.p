@@ -128,26 +128,13 @@ IF SEARCH("curl.exe") EQ ? THEN DO:
     RETURN. 
 END.
         
-IF gcAuthType = "basic" THEN
-   gcCommand = SEARCH("curl.exe") + ' --user '
-              + gcUserName + ':' + gcPassword + ' '
-              + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
-              + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
-              + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
-              + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-              + gcEndPoint.
-
-IF gcCommand = '' THEN DO:
-    ASSIGN 
-        opcMessage = "Invalid Authentication Type [ " 
-                   + gcAuthType 
-                   + " ] found in config in APIOutbound table for APIID [ " 
-                   + gcAPIID  + " ]".
-        oplSuccess = NO
-        .
-                        
-    RETURN. 
-END.
+gcCommand = SEARCH("curl.exe") 
+          + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword ELSE "") + ' ' 
+          + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
+          + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
+          + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
+          + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
+          + gcEndPoint.
 
 /* Put Request Data from a variable into a Temporary file */
 COPY-LOB glcRequestData TO FILE gcRequestFile.

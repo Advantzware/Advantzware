@@ -94,7 +94,6 @@ def var char_units      as char no-undo.
 def var copy_count      as int no-undo initial 2.
 def var n               as int no-undo initial 0.
 DEF VAR var-display-warning AS LOG NO-UNDO.
-def var fg-uom-list  as char NO-UNDO.
 
 /* Vars for create-text-file */
 DEF VAR lv-text AS cha NO-UNDO.
@@ -190,8 +189,6 @@ DEF VAR UserlabelPath AS cha NO-UNDO.
 
 /* gdm - 06100901 */
 DEF VAR v-txtflg AS LOG NO-UNDO.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DO TRANSACTION:
    {sys/inc/fgpofrt.i}
@@ -6955,8 +6952,8 @@ PROCEDURE get-set-full-qty :
             lv-calc-cost = ip-cost-to-set.
             lv-recalc-cost = lv-calc-cost.
             IF fg-rctd.cost-uom EQ b-fg-rctd.cost-uom               OR
-              (LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 AND
-               LOOKUP(b-fg-rctd.cost-uom,fg-uom-list) GT 0)   THEN.
+              (DYNAMIC-FUNCTION("Conv_IsEAUOM",fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) AND
+               DYNAMIC-FUNCTION("Conv_IsEAUOM",b-fg-rctd.company, b-fg-rctd.i-no, b-fg-rctd.cost-uom))   THEN.
             ELSE
                RUN rm/convcuom.p(fg-rctd.cost-uom, b-fg-rctd.cost-uom, 
                                  v-bwt, v-len, v-wid, v-dep,
@@ -7764,14 +7761,10 @@ PROCEDURE post-return :
    DEF VAR v-cost AS DEC NO-UNDO.
    DEF VAR choice AS LOG NO-UNDO.
    DEF VAR v-post-date AS DATE INIT TODAY NO-UNDO.
-   DEF VAR fg-uom-list AS cha NO-UNDO.
    DEF VAR li-tag-no AS INT NO-UNDO.
    DEF VAR ll-qty-changed AS LOG NO-UNDO.
    DEF VAR ll-whs-item AS LOG NO-UNDO.
-
-
-   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-
+   
    FOR EACH w-fg-rctd:
        DELETE w-fg-rctd.
    END.

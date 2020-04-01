@@ -57,7 +57,6 @@ DEF VAR lv-prev-job2        AS cha   NO-UNDO.
 DEF VAR lv-new-job-ran      AS LOG   NO-UNDO.
 DEF VAR ll-qty-case-ent     AS LOG   NO-UNDO.
 DEF VAR lv-num-rec          AS INT   NO-UNDO.
-DEF VAR fg-uom-list         AS CHAR  NO-UNDO.
 DEF VAR lv-frst-rno         LIKE fg-rctd.r-no NO-UNDO.
 DEF VAR lv-rct-date-checked AS LOG   NO-UNDO.
 DEF VAR ll-set-parts        AS LOG   NO-UNDO.
@@ -82,8 +81,6 @@ DEFINE TEMP-TABLE w-rowid
 {oe/d-selbin.i NEW}
 {fg/fullset.i NEW}
 {fg/d-selpos.i NEW}
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 &SCOPED-DEFINE item-key-phrase TRUE
 &SCOPED-DEFINE init-proc init-proc

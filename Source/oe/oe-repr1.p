@@ -46,21 +46,16 @@ FOR EACH bf-oe-ordl EXCLUSIVE-LOCK
         OUTPUT lMatrixMatchFound, OUTPUT cMatrixMatchMessage,
         INPUT-OUTPUT bf-oe-ordl.price, INPUT-OUTPUT bf-oe-ordl.pr-uom, 
         OUTPUT lQtyMatchFound, OUTPUT lQtyWithinMatrixRange).
-    RUN GetPriceTotal IN hdPriceProcs (bf-oe-ordl.qty,
-                                       bf-oe-ordl.price,
-                                       bf-oe-ordl.pr-uom,
-                                       itemfg.case-count,
-                                       bf-oe-ordl.disc,
-                                       OUTPUT bf-oe-ordl.t-price).
-    
-/*    RUN  oe/GetPriceTotal.p(     */
-/*        INPUT bf-oe-ordl.qty,    */
-/*        INPUT bf-oe-ordl.price,  */
-/*        INPUT bf-oe-ordl.pr-uom, */
-/*        INPUT itemfg.case-count, */
-/*        INPUT bf-oe-ordl.disc,   */
-/*        OUTPUT bf-oe-ordl.t-price*/
-/*        ).                       */
+              
+    RUN Conv_CalcTotalPrice (bf-oe-ordl.company,
+                                 bf-oe-ordl.i-no,
+                                 bf-oe-ordl.qty,
+                                 bf-oe-ordl.price,
+                                 bf-oe-ordl.pr-uom,
+                                 itemfg.case-count,
+                                 bf-oe-ordl.disc,
+                                 OUTPUT bf-oe-ordl.t-price).
+
     ASSIGN 
         dOrderTotalAmountChange = dOrderTotalAmountChange + bf-oe-ordl.t-price - dOrderOrigAmount. 
 END. 

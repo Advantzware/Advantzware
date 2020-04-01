@@ -48,6 +48,9 @@ DEF VAR dBillAmt AS DECIMAL NO-UNDO.
 DEF VAR lEmailBol AS LOG NO-UNDO.
 DEF VAR iocPrompt AS CHAR NO-UNDO.
 DEF VAR vrRelh AS ROWID NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
   
@@ -75,6 +78,11 @@ DO TRANSACTION:
   {sys/inc/fginvrec.i}
   {sys/ref/relpost.i}
 END.
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRetChar NO-ERROR.
 
 lv-cust-x = "".
 FOR EACH cust NO-LOCK

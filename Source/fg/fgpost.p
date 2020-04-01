@@ -203,8 +203,7 @@ PROCEDURE ProcFGPosting:
 
   /*define var cocode as cha no-undo.*/
   /*define var g_company as cha no-undo.*/
-  DEF VAR fg-uom-list  AS CHAR NO-UNDO.
-  
+    
   do transaction:
     {sys/inc/closejob.i FGPost}
     {sys/inc/fgpostgl.i}
@@ -215,8 +214,6 @@ PROCEDURE ProcFGPosting:
   END.
 
   v-fgpostgl = fgpostgl.
-  
-  RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
   
   for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
   /*assign cocode = FGReceiptRow.company
@@ -383,7 +380,7 @@ PROCEDURE ProcFGPosting:
               IF itemfg.prod-uom EQ "M" THEN
                 b-oe-ordl.cost = itemfg.total-std-cost.
               ELSE
-                RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
+                RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
                                         THEN "EA" ELSE itemfg.prod-uom),
                                        "M", 0, 0, 0, 0,
                                        itemfg.total-std-cost, OUTPUT b-oe-ordl.cost).

@@ -34,6 +34,9 @@ DEF VAR vfob-list AS CHAR NO-UNDO.
 DEF VAR vFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 DEF VAR vTotFreight AS DECIMAL DECIMALS 6 NO-UNDO.
 DEF VAR dFreight AS DECIMAL DECIMALS 6 NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEF TEMP-TABLE tt-bolList 
   FIELD b-no AS INT.
 DEF VAR ll AS LOG NO-UNDO.
@@ -52,6 +55,12 @@ END.
 
 
 {sa/sa-sls01.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRetChar NO-ERROR.
 
 ASSIGN
    choice = NO
@@ -112,8 +121,9 @@ FOR EACH oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
 /*                        oe-bolh.ship-id,         */
 /*                        oe-bolh.carrier,         */
 /*                        OUTPUT oe-bolh.freight). */
-
-    RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
+    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
+        RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
+    END.
 
     IF oe-bolh.freight EQ 0 AND AVAIL xoe-ord THEN 
       oe-bolh.freight = xoe-ord.t-freight.

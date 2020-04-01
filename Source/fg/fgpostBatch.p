@@ -36,9 +36,6 @@ DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
 DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
 
-DEFINE VARIABLE fg-uom-list     AS CHARACTER NO-UNDO.
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-
 /* ***************************  Definitions  ************************** */
 {methods/defines/hndldefs.i}
 /* {methods/prgsecur.i} */
@@ -870,7 +867,7 @@ PROCEDURE fg-post:
                         IF itemfg.prod-uom EQ "M" THEN
                             v-calc-cost = itemfg.total-std-cost.
                         ELSE
-                            RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
+                            RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
                                 THEN "EA" ELSE itemfg.prod-uom),
                                 "M", 0, 0, 0, 0,
                                 itemfg.total-std-cost, OUTPUT v-calc-cost).
