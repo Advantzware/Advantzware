@@ -358,10 +358,7 @@ PROCEDURE get-set-full-qty:
 
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   DEF BUFFER b1-fg-rctd FOR fg-rctd.
-  def var fg-uom-list  as char NO-UNDO.
-  
-  /*  cocode = g_company.*/
-  RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
+
   lv-out-qty = 0.
   FOR EACH b-fg-rctd WHERE b-fg-rctd.company eq g_company and
            (b-fg-rctd.rita-code eq "R" or b-fg-rctd.rita-code eq "E")
@@ -416,8 +413,8 @@ PROCEDURE get-set-full-qty:
             lv-calc-cost = ip-cost-to-set.
             lv-recalc-cost = lv-calc-cost.
             IF fg-rctd.cost-uom EQ b-fg-rctd.cost-uom               OR
-              (LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 AND
-               LOOKUP(b-fg-rctd.cost-uom,fg-uom-list) GT 0)   THEN.
+              (DYNAMIC-FUNCTION("Conv_IsEAUOM",fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) AND
+               DYNAMIC-FUNCTION("Conv_IsEAUOM",b-fg-rctd.company, b-fg-rctd.i-no, b-fg-rctd.cost-uom))   THEN.
             ELSE
                RUN rm/convcuom.p(fg-rctd.cost-uom, b-fg-rctd.cost-uom, 
                                  v-bwt, v-len, v-wid, v-dep,

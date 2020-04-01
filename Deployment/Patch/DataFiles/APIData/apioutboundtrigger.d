@@ -25,15 +25,20 @@
 "001" "201911263304604495516" "SendRelease" "ReprintRelease" "Sends Release when Release is reprinted" yes 2019-11-26T09:10:46.075 "bpvasi" "Siggins" 27 5
 "001" "201911263308504495517" "SendVendor" "PrintPurchaseOrder" "Sends Vendor when Purchase Order is printed for first time" yes 2019-11-26T09:11:25.551 "bpvasi" "Siggins" 28 2
 "001" "201911263309404495518" "SendVendor" "ReprintPurchaseOrder" "Sends Vendor when Purchase Order is reprinted" yes 2019-11-26T09:11:34.734 "bpvasi" "Siggins" 29 2
+"001" "202002061940804639939" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" yes 2020-02-06T05:23:34.670 "user1" "Amazon" 31 10
+"001" "202001281704705316001" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" yes 2020-01-28T04:44:07.151 "user1" "Amazon" 32 10
+"001" "202003170950604718910" "SendFinishedGood" "CreateLoadtag" "On creation of loadtags on a Job or Order from O-U-7 screen" yes 2020-03-17T02:38:26.846 "user1" "Siggins" 33 3
+"001" "202003274269104743620" "SendJob" "PrintJob" "Triggers when Job printed flag is NO" yes 2020-03-27T11:51:31.036 "user1" "Siggins" 34 13
+"001" "202003274271604743621" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" yes 2020-03-27T11:51:56.445 "user1" "Siggins" 35 13
 .
 PSC
 filename=APIOutboundTrigger
-records=0000000000027
+records=0000000000032
 ldbname=ASI
-timestamp=2020/01/31-13:36:30
+timestamp=2020/03/27-12:15:05
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
 cpstream=IBM850
 .
-0000004529
+0000005318

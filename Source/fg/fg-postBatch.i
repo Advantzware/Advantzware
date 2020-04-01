@@ -141,7 +141,7 @@ DEFINE VARIABLE iRecQty as INTEGER NO-UNDO .
           RELEASE job.
 
           if avail po-ordl then do:
-            IF LOOKUP(po-ordl.cons-uom,fg-uom-list) GT 0 THEN
+            IF DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom) THEN
               v-reduce-qty = po-ordl.cons-qty.
             ELSE
             if po-ordl.cons-qty ne 0 then
@@ -462,8 +462,8 @@ DEFINE VARIABLE iRecQty as INTEGER NO-UNDO .
           run fg/comp-upd.p (recid(itemfg), v-reduce-qty * -1, "q-ono",v-est-no).
 
           IF {2}.pur-uom NE itemfg.prod-uom              AND
-             (LOOKUP({2}.pur-uom,fg-uom-list)     EQ 0 OR
-              LOOKUP(itemfg.prod-uom,fg-uom-list) EQ 0)  THEN
+             (NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",{2}.company, {2}.i-no,{2}.pur-uom) OR
+              NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom))  THEN
           run sys/ref/convcuom.p({2}.pur-uom, itemfg.prod-uom, 0, 0, 0, 0,
                                  itemfg.last-cost, output itemfg.last-cost).
 

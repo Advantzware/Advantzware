@@ -127,7 +127,6 @@ DEF            VAR v-msf          AS DEC     FORMAT ">,>>9.999" EXTENT 6.
 DEF            VAR is-xprint-form AS LOG     NO-UNDO.
 DEF {1} SHARED VAR v-print-fmt    AS CHAR    NO-UNDO.
 DEF            VAR ls-fax-file    AS CHAR    NO-UNDO.
-DEF            VAR fg-uom-list    AS CHAR    NO-UNDO.
 
 
 DEF            VAR lInvFrt        AS LOG     NO-UNDO.

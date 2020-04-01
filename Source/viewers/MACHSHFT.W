@@ -650,7 +650,6 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL machshft AND NOT adm-new-record THEN DO:
     fi_shift = INT(machshft.shift) NO-ERROR.
-
     {custom/get_time2.i
       &field="machshft.start_time"
       &hour="start_hour"
@@ -704,14 +703,14 @@ PROCEDURE local-update-record :
           RETURN NO-APPLY.
        END.
     {custom/get_time2.i
-      &field="machshft.start_time"
+      &field="b-shifts.start_time"
       &hour="start_hour"
       &minute="start_minute"
       &second="start_second"
       &ampm="start_ampm"
     }
     {custom/get_time2.i
-      &field="machshft.end_time"
+      &field="b-shifts.end_time"
       &hour="end_hour"
       &minute="end_minute"
       &second="end_second"

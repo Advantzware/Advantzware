@@ -42,6 +42,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
            + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,FreightCalculation"
+           + "RMReceiptRules,FGReceiptRules"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -849,6 +850,30 @@ CASE ip-nk1-value:
         INPUT "Freight Calculation",
         INPUT "All" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).      
+        ). 
+    WHEN "RMReceiptRules" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                 /* Prompt? */
+            INPUT "RM Receipt Rules", /* Description */
+            INPUT "",                 /* Char Value */
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ). 
+    WHEN "FGReceiptRules" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                 /* Prompt? */
+            INPUT "FG Receipt Rules", /* Description */
+            INPUT "",                 /* Char Value */
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ).             
+                   
 END CASE.
 ELSE
 CASE ip-nk1-value:

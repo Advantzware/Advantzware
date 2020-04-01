@@ -568,8 +568,11 @@ DO:
    v-tot-post = 0
    v-tried    = no.
 
-  FOR EACH w-ord.
+  FOR EACH w-ord:
     DELETE w-ord.
+  END.
+  FOR EACH tt-fg-bin:
+    DELETE tt-fg-bin.
   END.
 
   EMPTY TEMP-TABLE tt-email.
@@ -1694,7 +1697,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
         RUN oe/bolcheck.p(
             INPUT ROWID(oe-bolh)
             ).
-          
+              
     v-tot-post = v-tot-post + 1.
 
     FOR EACH oe-boll

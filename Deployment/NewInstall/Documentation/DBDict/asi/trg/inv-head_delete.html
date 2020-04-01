@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="generator" content="HtmlDict.w version 11">
+  <meta name="author"    content="Patrick Tingen [patrick at tingen dot nl]">
+  <link rel="stylesheet" title="Default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="blue" type="text/css" href="../../blue.css">
+  <link rel="alternate stylesheet" title="default" type="text/css" href="../../default.css">
+  <link rel="alternate stylesheet" title="green" type="text/css" href="../../green.css">
+  <link rel="alternate stylesheet" title="oldstyle" type="text/css" href="../../oldstyle.css">
+  <link rel="alternate stylesheet" title="red" type="text/css" href="../../red.css">
+  <link rel="shortcut icon" href="../../htmldict.ico">
+  <link rel="stylesheet" media="print" type="text/css" href="../../print.css">
+  <script src="../../swapstyle.js"    type="text/javascript"></script>
+  <script src="../../stylechooser.js" type="text/javascript"></script>
+  <script src="../../dbchooser.js"    type="text/javascript"></script>
+  <script src="../../htmldict.js"     type="text/javascript"></script>
+  <title> Trigger code: delete of inv-head</title>
+</head>
+<body onload="useStyleAgain('HtmlDict');" onunload="rememberStyle('HtmlDict',10);">
+<div><a name="top"></a></div>
+<table style="width:100%;">
+  <tr>
+    <td class="navbar" style="width:80%;"><a href="../../../00-index.html"target="_top">DB</a>
+ | <a href="../../00-area.html"target="main">Areas</a>
+ | <a href="../../00-cross.html"target="main">X-idx</a>
+ | <a href="../../00-main.html"target="main">Tables</a>
+ | <a href="../../00-sequences.html"target="main">Sequences</a>
+</td>
+    <td class="navbar" style="width:20%; text-align:right;"><a href="../../htmldict.html"target="_top">HtmlDict 11</a></td>
+  </tr>
+</table>
+ 
+<h1>Trigger code: delete of inv-head</h1>
+<div class="progressCode">
+<span class="src-comment">/* Be sure whatever mods you make take into account multi-invoice customers  */</span><!--src-comment-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> ACTION <span class="src-keyword">DELETE</span><!--src-keyword-->
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> <span class="src-keyword">DBNAME</span><!--src-keyword--> ASI
+<span class="src-prep">&amp;Scoped-define</span><!--src-prep--> TABLENAME inv-head
+ 
+<span class="src-keyword">TRIGGER PROCEDURE FOR DELETE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+ 
+<span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">delete</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">FOR</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+<span class="src-keyword">def buffer</span><!--src-keyword--> xoe-relh <span class="src-keyword">for</span><!--src-keyword--> oe-relh.
+<span class="src-keyword">def buffer</span><!--src-keyword--> xoe-bolh <span class="src-keyword">for</span><!--src-keyword--> oe-bolh.
+<span class="src-keyword">def buffer</span><!--src-keyword--> xoe-boll <span class="src-keyword">for</span><!--src-keyword--> oe-boll.
+ 
+<span class="src-keyword">def var</span><!--src-keyword--> v-rel-bal <span class="src-keyword">like</span><!--src-keyword--> oe-rell.qty.
+<span class="src-keyword">def var</span><!--src-keyword--> v-lines-wt <span class="src-keyword">as int</span><!--src-keyword-->.
+<span class="src-keyword">def var</span><!--src-keyword--> v-nxt-bordno <span class="src-keyword">like</span><!--src-keyword--> oe-relh.b-ord-no.
+<span class="src-keyword">def var</span><!--src-keyword--> v-nxt-rno <span class="src-keyword">like</span><!--src-keyword--> oe-relh.r-no.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> lv-partial <span class="src-keyword">LIKE</span><!--src-keyword--> fg-bin.partial-count <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-invoice <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> v-do-bol <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+ 
+<span class="src-keyword">DEF TEMP-TABLE</span><!--src-keyword--> w-r-no <span class="src-keyword">FIELD</span><!--src-keyword--> w-r-no <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.r-no.
+<span class="src-keyword">DEF TEMP-TABLE</span><!--src-keyword--> w-b-no <span class="src-keyword">FIELD</span><!--src-keyword--> w-b-no <span class="src-keyword">LIKE</span><!--src-keyword--> inv-line.b-no.
+ 
+ 
+<span class="src-keyword">find first</span><!--src-keyword--> oe-ctrl <span class="src-keyword">where</span><!--src-keyword--> oe-ctrl.company = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company <span class="src-keyword">no-lock no-error</span><!--src-keyword-->.
+<span class="src-keyword">find last</span><!--src-keyword--> xoe-relh <span class="src-keyword">use-index</span><!--src-keyword--> r-no <span class="src-keyword">no-lock no-error</span><!--src-keyword-->.
+<span class="src-keyword">if avail</span><!--src-keyword--> xoe-relh <span class="src-keyword">then assign</span><!--src-keyword--> v-nxt-rno = xoe-relh.r-no.
+<span class="src-keyword">else assign</span><!--src-keyword--> v-nxt-rno = <span class="src-number">0</span><!--src-number-->.
+ 
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+<span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> oe-ordm.
+ 
+<span class="src-keyword">CREATE</span><!--src-keyword--> w-r-no.
+w-r-no = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.r-no.
+ 
+work-loop:
+<span class="src-keyword">DO WHILE AVAIL</span><!--src-keyword--> w-r-no.
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> inv-line
+      <span class="src-keyword">WHERE</span><!--src-keyword--> inv-line.r-no <span class="src-keyword">EQ</span><!--src-keyword--> w-r-no
+        <span class="src-keyword">AND NOT CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> w-b-no <span class="src-keyword">WHERE</span><!--src-keyword--> w-b-no <span class="src-keyword">EQ</span><!--src-keyword--> inv-line.b-no)
+      <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+    <span class="src-keyword">CREATE</span><!--src-keyword--> w-b-no.
+    w-b-no = inv-line.b-no.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> w-b-no,
+      <span class="src-keyword">EACH</span><!--src-keyword--> inv-line
+      <span class="src-keyword">WHERE</span><!--src-keyword--> inv-line.b-no <span class="src-keyword">EQ</span><!--src-keyword--> w-b-no
+        <span class="src-keyword">AND NOT CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> w-r-no <span class="src-keyword">WHERE</span><!--src-keyword--> w-r-no <span class="src-keyword">EQ</span><!--src-keyword--> inv-line.r-no)
+      <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+    <span class="src-keyword">CREATE</span><!--src-keyword--> w-r-no.
+    w-r-no = inv-line.r-no.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">RELEASE</span><!--src-keyword--> w-r-no.
+ 
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> w-r-no,
+      <span class="src-keyword">FIRST</span><!--src-keyword--> inv-line
+      <span class="src-keyword">WHERE</span><!--src-keyword--> inv-line.r-no <span class="src-keyword">EQ</span><!--src-keyword--> w-r-no
+        <span class="src-keyword">AND NOT CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> w-b-no <span class="src-keyword">WHERE</span><!--src-keyword--> w-b-no <span class="src-keyword">EQ</span><!--src-keyword--> inv-line.b-no)
+      <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+    <span class="src-keyword">LEAVE</span><!--src-keyword-->.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> w-b-no,
+    <span class="src-keyword">FIRST</span><!--src-keyword--> oe-bolh <span class="src-keyword">WHERE</span><!--src-keyword--> oe-bolh.b-no <span class="src-keyword">EQ</span><!--src-keyword--> w-b-no <span class="src-keyword">NO-LOCK</span><!--src-keyword-->,
+    <span class="src-keyword">EACH</span><!--src-keyword--> oe-boll
+    <span class="src-keyword">WHERE</span><!--src-keyword--> oe-boll.company <span class="src-keyword">EQ</span><!--src-keyword--> oe-bolh.company
+      <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.b-no    <span class="src-keyword">EQ</span><!--src-keyword--> oe-bolh.b-no
+    <span class="src-keyword">USE-INDEX</span><!--src-keyword--> b-no <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+ 
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> xoe-boll
+      <span class="src-keyword">WHERE</span><!--src-keyword--> xoe-boll.company    <span class="src-keyword">EQ</span><!--src-keyword--> oe-boll.company
+        <span class="src-keyword">AND</span><!--src-keyword--> xoe-boll.ord-no     <span class="src-keyword">EQ</span><!--src-keyword--> oe-boll.ord-no
+        <span class="src-keyword">AND</span><!--src-keyword--> ((xoe-boll.rel-no   <span class="src-keyword">EQ</span><!--src-keyword--> oe-boll.rel-no <span class="src-keyword">AND</span><!--src-keyword-->
+              xoe-boll.b-ord-no <span class="src-keyword">GT</span><!--src-keyword--> oe-boll.b-ord-no)    <span class="src-comment">/*OR
+             (xoe-boll.i-no     EQ oe-boll.i-no   AND
+              xoe-boll.line     EQ oe-boll.line   AND
+              xoe-boll.rel-no   GT oe-boll.rel-no AND
+              xoe-boll.s-code   NE "B"            AND
+              oe-boll.s-code    NE "B")*/</span><!--src-comment-->)
+        <span class="src-keyword">AND NOT CAN-FIND</span><!--src-keyword-->(<span class="src-keyword">FIRST</span><!--src-keyword--> xoe-bolh
+                         <span class="src-keyword">WHERE</span><!--src-keyword--> xoe-bolh.b-no   <span class="src-keyword">EQ</span><!--src-keyword--> xoe-boll.b-no
+                           <span class="src-keyword">AND</span><!--src-keyword--> xoe-bolh.posted <span class="src-keyword">EQ YES</span><!--src-keyword-->)
+      <span class="src-keyword">USE-INDEX</span><!--src-keyword--> ord-no <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
+    <span class="src-keyword">MESSAGE</span><!--src-keyword--> <span class="src-char">"Can not delete invoice until all subsequent "</span><!--src-char--> +
+            <span class="src-char">"invoices and bills of lading are deleted."</span><!--src-char--> <span class="src-keyword">SKIP</span><!--src-keyword--> 
+            <span class="src-char">"See BOL# "</span><!--src-char--> xoe-boll.bol-no <span class="src-keyword">SKIP</span><!--src-keyword-->
+            <span class="src-char">"for Order "</span><!--src-char--> xoe-boll.ord-no 
+        <span class="src-keyword">VIEW-AS ALERT-BOX ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">RETURN ERROR</span><!--src-keyword-->.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> w-r-no:
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> inv-line <span class="src-keyword">WHERE</span><!--src-keyword--> inv-line.r-no <span class="src-keyword">EQ</span><!--src-keyword--> w-r-no:
+    <span class="src-comment">/* oe/invpost4.p calls fg/fgcalca&amp;b.p to get q-alloc, but if the posted flag */</span><!--src-comment-->
+    <span class="src-comment">/* is yes, it won't pick up the correct qty                                  */</span><!--src-comment-->
+    <span class="src-keyword">FOR EACH</span><!--src-keyword-->  w-b-no 
+        <span class="src-keyword">WHERE</span><!--src-keyword--> w-b-no = inv-line.b-no,
+          <span class="src-keyword">FIRST</span><!--src-keyword--> oe-bolh <span class="src-keyword">WHERE</span><!--src-keyword--> oe-bolh.b-no <span class="src-keyword">EQ</span><!--src-keyword--> w-b-no:
+          oe-bolh.posted = <span class="src-keyword">NO</span><!--src-keyword-->.
+    <span class="src-keyword">END</span><!--src-keyword-->.
+    <span class="src-keyword">IF</span><!--src-keyword--> oe-ctrl.u-inv <span class="src-keyword">THEN RUN</span><!--src-keyword--> oe/invpost4.p (<span class="src-keyword">RECID</span><!--src-keyword-->(inv-line), <span class="src-number">-1</span><!--src-number-->).
+    <span class="src-keyword">DELETE</span><!--src-keyword--> inv-line.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+  <span class="src-keyword">FOR EACH</span><!--src-keyword--> inv-misc <span class="src-keyword">WHERE</span><!--src-keyword--> inv-misc.r-no <span class="src-keyword">EQ</span><!--src-keyword--> w-r-no:
+    <span class="src-comment">/** Re-Set billing flag to (I)nvoiced **/</span><!--src-comment-->
+    <span class="src-keyword">FIND FIRST</span><!--src-keyword--> oe-ordm
+        <span class="src-keyword">WHERE</span><!--src-keyword--> oe-ordm.company <span class="src-keyword">EQ</span><!--src-keyword--> inv-misc.company
+          <span class="src-keyword">AND</span><!--src-keyword--> oe-ordm.ord-no  <span class="src-keyword">EQ</span><!--src-keyword--> inv-misc.ord-no
+          <span class="src-keyword">AND</span><!--src-keyword--> oe-ordm.<span class="src-keyword">line    EQ</span><!--src-keyword--> inv-misc.<span class="src-keyword">line</span><!--src-keyword-->
+        <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF AVAIL</span><!--src-keyword--> oe-ordm        <span class="src-keyword">AND</span><!--src-keyword-->
+       oe-ordm.bill  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"I"</span><!--src-char--> <span class="src-keyword">AND</span><!--src-keyword-->
+       inv-misc.bill <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"Y"</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> oe-ordm.bill = <span class="src-char">"Y"</span><!--src-char-->.
+ 
+    <span class="src-keyword">DELETE</span><!--src-keyword--> inv-misc.
+  <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* each inv-misc */</span><!--src-comment-->
+ 
+  <span class="src-keyword">FIND FIRST</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">WHERE</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.r-no <span class="src-keyword">EQ</span><!--src-keyword--> w-r-no <span class="src-keyword">EXCLUSIVE NO-ERROR</span><!--src-keyword-->. 
+  <span class="src-keyword">IF AVAIL</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+    <span class="src-keyword">IF NOT</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.multi-invoice <span class="src-keyword">THEN</span><!--src-keyword-->
+      <span class="src-keyword">RUN</span><!--src-keyword--> oe/updmulti.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->, <span class="src-keyword">BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->).
+    <span class="src-keyword">DELETE</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> w-b-no,
+    <span class="src-keyword">FIRST</span><!--src-keyword--> oe-bolh <span class="src-keyword">WHERE</span><!--src-keyword--> oe-bolh.b-no <span class="src-keyword">EQ</span><!--src-keyword--> w-b-no:
+ 
+  <span class="src-keyword">RUN</span><!--src-keyword--> oe/bolpundo.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> oe-bolh, <span class="src-keyword">OUTPUT</span><!--src-keyword--> ll-invoice).
+ 
+  <span class="src-keyword">IF</span><!--src-keyword--> ll-invoice <span class="src-keyword">THEN DO</span><!--src-keyword-->:
+    <span class="src-keyword">FOR EACH</span><!--src-keyword--> oe-boll
+        <span class="src-keyword">WHERE</span><!--src-keyword--> oe-boll.company <span class="src-keyword">EQ</span><!--src-keyword--> oe-bolh.company
+          <span class="src-keyword">AND</span><!--src-keyword--> oe-boll.b-no    <span class="src-keyword">EQ</span><!--src-keyword--> oe-bolh.b-no:
+      <span class="src-prep">{oe/bollrell.i}</span><!--src-prep-->
+      <span class="src-keyword">DELETE</span><!--src-keyword--> oe-boll.
+    <span class="src-keyword">END</span><!--src-keyword-->.
+ 
+    <span class="src-prep">{oe/bolhrell.i}</span><!--src-prep-->
+ 
+    <span class="src-keyword">FIND FIRST</span><!--src-keyword--> oe-relh
+        <span class="src-keyword">WHERE</span><!--src-keyword--> oe-relh.company  <span class="src-keyword">EQ</span><!--src-keyword--> oe-bolh.company
+          <span class="src-keyword">AND</span><!--src-keyword--> oe-relh.release# <span class="src-keyword">EQ</span><!--src-keyword--> oe-bolh.release#
+        <span class="src-keyword">EXCLUSIVE-LOCK NO-ERROR</span><!--src-keyword-->.
+ 
+    <span class="src-keyword">IF AVAIL</span><!--src-keyword--> oe-relh <span class="src-keyword">THEN</span><!--src-keyword--> oe-relh.posted = <span class="src-keyword">NO</span><!--src-keyword-->.
+ 
+    <span class="src-keyword">DELETE</span><!--src-keyword--> oe-bolh.
+  <span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF NOT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.multi-invoice <span class="src-keyword">THEN</span><!--src-keyword-->
+  <span class="src-keyword">RUN</span><!--src-keyword--> oe/updmulti.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->, <span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->).
+ 
+<span class="src-keyword">FIND FIRST</span><!--src-keyword--> reftable <span class="src-keyword">WHERE</span><!--src-keyword-->
+     reftable.reftable <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"brokerbol"</span><!--src-char--> <span class="src-keyword">AND</span><!--src-keyword-->
+     reftable.<span class="src-keyword">CODE EQ STRING</span><!--src-keyword-->(inv-head.inv-no)
+     <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+ 
+<span class="src-keyword">IF AVAIL</span><!--src-keyword--> reftable <span class="src-keyword">THEN</span><!--src-keyword-->
+   <span class="src-keyword">DELETE</span><!--src-keyword--> reftable.
+ 
+<span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
+<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
+ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
+</div><!--progresscode-->
+</body>
+</html>

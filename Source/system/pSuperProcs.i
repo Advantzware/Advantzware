@@ -89,6 +89,7 @@ PROCEDURE pSuperProcs:
                 + "util/ImportProcs.p,"
                 + "util/updQuoteProcs.p,"
                 + "util/Validate.p,"
+                + "system/ConversionProcs.p,"
                 .
     cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):

@@ -16,13 +16,11 @@ DEF VAR v-qty AS DEC NO-UNDO.
 DEF VAR ld-sheeter AS DEC NO-UNDO.
 DEFINE VARIABLE dv-t-cost AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dv-ord-qty               AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cfg-uom-list        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCkeckRec          AS LOGICAL INIT NO NO-UNDO .
 DEFINE NEW SHARED VARIABLE v-basis-w AS DECIMAL NO-UNDO.
 
 {sys/inc/var.i SHARED}
 {sys/form/s-top.f}
-RUN sys/ref/uom-fg.p (?, OUTPUT cfg-uom-list).
 
 FIND po-ordl WHERE RECID(po-ordl) EQ ip-recid NO-LOCK NO-ERROR.
                      
@@ -142,8 +140,8 @@ IF AVAIL po-ord THEN
     /* Get quantity in the same UOM as the cost */
     IF  po-ordl.pr-qty-uom NE  po-ordl.pr-uom     AND
        (po-ordl.item-type                                 OR
-        LOOKUP( po-ordl.pr-qty-uom,cfg-uom-list) EQ 0 OR
-        LOOKUP( po-ordl.pr-uom,cfg-uom-list)     EQ 0)  THEN DO:
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) OR
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-uom))  THEN DO:
        
       IF po-ordl.pr-qty-uom EQ "CS" AND AVAIL(itemfg) THEN DO:
         /* Convert quantity to EA */

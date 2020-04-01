@@ -375,38 +375,45 @@ if oe-boll.s-code ne "I"                                            or
 oe-ordl.stat = "".
 
 RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT oe-ordl.inv-qty, OUTPUT oe-ordl.ship-qty).
-
-inv-line.t-price = inv-line.inv-qty / 1000 * inv-line.price.
-
-IF inv-line.pr-uom BEGINS "L" AND inv-line.pr-uom NE "LB" THEN
-         inv-line.t-price = inv-line.price *
-                           IF inv-line.inv-qty LT 0 THEN -1 ELSE IF inv-line.inv-qty EQ 0 THEN 0 ELSE 1.
-ELSE IF inv-line.pr-uom EQ "CS" THEN
-    inv-line.t-price = inv-line.inv-qty /
-                           (IF inv-line.cas-cnt NE 0 THEN
-                             inv-line.cas-cnt
-                            ELSE
-                            IF itemfg.case-count NE 0 THEN
-                              itemfg.case-count ELSE 1) *
-                           inv-line.price.
-ELSE IF LOOKUP(inv-line.pr-uom,fg-uom-list) GT 0 THEN
-       inv-line.t-price = inv-line.inv-qty * inv-line.price.
-ELSE
-  FOR EACH uom
-      WHERE uom.uom  EQ inv-line.pr-uom
-        AND uom.mult NE 0
-      NO-LOCK:
-    inv-line.t-price = inv-line.inv-qty / uom.mult * inv-line.price.
-    LEAVE.
-  END.
-inv-line.t-price = ROUND(inv-line.t-price,2).
-
-IF inv-line.disc NE 0 THEN
-   inv-line.t-price = 
-        IF ll-calc-disc-first THEN 
-          (inv-line.t-price - ROUND(inv-line.t-price * inv-line.disc / 100,2))
-        ELSE
-          ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).
+RUN Conv_CalcTotalPrice(inv-line.company, 
+                        inv-line.i-no,
+                        inv-line.qty,
+                        inv-line.price,
+                        inv-line.pr-uom,
+                        inv-line.disc,
+                        inv-line.cas-cnt,    
+                        OUTPUT inv-line.t-price).
+/*inv-line.t-price = inv-line.inv-qty / 1000 * inv-line.price.                                            */
+/*                                                                                                        */
+/*IF inv-line.pr-uom BEGINS "L" AND inv-line.pr-uom NE "LB" THEN                                          */
+/*         inv-line.t-price = inv-line.price *                                                            */
+/*                           IF inv-line.inv-qty LT 0 THEN -1 ELSE IF inv-line.inv-qty EQ 0 THEN 0 ELSE 1.*/
+/*ELSE IF inv-line.pr-uom EQ "CS" THEN                                                                    */
+/*    inv-line.t-price = inv-line.inv-qty /                                                               */
+/*                           (IF inv-line.cas-cnt NE 0 THEN                                               */
+/*                             inv-line.cas-cnt                                                           */
+/*                            ELSE                                                                        */
+/*                            IF itemfg.case-count NE 0 THEN                                              */
+/*                              itemfg.case-count ELSE 1) *                                               */
+/*                           inv-line.price.                                                              */
+/*ELSE IF LOOKUP(inv-line.pr-uom,fg-uom-list) GT 0 THEN                                                   */
+/*       inv-line.t-price = inv-line.inv-qty * inv-line.price.                                            */
+/*ELSE                                                                                                    */
+/*  FOR EACH uom                                                                                          */
+/*      WHERE uom.uom  EQ inv-line.pr-uom                                                                 */
+/*        AND uom.mult NE 0                                                                               */
+/*      NO-LOCK:                                                                                          */
+/*    inv-line.t-price = inv-line.inv-qty / uom.mult * inv-line.price.                                    */
+/*    LEAVE.                                                                                              */
+/*  END.                                                                                                  */
+/*inv-line.t-price = ROUND(inv-line.t-price,2).                                                           */
+/*                                                                                                        */
+/*IF inv-line.disc NE 0 THEN                                                                              */
+/*   inv-line.t-price =                                                                                   */
+/*        IF ll-calc-disc-first THEN                                                                      */
+/*          (inv-line.t-price - ROUND(inv-line.t-price * inv-line.disc / 100,2))                          */
+/*        ELSE                                                                                            */
+/*          ROUND(inv-line.t-price * (1 - (inv-line.disc / 100)),2).                                      */
 
 RUN oe/GetCostInvl.p (ROWID(inv-line),
                      OUTPUT v-cost[1], OUTPUT v-cost[2],

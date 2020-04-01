@@ -47,6 +47,7 @@ DEFINE TEMP-TABLE tt-job-hdr
     FIELD org-qty AS DECIMAL
     FIELD job-no AS CHARACTER
     FIELD job-no2 AS INTEGER
+    FIELD riJobHdr AS ROWID
     FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .
 
 DEFINE VARIABLE cbShipFrom AS CHARACTER  NO-UNDO .
@@ -260,10 +261,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-hdr .
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Job Quantity Entry */
 DO:
     FOR EACH tt-job-hdr NO-LOCK ,
-       FIRST bf-job-hdr WHERE bf-job-hdr.job-no EQ tt-job-hdr.job-no
-           AND bf-job-hdr.job-no2 EQ tt-job-hdr.job-no2
-           AND bf-job-hdr.frm EQ tt-job-hdr.frm
-           AND bf-job-hdr.blank-no EQ tt-job-hdr.blank-no EXCLUSIVE-LOCK:
+       FIRST bf-job-hdr EXCLUSIVE-LOCK
+       WHERE ROWID(bf-job-hdr) EQ tt-job-hdr.riJobHdr 
+           AND bf-job-hdr.qty NE tt-job-hdr.qty:
         ASSIGN bf-job-hdr.qty = tt-job-hdr.qty .
     END.
    RELEASE bf-job-hdr .
@@ -540,6 +540,7 @@ PROCEDURE build-table :
                 tt-job-hdr.org-qty    =   bf-job-hdr.qty 
                 tt-job-hdr.job-no     =   bf-job-hdr.job-no  
                 tt-job-hdr.job-no2    =   bf-job-hdr.job-no2 
+                tt-job-hdr.riJobHdr   =   ROWID(bf-job-hdr)
                 tt-job-hdr.IS-SELECTED =  YES .
 
            FIND FIRST itemfg NO-LOCK

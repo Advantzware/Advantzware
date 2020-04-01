@@ -28,3 +28,7 @@
 28 "CorrectData" "System" "Correct Data" "Logical" "yes/no" "Toggle-Box" "" "yes" 1 16 0 "" "" "" ? "" "201911064450004355512"
 29 "Location" "System" "Location" "Character" "x(5)" "Fill-In" "" "" 1 11 0 "" "dynValLoc" "dynDescripLoc" ? "" "201911223481304359160"
 31 "APIStatus" "System" "API Status" "Logical" "yes/no" "Radio-Set" "All,?,Success,Yes,Failure,No" "yes" 1 34 0 "" "" "" "HORIZONTAL" "" "202001234577904610545"
+32 "APIInboundRoute" "System" "API Inbound Route" "Character" "x(32)" "Fill-In" "" "" 1 50 0 "" "" "" ? "" "202002044850904639774"
+33 "ShowHistory" "System" "Show History" "Logical" "yes/no" "Toggle-Box" "" "no" 1 17 0 "" "" "" ? "" "202002066526704654728"
+34 "AsOfDateOption" "System" "As Of Date Option" "Character" "x(8)" "Radio-Set" "Current,Current,Prior Month,Prior Month,Prior Year,Prior Year" "Current" 1 41 0 "" "" "" "HORIZONTAL" "" "202003095686704702280"
+35 "IncludeZeroPricePer" "System" "Include Zero Price Per" "Logical" "yes/no" "Toggle-Box" "" "yes" 1 24 0 "" "" "" ? "" "202003257004304706946"

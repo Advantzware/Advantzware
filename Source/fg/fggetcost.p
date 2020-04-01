@@ -5,7 +5,6 @@ def INPUT PARAMETER v-len like po-ordl.s-len no-undo.
 def INPUT PARAMETER v-wid like po-ordl.s-len no-undo.
 def INPUT PARAMETER v-dep like po-ordl.s-len no-undo. 
 DEF INPUT PARAMETER ip-out-ea AS DEC NO-UNDO.
-DEF INPUT PARAMETER ip-fg-uom-list AS CHAR NO-UNDO.
 
 DEF OUTPUT PARAMETER lv-out-cost AS DEC NO-UNDO.
 
@@ -68,7 +67,7 @@ ASSIGN cocode = g_company
 
    IF po-ordl.pr-qty-uom{2} EQ "EA"       OR
      (NOT po-ordl.item-type AND
-      LOOKUP(po-ordl.pr-qty-uom,ip-fg-uom-list) GT 0) THEN
+      DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom)) THEN
      v-tot-msf = IF v-corr THEN ((v-len * v-wid * .007 * dec(ip-out-ea)) / 1000)
                            ELSE ((((v-len * v-wid) / 144) * dec(ip-out-ea)) / 1000).
    else do:

@@ -430,7 +430,7 @@ PROCEDURE pProcessRecord PRIVATE:
          END CASE.           
      
 
-      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm)) .
+      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.quo-date - 1) .
       RELEASE bf-quoteitm.
       RELEASE bf-quotehd.
       RELEASE bf-quoteqty.

@@ -19,7 +19,6 @@ DEF OUTPUT PARAMETER opd-ext-cost LIKE fg-rctd.ext-cost NO-UNDO.
 DEF OUTPUT PARAMETER opd-frt-cost LIKE fg-rctd.frt-cost NO-UNDO.
 DEF OUTPUT PARAMETER opd-setup-per-cost-uom AS DEC NO-UNDO.
 /* DEF INPUT PARAMETER ipr-itemfg-row AS ROWID NO-UNDO. */
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR lv-ord-uom AS CHAR NO-UNDO.
 DEF VAR v-bwt like po-ordl.s-len no-undo.
 DEF VAR v-len like po-ordl.s-len no-undo.
@@ -54,7 +53,6 @@ IF NOT AVAIL b-po-ordl OR NOT AVAIL fg-rctd OR NOT AVAIL itemfg THEN
 
 DEF VAR dRFIDTag AS DEC NO-UNDO.
 
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 ASSIGN
  v-bwt       = 0
  v-len       = itemfg.t-len
@@ -122,15 +120,15 @@ ASSIGN
 
  /* convert cost pr-uom*/
  IF lv-from-uom EQ lv-cost-uom OR
-    (LOOKUP(lv-from-uom,fg-uom-list) GT 0 AND
-     LOOKUP(lv-cost-uom,fg-uom-list) GT 0) THEN.
+    (DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, b-po-ordl.i-no, lv-from-uom) AND
+     DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, b-po-ordl.i-no, lv-cost-uom)) THEN.
  ELSE
     RUN rm/convcuom.p(lv-from-uom, lv-cost-uom,                   
                       v-bwt, v-len, v-wid, v-dep,
                       lv-out-cost, OUTPUT lv-out-cost).
  
  /* Using adjusted qty, which includes other tags for cost calculation purposes */
- IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
+ IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, b-po-ordl.i-no, lv-cost-uom) THEN
     RUN rm/convquom.p("EA", lv-cost-uom,                   
                       v-bwt, v-len, v-wid, v-dep,
                       lv-adjusted-qty, OUTPUT lv-out-qty).
@@ -254,8 +252,8 @@ ASSIGN
             lv-calc-cost = ip-cost-to-set.
             lv-recalc-cost = lv-calc-cost.
             IF b-fg-rctd.cost-uom EQ ip-cost-to-set-uom               OR
-              (LOOKUP(ipcCostUom,fg-uom-list) GT 0 AND
-               LOOKUP(b-fg-rctd.cost-uom,fg-uom-list) GT 0)   THEN.
+              (DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, b-fg-rctd.i-no, ipcCostUom) AND
+               DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, b-fg-rctd.i-no, b-fg-rctd.cost-uom))   THEN.
             ELSE
                RUN rm/convcuom.p(b-fg-rctd.cost-uom, ip-cost-to-set-uom, 
                                  v-bwt, v-len, v-wid, v-dep,

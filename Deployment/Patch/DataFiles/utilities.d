@@ -7,6 +7,11 @@ This requires turning on N-K-1 = FGForcedCommission" 900
 
 Note that this function does NOT create summary transactions; use with EXTREME caution." 900
 "updQuoteExp.r" "EQ" "EQ" "Update Quote Expiration" "This utility will find any quotes for a customer and part number that has a more current effective date and set expiration date for quotes that are no longer needed." 900
+"wGlAcctConverter.r" "GL" "GF2" "Change GL Account Number" "This utility allows for changing the GL account number and converting all GL history and related transactions to new account number.  Should NOT be run other than by ASI team." 1000
+"loadApiData.r" "API" "NM" "Load API Data" "This utility is used to load API data into the system when changes are available and need to be loaded." 900
+"wJobPurge" "JC" "JU1" "Job Purge Program" "This program will purge jobs from the system." 900
+"LoadTagReport.r" "" "" "report comparing Item units per pallet to" "Report comparing Item units per pallet to actual load tags created" 900
+"ImportMachine.r" "CE" "EB1" "Import Machines" "Import of machines for estimating.  This imports machines into the machine file." 900
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900
@@ -91,7 +96,7 @@ Note: No prompt will be provided, so running this will execute immediately." 900
 "FxIvOnly.r" "ASI" "OS1" "Invoice Only Missing Invoice Fix" "Validates the order, gets first posted BOL line for that order, find the first release line for that BOL, it will delete the BOL line if there is a BOL and sets the release to unposted so they can ost it again." 1000
 "FxMnote.r" "JC" "JU1" "Restore Job Machine Notes" "Restores the machine notes on the job from the estimate.  Asks begin and end job number." 900
 "fxoeretl.r" "FG" "IF" "Returns should reduce the ship quantity" "No prompt!  This utility will automatiaclly recalulcate the shipped quantity by adding all shipments and reducing that by all returns." 900
-"fxoeship.r" "OP" "OU1" "Update Order Browsers Ship Quantity" "Warning No Prompt!  Runs for all companies.  Recalculates the ship and invoice quantities of all orders based on the sum of all the invoices and all the BOLs and updates the order quantities.
+"fxoeship.r" "OP" "OU1" "Update Order Browsers Ship Quantity" " Recalculates the ship and invoice quantities of all orders based on the sum of all the invoices and all the BOLs and updates the order quantities.
 
 Fixing orders will take a while to run.
 " 900
@@ -103,7 +108,7 @@ Fixing orders will take a while to run.
 "FxRecKey.r" "AR" "AF1" "Fix Customer Record Keys to Fix Notes" "Fix rec key for customer notes and set a customer note date = customer setup or 01/01/2006." 1000
 "fxshpqty.r" "OP" "OU1" "Updates Orders Ship Quantity" "Prompts for Begin/End order number.  Updates order ship quantity based on the order range, recalculate the allocation and back order quantity." 900
 "FxTrncs2.r" "RM" "MF" "Updates RM History Cost from Purchase Order" "If purchased RM item, then reset the cost of RM item to that of the PO cost." 900
-"glinvdif.r" "GL" "" "Report differences in invoice amt vs posted" "Report compares invoce lines to the GL entries created to see if out of balance." 900
+"glinvdif.r" "GL" "" "Report differences in invoice amt vs posted" "Report compares invoice lines to the GL entries created to see if out of balance." 900
 "impest.r" "CE" "" "Import Estimate" "Import of estimates template." 900
 "LDBOXIMG.R" "UTIL" "EB" "Load Box Image Into the sytem" "Utility to load the path location of the box images." 900
 "ldinks.r" "RM" "MF" "Load Inks from Inks.Dat File" "Load of inks into the system from a .d file.  Used to import a standard set of inks." 900

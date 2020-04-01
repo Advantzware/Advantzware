@@ -51,10 +51,6 @@ DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
 
 RUN oe/getacct.p.
 
-DEF VAR fg-uom-list AS cha NO-UNDO.
-
-RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
-
 DEF VAR op-enable-price AS LOG NO-UNDO.
 DEFINE VARIABLE l-enable-price AS LOG NO-UNDO.
 DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
@@ -1059,7 +1055,7 @@ PROCEDURE local-assign-record :
                      itemfg.case-count ELSE 1) *
                  ar-invl.unit-pr.
      ELSE
-     IF LOOKUP(ar-invl.pr-uom,fg-uom-list) GT 0 THEN
+     IF DYNAMIC-FUNCTION("Conv_IsEAUOM",ar-invl.company, ar-invl.i-no, ar-invl.pr-uom) THEN
        ld-diff = ld-inv-qty * ar-invl.unit-pr.
      ELSE
      FOR EACH uom FIELDS(mult)

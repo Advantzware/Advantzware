@@ -1141,6 +1141,7 @@ FUNCTION fConvert RETURNS DECIMAL
     DEFINE VARIABLE dSquareFootOfEach AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dLengthInFeet     AS DECIMAL NO-UNDO.
     
+    
     IF ipdValueToConvert EQ 0 THEN 
     DO:
         RETURN dValueConverted.

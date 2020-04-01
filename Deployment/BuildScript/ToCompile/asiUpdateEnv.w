@@ -3052,6 +3052,11 @@ PROCEDURE ipDataFix200100:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 200100...").
 
+    DISABLE TRIGGERS FOR LOAD OF sys-ctrl.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
+    DISABLE TRIGGERS FOR LOAD OF userPwdHist.
+    DISABLE TRIGGERS FOR LOAD OF inventoryStatusType.
+
 /*  64833 Set by default to output Estimate data */
     FOR EACH sys-ctrl WHERE 
         sys-ctrl.name EQ "CECostSave":
@@ -3069,7 +3074,7 @@ PROCEDURE ipDataFix200100:
     
     /* 64876 - Encrypt passwords in userPwdHist */
     FOR EACH userPwdHist:
-        ASSIGN 
+        IF userPwdHist.pwd NE ENCODE(userPwdHist.pwd) THEN ASSIGN 
             userPwdHist.pwd = ENCODE(userPwdHist.pwd).
     END.
     

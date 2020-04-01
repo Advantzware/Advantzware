@@ -98,13 +98,15 @@ FOR EACH oe-ord NO-LOCK
              WHERE itemfg.company EQ ipcCompany
                AND itemfg.i-no EQ oe-ordl.i-no
              NO-ERROR.
-        RUN GetPriceTotal IN hdPriceProcs (oe-ordl.qty,
-                                       oe-ordl.price,
-                                       oe-ordl.pr-uom,
-                                       (IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
-                                       oe-ordl.disc,
-                                       OUTPUT dExtPrice).
-                                        
+        
+        RUN Conv_CalcTotalPrice (oe-ordl.company,
+                                 oe-ordl.i-no,
+                                 oe-ordl.qty,
+                                 oe-ordl.price,
+                                 oe-ordl.pr-uom,
+                                 (IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
+                                 oe-ordl.disc,
+                                 OUTPUT dExtPrice).
         
         dTotFreight = dTotFreight
                        + (ROUND(oe-ordl.t-freight / oe-ordl.qty, 2)
