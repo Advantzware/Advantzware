@@ -1866,6 +1866,28 @@ PROCEDURE UpdateVendItemCost:
     RELEASE bf-vendItemCost.
 END PROCEDURE.
 
+PROCEDURE VendCost_GetVendorItemID:
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper function for GetVendorItem that returns first vendor item #
+    for a given item/type/vendor.
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcVendorItemID AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS LOGICAL NO-UNDO.
+
+RUN GetVendorItem(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, 
+                  "","", 0, 0, NO, 
+                  OUTPUT opcVendorItemID, 
+                  OUTPUT lError, OUTPUT cMessage).
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION GetValidScopes RETURNS CHARACTER 

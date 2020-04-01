@@ -40,6 +40,11 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     ipcItemID AS CHARACTER,
     ipcUOM AS CHARACTER) FORWARD.
 
+FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
+	(ipdLength AS DECIMAL,
+	 ipdWidth AS DECIMAL,
+	 ipcDimUOM AS CHARACTER) FORWARD.
+
 FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
@@ -527,6 +532,39 @@ PROCEDURE pAddUOM PRIVATE:
         .
 END PROCEDURE.
 
+PROCEDURE pAddUOMsFromDimensions PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given LWD dimensions, add UOM conversions to EA
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dAreaInSqFt AS DECIMAL NO-UNDO.
+    
+    CASE ipcDimUOM:
+        WHEN "IN" THEN DO:
+            IF ipdLength GT 0 THEN DO:
+                RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / ipdLength, ipcSource, "Cost").
+                RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / ipdLength, ipcSource, "Cost").
+                RUN pAddUOM("IN", YES, "EA","Inches", 1 / ipdLength, ipcSource, "Cost").
+                RUN pAddUOM("LF", YES, "EA","Lineal Feet", 12 / ipdLength, ipcSource, "Cost").
+                IF ipdWidth GT 0 THEN DO:
+                    dAreaInSqFt = fGetSqft(ipdLength,ipdWidth,ipcDimUOM).
+                    RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / ipdLength * ipdWidth, ipcSource, "Cost").
+                    RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / dAreaInSqFt, ipcSource, "Cost").
+                    RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / dAreaInSqFt, ipcSource, "Cost").
+                END.  /*Width GT 0*/
+            END. /*Length GT 0*/
+        END.
+        WHEN "cm" THEN DO:
+        END.
+    END CASE.
+END PROCEDURE.
+
 PROCEDURE pAddUOMsFromItemUOM PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Given a company, item and item type, add active UOMs to the ttUOM table.
@@ -553,6 +591,27 @@ PROCEDURE pAddUOMsFromItemUOM PRIVATE:
 
     END.  /*Each ttItem UOM*/
     
+END PROCEDURE.
+
+PROCEDURE pAddUOMsFromWeight PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given weight per EA and weight units, add weight related UOMs
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdWeightPerEA AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+    
+    IF ipdWeightPerEA GT 0 THEN DO:
+        CASE ipcWeightUOM:
+            WHEN "LB" THEN DO: 
+                RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+                RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+            END.
+        END CASE.
+    END.            
+    
+
 END PROCEDURE.
 
 PROCEDURE pBuildUOMS PRIVATE:
@@ -592,17 +651,12 @@ PROCEDURE pBuildUOMsForItemFG PRIVATE:
             RUN pAddUOM("CS", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty,POQty,Cost").
             RUN pAddUOM("PLT", YES, "EA","Pallet", ipbf-itemfg.case-count * ipbf-itemfg.case-pall, cSourceItemMaster, "Price,OrderQty,POQty,Cost").
             RUN pAddUOM("BDL", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty").
-            IF ipbf-itemfg.t-sqft GT 0 THEN DO:
-                RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / ipbf-itemfg.t-sqft, cSourceItemMaster, "Cost").
-                RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / ipbf-itemfg.t-sqft, cSourceItemMaster, "Cost").
-            END.
-            IF ipbf-itemfg.t-sqin GT 0 THEN DO:
-                RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / ipbf-itemfg.t-sqin, cSourceItemMaster, "Cost").
-            END.
-            IF ipbf-itemfg.weight-100 GT 0 THEN DO:
-                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").
-            END.
-        END.            
+        END.    
+        RUN pAddUOMsFromDimensions(ipbf-itemfg.t-len, ipbf-itemfg.t-wid, ipbf-itemfg.t-dep, "IN", cSourceItemMaster).
+        RUN pAddUOMsFromWeight(ipbf-itemfg.weight-100 / 100, "LB", cSourceItemMaster).    
+/*            IF ipbf-itemfg.weight-100 GT 0 THEN DO:                                                                                  */
+/*                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").*/
+/*            END.                                                                                                                     */
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-itemfg.company, ipbf-itemfg.i-no, "FG", YES).
     END.
@@ -617,11 +671,14 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-item FOR item.
     
-    
+    DEFINE VARIABLE cSourceItemMaster AS CHARACTER NO-UNDO INITIAL "Item Master".
+    DEFINE VARIABLE dLbsPerEa AS DECIMAL NO-UNDO.
     IF AVAILABLE ipbf-item THEN 
-    DO:
-
+    DO:   
         /*Add UOMs from item Master*/
+        RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster).
+        dLbsPerEA = ipbf-item.basis-w * (fGetSqft(ipbf-item.s-len, ipbf-item.s-wid,"IN") / 1000).
+        RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster).    
         
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-item.company, ipbf-item.i-no, "RM", YES).
@@ -643,6 +700,7 @@ PROCEDURE pBuildBaseUOMs PRIVATE:
     
     RUN pAddUOM("EA", YES, "EA","Each", 1, cSourceBase, cPurposesForEA).
     RUN pAddUOM("M", YES, "EA","Thousand", 1000, cSourceBase, cPurposesForEA).
+    RUN pAddUOM("MSH", YES, "EA","Thousand Sheets", 1000, cSourceBase, cPurposesForEA).
     RUN pAddUOM("DZ", YES, "EA","Dozen", 12, cSourceBase, cPurposesForEA).
     RUN pAddUOM("DOZ", YES, "EA","Dozen", 12, cSourceBase, cPurposesForEA).
     RUN pAddUOM("C", YES, "EA","Hundred", 100, cSourceBase, cPurposesForEA).
@@ -660,14 +718,14 @@ PROCEDURE pBuildBaseUOMs PRIVATE:
     RUN pAddUOM("L", YES, "EA","Lot", 1, cSourceBase, "Price,Cost").
     
     FOR EACH uom NO-LOCK
-        WHERE uom.base-uom NE ""
+        WHERE uom.Other NE ""
         AND uom.mult NE 0:
-        IF ttUOM.uomBase EQ "EA" THEN
+        IF uom.other EQ "EA" THEN
             cPurposes = cPurposesForEA.
         ELSE 
             cPurposes = "".
             
-        RUN pAddUOM(uom.uom, YES, uom.base-uom, uom.dscr, uom.mult, cSourceUOM, cPurposes).
+        RUN pAddUOM(uom.uom, YES, uom.other, uom.dscr, uom.mult, cSourceUOM, cPurposes).
     END.
 
 END PROCEDURE.
@@ -692,14 +750,8 @@ PROCEDURE pBuildUOMsFromOverrides PRIVATE:
     
     IF ipcItemType EQ "FG" AND ipdOverrideCount GT 0 THEN 
         RUN pAddUOM("CS", YES, "EA","Case", ipdOverrideCount, cSourceOverride, "Price,OrderQty,POQty,Cost").
-    IF ipdDimLength GT 0 AND ipdDimWidth GT 0 THEN DO:
-        IF ipcDimUOM EQ "IN" THEN DO:
-            dAreaOfEA = ipdDimLength * ipdDimWidth.
-            RUN pAddUOM("SQIN", YES, "EA","Square Inches", 1 / dAreaOfEA, cSourceOverride, "Cost").
-            RUN pAddUOM("SF", YES, "EA","Square Feet", 144 / dAreaOfEA, cSourceOverride, "Cost").
-            RUN pAddUOM("MSF", YES, "EA","Thousand Square Feet", 1440000 / dAreaOfEA, cSourceOverride, "Cost").
-        END. /*Dimensions in Inches*/
-    END. /*Non-zero dimensions*/
+    RUN pAddUOMsFromDimensions(ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, cSourceOverride).   
+    RUN pAddUOMsFromWeight(ipdBasisWeight, ipcBasisWeightUOM, cSourceOverride).
     
 END PROCEDURE.
 
@@ -773,7 +825,7 @@ PROCEDURE pGetBuffersByValues PRIVATE:
     ELSE 
         FIND FIRST opbf-item NO-LOCK 
             WHERE opbf-item.company EQ ipcCompany
-            AND opbf-itemfg.i-no EQ ipcItemID
+            AND opbf-item.i-no EQ ipcItemID
             NO-ERROR.
         
 END PROCEDURE.
@@ -817,7 +869,7 @@ PROCEDURE pGetMultiplier PRIVATE:
         RETURN.
     END.
     ELSE 
-        opcMessage = opcMessage + "| From UOM: " + ipcToUOM + " Source: " + bf-to-ttUOM.uomSource + " Factor: " + STRING(bf-to-ttUOM.multiplierToBase).
+        opcMessage = opcMessage + "| From UOM: " + ipcFromUOM + " Source: " + bf-from-ttUOM.uomSource + " Factor: " + STRING(bf-from-ttUOM.multiplierToBase).
     IF bf-to-ttUOM.uomBase EQ bf-from-ttUOM.uomBase THEN 
     DO:
         opdMultiplier = bf-from-ttUOM.multiplierToBase.
@@ -1081,6 +1133,24 @@ END FUNCTION.
 /*    RETURN opdValueConverted.                                                                                                                                   */
 /*                                                                                                                                                                */
 /*END FUNCTION.                                                                                                                                                   */
+
+FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
+	(ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:  Given length, width and dimension UOM, get Sqft
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+    
+    CASE ipcDimUOM:
+        WHEN "IN" THEN
+            dSqft = ipdLength * ipdWidth / 144.
+        WHEN "FT" OR WHEN "LF" THEN 
+            dSqft = ipdLength * ipdWidth.
+    END CASE.
+    RETURN dSqft.
+    
+END FUNCTION.
 
 FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
     ( ipcCompany AS CHARACTER ):
