@@ -62,6 +62,7 @@ DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE physCnt-log AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+DEFINE VARIABLE lSSCycleCountReset AS LOGICAL NO-UNDO.
 
 DEFINE STREAM sPhysCntSave.
 
@@ -71,6 +72,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check b
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChr, OUTPUT lRecFnd).
 physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
+RUN sys/ref/nk1look.p (INPUT cocode, "SSCycleCountReset", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChr, OUTPUT lRecFnd).
+IF lRecFnd THEN
+    lSSCycleCountReset = LOGICAL(cRtnChr) NO-ERROR.
 
 IF physCnt-log THEN 
 DO: 
@@ -955,6 +961,75 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE crt-transfer B-table-Win 
+PROCEDURE crt-transfer :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
+  DEF BUFFER b-fg-rctd FOR fg-rctd.
+  DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  lv-rno = 0.
+  FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
+  IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
+
+  FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+  IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
+
+  DO WHILE TRUE:
+    lv-rno = lv-rno + 1.
+    FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-LOCK NO-ERROR.
+    IF AVAIL fg-rcpth THEN NEXT.
+    FIND FIRST b-fg-rctd WHERE b-fg-rctd.r-no EQ lv-rno USE-INDEX fg-rctd NO-LOCK NO-ERROR.
+    IF AVAIL b-fg-rctd THEN NEXT.
+    LEAVE.
+  END.
+
+  FOR EACH b-fg-rctd WHERE b-fg-rctd.company = fg-rctd.company
+                       AND b-fg-rctd.tag = fg-rctd.tag
+                       AND recid(b-fg-rctd) <> RECID(fg-rctd) 
+                       USE-INDEX tag:
+      DELETE b-fg-rctd.
+  END.
+
+  FOR EACH fg-bin WHERE fg-bin.company EQ cocode 
+                      AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                      AND fg-bin.job-no = fg-rctd.job-no
+                      AND fg-bin.job-no2 = fg-rctd.job-no2 
+                      AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+        /*AND fg-bin.qty > 0*/  NO-LOCK:
+
+     IF fg-bin.loc NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+        OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+     THEN DO:
+         CREATE b-fg-rctd.
+         BUFFER-COPY fg-rctd EXCEPT fg-rctd.r-no TO b-fg-rctd.
+         ASSIGN b-fg-rctd.r-no = lv-rno
+                b-fg-rctd.loc = fg-bin.loc
+                b-fg-rctd.loc-bin = fg-bin.loc-bin
+                b-fg-rctd.cases = 0
+                b-fg-rctd.qty-case = 0
+                b-fg-rctd.cases-unit = 0
+                b-fg-rctd.partial = 0
+                b-fg-rctd.t-qty = 0.
+         lv-rno = lv-rno + 1.
+     END.
+  END.  /* for each fg-bin*/
+
+  lv-rctd-rowid = ROWID(fg-rctd).
+  {&open-query-{&browse-name}}
+  REPOSITION {&browse-name} TO ROWID lv-rctd-rowid.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1448,7 +1523,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  DO:
+DO:
       IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
       DO: 
           OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
@@ -1456,6 +1531,34 @@ PROCEDURE local-update-record :
           OUTPUT STREAM sPhysCntSave CLOSE.
       END.
       
+      /*IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" */
+      IF lSSCycleCountReset THEN do:
+          FIND FIRST loadtag WHERE loadtag.company = g_company
+                     AND loadtag.ITEM-type = NO
+                     AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+                     NO-LOCK NO-ERROR.
+
+          IF CAN-FIND(FIRST fg-bin
+                        WHERE fg-bin.company EQ cocode 
+                          AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                          AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+                          AND fg-bin.job-no  EQ fg-rctd.job-no
+                          AND fg-bin.job-no2 EQ fg-rctd.job-no2
+                          AND (fg-bin.loc     NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                               OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name})
+                          /*AND fg-bin.qty > 0*/
+                        USE-INDEX tag)
+              AND AVAIL loadtag AND (loadtag.loc <> fg-rctd.loc:SCREEN-VALUE OR 
+                                     loadtag.loc-bin <> fg-rctd.loc-bin:SCREEN-VALUE)
+
+        THEN /*MESSAGE "Reduce All Existing Bin Location To Zero Qty?"
+                     VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-crt-transfer*/
+              ll-crt-transfer = YES.
+
+        IF ll-crt-transfer THEN DO:
+           RUN crt-transfer.
+        END.
+    END. /* lSSCycleCountReset*/
   END.
  
   RUN repo-query (ROWID(fg-rctd)).
