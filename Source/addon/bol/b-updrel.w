@@ -173,6 +173,7 @@ DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPickTicketValidation AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lsecurityTag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
 
@@ -192,7 +193,13 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 
 IF NOT lSSBOLPassword OR cSSBOLPassword EQ ""  THEN
  lsecurity-flag = YES .
-
+ 
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.
+    
 /* Include file contains transaction keyword */ 
   {sys/ref/relpost.i}
 DO TRANSACTION:
@@ -3357,9 +3364,10 @@ PROCEDURE update-bol :
     IF LAST-OF(tt-boll2.b-no) THEN DO:
         
       FIND CURRENT oe-bolh.
-      
-      RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
-      oe-bolh.freight = dTotFreight.
+      IF cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing" THEN do:
+          RUN oe/calcBolFrt.p (ROWID(oe-bolh), OUTPUT dTotFreight).
+          oe-bolh.freight = dTotFreight.
+      END.
       
       ASSIGN
        oe-bolh.tot-wt  = lv-weight

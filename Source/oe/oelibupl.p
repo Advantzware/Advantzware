@@ -148,6 +148,7 @@ DEF VAR     ip-type AS cha NO-UNDO .   /* add,update,view */
   /* gdm - 11090905*/
   DEF VAR v-ponoUp AS LOG NO-UNDO.
   DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
+  DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
   ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
   DO TRANSACTION:
     {sys/inc/oeship.i}
@@ -174,6 +175,11 @@ DEF VAR     ip-type AS cha NO-UNDO .   /* add,update,view */
     v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
     {sys/inc/graphic.i}
   END.
+  RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+    IF v-rec-found THEN
+     cFreightCalculationValue = v-rtn-char NO-ERROR.
   /* gdm - 06220908 - INSTEAD OF CHANGING sys/inc/oereleas.i */
   FIND FIRST sys-ctrl NO-LOCK
   WHERE sys-ctrl.company EQ cocode
@@ -816,11 +822,14 @@ FIND oe-ordl WHERE ROWID(oe-ordl) EQ r-current-ordl EXCLUSIVE-LOCK.
       FIND CURRENT oe-ordl EXCLUSIVE.
       FIND CURRENT oe-ord EXCLUSIVE.
       RUN final-steps (INPUT ROWID(oe-ord), INPUT ROWID(oe-ordl)).
-      IF ll-new-record THEN DO:
-        RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-        xoe-ord.t-freight = xoe-ord.t-freight + oe-ordl.t-freight.
+      IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN do:
+          IF ll-new-record THEN DO:
+            RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+            xoe-ord.t-freight = xoe-ord.t-freight + oe-ordl.t-freight.
+          END.
       END.
-      RUN oe/ordfrate.p (ROWID(oe-ord)).
+      IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
+         RUN oe/ordfrate.p (ROWID(oe-ord)).
       RUN oe/oe-comm.p.
       RUN oe/calcordt.p (ROWID(oe-ord)).
       IF ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-" THEN
@@ -949,7 +958,8 @@ FIND oe-ordl WHERE ROWID(oe-ordl) EQ r-current-ordl EXCLUSIVE-LOCK.
     END. /* trans */
     DO TRANSACTION:
       FIND CURRENT oe-ord.
-      RUN oe/ordfrate.p (ROWID(oe-ord)). /* strange problem with freight */
+      IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
+         RUN oe/ordfrate.p (ROWID(oe-ord)). /* strange problem with freight */
       ll = NO.
       IF AVAIL oe-ord AND oe-ord.due-date GT oe-ordl.req-date THEN
       MESSAGE "Change order header due date to " + TRIM(STRING(oe-ordl.req-date)) "?"

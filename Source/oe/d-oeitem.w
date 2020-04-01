@@ -188,7 +188,7 @@ DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
-
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -257,6 +257,12 @@ IF v-rec-found THEN
     lOEPriceWarning = LOGICAL(v-rtn-char) NO-ERROR.
 
                      
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+    cFreightCalculationValue = v-rtn-char NO-ERROR.
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -7027,7 +7033,7 @@ PROCEDURE OnSaveButton :
     DO  TRANSACTION :
   
   
-        IF ll-new-record THEN 
+        IF ll-new-record AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN 
         DO:
             RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
             xoe-ord.t-freight = xoe-ord.t-freight + oe-ordl.t-freight.
@@ -7048,8 +7054,9 @@ PROCEDURE OnSaveButton :
                 FIND CURRENT itemfg NO-LOCK.
             END. /* part # changed */
         END. /* oecustpartint = 1 */
-      
-        RUN oe/ordfrate.p (ROWID(oe-ord)).  
+        
+        IF ll-new-record AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN 
+           RUN oe/ordfrate.p (ROWID(oe-ord)).  
     
         RUN oe/oe-comm.p.  
     
@@ -7245,8 +7252,8 @@ PROCEDURE OnSaveButton :
     END.
     DO  TRANSACTION :
         FIND CURRENT oe-ord.    
-
-        RUN oe/ordfrate.p (ROWID(oe-ord)). /* strange problem with freight */
+        IF ll-new-record AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
+          RUN oe/ordfrate.p (ROWID(oe-ord)). /* strange problem with freight */
 
         ll = NO.
         IF AVAIL oe-ord AND (oe-ord.due-date GT oe-ordl.req-date 

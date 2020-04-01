@@ -25,6 +25,7 @@ DEFINE VARIABLE gcOnOrderQtyCode    LIKE sys-ctrl.char-fld NO-UNDO. /* determine
 DEFINE VARIABLE gcTagSelectionCode  AS CHARACTER NO-UNDO. /* Tag selection code */
 DEFINE VARIABLE glUseItemfgLoc      AS LOGICAL   NO-UNDO. /* Get location from itemfg? */
 DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -424,7 +425,8 @@ PROCEDURE pApproveImportedOrder PRIVATE:
         ipbf-oe-ord.user-id     = USERID("nosweat")
         ipbf-oe-ord.approved-id = USERID("nosweat")
         ipbf-oe-ord.t-freight   = 0.
-
+        
+    RUN pSetGlobalSettings (INPUT ipbf-oe-ord.company).
     IF ipbf-oe-ord.type EQ "" THEN ipbf-oe-ord.type = "O".
 
     IF ipbf-oe-ord.sman[1] EQ "" THEN
@@ -508,15 +510,16 @@ PROCEDURE pApproveImportedOrder PRIVATE:
         IF cUOM NE "M" THEN
             RUN sys/ref/convcuom.p(cUOM, "M", 0, 0, 0, 0,
                 oe-ordl.cost, OUTPUT oe-ordl.cost).
-
-        RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-        ipbf-oe-ord.t-freight = ipbf-oe-ord.t-freight + oe-ordl.t-freight.
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN do:
+            RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+            ipbf-oe-ord.t-freight = ipbf-oe-ord.t-freight + oe-ordl.t-freight.
+        end.
         FIND CURRENT oe-ordl NO-LOCK.
         RELEASE oe-ordl.
     END. /* Each oe-ordl */
-  
-
-    RUN oe/ordfrate.p (ROWID(ipbf-oe-ord)).
+     
+    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN 
+      RUN oe/ordfrate.p (ROWID(ipbf-oe-ord)).
     
     RUN CalcOrderCommission(ROWID(ipbf-oe-ord), OUTPUT oplError, OUTPUT opcMessage).
     
@@ -719,7 +722,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
               
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "ADDXFER", "L" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -760,7 +763,13 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "BOLPRINT", "C" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturnChar, OUTPUT lRecFound).
-    gcCompanyDefaultBin = cReturnChar NO-ERROR.    
+    gcCompanyDefaultBin = cReturnChar NO-ERROR. 
+    RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     cFreightCalculationValue = cReturnChar NO-ERROR. 
+      
 END PROCEDURE.
 
 PROCEDURE ReleaseOrder :
@@ -1904,11 +1913,12 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
         RUN oe/bolhtots.p (
             INPUT ROWID(oe-bolh)
             ).
-      
-        RUN oe/calcBolFrt.p (
-            INPUT ROWID(oe-bolh), 
-            OUTPUT oe-bolh.freight
-            ).
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:       
+            RUN oe/calcBolFrt.p (
+                INPUT ROWID(oe-bolh), 
+                OUTPUT oe-bolh.freight
+                ).
+        END.
       
         IF oe-bolh.freight EQ ? THEN 
             oe-bolh.freight = 0.
@@ -2111,11 +2121,12 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
         IF oe-boll.qty LT 0 THEN 
             oe-boll.tag = "".
     END. /* each oe-rell */
-
-    RUN oe/calcBolFrt.p (
-        INPUT ROWID(oe-bolh), 
-        OUTPUT oe-bolh.freight
-        ).
+    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
+        RUN oe/calcBolFrt.p (
+            INPUT ROWID(oe-bolh), 
+            OUTPUT oe-bolh.freight
+            ).
+    END.
                
 END PROCEDURE.
 
