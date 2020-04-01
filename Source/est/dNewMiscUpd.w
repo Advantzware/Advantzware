@@ -38,8 +38,17 @@ DEFINE VARIABLE lv-item-recid   AS RECID     NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
+
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cReturnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -581,8 +590,9 @@ DO:
 
         RUN CalcStorageAndHandlingForEstRelease(INPUT estRelease.estReleaseID ,OUTPUT lError,
                                 OUTPUT cMessage ).
-        RUN CalcFreightForEstRelease(INPUT estRelease.estReleaseID ,OUTPUT lError,
-                                OUTPUT cMessage ).
+        IF cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Estimating" THEN                               
+          RUN CalcFreightForEstRelease(INPUT estRelease.estReleaseID ,OUTPUT lError,
+                                  OUTPUT cMessage ).
         
         FIND CURRENT estRelease NO-LOCK NO-ERROR .
         op-rowid = ROWID(estRelease).

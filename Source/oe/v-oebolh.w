@@ -72,6 +72,15 @@ IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
 END.
 
 RUN oe/s-codes.p (OUTPUT lv-type-code, OUTPUT lv-type-dscr).
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRetChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1444,7 +1453,8 @@ PROCEDURE local-assign-record :
   END.
 
   IF (old-carrier NE new-carrier OR old-shipid NE new-shipid)
-      AND (NOT lFreightEntered) THEN DO:
+      AND (NOT lFreightEntered)
+      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
     RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
   END.
 
@@ -1926,7 +1936,8 @@ PROCEDURE new-carrier :
           AND carrier.carrier EQ oe-bolh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
         
-    IF AVAIL carrier AND NOT lFreightEntered THEN RUN calc-freight.
+    IF AVAIL carrier AND NOT lFreightEntered AND
+    (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN RUN calc-freight.
   END.
 
 END PROCEDURE.
@@ -1987,7 +1998,8 @@ PROCEDURE new-ship-id :
 
     IF AVAIL shipto THEN DO:
       RUN display-shipto-detail (RECID(shipto)).
-      IF NOT lFreightEntered THEN
+      IF NOT lFreightEntered AND
+      (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
       RUN calc-freight.
     END.
   END.
