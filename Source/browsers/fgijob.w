@@ -52,38 +52,41 @@ IF llRecFound THEN
     
 {sys/inc/oeinq.i}
  
-def new shared temp-table w-job no-undo
-  field job-no-disp as char
-  field job-no like job-hdr.job-no
-  field job-no2 like job-hdr.job-no2
-  FIELD po-no LIKE fg-bin.po-no
-  field i-no like job-hdr.i-no
-  field j-no like job-hdr.j-no
-  field loc like fg-bin.loc
-  field loc-bin like fg-bin.loc-bin
-  field tag like fg-bin.tag
-  FIELD cust-no LIKE fg-bin.cust-no
-  FIELD cases AS INT
-  field case-count like fg-bin.case-count
-  field cases-unit like fg-bin.cases-unit
-  field qty as int format "->>>,>>9"
-  field std-tot-cost like  job-hdr.std-tot-cost
-  field std-mat-cost like  job-hdr.std-mat-cost
-  field std-lab-cost like  job-hdr.std-lab-cost
-  field std-var-cost like  job-hdr.std-var-cost
-  field std-fix-cost like  job-hdr.std-fix-cost
-  field last-cost like fg-bin.last-cost
-  field sell-uom like itemfg.sell-uom
-  FIELD partial-count LIKE fg-bin.partial-count
-  field rel-qty as int format "->>>,>>9"
-  field bol-qty as int format "->>>,>>9"
-  field avl-qty as int format "->>>,>>9"
-  FIELD tot-wt like fg-bin.tot-wt 
+DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
+  FIELD job-no-disp          AS CHARACTER
+  FIELD job-no               LIKE job-hdr.job-no
+  FIELD job-no2              LIKE job-hdr.job-no2
+  FIELD po-no                LIKE fg-bin.po-no
+  FIELD i-no                 LIKE job-hdr.i-no
+  FIELD j-no                 LIKE job-hdr.j-no
+  FIELD loc                  LIKE fg-bin.loc
+  FIELD loc-bin              LIKE fg-bin.loc-bin
+  FIELD tag                  LIKE fg-bin.tag
+  FIELD cust-no              LIKE fg-bin.cust-no
+  FIELD cases                AS INTEGER
+  FIELD case-count           LIKE fg-bin.case-count
+  FIELD cases-unit           LIKE fg-bin.cases-unit
+  FIELD qty                  AS INTEGER FORMAT "->>>,>>9"
+  FIELD std-tot-cost         LIKE job-hdr.std-tot-cost
+  FIELD std-mat-cost         LIKE job-hdr.std-mat-cost
+  FIELD std-lab-cost         LIKE job-hdr.std-lab-cost
+  FIELD std-var-cost         LIKE job-hdr.std-var-cost
+  FIELD std-fix-cost         LIKE job-hdr.std-fix-cost
+  FIELD last-cost            LIKE fg-bin.last-cost
+  FIELD sell-uom             LIKE itemfg.sell-uom
+  FIELD partial-count        LIKE fg-bin.partial-count
+  FIELD rel-qty AS           INTEGER FORMAT "->>>,>>9"
+  FIELD bol-qty AS           INTEGER FORMAT "->>>,>>9"
+  FIELD avl-qty AS           INTEGER FORMAT "->>>,>>9"
+  FIELD tot-wt               LIKE fg-bin.tot-wt
+  FIELD tagStatusID          AS CHARACTER FORMAT "X(32)"
+  FIELD tagStatusDescription AS CHARACTER FORMAT "X(4)"
+  FIELD onHold               AS LOGICAL 
   INDEX w-job job-no job-no2 loc loc-bin tag.
 
-def temp-table w-jobs LIKE w-job.
+DEFINE TEMP-TABLE w-jobs LIKE w-job.
 
-def temp-table hold-job LIKE w-job.
+DEFINE TEMP-TABLE hold-job LIKE w-job.
 
 DEF TEMP-TABLE tt-ids FIELD tt-rowid AS ROWID.
 
@@ -98,6 +101,10 @@ DEF VAR lv-show-tag-no AS CHAR NO-UNDO.
 DEFINE VARIABLE lAccessPro AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusDEscription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs   AS HANDLE    NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryprocs.
 
 RUN methods/prgsecur.p
 	    (INPUT "fgijob.",
@@ -126,26 +133,29 @@ RUN methods/prgsecur.p
 
 
 &SCOPED-DEFINE sortby-log                                               ~
-    IF lv-sort-by EQ "cust-no"       THEN w-job.cust-no            ELSE ~
-    IF lv-sort-by EQ "job-no-disp"   THEN w-job.job-no-disp        ELSE ~
-    IF lv-sort-by EQ "po-no"         THEN STRING(w-job.po-no,'>>>>>9') ELSE ~
-    IF lv-sort-by EQ "loc"           THEN w-job.loc                ELSE ~
-    IF lv-sort-by EQ "loc-bin"       THEN w-job.loc-bin            ELSE ~
-    IF lv-sort-by EQ "tag"           THEN w-job.tag                ELSE ~
-    IF lv-sort-by EQ "cases"         THEN string(9999999999 + w-job.cases,"-9999999999")                ELSE ~
-    IF lv-sort-by EQ "case-count"    THEN string(9999999999 + w-job.case-count,"-9999999999")          ELSE ~
-    IF lv-sort-by EQ "cases-unit"    THEN string(9999999999 + w-job.cases-unit,"-9999999999")          ELSE ~
-    IF lv-sort-by EQ "partial-count" THEN string(9999999999 + w-job.partial-count,"-9999999999")    ELSE ~
-    IF lv-sort-by EQ "qty"           THEN STRING(9999999999.99 + w-job.qty,"-9999999999.99")    ELSE ~
-    IF lv-sort-by EQ "rel-qty"       THEN STRING(9999999999.99 + w-job.rel-qty,"-9999999999.99")    ELSE ~
-    IF lv-sort-by EQ "bol-qty"       THEN STRING(9999999999.99 + w-job.bol-qty,"-9999999999.99")    ELSE ~
-    IF lv-sort-by EQ "avl-qty"       THEN STRING(9999999999.99 + w-job.avl-qty,"-9999999999.99")    ELSE ~
-    IF lv-sort-by EQ "std-tot-cost"  THEN STRING(w-job.std-tot-cost,"-9999999999.99999")     ELSE ~
-    IF lv-sort-by EQ "sell-uom"      THEN w-job.sell-uom          ELSE ~
-    IF lv-sort-by EQ "std-mat-cost"  THEN STRING(w-job.std-mat-cost,"-9999999999.99999")     ELSE ~
-    IF lv-sort-by EQ "std-lab-cost"  THEN STRING(w-job.std-lab-cost,"-9999999999.99999")     ELSE ~
-    IF lv-sort-by EQ "std-var-cost"  THEN STRING(w-job.std-var-cost,"-9999999999.99999")     ELSE ~
-    IF lv-sort-by EQ "tot-wt"  THEN STRING(w-job.tot-wt,"-999999.99")                        ELSE ~
+    IF lv-sort-by EQ "cust-no"              THEN w-job.cust-no                                          ELSE ~
+    IF lv-sort-by EQ "job-no-disp"          THEN w-job.job-no-disp                                      ELSE ~
+    IF lv-sort-by EQ "po-no"                THEN STRING(w-job.po-no,'>>>>>9')                           ELSE ~
+    IF lv-sort-by EQ "loc"                  THEN w-job.loc                                              ELSE ~
+    IF lv-sort-by EQ "loc-bin"              THEN w-job.loc-bin                                          ELSE ~
+    IF lv-sort-by EQ "tag"                  THEN w-job.tag                                              ELSE ~
+    IF lv-sort-by EQ "cases"                THEN string(9999999999 + w-job.cases,"-9999999999")         ELSE ~
+    IF lv-sort-by EQ "case-count"           THEN string(9999999999 + w-job.case-count,"-9999999999")    ELSE ~
+    IF lv-sort-by EQ "cases-unit"           THEN string(9999999999 + w-job.cases-unit,"-9999999999")    ELSE ~
+    IF lv-sort-by EQ "partial-count"        THEN string(9999999999 + w-job.partial-count,"-9999999999") ELSE ~
+    IF lv-sort-by EQ "qty"                  THEN STRING(9999999999.99 + w-job.qty,"-9999999999.99")     ELSE ~
+    IF lv-sort-by EQ "rel-qty"              THEN STRING(9999999999.99 + w-job.rel-qty,"-9999999999.99") ELSE ~
+    IF lv-sort-by EQ "bol-qty"              THEN STRING(9999999999.99 + w-job.bol-qty,"-9999999999.99") ELSE ~
+    IF lv-sort-by EQ "avl-qty"              THEN STRING(9999999999.99 + w-job.avl-qty,"-9999999999.99") ELSE ~
+    IF lv-sort-by EQ "std-tot-cost"         THEN STRING(w-job.std-tot-cost,"-9999999999.99999")         ELSE ~
+    IF lv-sort-by EQ "sell-uom"             THEN w-job.sell-uom                                         ELSE ~
+    IF lv-sort-by EQ "std-mat-cost"         THEN STRING(w-job.std-mat-cost,"-9999999999.99999")         ELSE ~
+    IF lv-sort-by EQ "std-lab-cost"         THEN STRING(w-job.std-lab-cost,"-9999999999.99999")         ELSE ~
+    IF lv-sort-by EQ "std-var-cost"         THEN STRING(w-job.std-var-cost,"-9999999999.99999")         ELSE ~
+    IF lv-sort-by EQ "tot-wt"               THEN STRING(w-job.tot-wt,"-999999.99")                      ELSE ~
+    IF lv-sort-by EQ "tagStatusID"          THEN w-job.tagStatusID                                      ELSE ~
+    IF lv-sort-by EQ "tagStatusDescription" THEN w-job.tagStatusDescription                             ELSE ~
+    IF lv-sort-by EQ "onHold"               THEN STRING(w-job.onHold)                                   ELSE ~
     STRING(w-job.std-fix-cost,"-9999999999.99999")     
 
 &SCOPED-DEFINE sortby BY w-job.tag
@@ -301,27 +311,30 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      w-job.job-no-disp label "Job#" FORM "x(9)" WIDTH 13 LABEL-BGCOLOR 14
-      w-job.po-no LABEL "PO#" FORMAT "x(9)" WIDTH 13      LABEL-BGCOLOR 14
-      w-job.loc label "Whse" WIDTH 10                     LABEL-BGCOLOR 14
-      w-job.loc-bin label "Bin" WIDTH 14                  LABEL-BGCOLOR 14
-      w-job.tag label "Tag" FORM "x(20)" WIDTH 28         LABEL-BGCOLOR 14
-w-job.cases LABEL "Units"                                 LABEL-BGCOLOR 14
-w-job.case-count format ">>>,>>9" label "Unit Count"      LABEL-BGCOLOR 14
-w-job.cases-unit format ">>>,>>9" COLUMN-LABEL "Units/!Pallet"   LABEL-BGCOLOR 14
-w-job.partial-count FORM "->>,>>9" LABEL "Partial"             LABEL-BGCOLOR 14
-w-job.qty form "->>>,>>9" label "Total Qty"                    LABEL-BGCOLOR 14
-w-job.rel-qty form "->>>,>>9" label "Releases"                 LABEL-BGCOLOR 14
-w-job.bol-qty form "->>>,>>9" label "BOL Qty"                  LABEL-BGCOLOR 14
-w-job.avl-qty form "->>>,>>9" label "Avail to Release"         LABEL-BGCOLOR 14
-w-job.std-tot-cost column-label "Standard!Cost"                LABEL-BGCOLOR 14
-w-job.sell-uom label "UOM"                                      LABEL-BGCOLOR 14
-w-job.std-mat-cost label "Material" form "->>>,>>9.9999"        LABEL-BGCOLOR 14
-w-job.std-lab-cost label "Labor" form "->>>,>>9.9999"           LABEL-BGCOLOR 14
-w-job.std-var-cost label "Variable O/H" form "->>>,>>9.9999"   LABEL-BGCOLOR 14
-w-job.std-fix-cost label "Fixed O/H" form "->>>,>>9.9999"     LABEL-BGCOLOR 14
-w-job.cust-no label "Cust#" FORM "x(8)" WIDTH 13 LABEL-BGCOLOR 14  
-w-job.tot-wt label "Lbs / 100"  form "->>>,>>9.99" WIDTH 16 LABEL-BGCOLOR 14
+      w-job.job-no-disp          LABEL "Job#"                   FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
+      w-job.po-no                LABEL "PO#"                    FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
+      w-job.loc                  LABEL "Whse"                                        WIDTH 10   LABEL-BGCOLOR 14
+      w-job.loc-bin              LABEL "Bin"                                         WIDTH 14   LABEL-BGCOLOR 14
+      w-job.tag                  LABEL "Tag"                    FORMAT "x(20)"       WIDTH 28   LABEL-BGCOLOR 14
+      w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
+      w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
+      w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
+      w-job.partial-count        LABEL "Partial"                FORMAT "->>,>>9"                LABEL-BGCOLOR 14
+      w-job.qty                  LABEL "Total Qty"              FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+      w-job.rel-qty              LABEL "Releases"               FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+      w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+      w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+      w-job.std-tot-cost         COLUMN-LABEL "Standard!Cost"                                   LABEL-BGCOLOR 14
+      w-job.sell-uom             LABEL "UOM"                                                    LABEL-BGCOLOR 14
+      w-job.std-mat-cost         LABEL "Material"               FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+      w-job.std-lab-cost         LABEL "Labor"                  FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+      w-job.std-var-cost         LABEL "Variable O/H"           FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+      w-job.std-fix-cost         LABEL "Fixed O/H"              FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+      w-job.cust-no              LABEL "Cust#"                  FORMAT "x(8)"        WIDTH 13   LABEL-BGCOLOR 14  
+      w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
+      w-job.tagStatusID          LABEL "Tag Status ID "         FORMAT "X(4)"        WIDTH 18.3 LABEL-BGCOLOR 14
+      w-job.tagStatusDescription LABEL "Tag Status Description" FORMAT "X(32)"                  LABEL-BGCOLOR 14
+      w-job.onHold               LABEL "On Hold"                FORMAT "Yes/No"                 LABEL-BGCOLOR 14
 ENABLE w-job.job-no-disp
        w-job.po-no
        w-job.loc 
@@ -775,29 +788,33 @@ IF lv-show-tag-no EQ "" THEN DO:
   
   FOR EACH w-jobs BREAK BY w-jobs.job-no BY w-jobs.job-no2:
       CREATE w-job.
-      ASSIGN w-job.job-no = w-jobs.job-no
-             w-job.job-no2 = w-jobs.job-no2
-             w-job.job-no-disp = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"99")
-             w-job.po-no = w-jobs.po-no
-             w-job.i-no  = w-jobs.i-no
-             w-job.j-no  = w-jobs.j-no
-             w-job.loc  = w-jobs.loc
-             w-job.loc-bin = w-jobs.loc-bin
-             w-job.tag = w-jobs.tag
-             w-job.cust-no = w-jobs.cust-no
-             w-job.cases = w-jobs.cases
-             w-job.case-count = w-jobs.case-count
-             w-job.cases-unit = w-jobs.cases-unit
-             w-job.partial-count = w-jobs.partial-count
-             w-job.qty = w-jobs.qty
-             w-job.std-tot-cost = w-jobs.std-tot-cost
-             w-job.std-mat-cost = w-jobs.std-mat-cost
-             w-job.std-lab-cost = w-jobs.std-lab-cost
-             w-job.std-var-cost = w-jobs.std-var-cost
-             w-job.std-fix-cost = w-jobs.std-fix-cost
-             w-job.last-cost = w-jobs.last-cost
-             w-job.sell-uom = w-jobs.sell-uom
-             w-job.tot-wt  = w-jobs.tot-wt.
+      ASSIGN w-job.job-no               = w-jobs.job-no
+             w-job.job-no2              = w-jobs.job-no2
+             w-job.job-no-disp          = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"99")
+             w-job.po-no                = w-jobs.po-no
+             w-job.i-no                 = w-jobs.i-no
+             w-job.j-no                 = w-jobs.j-no
+             w-job.loc                  = w-jobs.loc
+             w-job.loc-bin              = w-jobs.loc-bin
+             w-job.tag                  = w-jobs.tag
+             w-job.cust-no              = w-jobs.cust-no
+             w-job.cases                = w-jobs.cases
+             w-job.case-count           = w-jobs.case-count
+             w-job.cases-unit           = w-jobs.cases-unit
+             w-job.partial-count        = w-jobs.partial-count
+             w-job.qty                  = w-jobs.qty
+             w-job.std-tot-cost         = w-jobs.std-tot-cost
+             w-job.std-mat-cost         = w-jobs.std-mat-cost
+             w-job.std-lab-cost         = w-jobs.std-lab-cost
+             w-job.std-var-cost         = w-jobs.std-var-cost
+             w-job.std-fix-cost         = w-jobs.std-fix-cost
+             w-job.last-cost            = w-jobs.last-cost
+             w-job.sell-uom             = w-jobs.sell-uom
+             w-job.tot-wt               = w-jobs.tot-wt
+             w-job.tagStatusID          = w-jobs.tagStatusID
+             w-job.tagStatusDescription = w-jobs.tagStatusDescription
+             w-job.onHold               = w-jobs.onHold
+             .
 
       IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
                
@@ -890,38 +907,48 @@ PROCEDURE createWJobs :
 
     IF NOT (fg-bin.qty ne 0 or (ll-show-zero-bins AND lv-show-zero-bins)) THEN
         RETURN.
-
     
-    create w-jobs.
-    assign 
-        w-jobs.job-no        = fg-bin.job-no
-        w-jobs.job-no2       = fg-bin.job-no2
-        w-jobs.i-no          = itemfg.i-no
-        w-jobs.loc           = fg-bin.loc
-        w-jobs.loc-bin       = fg-bin.loc-bin
-        w-jobs.tag           = fg-bin.tag
-        w-jobs.cust-no       = fg-bin.cust-no
-        w-jobs.cases         = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
-        w-jobs.case-count    = fg-bin.case-count
-        w-jobs.cases-unit    = fg-bin.cases-unit
-        w-jobs.partial-count = fg-bin.partial-count
-        w-jobs.qty           = fg-bin.qty
-        w-jobs.std-tot-cost  = fg-bin.std-tot-cost
-        w-jobs.std-mat-cost  = fg-bin.std-mat-cost
-        w-jobs.std-lab-cost  = fg-bin.std-lab-cost
-        w-jobs.std-var-cost  = fg-bin.std-var-cost
-        w-jobs.std-fix-cost  = fg-bin.std-fix-cost
-        w-jobs.last-cost     = fg-bin.last-cost
-        w-jobs.sell-uom      = fg-bin.pur-uom
-        w-jobs.tot-wt        = fg-bin.tot-wt 
-        w-jobs.po-no         = fg-bin.po-no.
+    RUN GetStatusDescription IN hdInventoryProcs
+        (INPUT  fg-bin.StatusID,
+         OUTPUT cStatusDescription
+         ).
+    
+    CREATE w-jobs.
+    ASSIGN 
+        w-jobs.job-no               = fg-bin.job-no
+        w-jobs.job-no2              = fg-bin.job-no2
+        w-jobs.i-no                 = itemfg.i-no
+        w-jobs.loc                  = fg-bin.loc
+        w-jobs.loc-bin              = fg-bin.loc-bin
+        w-jobs.tag                  = fg-bin.tag
+        w-jobs.cust-no              = fg-bin.cust-no
+        w-jobs.cases                = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
+        w-jobs.case-count           = fg-bin.case-count
+        w-jobs.cases-unit           = fg-bin.cases-unit
+        w-jobs.partial-count        = fg-bin.partial-count
+        w-jobs.qty                  = fg-bin.qty
+        w-jobs.std-tot-cost         = fg-bin.std-tot-cost
+        w-jobs.std-mat-cost         = fg-bin.std-mat-cost
+        w-jobs.std-lab-cost         = fg-bin.std-lab-cost
+        w-jobs.std-var-cost         = fg-bin.std-var-cost
+        w-jobs.std-fix-cost         = fg-bin.std-fix-cost
+        w-jobs.last-cost            = fg-bin.last-cost
+        w-jobs.sell-uom             = fg-bin.pur-uom
+        w-jobs.tot-wt               = fg-bin.tot-wt 
+        w-jobs.po-no                = fg-bin.po-no
+        w-jobs.tagStatusID          = fg-bin.statusID
+        w-jobs.tagStatusDescription = cStatusDescription
+        w-jobs.onHold               = fg-bin.onHold
+        .
       
-    find first job-hdr where job-hdr.company eq fg-bin.company
-        and job-hdr.i-no    eq fg-bin.i-no
-        and job-hdr.job-no  eq fg-bin.job-no
-        and job-hdr.job-no2 eq fg-bin.job-no2
-        use-index i-no no-lock no-error.
-    if avail job-hdr then assign w-jobs.j-no = job-hdr.j-no.
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company EQ fg-bin.company
+           AND job-hdr.i-no    EQ fg-bin.i-no
+           AND job-hdr.job-no  EQ fg-bin.job-no
+           AND job-hdr.job-no2 EQ fg-bin.job-no2
+         USE-INDEX i-no NO-ERROR.
+    IF AVAILABLE job-hdr THEN 
+        w-jobs.j-no = job-hdr.j-no.
 
     RELEASE w-jobs.
 

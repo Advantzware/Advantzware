@@ -93,6 +93,24 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE GetStatusDescription:
+/*------------------------------------------------------------------------------
+ Purpose: To get the status description based on status ID
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcStatusID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcDescription AS CHARACTER NO-UNDO.
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR.
+    
+    IF AVAILABLE inventoryStatusType
+        THEN opcDescription = inventoryStatusType.description.
+        
+
+END PROCEDURE.
+
 PROCEDURE RecalculateQuantities:
 /*------------------------------------------------------------------------------
  Purpose: To add the location into itemfg-loc based on history records and oe-rel
