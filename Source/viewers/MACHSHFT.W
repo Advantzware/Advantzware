@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -81,8 +81,7 @@ end_ampm F-2
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,TIME-FIELDS,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS fi_shift 
-&Scoped-define DISPLAY-FIELD fi_shift 
+&Scoped-define ADM-CREATE-FIELDS fi_shift
 &Scoped-define TIME-FIELDS start_hour start_minute start_second start_ampm ~
 end_hour end_minute end_second end_ampm 
 &Scoped-define F1 F-2 
@@ -317,162 +316,31 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
-
-
-
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME end_hour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_hour V-table-Win
-ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
-  {methods/entryerr.i &error-message="Invalid Hour, range = 0 to 12"}
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_minute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_minute V-table-Win
-ON LEAVE OF end_minute IN FRAME F-Main
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
-  {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_second
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_second V-table-Win
-ON LEAVE OF end_second IN FRAME F-Main
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
-  {methods/entryerr.i &error-message="Invalid Second, range = 0 to 59"}
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME fi_shift
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shift V-table-Win
-ON HELP OF fi_shift IN FRAME F-Main /* Shift */
-DO:
-  machshft.shift:SCREEN-VALUE = {&self-name}:SCREEN-VALUE.
-  APPLY "help" TO machshft.shift.
-/*   {&self-name}:SCREEN-VALUE = machshft.shift:SCREEN-VALUE. */
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shift V-table-Win
 ON LEAVE OF fi_shift IN FRAME F-Main /* Shift */
 DO:
- {&methods/lValidateError.i YES}
- IF LASTKEY NE -1 THEN DO:
-  {methods/entryerr.i
-      &can-find="shifts WHERE shifts.company = gcompany
-                          AND shifts.shift = SELF:SCREEN-VALUE"
-      &error-message="Invalid Shift"}
+    DEFINE VARIABLE op-company AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE op-machine AS CHARACTER NO-UNDO.
 
-   IF CAN-FIND (FIRST b-machshft WHERE b-machshft.company = gcompany and b-machshft.machine = mach.m-code
-                      AND b-machshft.shift = SELF:SCREEN-VALUE AND recid(b-machshft) <> recid(machshft))
-   THEN DO:
+ IF LASTKEY NE -1 THEN DO:
+   {methods/run_link.i "RECORD-SOURCE" "Get-Values"
+        "(OUTPUT op-company,OUTPUT op-machine)"}
+   IF CAN-FIND(FIRST b-machshft
+               WHERE b-machshft.company EQ op-company
+                 AND b-machshft.machine EQ op-machine
+                 AND b-machshft.shift   EQ SELF:SCREEN-VALUE) THEN DO:
        MESSAGE "Shift already exists!" VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
    END.
-  {methods/dispflds.i}   
-  ASSIGN {&TIME-FIELDS}.
  END.
- {&methods/lValidateError.i NO}
 END.
 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME machshft.shift
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machshft.shift V-table-Win
-ON HELP OF machshft.shift IN FRAME F-Main /* Shift */
-DO:
-  DEF VAR lv-focus AS HANDLE NO-UNDO.
-
-
-  lv-focus = FOCUS.
-
-  RUN applhelp.p.
-
-  IF g_lookup-var NE "" THEN lv-focus:SCREEN-VALUE = g_lookup-var.
-
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_hour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_hour V-table-Win
-ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 1 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
-  {methods/entryerr.i &error-message="Invalid Hour, range = 1 to 12"}
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_minute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_minute V-table-Win
-ON LEAVE OF start_minute IN FRAME F-Main
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
-  {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
-   {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME start_second
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_second V-table-Win
-ON LEAVE OF start_second IN FRAME F-Main
-DO:
-  {&methods/lValidateError.i YES}
-  correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
-  {methods/entryerr.i &error-message="Invalid Second, range = 0 to 59"}
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &UNDEFINE SELF-NAME
 
@@ -569,9 +437,9 @@ PROCEDURE enable-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ENABLE fi_shift.
-  END.
+/*  DO WITH FRAME {&FRAME-NAME}:*/
+/*    ENABLE fi_shift.          */
+/*  END.                        */
 
 END PROCEDURE.
 
@@ -687,37 +555,25 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  DEF BUFFER b-shifts FOR shifts.
-  {&methods/lValidateError.i YES}  
-  DO WITH FRAME {&FRAME-NAME}:
 
-    FIND FIRST b-shifts WHERE
-         b-shifts.company = gcompany AND
-         b-shifts.shift = STRING(fi_shift:SCREEN-VALUE)
-         NO-LOCK NO-ERROR.
-    IF NOT AVAIL b-shifts THEN
-       DO:
-          MESSAGE "Invalid Shift."
-              VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-          APPLY "ENTRY" TO fi_shift IN FRAME {&FRAME-NAME}.
-          RETURN NO-APPLY.
-       END.
-    {custom/get_time2.i
-      &field="b-shifts.start_time"
-      &hour="start_hour"
-      &minute="start_minute"
-      &second="start_second"
-      &ampm="start_ampm"
-    }
-    {custom/get_time2.i
-      &field="b-shifts.end_time"
-      &hour="end_hour"
-      &minute="end_minute"
-      &second="end_second"
-      &ampm="end_ampm"
-    }
-  END.
-  {&methods/lValidateError.i NO}
+/*  DEF BUFFER b-shifts FOR shifts.                          */
+/*  {&methods/lValidateError.i YES}                          */
+/*  DO WITH FRAME {&FRAME-NAME}:                             */
+/*                                                           */
+/*    FIND FIRST b-shifts WHERE                              */
+/*         b-shifts.company = gcompany AND                   */
+/*         b-shifts.shift = STRING(fi_shift:SCREEN-VALUE)    */
+/*         NO-LOCK NO-ERROR.                                 */
+/*    IF NOT AVAIL b-shifts THEN                             */
+/*       DO:                                                 */
+/*          MESSAGE "Invalid Shift."                         */
+/*              VIEW-AS ALERT-BOX ERROR BUTTONS OK.          */
+/*          APPLY "ENTRY" TO fi_shift IN FRAME {&FRAME-NAME}.*/
+/*          RETURN NO-APPLY.                                 */
+/*       END.                                                */
+/*  END.                                                     */
+/*  {&methods/lValidateError.i NO}                           */
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
