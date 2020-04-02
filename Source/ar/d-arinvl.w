@@ -738,7 +738,11 @@ DO:
        END.
        ASSIGN
          ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
-         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name .
+         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
+         ar-invl.sf-sht:SCREEN-VALUE  = STRING(itemfg.t-sqft)
+         .
+       IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
+           RUN pCalcAmtMsf. 
     END.
 END.
 
@@ -758,9 +762,11 @@ DO:
            ASSIGN
              ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
              ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
-             ar-invl.unit-pr:SCREEN-VALUE  = STRING(itemfg.sell-price)
-             ar-invl.cost:SCREEN-VALUE   = STRING(get-itemfg-cost(itemfg.i-no))
-             ar-invl.dscr[1]:SCREEN-VALUE = itemfg.prod-uom.
+             ar-invl.unit-pr:SCREEN-VALUE = STRING(itemfg.sell-price)
+             ar-invl.cost:SCREEN-VALUE    = STRING(get-itemfg-cost(itemfg.i-no))
+             ar-invl.dscr[1]:SCREEN-VALUE = itemfg.prod-uom
+             ar-invl.sf-sht:SCREEN-VALUE  = STRING(itemfg.t-sqft)
+             .
            FIND FIRST fgcat NO-LOCK 
                WHERE fgcat.company EQ itemfg.company 
                  AND fgcat.procat EQ  itemfg.procat NO-ERROR .
@@ -774,6 +780,8 @@ DO:
            IF AVAIL account  THEN
            fi_acc-desc:SCREEN-VALUE  = account.dscr.
            
+           IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
+               RUN pCalcAmtMsf.
        END.
     
 END.
@@ -827,6 +835,18 @@ DO:
        MESSAGE "Invalid Unit of Measure." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-invl.sf-sht
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sf-sht Dialog-Frame
+ON VALUE-CHANGED OF ar-invl.sf-sht IN FRAME Dialog-Frame /* SqFt/Sheet */
+DO:
+    IF LASTKEY NE -1 AND DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
+        RUN pCalcAmtMsf. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1212,9 +1232,11 @@ PROCEDURE get-iteminfo :
            ASSIGN
              ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
              ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
-             ar-invl.unit-pr:SCREEN-VALUE  = STRING(itemfg.sell-price)
+             ar-invl.unit-pr:SCREEN-VALUE = STRING(itemfg.sell-price)
              ar-invl.cost:SCREEN-VALUE    = STRING(get-itemfg-cost(itemfg.i-no))
-             ar-invl.dscr[1]:SCREEN-VALUE = itemfg.prod-uom.
+             ar-invl.dscr[1]:SCREEN-VALUE = itemfg.prod-uom
+             ar-invl.sf-sht:SCREEN-VALUE  = STRING(itemfg.t-sqft)
+             .
            FIND FIRST fgcat NO-LOCK 
                WHERE fgcat.company EQ itemfg.company 
                  AND fgcat.procat EQ  itemfg.procat NO-ERROR .
@@ -1227,6 +1249,9 @@ PROCEDURE get-iteminfo :
                                 NO-LOCK NO-ERROR.
            IF AVAIL account  THEN
            fi_acc-desc:SCREEN-VALUE  = account.dscr.
+           
+           IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
+               RUN pCalcAmtMsf.
            
        END.
   END.
