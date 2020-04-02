@@ -847,11 +847,13 @@ CASE ip-nk1-value:
         INPUT 0 /* dec value*/
         ).     
     WHEN "FreightCalculation" THEN   
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "Freight Calculation",
-        INPUT "All" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).      
-        ). 
+        RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+            INPUT "Freight Calculation",
+            INPUT "All" /* Char Value */, INPUT 0 /* Int value */,
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ). 
     WHEN "RMReceiptRules" THEN 
         RUN sys/inc/addnk1.p (
             INPUT cocode, 

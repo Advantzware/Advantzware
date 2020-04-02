@@ -1550,7 +1550,8 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
         FOR EACH notes WHERE notes.rec_key = job.rec_key 
              AND notes.note_code <> ''  NO-LOCK,
              FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ notes.note_form_no
-              AND  bf-ttSoule.runForm EQ YES NO-LOCK  :
+              AND  bf-ttSoule.runForm EQ YES NO-LOCK  
+              BY notes.note_form_no:
             v-inst2 = "".
             IF v-prev-note-rec <> ? AND
                 v-prev-note-rec <> RECID(notes) THEN v-prev-extent = lv-note-cnt.
