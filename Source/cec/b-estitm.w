@@ -6685,7 +6685,9 @@ PROCEDURE mass-delete :
         INPUT-OUTPUT TABLE tt-eb
         ).
     FOR EACH tt-eb
-        WHERE tt-eb.selected:
+        WHERE tt-eb.selected
+        BY tt-eb.form-no DESCENDING 
+        BY tt-eb.blank-no DESCENDING:
         FIND FIRST bf-ef NO-LOCK
              WHERE bf-ef.company EQ tt-eb.company 
                AND bf-ef.est-no  EQ tt-eb.est-no 
