@@ -842,6 +842,8 @@ DO:
 
 
 /* ***************************  Main Block  *************************** */
+{sys/inc/f3helpw.i}
+
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
