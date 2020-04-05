@@ -241,13 +241,13 @@ do v-local-loop = 1 to v-local-copies:
         /* 3 Boxes for customer */
         PUT "<#2><R+7><C+26><RECT#2><|3>"
             "<#3><R-7><C+26><RECT#3><|3>"
-            "<#4><R+7><C+26><RECT#4><|3>" SKIP.
+            "<#4><R+7><C+27.5><RECT#4><|3>" SKIP.
         /* 3 boxes for board */
         PUT "B".
         /* 3 Boxes for customer */
         PUT "<#5><R+6><C+26><RECT#5><|3>"
             "<#6><R-6><C+26><RECT#6><|3>"
-            "<#7><R+6><C+26><RECT#7><|3>" SKIP.
+            "<#7><R+6><C+27.5><RECT#7><|3>" SKIP.
 
         PUT "<=#2>" SKIP
             "U" SKIP
@@ -473,13 +473,13 @@ do v-local-loop = 1 to v-local-copies:
         
         lv-rt-num = i + 3.
         PUT SKIP " " SKIP " ".        
-        PUT UNFORMATTED "<#8><R+" lv-rt-num "><C+78><RECT#8><|3>" SKIP.                
+        PUT UNFORMATTED "<#8><R+" lv-rt-num "><C+79.5><RECT#8><|3>" SKIP.                
         /* box for pack */
         PUT " ".        
-        PUT "<#9><R+6><C+78><RECT#9><|3>" SKIP.       
+        PUT "<#9><R+6><C+79.5><RECT#9><|3>" SKIP.       
         /* box for notes */
         PUT " ".        
-        PUT "<#10><R+7><C+78><RECT#10><|3>" SKIP.
+        PUT "<#10><R+7><C+79.5><RECT#10><|3>" SKIP.
 
         if v-format eq "Brick" OR v-format = "ASI" then 
              put "<=#8> Machine Routing        SU:    Start    Stop    Total   RUN:  Hours   Start   Stop   Total     QTY: In     Out      Waste" SKIP.
