@@ -945,7 +945,8 @@ PROCEDURE crt-pcount :
              b-fg-rctd.job-no = fg-bin.job-no
              b-fg-rctd.job-no2 = fg-bin.job-no2
              b-fg-rctd.tag = fg-bin.tag
-             b-fg-rctd.cust-no = fg-bin.cust-no.
+             b-fg-rctd.cust-no = fg-bin.cust-no
+             b-fg-rctd.po-no = fg-bin.po-no .
 
        IF tt-selected.tt-import-zero THEN
           ASSIGN b-fg-rctd.std-cost = fg-bin.qty /
@@ -1126,6 +1127,7 @@ PROCEDURE display-job-hdr :
          fg-rctd.tag:SCREEN-VALUE = IF AVAIL fg-bin THEN fg-bin.tag ELSE ""
          fg-rctd.cust-no:SCREEN-VALUE = IF AVAIL fg-bin THEN fg-bin.cust-no ELSE ""
          fg-rctd.partial:SCREEN-VALUE = IF AVAIL fg-bin THEN string(fg-bin.partial-count) ELSE ""
+         fg-rctd.po-no:SCREEN-VALUE = string(fg-bin.po-no)
          .  
   RUN calc-t-qty.
 
@@ -1174,7 +1176,8 @@ PROCEDURE fgbin-help :
     FIND FIRST fg-bin WHERE fg-bin.company eq cocode AND
                       ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
     IF AVAIL fg-bin THEN
-        ASSIGN fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.tag.
+        ASSIGN fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.tag
+               fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.po-no.
 
     lCheckTag = NO.
     RUN validate-tag(0) NO-ERROR.
@@ -1827,6 +1830,7 @@ PROCEDURE new-bin :
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  = 
            IF fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = ""  THEN caps(fg-bin.loc-bin) ELSE fg-rctd.loc-bin:SCREEN-VALUE
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.tag)
+       fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}      = string(fg-bin.tag)
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}      = 
            IF fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN caps(fg-bin.cust-no) ELSE fg-rctd.cust-no:SCREEN-VALUE 
        lv-org-loc = fg-rctd.loc:SCREEN-VALUE
@@ -2351,7 +2355,8 @@ PROCEDURE valid-tag :
                  fg-rctd.qty-case:SCREEN-VALUE = string(fg-rdtlh.cases)
                  fg-rctd.cases-unit:SCREEN-VALUE = string(fg-rdtlh.qty-case)
                  fg-rctd.partial:SCREEN-VALUE = string(fg-rdtlh.partial)
-                 fg-rctd.t-qty:SCREEN-VALUE = string(fg-rdtlh.qty).
+                 fg-rctd.t-qty:SCREEN-VALUE = string(fg-rdtlh.qty)
+                 fg-rctd.po-no:SCREEN-VALUE  = string(fg-rcpth.po-no).
              LEAVE.
          END.
              
