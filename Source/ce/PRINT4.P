@@ -41,10 +41,19 @@ def var v-vend-no   like e-item-vend.vend-no init "" NO-UNDO.
 DEF var v-vend-list AS CHAR NO-UNDO.
 def var v-brd-cost as dec no-undo.
 DEF VAR lv-override AS LOG NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
 DEF SHARED VAR qty AS INT NO-UNDO.
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 {ce/print4p.i}
 

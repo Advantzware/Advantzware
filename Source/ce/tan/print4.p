@@ -41,6 +41,7 @@ DEF VAR lv-override AS LOG NO-UNDO.
 DEF VAR ld-fg-rate AS DEC NO-UNDO.
 DEF VAR v-probe-fmt AS CHAR NO-UNDO.
 DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
 IF xest.metric THEN
   ASSIGN
@@ -59,7 +60,15 @@ END.
 {sys/inc/ceprepprice.i}
 
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign

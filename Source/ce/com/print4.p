@@ -74,6 +74,7 @@ DEF VAR vMrWaste LIKE brd.qty-mr NO-UNDO.
 DEF VAR vRunWaste LIKE brd.qty-wst NO-UNDO.
 DEF VAR vBoardAmt LIKE brd.amount NO-UNDO.
 DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
 IF xest.metric THEN
   ASSIGN
@@ -91,7 +92,16 @@ END.
 {cec/get-vend.i}  /* get vendor number */
 
 DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 find first xef where xef.company = xest.company 
                  AND xef.est-no = xest.est-no.              
