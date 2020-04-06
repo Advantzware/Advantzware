@@ -10,7 +10,6 @@
     Created     : Tue Apr 02 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
-{api/inbound/ttItem.i}
 {inventory/ttinventory.i "NEW SHARED"}.
 
 DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
@@ -170,7 +169,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     hdQuery:QUERY-PREPARE(cQuery).
     hdQuery:QUERY-OPEN().
     hdQuery:GET-FIRST(). 
-    IF hdBuffer:AVAILABLE THEN DO:
+    IF NOT hdBuffer:AVAILABLE THEN DO:
         ASSIGN
             opcMessage = "No FG Bins found for item (" + ipcPrimaryID + ")" 
             oplSuccess = NO
