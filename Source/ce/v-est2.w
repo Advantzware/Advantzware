@@ -1662,11 +1662,15 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
 {custom/getcmpny.i}
 {custom/getloc.i}
 ASSIGN cocode = gcompany
        locode = gloc.
+       
+DO TRANSACTION:
+  {sys/inc/celayout.i}
+END.
+
 {sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 
@@ -3708,10 +3712,7 @@ PROCEDURE valid-gsh-wid :
   DEF BUFFER bf-eb FOR eb.
 
 
-  {methods/lValidateError.i YES}
-  DO TRANSACTION:
-    {sys/inc/celayout.i}
-  END.
+  {methods/lValidateError.i YES}      
 
   IF celayout-dec GT 0 THEN RUN est/boardton.p (ROWID(ef), OUTPUT ld-tons).
 
