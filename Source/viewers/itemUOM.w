@@ -134,15 +134,15 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 21.6 BY 1
           BGCOLOR 15 
-     itemUoM.canPurchase AT ROW 6.48 COL 8 WIDGET-ID 20
+     itemUoM.canPurchase AT ROW 4.81 COL 16 WIDGET-ID 20
           LABEL "Valid for PO Quantity and Cost"
           VIEW-AS TOGGLE-BOX
           SIZE 33 BY .81
-     itemUoM.canSell AT ROW 7.48 COL 8 WIDGET-ID 22
-          LABEL "Valid for Order Quantity and Price"
+     itemUoM.canSell AT ROW 5.81 COL 16 WIDGET-ID 22
+          LABEL "Valid for Order Quantity && Price"
           VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     itemUoM.inactive AT ROW 8.48 COL 8 WIDGET-ID 16
+          SIZE 33 BY .81
+     itemUoM.inactive AT ROW 6.71 COL 16 WIDGET-ID 16
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
      itemUoM.createdBy AT ROW 13.62 COL 14 COLON-ALIGNED WIDGET-ID 30
@@ -267,22 +267,29 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemUoM.UOM V-table-Win
 ON LEAVE OF itemUoM.UOM IN FRAME F-Main /* UOM */
 DO:
-    IF LASTKEY NE -1 AND
-       CAN-FIND(FIRST ItemUOM
-                WHERE ItemUOM.company  EQ ItemUOM.company
-                  AND ItemUOM.itemType EQ ItemUOM.itemType
-                  AND ItemUOM.itemID     EQ ItemUOM.itemID
-                  AND ItemUOM.UOM  EQ ItemUOM.UOM:SCREEN-VALUE) THEN DO:
-        MESSAGE
-            "UOM" ItemUOM.UOM:SCREEN-VALUE "for Item" ItemUOM.itemID "already exits!"
-        VIEW-AS ALERT-BOX ERROR.
-        APPLY "ENTRY":U TO SELF.
-        RETURN NO-APPLY.
-    END.
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemNo  AS CHARACTER NO-UNDO.
+    
+    IF LASTKEY NE -1 THEN DO:
+        {methods/run_link.i "RECORD-SOURCE" "Get-Values"
+            "(OUTPUT cCompany, OUTPUT cItemNo)"}
+       IF CAN-FIND(FIRST ItemUOM
+                   WHERE ItemUOM.company  EQ cCompany
+                     AND ItemUOM.itemType EQ "FG"
+                     AND ItemUOM.itemID   EQ cItemNo
+                     AND ItemUOM.UOM      EQ ItemUOM.UOM:SCREEN-VALUE) THEN DO:
+            MESSAGE
+                "UOM" ItemUOM.UOM:SCREEN-VALUE "for Item" cItemNo "already exits!"
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY":U TO SELF.
+            RETURN NO-APPLY.
+        END. /* if can-find */
+    END. /* if lastkey */
     IF ItemUOM.descr:SCREEN-VALUE EQ "" THEN DO:
         FIND FIRST uom NO-LOCK
              WHERE uom.uom EQ ItemUOM.UOM:SCREEN-VALUE
              NO-ERROR.
+        IF AVAILABLE uom THEN
         ItemUOM.descr:SCREEN-VALUE = uom.dscr.
     END. /* if descr */
 END.
@@ -370,7 +377,6 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/viewers/assign/itemUOM.i}
   DO WITH FRAME {&FRAME-NAME}:
       DISPLAY
           ItemUOM.updatedBy
@@ -397,7 +403,6 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/itemUOM.i}
-  {methods/viewers/assign/itemUOM.i}
   DO WITH FRAME {&FRAME-NAME}:
       DISPLAY
           ItemUOM.createdBy
