@@ -317,7 +317,7 @@ END.
 
 {cerep/jobkeyst.i NO-LOCK}
 ,
-EACH tt-reftable NO-LOCK
+EACH tt-reftable WHERE tt-reftable.val[12] EQ job-hdr.frm NO-LOCK
 BREAK BY job-hdr.job
 BY job-hdr.job-no
 BY job-hdr.job-no2
@@ -462,7 +462,7 @@ DO:
     IF FIRST-OF(job-hdr.job-no2) THEN 
         v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.
     cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
-    v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.
+    /*v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.*/
      /*VIEW FRAME head.*/
     IF FIRST-OF(tt-reftable.val[12]) THEN 
     DO:
