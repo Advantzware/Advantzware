@@ -52,8 +52,15 @@
     {Inventory/ttInventory.i "NEW SHARED"}
 
     DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdJobProcs       AS HANDLE NO-UNDO.
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
+    /* Formats Job number */
+    ipcJobID = DYNAMIC-FUNCTION (
+               "fAddSpacesToString" IN hdJobProcs , ipcJobID , 6 , TRUE
+               ). 
+    
     /* Input validation */
     RUN pValidateInputs (
         INPUT  ipcCompany,
@@ -103,6 +110,7 @@
 
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdInventoryProcs).
     DELETE PROCEDURE hdInventoryProcs.
+    DELETE PROCEDURE hdJobProcs.
 
     PROCEDURE pValidateInputs PRIVATE:
     /*------------------------------------------------------------------------------
