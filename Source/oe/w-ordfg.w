@@ -127,7 +127,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57.
+         SIZE 174 BY 28.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -150,11 +150,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "FG Item"
          HEIGHT             = 28.57
-         WIDTH              = 160
+         WIDTH              = 174
          MAX-HEIGHT         = 28.57
-         MAX-WIDTH          = 160
+         MAX-WIDTH          = 174
          VIRTUAL-HEIGHT     = 28.57
-         VIRTUAL-WIDTH      = 160
+         VIRTUAL-WIDTH      = 174
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -274,7 +274,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 28.57 , 159.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 28.57 , 172.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
