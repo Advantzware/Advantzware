@@ -699,6 +699,20 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
     END.
     
+    IF userSuppress:CHECKED AND zMessage.msgType:SCREEN-VALUE EQ "Question-YN" THEN DO:
+        IF zMessage.rtnValue:SCREEN-VALUE EQ "" THEN DO:
+            MESSAGE "Default answer cannot be blank for message type question"
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN ERROR.
+        END.
+        
+        IF LOOKUP(zMessage.rtnValue:SCREEN-VALUE,"YES,NO") EQ 0 THEN DO:
+                MESSAGE "Default answer should be either yes or no"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN ERROR.    
+        END.        
+              
+    END.    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
     ASSIGN
