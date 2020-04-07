@@ -653,17 +653,15 @@ PROCEDURE export-xl :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE first-util AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE last-util  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE first-msg AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE last-msg  AS CHARACTER NO-UNDO.
 
-    GET FIRST Browser-Table .
-    ASSIGN 
-        first-util = zMessage.msgID .
-    GET LAST Browser-Table .
-    ASSIGN 
-        last-util = zMessage.msgID .
+    IF AVAIL zMessage THEN
+     ASSIGN
+        last-msg = zMessage.msgID
+        first-msg = zMessage.msgID .
 
-    RUN util/util-exp.w .
+    RUN system/MessageExp.w(INPUT first-msg,INPUT last-msg) .
 
 
 END PROCEDURE.
