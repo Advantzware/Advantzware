@@ -116,6 +116,8 @@ IF AVAILABLE users THEN ASSIGN
                ELSE vendItemCost.itemID BEGINS fi_i-no ) ~
           AND (IF TRIM(fi_est-no) BEGINS '*' THEN TRIM(vendItemCost.estimateNo) MATCHES (TRIM(fi_est-no) + "*") ~
                ELSE TRIM(vendItemCost.estimateNo) BEGINS TRIM(fi_est-no)) ~
+          AND (IF TRIM(fi_vend-item) BEGINS '*' THEN TRIM(vendItemCost.vendorItemID) MATCHES (TRIM(fi_vend-item) + "*") ~
+               ELSE TRIM(vendItemCost.vendorItemID) BEGINS TRIM(fi_vend-item)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
           AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) 
@@ -135,6 +137,7 @@ IF AVAILABLE users THEN ASSIGN
           AND (vendItemCost.itemType BEGINS cb_itemType OR cb_itemType EQ "ALL") ~
           AND (vendItemCost.itemID eq fi_i-no ) ~
           AND (vendItemCost.vendorID  eq fi_vend-no OR fi_vend-no = "") ~
+          AND (vendItemCost.vendorItemID  eq fi_vend-item OR fi_vend-item = "") ~
           AND (fi_est-no EQ "" OR TRIM(vendItemCost.estimateNo) eq TRIM(fi_est-no)) ~
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
           AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
@@ -153,7 +156,8 @@ IF AVAILABLE users THEN ASSIGN
     IF lv-sort-by EQ "customerID"     THEN vendItemCost.customerID ELSE ~
     IF lv-sort-by EQ "estimateNo"     THEN vendItemCost.estimateNo ELSE ~
     IF lv-sort-by EQ "effectiveDate"  THEN STRING(YEAR(vendItemCost.effectiveDate), "9999") + STRING(MONTH(vendItemCost.effectiveDate), "99") + STRING(DAY(vendItemCost.effectiveDate), "99") ELSE ~
-    IF lv-sort-by EQ "expirationDate" THEN STRING(YEAR(vendItemCost.expirationDate),"9999") + STRING(MONTH(vendItemCost.expirationDate),"99") + STRING(DAY(vendItemCost.expirationDate),"99") ELSE ""
+    IF lv-sort-by EQ "expirationDate" THEN STRING(YEAR(vendItemCost.expirationDate),"9999") + STRING(MONTH(vendItemCost.expirationDate),"99") + STRING(DAY(vendItemCost.expirationDate),"99") ELSE ~
+    IF lv-sort-by EQ "vendorItemID" THEN STRING(vendItemCost.vendorItemID) ELSE ""
 
 &SCOPED-DEFINE sortby BY vendItemCost.itemID
 
@@ -192,10 +196,10 @@ IF AVAILABLE users THEN ASSIGN
 &Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCost.itemType ~
 vendItemCost.itemID vendItemCost.vendorID vendItemCost.customerID ~
 vendItemCost.estimateNo get-eff-date() @ dtEffDate ~
-vendItemCost.expirationDate fGetLevel(1) @ cLevel[1] ~
-fGetLevel(2) @ cLevel[2] fGetLevel(3) @ cLevel[3] fGetLevel(4) @ cLevel[4] ~
-fGetLevel(5) @ cLevel[5] fGetLevel(6) @ cLevel[6] fGetLevel(7) @ cLevel[7] ~
-fGetLevel(8) @ cLevel[8] fGetLevel(9) @ cLevel[9] ~
+vendItemCost.expirationDate vendItemCost.vendorItemID ~
+fGetLevel(1) @ cLevel[1] fGetLevel(2) @ cLevel[2] fGetLevel(3) @ cLevel[3] ~
+fGetLevel(4) @ cLevel[4] fGetLevel(5) @ cLevel[5] fGetLevel(6) @ cLevel[6] ~
+fGetLevel(7) @ cLevel[7] fGetLevel(8) @ cLevel[8] fGetLevel(9) @ cLevel[9] ~
 fGetLevel(10) @ cLevel[10] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -209,11 +213,11 @@ fGetLevel(10) @ cLevel[10]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-exp tb_in-est ~
-cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff btn_go btn_show ~
-Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-exp tb_in-est ~
-cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff fi_sort-by 
+&Scoped-Define ENABLED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff fi_vend-item btn_go ~
+btn_show Browser-Table 
+&Scoped-Define DISPLAYED-OBJECTS tb_exactMatch tb_in-est tb_in-exp ~
+cb_itemType fi_i-no fi_vend-no fi_est-no tb_fut-eff fi_vend-item fi_sort-by 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -305,7 +309,7 @@ DEFINE VARIABLE cb_itemType AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Estimate" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1
+     SIZE 12.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
@@ -318,6 +322,12 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 34.6 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fi_vend-item AS CHARACTER FORMAT "X(16)":U 
+     LABEL "Vend Item" 
+     VIEW-AS FILL-IN 
+     SIZE 19.4 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(10)":U 
      LABEL "Vendor" 
@@ -364,6 +374,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 13 LABEL-BGCOLOR 14
       get-eff-date() @ dtEffDate COLUMN-LABEL "Effective"
       vendItemCost.expirationDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      vendItemCost.vendorItemID COLUMN-LABEL "Vendor Item" FORMAT "x(16)":U
+            LABEL-BGCOLOR 14
       fGetLevel(1) @ cLevel[1] COLUMN-LABEL "Level 1" FORMAT "x(30)":U
       fGetLevel(2) @ cLevel[2] COLUMN-LABEL "Level 2" FORMAT "x(30)":U
       fGetLevel(3) @ cLevel[3] COLUMN-LABEL "Level 3" FORMAT "x(30)":U
@@ -383,21 +395,22 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tb_exactMatch AT ROW 1.14 COL 25.4
-     tb_in-exp AT ROW 1.19 COL 106.6 WIDGET-ID 52
-     tb_in-est AT ROW 1.24 COL 81.6 WIDGET-ID 50
+     tb_exactMatch AT ROW 1.14 COL 24.8
+     tb_in-est AT ROW 1.24 COL 79 WIDGET-ID 50
+     tb_in-exp AT ROW 1.29 COL 106.6 WIDGET-ID 52
      cb_itemType AT ROW 2.24 COL 6.4 COLON-ALIGNED WIDGET-ID 40
-     fi_i-no AT ROW 2.24 COL 23.4 COLON-ALIGNED WIDGET-ID 16
-     fi_vend-no AT ROW 2.24 COL 55.2 COLON-ALIGNED WIDGET-ID 2
-     fi_est-no AT ROW 2.29 COL 79.6 COLON-ALIGNED
+     fi_i-no AT ROW 2.24 COL 22.8 COLON-ALIGNED WIDGET-ID 16
+     fi_vend-no AT ROW 2.24 COL 53.6 COLON-ALIGNED WIDGET-ID 2
+     fi_est-no AT ROW 2.29 COL 77 COLON-ALIGNED
      tb_fut-eff AT ROW 2.38 COL 106.6 WIDGET-ID 54
+     fi_vend-item AT ROW 3.57 COL 53.4 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
      btn_show AT ROW 3.62 COL 15.2 WIDGET-ID 10
-     fi_sort-by AT ROW 3.62 COL 56 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fi_sort-by AT ROW 3.62 COL 75.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      Browser-Table AT ROW 4.86 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Click on Column Title to Sort" VIEW-AS TEXT
-          SIZE 29 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14
+          SIZE 27 BY .95 AT ROW 3.62 COL 113.2 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -496,38 +509,40 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "vendItemCost"
      _FldNameList[1]   > asi.vendItemCost.itemType
-"itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.vendItemCost.itemID
-"itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.itemID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.vendItemCost.vendorID
-"vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.vendorID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.vendItemCost.customerID
-"customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.customerID" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.vendItemCost.estimateNo
-"estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.estimateNo" "Est" ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "get-eff-date() @ dtEffDate" "Effective" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.vendItemCost.expirationDate
-"expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > "_<CALC>"
-"fGetLevel(1) @ cLevel[1]" "Level 1" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vendItemCost.expirationDate" ? ? "Date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > asi.vendItemCost.vendorItemID
+"vendItemCost.vendorItemID" "Vendor Item" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
-"fGetLevel(2) @ cLevel[2]" "Level 2" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(1) @ cLevel[1]" "Level 1" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
-"fGetLevel(3) @ cLevel[3]" "Level 3" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(2) @ cLevel[2]" "Level 2" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
-"fGetLevel(4) @ cLevel[4]" "Level 4" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(3) @ cLevel[3]" "Level 3" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"fGetLevel(5) @ cLevel[5]" "Level 5" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(4) @ cLevel[4]" "Level 4" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
-"fGetLevel(6) @ cLevel[6]" "Level 6" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(5) @ cLevel[5]" "Level 5" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
-"fGetLevel(7) @ cLevel[7]" "Level 7" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(6) @ cLevel[6]" "Level 6" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"fGetLevel(8) @ cLevel[8]" "Level 8" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(7) @ cLevel[7]" "Level 7" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"fGetLevel(9) @ cLevel[9]" "Level 9" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fGetLevel(8) @ cLevel[8]" "Level 8" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
+"fGetLevel(9) @ cLevel[9]" "Level 9" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > "_<CALC>"
 "fGetLevel(10) @ cLevel[10]" "Level 10" "x(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -638,6 +653,7 @@ DO:
                 fi_i-no  
                 fi_est-no
                 ll-first = NO 
+                fi_vend-item
                 .                                             
      
             RUN dispatch ("open-query").
@@ -1461,6 +1477,7 @@ PROCEDURE set-defaults :
             tb_exactMatch:SCREEN-VALUE = "no"
             tb_in-est = YES
             tb_in-est:SCREEN-VALUE = "Yes"
+            fi_vend-item:SCREEN-VALUE = ""
             .     
     END.
 
