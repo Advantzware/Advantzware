@@ -18,4 +18,7 @@ DEFINE TEMP-TABLE ttItem NO-UNDO
     FIELD UnitHeight               AS DECIMAL
     FIELD UnitWidth                AS DECIMAL
     FIELD StackHeight              AS INTEGER
+    FIELD TagStatus                AS CHARACTER 
+    FIELD StatusDescription        AS CHARACTER 
+    FIELD OnHold                   AS LOGICAL
     .

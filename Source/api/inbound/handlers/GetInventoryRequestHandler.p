@@ -189,7 +189,9 @@ PROCEDURE pProcessInputs:
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitHeight",STRING(ttItem.UnitHeight,"->>>>>>>>9.9<<<<<")) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitWidth",STRING(ttItem.UnitWidth,"->>>>>>>>9.9<<<<<")) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StackHeight",STRING(ttItem.StackHeight)) NO-ERROR.
-
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"TagStatus",ttItem.TagStatus) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StatusDescription",ttItem.StatusDescription) NO-ERROR. 
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"OnHold",STRING(ttItem.OnHold)) NO-ERROR.                       
             oplcConcatResponseData = oplcConcatResponseData + "," + lcResponseData.
     END.
     
