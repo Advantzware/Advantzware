@@ -4,8 +4,6 @@
   DEF VAR lv-cons-qty AS DEC NO-UNDO.
   DEF VAR lv-cons-cost AS DEC NO-UNDO.
   DEF VAR lv-t-cost AS DEC NO-UNDO.
-  DEF VAR ll-ea AS LOG INIT NO NO-UNDO.
-  DEF VAR lv-uom LIKE po-ordl.pr-qty-uom INIT NO NO-UNDO.
   DEF VAR lv-orig-uom AS CHAR NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -36,14 +34,6 @@
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ po-ordl.i-no{2}
       NO-LOCK NO-ERROR.
-
-  IF AVAIL itemfg THEN
-    RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom{2}, OUTPUT ll-ea).
-
-  IF ll-ea AND ip-type NE "view" THEN
-    ASSIGN
-     lv-uom                = po-ordl.pr-qty-uom{2}
-     po-ordl.pr-qty-uom{2} = "EA".
 
   IF v-len EQ 0 AND AVAIL ITEM AND
      ITEM.i-code EQ "R" AND item.r-wid GT 0 THEN
@@ -212,5 +202,4 @@ IF ip-type NE "view" THEN
      po-ordl.t-cost{2} = {1}(lv-t-cost)
      po-ordl.pr-qty-uom{2} = lv-orig-uom.
 
-  IF ll-ea AND ip-type NE "view" THEN po-ordl.pr-qty-uom{2} = lv-uom.
 
