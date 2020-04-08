@@ -47,11 +47,9 @@ DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdOSProcs         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdOSProcs  AS HANDLE    NO-UNDO.
 
 RUN system/OSProcs.p       PERSISTENT SET hdOSProcs.
-RUN system/FileSysProcs.p  PERSISTENT SET hdFileSysProcs.
 
 ASSIGN
     gcParentProgram = ipcParentProgram
@@ -75,8 +73,6 @@ FOR FIRST APIOutbound NO-LOCK
         gcResponseHandler  = APIOutbound.responseHandler
         gcAPIID            = APIOutbound.apiID
         glAPIConfigFound   = YES
-        glSaveFile         = APIOutbound.saveFile
-        gcSaveFileFolder   = APIOutbound.saveFileFolder
         .
 END.
 
@@ -138,19 +134,7 @@ gcCommand = SEARCH("curl.exe")
 
 /* Put Request Data from a variable into a Temporary file */
 COPY-LOB glcRequestData TO FILE gcRequestFile.
-
-IF glSaveFile THEN DO:
-        RUN FileSys_CreateDirectory IN hdFileSysProcs (
-        INPUT  gcSaveFileFolder,
-        OUTPUT lSuccess,
-        OUTPUT cMessage
-        ) NO-ERROR.
-    
-    IF lSuccess THEN 
-        OS-COPY VALUE (gcRequestFile) VALUE (gcSaveFileFolder).
-          
-END.    
-
+   
 /* execute CURL command with requiredif  parameters to call the API */
 RUN OS_RunCommand IN hdOSProcs (
     INPUT  gcCommand,             /* Command string to run */
