@@ -59,7 +59,7 @@ ASSIGN
 IF NOT CAN-FIND(FIRST company NO-LOCK
             WHERE company.company EQ ipcCompany) THEN DO:
     ASSIGN 
-        opcMessage = opcMessage + "Invalid Company for item (" + ipcPrimaryID + ")" 
+        opcMessage = "Invalid Company (" + ipcCompany + ")" 
         oplSuccess = NO
         .
     RETURN.
@@ -70,7 +70,7 @@ IF NOT CAN-FIND(FIRST inventoryStatusType NO-LOCK
             WHERE inventoryStatusType.statusID EQ ipcStatusID
               AND NOT inventoryStatusType.inActive) THEN DO:
     ASSIGN 
-        opcMessage = opcMessage + "Invalid StatusID for item (" + ipcPrimaryID + ")" 
+        opcMessage = "Invalid StatusID (" + ipcStatusID + ")"
         oplSuccess = NO
         .
     RETURN.
@@ -81,7 +81,7 @@ IF NOT CAN-FIND(FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ ipcCompany
               AND itemfg.i-no    EQ ipcPrimaryID) THEN DO:
     ASSIGN 
-        opcMessage = opcMessage + "Invalid item"
+        opcMessage = "Invalid item (" + ipcPrimaryID + ")"
         oplSuccess = NO
         .
     RETURN.
@@ -90,7 +90,7 @@ END.
 /* Validate Item Type */
 IF ipcItemType NE cItemTypeFG THEN DO:
     ASSIGN 
-        opcMessage = opcMessage + "Invalid Item Type for item (" + ipcPrimaryID + ")" 
+        opcMessage = "Invalid Item Type (" + ipcItemType + ")"
         oplSuccess = NO
         .
     RETURN.
@@ -109,7 +109,7 @@ IF (lValidLoc AND NOT lValidBin) OR
         ).
     IF NOT lValidLoc THEN DO:
         ASSIGN
-            opcMessage = "Invalid WareHouseID for item (" + ipcPrimaryID + ")" 
+            opcMessage = "Invalid WareHouseID (" + ipcWareHouseID + ")" 
             oplSuccess = NO
             .
 
@@ -126,7 +126,7 @@ IF (lValidLoc AND NOT lValidBin) OR
 
     IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
         ASSIGN
-            opcMessage = "Invalid LocationID for item (" + ipcPrimaryID + ")" 
+            opcMessage = "Invalid LocationID (" + ipcLocationID + ")"  
             oplSuccess = NO
             .
 
@@ -143,7 +143,7 @@ IF lValidTag THEN DO:
          NO-ERROR.
     IF NOT AVAILABLE loadtag THEN DO:
         ASSIGN
-            opcMessage = "Invalid tag for item (" + ipcPrimaryID + ")" 
+            opcMessage = "Invalid tag (" + ipcInventoryStockID + ")" 
             oplSuccess = NO
             .
 
