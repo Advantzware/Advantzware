@@ -75,6 +75,7 @@ DEF TEMP-TABLE old-ef NO-UNDO LIKE ef.
 DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
 DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dCelayoutDec AS DECIMAL NO-UNDO.
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -1662,11 +1663,17 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
 {custom/getcmpny.i}
 {custom/getloc.i}
 ASSIGN cocode = gcompany
-       locode = gloc.
+       locode = gloc.       
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CELAYOUT", "D" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    dCelayoutDec = decimal(cRtnChar) NO-ERROR. 
+  
 {sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 
@@ -3708,12 +3715,9 @@ PROCEDURE valid-gsh-wid :
   DEF BUFFER bf-eb FOR eb.
 
 
-  {methods/lValidateError.i YES}
-  DO TRANSACTION:
-    {sys/inc/celayout.i}
-  END.
+  {methods/lValidateError.i YES}      
 
-  IF celayout-dec GT 0 THEN RUN est/boardton.p (ROWID(ef), OUTPUT ld-tons).
+  IF dCelayoutDec GT 0 THEN RUN est/boardton.p (ROWID(ef), OUTPUT ld-tons).
 
   DO WITH FRAME {&FRAME-NAME}:
     IF ll-auto-calc-selected                                                    AND
@@ -3746,7 +3750,7 @@ PROCEDURE valid-gsh-wid :
           END.
           ELSE DO:  
               FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-              IF AVAIL e-item AND ld-tons LT celayout-dec THEN
+              IF AVAIL e-item AND ld-tons LT dCelayoutDec THEN
               DO li = 1 TO 26:
                 IF e-item.roll-w[li] GE DEC(ef.gsh-wid:SCREEN-VALUE) THEN DO:
                   ef.gsh-wid:SCREEN-VALUE = STRING(e-item.roll-w[li]).
