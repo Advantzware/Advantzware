@@ -4369,6 +4369,7 @@ PROCEDURE display-est-detail :
               DATE(oe-ordl.prom-date:SCREEN-VALUE) THEN
              oe-ordl.prom-date:SCREEN-VALUE = oe-ordl.req-date:SCREEN-VALUE.
         END.
+        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id) .
      END. /*avail b-eb*/
 
      IF lastship-cha = "Stock/Custom" THEN DO:
@@ -8817,6 +8818,37 @@ IF oe-ordl.vend-no EQ "0" THEN
 /*     RUN jc/UpdateSchedule.p (INPUT DATE(oe-ordl.spare-int-2), */
 /*                              INPUT ROWID(bf-job)).            */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct d-oeitem 
+PROCEDURE pGetOverUnderPct :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO .
+   DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO .
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE BUFFER bf-shipto FOR shipto .
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF oe-ord.est-no EQ "" AND oe-ordl.est-no:SCREEN-VALUE NE "" AND oeship-cha EQ "EstShipto" THEN
+    DO:               
+        RUN oe/GetOverUnderPct.p(g_company, 
+                               ipcCustNo,
+                               TRIM(ipcShipID),
+                               OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                               oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
+                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+    END.                       
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
