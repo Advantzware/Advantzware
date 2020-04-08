@@ -854,13 +854,11 @@ PROCEDURE local-assign-record :
   END. 
   
   FIND FIRST cust WHERE cust.company = g_company
-                    AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
-  FIND FIRST shipto WHERE shipto.company = g_company 
-                       AND shipto.cust-no = ar-inv.cust-no
-                       AND shipto.ship-id = ar-inv.ship-id
-                       NO-LOCK NO-ERROR.
-    IF cOldShipto NE ar-inv.ship-id AND AVAIL shipto then do:                    
-     RUN oe/GetOverUnderPct.p(ROWID(shipto),  
+                    AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.  
+    IF cOldShipto NE ar-inv.ship-id then do:                    
+     RUN oe/GetOverUnderPct.p(g_company,
+                           ar-inv.cust-no,
+                           ar-inv.ship-id,
                            OUTPUT dOverPer , OUTPUT dUnderPer ) .
                            ar-inv.over-pct = dOverPer.
                            ar-inv.Under-pct = dUnderPer. 
