@@ -132,7 +132,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 26.5  .
+         SIZE 174 BY 26.5  .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -155,11 +155,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "FG Item"
          HEIGHT             = 26.5
-         WIDTH              = 160.6
+         WIDTH              = 174.6
          MAX-HEIGHT         = 26.5
          MAX-WIDTH          = 172
          VIRTUAL-HEIGHT     = 26.5
-         VIRTUAL-WIDTH      = 172
+         VIRTUAL-WIDTH      = 174.6
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -279,7 +279,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 26.50 , 157.80 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.50 , 172.80 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -722,7 +722,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_pv-graph ,
              h_p-boxupd , 'AFTER':U ).
     END. /* Page 9 */
-    WHEN 12 THEN DO:
+    WHEN 13 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/itemfg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -1071,7 +1071,7 @@ PROCEDURE local-change-page:
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + quoter(eb.stock-no) ).      
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" '  ).
         li-page-b4VendCost = li-prev-page.     
-        RUN select-page (13).
+        RUN select-page (14).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = ""' ).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost=""').
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = ""' ).
@@ -1142,7 +1142,7 @@ PROCEDURE local-create-objects :
       RUN view-page (3).
   END.
 
-  IF v-current-page = 13 THEN 
+  IF v-current-page = 14 THEN 
   DO:
         RUN init-object IN THIS-PROCEDURE (
             INPUT  'windows/vendcostmtx.w':U ,
@@ -1153,7 +1153,7 @@ PROCEDURE local-create-objects :
         /* Size in UIB:  ( 1.86 , 10.80 ) */
     
         /* Initialize other pages that this page requires. */
-        RUN init-pages IN THIS-PROCEDURE ('14':U) NO-ERROR.
+        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
     
         /* Links to SmartWindow */
         /*    RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vendcostmtx ).    */
