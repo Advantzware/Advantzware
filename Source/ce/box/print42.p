@@ -28,6 +28,7 @@ def var ls-outfile as cha no-undo.
 def var ls-probetime as cha no-undo.  /* time display */
 def var v-brd-cost as dec no-undo.
 DEF VAR lv-override AS LOG NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
 def new shared workfile w-form
     field form-no like ef.form-no
@@ -48,7 +49,16 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
 DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 {ce/print42p.i}
 

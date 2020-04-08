@@ -168,6 +168,7 @@ DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -200,7 +201,13 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
 
 lv-cebrowse-dir = tmp-dir.
 
@@ -3782,7 +3789,14 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+
+  RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+      INPUT  cocode,
+      OUTPUT cCEBrowseBaseDir,
+      OUTPUT tmp-dir
+      ).
+
+
   lv-cebrowse-dir = tmp-dir.
   RUN est\CostResetHeaders.p(?,?).
   IF est.est-type EQ 8 THEN

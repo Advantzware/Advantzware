@@ -58,6 +58,7 @@ def var lv-ef-recid as recid no-undo.
 def var v-brd-only like sys-ctrl.log-fld init no no-undo.
 def var v-brd-cost as dec no-undo.
 DEF VAR lv-override AS LOG NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
  
 def new shared temp-table tt-qtty field qtty like qtty
                                   field rel like rels
@@ -69,6 +70,14 @@ DEF TEMP-TABLE tt-bqty NO-UNDO FIELD tt-bqty AS INT FIELD tt-brel AS INT.
 
 lv-ef-recid = recid(xef).
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 {cec/print4p.i}
