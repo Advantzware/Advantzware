@@ -21,17 +21,22 @@
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
     
-    /* Variables to store order line's request data */
+    /* Variables to store invoice line's request data */
     DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcConcatLineData AS LONGCHAR  NO-UNDO.
 
-    /* Variables to store order line Addon's request data */
+    /* Variables to store invoice Addon's request data */
     DEFINE VARIABLE lcLineAddonData       AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcConcatLineAddonData AS LONGCHAR  NO-UNDO.
     
+    /* Variables to store invoice address data */
     DEFINE VARIABLE lcConcatAddressData AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcAddressData AS CHARACTER NO-UNDO.
-            
+    
+    /* Variables to store Tax request data */
+    DEFINE VARIABLE lcConcatTaxData AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcTaxData AS CHARACTER NO-UNDO.         
+       
     /* Invoice Header Variables */
     DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIsaDate         AS CHARACTER NO-UNDO.
@@ -54,6 +59,7 @@
     DEFINE VARIABLE cItemPrice     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemBuyerPart AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShortBuyerPart AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDesc      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustCountry   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCode    AS CHARACTER NO-UNDO.
@@ -65,9 +71,9 @@
     DEFINE VARIABLE dUnitPrice     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyShipped    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE cCustPart      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNum AS CHARACTER NO-UNDO.
     
     /* Invoice Addon Variables */
-    DEFINE VARIABLE cAddonSegment         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAddonAllowCharge     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMiscElem             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSacAgencyQualifier   AS CHARACTER NO-UNDO.
@@ -95,6 +101,7 @@
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPurchaseUnit      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hFormatProcs       AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO.
     
@@ -145,7 +152,12 @@
             RETURN.
         END.
    
-        
+        FIND FIRST bf-APIOutboundDetail1 NO-LOCK
+             WHERE bf-APIOutboundDetail1.apiOutboundID EQ ipiAPIOutboundID
+               AND bf-APIOutboundDetail1.detailID      EQ "Tax"
+               AND bf-APIOutboundDetail1.parentID      EQ "SendInvoice"
+             NO-ERROR.
+                     
         FIND FIRST bf-APIOutboundDetail2 NO-LOCK
              WHERE bf-APIOutboundDetail2.apiOutboundID EQ ipiAPIOutboundID
                AND bf-APIOutboundDetail2.detailID      EQ "N1Addresses"
@@ -154,7 +166,7 @@
              
         FIND FIRST bf-APIOutboundDetail3 NO-LOCK
              WHERE bf-APIOutboundDetail3.apiOutboundID EQ ipiAPIOutboundID
-               AND bf-APIOutboundDetail3.detailID      EQ "Addon"
+               AND bf-APIOutboundDetail3.detailID      EQ "Addons"
                AND bf-APIOutboundDetail3.parentID      EQ "SendInvoice"
              NO-ERROR.
         FIND FIRST ttArgs
@@ -211,7 +223,10 @@
                 RETURN.
             END.            
         END.
-        dSELineCount = 1.
+        
+        RUN system/formatProcs.p PERSISTENT SET hFormatProcs.
+        
+        dSELineCount = 3.
         IF AVAIL inv-head THEN DO:
             
             cCompany = inv-head.company.
@@ -230,35 +245,33 @@
                 NO-ERROR.
                 
             IF AVAILABLE shipto THEN 
-                    RUN pCreateAddress("ST", 1, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
+                    RUN pCreateAddress("ST", 4, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
                                         shipto.ship-name, shipto.ship-addr[1], shipto.ship-addr[2], 
                                         shipto.ship-city, shipto.ship-state,
                                         shipto.ship-zip, shipto.country).
             ELSE DO:
-                RUN pCreateAddress("ST", 1, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
-                                    inv-head.sold-name, inv-head.sold-addr[1], inv-head.sold-addr[2], inv-head.sold-city,
-                                    inv-head.sold-state,inv-head.sold-zip, cCustCountry ).
-                RUN pCreateAddress("PE", 2, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
+                RUN pCreateAddress("ST", 4, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
                                     inv-head.sold-name, inv-head.sold-addr[1], inv-head.sold-addr[2], inv-head.sold-city,
                                     inv-head.sold-state,inv-head.sold-zip, cCustCountry ).
             END.    
-                                    
-                /* Not used for Amazon */
-                cShipToCode    = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
-                    
-                ASSIGN
-                 cBigDate         = STRING(inv-head.inv-date)  /* 20201001 */
-                 cBigDocID        = STRING(inv-head.inv-no)
-                 cTotalAmount     = STRING(inv-head.t-inv-rev)
-                 .
-                 RUN pCreateAddress("BT", 3, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
-                                    inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
-                                    cCustCountry).
-                 /* Fetch invoice notes from notes table */    
-                 FOR EACH notes NO-LOCK
-                    WHERE notes.rec_key EQ inv-head.rec_key:
-                    cInvNotes = cInvNotes + STRING(notes.note_text).
-                 END.
+            
+            RUN pCreateAddress('PE', 3, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
+                               'IL','60686', 'US' ).                                    
+            /* Not used for Amazon */
+            cShipToCode    = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
+            RUN format_date IN hFormatProcs (inv-head.inv-date, "YYYYMMDD", OUTPUT cBigDate).
+            ASSIGN                 
+             cBigDocID        = STRING(inv-head.inv-no)
+             cTotalAmount     = STRING(inv-head.t-inv-rev)
+             .
+             RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
+                                inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
+                                cCustCountry).
+             /* Fetch invoice notes from notes table */    
+             FOR EACH notes NO-LOCK
+                WHERE notes.rec_key EQ inv-head.rec_key:
+                cInvNotes = cInvNotes + STRING(notes.note_text).
+             END.
         END. /* end using inv-head */
         ELSE DO: /* Using ar-inv */
            cCompany = ar-inv.company.
@@ -275,15 +288,28 @@
                 AND shipto.cust-no EQ ar-inv.cust-no
                 AND shipto.ship-id EQ IF STRING(ar-inv.sold-no) NE "" THEN STRING(ar-inv.sold-no) ELSE ar-inv.bill-to
                 NO-ERROR.
-
+            IF AVAILABLE shipto THEN 
+                    RUN pCreateAddress("ST", 4, IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.bill-to,
+                                        shipto.ship-name, shipto.ship-addr[1], shipto.ship-addr[2], 
+                                        shipto.ship-city, shipto.ship-state,
+                                        shipto.ship-zip, shipto.country).
+            ELSE DO:
+                RUN pCreateAddress("ST", 4, IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.bill-to,
+                                    ar-inv.sold-name, ar-inv.sold-addr[1], ar-inv.sold-addr[2], ar-inv.sold-city,
+                                    ar-inv.sold-state,ar-inv.sold-zip, cCustCountry ).
+            END.    
+            RUN pCreateAddress('PE', 3, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
+                                   'IL','60686', 'US' ).  
             dLineTotalAmt = 0.
             FOR EACH bf-ar-invl NO-LOCK  
                WHERE bf-ar-invl.x-no = ar-inv.x-no
                 AND (bf-ar-invl.inv-qty NE 0 OR bf-ar-invl.misc) :
                dLineTotalAmt = dLineTotalAmt + bf-ar-invl.amt.
             END.
-            dInvoiceTotalAmt = dLineTotalAmt + ar-inv.tax-amt + (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0).
-            cTotalAmount     = STRING(dInvoiceTotalAmt).
+            ASSIGN 
+                cBigDocID        = STRING(ar-inv.inv-no)
+                dInvoiceTotalAmt = dLineTotalAmt + ar-inv.tax-amt + (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
+                cTotalAmount     = STRING(dInvoiceTotalAmt).
             
             /* Fetch invoice notes from notes table */    
             FOR EACH notes NO-LOCK
@@ -291,16 +317,16 @@
                 cInvNotes = cInvNotes + STRING(notes.note_text).
             END.
         END.
-        
+        RUN format_date IN hFormatProcs (TODAY, "YYYYMMDD", OUTPUT cBigDate).
         ASSIGN 
-             cIsaDate         = STRING(TODAY) /* 20201001 */
-             cIsaTime         = STRING(TIME)
+             cIsaTime         = SUBSTRING(STRING(TIME, "hh:mm"), 1, 2) +
+                                SUBSTRING(STRING(TIME, "hh:mm"), 4, 2)
              cIsaControlSeq   = STRING(1)   /* TBD */
              cGsControlSeq    = cIsaControlSeq /* Have been using the same number with no problem */
              cStControlSeq    = STRING(1)   /* TBD */
              .
 
-        RUN pCreateAddress('RI', 4, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
+        RUN pCreateAddress('RI', 2, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
                                'IL','60686', 'US' ).
                                
         /* Fetch Address Details for the invoice */
@@ -328,7 +354,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4State", cState).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Zip", cZip).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Country", cCountry).
-            lcConcatAddressData = lcConcatAddressData + "" + lcAddressData.
+            lcConcatAddressData = lcConcatAddressData + "" + lcAddressData + "~n".
         END.
         
         /* Fetch line details for the Invoice */         
@@ -350,7 +376,7 @@
                       cUomCode =  (IF inv-line.pr-qty-uom > "" THEN
                                 inv-line.pr-qty-uom
                                 ELSE "EA")
-                      iQtyShipped = (IF inv-line.inv-qty NE 0 OR iBolNum GT 0 THEN inv-line.inv-qty ELSE 1)
+                      dQtyShipped = (IF inv-line.inv-qty NE 0 OR iBolNum GT 0 THEN inv-line.inv-qty ELSE 1)
                       dUnitPrice       = inv-line.price
                       cCustPart        = inv-line.part-no
                       // edivline.unit-price       = ar-invl.unit-pr
@@ -366,7 +392,7 @@
                         DO:
                             cUomCode = "CT". 
                             IF inv-line.cas-cnt > 0 THEN
-                                iQtyShipped = inv-line.inv-qty / inv-line.cas-cnt.
+                                dQtyShipped = inv-line.inv-qty / inv-line.cas-cnt.
                         END.
                     WHEN "M" THEN 
                         DO:
@@ -394,7 +420,7 @@
                 IF inv-line.pr-uom = "CS" AND inv-line.cas-cnt > 0 THEN
                 DO:  /* scale qty by case count */
                     dQtyShipped = inv-line.inv-qty / inv-line.cas-cnt.
-                    cUomCode = "CT".   /* carton is correct code for EDI */
+                    
                 END.
                 ELSE
                 DO:
@@ -405,32 +431,40 @@
                         ELSE "EA"
                         ).
         
-                    IF cUomCode = "CS"
-                        THEN
-                        cUomCode = "CT".    /* 9705 CAH */        
+       
                 END.
                 
+                IF cUomCode = "CS"
+                    THEN
+                    cUomCode = "CT".    /* 9705 CAH */            
+                         
                 /* Line number from inbound 850 if available, otherwise incremented */
                 ASSIGN
                     lcLineData            = STRING(APIOutboundDetail.data)
                     cItemLineNum          = STRING(IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter)                     
-                    cItemQty              = STRING(iQtyShipped)
+                    cItemQty              = STRING(dQtyShipped)
                     cItemUom              = string(cUomCode)
                     cItemPrice            = STRING(dUnitPrice)
                     cItemID               = STRING(inv-line.i-no)
                     cItemBuyerPart        = STRING(inv-line.part-no)
+                    cShortBuyerPart       = SUBSTRING(inv-line.part-no, 1, 8)
                     cItemDesc             = STRING(inv-line.i-name)
+                    cPoNum                = STRING(inv-line.po-no)
                     .
-
+                /* Detail section has 2 lines per iteration */
+                dSELineCount = dSELineCount + 2.
     
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShortBuyerPart", cShortBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
                 
-                lcConcatLineData = lcConcatLineData + "" + lcLineData.  
+                
+                lcConcatLineData = lcConcatLineData + "" + lcLineData + "~n".  
 
             END.      
         END. /* Process lines if using inv-head */
@@ -452,7 +486,7 @@
                       cUomCode =  (IF ar-invl.pr-qty-uom > "" THEN
                                 ar-invl.pr-qty-uom
                                 ELSE "EA")
-                      iQtyShipped = (IF ar-invl.inv-qty NE 0 OR iBolNum GT 0 THEN ar-invl.inv-qty ELSE 1)
+                      dQtyShipped = (IF ar-invl.inv-qty NE 0 OR iBolNum GT 0 THEN ar-invl.inv-qty ELSE 1)
                       dUnitPrice       = ar-invl.unit-pr
                       cCustPart        = ar-invl.part-no
                       // edivline.unit-price       = ar-invl.unit-pr
@@ -468,7 +502,7 @@
                         DO:
                             cUomCode = "CT". 
                             IF ar-invl.cas-cnt > 0 THEN
-                                iQtyShipped = ar-invl.inv-qty / ar-invl.cas-cnt.
+                                dQtyShipped = ar-invl.inv-qty / ar-invl.cas-cnt.
                         END.
                     WHEN "M" THEN 
                         DO:
@@ -481,17 +515,6 @@
                     DO:
                     END. 
                 END CASE.
-                    
-/*                IF cCustPart GT "" THEN                                  */
-/*                   ASSIGN                                                */
-/*                      second_product_type    = "BP"                      */
-/*                      second_description     = SUBSTRING(cCustPart, 1, 8)*/
-/*                      .                                                  */
-/*                                                                         */
-/*                 ASSIGN                                                  */
-/*                   item_product_qualifier = "PO"                         */
-/*                   product_id             = purchase_order_number        */
-/*                   .                                                     */
                        
                 IF ar-invl.pr-uom = "CS" AND ar-invl.cas-cnt > 0 THEN
                 DO:  /* scale qty by case count */
@@ -516,23 +539,28 @@
                 ASSIGN
                     lcLineData            = STRING(APIOutboundDetail.data)
                     cItemLineNum          = STRING(IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter)                     
-                    cItemQty              = STRING(iQtyShipped)
+                    cItemQty              = STRING(dQtyShipped)
                     cItemUom              = string(cUomCode)
                     cItemPrice            = STRING(dUnitPrice)
                     cItemID               = STRING(ar-invl.i-no)
                     cItemBuyerPart        = STRING(ar-invl.part-no)
+                    cShortBuyerPart       = SUBSTRING(ar-invl.part-no, 1, 8)
                     cItemDesc             = STRING(ar-invl.i-name)
+                    cPoNum                = STRING(ar-invl.po-no)
                     .
-
+                /* Detail section has 2 lines per iteration */
+                dSELineCount = dSELineCount + 2.
     
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShortBuyerPart", cShortBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 
-                lcConcatLineData = lcConcatLineData + "" + lcLineData.  
+                lcConcatLineData = lcConcatLineData + "" + lcLineData + "~n".  
 
             END.                 
         END.
@@ -665,47 +693,42 @@
                 dSELineCount = dSELineCount + 1.
                 ASSIGN
                     lcLineAddonData       = STRING(bf-APIOutboundDetail3.data)
-                    cAddonSegment         = "SAC"
                     cAddonAllowCharge     = "C"
                     cMiscElem             = "D240"
                     cSacAgencyQualifier   = ""
                     cSacAgencyCode        = ""
                     cSacReferenceId       = STRING(ttAddons.Amount)
                    .
-                RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonSegment", cAddonSegment).
                 RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonAllowCharge", cAddonAllowCharge).
                 RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonMiscElem", cMiscElem).
                 RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "SacReferenceId", cSacReferenceId).
-                lcConcatLineAddonData = lcConcatLineAddonData + "" + lcLineAddonData.
+                lcConcatLineAddonData = lcConcatLineAddonData + "" + lcLineAddonData + "~n".
             END.
+          
+            
+        END.
+        lcConcatTaxData = "".
+        IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
             FOR EACH ttAddons 
                 WHERE ttAddons.Agency-code EQ "TAX"                  
                 :
                 /* Added Charge section has 1 line per iteration */
                 dSELineCount = dSELineCount + 1.
                 ASSIGN     
-                    lcLineAddonData  = STRING(bf-APIOutboundDetail3.data)
-                    cAddonSegment    = "TXI"
+                    lcTaxData  = STRING(bf-APIOutboundDetail1.data)                    
                     cAddonTaxType    = "ST"
                     cTotalTaxDollars = STRING(ttAddons.amount)
                     cTaxPct          = STRING(ttAddons.rate)
                     .              
-                RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonSegment", cAddonSegment).
-                RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonTaxType", cAddonTaxType).
-                RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "TotalTaxDollars", cTotalTaxDollars).
-                RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "TaxPct", cTaxPct).
-                lcConcatLineAddonData = lcConcatLineAddonData + "" + lcLineAddonData.                    
-                // RUN write_segments.ip ("TXI,028").                      
-            END.            
-            
-        END.
-        /*
-        lcConcatLineData = TRIM(lcConcatLineData, ",").
-        
-        lcConcatLineAddonData = TRIM(lcConcatLineAddonData,","). 
-        
-        lcConcatAddressData = TRIM(lcConcatAddressData,",").        
-        */            
+                
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", cAddonTaxType).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", cTotalTaxDollars).
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPct", cTaxPct).
+                lcConcatLineAddonData = lcConcatTaxData + "" + lcTaxData + "~n".                    
+                             
+            END.  
+        END.        
+           
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsaDate", cIsaDate ). 
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsaTime", cIsaTime ). 
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsaControlNum", cIsaControlSeq).   
@@ -724,19 +747,29 @@
           
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
     
-        /* This replace is required for replacing nested JSON data */
-        ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", lcConcatLineData).
-               
-                
-        ioplcRequestData = REPLACE(ioplcRequestData, "$N1Addresses$", lcConcatAddressData).
-                   
-                
-        ioplcRequestData = REPLACE(ioplcRequestData, "$Addons$", lcConcatLineAddonData).
-                    
-                // lcConcatLineData = lcConcatLineData + "," + lcLineData.        
+        /* If the previous section was not blank, it ended with CR so don't need to start with one */
+     
+        lcConcatLineData = TRIM(lcConcatLineData, "~n").
+        
+        lcConcatLineAddonData = TRIM(lcConcatLineAddonData,"~n"). 
+        
+        lcConcatAddressData = TRIM(lcConcatAddressData,"~n").   
+        
+        lcConcatTaxData = TRIM(lcConcatTaxData,"~n").     
+        //lcConcatTaxData = lcConcatTaxData + "~n".
+        
+        ioplcRequestData = REPLACE(ioplcRequestData, "[$N1Addresses$]", (IF lcConcatAddressData ne "" THEN "~n" ELSE "") + lcConcatAddressData).
+          
+        ioplcRequestData = REPLACE(ioplcRequestData, "[$Detail$]", (if lcConcatLineData ne "" THEN "~n" ELSE "") + lcConcatLineData).
+                                                                 
+        ioplcRequestData = REPLACE(ioplcRequestData, "[$Addons$]", (IF lcConcatLineAddonData ne "" THEN  "~n" ELSE "") + lcConcatLineAddonData).
+        
+        ioplcRequestData = REPLACE(ioplcRequestData, "[$Tax$]", (IF lcConcatTaxData ne "" THEN  "~n" ELSE "") + lcConcatTaxData).
+                           
         RELEASE bf-APIOutboundDetail1.
         RELEASE bf-APIOutboundDetail2.
-
+        RELEASE bf-APIOutboundDetail3.
+        
         ASSIGN
             opcMessage = ""
             oplSuccess = TRUE

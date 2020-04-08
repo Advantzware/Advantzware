@@ -51,7 +51,10 @@ DEFINE VARIABLE v-prof AS DECIMAL NO-UNDO.
 
 {sys/inc/VAR.i new shared}
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 ASSIGN
  cocode = gcompany
@@ -549,6 +552,8 @@ ON WINDOW-CLOSE OF C-Win /* Invoice Posting */
 DO:
     /* This event will close the window and terminate the procedure.  */
   DELETE OBJECT hNotesProcs.
+  IF VALID-HANDLE(hdOutboundProcs) THEN
+    DELETE PROCEDURE hdOutboundProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -583,6 +588,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 
@@ -2123,26 +2130,27 @@ PROCEDURE list-post-inv :
       TRANSACTION
 
       BY w-report.key-01:
- 
-        /* Create eddoc for invoice if required */
-        RUN ed/asi/o810hook.p (recid(inv-head), no, no).    
-        
-        FIND FIRST edmast NO-LOCK
-            WHERE edmast.cust EQ inv-head.cust-no
-            NO-ERROR.
-        IF AVAIL edmast THEN 
-        DO: 
-            FIND FIRST edcode NO-LOCK
-                WHERE edcode.partner EQ edmast.partner
-                NO-ERROR.
-            IF NOT AVAIL edcode THEN 
-                FIND FIRST edcode NO-LOCK
-                    WHERE edcode.partner EQ edmast.partnerGrp
-                    NO-ERROR.
-        END.  
-     
-        IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
-            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).    
+      
+      RUN pRunAPIOutboundTrigger(BUFFER inv-head).
+/*        /* Create eddoc for invoice if required */                      */
+/*        RUN ed/asi/o810hook.p (recid(inv-head), no, no).                */
+/*                                                                        */
+/*        FIND FIRST edmast NO-LOCK                                       */
+/*            WHERE edmast.cust EQ inv-head.cust-no                       */
+/*            NO-ERROR.                                                   */
+/*        IF AVAIL edmast THEN                                            */
+/*        DO:                                                             */
+/*            FIND FIRST edcode NO-LOCK                                   */
+/*                WHERE edcode.partner EQ edmast.partner                  */
+/*                NO-ERROR.                                               */
+/*            IF NOT AVAIL edcode THEN                                    */
+/*                FIND FIRST edcode NO-LOCK                               */
+/*                    WHERE edcode.partner EQ edmast.partnerGrp           */
+/*                    NO-ERROR.                                           */
+/*        END.                                                            */
+/*                                                                        */
+/*        IF AVAIL edcode AND edcode.sendFileOnPrint THEN                 */
+/*            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).*/
               
     {oe/r-inve&p.i}
   END.
@@ -2445,6 +2453,59 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win
+PROCEDURE pRunApiOutboundTrigger:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
+   
+
+IF AVAILABLE ipbf-inv-head THEN DO:
+
+    cTriggerID = "PostInvoice".
+    
+    ASSIGN 
+        cAPIID = "SendInvoice"
+        cPrimaryID = STRING(ipbf-inv-head.inv-no)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for PO: " + cPrimaryID
+        . 
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  ipbf-inv-head.company,                /* Company Code (Mandatory) */
+        INPUT  ipbf-inv-head.loc,               /* Location Code (Mandatory) */
+        INPUT  cAPIID,                  /* API ID (Mandatory) */
+        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+        INPUT  "inv-head",               /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-inv-head)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,       /* Event's description (Optional) */
+        OUTPUT lSuccess,                /* Success/Failure flag */
+        OUTPUT cMessage                 /* Status message */
+        ) NO-ERROR.
+
+
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+END. /*avail inv-head*/
+
+END PROCEDURE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :

@@ -834,46 +834,33 @@ DO:
                 INPUT STRING(ROWID(job))
                 ).                      
         END.    
-        WHEN "SendInvoice" OR
-        WHEN "SendInvoiceStatus" THEN DO:
+        WHEN "SendInvoice" THEN DO:
             FIND FIRST inv-head NO-LOCK
                  WHERE inv-head.company EQ cCompany
                    AND inv-head.inv-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
                  NO-ERROR.
-            IF NOT AVAILABLE inv-head THEN DO:    
-                MESSAGE "Invalid invoice Number" VIEW-AS ALERT-BOX ERROR.
+            IF NOT AVAIL inv-head THEN
+              FIND FIRST ar-inv NO-LOCK
+                WHERE ar-inv.company EQ cCompany
+                  AND ar-inv.inv-no EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                  NO-ERROR. 
+            IF NOT AVAILABLE inv-head AND NOT AVAIL ar-inv THEN DO:    
+                MESSAGE "Invalid invoice Number" ccompany fiPrimaryKey:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
-
-            RUN pCreateArgs (
-                INPUT "ROWID",
-                INPUT "inv-head",
-                INPUT STRING(ROWID(inv-head))
-                ).
-        END.
-        WHEN "SendInvoiceLineStatus" THEN DO:
-            IF INDEX(fiPrimaryKey:SCREEN-VALUE,"-") GT 0 THEN DO:
-                FIND FIRST inv-line NO-LOCK
-                     WHERE inv-line.company EQ cCompany
-                       AND inv-line.inv-no   EQ INTEGER(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
-                       AND inv-line.line    EQ INTEGER(ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))
-                     NO-ERROR.
-                IF NOT AVAILABLE inv-line THEN DO:    
-                    MESSAGE "Invalid Invoice Number and Line" VIEW-AS ALERT-BOX ERROR.
-                    RETURN.
-                END.
-
+            IF AVAIL inv-head THEN 
                 RUN pCreateArgs (
                     INPUT "ROWID",
-                    INPUT "inv-line",
-                    INPUT STRING(ROWID(inv-line))
+                    INPUT "inv-head",
+                    INPUT STRING(ROWID(inv-head))
                     ).
-            END.
-            ELSE DO:
-                MESSAGE "Invalid Invoice Number and Line" VIEW-AS ALERT-BOX ERROR.    
-                RETURN.
-            END.    
-        END.        
+            ELSE IF AVAIL ar-inv THEN 
+                RUN pCreateArgs (
+                    INPUT "ROWID",
+                    INPUT "ar-inv",
+                    INPUT STRING(ROWID(ar-inv))
+                    ).
+        END.      
     END CASE.
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,
