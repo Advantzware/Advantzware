@@ -227,7 +227,7 @@ DEFINE BROWSE BROWSE-1
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 132.8 BY 13.05
+    WITH NO-ASSIGN SEPARATORS SIZE 148.8 BY 13.05
          BGCOLOR 8 FONT 0 .
 
 
@@ -252,7 +252,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1.2 ROW 1
-    SIZE 149 BY 23.71
+    SIZE 150 BY 23.71
     FGCOLOR 1 FONT 6.
 
 
@@ -274,7 +274,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
         HIDDEN             = YES
         TITLE              = "Additional Packing Materials"
         HEIGHT             = 21.86
-        WIDTH              = 135.8
+        WIDTH              = 151.8
         MAX-HEIGHT         = 24.71
         MAX-WIDTH          = 156
         VIRTUAL-HEIGHT     = 24.71
