@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -58,13 +60,16 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR ar-cash.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS ar-cash.check-date 
 &Scoped-define FIELD-PAIRS~
  ~{&FP1}check-date ~{&FP2}check-date ~{&FP3}
+&Scoped-Define ENABLED-FIELDS ar-cash.check-date ar-cash.bank-code 
 &Scoped-define ENABLED-TABLES ar-cash
 &Scoped-define FIRST-ENABLED-TABLE ar-cash
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS ar-cash.check-date 
+&Scoped-Define DISPLAYED-FIELDS ar-cash.check-date ar-cash.bank-code 
+&Scoped-define DISPLAYED-TABLES ar-cash
+&Scoped-define FIRST-DISPLAYED-TABLE ar-cash
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -107,9 +112,14 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     ar-cash.check-date AT ROW 2.43 COL 14 COLON-ALIGNED
+     ar-cash.check-date AT ROW 1.71 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     ar-cash.bank-code AT ROW 2.86 COL 14.2 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+     "Bank Code:" VIEW-AS TEXT
+          SIZE 10.6 BY .95 AT ROW 2.91 COL 4.6 WIDGET-ID 4
      RECT-1 AT ROW 1.48 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -254,6 +264,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+  MESSAGE "Changing the date or bank number will NOT impact GL, " +
+           "so a journal entry may need to be made to correct the " + 
+           "GL accounts or periods for the adjustments made here."
+      VIEW-AS ALERT-BOX WARNING.  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -263,6 +296,17 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  DO WITH FRAME {&FRAME-NAME}:
+  END.
+  
+  IF NOT CAN-FIND(FIRST bank 
+                  WHERE bank.company EQ g_company
+                    AND bank.bank-code = ar-cash.bank-code:SCREEN-VALUE) THEN DO:
+      MESSAGE "Invalid bank number, please retry."
+          VIEW-AS ALERT-BOX ERROR.
+      RETURN ERROR.    
+  END.   
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -321,5 +365,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
