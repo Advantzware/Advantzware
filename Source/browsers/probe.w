@@ -488,7 +488,7 @@ DEFINE BROWSE br_table
       probe.gsh-qty COLUMN-LABEL "Total!Sheets" FORMAT ">>>>>>9":U
             COLUMN-FONT 0
       probe.do-quote COLUMN-LABEL "Q" FORMAT "Y/N":U COLUMN-FONT 0
-      voverall(1) @ voverall COLUMN-LABEL "Price!/BSF" WIDTH 19
+      voverall(1) @ voverall COLUMN-LABEL "Sell Price!/MBSF" WIDTH 19
             COLUMN-FONT 0
       probe.probe-date FORMAT "99/99/9999":U
       probe.boardCostPerM COLUMN-LABEL "Board/M" FORMAT "->,>>>,>>9.99":U
