@@ -93,6 +93,24 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE GetStatusDescription:
+/*------------------------------------------------------------------------------
+ Purpose: To get the status description based on status ID
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcStatusID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcDescription AS CHARACTER NO-UNDO.
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR.
+    
+    IF AVAILABLE inventoryStatusType
+        THEN opcDescription = inventoryStatusType.description.
+        
+
+END PROCEDURE.
+
 PROCEDURE RecalculateQuantities:
 /*------------------------------------------------------------------------------
  Purpose: To add the location into itemfg-loc based on history records and oe-rel
@@ -3923,6 +3941,46 @@ PROCEDURE Inventory_CreateWIPInventoryStockForIssuedRM:
     RELEASE bf-po-ordl.                 
 END PROCEDURE.
 
+PROCEDURE UpdateTagStatusID:
+/*------------------------------------------------------------------------------
+ Purpose: Updates statusID for a FG bin
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprifgbin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    
+    oplSuccess = YES.
+     
+    FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+         WHERE ROWID(bf-fg-bin) EQ iprifgbin
+         NO-WAIT NO-ERROR.
+    /* Checks whether bin available or not */
+    IF NOT AVAILABLE bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "fg-bin not available"
+            .
+ 
+        RETURN.
+    END.
+    /* Checks whether row locked or not */
+    IF LOCKED bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "fg-bin record locked"
+            .
+            
+        RETURN.
+    
+    END. 
+    /* Updates bin status ID */
+    bf-fg-bin.statusID = ipcStatusID.
+    RELEASE bf-fg-bin.        
+END.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 

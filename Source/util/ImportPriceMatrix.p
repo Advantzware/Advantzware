@@ -97,6 +97,7 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportPriceMatrix FOR ttImportPriceMatrix.
     DEFINE VARIABLE cUOMList AS CHARACTER INITIAL "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
+    DEFINE VARIABLE dtEffDate AS DATE NO-UNDO.
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
@@ -107,6 +108,39 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company.".
+    END.
+    
+     /*Determine if Add or Update*/
+    IF oplValid THEN 
+    DO:     
+        dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
+        FIND FIRST oe-prmtx EXCLUSIVE-LOCK
+             WHERE oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
+                AND oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
+                AND oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
+                AND oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
+                AND oe-prmtx.i-no    EQ  ipbf-ttImportPriceMatrix.FGItemID
+                AND oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
+                AND oe-prmtx.eff-date EQ dtEffDate
+             NO-ERROR.
+        IF AVAIL oe-prmtx THEN
+        DO: 
+            IF NOT iplUpdateDuplicates THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "Duplicate record exists"
+                    .
+            ELSE
+                ASSIGN 
+                    oplValid = YES
+                    opcNote = "Update existing record"
+                    .        
+        END.
+        ELSE 
+            ASSIGN 
+                oplValid = YES
+                opcNote = "Add record"
+                .                             
     END.
 
     IF oplValid AND iplFieldValidation THEN 
@@ -294,6 +328,7 @@ PROCEDURE pProcessRecord PRIVATE:
         AND bf-oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
         AND bf-oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
         AND bf-oe-prmtx.i-no  EQ  ipbf-ttImportPriceMatrix.FGItemID 
+        AND bf-oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
         AND bf-oe-prmtx.eff-date EQ dtEffDate
         NO-ERROR.
     IF NOT AVAILABLE bf-oe-prmtx THEN 

@@ -1149,6 +1149,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME style.style
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.style V-table-Win
+ON LEAVE OF style.style IN FRAME F-Main /* Style No. */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN pValidStyle NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            RETURN NO-APPLY. 
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME style.type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.type V-table-Win
 ON LEAVE OF style.type IN FRAME F-Main /* Type */
@@ -1419,7 +1434,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
+  RUN pValidStyle NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN DO:
+      APPLY "ENTRY":U TO style.style IN FRAME {&FRAME-NAME}.
+      RETURN ERROR.  
+  END.  
+ 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1436,6 +1457,26 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidStyle V-table-Win
+PROCEDURE pValidStyle PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To check whether a style is blank or not
+ Notes:
+------------------------------------------------------------------------------*/
+    IF style.style:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        MESSAGE "Blank style is not a valid option."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END. 
+     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :

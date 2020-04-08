@@ -111,11 +111,22 @@ IF fi_actnum NE "" THEN DO:
                  ELSE {&open-query} {&sortby-phrase-desc}.
 END.
 ELSE DO:
-
-  &SCOPED-DEFINE open-query             ~
-      OPEN QUERY {&browse-name}         ~
-          {&for-each11}                 ~
-              USE-INDEX posted NO-LOCK, ~
+  {&for-each11}
+      USE-INDEX x-no NO-LOCK,
+      {&for-each2}
+      BREAK BY ar-invl.x-no DESC:
+      IF FIRST-OF(ar-invl.x-no) THEN 
+          iNumRecords = iNumRecords + 1.
+      iInvoiceXNo = ar-invl.x-no.
+      IF iNumRecords GE 200 THEN 
+          LEAVE.
+  END.
+    
+  &SCOPED-DEFINE open-query               ~
+      OPEN QUERY {&browse-name}           ~
+          {&for-each11}                   ~
+          AND ar-invl.x-no GE iInvoiceXNo ~
+              USE-INDEX x-no NO-LOCK,     ~
               {&for-each2}
   
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.

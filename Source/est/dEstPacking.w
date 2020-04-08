@@ -60,10 +60,11 @@ DEFINE VARIABLE cMaterialType AS CHARACTER INITIAL "C,5,6,M,D" NO-UNDO .
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define FIELDS-IN-QUERY-Dialog-Frame estPacking.rmItemID ~
 estPacking.materialType estPacking.quantity estPacking.quantityPer ~
-estPacking.dimLength estPacking.dimWidth estPacking.dimDepth 
+estPacking.dimLength estPacking.dimWidth estPacking.dimDepth ~
+estPacking.noCharge estPacking.costOverridePerUOM
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estPacking.rmItemID ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
-estPacking.dimWidth 
+estPacking.dimWidth estPacking.noCharge estPacking.costOverridePerUOM
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estPacking
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estPacking
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estPacking
@@ -72,14 +73,15 @@ estPacking.dimWidth
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS estPacking.rmItemID estPacking.quantity ~
-estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
+estPacking.quantityPer estPacking.dimLength estPacking.dimWidth  ~
+estPacking.noCharge estPacking.costOverridePerUOM
 &Scoped-define ENABLED-TABLES estPacking
 &Scoped-define FIRST-ENABLED-TABLE estPacking
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 ~
 RECT-39 
 &Scoped-Define DISPLAYED-FIELDS estPacking.rmItemID estPacking.materialType ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
-estPacking.dimWidth estPacking.dimDepth 
+estPacking.dimWidth estPacking.dimDepth estPacking.noCharge estPacking.costOverridePerUOM
 &Scoped-define DISPLAYED-TABLES estPacking
 &Scoped-define FIRST-DISPLAYED-TABLE estPacking
 &Scoped-Define DISPLAYED-OBJECTS est-no iForm iBlank cCustPart cCase ~
@@ -232,10 +234,11 @@ DEFINE FRAME Dialog-Frame
           SIZE 14 BY 1
           BGCOLOR 15 FONT 1
      estPacking.quantityPer AT ROW 7.1 COL 49 COLON-ALIGNED
-          VIEW-AS COMBO-BOX INNER-LINES 3
+          VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS "Case","C",
                      "Pallet","P",
-                     "Lot","L"
+                     "Lot","L",
+                     "EACH","E"
           DROP-DOWN-LIST
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
@@ -256,14 +259,17 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
      Btn_OK AT ROW 10.33 COL 88.2
      Btn_Done AT ROW 10.62 COL 89.2
-     Btn_Cancel AT ROW 10.33 COL 97.2
-     estPacking.costOverridePerUOM AT ROW 8.29 COL 22.4 COLON-ALIGNED WIDGET-ID 318
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     estPacking.noCharge AT ROW 8.29 COL 49 COLON-ALIGNED WIDGET-ID 320
+     Btn_Cancel AT ROW 10.33 COL 97.2       
+     estPacking.noCharge AT ROW 8.39 COL 49 COLON-ALIGNED WIDGET-ID 320
           LABEL "NC" FORMAT "Y/N"
+          VIEW-AS TOGGLE-BOX 
+          SIZE 9.6 BY 1
+          BGCOLOR 15 FONT 1
+     estPacking.costOverridePerUOM AT ROW 8.39 COL 83.8 COLON-ALIGNED WIDGET-ID 318
+          LABEL "Override"  FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1     
      RECT-21 AT ROW 10.1 COL 87.2
      RECT-38 AT ROW 1.14 COL 1.2
      RECT-39 AT ROW 4.1 COL 1.2 WIDGET-ID 2
@@ -309,9 +315,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cCustPart IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estPacking.costOverridePerUOM IN FRAME Dialog-Frame
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       estPacking.costOverridePerUOM:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+   EXP-LABEL EXP-FORMAT                                                 */
 
 /* SETTINGS FOR FILL-IN cPallet IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -334,9 +338,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN estPacking.materialType IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN estPacking.noCharge IN FRAME Dialog-Frame
-   NO-DISPLAY NO-ENABLE EXP-LABEL EXP-FORMAT                            */
-ASSIGN 
-       estPacking.noCharge:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+   EXP-LABEL EXP-FORMAT                                                 */
+
 
 /* SETTINGS FOR FILL-IN estPacking.quantity IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -504,6 +507,7 @@ DO:
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
             END.
+            estPacking.costOverrideUOM = "EA".
         END.
         
         FIND CURRENT estPacking NO-LOCK NO-ERROR .
@@ -736,7 +740,7 @@ PROCEDURE display-item :
             estPacking.rmItemID estPacking.quantity
             estPacking.dimLength estPacking.dimWidth estPacking.dimDepth  
             fi_mat-name est-no cCustPart cCase iForm iBlank cPallet 
-            fi_type-name
+            fi_type-name estPacking.noCharge estPacking.costOverridePerUOM
             WITH FRAME Dialog-Frame.
     END.
 
@@ -770,11 +774,12 @@ PROCEDURE enable_UI :
   IF AVAILABLE estPacking THEN 
     DISPLAY estPacking.rmItemID estPacking.materialType estPacking.quantity 
           estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
-          estPacking.dimDepth 
+          estPacking.dimDepth estPacking.noCharge estPacking.costOverridePerUOM
       WITH FRAME Dialog-Frame.
   ENABLE estPacking.rmItemID estPacking.quantity estPacking.quantityPer 
-         estPacking.dimLength estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel 
-         RECT-21 RECT-38 RECT-39 
+         estPacking.dimLength estPacking.dimWidth estPacking.noCharge  
+         estPacking.costOverridePerUOM Btn_OK  Btn_Done Btn_Cancel RECT-21
+         RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

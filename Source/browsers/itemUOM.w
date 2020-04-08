@@ -47,6 +47,7 @@ CREATE WIDGET-POOL.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -75,8 +76,7 @@ DEFINE QUERY external_tables FOR itemfg.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ItemUOM.UOM ItemUOM.descr ~
-itemUoM.convFactor itemUoM.isStock itemUoM.canPurchase itemUoM.canSell ~
-itemUoM.isDefaultPurchaseUoM itemUoM.isDefaultSellUoM itemUoM.inactive 
+itemUoM.convFactor itemUoM.canPurchase itemUoM.canSell itemUoM.inactive 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ItemUOM WHERE ~{&KEY-PHRASE} ~
       AND ItemUOM.company EQ itemfg.company AND ~
@@ -103,7 +103,10 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
 /* ***********************  Control Definitions  ********************** */
+
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Clear_Find 
@@ -134,11 +137,8 @@ DEFINE QUERY Browser-Table FOR
     FIELDS(ItemUOM.UOM
       ItemUOM.descr
       itemUoM.convFactor
-      itemUoM.isStock
       itemUoM.canPurchase
       itemUoM.canSell
-      itemUoM.isDefaultPurchaseUoM
-      itemUoM.isDefaultSellUoM
       itemUoM.inactive) SCROLLING.
 &ANALYZE-RESUME
 
@@ -149,13 +149,9 @@ DEFINE BROWSE Browser-Table
       ItemUOM.UOM FORMAT "x(3)":U
       ItemUOM.descr FORMAT "x(24)":U
       itemUoM.convFactor FORMAT ">>>,>>>,>>9.99<<<<":U
-      itemUoM.isStock COLUMN-LABEL "Stock" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
       itemUoM.canPurchase COLUMN-LABEL "Purch" FORMAT "yes/no":U
             VIEW-AS TOGGLE-BOX
-      itemUoM.canSell COLUMN-LABEL "Sell" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
-      itemUoM.isDefaultPurchaseUoM COLUMN-LABEL "DefPur" FORMAT "yes/no":U
-            VIEW-AS TOGGLE-BOX
-      itemUoM.isDefaultSellUoM COLUMN-LABEL "DefSell" FORMAT "yes/no":U
+      itemUoM.canSell COLUMN-LABEL "Order" FORMAT "yes/no":U WIDTH 7
             VIEW-AS TOGGLE-BOX
       itemUoM.inactive COLUMN-LABEL "Inactive" FORMAT "yes/no":U
             VIEW-AS TOGGLE-BOX
@@ -163,6 +159,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 119 BY 21.67
          FONT 2.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -182,6 +179,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 8 FGCOLOR 1 .
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -226,6 +224,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -233,7 +234,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -246,6 +247,7 @@ ASSIGN
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
+
 
 /* Setting information for Queries and Browse Widgets fields            */
 
@@ -260,17 +262,11 @@ ASI.itemUOM.itemID EQ itemfg.i-no"
      _FldNameList[2]   > ASI.ItemUOM.descr
 "ItemUOM.descr" ? "x(24)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = ASI.itemUoM.convFactor
-     _FldNameList[4]   > ASI.itemUoM.isStock
-"itemUoM.isStock" "Stock" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[5]   > ASI.itemUoM.canPurchase
+     _FldNameList[4]   > ASI.itemUoM.canPurchase
 "itemUoM.canPurchase" "Purch" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[6]   > ASI.itemUoM.canSell
-"itemUoM.canSell" "Sell" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[7]   > ASI.itemUoM.isDefaultPurchaseUoM
-"itemUoM.isDefaultPurchaseUoM" "DefPur" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[8]   > ASI.itemUoM.isDefaultSellUoM
-"itemUoM.isDefaultSellUoM" "DefSell" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[9]   > ASI.itemUoM.inactive
+     _FldNameList[5]   > ASI.itemUoM.canSell
+"itemUoM.canSell" "Order" ? "logical" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[6]   > ASI.itemUoM.inactive
 "itemUoM.inactive" "Inactive" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -282,6 +278,10 @@ ASI.itemUOM.itemID EQ itemfg.i-no"
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
+
+ 
+
+
 
 /* ************************  Control Triggers  ************************ */
 
@@ -297,6 +297,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
@@ -307,6 +308,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
@@ -320,11 +322,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
-/* ***************************  Main Block  *************************** */
+
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -334,6 +337,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -467,3 +471,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

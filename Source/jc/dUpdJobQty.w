@@ -259,13 +259,14 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-hdr .
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Job Quantity Entry */
-DO:
-    FOR EACH tt-job-hdr NO-LOCK ,
+DO: 
+    DEFINE BUFFER bf-tt-job-hdr FOR tt-job-hdr .
+    FOR EACH bf-tt-job-hdr NO-LOCK ,
        FIRST bf-job-hdr EXCLUSIVE-LOCK
-       WHERE ROWID(bf-job-hdr) EQ tt-job-hdr.riJobHdr 
-           AND bf-job-hdr.qty NE tt-job-hdr.qty:
-        ASSIGN bf-job-hdr.qty = tt-job-hdr.qty .
-    END.
+       WHERE ROWID(bf-job-hdr) EQ bf-tt-job-hdr.riJobHdr 
+           AND bf-job-hdr.qty NE bf-tt-job-hdr.qty:
+        ASSIGN bf-job-hdr.qty = bf-tt-job-hdr.qty .
+    END.         
    RELEASE bf-job-hdr .
   APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
@@ -290,6 +291,16 @@ END.
 ON VALUE-CHANGED OF tt-job-hdr.qty IN BROWSE BROWSE-1 /* qty */
 DO:
      tt-job-hdr.qty = integer(tt-job-hdr.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NO-ERROR . 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tt-job-hdr.IS-SELECTED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-job-hdr.IS-SELECTED BROWSE-1 _BROWSE-COLUMN Dialog-Frame
+ON VALUE-CHANGED OF tt-job-hdr.IS-SELECTED IN BROWSE BROWSE-1 /* IS-SELECTED */
+DO:
+     tt-job-hdr.IS-SELECTED = LOGICAL(tt-job-hdr.IS-SELECTED:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NO-ERROR . 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -393,12 +404,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_save Dialog-Frame
 ON CHOOSE OF Btn_save IN FRAME Dialog-Frame /* Save */
 DO:
-    FOR EACH tt-job-hdr NO-LOCK ,
-       FIRST bf-job-hdr WHERE bf-job-hdr.job-no EQ tt-job-hdr.job-no
-           AND bf-job-hdr.job-no2 EQ tt-job-hdr.job-no2
-           AND bf-job-hdr.frm EQ tt-job-hdr.frm
-           AND bf-job-hdr.blank-no EQ tt-job-hdr.blank-no EXCLUSIVE-LOCK:
-        ASSIGN bf-job-hdr.qty = tt-job-hdr.qty .
+    DEFINE BUFFER bf-tt-job-hdr FOR tt-job-hdr .
+    FOR EACH bf-tt-job-hdr NO-LOCK ,
+       FIRST bf-job-hdr WHERE bf-job-hdr.job-no EQ bf-tt-job-hdr.job-no
+           AND bf-job-hdr.job-no2 EQ bf-tt-job-hdr.job-no2
+           AND bf-job-hdr.frm EQ bf-tt-job-hdr.frm
+           AND bf-job-hdr.blank-no EQ bf-tt-job-hdr.blank-no EXCLUSIVE-LOCK:
+        ASSIGN bf-job-hdr.qty = bf-tt-job-hdr.qty .
     END.
    RELEASE bf-job-hdr .
   APPLY "go" TO FRAME {&FRAME-NAME}.
@@ -463,6 +475,8 @@ END.
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+
+{sys/inc/f3helpw.i}
 
 DEF VAR v-return AS LOG NO-UNDO.
 DEF VAR lcLastValue AS CHAR NO-UNDO.
@@ -566,7 +580,7 @@ PROCEDURE build-table :
         END.
 
         CLOSE QUERY BROWSE-1. 
-        OPEN QUERY BROWSE-1 FOR EACH tt-job-hdr NO-LOCK BY tt-job-hdr.frm.
+        OPEN QUERY BROWSE-1 FOR EACH tt-job-hdr BY tt-job-hdr.frm.
            
             APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
             APPLY "ENTRY" TO {&BROWSE-NAME}.
@@ -628,7 +642,7 @@ PROCEDURE open-query :
      DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
         CLOSE QUERY BROWSE-1. 
-        OPEN QUERY BROWSE-1 FOR EACH tt-job-hdr NO-LOCK BY tt-job-hdr.frm.
+        OPEN QUERY BROWSE-1 FOR EACH tt-job-hdr BY tt-job-hdr.frm.
 
             REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.  
             

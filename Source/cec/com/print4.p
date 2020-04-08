@@ -96,6 +96,7 @@ DEF VAR ld-hand-pct AS DEC NO-UNDO.
 DEF VAR v-probe-fmt AS CHAR NO-UNDO.
 DEF VAR v-blank-log AS LOG NO-UNDO.
 DEF VAR v-blank-dec AS DEC NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
 def new shared workfile w-form
     field form-no like xef.form-no
@@ -130,7 +131,15 @@ END.
 
 {cec/get-vend.i}  /* get vendor number */
 
-RUN est/EstimateProcs.p (xest.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  xest.company,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 find first xef where xef.company = xest.company 
                  AND xef.est-no = xest.est-no.              

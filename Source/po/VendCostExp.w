@@ -64,7 +64,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "Level Quantity 3,Level Quantity 4," + /*2*/
                             "Level Quantity 5,Level Quantity 6," + /*2*/
                             "Level Quantity 7,Level Quantity 8," + /*2*/
-                            "Level Quantity 9,Level Quantity 10"  /*2*/
+                            "Level Quantity 9,Level Quantity 10,Product Category"  /*2*/
                             
        cFieldListToSelect = "itemType,itemID,vendorID,customerID,estimateNo,formNo,blankNo," +
                             "vendorItemID,effectiveDate,expirationDate,vendorUOM," +
@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "levelQuantity3,levelQuantity4," +
                             "levelQuantity5,levelQuantity6," +
                             "levelQuantity7,levelQuantity8," +
-                            "levelQuantity9,levelQuantity10".
+                            "levelQuantity9,levelQuantity10,pro-cat".
 
 {sys/inc/ttRptSel.i}
 
@@ -1137,6 +1137,7 @@ DEFINE VARIABLE cFGItem AS CHAR NO-UNDO .
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem    FOR item.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE lCheckData AS LOGICAL NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1177,6 +1178,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
         END.
         ELSE do:
            i = 1 .
+           lCheckData = NO .
            FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID
                NO-LOCK BY vendItemCostLevel.quantityBase:
 
@@ -1188,6 +1190,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity2" THEN DO:
@@ -1197,6 +1200,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity3"  THEN DO:
@@ -1206,6 +1210,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity4" THEN DO:
@@ -1215,6 +1220,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity5"  THEN DO:
@@ -1224,6 +1230,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity6" THEN do:
@@ -1233,6 +1240,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity7" THEN DO:
@@ -1242,6 +1250,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity8" THEN DO:
@@ -1251,6 +1260,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity9"  THEN DO:
@@ -1260,6 +1270,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                        WHEN "levelQuantity10" THEN DO:
@@ -1269,14 +1280,17 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
+                           lCheckData = YES.
                          END.
                        END.
                END CASE.
                          i = i + 1 .
-           END.
+           END.   
+           IF NOT lCheckData THEN
+             v-excel-detail-lines = v-excel-detail-lines + appendXLLine("") + appendXLLine("") + appendXLLine("") + appendXLLine("") + appendXLLine("").
         END.
-    END.
-   
+    END.             
+            
     PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 END.
 
@@ -1512,7 +1526,22 @@ FUNCTION getValue RETURNS CHARACTER
    DEF VAR lc-return AS CHAR FORMAT "x(100)" NO-UNDO.
 
     CASE ipc-field :
-        WHEN "ship-meth"  THEN DO:
+        WHEN "pro-cat"  THEN DO:
+           IF ipb-vendItemCost.itemType EQ "FG" THEN DO:
+             FIND FIRST ITEMfg NO-LOCK
+                 WHERE itemfg.company EQ cocode 
+                   AND itemfg.i-no EQ ipb-vendItemCost.itemID 
+                 NO-ERROR .
+             lc-return =  IF AVAIL itemfg THEN itemfg.procat ELSE "" .             
+           END.
+           IF ipb-vendItemCost.itemType EQ "RM" THEN DO:
+             FIND FIRST ITEM NO-LOCK
+                 WHERE ITEM.company EQ cocode 
+                   AND ITEM.i-no EQ ipb-vendItemCost.itemID 
+                 NO-ERROR .
+             lc-return =  IF AVAIL ITEM THEN ITEM.procat ELSE "" .             
+           END.
+        
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

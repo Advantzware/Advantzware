@@ -139,6 +139,10 @@ DEF VAR lv-save-set AS CHAR NO-UNDO.
 DEF VAR lv-set-widget AS HANDLE NO-UNDO.
 DEF VAR v-rowid-eb AS ROWID NO-UNDO.
 
+DEFINE VARIABLE lCEGOTOCALC AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
+
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
 {ce/tt-eb.i}
@@ -154,6 +158,21 @@ RUN Get-location (OUTPUT gloc).
 
 ASSIGN cocode = gcompany
        locode = gloc.
+
+RUN sys/ref/nk1look.p (
+    INPUT  cocode, 
+    INPUT  "CEGOTOCALC", 
+    INPUT  "L" /* Logical */, 
+    INPUT  NO, 
+    INPUT  NO /* check by cust */, 
+    INPUT  "", 
+    INPUT  "", 
+    OUTPUT cRecValue, 
+    OUTPUT lRecFound
+    ).
+IF lRecFound THEN
+    lCEGOTOCALC = LOGICAL(cRecValue).
+
 {oe/oe-sysct1.i NEW}
 {sys/ref/CustList.i NEW}
 DO TRANSACTION:
@@ -7237,9 +7256,17 @@ PROCEDURE run-goto :
       /*RUN ce/com/istandem.p (lv-rowid, OUTPUT ll).
 
       IF ll THEN*/
-        RUN est/d-multbl.w (INPUT-OUTPUT lv-rowid, OUTPUT op-changed).
-      /*ELSE
-        RUN est/d-multib.w (INPUT-OUTPUT lv-rowid).*/
+      IF NOT lCEGOTOCALC THEN
+          RUN est/d-multbl.w (
+              INPUT-OUTPUT lv-rowid, 
+              OUTPUT op-changed
+              ).
+      ELSE
+          RUN est/d-ttGoto.w (
+              INPUT  est.company,
+              INPUT  est.est-no,
+              OUTPUT op-changed
+              ).
 
       IF est.est-type EQ 8 THEN
       FOR EACH b-eb

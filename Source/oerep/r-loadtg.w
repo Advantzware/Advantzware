@@ -3935,6 +3935,7 @@ PROCEDURE create-loadtag :
              IF fg-rctd.po-line EQ 0 THEN fg-rctd.po-line = 1.
              RUN pGetCostFromPO (b-po-ordl.company, b-po-ordl.po-no, b-po-ordl.line, b-po-ordl.i-no, fg-rctd.t-qty,
              OUTPUT fg-rctd.std-cost, OUTPUT fg-rctd.cost-uom, OUTPUT fg-rctd.ext-cost, OUTPUT fg-rctd.frt-cost).
+             fg-rctd.pur-uom = fg-rctd.cost-uom .
 /*            /* Created task 09261318 to be used by receiving screens in addition */*/
 /*             RUN fg/calcRcptCostFromPO.p                                           */
 /*               (INPUT cocode ,                                                     */

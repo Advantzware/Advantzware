@@ -5283,12 +5283,17 @@ PROCEDURE run-goto :
 
       IF ll THEN*/
       IF NOT lCEGOTOCALC THEN
-        RUN est/d-multbl.w (INPUT-OUTPUT lv-rowid, OUTPUT op-changed).
-      ELSE 
-        RUN est/w-multiV.w (INPUT-OUTPUT lv-rowid, OUTPUT op-changed).
-      
-      /*ELSE
-        RUN est/d-multib.w (INPUT-OUTPUT lv-rowid).*/
+          RUN est/d-multbl.w (
+              INPUT-OUTPUT lv-rowid, 
+              OUTPUT op-changed
+              ).
+      ELSE
+/*        RUN est/w-multiV.w (INPUT-OUTPUT lv-rowid, OUTPUT op-changed).*/
+          RUN est/d-ttGoto.w (
+              INPUT  est.company,
+              INPUT  est.est-no,
+              OUTPUT op-changed
+              ).
 
       IF est.est-type EQ 4 THEN
       FOR EACH b-eb

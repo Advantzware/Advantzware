@@ -1255,6 +1255,9 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iNumRecords AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iInvoiceXNo AS INTEGER NO-UNDO.
+  
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
