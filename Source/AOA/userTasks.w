@@ -74,7 +74,6 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD externalForm     LIKE dynParamValue.externalForm
     FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
-    FIELD isLookup         LIKE dynParamValue.isLookup
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
         INDEX ttDynParamValue IS PRIMARY paramTitle user-id paramValueID
@@ -104,8 +103,8 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
-&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   AND ttDynParamValue.isLookup EQ NO  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   AND ttDynParamValue.isLookup EQ NO  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseParamValue ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseParamValue ttDynParamValue
 
@@ -395,7 +394,6 @@ WHERE ttDynParamValue.securityLevel LE iSecurityLevel
   AND ttDynParamValue.module BEGINS cModule
   AND ttDynParamValue.user-id BEGINS cUserID
   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"
-  AND ttDynParamValue.isLookup EQ NO
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -866,8 +864,10 @@ PROCEDURE pGetParamValue :
     EMPTY TEMP-TABLE ttDynParamValue.
     RUN spGetTaskFilter (OUTPUT cMnemonic, OUTPUT cPrgmName, OUTPUT cUserID).
     FOR EACH dynParamValue NO-LOCK
-        WHERE dynParamValue.module BEGINS cMnemonic
+        WHERE dynParamValue.module    BEGINS cMnemonic
           AND dynParamValue.securityLevel LE DYNAMIC-FUNCTION("sfUserSecurityLevel")
+          AND dynParamValue.isLookup      EQ NO
+          AND dynParamValue.prgmName      LT "["
         WITH FRAME filterFrame:
         CREATE ttDynParamValue.
         ASSIGN
@@ -883,7 +883,6 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.securityLevel    = dynParamValue.securityLevel
             ttDynParamValue.externalForm     = dynParamValue.externalForm
             ttDynParamValue.lastRunDateTime  = dynParamValue.lastRunDateTime
-            ttDynParamValue.isLookup         = dynParamValue.isLookup
             ttDynParamValue.paramValueRowID  = ROWID(dynParamValue)
             ttDynParamValue.allData          = ttDynParamValue.mnemonic + "|"
                                              + ttDynParamValue.paramDescription + "|"

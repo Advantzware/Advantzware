@@ -32,6 +32,7 @@ DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lAdmin              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
@@ -159,6 +160,17 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtPermissionsHandle Procedure
 FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+&IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfIsUserAdmin Procedure
+FUNCTION sfIsUserAdmin RETURNS LOGICAL 
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,8 +324,9 @@ FIND FIRST users NO-LOCK
      NO-ERROR.
 IF AVAILABLE users THEN 
 ASSIGN 
-    lUserAMPM       = users.AMPM
-    lSuperAdmin     = users.securityLevel GE 1000
+    lUserAMPM   = users.AMPM
+    lSuperAdmin = users.securityLevel GE 1000
+    lAdmin      = users.securityLevel GE 900
     .
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
@@ -2036,6 +2049,23 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+&IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserAdmin Procedure
+FUNCTION sfIsUserAdmin RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:  Returns logical if current user is admin
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN lAdmin.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 &IF DEFINED(EXCLUDE-sfIsUserSuperAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserSuperAdmin Procedure
@@ -2048,7 +2078,7 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
     RETURN lSuperAdmin.
 
 END FUNCTION.
-	
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
