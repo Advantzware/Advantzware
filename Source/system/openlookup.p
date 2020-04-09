@@ -177,9 +177,9 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "APIOutbound",
            /* List of fields which are required in the query */
-           INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,inActive", 
+           INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,Inactive", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "apiID,clientID,endPoint,isSSLEnabled,authType,requestVerb,inActive",
+           INPUT "apiID,clientID,endPoint,isSSLEnabled,authType,requestVerb,Inactive",
            /* List of field labels to override the default database field label */
            INPUT "API ID,Client ID, EndPoint, SSL Enabled, Auth Type, Request Verb, Active",
            /* List of field formats to override the default database field format */
@@ -187,7 +187,7 @@ CASE ip-lookupField:
            /* List of browse column width values to override the default column width in browse */
            INPUT "",
            /* List of fields for which field level search is enabled */
-           INPUT "apiID,isSSLEnabled,authType,requestVerb,clientID,inActive",
+           INPUT "apiID,isSSLEnabled,authType,requestVerb,clientID,Inactive",
            /* List of fields for which sorting is enabled */
            INPUT "apiID",
            /* Where clause to select specific records */
@@ -218,9 +218,9 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "APIOutboundTrigger",
            /* List of fields which are required in the query */
-           INPUT "triggerID,description,apiID,clientID,inActive", 
+           INPUT "triggerID,description,apiID,clientID,Inactive", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "triggerID,description,apiID,clientID,inActive",
+           INPUT "triggerID,description,apiID,clientID,Inactive",
            /* List of field labels to override the default database field label */
            INPUT "Trigger ID, Description,API ID,Client ID, Active",
            /* List of field formats to override the default database field format */
@@ -228,7 +228,7 @@ CASE ip-lookupField:
            /* List of browse column width values to override the default column width in browse */
            INPUT "",
            /* List of fields for which field level search is enabled */
-           INPUT "triggerID,apiID,clientID,inActive",
+           INPUT "triggerID,apiID,clientID,Inactive",
            /* List of fields for which sorting is enabled */
            INPUT "triggerID",
            /* Where clause to select specific records */
@@ -259,9 +259,9 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "APIInbound",
            /* List of fields which are required in the query */
-           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,inActive", 
+           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,Inactive", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,inActive",
+           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,Inactive",
            /* List of field labels to override the default database field label */
            INPUT "API Route,Request Verb,Request Data Type,Queued?,Active",
            /* List of field formats to override the default database field format */
@@ -269,7 +269,7 @@ CASE ip-lookupField:
            /* List of browse column width values to override the default column width in browse */
            INPUT "",
            /* List of fields for which field level search is enabled */
-           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,inActive",
+           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,Inactive",
            /* List of fields for which sorting is enabled */
            INPUT "apiRoute",
            /* Where clause to select specific records */
@@ -660,9 +660,9 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "naics",
            /* List of fields which are required in the query */
-           INPUT "naicsID,description,inActive",
+           INPUT "naicsID,description,Inactive",
            /* List of fields which should be displayed in the browse */
-           INPUT "naicsID,description,inActive",
+           INPUT "naicsID,description,Inactive",
            /* List of field labels to override the default database field label */
            INPUT "NAICS ID,Description",
            /* List of field formats to override the default database field format */
@@ -670,13 +670,13 @@ CASE ip-lookupField:
            /* List of browse column width values to override the default column width in browse */
            INPUT "6,,,",
            /* List of fields for which field level search is enabled */
-           INPUT "naicsID,description,inActive",
+           INPUT "naicsID,description,Inactive",
            /* List of fields for which sorting is enabled */
-           INPUT "naicsID,description,inActive",
+           INPUT "naicsID,description,Inactive",
            /* Where clause to select specific records */
            INPUT "" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
-           INPUT "naicsID,description,inActive",
+           INPUT "naicsID,description,Inactive",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
            /* dynamic subject id */

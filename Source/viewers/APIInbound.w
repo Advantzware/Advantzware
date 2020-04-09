@@ -74,7 +74,7 @@ edResponseData
 APIInbound.requestHandler 
 &Scoped-define DISPLAYED-TABLES APIInbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIInbound
-&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInActive edDescription ~
+&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
 cbRequestDataType cbRequestVerb tgCanBeQueued edRequestData edResponseData 
 
 /* Custom List Definitions                                              */
@@ -163,7 +163,7 @@ DEFINE VARIABLE tgCanBeQueued AS LOGICAL INITIAL no
      SIZE 22 BY .81
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tgInActive AS LOGICAL INITIAL no 
+DEFINE VARIABLE tgInactive AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
@@ -179,7 +179,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 87 BY 1
           BGCOLOR 15 
-     tgInActive AT ROW 2.81 COL 115.4 WIDGET-ID 28
+     tgInactive AT ROW 2.81 COL 115.4 WIDGET-ID 28
      edDescription AT ROW 4.24 COL 23 NO-LABEL WIDGET-ID 34
      cbRequestDataType AT ROW 6.95 COL 92.8 COLON-ALIGNED WIDGET-ID 40
      cbRequestVerb AT ROW 7 COL 21 COLON-ALIGNED WIDGET-ID 42
@@ -284,7 +284,7 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX tgCanBeQueued IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tgInActive IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX tgInactive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -548,7 +548,7 @@ PROCEDURE pDisableFields :
     END.
     
     ASSIGN
-        tgInActive:SENSITIVE        = FALSE
+        tgInactive:SENSITIVE        = FALSE
         cbRequestVerb:SENSITIVE     = FALSE
         cbRequestDataType:SENSITIVE = FALSE
         tgCanBeQueued:SENSITIVE     = FALSE
@@ -573,7 +573,7 @@ PROCEDURE pDisplayFields :
 
     IF AVAILABLE APIInbound THEN
         ASSIGN
-            tgInActive:CHECKED             = APIInbound.Inactive
+            tgInactive:CHECKED             = APIInbound.Inactive
             edDescription:SCREEN-VALUE     = APIInbound.description
             cbRequestVerb:SCREEN-VALUE     = APIInbound.requestVerb
             cbRequestDataType:SCREEN-VALUE = APIInbound.requestDataType
@@ -619,7 +619,7 @@ PROCEDURE pEnableFields :
     END.
     
     ASSIGN
-        tgInActive:SENSITIVE        = TRUE
+        tgInactive:SENSITIVE        = TRUE
         cbRequestVerb:SENSITIVE     = TRUE
         cbRequestDataType:SENSITIVE = TRUE
         tgCanBeQueued:SENSITIVE     = TRUE
@@ -667,7 +667,7 @@ PROCEDURE pSetDefaults :
     END.
 
     ASSIGN
-        tgInActive:CHECKED             = TRUE
+        tgInactive:CHECKED             = TRUE
         edDescription:SCREEN-VALUE     = ""
         cbRequestVerb:SCREEN-VALUE     = "POST"
         cbRequestDataType:SCREEN-VALUE = "JSON"
@@ -692,7 +692,7 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIInbound THEN    
         ASSIGN
-            APIInbound.Inactive        = tgInActive:CHECKED
+            APIInbound.Inactive        = tgInactive:CHECKED
             APIInbound.description     = edDescription:SCREEN-VALUE
             APIInbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
             APIInbound.requestDataType = cbRequestDataType:SCREEN-VALUE

@@ -83,7 +83,7 @@ APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.userName ~
 APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
-&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInActive edDescription ~
+&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
 edEndPoint cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType ~
 edRequestData 
 
@@ -185,7 +185,7 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 157 BY 18.57.
 
-DEFINE VARIABLE tgInActive AS LOGICAL INITIAL no 
+DEFINE VARIABLE tgInactive AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
@@ -212,7 +212,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     tgInActive AT ROW 2.67 COL 126.6 WIDGET-ID 28
+     tgInactive AT ROW 2.67 COL 126.6 WIDGET-ID 28
      edDescription AT ROW 3.86 COL 22.8 NO-LABEL WIDGET-ID 62
      edEndPoint AT ROW 6 COL 23 NO-LABEL WIDGET-ID 34
      APIOutbound.saveFileFolder AT ROW 8.05 COL 40 WIDGET-ID 58
@@ -351,7 +351,7 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN APIOutbound.saveFileFolder IN FRAME F-Main
    NO-ENABLE ALIGN-L 2                                                  */
-/* SETTINGS FOR TOGGLE-BOX tgInActive IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX tgInactive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tgSSLEnabled IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -671,7 +671,7 @@ PROCEDURE pDisableFields :
     END.
 
     ASSIGN
-        tgInActive:SENSITIVE        = FALSE
+        tgInactive:SENSITIVE        = FALSE
         cbRequestVerb:SENSITIVE     = FALSE
         cbRequestDataType:SENSITIVE = FALSE
         tgSSLEnabled:SENSITIVE      = FALSE
@@ -697,7 +697,7 @@ PROCEDURE pDisplayFields :
 
     IF AVAILABLE APIOutbound THEN
         ASSIGN
-            tgInActive:CHECKED             = APIOutbound.Inactive
+            tgInactive:CHECKED             = APIOutbound.Inactive
             edEndPoint:SCREEN-VALUE        = APIOutbound.endPoint
             edDescription:SCREEN-VALUE     = APIOutbound.description
             cbRequestVerb:SCREEN-VALUE     = APIOutbound.requestVerb
@@ -744,7 +744,7 @@ PROCEDURE pEnableFields :
     END.
 
     ASSIGN
-        tgInActive:SENSITIVE        = TRUE
+        tgInactive:SENSITIVE        = TRUE
         cbRequestVerb:SENSITIVE     = TRUE
         cbRequestDataType:SENSITIVE = TRUE
         tgSSLEnabled:SENSITIVE      = TRUE
@@ -814,7 +814,7 @@ PROCEDURE pSetDefaults :
     END.
 
     ASSIGN
-        tgInActive:CHECKED               = TRUE
+        tgInactive:CHECKED               = TRUE
         edEndPoint:SCREEN-VALUE        = ""
         cbRequestVerb:SCREEN-VALUE     = "POST"
         cbRequestDataType:SCREEN-VALUE = "JSON"
@@ -842,7 +842,7 @@ PROCEDURE pUpdateFields :
     IF AVAILABLE APIOutbound THEN    
         ASSIGN
             APIOutbound.company         = g_company
-            APIOutbound.Inactive        = tgInActive:CHECKED
+            APIOutbound.Inactive        = tgInactive:CHECKED
             APIOutbound.isSSLEnabled    = tgSSLEnabled:CHECKED
             APIOutbound.endPoint        = edEndPoint:SCREEN-VALUE
             APIOutbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
