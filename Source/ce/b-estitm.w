@@ -5488,31 +5488,15 @@ PROCEDURE update-e-itemfg-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
-   DEFINE BUFFER e-itemfg-vend    FOR e-itemfg-vend.
-
-    FOR EACH e-itemfg-vend NO-LOCK
-        WHERE e-itemfg-vend.company  EQ eb.company 
-          AND e-itemfg-vend.est-no   EQ eb.est-no
-          AND e-itemfg-vend.form-no  EQ eb.form-no
-          AND e-itemfg-vend.blank-no EQ eb.blank-no
-          AND e-itemfg-vend.i-no     EQ cOldFGItem:
-        FIND FIRST bf-e-itemfg-vend EXCLUSIVE-LOCK
-             WHERE bf-e-itemfg-vend.company  EQ e-itemfg-vend.company
-               AND bf-e-itemfg-vend.est-no   EQ e-itemfg-vend.est-no
-               AND bf-e-itemfg-vend.form-no  EQ e-itemfg-vend.form-no
-               AND bf-e-itemfg-vend.blank-no EQ e-itemfg-vend.blank-no
-               AND bf-e-itemfg-vend.i-no     EQ e-itemfg-vend.i-no
-            NO-ERROR.
-        IF AVAILABLE bf-e-itemfg-vend THEN DO:
-            ASSIGN 
-                bf-e-itemfg-vend.i-no = eb.stock-no
-                bf-e-itemfg-vend.eQty = IF bf-e-itemfg-vend.eQty NE eb.eQty THEN eb.eQty 
-                                        ELSE bf-e-itemfg-vend.eQty
-                .                                   
-        END.                 
-    END. 
-    RELEASE bf-e-itemfg-vend. 
+    RUN UpdateItemFGVend(
+        INPUT cocode,
+        INPUT eb.est-no,
+        INPUT eb.form-no,
+        INPUT eb.blank-no,
+        INPUT cOLDFGItem,  /* Old FG Item */
+        INPUT eb.stock-no, /* New FG Item */
+        INPUT eb.eQTy 
+        ).  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
