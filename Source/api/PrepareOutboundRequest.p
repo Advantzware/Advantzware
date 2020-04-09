@@ -23,7 +23,7 @@ FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
      NO-ERROR.
 IF AVAILABLE APIOutbound AND 
-   APIOutbound.isActive THEN DO:           
+   NOT APIOutbound.Inactive THEN DO:           
     oplcRequestData = APIOutbound.requestData.
     /* Transform Request Data */
     RUN pPrepareRequest (

@@ -54,7 +54,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -66,13 +66,13 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR APIOutboundTrigger, APIOutbound.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS APIOutboundTrigger.triggerID ~
-APIOutboundTrigger.description APIOutboundTrigger.isActive 
+APIOutboundTrigger.description APIOutboundTrigger.Inactive 
 &Scoped-define ENABLED-TABLES APIOutboundTrigger
 &Scoped-define FIRST-ENABLED-TABLE APIOutboundTrigger
 &Scoped-Define ENABLED-OBJECTS RECT-6 
 &Scoped-Define DISPLAYED-FIELDS APIOutboundTrigger.apiID ~
 APIOutboundTrigger.clientID APIOutboundTrigger.triggerID ~
-APIOutboundTrigger.description APIOutboundTrigger.isActive 
+APIOutboundTrigger.description APIOutboundTrigger.Inactive 
 &Scoped-define DISPLAYED-TABLES APIOutboundTrigger
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutboundTrigger
 
@@ -136,9 +136,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 102 BY 1
           BGCOLOR 15 
-     APIOutboundTrigger.isActive AT ROW 6.76 COL 25 WIDGET-ID 4
+     APIOutboundTrigger.Inactive AT ROW 6.76 COL 25 WIDGET-ID 4
           VIEW-AS TOGGLE-BOX
-          SIZE 11 BY .81
+          SIZE 14 BY .81
           BGCOLOR 15 
      RECT-6 AT ROW 1 COL 1 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -197,7 +197,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

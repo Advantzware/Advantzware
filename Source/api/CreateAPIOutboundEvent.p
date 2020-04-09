@@ -84,7 +84,7 @@ FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.company  EQ ipcCompany 
        AND APIOutbound.apiId    EQ ipcAPIID
        AND APIOutbound.clientID EQ ipcClientID
-       AND APIOutbound.isActive
+       AND NOT APIOutbound.Inactive
      NO-ERROR.
 IF AVAILABLE APIOutbound AND APIOutbound.SaveFile THEN DO:
     RUN FileSys_CreateDirectory IN hdFileSysProcs (

@@ -71,11 +71,11 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIInbound.apiRoute APIInbound.description APIInbound.requestDataType APIInbound.requestVerb APIInbound.isActive   
+&Scoped-define FIELDS-IN-QUERY-br_table APIInbound.apiRoute APIInbound.description APIInbound.requestDataType APIInbound.requestVerb APIInbound.Inactive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIInbound WHERE (~{&KEY-PHRASE}) AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIInbound.apiRoute BEGINS fiAPIID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIInbound.isActive EQ YES      ELSE         APIInbound.isActive EQ NO)     NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIInbound WHERE (~{&KEY-PHRASE}) AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIInbound.apiRoute BEGINS fiAPIID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIInbound.isActive EQ YES      ELSE         APIInbound.isActive EQ NO)     NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br_table FOR EACH APIInbound WHERE (~{&KEY-PHRASE}) AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIInbound.apiRoute BEGINS fiAPIID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIInbound.Inactive EQ NO      ELSE         APIInbound.Inactive EQ YES)     NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIInbound WHERE (~{&KEY-PHRASE}) AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIInbound.apiRoute BEGINS fiAPIID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIInbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIInbound.Inactive EQ NO      ELSE         APIInbound.Inactive EQ YES)     NO-LOCK     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table APIInbound
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table APIInbound
 
@@ -232,7 +232,7 @@ DEFINE BROWSE br_table
             WIDTH 25.6
       APIInbound.requestVerb COLUMN-LABEL "Request Verb" FORMAT "x(8)":U
             WIDTH 26.2
-      APIInbound.isActive COLUMN-LABEL "Status" FORMAT "Active/Inactive":U
+      APIInbound.Inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U
             WIDTH 20.8
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -366,9 +366,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIInbound WHERE (~{&KEY-PHRASE}) AND
     (IF cbStatus:SCREEN-VALUE EQ "All" THEN
         TRUE
      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN
-        APIInbound.isActive EQ YES
+        APIInbound.Inactive EQ NO
      ELSE
-        APIInbound.isActive EQ NO)
+        APIInbound.Inactive EQ YES)
     NO-LOCK
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM

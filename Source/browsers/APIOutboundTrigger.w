@@ -72,7 +72,7 @@ DEFINE QUERY external_tables FOR APIOutbound.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundTrigger.triggerID APIOutboundTrigger.description APIOutboundTrigger.isActive   
+&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundTrigger.triggerID APIOutboundTrigger.description APIOutboundTrigger.Inactive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
@@ -152,7 +152,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       APIOutboundTrigger.triggerID FORMAT "x(32)":U
       APIOutboundTrigger.description FORMAT "x(80)":U
-      APIOutboundTrigger.isActive FORMAT "YES/NO":U
+      APIOutboundTrigger.Inactive FORMAT "YES/NO":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 129 BY 6.71 FIT-LAST-COLUMN.
