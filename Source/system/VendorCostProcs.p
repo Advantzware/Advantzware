@@ -1831,7 +1831,7 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
-PROCEDURE UpdateItemFGVend:
+PROCEDURE VendCost_UpdateItemFGVend:
 /*------------------------------------------------------------------------------
  Purpose: To Update the FG Item in e-itemfg-vend
  Notes:
@@ -1873,7 +1873,7 @@ PROCEDURE UpdateItemFGVend:
 
 END PROCEDURE.
 
-PROCEDURE UpdateVendItemCost:
+PROCEDURE VendCost_UpdateVendItemCost:
 /*------------------------------------------------------------------------------
  Purpose: To Update the FG Item in VendItemCost
  Notes:

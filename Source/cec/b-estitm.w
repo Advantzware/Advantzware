@@ -5764,7 +5764,7 @@ PROCEDURE local-assign-record :
                         AND vendItemCost.formNo     EQ eb.form-no
                         AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
                         
-              RUN UpdateVendItemCost(
+              RUN VendCost_UpdateVendItemCost(
                   INPUT cocode,
                   INPUT eb.est-no,
                   INPUT eb.form-no,
@@ -7849,7 +7849,7 @@ PROCEDURE update-e-itemfg-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN UpdateItemFGVend(
+    RUN VendCost_UpdateItemFGVend(
         INPUT cocode,
         INPUT eb.est-no,
         INPUT eb.form-no,

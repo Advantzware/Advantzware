@@ -3475,7 +3475,7 @@ PROCEDURE local-assign-statement :
   END.
 
   IF eb.pur-man AND cOldFGItem NE eb.stock-no THEN DO:
-      RUN UpdateItemFGVend(
+      RUN VendCost_UpdateItemFGVend(
           INPUT cocode,
           INPUT eb.est-no,
           INPUT eb.form-no,
@@ -3484,7 +3484,7 @@ PROCEDURE local-assign-statement :
           INPUT eb.stock-no, /* New FG Item */
           INPUT eb.eQTy 
           ). 
-      RUN UpdateVendItemCost(
+      RUN VendCost_UpdateVendItemCost(
           INPUT cocode,
           INPUT eb.est-no,
           INPUT eb.form-no,
