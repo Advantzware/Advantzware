@@ -25,7 +25,9 @@ DEFINE TEMP-TABLE ttDuplicates
     FIELD cCompany    AS CHARACTER
     FIELD cItemType   AS CHARACTER
     .
-        
+
+{rm/bestvend.i NEW}
+{sys/inc/var.i NEW SHARED}
 /*Persistent Handles*/
 DEFINE VARIABLE ghSession         AS HANDLE.
 DEFINE VARIABLE ghOutput          AS HANDLE.
@@ -68,13 +70,46 @@ RUN pSetGlobalSettings(gcCompany).
 //RUN pTestSampleRM.
 //RUN pGetVendorCostList(gcCompany).
 
-RUN pPOVendCostCalc.
+//RUN pPOVendCostCalc.
+
+RUN pBestVendTest.
 
 DELETE OBJECT ghSession.
 DELETE OBJECT ghOutput.
 DELETE OBJECT ghVendorCost.
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pBestVendTest PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    FIND FIRST eb NO-LOCK 
+        WHERE eb.company EQ '001'
+        AND eb.est-no EQ '   13579'
+        AND eb.form-no EQ 1.
+    DO TRANSACTION: 
+        FIND FIRST sys-ctrl EXCLUSIVE-LOCK 
+            WHERE sys-ctrl.company EQ ""
+            AND sys-ctrl.name EQ 'VendItemCost'
+            NO-ERROR.
+        IF AVAILABLE sys-ctrl THEN ASSIGN sys-ctrl.log-fld = YES.
+    END.
+
+    RUN rm/bestvnd1.p (ROWID(eb)).  /* create temp-tables tt-ei, tt-eiv */
+    RUN Output_TempTableToCSV(TEMP-TABLE tt-eiv:HANDLE,"C:\tmp\tt-eivNew.csv",YES).
+    DO TRANSACTION: 
+        FIND FIRST sys-ctrl EXCLUSIVE-LOCK 
+            WHERE sys-ctrl.company EQ ""
+            AND sys-ctrl.name EQ 'VendItemCost'
+            NO-ERROR.
+        IF AVAILABLE sys-ctrl THEN ASSIGN sys-ctrl.log-fld = NO.
+    END.
+    RUN rm/bestvnd1.p (ROWID(eb)).  /* create temp-tables tt-ei, tt-eiv */
+    RUN Output_TempTableToCSV(TEMP-TABLE tt-eiv:HANDLE,"C:\tmp\tt-eivOld.csv",YES).
+
+END PROCEDURE.
 
 PROCEDURE pConvertLegacyToNew PRIVATE:
     /*------------------------------------------------------------------------------
@@ -108,7 +143,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
     DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
     DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
     
-    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
@@ -161,8 +196,8 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
         
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-itemfg-vend.roll-w[iIndex] NE 0 
-                                                    THEN ipbf-e-itemfg-vend.roll-w[iIndex] 
-                                                    ELSE ipbf-e-itemfg.roll-w[iIndex].
+                THEN ipbf-e-itemfg-vend.roll-w[iIndex] 
+                ELSE ipbf-e-itemfg.roll-w[iIndex].
         END.
         DO iIndex = 1 TO 10:
             IF ipbf-e-itemfg-vend.run-qty[iIndex] NE 0 THEN 
@@ -193,7 +228,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
     DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
     DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
     
-    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
         
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
@@ -235,8 +270,8 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
             .
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
-                                                    THEN ipbf-e-item-vend.roll-w[iIndex] 
-                                                    ELSE ipbf-e-item.roll-w[iIndex].
+                THEN ipbf-e-item-vend.roll-w[iIndex] 
+                ELSE ipbf-e-item.roll-w[iIndex].
         END.
         DO iIndex = 1 TO 10:
             IF ipbf-e-item-vend.run-qty[iIndex] NE 0 THEN 
@@ -279,34 +314,34 @@ PROCEDURE pGetSettings PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pGetVendorCostList PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cItemID AS CHARACTER NO-UNDO INITIAL "200 C".
-    DEFINE VARIABLE cItemType AS CHARACTER NO-UNDO INITIAL "RM".
-    DEFINE VARIABLE cValidScopes AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iScopeEntry AS INTEGER NO-UNDO INITIAL 1.
-    DEFINE VARIABLE cScope AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dDimLength AS DECIMAL NO-UNDO INITIAL 56.
-    DEFINE VARIABLE dDimWidth AS DECIMAL NO-UNDO INITIAL 36.
-    DEFINE VARIABLE dDimDepth AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dBasisWeight AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cItemID             AS CHARACTER NO-UNDO INITIAL "200 C".
+    DEFINE VARIABLE cItemType           AS CHARACTER NO-UNDO INITIAL "RM".
+    DEFINE VARIABLE cValidScopes        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iScopeEntry         AS INTEGER   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE cScope              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dDimLength          AS DECIMAL   NO-UNDO INITIAL 56.
+    DEFINE VARIABLE dDimWidth           AS DECIMAL   NO-UNDO INITIAL 36.
+    DEFINE VARIABLE dDimDepth           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBasisWeight        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
     
         
     cValidScopes = DYNAMIC-FUNCTION("GetValidScopes").
     cScope = ENTRY(iScopeEntry, cValidScopes).
     RUN BuildVendItemCosts(ipcCompany, cItemID, cItemType, cScope, lIncludeBlankVendor,
-            10000, "EA", 
-            dDimLength, dDimWidth, dDimDepth, "IN",
-            dBasisWeight, "LBS/MSF", 
-            OUTPUT TABLE ttVendItemCost,
-            OUTPUT lError, OUTPUT cMessage).
+        10000, "EA", 
+        dDimLength, dDimWidth, dDimDepth, "IN",
+        dBasisWeight, "LBS/MSF", 
+        OUTPUT TABLE ttVendItemCost,
+        OUTPUT lError, OUTPUT cMessage).
     FOR EACH ttVendItemCost
         BY ttVendItemCost.costTotal:
         DISPLAY ttVendItemCost.quantityTargetInVendorUOM ttVendItemCost.isValid ttVendItemCost.vendorID ttVendItemCost.costTotal ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM.
@@ -319,7 +354,7 @@ PROCEDURE pPOVendCostCalc PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF VAR iPO# AS INT NO-UNDO.
+    DEF    VAR      iPO#        AS INT       NO-UNDO.
     
     DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
@@ -332,96 +367,99 @@ PROCEDURE pPOVendCostCalc PRIVATE:
     iPO# = 105207.
     
     FIND FIRST po-ord NO-LOCK WHERE po-ord.company = gcCompany
-                               AND po-ord.po-no = iPO#
-                               NO-ERROR.
-    IF NOT AVAIL po-ord THEN DO:
-      MESSAGE "No PO available: PO# " iPO#
-      VIEW-AS ALERT-BOX. 
-      RETURN.
+        AND po-ord.po-no = iPO#
+        NO-ERROR.
+    IF NOT AVAIL po-ord THEN 
+    DO:
+        MESSAGE "No PO available: PO# " iPO#
+            VIEW-AS ALERT-BOX. 
+        RETURN.
     END.
     
     FOR EACH po-ordl WHERE po-ordl.company = gcCompany
         AND po-ordl.po-no = po-ord.po-no NO-LOCK.
         
-      IF po-ordl.item-type THEN DO:  /* RM */
+        IF po-ordl.item-type THEN 
+        DO:  /* RM */
         
-          FIND FIRST vendItemCost NO-LOCK
-              WHERE vendItemCost.company EQ gcCompany
-              AND vendItemCost.itemID    EQ po-ordl.i-no
-              AND vendItemCost.itemType EQ "RM"
-              NO-ERROR.
+            FIND FIRST vendItemCost NO-LOCK
+                WHERE vendItemCost.company EQ gcCompany
+                AND vendItemCost.itemID    EQ po-ordl.i-no
+                AND vendItemCost.itemType EQ "RM"
+                NO-ERROR.
                         
-          FIND item NO-LOCK WHERE item.company = gcCompany
-                  AND item.i-no = vendItemCost.itemID NO-ERROR.
+            FIND item NO-LOCK WHERE item.company = gcCompany
+                AND item.i-no = vendItemCost.itemID NO-ERROR.
                   
-          RUN GetVendorCost(vendItemCost.company, 
-              vendItemCost.ItemID, 
-              vendItemCost.itemType, 
-              vendItemCost.vendorID, 
-              vendItemCost.customerID, 
-              "", 
-              0, 
-              0,
-              po-ordl.ord-qty, 
-              vendItemCost.vendorUOM,
-              item.s-len, 
-              ITEM.s-wid, 
-              0, 
-              "IN", 
-              item.basis-w, 
-              "LB/EA", 
-              NO,
-              OUTPUT dCostPerUOM, 
-              OUTPUT dCostSetup, 
-              OUTPUT cCostUOM,
-              OUTPUT dCostTotal, 
-              OUTPUT lError, 
-              OUTPUT cMessage).  
+            RUN GetVendorCost(vendItemCost.company, 
+                vendItemCost.ItemID, 
+                vendItemCost.itemType, 
+                vendItemCost.vendorID, 
+                vendItemCost.customerID, 
+                "", 
+                0, 
+                0,
+                po-ordl.ord-qty, 
+                vendItemCost.vendorUOM,
+                item.s-len, 
+                ITEM.s-wid, 
+                0, 
+                "IN", 
+                item.basis-w, 
+                "LB/EA", 
+                NO,
+                OUTPUT dCostPerUOM, 
+                OUTPUT dCostSetup, 
+                OUTPUT cCostUOM,
+                OUTPUT dCostTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage).  
               
-      END.
-      ELSE DO:  /* FG */
+        END.
+        ELSE 
+        DO:  /* FG */
             
      
-        FIND FIRST itemfg NO-LOCK 
-            WHERE itemfg.company EQ gcCompany
-            AND itemfg.i-no EQ po-ordl.i-no
-            NO-ERROR.
-        FIND FIRST vendItemCost EXCLUSIVE-LOCK
-            WHERE vendItemCost.company EQ itemfg.company
-            AND vendItemCost.itemID EQ itemfg.i-no
-            AND vendItemCost.itemType EQ "FG"
-            NO-ERROR.
-        ASSIGN 
-            vendItemCost.effectiveDate  = 1/1/2019
-            vendItemCost.expirationDate = 1/1/2020
-            .
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ gcCompany
+                AND itemfg.i-no EQ po-ordl.i-no
+                NO-ERROR.
+            FIND FIRST vendItemCost EXCLUSIVE-LOCK
+                WHERE vendItemCost.company EQ itemfg.company
+                AND vendItemCost.itemID EQ itemfg.i-no
+                AND vendItemCost.itemType EQ "FG"
+                NO-ERROR.
+            ASSIGN 
+                vendItemCost.effectiveDate  = 1/1/2019
+                vendItemCost.expirationDate = 1/1/2020
+                .
 
-        RUN GetVendorCost(vendItemCost.company, 
-            vendItemCost.ItemID, 
-            vendItemCost.itemType, 
-            vendItemCost.vendorID, 
-            vendItemCost.customerID, 
-            "", 
-            0, 
-            0,
-            po-ordl.ord-qty, 
-            vendItemCost.vendorUOM,
-            itemfg.t-len, 
-            itemfg.t-wid, 
-            0, 
-            "IN", 
-            itemfg.weight-100 / 100, 
-            "LB/EA", 
-            NO,
-            OUTPUT dCostPerUOM, 
-            OUTPUT dCostSetup, 
-            OUTPUT cCostUOM,
-            OUTPUT dCostTotal, 
-            OUTPUT lError, 
-            OUTPUT cMessage).  
-      END.
+            RUN GetVendorCost(vendItemCost.company, 
+                vendItemCost.ItemID, 
+                vendItemCost.itemType, 
+                vendItemCost.vendorID, 
+                vendItemCost.customerID, 
+                "", 
+                0, 
+                0,
+                po-ordl.ord-qty, 
+                vendItemCost.vendorUOM,
+                itemfg.t-len, 
+                itemfg.t-wid, 
+                0, 
+                "IN", 
+                itemfg.weight-100 / 100, 
+                "LB/EA", 
+                NO,
+                OUTPUT dCostPerUOM, 
+                OUTPUT dCostSetup, 
+                OUTPUT cCostUOM,
+                OUTPUT dCostTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage).  
+        END.
          
-      MESSAGE  "PO#: "  po-ordl.po-no  "   Item#: " po-ordl.i-no " Item-type: RM? " po-ordl.item-type skip 
+        MESSAGE  "PO#: "  po-ordl.po-no  "   Item#: " po-ordl.i-no " Item-type: RM? " po-ordl.item-type skip 
             "Total Cost: " dCostTotal SKIP
             "Cost Per UOM: " dCostPerUOM SKIP 
             "Cost UOM: " cCostUOM SKIP 
