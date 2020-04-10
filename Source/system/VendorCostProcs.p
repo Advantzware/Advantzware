@@ -1831,7 +1831,49 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
-PROCEDURE UpdateVendItemCost:
+PROCEDURE VendCost_UpdateItemFGVend:
+/*------------------------------------------------------------------------------
+ Purpose: To Update the FG Item in e-itemfg-vend
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiForm     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlank    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOldFG    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNewFG    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiEQty     AS INTEGER   NO-UNDO.
+  
+   DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
+   DEFINE BUFFER e-itemfg-vend    FOR e-itemfg-vend.
+
+    FOR EACH e-itemfg-vend NO-LOCK
+        WHERE e-itemfg-vend.company  EQ ipcCompany 
+          AND e-itemfg-vend.est-no   EQ ipcEstimate
+          AND e-itemfg-vend.form-no  EQ ipiForm
+          AND e-itemfg-vend.blank-no EQ ipiBlank
+          AND e-itemfg-vend.i-no     EQ ipcOldFG:
+        FIND FIRST bf-e-itemfg-vend EXCLUSIVE-LOCK
+             WHERE bf-e-itemfg-vend.company  EQ e-itemfg-vend.company
+               AND bf-e-itemfg-vend.est-no   EQ e-itemfg-vend.est-no
+               AND bf-e-itemfg-vend.form-no  EQ e-itemfg-vend.form-no
+               AND bf-e-itemfg-vend.blank-no EQ e-itemfg-vend.blank-no
+               AND bf-e-itemfg-vend.i-no     EQ e-itemfg-vend.i-no
+            NO-ERROR.
+        IF AVAILABLE bf-e-itemfg-vend THEN DO:
+            ASSIGN 
+                bf-e-itemfg-vend.i-no = ipcNewFG
+                bf-e-itemfg-vend.eQty = IF bf-e-itemfg-vend.eQty NE ipiEQty THEN ipiEQty 
+                                        ELSE bf-e-itemfg-vend.eQty
+                .                                   
+        END.                 
+    END. 
+    RELEASE bf-e-itemfg-vend. 
+
+
+END PROCEDURE.
+
+PROCEDURE VendCost_UpdateVendItemCost:
 /*------------------------------------------------------------------------------
  Purpose: To Update the FG Item in VendItemCost
  Notes:
