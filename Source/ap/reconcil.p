@@ -155,9 +155,8 @@ FOR EACH ar-cash NO-LOCK WHERE
     ar-cash.company    EQ cocode AND 
     ar-cash.reconciled EQ NO AND 
     ar-cash.posted     EQ YES AND 
-    ar-cash.memo       EQ NO:
-    
-    FOR EACH ar-ledger NO-LOCK WHERE 
+    ar-cash.memo       EQ NO,
+    FIRST ar-ledger NO-LOCK WHERE 
         ar-ledger.company  EQ ar-cash.company AND 
         ar-ledger.cust-no  EQ ar-cash.cust-no AND 
         ar-ledger.ref-date EQ ar-cash.check-date AND 
@@ -175,6 +174,7 @@ FOR EACH ar-cash NO-LOCK WHERE
             ld             = ld + ar-cash.check-amt.
     
         IF LAST-OF(ar-ledger.tr-num) THEN DO:
+
             CREATE reconcile.
             ASSIGN
                 reconcile.tt-type    = 2
@@ -187,7 +187,6 @@ FOR EACH ar-cash NO-LOCK WHERE
             ASSIGN 
                 ld = 0.
         END.
-    END.
 END. 
 
 FOR EACH gl-jrn NO-LOCK WHERE 
