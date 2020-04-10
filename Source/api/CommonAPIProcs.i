@@ -43,8 +43,7 @@ END PROCEDURE.
 PROCEDURE updateRequestData:
 /*------------------------------------------------------------------------------
  Purpose: Replaces the given key field with the value in the request data
- Notes: If the key field is available in request data with a format or data below is
-        format for the key field in the configuration.
+ Notes: Below is the format for the key field to enter a format or data type in configuration.
         $keyfield|format|datatype|$
         Eg. $poID|>>>>>>>9|INT|$, $poNotes|X(30)|$, $poData|YYYYMMDD|DATE|$
 ------------------------------------------------------------------------------*/
