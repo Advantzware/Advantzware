@@ -3441,6 +3441,8 @@ PROCEDURE run-whatif :
   lv-eb-recid = recid(eb).
   lv-ef-recid = recid(ef).
     
+    RUN displayMessage("30") . 
+    
     RUN pGetCEVersionCalcSettings(BUFFER est).
     IF glEstimateCalcNew THEN 
     DO:
