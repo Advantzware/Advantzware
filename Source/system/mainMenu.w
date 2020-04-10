@@ -1569,7 +1569,7 @@ PROCEDURE pCheckUpgradeAdvantzware :
                     OUTPUT upgradeLink,OUTPUT lFound
                     ).
                 OS-COMMAND NO-WAIT START VALUE(upgradeLink).
-                QUIT.
+                APPLY 'window-close' TO {&window-name}.
             END. /* different version */
             ELSE
             RUN displayMessage ("24").
