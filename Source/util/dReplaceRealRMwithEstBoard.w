@@ -10,7 +10,7 @@
 
   Description: from cntnrdlg.w - ADM2 SmartDialog Template
 
-  Input Parameters:
+  Input Parameters: 
       <none>
 
   Output Parameters:
@@ -45,6 +45,7 @@ DEFINE STREAM sFile1.
 DEFINE STREAM sFile2.
 
 DEFINE BUFFER bf-item FOR item.
+DEFINE BUFFER b-ef FOR ef.
 DEFINE TEMP-TABLE ttEst 
     FIELD cEst-no AS CHARACTER FORMAT "x(8)"
     FIELD iEstno AS INTEGER
@@ -484,10 +485,13 @@ DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
             bf-item.i-no AT 46
             SKIP. 
             
-        IF ipcMode = "Process" THEN 
-            EXPORT STREAM sFile2 ef.
-        ASSIGN 
-            ef.board = bf-item.i-no.
+        IF ipcMode = "Process" THEN DO:
+            FIND b-ef EXCLUSIVE WHERE 
+                ROWID(b-ef) EQ ROWID(ef).
+            EXPORT STREAM sFile2 b-ef.
+            ASSIGN 
+                b-ef.board = bf-item.i-no.
+        END.
     END.
 
 END PROCEDURE.
