@@ -3440,12 +3440,17 @@ PROCEDURE local-assign-statement :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR v-orig-style LIKE eb.style NO-UNDO.
+  DEFINE VARIABLE v-orig-style LIKE eb.style NO-UNDO.
+  DEFINE VARIABLE cOldFGItem   AS CHARACTER NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND CURRENT ef EXCLUSIVE-LOCK.
   FIND CURRENT est EXCLUSIVE-LOCK.
-
-  v-orig-style = eb.style.
+  
+  ASSIGN 
+      v-orig-style = eb.style
+      cOldFGItem   = eb.stock-no
+      .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
@@ -3469,6 +3474,25 @@ PROCEDURE local-assign-statement :
       eb.quantityPerSet = style.qty-per-set.
   END.
 
+  IF eb.pur-man AND cOldFGItem NE eb.stock-no THEN DO:
+      RUN VendCost_UpdateItemFGVend(
+          INPUT cocode,
+          INPUT eb.est-no,
+          INPUT eb.form-no,
+          INPUT eb.blank-no,
+          INPUT cOLDFGItem,  /* Old FG Item */
+          INPUT eb.stock-no, /* New FG Item */
+          INPUT eb.eQTy 
+          ). 
+      RUN VendCost_UpdateVendItemCost(
+          INPUT cocode,
+          INPUT eb.est-no,
+          INPUT eb.form-no,
+          INPUT eb.blank-no,
+          INPUT cOldFGItem, /* Old FG Item */
+          INPUT eb.stock-no /* New FG Item */
+          ).    
+  END.                  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

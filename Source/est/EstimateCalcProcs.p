@@ -2149,8 +2149,8 @@ PROCEDURE pBuildPackingForEb PRIVATE:
             bf-ttPack.dDimLength          = IF ipbf-eb.cas-len NE 0 THEN ipbf-eb.cas-len ELSE bf-ttPack.dDimLength
             bf-ttPack.dDimWidth           = IF ipbf-eb.cas-wid NE 0 THEN ipbf-eb.cas-wid ELSE bf-ttPack.dDimWidth
             bf-ttPack.dDimDepth           = IF ipbf-eb.cas-dep NE 0 THEN ipbf-eb.cas-dep ELSE bf-ttPack.dDimDepth
-            bf-ttPack.iCountPerSubUnit    = IF ipbf-eb.cas-cnt NE 0 THEN ipbf-eb.cas-cnt ELSE bf-ttPack.iCountPerSubUnit
-            bf-ttPack.dWeightCapacity     = IF ipbf-eb.cas-wt NE 0 THEN ipbf-eb.cas-wt ELSE bf-ttPack.dWeightCapacity
+            bf-ttPack.iCountPerSubUnit    = IF ipbf-eb.cas-cnt EQ 0 AND ipbf-eb.cas-wt EQ 0 THEN bf-ttPack.iCountPerSubUnit ELSE ipbf-eb.cas-cnt
+            bf-ttPack.dWeightCapacity     = IF ipbf-eb.cas-cnt EQ 0 AND ipbf-eb.cas-wt EQ 0 THEN bf-ttPack.dWeightCapacity ELSE ipbf-eb.cas-wt
             bf-ttPack.dCostPerUOMOverride = ipbf-eb.cas-cost
             bf-ttPack.dQtyMultiplier      = MAX(ipbf-eb.spare-int-3, 1)
             bf-ttPack.lIsCase             = YES
@@ -3577,6 +3577,7 @@ PROCEDURE pProcessPacking PRIVATE:
             bf-estCostMaterial.addToWeightTare         = YES 
             bf-estCostMaterial.quantityRequiredNoWaste = iCases
             bf-estCostMaterial.quantityUOM             = ttPack.cQtyUOM
+            bf-estCostBlank.quantityPerSubUnit         = iCaseCount
             bf-estCostBlank.quantityOfSubUnits         = iCases
             bf-estCostMaterial.costOverridePerUOM      = ttPack.dCostPerUOMOverride
             bf-estCostMaterial.noCharge                = ttPack.lNoCharge
@@ -3631,10 +3632,17 @@ PROCEDURE pProcessPacking PRIVATE:
         AND bf-estCostBlank.estCostBlankID EQ ttPack.estBlankID:
         
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ttPack.cItemID, bf-estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
-        ASSIGN 
-            dPalletsProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit * bf-estCostBlank.quantitySubUnitsPerUnit)
-            dCasesProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit)
-            . 
+        IF ttPack.dQtyMultiplier GT 1 THEN /*If there are multiple packers per case/pallet, only add a packer if necessary*/
+            ASSIGN 
+                dPalletsProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit * bf-estCostBlank.quantitySubUnitsPerUnit)
+                dCasesProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit)
+                .
+        ELSE 
+            ASSIGN 
+                dPalletsProRata = bf-estCostBlank.quantityOfUnits
+                dCasesProRata = bf-estCostBlank.quantityOfSubUnits
+                .
+         
         CASE ttPack.cQtyMultiplier:
             WHEN "P" THEN 
                 bf-estCostMaterial.quantityRequiredNoWaste = dPalletsProRata * ttPack.dQtyMultiplier.

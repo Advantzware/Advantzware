@@ -1603,7 +1603,8 @@ PROCEDURE local-delete-record :
   IF NOT adm-new-record THEN DO: 
     FIND FIRST eb WHERE eb.company = gcompany AND
                         eb.loc = gloc AND
-                        eb.style = style.style
+                        eb.style = style.style AND
+                        eb.style NE ""
                         NO-LOCK NO-ERROR.
     IF AVAILABLE eb THEN DO:
        MESSAGE 
@@ -1619,6 +1620,7 @@ PROCEDURE local-delete-record :
         IF CAN-FIND (FIRST bstyle WHERE 
                           bstyle.company NE style.company AND 
                           bstyle.style EQ style.style AND 
+                          bstyle.style NE "" AND 
                           bstyle.flute EQ bf-flute.code) THEN DO:
               MESSAGE 
                   "This style/flute combination exists in multiple companies.  If you delete it," SKIP 
