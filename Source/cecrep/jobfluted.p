@@ -614,7 +614,8 @@ do v-local-loop = 1 to v-local-copies:
                                    IF AVAIL xeb THEN ROWID(xeb) ELSE ?).
         end.
         ELSE PAGE. */
-        PUT "<C10> Shipping:   ______________ X _____________"  SKIP(1) 
+        PUT "<C10> Shipping:   ______________ X _____________"  SKIP(1)
+            "<C10>             ______________ X _____________"  SKIP(1)
             "<C10> Weight/box: ______________ X _____________" .
           PAGE .  
          
