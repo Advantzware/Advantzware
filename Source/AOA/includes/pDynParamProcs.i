@@ -263,6 +263,7 @@ PROCEDURE pSaveDynParamValues :
                 dynParamValue.paramFormat[idx]   = ttParamOrder.paramFormat
                 .
         END. /* each ttparamorder */
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
         ASSIGN
             hWidget = FRAME outputFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD
@@ -279,6 +280,7 @@ PROCEDURE pSaveDynParamValues :
                 .
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+&ENDIF
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
 

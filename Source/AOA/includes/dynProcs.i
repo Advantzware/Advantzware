@@ -60,6 +60,7 @@ RUN spSetSessionParam ("Location", g_loc).
 
 /* ***************************  Main Block  *************************** */
 
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
 CREATE BROWSE hQueryBrowse
     ASSIGN
         FRAME = FRAME resultsFrame:HANDLE
@@ -114,6 +115,7 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
             .
     END. /* do idx */
 END. /* row-display */
+&ENDIF
 
 {AOA/includes/pDynParamProcs.i "{1}"}
 {AOA/includes/pRunNow.i}
@@ -167,6 +169,7 @@ PROCEDURE pResultsBrowser :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
     
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
     DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     
@@ -242,6 +245,7 @@ PROCEDURE pResultsBrowser :
         btnSaveResults:MOVE-TO-TOP().
     END. /* results frame */
     RUN LockWindowUpdate (0,OUTPUT i).
+&ENDIF
 
 END PROCEDURE.
 
