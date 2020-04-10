@@ -478,7 +478,7 @@ DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
     
     IF AVAILABLE bf-item THEN DO: 
         PUT STREAM sFile1  
-            ef.est-no   AT 1
+            ef.est-no   AT 1  FORMAT "x(8)"
             ITEM.i-no   AT 11
             ITEM.flute  AT 26
             ITEM.reg-no AT 36 FORMAT "x(8)"
