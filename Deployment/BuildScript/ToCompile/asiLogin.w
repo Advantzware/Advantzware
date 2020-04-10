@@ -809,6 +809,12 @@ PROCEDURE ipChangeEnvironment :
             OTHERWISE DO:
                 ASSIGN 
                     cTestList = "".
+                /* Highlight for new password */    
+                IF iEnvLevel GT 20010000 
+                AND fiUserID:SCREEN-VALUE EQ "ASI" THEN ASSIGN 
+                    fiPassword:BGCOLOR = 14.
+                ELSE ASSIGN 
+                    fiPassword:BGCOLOR = ?.
                 DO iCtr = 1 TO NUM-ENTRIES(cDbList):
                     IF iEnvLevel EQ 99999900 THEN DO:
                         IF intVer(ENTRY(iCtr,cDbVerList)) EQ 99999900 THEN ASSIGN
