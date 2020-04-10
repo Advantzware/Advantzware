@@ -59,7 +59,7 @@ ASSIGN
 
 FOR FIRST APIOutbound NO-LOCK
     WHERE APIOutbound.apiOutboundID EQ ipcAPIOutboundID 
-      AND APIOutbound.isActive      EQ TRUE:
+      AND APIOutbound.Inactive      EQ FALSE:
     ASSIGN
         gcUserName         = APIOutbound.username
         gcPassword         = APIOutbound.password

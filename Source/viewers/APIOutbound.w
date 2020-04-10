@@ -76,15 +76,16 @@ DEFINE QUERY external_tables FOR APIOutbound.
 APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define ENABLED-TABLES APIOutbound
 &Scoped-define FIRST-ENABLED-TABLE APIOutbound
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edEndPoint ~
-edRequestData 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edDescription ~
+edEndPoint edRequestData 
 &Scoped-Define DISPLAYED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
 APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.userName ~
 APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
-&Scoped-Define DISPLAYED-OBJECTS fiMessage tgActive edEndPoint ~
-cbRequestDataType cbRequestVerb tgSSLEnabled cbAuthType edRequestData 
+&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
+edEndPoint cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType ~
+edRequestData 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -145,9 +146,14 @@ DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U
      SIZE 16 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
+DEFINE VARIABLE edDescription AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 131.2 BY 1.91
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
 DEFINE VARIABLE edEndPoint AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 132 BY 2.38
+     SIZE 131 BY 1.91
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE edRequestData AS CHARACTER 
@@ -161,7 +167,7 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 154.6 BY 6.14.
+     SIZE 154.6 BY 8.05.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -169,18 +175,18 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 155 BY 1.91.
+     SIZE 155 BY 1.62.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 155 BY 5.19.
+     SIZE 155 BY 4.57.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 157 BY 18.57.
 
-DEFINE VARIABLE tgActive AS LOGICAL INITIAL no 
-     LABEL "Active" 
+DEFINE VARIABLE tgInactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
@@ -206,49 +212,52 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     tgActive AT ROW 2.67 COL 126.6 WIDGET-ID 28
-     edEndPoint AT ROW 3.76 COL 23 NO-LABEL WIDGET-ID 34
-     APIOutbound.saveFileFolder AT ROW 6.33 COL 40 WIDGET-ID 58
+     tgInactive AT ROW 2.67 COL 126.6 WIDGET-ID 28
+     edDescription AT ROW 3.86 COL 22.8 NO-LABEL WIDGET-ID 62
+     edEndPoint AT ROW 6 COL 23 NO-LABEL WIDGET-ID 34
+     APIOutbound.saveFileFolder AT ROW 8.05 COL 40 WIDGET-ID 58
           VIEW-AS FILL-IN 
           SIZE 94.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.saveFile AT ROW 6.43 COL 22.8 WIDGET-ID 60
+     APIOutbound.saveFile AT ROW 8.1 COL 22.8 WIDGET-ID 60
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
           BGCOLOR 15 FGCOLOR 0 
-     cbRequestDataType AT ROW 7.43 COL 92 COLON-ALIGNED WIDGET-ID 40
-     cbRequestVerb AT ROW 7.48 COL 21 COLON-ALIGNED WIDGET-ID 42
-     tgSSLEnabled AT ROW 7.52 COL 114 WIDGET-ID 38
-     APIOutbound.userName AT ROW 9.33 COL 21 COLON-ALIGNED WIDGET-ID 24
+     cbRequestVerb AT ROW 9.24 COL 21 COLON-ALIGNED WIDGET-ID 42
+     cbRequestDataType AT ROW 9.24 COL 92 COLON-ALIGNED WIDGET-ID 40
+     tgSSLEnabled AT ROW 9.33 COL 114 WIDGET-ID 38
+     APIOutbound.userName AT ROW 11.24 COL 21 COLON-ALIGNED WIDGET-ID 24
           LABEL "Username"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.password AT ROW 9.33 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
+     APIOutbound.password AT ROW 11.24 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
           LABEL "Password"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     cbAuthType AT ROW 9.33 COL 137 COLON-ALIGNED WIDGET-ID 32
-     APIOutbound.requestHandler AT ROW 11.95 COL 21 COLON-ALIGNED WIDGET-ID 18
+     cbAuthType AT ROW 11.24 COL 137 COLON-ALIGNED WIDGET-ID 32
+     APIOutbound.requestHandler AT ROW 13.24 COL 21 COLON-ALIGNED WIDGET-ID 18
           LABEL "Request Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 54 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.responseHandler AT ROW 11.95 COL 98.6 COLON-ALIGNED WIDGET-ID 22
+     APIOutbound.responseHandler AT ROW 13.24 COL 98.6 COLON-ALIGNED WIDGET-ID 22
           LABEL "Response Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 55 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     edRequestData AT ROW 14.57 COL 23 NO-LABEL WIDGET-ID 48
-     "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 14.81 COL 6 WIDGET-ID 50
+     edRequestData AT ROW 15 COL 23 NO-LABEL WIDGET-ID 48
+     "Description:" VIEW-AS TEXT
+          SIZE 14.6 BY .62 AT ROW 4.38 COL 7.8 WIDGET-ID 64
      "End Point:" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 4.33 COL 10 WIDGET-ID 36
+          SIZE 11.6 BY .62 AT ROW 6.71 COL 7.8 WIDGET-ID 36
+     "Request Data:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 16.52 COL 6 WIDGET-ID 50
      RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
-     RECT-2 AT ROW 9.1 COL 2 WIDGET-ID 30
-     RECT-3 AT ROW 11.48 COL 2 WIDGET-ID 44
-     RECT-4 AT ROW 14.05 COL 2 WIDGET-ID 46
+     RECT-2 AT ROW 10.81 COL 2 WIDGET-ID 30
+     RECT-3 AT ROW 12.91 COL 2 WIDGET-ID 44
+     RECT-4 AT ROW 14.81 COL 2 WIDGET-ID 46
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -283,7 +292,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 18.57
+         HEIGHT             = 18.62
          WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -322,6 +331,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN APIOutbound.clientID IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
 ASSIGN 
+       edDescription:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
        edEndPoint:READ-ONLY IN FRAME F-Main        = TRUE.
 
 ASSIGN 
@@ -339,7 +351,7 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN APIOutbound.saveFileFolder IN FRAME F-Main
    NO-ENABLE ALIGN-L 2                                                  */
-/* SETTINGS FOR TOGGLE-BOX tgActive IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX tgInactive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tgSSLEnabled IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -659,12 +671,13 @@ PROCEDURE pDisableFields :
     END.
 
     ASSIGN
-        tgActive:SENSITIVE          = FALSE
+        tgInactive:SENSITIVE        = FALSE
         cbRequestVerb:SENSITIVE     = FALSE
         cbRequestDataType:SENSITIVE = FALSE
         tgSSLEnabled:SENSITIVE      = FALSE
         cbAuthType:SENSITIVE        = FALSE
         edEndPoint:READ-ONLY        = TRUE
+        edDescription:READ-ONLY     = TRUE
         edRequestData:READ-ONLY     = TRUE
         .
 END PROCEDURE.
@@ -684,8 +697,9 @@ PROCEDURE pDisplayFields :
 
     IF AVAILABLE APIOutbound THEN
         ASSIGN
-            tgActive:CHECKED               = APIOutbound.isActive
+            tgInactive:CHECKED             = APIOutbound.Inactive
             edEndPoint:SCREEN-VALUE        = APIOutbound.endPoint
+            edDescription:SCREEN-VALUE     = APIOutbound.description
             cbRequestVerb:SCREEN-VALUE     = APIOutbound.requestVerb
             cbRequestDataType:SCREEN-VALUE = APIOutbound.requestDataType
             tgSSLEnabled:CHECKED           = APIOutbound.isSSLEnabled
@@ -695,6 +709,7 @@ PROCEDURE pDisplayFields :
     ELSE
         ASSIGN
             edEndPoint:SCREEN-VALUE        = ""
+            edDescription:SCREEN-VALUE     = ""
             edRequestData:SCREEN-VALUE     = ""
             .
 END PROCEDURE.
@@ -729,7 +744,7 @@ PROCEDURE pEnableFields :
     END.
 
     ASSIGN
-        tgActive:SENSITIVE          = TRUE
+        tgInactive:SENSITIVE        = TRUE
         cbRequestVerb:SENSITIVE     = TRUE
         cbRequestDataType:SENSITIVE = TRUE
         tgSSLEnabled:SENSITIVE      = TRUE
@@ -737,6 +752,7 @@ PROCEDURE pEnableFields :
         edEndPoint:READ-ONLY        = FALSE
         edRequestData:READ-ONLY     = FALSE
         saveFileFolder:SENSITIVE    = IF adm-new-record THEN FALSE ELSE saveFile:checked
+        edDescription:READ-ONLY     = FALSE
         .
 END PROCEDURE.
 
@@ -798,7 +814,7 @@ PROCEDURE pSetDefaults :
     END.
 
     ASSIGN
-        tgActive:CHECKED               = TRUE
+        tgInactive:CHECKED               = TRUE
         edEndPoint:SCREEN-VALUE        = ""
         cbRequestVerb:SCREEN-VALUE     = "POST"
         cbRequestDataType:SCREEN-VALUE = "JSON"
@@ -806,6 +822,7 @@ PROCEDURE pSetDefaults :
         cbAuthType:SCREEN-VALUE        = "basic"
         edRequestData:SCREEN-VALUE     = ""
         saveFile:CHECKED               = FALSE
+        edDescription:SCREEN-VALUE     = ""
         .
 END PROCEDURE.
 
@@ -825,13 +842,14 @@ PROCEDURE pUpdateFields :
     IF AVAILABLE APIOutbound THEN    
         ASSIGN
             APIOutbound.company         = g_company
-            APIOutbound.isActive        = tgActive:CHECKED
+            APIOutbound.Inactive        = tgInactive:CHECKED
             APIOutbound.isSSLEnabled    = tgSSLEnabled:CHECKED
             APIOutbound.endPoint        = edEndPoint:SCREEN-VALUE
             APIOutbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
             APIOutbound.requestDataType = cbRequestDataType:SCREEN-VALUE
             APIOutbound.authType        = cbAuthType:SCREEN-VALUE
             APIOutbound.requestData     = edRequestData:SCREEN-VALUE
+            APIOutbound.description     = edDescription:SCREEN-VALUE
             .
 END PROCEDURE.
 

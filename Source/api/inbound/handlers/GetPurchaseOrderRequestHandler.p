@@ -80,7 +80,7 @@ IF oplSuccess THEN DO:
          WHERE APIOutbound.company  EQ cCompany
            AND APIOutbound.apiID    EQ "SendPurchaseOrder"
            AND APIOutbound.clientID EQ "Siggins"
-           AND APIOutbound.isActive EQ TRUE
+           AND APIOutbound.inActive EQ FALSE
          NO-ERROR.
     IF NOT AVAILABLE APIOutbound THEN DO:
         ASSIGN
@@ -94,7 +94,7 @@ IF oplSuccess THEN DO:
     FIND FIRST APIOutboundTrigger NO-LOCK
          WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
            AND APIOutboundTrigger.triggerID     EQ "TriggerGetPurchaseOrder"
-           AND APIOutboundTrigger.isActive      EQ TRUE
+           AND APIOutboundTrigger.inActive      EQ FALSE
          NO-ERROR.
     IF NOT AVAILABLE APIOutboundTrigger THEN DO:
         ASSIGN
