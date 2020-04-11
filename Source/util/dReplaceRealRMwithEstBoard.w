@@ -48,6 +48,7 @@ DEFINE BUFFER bf-item FOR item.
 DEFINE BUFFER b-ef FOR ef.
 DEFINE TEMP-TABLE ttEst 
     FIELD cEst-no AS CHARACTER FORMAT "x(8)"
+    FIELD cBoard AS CHARACTER
     FIELD iEstno AS INTEGER
     FIELD rRowid AS ROWID.
 DEFINE VARIABLE iCtr AS INT NO-UNDO.
@@ -329,7 +330,9 @@ DO:
         iCtr = INT(fiTotalEstimates:SCREEN-VALUE).
     FOR EACH ttEst WHERE 
         ttEst.iEstNo LT INT(fiEstStart:SCREEN-VALUE) OR 
-        ttEst.iEstNo GT INT(fiEstEnd:SCREEN-VALUE):
+        ttEst.iEstNo GT INT(fiEstEnd:SCREEN-VALUE) OR 
+        ttEst.cBoard LT fiItemStart:SCREEN-VALUE OR 
+        ttEst.cBoard GT fiItemEnd:SCREEN-VALUE:
         DELETE ttEst.
         ASSIGN 
             iCtr = iCtr - 1.
@@ -461,7 +464,7 @@ DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
         item.company EQ ef.company AND 
         item.i-no EQ ef.board AND 
         item.i-code EQ "R" AND 
-        item.i-no BEGINS "RM"
+        item.i-no BEGINS "RM" 
         NO-ERROR.
     ELSE DO:
         ASSIGN oplSuccess = FALSE.
@@ -547,6 +550,7 @@ PROCEDURE pResetValues :
             ttEst.
         ASSIGN
             ttEst.cEst-no = ef.est-no
+            ttEst.cBoard = ef.board 
             ttEst.iEstno = INTEGER(ef.est-no)
             ttEst.rRowid = ROWID(ef)
             iCtr = iCtr + 1.
