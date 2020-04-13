@@ -71,14 +71,14 @@ def var lv-first-time as log init yes no-undo.
 mach.dept[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH mach WHERE ~{&KEY-PHRASE} ~
-      AND mach.company EQ ip-company  ~
-AND mach.loc     EQ ip-loc ~
-AND NOT mach.obsolete NO-LOCK ~
+      AND mach.company  EQ ip-company  ~
+AND mach.loc      EQ ip-loc ~
+AND mach.obsolete EQ NO NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH mach WHERE ~{&KEY-PHRASE} ~
-      AND mach.company EQ ip-company  ~
-AND mach.loc     EQ ip-loc ~
-AND NOT mach.obsolete NO-LOCK ~
+      AND mach.company  EQ ip-company  ~
+AND mach.loc      EQ ip-loc ~
+AND mach.obsolete EQ NO NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 mach
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 mach
@@ -204,9 +204,9 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-1
      _TblList          = "ASI.mach"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.mach.company EQ ip-company 
-AND mach.loc     EQ ip-loc
-AND NOT mach.obsolete"
+     _Where[1]         = "ASI.mach.company  EQ ip-company 
+AND mach.loc      EQ ip-loc
+AND mach.obsolete EQ NO"
      _FldNameList[1]   > ASI.mach.m-code
 "m-code" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.mach.m-dscr

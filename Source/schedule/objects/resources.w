@@ -803,8 +803,8 @@ PROCEDURE getResources :
     IMPORT ^ resourceName.
     IF CAN-FIND(ttblAvail WHERE ttblAvail.resource EQ resourceName) OR  
         CAN-FIND(FIRST mach
-                 WHERE mach.m-code EQ resourceName 
-                   AND mach.obsolete) THEN 
+                 WHERE mach.m-code   EQ resourceName 
+                   AND mach.obsolete EQ YES) THEN 
         NEXT.
     CREATE ttblAvail.
     ttblAvail.resource = resourceName.
@@ -815,8 +815,8 @@ PROCEDURE getResources :
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT resourceName.
     IF CAN-FIND(FIRST mach
-                WHERE mach.m-code EQ resourceName 
-                  AND mach.obsolete) THEN 
+                WHERE mach.m-code   EQ resourceName 
+                  AND mach.obsolete EQ YES) THEN 
         NEXT.
     CREATE ttblList.
     ttblList.resource = resourceName.

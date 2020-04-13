@@ -419,9 +419,9 @@ PROCEDURE Get_Active_Machines :
                     NO-LOCK
                     USE-INDEX endtime,
       FIRST mach FIELDS(m-code m-dscr) NO-LOCK
-          WHERE mach.company EQ company_code
-            AND mach.m-code  EQ emplogin.machine
-            AND NOT mach.obsolete
+          WHERE mach.company  EQ company_code
+            AND mach.m-code   EQ emplogin.machine
+            AND mach.obsolete EQ NO
           BY mach.m-code :
 
     IF LOOKUP(emplogin.machine,itemlist1,"@") NE 0 THEN
@@ -463,9 +463,9 @@ PROCEDURE Get_Machines :
   FOR EACH empmach FIELDS(machine) WHERE empmach.company = company_code
                              AND empmach.employee = employee_code NO-LOCK,
     FIRST mach FIELDS(m-code m-dscr) NO-LOCK
-        WHERE mach.company EQ company_code
-          AND mach.m-code  EQ empmach.machine
-          AND NOT mach.obsolete
+        WHERE mach.company  EQ company_code
+          AND mach.m-code   EQ empmach.machine
+          AND mach.obsolete EQ NO
         BY mach.m-code :
     
     itemlist = IF itemlist = '' THEN CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'
