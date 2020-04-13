@@ -832,8 +832,8 @@ PROCEDURE getResources :
   REPEAT WITH FRAME {&FRAME-NAME}:
     IMPORT resourceName priorityValue.
     IF CAN-FIND(FIRST mach
-                WHERE mach.m-code EQ resourceName 
-                  AND mach.obsolete) THEN 
+                WHERE mach.m-code   EQ resourceName 
+                  AND mach.obsolete EQ YES) THEN 
         NEXT.
     CREATE priorityList.
     ASSIGN
