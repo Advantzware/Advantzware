@@ -3440,6 +3440,8 @@ PROCEDURE run-whatif :
   vprint = yes.
   lv-eb-recid = recid(eb).
   lv-ef-recid = recid(ef).
+  
+    RUN pDisplaySpecAN(est.est-no) .
     
     RUN pGetCEVersionCalcSettings(BUFFER est).
     IF glEstimateCalcNew THEN 
@@ -3913,6 +3915,43 @@ PROCEDURE pCheckMultiRecords :
         LEAVE .
      END.
   END.   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplaySpecAN B-table-Win 
+PROCEDURE pDisplaySpecAN :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bff-eb FOR eb .
+  DEFINE BUFFER bff-itemfg FOR itemfg.
+  
+  FOR EACH bff-eb NO-LOCK
+     WHERE bff-eb.company = cocode
+       and bff-eb.est-no = ipcEstimate 
+       AND bff-eb.stock-no NE "" BREAK BY bff-eb.stock-no:
+       
+       IF FIRST-OF(bff-eb.stock-no) THEN do: 
+           FIND FIRST bff-itemfg WHERE bff-itemfg.company = cocode AND
+                     bff-itemfg.i-no = bff-eb.stock-no
+                     NO-LOCK NO-ERROR. 
+           IF avail bff-itemfg THEN          
+           FOR EACH notes NO-LOCK
+             WHERE notes.rec_key EQ bff-itemfg.rec_key 
+               AND notes.note_type EQ "S"
+               AND notes.note_code EQ "AN":
+                 MESSAGE 
+                        notes.note_text 
+                    VIEW-AS ALERT-BOX MESSAGE 
+                    TITLE notes.note_title .            
+           END.     
+       END. /* FIRST-OF(bff-eb.stock-no)*/
+  END. /*FOR EACH bff-eb*/  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
