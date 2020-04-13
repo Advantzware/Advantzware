@@ -237,6 +237,8 @@ DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
 DEF VAR v-spec-cnt AS INT NO-UNDO.
+DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO . 
+DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
 ASSIGN 
     ls-image1 = "images\ruffino.png"
     FILE-INFO:FILE-NAME = ls-image1
@@ -463,54 +465,7 @@ DO:
         v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.
     cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
     /*v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.*/
-     /*VIEW FRAME head.*/
-    IF FIRST-OF(tt-reftable.val[12]) THEN 
-    DO:
-        v-shipto = "".
-        FIND FIRST oe-ordl
-            WHERE oe-ordl.company EQ job-hdr.company
-            AND oe-ordl.ord-no  EQ job-hdr.ord-no
-            AND oe-ordl.job-no  EQ job-hdr.job-no
-            AND oe-ordl.job-no2 EQ job-hdr.job-no2
-            AND oe-ordl.i-no    EQ tt-reftable.code2 /*job-hdr.i-no*/
-            NO-LOCK NO-ERROR.
-
-        FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
-            AND oe-ord.ord-no  EQ job-hdr.ord-no NO-LOCK NO-ERROR.
-        
-        IF AVAILABLE oe-ord THEN 
-        DO:
-            FIND FIRST shipto
-                WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ oe-ord.cust-no
-                AND shipto.ship-id EQ oe-ord.ship-id
-                NO-LOCK NO-ERROR.  
-            IF AVAILABLE shipto THEN
-                ASSIGN v-shipto[1] = shipto.ship-name 
-                    v-shipto[2] = shipto.ship-addr[1]
-                    v-shipto[3] = shipto.ship-addr[2]
-                    v-shipto[4] = TRIM(shipto.ship-city) + ", " +
-                                   shipto.ship-state + "  " + shipto.ship-zip.          
-        END.
-    END.
-
-    v-req-date = IF AVAILABLE oe-ordl THEN oe-ordl.req-date ELSE ?.
-    FIND FIRST cust WHERE cust.company = job-hdr.company AND
-        cust.cust-no = job-hdr.cust-no NO-LOCK NO-ERROR.
-    v-cust-name = IF AVAILABLE oe-ord THEN oe-ord.cust-name 
-    ELSE IF AVAILABLE cust THEN cust.name
-    ELSE job-hdr.cust-no.
-    FIND FIRST eb WHERE eb.company = est.company
-        AND eb.est-no = est.est-no
-        AND eb.form-no <> 0
-        AND eb.blank-no <> 0 NO-LOCK NO-ERROR.
-    ASSIGN
-        v-spc-no = IF AVAILABLE eb THEN eb.spc-no ELSE ""
-        v-cus[2] = cust.addr[1]
-        v-cus[3] = cust.addr[2]
-        v-cus[4] = TRIM(cust.city) + ", " + cust.state + "  " + cust.zip
-        v-line   = IF AVAILABLE est                            AND
-                    est.est-type GT 2 AND est.est-type LT 5 THEN 500 ELSE 50.
+     /*VIEW FRAME head.*/       
 
     /** SUM UP NUMBER OF SHEETS **/
     FIND FIRST job
@@ -846,13 +801,57 @@ FOR EACH ef
         v-job-qty2 = v-job-qty2 + xjob-hdr.qty.
     END.
     /** PRINT ITEM **/
+    
+    FIND FIRST xjob-hdr WHERE xjob-hdr.company EQ cocode
+                AND xjob-hdr.job     EQ job-hdr.job
+                AND xjob-hdr.job-no  EQ job-hdr.job-no
+                AND xjob-hdr.job-no2 EQ job-hdr.job-no2
+                AND xjob-hdr.frm EQ eb.form-no
+                AND xjob-hdr.blank-no EQ eb.blank-no
+                AND xjob-hdr.i-no EQ eb.stock-no NO-LOCK NO-ERROR.    
+               
+    iOrderNo =  IF AVAIL xjob-hdr THEN xjob-hdr.ord-no ELSE job-hdr.ord-no .
+    cCustNo =  IF AVAIL xjob-hdr THEN xjob-hdr.cust-no ELSE job-hdr.cust-no .
+    v-shipto = "".
     FIND FIRST oe-ordl
         WHERE oe-ordl.company EQ job-hdr.company
-        AND oe-ordl.ord-no  EQ job-hdr.ord-no
+        AND oe-ordl.ord-no  EQ iOrderNo
         AND oe-ordl.job-no  EQ job-hdr.job-no
         AND oe-ordl.job-no2 EQ job-hdr.job-no2
-        AND oe-ordl.i-no    EQ eb.stock-no
+        AND oe-ordl.i-no    EQ eb.stock-no /*job-hdr.i-no*/
         NO-LOCK NO-ERROR.
+
+    FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
+        AND oe-ord.ord-no  EQ iOrderNo NO-LOCK NO-ERROR.
+    
+    IF AVAILABLE oe-ord THEN 
+    DO:
+        FIND FIRST shipto
+            WHERE shipto.company EQ cocode
+            AND shipto.cust-no EQ oe-ord.cust-no
+            AND shipto.ship-id EQ oe-ord.ship-id
+            NO-LOCK NO-ERROR.  
+        IF AVAILABLE shipto THEN
+            ASSIGN v-shipto[1] = shipto.ship-name 
+                v-shipto[2] = shipto.ship-addr[1]
+                v-shipto[3] = shipto.ship-addr[2]
+                v-shipto[4] = TRIM(shipto.ship-city) + ", " +
+                               shipto.ship-state + "  " + shipto.ship-zip.          
+    END.
+   
+
+    v-req-date = IF AVAILABLE oe-ordl THEN oe-ordl.req-date ELSE ?.
+    FIND FIRST cust WHERE cust.company = job-hdr.company AND
+        cust.cust-no = cCustNo NO-LOCK NO-ERROR.
+    v-cust-name = IF AVAILABLE oe-ord THEN oe-ord.cust-name 
+    ELSE IF AVAILABLE cust THEN cust.name
+    ELSE job-hdr.cust-no.       
+    ASSIGN          
+        v-cus[2] = cust.addr[1]
+        v-cus[3] = cust.addr[2]
+        v-cus[4] = TRIM(cust.city) + ", " + cust.state + "  " + cust.zip
+        v-line   = IF AVAILABLE est                            AND
+                    est.est-type GT 2 AND est.est-type LT 5 THEN 500 ELSE 50.     
 
     IF AVAILABLE oe-ordl THEN 
     DO:
@@ -939,7 +938,7 @@ FOR EACH ef
          RUN pPrintHeader(1) .
         
           PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99")) FORM "x(10)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP          
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (IF job-hdr.po-no NE "" THEN job-hdr.po-no ELSE if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP          
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN>ORD DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"        SKIP
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>DUE DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)" SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>LAST JOB: <FGCOLOR=BLACK>"   v-last-order FORM "X(6)"        SKIP
@@ -1349,9 +1348,20 @@ FOR EACH ef
             FIND FIRST style WHERE style.company EQ eb.company
                 AND style.style   EQ bf-eb.style NO-LOCK NO-ERROR.
             IF AVAILABLE style THEN v-stypart = style.dscr.
+            
+            FIND FIRST xjob-hdr WHERE xjob-hdr.company EQ cocode
+                AND xjob-hdr.job     EQ job-hdr.job
+                AND xjob-hdr.job-no  EQ job-hdr.job-no
+                AND xjob-hdr.job-no2 EQ job-hdr.job-no2
+                AND xjob-hdr.frm EQ bf-eb.form-no
+                AND xjob-hdr.blank-no EQ bf-eb.blank-no
+                AND xjob-hdr.i-no EQ bf-eb.stock-no NO-LOCK NO-ERROR.                
+               
+            iOrderNo =  IF AVAIL xjob-hdr THEN xjob-hdr.ord-no ELSE job-hdr.ord-no .
+            cCustNo =  IF AVAIL xjob-hdr THEN xjob-hdr.cust-no ELSE job-hdr.cust-no .
 
             FIND FIRST oe-ordl WHERE oe-ordl.company EQ job-hdr.company
-                AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                AND oe-ordl.ord-no  EQ iOrderNo
                 AND oe-ordl.job-no  EQ job-hdr.job-no
                 AND oe-ordl.job-no2 EQ job-hdr.job-no2
                 AND oe-ordl.i-no    EQ bf-eb.stock-no /*job-hdr.i-no*/
@@ -1411,13 +1421,7 @@ FOR EACH ef
             IF AVAILABLE oe-ordl THEN
             FIND FIRST oe-ord WHERE oe-ord.company EQ cocode
                     AND oe-ord.ord-no  EQ oe-ordl.ord-no
-                     NO-LOCK NO-ERROR.
-            FIND FIRST xjob-hdr WHERE xjob-hdr.company EQ cocode
-                AND xjob-hdr.job     EQ job-hdr.job
-                AND xjob-hdr.job-no  EQ job-hdr.job-no
-                AND xjob-hdr.job-no2 EQ job-hdr.job-no2
-                AND xjob-hdr.frm EQ bf-eb.form-no
-                AND xjob-hdr.i-no    EQ bf-eb.stock-no NO-LOCK NO-ERROR.
+                     NO-LOCK NO-ERROR.            
 
             ASSIGN
                 v-dsc[1]  = IF AVAILABLE oe-ordl THEN oe-ordl.i-name ELSE bf-eb.part-dscr1
