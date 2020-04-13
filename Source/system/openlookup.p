@@ -181,7 +181,7 @@ CASE ip-lookupField:
            /* List of fields which should be displayed in the browse */ 
            INPUT "apiID,clientID,endPoint,isSSLEnabled,authType,requestVerb,Inactive",
            /* List of field labels to override the default database field label */
-           INPUT "API ID,Client ID, EndPoint, SSL Enabled, Auth Type, Request Verb, Active",
+           INPUT "API ID,Client ID, EndPoint, SSL Enabled, Auth Type, Request Verb, Inactive",
            /* List of field formats to override the default database field format */
            INPUT "X(30),X(30),X(60)",
            /* List of browse column width values to override the default column width in browse */
@@ -222,7 +222,7 @@ CASE ip-lookupField:
            /* List of fields which should be displayed in the browse */ 
            INPUT "triggerID,description,apiID,clientID,Inactive",
            /* List of field labels to override the default database field label */
-           INPUT "Trigger ID, Description,API ID,Client ID, Active",
+           INPUT "Trigger ID, Description,API ID,Client ID, Inactive",
            /* List of field formats to override the default database field format */
            INPUT "X(32),X(60)",
            /* List of browse column width values to override the default column width in browse */
@@ -263,7 +263,7 @@ CASE ip-lookupField:
            /* List of fields which should be displayed in the browse */ 
            INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,Inactive",
            /* List of field labels to override the default database field label */
-           INPUT "API Route,Request Verb,Request Data Type,Queued?,Active",
+           INPUT "API Route,Request Verb,Request Data Type,Queued?,Inactive",
            /* List of field formats to override the default database field format */
            INPUT "X(40),X(20),X(20),YES/NO,YES/NO",
            /* List of browse column width values to override the default column width in browse */
