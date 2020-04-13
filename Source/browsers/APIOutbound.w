@@ -220,11 +220,13 @@ DEFINE BROWSE br_table
       APIOutbound.clientID COLUMN-LABEL "Client ID" FORMAT "x(16)":U
             WIDTH 23.6
       APIOutbound.authType COLUMN-LABEL "Authentication Type" FORMAT "x(8)":U
-            WIDTH 27
+            WIDTH 23
+      APIOutbound.requestType COLUMN-LABEL "Request Type" FORMAT "x(8)":U
+            WIDTH 17
       APIOutbound.requestDataType COLUMN-LABEL "Request Data Type" FORMAT "x(8)":U
-            WIDTH 25.6
+            WIDTH 19
       APIOutbound.requestVerb COLUMN-LABEL "Request Verb" FORMAT "x(8)":U
-            WIDTH 26.2
+            WIDTH 16
       APIOutbound.Inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U
             WIDTH 20.8
 /* _UIB-CODE-BLOCK-END */
