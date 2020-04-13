@@ -216,6 +216,11 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
                 INPUT  "",                   /* Job Number */
                 INPUT  "",                   /* Job Number2 */
                 INPUT  "",                   /* Customer Number */
+                INPUT  0,                    /* Po # */
+                INPUT  YES,                  /* Include Zero qty bins */
+                INPUT  YES,                  /* Include empty tag bins */
+                INPUT  "",                   /* status id */
+                INPUT  ?,                    /* On Hold status. Send ? for both yes and no */                      
                 INPUT  cItemTypeFG ,         /* Item Type */
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage,

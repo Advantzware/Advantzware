@@ -878,10 +878,13 @@ PROCEDURE createWJobs :
     IF NOT (fg-bin.qty ne 0 or (ll-show-zero-bins AND lv-show-zero-bins)) THEN
         RETURN.
     
-    RUN GetStatusDescription IN hdInventoryProcs
-        (INPUT  fg-bin.StatusID,
-         OUTPUT cStatusDescription
-         ).
+    cStatusDescription = "".
+    
+    IF fg-bin.StatusID NE "" THEN
+        RUN Inventory_GetStatusDescription IN hdInventoryProcs (
+             INPUT  fg-bin.StatusID,
+             OUTPUT cStatusDescription
+             ).
     
     CREATE w-jobs.
     ASSIGN 
