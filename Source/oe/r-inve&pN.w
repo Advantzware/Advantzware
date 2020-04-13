@@ -2482,7 +2482,7 @@ IF AVAILABLE ipbf-inv-head THEN DO:
         . 
     RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
         INPUT  ipbf-inv-head.company,                /* Company Code (Mandatory) */
-        INPUT  ipbf-inv-head.loc,               /* Location Code (Mandatory) */
+        INPUT  locode,               /* Location Code (Mandatory) */
         INPUT  cAPIID,                  /* API ID (Mandatory) */
         INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
         INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
@@ -2500,7 +2500,6 @@ END. /*avail inv-head*/
 
 END PROCEDURE.
 
-END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

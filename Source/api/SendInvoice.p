@@ -32,6 +32,8 @@
     /* Variables to store invoice address data */
     DEFINE VARIABLE lcConcatAddressData AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcAddressData AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcAddress2Data AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcConcatAddress2Data AS CHARACTER NO-UNDO.
     
     /* Variables to store Tax request data */
     DEFINE VARIABLE lcConcatTaxData AS CHARACTER NO-UNDO.
@@ -108,6 +110,7 @@
     DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
     DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail. 
     DEFINE BUFFER bf-APIOutboundDetail3 FOR APIOutBoundDetail.
+    DEFINE BUFFER bf-APIOutboundDetail4 FOR APIOutBoundDetail.
     DEFINE BUFFER bf-reftable1          FOR reftable.
     DEFINE BUFFER bf-reftable2          FOR reftable.
     DEFINE BUFFER bf-ar-invl            FOR ar-invl.
@@ -126,7 +129,15 @@
         FIELD Zip          LIKE shipto.ship-zip 
         FIELD Country      LIKE shipto.country 
         INDEX iOrder AddressOrder.
-      
+
+/* ************************  Function Prototypes ********************** */
+
+FUNCTION fnGetGSControl RETURNS INTEGER 
+    (  ) FORWARD.
+
+FUNCTION fnGetISAControl RETURNS INTEGER 
+    (  ) FORWARD.
+          
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -169,6 +180,13 @@
                AND bf-APIOutboundDetail3.detailID      EQ "Addons"
                AND bf-APIOutboundDetail3.parentID      EQ "SendInvoice"
              NO-ERROR.
+             
+        FIND FIRST bf-APIOutboundDetail4 NO-LOCK
+             WHERE bf-APIOutboundDetail4.apiOutboundID EQ ipiAPIOutboundID
+               AND bf-APIOutboundDetail4.detailID      EQ "N3Address2"
+               AND bf-APIOutboundDetail4.parentID      EQ "N1Addresses"
+             NO-ERROR.             
+             
         FIND FIRST ttArgs
              WHERE ttArgs.argType  EQ "ROWID"
                AND ttArgs.argKey   EQ "inv-head"
@@ -203,8 +221,7 @@
         END.
         IF AVAILABLE inv-head THEN DO:
             IF NOT CAN-FIND(FIRST inv-line
-                 WHERE inv-line.company EQ inv-head.company
-                   AND inv-line.r-no  EQ inv-head.r-no) THEN DO:
+                 WHERE inv-line.r-no  EQ inv-head.r-no) THEN DO:
                 ASSIGN
                     opcMessage = "No inv-line records available for invoice [ " + STRING(inv-head.inv-no) + " ]"
                     oplSuccess = FALSE
@@ -214,8 +231,7 @@
         END. 
         ELSE DO:
             IF NOT CAN-FIND(FIRST ar-invl
-                 WHERE ar-invl.company EQ ar-inv.company
-                   AND ar-invl.inv-no  EQ ar-inv.inv-no) THEN DO:
+                 WHERE ar-invl.x-no EQ ar-inv.x-no) THEN DO:
                 ASSIGN
                     opcMessage = "No ar-invl records available for invoice [ " + STRING(ar-inv.inv-no) + " ]"
                     oplSuccess = FALSE
@@ -234,7 +250,7 @@
               WHERE cust.company EQ inv-head.company
                 AND cust.cust-no EQ inv-head.cust-no
               NO-ERROR.
-            IF AVAILABLE cust THEN 
+            IF AVAILABLE cust AND cust.country GT "" THEN 
               cCustCountry = cust.country.
             ELSE 
               cCustCountry = "US".
@@ -263,6 +279,7 @@
             ASSIGN                 
              cBigDocID        = STRING(inv-head.inv-no)
              cTotalAmount     = STRING(inv-head.t-inv-rev)
+             cTotalAmount     = REPLACE(ctotalAmount, ".", "")
              .
              RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
                                 inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
@@ -279,14 +296,14 @@
               WHERE cust.company EQ ar-inv.company
                 AND cust.cust-no EQ ar-inv.cust-no
               NO-ERROR.
-            IF AVAILABLE cust THEN 
+            IF AVAILABLE cust AND cust.country GT "" THEN 
               cCustCountry = cust.country.
             ELSE 
               cCustCountry = "US".
               
             FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
                 AND shipto.cust-no EQ ar-inv.cust-no
-                AND shipto.ship-id EQ IF STRING(ar-inv.sold-no) NE "" THEN STRING(ar-inv.sold-no) ELSE ar-inv.bill-to
+                AND shipto.ship-id EQ IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id
                 NO-ERROR.
             IF AVAILABLE shipto THEN 
                     RUN pCreateAddress("ST", 4, IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.bill-to,
@@ -309,8 +326,12 @@
             ASSIGN 
                 cBigDocID        = STRING(ar-inv.inv-no)
                 dInvoiceTotalAmt = dLineTotalAmt + ar-inv.tax-amt + (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
-                cTotalAmount     = STRING(dInvoiceTotalAmt).
-            
+                cTotalAmount     = STRING(dInvoiceTotalAmt)
+                cTotalAmount     = REPLACE(ctotalAmount, ".", "")
+                .
+             RUN pCreateAddress("BT", 1, ar-inv.bill-to, ar-inv.cust-name, ar-inv.addr[1], 
+                                ar-inv.addr[2], ar-inv.city, ar-inv.state, ar-inv.zip, 
+                                cCustCountry).            
             /* Fetch invoice notes from notes table */    
             FOR EACH notes NO-LOCK
                WHERE notes.rec_key EQ ar-inv.rec_key:
@@ -318,12 +339,13 @@
             END.
         END.
         RUN format_date IN hFormatProcs (TODAY, "YYYYMMDD", OUTPUT cBigDate).
+        RUN format_date IN hFormatProcs (TODAY, "YYMMDD", OUTPUT cISADate).
+        RUN format_time IN hFormatProcs (time, "hhmm", OUTPUT cIsaTime).
+        
         ASSIGN 
-             cIsaTime         = SUBSTRING(STRING(TIME, "hh:mm"), 1, 2) +
-                                SUBSTRING(STRING(TIME, "hh:mm"), 4, 2)
-             cIsaControlSeq   = STRING(1)   /* TBD */
-             cGsControlSeq    = cIsaControlSeq /* Have been using the same number with no problem */
-             cStControlSeq    = STRING(1)   /* TBD */
+             cIsaControlSeq   = STRING(fnGetISAControl(), "999999999")   /* TBD */
+             cGsControlSeq    = STRING(fnGetGSControl())  /* TBD Have been using the same number with no problem */
+             cStControlSeq    = STRING(1, "9999")   /* TBD */
              .
 
         RUN pCreateAddress('RI', 2, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
@@ -340,21 +362,28 @@
                 cCode         = ttN1Address.addressCode 
                 cName         = ttN1Address.addressName 
                 cAddress1     = ttN1Address.address1    
-                cAddress2     = ttN1Address.address2    
+                cAddress2     = ttN1Address.address2   
+                cState        = ttN1Address.state 
                 cCity         = ttN1Address.city        
                 cZip          = ttN1Address.zip         
                 cCountry      = ttN1Address.country
                 .    
-
+            IF AVAILABLE bf-APIOutboundDetail4 THEN 
+                lcAddress2Data = STRING(bf-APIOutboundDetail4.data).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Qual", cN1Code).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Name", cName).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address1", cAddress1).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2", cAddress2).            
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address1", cAddress1).                       
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4City", cCity).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4State", cState).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Zip", cZip).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Country", cCountry).
-            lcConcatAddressData = lcConcatAddressData + "" + lcAddressData + "~n".
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "linefeed", "~n").
+            IF cAddress2 NE "" THEN 
+                RUN updateRequestData(INPUT-OUTPUT lcAddress2Data, "N3Address2", cAddress2).
+            ELSE 
+                lcAddress2Data = "".
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2", lcAddress2Data). 
+            lcConcatAddressData = lcConcatAddressData + "" + lcAddressData.
         END.
         
         /* Fetch line details for the Invoice */         
@@ -362,8 +391,7 @@
             
             lcConcatLineData = "".
             FOR EACH inv-line
-                WHERE inv-line.company EQ inv-head.company
-                  AND inv-line.r-no   EQ inv-head.r-no:    
+                WHERE inv-line.r-no   EQ inv-head.r-no:    
                 
                 /* find order line for line number */
                 FIND FIRST oe-ordl NO-LOCK 
@@ -462,9 +490,8 @@
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShortBuyerPart", cShortBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
-                
-                
-                lcConcatLineData = lcConcatLineData + "" + lcLineData + "~n".  
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").  
+                lcConcatLineData = lcConcatLineData + "" + lcLineData + "~n". 
 
             END.      
         END. /* Process lines if using inv-head */
@@ -472,8 +499,7 @@
             /* Process lines if using ar-inv */
             lcConcatLineData = "".
             FOR EACH ar-invl
-                WHERE ar-invl.company EQ ar-inv.company
-                  AND ar-invl.x-no   EQ ar-inv.x-no:    
+                WHERE ar-invl.x-no   EQ ar-inv.x-no:    
                 
                 /* find order line for line number */
                 FIND FIRST oe-ordl NO-LOCK 
@@ -559,8 +585,9 @@
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShortBuyerPart", cShortBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").
                 
-                lcConcatLineData = lcConcatLineData + "" + lcLineData + "~n".  
+                lcConcatLineData = lcConcatLineData + "" + lcLineData.  
 
             END.                 
         END.
@@ -623,6 +650,7 @@
             END.
         END.
         ELSE DO:
+
                 IF ar-inv.freight <> 0 THEN 
                 DO:
                     RUN pCreateAddonRecord (
@@ -699,13 +727,14 @@
                     cSacAgencyCode        = ""
                     cSacReferenceId       = STRING(ttAddons.Amount)
                    .
+
                 RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonAllowCharge", cAddonAllowCharge).
                 RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "AddonMiscElem", cMiscElem).
                 RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "SacReferenceId", cSacReferenceId).
-                lcConcatLineAddonData = lcConcatLineAddonData + "" + lcLineAddonData + "~n".
+                RUN updateRequestData(INPUT-OUTPUT lcLineAddonData, "linefeed", "~n").
+                lcConcatLineAddonData = lcConcatLineAddonData + "" + lcLineAddonData.
             END.
-          
-            
+                      
         END.
         lcConcatTaxData = "".
         IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
@@ -724,7 +753,8 @@
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxType", cAddonTaxType).
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TotalTaxDollars", cTotalTaxDollars).
                 RUN updateRequestData(INPUT-OUTPUT lcTaxData, "TaxPct", cTaxPct).
-                lcConcatLineAddonData = lcConcatTaxData + "" + lcTaxData + "~n".                    
+                RUN updateRequestData(INPUT-OUTPUT lcTaxData, "linefeed", "~n").
+                lcConcatTaxData = lcConcatTaxData + "" + lcTaxData.                    
                              
             END.  
         END.        
@@ -757,7 +787,7 @@
         
         lcConcatTaxData = TRIM(lcConcatTaxData,"~n").     
         //lcConcatTaxData = lcConcatTaxData + "~n".
-        
+
         ioplcRequestData = REPLACE(ioplcRequestData, "[$N1Addresses$]", (IF lcConcatAddressData ne "" THEN "~n" ELSE "") + lcConcatAddressData).
           
         ioplcRequestData = REPLACE(ioplcRequestData, "[$Detail$]", (if lcConcatLineData ne "" THEN "~n" ELSE "") + lcConcatLineData).
@@ -778,6 +808,10 @@
     
     /* End of Main Code */
     
+
+
+
+
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -868,9 +902,43 @@ PROCEDURE pCreateAddress PRIVATE:
         ttN1Address.addressName  = ipcName
         ttN1Address.address1     = ipcAddress1
         ttN1Address.address2     = ipcAddress2
+        ttN1Address.state        = ipcState
         ttN1Address.city         = ipcCity
         ttN1Address.zip          = ipcZip
-        ttN1Address.country      = ipcCountry
+        ttN1Address.country      = (IF ipcCountry NE "" THEN ipcCountry ELSE "US")
         .
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fnGetGSControl RETURNS INTEGER 
+	(  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE result AS INTEGER NO-UNDO.
+        RESULT = 1.
+		RETURN result.
+
+
+		
+END FUNCTION.
+
+FUNCTION fnGetISAControl RETURNS INTEGER 
+	(  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE result AS INTEGER NO-UNDO.
+        RESULT = 1.
+		RETURN result.
+
+
+		
+END FUNCTION.
     

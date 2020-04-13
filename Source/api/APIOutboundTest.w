@@ -978,12 +978,12 @@ DO:
                 OUTPUT recVal
                 ). 
         END.
-        WHEN "SendInvoice" OR
-        WHEN "SendInvoiceStatus" THEN DO:        
-            /* Invoice lookup */
+        WHEN "SendPurchaseOrder" OR
+        WHEN "SendPurchaseOrderStatus" THEN DO:        
+            /* Purchase Order lookup */
             RUN system/openlookup.p (
                 cCompany, 
-                "inv-no", /* lookup field */
+                "po-no", /* lookup field */
                 0,   /* Subject ID */
                 "",  /* User ID */
                 0,   /* Param value ID */
@@ -992,11 +992,11 @@ DO:
                 OUTPUT recVal
                 ). 
         END.
-        WHEN "SendInvoiceLineStatus" THEN DO:        
-            /* Invoice lookup */
+        WHEN "SendPurchaseOrderLineStatus" THEN DO:        
+            /* Purchase Order lookup */
             RUN system/openlookup.p (
                 cCompany, 
-                "inv-line", /* lookup field */
+                "po-line", /* lookup field */
                 0,   /* Subject ID */
                 "",  /* User ID */
                 0,   /* Param value ID */

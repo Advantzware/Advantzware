@@ -690,5 +690,45 @@ CASE ip-lookupField:
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
            OUTPUT op-lookupField,
            /* RecID of the row selected when a row is selected in the browse */
-           OUTPUT op-recVal) NO-ERROR.       
+           OUTPUT op-recVal) NO-ERROR.      
+               WHEN "po-no" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Invoice Number",
+           /* The source field for which the lookup screen is called for */
+           INPUT "inv-no",
+           /* DB Table from which data is to be fetched */
+           INPUT "inv-head",
+           /* List of fields which are required in the query */
+           INPUT "company,inv-no", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "inv-no,inv-date,cust-no",
+           /* List of field labels to override the default database field label */
+           INPUT ",,,",
+           /* List of field formats to override the default database field format */
+           INPUT "",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT ",,",
+           /* List of fields for which field level search is enabled */
+           INPUT "inv-no,inv-date,cust-no",
+           /* List of fields for which sorting is enabled */
+           INPUT "inv-no,inv-date,cust-no",
+           /* Where clause to select specific records */
+           INPUT "inv-head.company EQ '" + ip-company + "' AND inv-head.multi-inv-no EQ NO" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "inv-no",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.
 END CASE.
