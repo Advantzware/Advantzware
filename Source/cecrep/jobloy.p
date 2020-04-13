@@ -740,10 +740,9 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
         
         DISPLAY "<=7><C30><B> SHIP NOTES / COMMENTS </B>" AT 2
                 "<B>Shipping Info: </B><P10>" AT 79 SKIP
-                "Ship To #:" AT 90
-                xoe-ord.sold-id when avail xoe-ord
+                "Ship To #:" AT 90                 
                 xeb.ship-id when avail xeb @ xoe-ord.sold-id
-                xoe-rel.ship-id when avail xoe-rel @ xoe-ord.sold-id
+                xoe-ord.ship-id when avail xoe-ord @ xoe-ord.sold-id
                 v-whs-ship-id WHEN v-whs-ship-id NE "" @ xoe-ord.sold-id SKIP
                 v-shpnote[1] FORMAT 'x(50)' AT 35 v-shp[1] AT 90 SKIP
                 v-shpnote[2] FORMAT 'x(50)' AT 35 v-shp[2] AT 90 SKIP
