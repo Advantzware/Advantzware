@@ -104,7 +104,7 @@ IF iplReTrigger THEN DO:
            AND APIOutbound.clientID EQ APIOutboundEvent.clientID
          NO-ERROR.         
     IF AVAILABLE APIOutbound AND
-       APIOutbound.isActive THEN DO:
+       NOT APIOutbound.Inactive THEN DO:
         
         /* Validate if location is API enabled (see APIEnabled toggle box in I-F-4 screen) */
         RUN ValidateLocation (
@@ -165,13 +165,13 @@ FOR EACH APIOutbound NO-LOCK
           ELSE
               APIOutbound.clientID EQ ipcClientID):
 
-    IF NOT APIOutbound.isActive THEN
+    IF APIOutbound.Inactive THEN
         NEXT.
         
     FIND FIRST APIOutboundTrigger NO-LOCK
          WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
            AND APIOutboundTrigger.triggerID     EQ ipcTriggerID
-           AND APIOutboundtrigger.isActive      EQ TRUE
+           AND APIOutboundtrigger.Inactive      EQ FALSE
          NO-ERROR.
     IF NOT AVAILABLE APIOutboundTrigger THEN
         NEXT.

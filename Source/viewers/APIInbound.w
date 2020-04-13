@@ -54,7 +54,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -74,7 +74,7 @@ edResponseData
 APIInbound.requestHandler 
 &Scoped-define DISPLAYED-TABLES APIInbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIInbound
-&Scoped-Define DISPLAYED-OBJECTS fiMessage tgActive edDescription ~
+&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
 cbRequestDataType cbRequestVerb tgCanBeQueued edRequestData edResponseData 
 
 /* Custom List Definitions                                              */
@@ -157,16 +157,16 @@ DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 145 BY 18.57.
 
-DEFINE VARIABLE tgActive AS LOGICAL INITIAL no 
-     LABEL "Active" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 13.2 BY .81
-     BGCOLOR 15  NO-UNDO.
-
 DEFINE VARIABLE tgCanBeQueued AS LOGICAL INITIAL no 
      LABEL "Can Be Queued?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE tgInactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.2 BY .81
      BGCOLOR 15  NO-UNDO.
 
 
@@ -179,7 +179,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 87 BY 1
           BGCOLOR 15 
-     tgActive AT ROW 2.81 COL 115.4 WIDGET-ID 28
+     tgInactive AT ROW 2.81 COL 115.4 WIDGET-ID 28
      edDescription AT ROW 4.24 COL 23 NO-LABEL WIDGET-ID 34
      cbRequestDataType AT ROW 6.95 COL 92.8 COLON-ALIGNED WIDGET-ID 40
      cbRequestVerb AT ROW 7 COL 21 COLON-ALIGNED WIDGET-ID 42
@@ -256,7 +256,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -282,9 +282,9 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIInbound.requestHandler IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR TOGGLE-BOX tgActive IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tgCanBeQueued IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tgInactive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -548,7 +548,7 @@ PROCEDURE pDisableFields :
     END.
     
     ASSIGN
-        tgActive:SENSITIVE          = FALSE
+        tgInactive:SENSITIVE        = FALSE
         cbRequestVerb:SENSITIVE     = FALSE
         cbRequestDataType:SENSITIVE = FALSE
         tgCanBeQueued:SENSITIVE     = FALSE
@@ -573,7 +573,7 @@ PROCEDURE pDisplayFields :
 
     IF AVAILABLE APIInbound THEN
         ASSIGN
-            tgActive:CHECKED               = APIInbound.isActive
+            tgInactive:CHECKED             = APIInbound.Inactive
             edDescription:SCREEN-VALUE     = APIInbound.description
             cbRequestVerb:SCREEN-VALUE     = APIInbound.requestVerb
             cbRequestDataType:SCREEN-VALUE = APIInbound.requestDataType
@@ -619,7 +619,7 @@ PROCEDURE pEnableFields :
     END.
     
     ASSIGN
-        tgActive:SENSITIVE          = TRUE
+        tgInactive:SENSITIVE        = TRUE
         cbRequestVerb:SENSITIVE     = TRUE
         cbRequestDataType:SENSITIVE = TRUE
         tgCanBeQueued:SENSITIVE     = TRUE
@@ -667,7 +667,7 @@ PROCEDURE pSetDefaults :
     END.
 
     ASSIGN
-        tgActive:CHECKED               = TRUE
+        tgInactive:CHECKED             = TRUE
         edDescription:SCREEN-VALUE     = ""
         cbRequestVerb:SCREEN-VALUE     = "POST"
         cbRequestDataType:SCREEN-VALUE = "JSON"
@@ -692,7 +692,7 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIInbound THEN    
         ASSIGN
-            APIInbound.isActive        = tgActive:CHECKED
+            APIInbound.Inactive        = tgInactive:CHECKED
             APIInbound.description     = edDescription:SCREEN-VALUE
             APIInbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
             APIInbound.requestDataType = cbRequestDataType:SCREEN-VALUE

@@ -65,7 +65,7 @@ PROCEDURE Outbound_GetAPIID:
             AND APIOutbound.clientID EQ ipcClientID
           NO-ERROR.
     IF AVAILABLE APIOutbound AND
-        APIOutbound.isActive THEN
+        NOT APIOutbound.Inactive THEN
         ASSIGN
             oplValid         = TRUE
             opcMessage       = "Success"
@@ -99,7 +99,7 @@ PROCEDURE Outbound_GetAPITriggerID:
            AND APIOutboundTrigger.triggerID EQ ipcTriggerID
          NO-ERROR.
     IF AVAILABLE APIOutboundTrigger AND
-        APIOutboundTrigger.isActive THEN
+        NOT APIOutboundTrigger.Inactive THEN
         ASSIGN
             oplValid                = TRUE
             opcMessage              = "Success"
@@ -426,13 +426,13 @@ PROCEDURE pPopulateRequestData PRIVATE:
               ELSE
                   APIOutbound.clientID EQ ipcClientID):
 
-        IF NOT APIOutbound.isActive THEN
+        IF APIOutbound.Inactive THEN
             NEXT.
 
         FIND FIRST APIOutboundTrigger NO-LOCK
              WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
                AND APIOutboundTrigger.triggerID     EQ ipcTriggerID
-               AND APIOutboundtrigger.isActive      EQ TRUE
+               AND APIOutboundtrigger.Inactive      EQ FALSE
              NO-ERROR.
         IF NOT AVAILABLE APIOutboundTrigger THEN
             NEXT.
@@ -544,7 +544,7 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
                AND APIOutbound.clientID EQ ttRequestData.clientID
              NO-ERROR.
         IF AVAILABLE APIOutbound AND
-           APIOutbound.isActive THEN DO:
+           NOT APIOutbound.Inactive THEN DO:
 
             ttRequestData.apiOutboundID = APIOutbound.apiOutboundID.
 

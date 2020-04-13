@@ -69,7 +69,7 @@ ttSysCtrlUsage
 /* Definitions for BROWSE API                                           */
 &Scoped-define FIELDS-IN-QUERY-API APIOutboundTrigger.apiID ~
 APIOutboundTrigger.clientID APIOutboundTrigger.triggerID ~
-APIOutboundTrigger.description APIOutboundTrigger.isActive ~
+APIOutboundTrigger.description APIOutboundTrigger.Inactive ~
 APIOutboundTrigger.createTime APIOutboundTrigger.createBy 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-API 
 &Scoped-define QUERY-STRING-API FOR EACH APIOutboundTrigger ~
@@ -163,7 +163,7 @@ DEFINE BROWSE API
       APIOutboundTrigger.clientID FORMAT "x(32)":U WIDTH 21.8
       APIOutboundTrigger.triggerID FORMAT "x(32)":U WIDTH 21.8
       APIOutboundTrigger.description FORMAT "x(100)":U WIDTH 46.8
-      APIOutboundTrigger.isActive FORMAT "yes/no":U WIDTH 10
+      APIOutboundTrigger.Inactive FORMAT "yes/no":U WIDTH 10
       APIOutboundTrigger.createTime FORMAT "99/99/9999 HH:MM:SS":U
             WIDTH 24.2
       APIOutboundTrigger.createBy FORMAT "x(8)":U
@@ -284,8 +284,8 @@ THEN C-Win:HIDDEN = no.
 "APIOutboundTrigger.triggerID" ? ? "character" ? ? ? ? ? ? no ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.APIOutboundTrigger.description
 "APIOutboundTrigger.description" ? ? "character" ? ? ? ? ? ? no ? no no "46.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.APIOutboundTrigger.isActive
-"APIOutboundTrigger.isActive" ? ? "logical" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.APIOutboundTrigger.Inactive
+"APIOutboundTrigger.Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.APIOutboundTrigger.createTime
 "APIOutboundTrigger.createTime" ? "99/99/9999 HH:MM:SS" "datetime" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.APIOutboundTrigger.createBy
