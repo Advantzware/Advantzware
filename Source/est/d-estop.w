@@ -1938,8 +1938,7 @@ PROCEDURE valid-mach :
 
         IF mach.obsolete THEN 
         DO:
-            MESSAGE "Machine is Inactive, please choose a different machine"
-                VIEW-AS ALERT-BOX ERROR.
+            RUN displayMessage("27").
             APPLY "entry" TO est-op.m-code .
             RETURN ERROR.
         END.
