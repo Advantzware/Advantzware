@@ -1322,11 +1322,9 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
                 RUN pWriteToCoordinatesString(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeaders), 15, YES, YES, YES). 
     END.
 
-    FOR EACH estCostBlank NO-LOCK
-        WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-        AND estCostBlank.blankNo NE 0,
-        FIRST estCostItem NO-LOCK 
-        WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+    FOR EACH estCostItem NO-LOCK 
+        WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        AND NOT estCostItem.isSet:
         
         RUN pGetSummaryCosts(estCostItem.estCostHeaderID, estCostItem.rec_key, OUTPUT dCostTotal, OUTPUT dCostPerM).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
