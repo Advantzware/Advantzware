@@ -239,11 +239,9 @@ for each xef where xef.company = xest.company
             cas.dscr = item.est-dscr.
       end.     
       ASSIGN
-         cas.qty = cas.qty + dPackQty
-         cas.cosm = cas.cosm + if xeb.yrprice then xeb.yld-qty else xeb.bl-qty.
-         
-      IF estPacking.NoCharge THEN cas.cosm = 0.
-
+         cas.qty = cas.qty + dPackQty          
+         cas.cosm = cas.cosm + if xeb.yrprice then xeb.yld-qty else xeb.bl-qty.          
+     
       release w-cas.
       if v-summ then
       find first w-cas where w-cas.i-no eq cas.ino no-error.
@@ -596,6 +594,13 @@ for each cas where cas.typ eq 7
        {sys/look/itemW.i}
          and item.i-no eq cas.ino
        no-lock no-error.
+   FIND FIRST estPacking NO-LOCK 
+        WHERE estPacking.company EQ xeb.company
+        AND estPacking.estimateNo EQ xeb.est-no
+        AND estPacking.formNo EQ xeb.form-no
+        AND estPacking.blankNo EQ xeb.blank-no 
+        AND estPacking.rmItemID EQ cas.ino
+        NO-ERROR .    
 
    cas.t-qty = 0.
 
@@ -603,8 +608,15 @@ for each cas where cas.typ eq 7
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
    
-   {est/matcost.i cas.t-qty cas.cost 7}
-   cas.cost = (cas.cost * cas.qty) + lv-setup-7.
+   IF AVAIL estPacking AND NOT estPacking.noCharge THEN do:
+            IF estPacking.costOverridePerUOM NE 0 THEN 
+                cas.cost = estPacking.costOverridePerUOM * cas.qty .
+            ELSE DO:  
+               {est/matcost.i cas.t-qty cas.cost 7}
+                cas.cost = (cas.cost * cas.qty) + lv-setup-7.            
+            END.
+   END.
+   ELSE  cas.cost = 0.      
       
    ASSIGN
     zzz      = cas.cosm
