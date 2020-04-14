@@ -312,17 +312,22 @@ ELSE
         END CASE. 
 
         {sys/inc/roundup.i dPackQty}
-      
-        IF estPacking.costOverridePerUOM NE 0 THEN 
-            dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
-        ELSE DO:               
-           {est/matcost.i dPackQty dPackCostTotal estPacking}      
-           dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.            
-        END.      
-        ASSIGN
-            dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
-            dm-tot[5] = dm-tot[5] + dPackCostTotal
-            .
+        IF NOT estPacking.noCharge THEN do:
+            IF estPacking.costOverridePerUOM NE 0 THEN 
+                dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
+            ELSE DO:               
+               {est/matcost.i dPackQty dPackCostTotal estPacking}      
+               dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.            
+            END. 
+            
+            ASSIGN
+                dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
+                dm-tot[5] = dm-tot[5] + dPackCostTotal
+                .
+        END.
+        ELSE 
+        ASSIGN dPackCostTotal = 0 .
+        
         FIND FIRST BRD 
             WHERE BRD.form-no EQ xeb.form-no
             AND BRD.blank-no EQ xeb.blank-no 
