@@ -729,17 +729,21 @@ FOR EACH estPacking NO-LOCK
         END CASE. 
               
         {sys/inc/roundup.i dPackQty}
-      
-        IF estPacking.costOverridePerUOM NE 0 THEN 
-            dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
-        ELSE DO:               
-           {est/matcost.i dPackQty dPackCostTotal estPacking}      
-           dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.            
-        END.      
-        ASSIGN
-            dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
-            dm-tot[5] = dm-tot[5] + dPackCostTotal
-            .
+        IF NOT estPacking.noCharge THEN do:
+            IF estPacking.costOverridePerUOM NE 0 THEN 
+                dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
+            ELSE DO:               
+               {est/matcost.i dPackQty dPackCostTotal estPacking}      
+               dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.            
+            END.      
+            ASSIGN
+                dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
+                dm-tot[5] = dm-tot[5] + dPackCostTotal
+                .
+        END.
+        ELSE 
+        ASSIGN dPackCostTotal = 0 .
+        
         FIND FIRST BRD 
             WHERE BRD.form-no EQ 0
             AND BRD.blank-no EQ 0
@@ -763,12 +767,13 @@ FOR EACH estPacking NO-LOCK
             BRD.cost = dPackCostTotal / dPackQty
             BRD.cost-m = dPackCostTotal / (qty / 1000)
             .
-       /* IF dPackCostTotal NE 0 THEN                                           */
-       /*      DISPLAY item.i-name dPackQty FORMAT ">>>>>9" TO 48               */
-       /*       "Ea."                                                           */
-       /*       dPackCostTotal / (qty / 1000) FORMAT ">>>>9.99" TO 68           */
-       /*       dPackCostTotal FORMAT ">,>>>,>>9.99" TO 80 SKIP WITH STREAM-IO  */
-       /*       .                                                               */
+        IF dPackCostTotal NE 0 THEN                                           
+             DISPLAY string(estPacking.formNo,"99") + "-" + string(estPacking.blankNo,"9") format "x(4)"
+             item.i-name dPackQty FORMAT ">>>>>9" TO 50               
+              "Ea."                                                           
+              dPackCostTotal / (qty / 1000) FORMAT ">>>>9.99" TO 69           
+              dPackCostTotal FORMAT ">>>,>>9.99" TO 80 SKIP WITH STREAM-IO  
+              .                                                               
         
     END.
 

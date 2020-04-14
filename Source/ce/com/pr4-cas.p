@@ -241,6 +241,8 @@ for each xef where xef.company = xest.company
       ASSIGN
          cas.qty = cas.qty + dPackQty
          cas.cosm = cas.cosm + if xeb.yrprice then xeb.yld-qty else xeb.bl-qty.
+         
+      IF estPacking.NoCharge THEN cas.cosm = 0.
 
       release w-cas.
       if v-summ then
