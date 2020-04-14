@@ -59,6 +59,7 @@ PROCEDURE Estimate_LoadEstToTT:
             ttGoto.formNoOrig   = bf-eb.form-no
             ttGoto.blankNoOrig  = bf-eb.blank-no
             ttGoto.partNo       = bf-eb.part-no
+            ttGoto.partDesc     = bf-eb.part-dscr1
             ttGoto.reqQty       = bf-eb.bl-qty
             ttGoto.reqQtyAdj    = bf-eb.reqQtyAdj
             ttGoto.numWid       = bf-eb.num-wid
