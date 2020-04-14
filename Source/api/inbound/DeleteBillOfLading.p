@@ -76,7 +76,7 @@ IF oe-bolh.posted EQ TRUE THEN DO:
 END.
 
 DO TRANSACTION ON ERROR UNDO,LEAVE:
-    /* Deletes a BOL and posts related release */
+    /* Deletes a BOL and unposts related release */
     RUN Order_DeleteBOL IN hdOrderProcs (
         INPUT  ipcCompany,
         INPUT  ipiBOLID,

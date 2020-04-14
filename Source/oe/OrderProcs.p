@@ -2219,7 +2219,7 @@ END PROCEDURE.
 
 PROCEDURE Order_DeleteBOL:
     /*------------------------------------------------------------------------------
-     Purpose: Deletes BOL and Posts related release
+     Purpose: Deletes BOL and Unposts related release
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
