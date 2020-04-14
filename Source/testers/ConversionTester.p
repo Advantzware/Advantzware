@@ -165,7 +165,7 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
             ttResults.cItemID         = po-ordl.i-no
             ttResults.dOldValue       = po-ordl.ord-qty
             ttResults.cItemType       = IF po-ordl.item-type THEN "RM" ELSE "FG"
-            ttResults.cOldUOM         = po-ordl.pr-qty-uom
+            ttResults.cOldUOM         = CAPS(po-ordl.pr-qty-uom)
             ttResults.cNewUOM         = "EA"
             ttResults.cConversionType = "Quantity"
             .
@@ -190,7 +190,7 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
             ttResults.cItemID         = po-ordl.i-no
             ttResults.cItemType       = IF po-ordl.item-type THEN "RM" ELSE "FG"
             ttResults.dOldValue       = po-ordl.cost
-            ttResults.cOldUOM         = po-ordl.pr-uom
+            ttResults.cOldUOM         = CAPS(po-ordl.pr-uom)
             ttResults.cNewUOM         = "EA"
             ttResults.cConversionType = "Cost"
             .
