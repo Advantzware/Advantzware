@@ -108,12 +108,17 @@ PROCEDURE pProcessInputs:
         OUTPUT cBOLID
         ) NO-ERROR.
         
+    /* Fetches Notes */
+    RUN JSON_GetFieldValueByName (
+        INPUT  "RequesterNotes", 
+        OUTPUT lRecFound, 
+        OUTPUT ipcNotes
+        ) NO-ERROR.        
 
     /* This is to fetch response data*/
     RUN api\inbound\DeleteBillOfLading.p (
         INPUT  cCompany,
         INPUT  cBOLID,
-        INPUT  ipcUserName,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ) .
