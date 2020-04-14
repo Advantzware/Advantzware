@@ -96,4 +96,9 @@ router.get('/getnodestatus', (req,res) => {
     return res.status(200).send(lib.JSONResponse(200,"Running"))
 });
 
+//This will delete BOL 
+router.post('/deletebilloflading', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 module.exports = router;
