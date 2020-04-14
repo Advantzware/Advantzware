@@ -119,7 +119,6 @@ DEFINE FRAME Dialog-Frame
           SIZE 10 BY .62 AT ROW 3.14 COL 7.4 WIDGET-ID 24
      RECT-3 AT ROW 1.24 COL 2 WIDGET-ID 26
      RECT-20 AT ROW 4.48 COL 92.6 WIDGET-ID 32
-     SPACE(1.19) SKIP(0.23)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1 FONT 6
@@ -205,32 +204,6 @@ END.
 
 
 &Scoped-define SELF-NAME fiTagStatus
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTagStatus Dialog-Frame
-ON HELP OF fiTagStatus IN FRAME Dialog-Frame /* Tag Status */
-DO:
-    DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLookupField  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE riRecVal      AS RECID     NO-UNDO.
-  
-    RUN system/openlookup.p (
-        g_company, 
-        "statusID", /* lookup field */
-        0,   /* Subject ID */
-        "",  /* User ID */
-        0,   /* Param value ID */
-        OUTPUT cReturnFields, 
-        OUTPUT cLookupField, 
-        OUTPUT riRecVal
-        ).   
-    
-    IF cLookupField NE "" THEN
-        SELF:SCREEN-VALUE = cLookupField.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTagStatus Dialog-Frame
 ON LEAVE OF fiTagStatus IN FRAME Dialog-Frame /* Tag Status */
 DO:
