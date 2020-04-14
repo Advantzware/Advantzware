@@ -59,11 +59,11 @@ RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
 &Scoped-define INTERNAL-TABLES ttGoto
 
 /* Definitions for BROWSE brGoto                                        */
-&Scoped-define FIELDS-IN-QUERY-brGoto ttGoto.formNo ttGoto.blankNo ttGoto.partNo ttGoto.reqQty ttGoto.effectiveYldQty ttGoto.reqQtyAdj ttGoto.numWid ttGoto.numLen ttGoto.numUp ttGoto.yieldRequest ttGoto.sheetsRequired ttGoto.maxSheetsPerForm ttGoto.calcYldQty ttGoto.surplusQty   
+&Scoped-define FIELDS-IN-QUERY-brGoto ttGoto.formNo ttGoto.blankNo ttGoto.partNo ttGoto.reqQty ttGoto.numWid ttGoto.numLen ttGoto.numUp ttGoto.yieldRequest ttGoto.sheetsRequired ttGoto.maxSheetsPerForm ttGoto.calcYldQty ttGoto.surplusQty   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brGoto   
 &Scoped-define SELF-NAME brGoto
-&Scoped-define QUERY-STRING-brGoto FOR EACH ttGoto
-&Scoped-define OPEN-QUERY-brGoto OPEN QUERY {&SELF-NAME} FOR EACH ttGoto.
+&Scoped-define QUERY-STRING-brGoto FOR EACH ttGoto     WHERE IF cbFormNo:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL" THEN               TRUE           ELSE               ttGoto.formNo EQ INTEGER(cbFormNo:SCREEN-VALUE)
+&Scoped-define OPEN-QUERY-brGoto OPEN QUERY {&SELF-NAME} FOR EACH ttGoto     WHERE IF cbFormNo:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL" THEN               TRUE           ELSE               ttGoto.formNo EQ INTEGER(cbFormNo:SCREEN-VALUE).
 &Scoped-define TABLES-IN-QUERY-brGoto ttGoto
 &Scoped-define FIRST-TABLE-IN-QUERY-brGoto ttGoto
 
@@ -73,16 +73,17 @@ RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
     ~{&OPEN-QUERY-brGoto}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 brGoto btSaveAll ~
-btResetAll btClose btUpdate 
-&Scoped-Define DISPLAYED-OBJECTS fiFormNo fiBlankNo fiEffYldQty fiReqQty ~
-fiReqQtyAdj fiSheetsRequired fiNumWid fiNumLen fiNumUp fiMaxSheetsPerForm ~
-rdYieldRequest fiPartNo fiCalcYldQty fiSurplusQty 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 cbFormNo brGoto ~
+btSaveAll btResetAll btClose btUpdate 
+&Scoped-Define DISPLAYED-OBJECTS cbFormNo fiFormNo fiBlankNo ~
+fiSummaryFormNo fiNumWid fiNumLen fiSummaryTotalItems fiReqQty ~
+fiSummaryTotalSheets rdYieldRequest fiSummaryTotalUp fiPartNo fiPartDesc ~
+fiSummaryReqQty fiSummaryYieldQty fiSummarySurplusQty 
 
 /* Custom List Definitions                                              */
 /* ENABLE-FIELDS,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define ENABLE-FIELDS fiFormNo fiBlankNo fiReqQty fiReqQtyAdj ~
-fiNumWid fiNumLen rdYieldRequest fiPartNo btCancel 
+&Scoped-define ENABLE-FIELDS fiFormNo fiBlankNo fiNumWid fiNumLen fiReqQty ~
+rdYieldRequest btCancel 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -114,68 +115,79 @@ DEFINE BUTTON btUpdate
      LABEL "Update" 
      SIZE 15 BY 1.52.
 
+DEFINE VARIABLE cbFormNo AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
+     LABEL "Form #" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEMS "ALL" 
+     DROP-DOWN-LIST
+     SIZE 9.2 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiBlankNo AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "Blank" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiCalcYldQty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Calculated Yield Qty" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiEffYldQty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Effective Yield Qty" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiFormNo AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "Form" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiMaxSheetsPerForm AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Max Sheets Per Form" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fiNumLen AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "#on Length" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiNumUp AS INTEGER FORMAT ">>,>>9":U INITIAL 0 
-     LABEL "#on Up" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiNumWid AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "#on Width" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiPartNo AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Customer Part#" 
+DEFINE VARIABLE fiPartDesc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 43.4 BY 1 NO-UNDO.
+     SIZE 34 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPartNo AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Cust Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 24 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiReqQty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Required Qty" 
+     LABEL "Request Qty" 
      VIEW-AS FILL-IN 
      SIZE 16.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiReqQtyAdj AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Req Qty Adjust" 
-     VIEW-AS FILL-IN 
-     SIZE 16.4 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiSheetsRequired AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Sheets Required" 
+DEFINE VARIABLE fiSummaryFormNo AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Form" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSurplusQty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+DEFINE VARIABLE fiSummaryReqQty AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Request Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSummarySurplusQty AS CHARACTER FORMAT "X(256)":U 
      LABEL "Surplus Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSummaryTotalItems AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Total Items" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSummaryTotalSheets AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Total Sheets" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSummaryTotalUp AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Total #Up" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSummaryYieldQty AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Yield Qty" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -188,7 +200,7 @@ DEFINE VARIABLE rdYieldRequest AS LOGICAL
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 75 BY 7.86.
+     SIZE 75 BY 9.05.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -196,7 +208,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 48 BY 7.86.
+     SIZE 50.4 BY 9.05.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -211,16 +223,14 @@ DEFINE BROWSE brGoto
       ttGoto.formNo           FORMAT ">>9":U COLUMN-LABEL "Form" 
       ttGoto.blankNo          FORMAT ">>9":U COLUMN-LABEL "Blank" 
       ttGoto.partNo           FORMAT "X(20)":U
-      ttGoto.reqQty           FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Required!Qty" WIDTH 12
-      ttGoto.effectiveYldQty  FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Effective!Yield Qty" WIDTH 12
-      ttGoto.reqQtyAdj        FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Req Qty!Adjustment" WIDTH 14
-      ttGoto.numWid           FORMAT ">9":U COLUMN-LABEL "# on! Width" 
-      ttGoto.numLen           FORMAT ">9":U COLUMN-LABEL "# on! Length"
-      ttGoto.numUp            FORMAT ">>9":U
-      ttGoto.yieldRequest     FORMAT "Yield/Request" COLUMN-LABEL "Yield/!Request"
-      ttGoto.sheetsRequired   FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Sheets!Required" WIDTH 12
-      ttGoto.maxSheetsPerForm FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Max Sheets!Per Form" WIDTH 13
-      ttGoto.calcYldQty       FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Calculated!Yield Qty" WIDTH 12
+      ttGoto.reqQty           FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Request!Qty" WIDTH 17
+      ttGoto.numWid           FORMAT ">9":U COLUMN-LABEL "# on!Width" 
+      ttGoto.numLen           FORMAT ">9":U COLUMN-LABEL "# on!Length"
+      ttGoto.numUp            FORMAT ">>9":U COLUMN-LABEL "# Up" WIDTH 8
+      ttGoto.yieldRequest     FORMAT "Yield/Request" COLUMN-LABEL "Price By" WIDTH 12
+      ttGoto.sheetsRequired   FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Sheets!Required" WIDTH 17
+      ttGoto.maxSheetsPerForm FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Sheets!Per Form" WIDTH 17
+      ttGoto.calcYldQty       FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Yield!Qty" WIDTH 17
       ttGoto.surplusQty       FORMAT "->>>,>>>,>>9":U COLUMN-LABEL "Surplus!Qty"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -231,32 +241,36 @@ DEFINE BROWSE brGoto
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     brGoto AT ROW 1.24 COL 2 WIDGET-ID 200
-     btSaveAll AT ROW 14.14 COL 128 WIDGET-ID 34 NO-TAB-STOP 
-     fiFormNo AT ROW 14.29 COL 20.4 COLON-ALIGNED WIDGET-ID 4
-     fiBlankNo AT ROW 14.29 COL 56.8 COLON-ALIGNED WIDGET-ID 6
-     fiEffYldQty AT ROW 14.29 COL 103 COLON-ALIGNED WIDGET-ID 16
-     fiReqQty AT ROW 15.33 COL 20.4 COLON-ALIGNED WIDGET-ID 8
-     fiReqQtyAdj AT ROW 15.33 COL 56.8 COLON-ALIGNED WIDGET-ID 10
-     fiSheetsRequired AT ROW 15.33 COL 103 COLON-ALIGNED WIDGET-ID 18
-     btResetAll AT ROW 15.76 COL 128 WIDGET-ID 36 NO-TAB-STOP 
-     fiNumWid AT ROW 16.38 COL 20.4 COLON-ALIGNED WIDGET-ID 12
-     fiNumLen AT ROW 16.38 COL 56.8 COLON-ALIGNED WIDGET-ID 14
-     fiNumUp AT ROW 16.38 COL 103 COLON-ALIGNED WIDGET-ID 20
-     btClose AT ROW 17.38 COL 128 WIDGET-ID 38
-     fiMaxSheetsPerForm AT ROW 17.43 COL 103 COLON-ALIGNED WIDGET-ID 22
-     rdYieldRequest AT ROW 17.52 COL 22.6 NO-LABEL WIDGET-ID 46
-     fiPartNo AT ROW 18.52 COL 20.4 COLON-ALIGNED WIDGET-ID 40
-     fiCalcYldQty AT ROW 18.52 COL 103 COLON-ALIGNED WIDGET-ID 24
-     fiSurplusQty AT ROW 19.62 COL 103 COLON-ALIGNED WIDGET-ID 26
-     btUpdate AT ROW 20 COL 22.4 WIDGET-ID 28
-     btCancel AT ROW 20 COL 41.6 WIDGET-ID 30
+     cbFormNo AT ROW 1.48 COL 9.8 COLON-ALIGNED WIDGET-ID 52
+     brGoto AT ROW 2.81 COL 2 WIDGET-ID 200
+     btSaveAll AT ROW 15.76 COL 131 WIDGET-ID 34 NO-TAB-STOP 
+     fiFormNo AT ROW 16.1 COL 16 COLON-ALIGNED WIDGET-ID 4
+     fiBlankNo AT ROW 16.1 COL 52.4 COLON-ALIGNED WIDGET-ID 6
+     fiSummaryFormNo AT ROW 16.1 COL 98.8 COLON-ALIGNED WIDGET-ID 56
+     fiNumWid AT ROW 17.24 COL 16 COLON-ALIGNED WIDGET-ID 12
+     fiNumLen AT ROW 17.24 COL 52.4 COLON-ALIGNED WIDGET-ID 14
+     fiSummaryTotalItems AT ROW 17.29 COL 98.8 COLON-ALIGNED WIDGET-ID 60
+     btResetAll AT ROW 17.38 COL 131 WIDGET-ID 36 NO-TAB-STOP 
+     fiReqQty AT ROW 18.43 COL 16 COLON-ALIGNED WIDGET-ID 8
+     fiSummaryTotalSheets AT ROW 18.48 COL 98.8 COLON-ALIGNED WIDGET-ID 64
+     btClose AT ROW 19 COL 131 WIDGET-ID 38
+     rdYieldRequest AT ROW 19.62 COL 18.2 NO-LABEL WIDGET-ID 46
+     fiSummaryTotalUp AT ROW 19.67 COL 98.8 COLON-ALIGNED WIDGET-ID 62
+     fiPartNo AT ROW 20.71 COL 16 COLON-ALIGNED WIDGET-ID 40
+     fiPartDesc AT ROW 20.71 COL 40.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiSummaryReqQty AT ROW 20.86 COL 98.8 COLON-ALIGNED WIDGET-ID 66
+     fiSummaryYieldQty AT ROW 22.1 COL 98.8 COLON-ALIGNED WIDGET-ID 70
+     btUpdate AT ROW 22.71 COL 22.4 WIDGET-ID 28
+     btCancel AT ROW 22.71 COL 41.6 WIDGET-ID 30
+     fiSummarySurplusQty AT ROW 23.29 COL 98.8 COLON-ALIGNED WIDGET-ID 72
+     "Summary" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 15.48 COL 82 WIDGET-ID 58
      "Price By:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 17.57 COL 12.2 WIDGET-ID 50
-     RECT-1 AT ROW 14.1 COL 2 WIDGET-ID 2
-     RECT-2 AT ROW 19.81 COL 20.4 WIDGET-ID 32
-     RECT-3 AT ROW 14.1 COL 78.6 WIDGET-ID 44
-     SPACE(40.99) SKIP(0.36)
+          SIZE 10 BY .62 AT ROW 19.67 COL 7.8 WIDGET-ID 50
+     RECT-1 AT ROW 15.76 COL 2 WIDGET-ID 2
+     RECT-2 AT ROW 22.52 COL 20.4 WIDGET-ID 32
+     RECT-3 AT ROW 15.76 COL 78.6 WIDGET-ID 44
+     SPACE(38.59) SKIP(0.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1 FONT 6
@@ -280,7 +294,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB brGoto RECT-3 Dialog-Frame */
+/* BROWSE-TAB brGoto cbFormNo Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -293,29 +307,31 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN fiBlankNo IN FRAME Dialog-Frame
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN fiCalcYldQty IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiEffYldQty IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiFormNo IN FRAME Dialog-Frame
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN fiMaxSheetsPerForm IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiNumLen IN FRAME Dialog-Frame
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN fiNumUp IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiNumWid IN FRAME Dialog-Frame
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN fiPartDesc IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPartNo IN FRAME Dialog-Frame
-   NO-ENABLE 1                                                          */
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiReqQty IN FRAME Dialog-Frame
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN fiReqQtyAdj IN FRAME Dialog-Frame
-   NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN fiSheetsRequired IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiSummaryFormNo IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiSurplusQty IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiSummaryReqQty IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSummarySurplusQty IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSummaryTotalItems IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSummaryTotalSheets IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSummaryTotalUp IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSummaryYieldQty IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET rdYieldRequest IN FRAME Dialog-Frame
    NO-ENABLE 1                                                          */
@@ -328,7 +344,11 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brGoto
 /* Query rebuild information for BROWSE brGoto
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttGoto.
+OPEN QUERY {&SELF-NAME} FOR EACH ttGoto
+    WHERE IF cbFormNo:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL" THEN
+              TRUE
+          ELSE
+              ttGoto.formNo EQ INTEGER(cbFormNo:SCREEN-VALUE).
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE brGoto */
@@ -357,6 +377,39 @@ END.
 &Scoped-define BROWSE-NAME brGoto
 &Scoped-define SELF-NAME brGoto
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brGoto Dialog-Frame
+ON DEFAULT-ACTION OF brGoto IN FRAME Dialog-Frame
+DO:
+    IF NOT lSaveUpdate THEN
+        APPLY "CHOOSE" TO btUpdate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brGoto Dialog-Frame
+ON ROW-DISPLAY OF brGoto IN FRAME Dialog-Frame
+DO:
+    DEFINE VARIABLE dSheetsRequired AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-ttGoto FOR ttGoto.
+    
+    IF AVAILABLE ttGoto AND ttGoto.sheetsRequired EQ ttGoto.maxSheetsPerForm THEN DO:
+        dSheetsRequired = ttGoto.sheetsRequired.
+        FIND FIRST bf-ttGoto
+            WHERE bf-ttGoto.formNo         EQ ttGoto.formNo
+              AND bf-ttGoto.sheetsRequired NE ttGoto.sheetsRequired
+            NO-ERROR.
+        IF AVAILABLE bf-ttGoto THEN
+            ttGoto.sheetsRequired:BGCOLOR IN BROWSE {&BROWSE-NAME} = 14.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brGoto Dialog-Frame
 ON VALUE-CHANGED OF brGoto IN FRAME Dialog-Frame
 DO: 
     IF AVAILABLE ttGoto THEN DO:
@@ -369,21 +422,15 @@ DO:
         END.
 
         ASSIGN
-            fiFormNo:SCREEN-VALUE           = STRING(ttGoto.formNo)
-            fiBlankNo:SCREEN-VALUE          = STRING(ttGoto.blankNo)
-            fiReqQty:SCREEN-VALUE           = STRING(ttGoto.reqQty)
-            fiReqQtyAdj:SCREEN-VALUE        = STRING(ttGoto.reqQtyAdj)
-            fiNumWid:SCREEN-VALUE           = STRING(ttGoto.numWid)
-            fiNumLen:SCREEN-VALUE           = STRING(ttGoto.numLen)
-            fiNumUp:SCREEN-VALUE            = STRING(ttGoto.numUp)
-            fiEffYldQty:SCREEN-VALUE        = STRING(ttGoto.effectiveYldQty)
-            fiSheetsRequired:SCREEN-VALUE   = STRING(ttGoto.sheetsRequired)
-            fiMaxSheetsPerForm:SCREEN-VALUE = STRING(ttGoto.maxSheetsPerForm)
-            fiCalcYldQty:SCREEN-VALUE       = STRING(ttGoto.calcYldQty)
-            fiSurplusQty:SCREEN-VALUE       = STRING(ttGoto.surplusQty)
-            rdYieldRequest:SCREEN-VALUE     = STRING(ttGoto.yieldRequest)
-            fiPartNo:SCREEN-VALUE           = ttGoto.partNo
-            riPrevRowID                     = ROWID(ttGoto)
+            fiFormNo:SCREEN-VALUE       = STRING(ttGoto.formNo)
+            fiBlankNo:SCREEN-VALUE      = STRING(ttGoto.blankNo)
+            fiReqQty:SCREEN-VALUE       = STRING(ttGoto.reqQty)
+            fiNumWid:SCREEN-VALUE       = STRING(ttGoto.numWid)
+            fiNumLen:SCREEN-VALUE       = STRING(ttGoto.numLen)
+            rdYieldRequest:SCREEN-VALUE = STRING(ttGoto.yieldRequest)
+            fiPartNo:SCREEN-VALUE       = ttGoto.partNo
+            fiPartDesc:SCREEN-VALUE     = ttGoto.partDesc
+            riPrevRowID                 = ROWID(ttGoto)
             .
     END.
 END.
@@ -477,7 +524,7 @@ DO:
 
     IF lSaveUpdate THEN DO:
         ENABLE {&ENABLE-FIELDS} WITH FRAME {&FRAME-NAME}.
-        SELF:LABEL = "Save".
+        SELF:LABEL = "Calc".
         APPLY "ENTRY" TO fiFormNo.
     END.
     ELSE DO:
@@ -495,6 +542,21 @@ DO:
         DISABLE {&ENABLE-FIELDS} WITH FRAME {&FRAME-NAME}.    
         SELF:LABEL = "Update".        
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbFormNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFormNo Dialog-Frame
+ON VALUE-CHANGED OF cbFormNo IN FRAME Dialog-Frame /* Form # */
+DO:    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    
+    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+    
+    RUN pUpdateSummary.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,7 +589,7 @@ END.
 
 &Scoped-define SELF-NAME fiReqQty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiReqQty Dialog-Frame
-ON LEAVE OF fiReqQty IN FRAME Dialog-Frame /* Required Qty */
+ON LEAVE OF fiReqQty IN FRAME Dialog-Frame /* Request Qty */
 DO: 
     IF ttGoto.estType NE 2 AND ttGoto.estType NE 5 AND ttGoto.estType NE 6 AND
        INTEGER(SELF:SCREEN-VALUE) LE 0 THEN DO:
@@ -600,11 +662,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFormNo fiBlankNo fiEffYldQty fiReqQty fiReqQtyAdj fiSheetsRequired 
-          fiNumWid fiNumLen fiNumUp fiMaxSheetsPerForm rdYieldRequest fiPartNo 
-          fiCalcYldQty fiSurplusQty 
+  DISPLAY cbFormNo fiFormNo fiBlankNo fiSummaryFormNo fiNumWid fiNumLen 
+          fiSummaryTotalItems fiReqQty fiSummaryTotalSheets rdYieldRequest 
+          fiSummaryTotalUp fiPartNo fiPartDesc fiSummaryReqQty fiSummaryYieldQty 
+          fiSummarySurplusQty 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 RECT-2 RECT-3 brGoto btSaveAll btResetAll btClose btUpdate 
+  ENABLE RECT-1 RECT-2 RECT-3 cbFormNo brGoto btSaveAll btResetAll btClose 
+         btUpdate 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -622,8 +686,11 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     RUN pLoadEstimate.
     RUN pReCalculateYields.
-
+    RUN pUpdateFormNoComboBox.
+    
     {&OPEN-QUERY-{&BROWSE-NAME}}
+
+    RUN pUpdateSummary.
     
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.    
 END PROCEDURE.
@@ -718,7 +785,8 @@ PROCEDURE pReNumberFormsAndBlanks :
     DEFINE BUFFER bf-ttGoto FOR ttGoto.
 
     FOR EACH ttGoto 
-        BREAK BY ttGoto.formNo:        
+        BREAK BY ttGoto.formNo
+              BY ttGoto.blankNo:        
         IF FIRST-OF(ttGoto.formNo) THEN 
         DO:
             IF ttGoto.formNo NE 0 THEN
@@ -740,9 +808,8 @@ PROCEDURE pReNumberFormsAndBlanks :
                 BY bf-ttGoto.blankNo:
                 iBlankCnt = iBlankCnt + 1.
 
-                IF bf-ttGoto.blankNo NE iBlankCnt THEN DO:
+                IF bf-ttGoto.blankNo NE iBlankCnt THEN
                     bf-ttGoto.blankNo = iBlankCnt.
-                END.
             END. /* each blank of form */
         END. /* First-of form */
     END. /* each ttGoto */
@@ -766,6 +833,81 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFormNoComboBox Dialog-Frame 
+PROCEDURE pUpdateFormNoComboBox PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFormNoList AS CHARACTER NO-UNDO.
+    
+    cFormNoList = "ALL".
+    
+    FOR EACH ttGoto 
+        BREAK BY ttGoto.formNo:
+        IF FIRST-OF(ttGoto.formNo) THEN
+            cFormNoList = cFormNoList + "," + STRING(ttGoto.formNo, ">>9").
+    END.
+    
+    cbFormNo:LIST-ITEMS IN FRAME {&FRAME-NAME} = cFormNoList.
+    cbFormNo:SCREEN-VALUE = "ALL".    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateSummary Dialog-Frame 
+PROCEDURE pUpdateSummary PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iTotalItems      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalSheets     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalUp         AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalRequestQty AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalYieldQty   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalSurplusQty AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-ttGoto FOR ttGoto.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    FOR EACH bf-ttGoto
+        WHERE IF cbFormNo:SCREEN-VALUE EQ "ALL" THEN
+                  TRUE
+              ELSE
+                  bf-ttGoto.formNo EQ INTEGER(cbFormNo:SCREEN-VALUE)
+        BREAK BY bf-ttGoto.formNo:
+        IF FIRST-OF(bf-ttGoto.formNo) THEN
+            iTotalSheets = iTotalSheets + bf-ttGoto.maxSheetsPerForm.
+            
+        ASSIGN
+            iTotalItems      = iTotalItems + 1            
+            iTotalUp         = iTotalUp + bf-ttGoto.numUp
+            iTotalRequestQty = iTotalRequestQty + bf-ttGoto.reqQty
+            iTotalYieldQty   = iTotalYieldQty + bf-ttGoto.calcYldQty
+            iTotalSurplusQty = iTotalSurplusQty + bf-ttGoto.surplusQty
+            .          
+    END.
+
+    ASSIGN
+        fiSummaryFormNo:SCREEN-VALUE      = TRIM(cbFormNo:SCREEN-VALUE)
+        fiSummaryTotalItems:SCREEN-VALUE  = STRING(iTotalItems)
+        fiSummaryTotalSheets:SCREEN-VALUE = STRING(iTotalSheets)
+        fiSummaryTotalUp:SCREEN-VALUE     = STRING(iTotalUp)
+        fiSummaryReqQty:SCREEN-VALUE      = STRING(iTotalRequestQty)
+        fiSummaryYieldQty:SCREEN-VALUE    = STRING(iTotalYieldQty)
+        fiSummarySurplusQty:SCREEN-VALUE  = STRING(iTotalSurplusQty)
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdatettGoto Dialog-Frame 
 PROCEDURE pUpdatettGoto :
 /*------------------------------------------------------------------------------
@@ -776,7 +918,9 @@ PROCEDURE pUpdatettGoto :
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE iBlankCnt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iBlankCnt    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE riReposition AS ROWID   NO-UNDO.
+    DEFINE VARIABLE lReposition  AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ttGoto FOR ttGoto.
     
@@ -802,11 +946,10 @@ PROCEDURE pUpdatettGoto :
     IF AVAILABLE ttGoto THEN DO:                
         ASSIGN
             ttGoto.reqQty       = INTEGER(fiReqQty:SCREEN-VALUE)
-            ttGoto.reqQtyAdj    = INTEGER(fiReqQtyAdj:SCREEN-VALUE)
             ttGoto.numWid       = INTEGER(fiNumWid:SCREEN-VALUE)
             ttGoto.numLen       = INTEGER(fiNumLen:SCREEN-VALUE)
-            ttGoto.partNo       = fiPartNo:SCREEN-VALUE
             ttGoto.yieldRequest = LOGICAL(rdYieldRequest:SCREEN-VALUE, "Yield/Request")
+            riReposition        = ROWID(ttGoto)
             .
 
         IF ttGoto.formNo NE INTEGER(fiFormNo:SCREEN-VALUE) THEN DO:
@@ -818,20 +961,29 @@ PROCEDURE pUpdatettGoto :
             IF iBlankCnt EQ 0 THEN
                 ttGoto.blankNo = 1.
             ELSE
-                ttGoto.blankNo = iBlankCnt.
+                ttGoto.blankNo = iBlankCnt + 1.
         END.
 
         ttGoto.formNo = INTEGER(fiFormNo:SCREEN-VALUE).
 
+        /* Reposition if only all forms are displayed or formNo is not modified */    
+        IF cbFormNo:SCREEN-VALUE EQ "ALL" OR ttGoto.formNo EQ INTEGER(cbFormNo:SCREEN-VALUE) THEN
+            lReposition = TRUE.
+
         RUN pReNumberFormsAndBlanks.
 
         RUN pReCalculateYields.
-
-        {&OPEN-QUERY-{&BROWSE-NAME}}
-    
-        APPLY "VALUE-CHANGED" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.                   
+        
+        RUN pUpdateSummary.
     END.
     
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    
+    IF lReposition THEN
+        REPOSITION {&BROWSE-NAME} TO ROWID riReposition.
+    
+    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.                   
+        
     ASSIGN
         oplSuccess = TRUE
         opcMessage = "Success"
