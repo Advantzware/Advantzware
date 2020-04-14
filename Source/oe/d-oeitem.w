@@ -9640,15 +9640,17 @@ PROCEDURE validate-all :
        APPLY "entry" TO oe-ordl.prom-date.
        RETURN ERROR.
     END.
-    IF INDEX(v-duelist,oe-ordl.req-code:screen-value) <= 0 THEN DO:
-       MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO oe-ordl.req-code.
-       RETURN ERROR.
+    IF oe-ordl.req-code:SCREEN-VALUE NE "" AND 
+        LOOKUP(oe-ordl.req-code:SCREEN-VALUE ,v-duelist) EQ 0 THEN DO:
+        MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO oe-ordl.req-code.
+        RETURN ERROR.
     END.
-    IF INDEX(v-duelist,oe-ordl.prom-code:screen-value) <= 0 THEN DO:
-       MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO oe-ordl.prom-code.
-       RETURN ERROR.
+    IF oe-ordl.prom-code:SCREEN-VALUE NE "" AND 
+        LOOKUP(oe-ordl.prom-code:SCREEN-VALUE ,v-duelist) EQ 0 THEN DO:
+        MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO oe-ordl.prom-code.
+        RETURN ERROR.
     END. 
     
     RUN valid-po-no NO-ERROR.
