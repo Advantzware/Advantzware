@@ -1475,8 +1475,8 @@ PROCEDURE pDisplayValue :
             cCostType2:SCREEN-VALUE = "N" 
             cCostType3:SCREEN-VALUE = "N" 
             cCostType4:SCREEN-VALUE = "N" 
-            cCostType5:SCREEN-VALUE = "N" .
-
+            cCostType5:SCREEN-VALUE = "N" .             
+          
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ eb.company
             AND cust.cust-no EQ eb.cust-no NO-ERROR .
@@ -1500,7 +1500,24 @@ PROCEDURE pDisplayValue :
         DO i = 1 TO NUM-ENTRIES(uom-list):
             ilogic = cCostUom:ADD-LAST (ENTRY(i,uom-list)) IN FRAME {&frame-name}.
         END.
-        cCostUom:SCREEN-VALUE = "EA"  NO-ERROR.    
+        cCostUom:SCREEN-VALUE = "EA"  NO-ERROR.
+        
+        IF NOT lButtonLabel AND AVAIL eb THEN do:
+           ASSIGN
+                cVendor:SCREEN-VALUE     = "Premier"   
+                cVendorItem:SCREEN-VALUE = "Estimate #########" 
+                cCostUom:SCREEN-VALUE    = "M" NO-ERROR  .                       
+                cItemDscr1:SCREEN-VALUE = eb.part-dscr2.
+                IF eb.part-dscr2 NE "" THEN
+                iQtyPer1:SCREEN-VALUE = "1".
+               FIND FIRST probe NO-LOCK
+                    WHERE probe.company EQ eb.company 
+                    AND trim(probe.est-no) EQ trim(eb.sourceEstimate) 
+                    AND probe.probe-date ne ? NO-ERROR .
+                       
+               IF AVAIL probe THEN               
+               dEaCost1:SCREEN-VALUE = string(probe.sell-price / 1000) .               
+        END.
 
         FIND FIRST ef EXCLUSIVE-LOCK
             WHERE ef.company EQ eb.company
@@ -1508,9 +1525,11 @@ PROCEDURE pDisplayValue :
             AND ef.form-no EQ eb.form-no NO-ERROR .
         IF AVAILABLE ef THEN 
         DO:
-
-            ASSIGN
+            IF lButtonLabel THEN
+               ASSIGN
                 cItemDscr1:SCREEN-VALUE = ef.mis-cost[1] 
+                iQtyPer1:SCREEN-VALUE   = STRING(ef.misQtyPer[1]).
+            ASSIGN                 
                 cItemDscr2:SCREEN-VALUE = ef.mis-cost[2] 
                 cItemDscr3:SCREEN-VALUE = ef.mis-cost[3] 
                 cItemDscr4:SCREEN-VALUE = ef.mis-cost[4] 
@@ -1520,8 +1539,7 @@ PROCEDURE pDisplayValue :
                cCostType2:SCREEN-VALUE =  ef.mis-simon[2]
                cCostType3:SCREEN-VALUE =  ef.mis-simon[3]
                cCostType4:SCREEN-VALUE =  ef.mis-simon[4]
-               cCostType5:SCREEN-VALUE =  ef.mis-simon[5] 
-               iQtyPer1:SCREEN-VALUE   = STRING(ef.misQtyPer[1])
+               cCostType5:SCREEN-VALUE =  ef.mis-simon[5]                
                iQtyPer2:SCREEN-VALUE   = STRING(ef.misQtyPer[2])
                iQtyPer3:SCREEN-VALUE   = STRING(ef.misQtyPer[3])
                iQtyPer4:SCREEN-VALUE   = STRING(ef.misQtyPer[4])
@@ -1583,7 +1601,8 @@ PROCEDURE pDisplayValue :
            END.
 
             
-            
+           IF lNewVendorItemCost THEN RUN pGetValuestToNewVendorCost.
+           ELSE do:
            FIND FIRST bff-e-itemfg-vend NO-LOCK
                 WHERE bff-e-itemfg-vend.company = eb.company 
                  AND bff-e-itemfg-vend.est-no = eb.est-no 
@@ -1605,6 +1624,7 @@ PROCEDURE pDisplayValue :
                 cVendor:SCREEN-VALUE     = bff-e-itemfg-vend.vend-no   
                 cVendorItem:SCREEN-VALUE = bff-e-itemfg-vend.vend-item 
                 cCostUom:SCREEN-VALUE    = bff-e-itemfg-vend.std-uom   .
+           END.     
 
         END.
     END.
@@ -1628,6 +1648,43 @@ PROCEDURE send-records :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetValuestToNewVendorCost D-Dialog
+PROCEDURE pGetValuestToNewVendorCost:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+------------------------------------------------------------------------------*/
+  
+  FIND FIRST venditemcost exclusive-lock
+                    WHERE venditemcost.company = eb.company
+                      AND venditemcost.estimateNo = eb.est-no 
+                      AND venditemcost.formNo = eb.form-no
+                      AND venditemcost.blankNo = eb.blank-no
+                      AND venditemcost.itemID = eb.stock-no
+                      AND venditemcost.itemType = "FG"
+                      AND venditemcost.vendorID NE ""
+                      NO-ERROR.
+  IF NOT AVAIL venditemcost then
+     FIND FIRST venditemcost exclusive-lock
+            WHERE venditemcost.company = eb.company
+            AND venditemcost.estimateNo = eb.est-no 
+            AND venditemcost.formNo = eb.form-no
+            AND venditemcost.blankNo = eb.blank-no
+            AND venditemcost.itemID = eb.stock-no
+            AND venditemcost.itemType = "FG"
+            AND venditemcost.vendorID eq ""
+            NO-ERROR.            
+    IF AVAIL venditemcost THEN 
+    ASSIGN
+    cVendor:SCREEN-VALUE IN FRAME {&FRAME-NAME}     = venditemcost.vendorID   
+    cVendorItem:SCREEN-VALUE IN FRAME {&FRAME-NAME} = venditemcost.vendorItemID 
+    cCostUom:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = venditemcost.VendorUOM   .
+         
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

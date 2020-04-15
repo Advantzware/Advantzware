@@ -318,8 +318,9 @@ FOR EACH ttInputEst NO-LOCK:
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
-            eb.pur-man         = YES .
-
+            eb.pur-man         = YES 
+            eb.sourceEstimate  = ttInputEst.cSourceEst.
+             
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
 
