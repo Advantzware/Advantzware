@@ -1148,7 +1148,7 @@ PROCEDURE local-change-page :
   DO: /* farm */
                     
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(oe-ordl.est-no)).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + oe-ordl.est-no).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + oe-ordl.i-no ).         
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
       /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/

@@ -265,7 +265,7 @@ PROCEDURE createTempFromVendItemCost:
         END.
         v-index = 0.
         FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-            BY vendItemCostLevel.vendItemCostLevelID:
+            BY vendItemCostLevel.quantityBase:
          
             v-index = v-index + 1.
             IF v-index LE 20 THEN 
