@@ -1359,11 +1359,11 @@ PROCEDURE local-change-page :
       RUN get-eb-rowid IN h_b-estitm (OUTPUT opEbRowID).
       FIND bf-eb NO-LOCK WHERE rowid(bf-eb) = opEbRowID NO-ERROR.
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).   
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + est.est-no).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + (IF AVAIL bf-eb THEN bf-eb.stock-no ELSE "") ).         
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
       /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ' + ( IF AVAIL bf-eb THEN bf-eb.cust-no ELSE "" ) ).  
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.form-no) ELSE "" ) ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.blank-no) ELSE "" ) ).  
       li-pageb4VendCost = li-page[2].  
