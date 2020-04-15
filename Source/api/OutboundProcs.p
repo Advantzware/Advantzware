@@ -90,6 +90,40 @@ PROCEDURE Outbound_GetAPIID:
             .
 END PROCEDURE.
 
+PROCEDURE Outbound_GetAPIRequestType:
+/*------------------------------------------------------------------------------
+ Purpose: Returns request type of an API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRequestType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+          WHERE bf-APIOutbound.company  EQ ipcCompany
+            AND bf-APIOutbound.apiID    EQ ipcAPIID
+            AND bf-APIOutbound.clientID EQ ipcClientID
+          NO-ERROR.
+    IF AVAILABLE bf-APIOutbound AND
+        NOT bf-APIOutbound.Inactive THEN
+        ASSIGN
+            oplValid       = TRUE
+            opcMessage     = "Success"
+            opcRequestType = bf-APIOutbound.requestType
+            .
+    ELSE
+        ASSIGN
+            oplValid   = FALSE
+            opcMessage = "Outbound configuration for API ID ["
+                       + ipcAPIID + "] is not available or inactive"
+            .
+END PROCEDURE.
+
 PROCEDURE Outbound_GetAPITriggerID:
     /*------------------------------------------------------------------------------
      Purpose: Get Outbound Trigger API Sequence ID of given inputs
@@ -819,7 +853,13 @@ PROCEDURE pExecute PRIVATE:
                 OUTPUT ttRequestData.success,
                 OUTPUT ttRequestData.requestMessage
                 ) NO-ERROR.
-
+        ELSE
+            ASSIGN
+                lcResponseData               = "Success"
+                ttRequestData.success        = TRUE
+                ttRequestData.requestMessage = "Success"
+                .
+                
         ttRequestData.requestStatus = cRequestStatusSuccess.
 
         IF NOT ttRequestData.success THEN
