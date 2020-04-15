@@ -2032,7 +2032,8 @@ PROCEDURE pGetEstDetail :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST bf-eb NO-LOCK
              WHERE bf-eb.company EQ cocode
-               AND trim(bf-eb.est-no) EQ trim(cSEst:SCREEN-VALUE) NO-ERROR.
+               AND trim(bf-eb.est-no) EQ trim(cSEst:SCREEN-VALUE)
+               AND bf-eb.form-no NE 0 NO-ERROR.
                   
         IF AVAILABLE bf-eb THEN do:           
           ipriRowid = ROWID(bf-eb) .        
