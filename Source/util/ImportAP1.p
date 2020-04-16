@@ -327,17 +327,28 @@ PROCEDURE pCreateInvoiceLine:
     DEFINE INPUT  PARAMETER ipdPrice       AS DECIMAL   NO-UNDO. 
     DEFINE INPUT  PARAMETER ipdTotalAmount AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opriAPInvl     AS ROWID     NO-UNDO.
-
-    RUN pCreateNewInvoiceLine (
-        INPUT  ipriapinv, 
-        INPUT  ipiPoNo,
-        INPUT  ipiPoLine,
-        OUTPUT opriAPInvl
-        ).
-        
-    FIND ap-invl EXCLUSIVE-LOCK 
-        WHERE ROWID(ap-invl) EQ opriAPInvl
-        NO-ERROR.
+    
+    DEFINE BUFFER ap-invl FOR ap-invl.
+    
+    FIND FIRST ap-invl EXCLUSIVE-LOCK 
+         WHERE ap-invl.company EQ ap-inv.company
+           AND ap-invl.i-no    EQ ap-inv.i-no
+           AND ap-invl.po-no   EQ ipiPONo
+           AND ap-invl.po-line EQ ipiPoLine
+         NO-ERROR.
+         
+    IF NOT AVAILABLE ap-invl THEN DO:
+        RUN pCreateNewInvoiceLine (
+            INPUT  ipriapinv, 
+            INPUT  ipiPoNo,
+            INPUT  ipiPoLine,
+            OUTPUT opriAPInvl
+            ).
+            
+        FIND ap-invl EXCLUSIVE-LOCK 
+            WHERE ROWID(ap-invl) EQ opriAPInvl
+            NO-ERROR.
+    END.        
     IF NOT AVAILABLE ap-invl THEN
         RETURN ERROR.
     
@@ -349,6 +360,8 @@ PROCEDURE pCreateInvoiceLine:
         ap-invl.po-line = ipiPOLine
         ap-invl.actnum  = ipcLineAccount
         .
+
+    RELEASE ap-invl.    
 END PROCEDURE.
 
 /* Validates Key Fields */
@@ -451,12 +464,11 @@ PROCEDURE pValidate PRIVATE:
         ASSIGN 
             opcNote = "Add record"
             .
-    END.
-    
+    END.   
     /* Additional validation to check if PO lines are existing in invoice.
        If atleast one PO line is not existing in invoice then create invoice line */ 
     DO iIndex = 1 TO 4:
-        IF cPOLineDetails[iIndex] NE "" THEN DO:
+        IF cPOLineDetails[iIndex] NE "" AND oplValid THEN DO:
             IF AVAILABLE ap-inv THEN DO:
                 FIND FIRST ap-invl NO-LOCK 
                     WHERE ap-invl.company EQ ap-inv.company
@@ -492,7 +504,12 @@ PROCEDURE pValidate PRIVATE:
             END.
         END.
     END.    
-    
+    IF AVAILABLE ap-inv AND oplValid AND ap-inv.posted THEN    
+        ASSIGN 
+            opcNote = "Posted invoice - Will be skipped"
+            oplValid = FALSE
+             .
+     
     IF lDuplicateLines AND oplValid THEN DO:
         ASSIGN
             oplValid = FALSE
@@ -500,10 +517,14 @@ PROCEDURE pValidate PRIVATE:
             .
        
     END.
-    IF oplValid THEN 
-        ASSIGN
-            opcNote = "Add record"
-            .           
+    IF oplValid THEN DO:
+        IF AVAILABLE ap-inv AND iplUpdateDuplicates THEN 
+            opcNote = "Update record - All fields to be overwritten".
+        ELSE  
+            ASSIGN
+                opcNote = "Add record"
+                .         
+    END.          
 END PROCEDURE.
 
 /* Creates New Invoice */
@@ -518,13 +539,22 @@ PROCEDURE pCreateNewInvoice:
     DEFINE INPUT  PARAMETER ipdtInvDate AS DATE.
     DEFINE OUTPUT PARAMETER opriAPInv   AS ROWID.
     
-    CREATE ap-inv.
-    ASSIGN
-        ap-inv.company  = ipcCompany
-        ap-inv.inv-no   = ipcInvoice
-        ap-inv.inv-date = TODAY
-        ap-inv.vend-no  = ipcVendor
-        .
+    DEFINE BUFFER ap-inv FOR ap-inv.
+    
+    FIND FIRST ap-inv EXCLUSIVE-LOCK
+         WHERE ap-inv.company EQ ipcCompany
+           AND ap-inv.vend-no EQ ipcVendor
+           AND ap-inv.inv-no  EQ ipcInvoice
+         NO-ERROR.
+    IF NOT AVAILABLE ap-inv THEN DO:    
+        CREATE ap-inv.
+        ASSIGN
+            ap-inv.company  = ipcCompany
+            ap-inv.inv-no   = ipcInvoice
+            ap-inv.inv-date = TODAY
+            ap-inv.vend-no  = ipcVendor
+            .
+    END.        
     IF ipdtInvDate NE ? THEN 
         ap-inv.inv-date = DATE(ipdtInvDate).                     
     FIND FIRST vend NO-LOCK 
@@ -667,8 +697,11 @@ PROCEDURE pProcessRecord PRIVATE:
            AND ap-inv.inv-no  EQ ipbf-ttImportAP1.InvoiceNo
            AND ap-inv.vend-no EQ ipbf-ttImportAP1.VendorID
          NO-ERROR.
-    IF NOT AVAILABLE ap-inv THEN /*create a new one*/
-    DO:
+   
+    IF NOT AVAILABLE ap-inv THEN DO: /*create a new one*/
+    
+        iopiAdded = iopiAdded + 1.
+        
         RUN pCreateNewInvoice (
             INPUT  ipbf-ttImportAP1.Company, 
             INPUT  ipbf-ttImportAP1.VendorID, 
@@ -679,34 +712,35 @@ PROCEDURE pProcessRecord PRIVATE:
             
         FIND ap-inv EXCLUSIVE-LOCK
             WHERE ROWID(ap-inv) EQ riAPInv
-            NO-ERROR.
-        IF NOT AVAILABLE ap-inv THEN NEXT.    
-                    
-        /*Override defaults with imported values for header*/
-        IF ipbf-ttImportAP1.InvoiceDate NE ? THEN 
-            ap-inv.inv-date =  ipbf-ttImportAP1.InvoiceDate.
-            
-        FIND FIRST terms NO-LOCK
-             WHERE terms.company EQ ipbf-ttImportAP1.company
-               AND terms.dscr    EQ ipbf-ttImportAP1.VendorTerms
-             NO-ERROR.
-        IF AVAILABLE terms THEN
-            ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
-        ELSE DO:
-            FIND FIRST vend NO-LOCK
-                 WHERE vend.company EQ ipbf-ttImportAP1.company
-                   AND vend.vend-no EQ ipbf-ttImportAP1.VendorID                   
-                 NO-ERROR.
-            IF AVAILABLE vend THEN DO:
-                FIND FIRST terms NO-LOCK
-                     WHERE terms.company EQ vend.company
-                       AND terms.t-code  EQ vend.terms
-                     NO-ERROR.
-                IF AVAILABLE terms THEN
-            ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
-            END.    
-        END.
+            NO-ERROR.   
     END.
+    IF NOT AVAILABLE ap-inv THEN NEXT.      
+            
+    /*Override defaults with imported values for header*/
+    IF ipbf-ttImportAP1.InvoiceDate NE ? THEN 
+        ap-inv.inv-date =  ipbf-ttImportAP1.InvoiceDate.
+        
+    FIND FIRST terms NO-LOCK
+         WHERE terms.company EQ ipbf-ttImportAP1.company
+           AND terms.dscr    EQ ipbf-ttImportAP1.VendorTerms
+         NO-ERROR.
+    IF AVAILABLE terms THEN
+        ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
+    ELSE DO:
+        FIND FIRST vend NO-LOCK
+             WHERE vend.company EQ ipbf-ttImportAP1.company
+               AND vend.vend-no EQ ipbf-ttImportAP1.VendorID                   
+             NO-ERROR.
+        IF AVAILABLE vend THEN DO:
+            FIND FIRST terms NO-LOCK
+                 WHERE terms.company EQ vend.company
+                   AND terms.t-code  EQ vend.terms
+                 NO-ERROR.
+            IF AVAILABLE terms THEN
+        ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
+        END.    
+    END.
+
     /* Set receiver-no eq 0 so VU# won't try to create a manual check - 54241 - MYT */
     ASSIGN 
         ap-inv.receiver-no = "0".
@@ -754,49 +788,41 @@ PROCEDURE pProcessRecord PRIVATE:
                     ).
             
             IF AVAILABLE ap-inv THEN DO:
-                FIND FIRST ap-invl NO-LOCK 
-                    WHERE ap-invl.company EQ ap-inv.company
-                      AND ap-invl.i-no    EQ ap-inv.i-no
-                      AND ap-invl.po-no   EQ iLinePONumber
-                      AND ap-invl.po-line EQ iIndex
-                    NO-ERROR.
-                IF NOT AVAILABLE ap-invl THEN DO:
-                    RUN pCreateInvoiceLine (
-                        INPUT  ROWID(ap-inv),
-                        INPUT  iLinePONumber,
-                        INPUT  iIndex,
-                        INPUT  cLineAccount,
-                        INPUT  dLineQuantity,
-                        INPUT  dLinePrice,
-                        INPUT  dLineQuantity * dLinePrice,
-                        OUTPUT riAPInvl
-                        ) NO-ERROR.
-                    
-                    IF NOT ERROR-STATUS:ERROR THEN DO:
-                        IF NOT lItemType THEN
-                            RUN pValidateFGItemReceiptQtyPrice (
-                                INPUT        riAPInvl,
-                                INPUT        ipbf-ttImportAP1.Company,
-                                INPUT        iLinePONumber,
-                                INPUT        iIndex,
-                                INPUT        dLineQuantity,
-                                INPUT        dLinePrice,
-                                INPUT-OUTPUT lHold,
-                                INPUT-OUTPUT cHoldNote
-                                ).
-                        ELSE
-                            RUN pValidateRMItemReceiptQtyPrice (
-                                INPUT        riAPInvl,
-                                INPUT        ipbf-ttImportAP1.Company,
-                                INPUT        iLinePONumber,
-                                INPUT        iIndex,
-                                INPUT        dLineQuantity,
-                                INPUT        dLinePrice,
-                                INPUT-OUTPUT lHold,
-                                INPUT-OUTPUT cHoldNote
-                                ).                    
-                    END.
-                END.
+                RUN pCreateInvoiceLine (
+                    INPUT  ROWID(ap-inv),
+                    INPUT  iLinePONumber,
+                    INPUT  iIndex,
+                    INPUT  cLineAccount,
+                    INPUT  dLineQuantity,
+                    INPUT  dLinePrice,
+                    INPUT  dLineQuantity * dLinePrice,
+                    OUTPUT riAPInvl
+                    ) NO-ERROR.
+                
+                IF NOT ERROR-STATUS:ERROR THEN DO:
+                    IF NOT lItemType THEN
+                        RUN pValidateFGItemReceiptQtyPrice (
+                            INPUT        riAPInvl,
+                            INPUT        ipbf-ttImportAP1.Company,
+                            INPUT        iLinePONumber,
+                            INPUT        iIndex,
+                            INPUT        dLineQuantity,
+                            INPUT        dLinePrice,
+                            INPUT-OUTPUT lHold,
+                            INPUT-OUTPUT cHoldNote
+                            ).
+                    ELSE
+                        RUN pValidateRMItemReceiptQtyPrice (
+                            INPUT        riAPInvl,
+                            INPUT        ipbf-ttImportAP1.Company,
+                            INPUT        iLinePONumber,
+                            INPUT        iIndex,
+                            INPUT        dLineQuantity,
+                            INPUT        dLinePrice,
+                            INPUT-OUTPUT lHold,
+                            INPUT-OUTPUT cHoldNote
+                            ).                    
+                END.         
             END.
         END.
     END.
@@ -822,8 +848,6 @@ PROCEDURE pProcessRecord PRIVATE:
                     ).
         END.
     END.
-                    
-    iopiAdded = iopiAdded + 1.
                                                            
     RUN pRecalculateInvoiceHeader (
         INPUT ROWID(ap-inv), 
