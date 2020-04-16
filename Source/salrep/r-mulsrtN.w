@@ -2184,9 +2184,9 @@ FOR each ar-inv
                          WHEN "inv#"  THEN cVarValue = STRING(w-data.inv-no,">>>>>>") .
                          WHEN "inv-date"   THEN cVarValue = STRING(v-date,"99/99/99") .
                          WHEN "ord"  THEN cVarValue = STRING(v-ord,">>>>>>>>") .
-                         WHEN "item-no"    THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.i-name,"x(15)")  ELSE STRING(w-data.i-no,"x(15)").
-                         WHEN "item-name"   THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.part-dscr1,"x(30)") ELSE "".
-                         WHEN "desc"   THEN cVarValue = IF AVAIL ar-invl THEN STRING(ar-invl.part-dscr1,"x(30)") ELSE "".
+                         WHEN "item-no"    THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.i-no,"x(15)")  ELSE STRING(w-data.i-no,"x(15)").
+                         WHEN "item-name"   THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.i-name,"x(30)")  ELSE IF AVAIL ar-invl THEN string(ar-invl.i-name,"x(30)") ELSE "".
+                         WHEN "desc"   THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.part-dscr1,"x(30)")  ELSE IF AVAIL ar-invl AND ar-invl.i-dscr EQ "" THEN string(ar-invl.part-dscr1,"x(30)") ELSE IF AVAIL ar-invl THEN string(ar-invl.i-dscr,"x(30)")  ELSE "" .
                          WHEN "cust-part"  THEN cVarValue = IF AVAIL ar-invl THEN STRING(ar-invl.part-no,"x(15)") ELSE "".
                          WHEN "price"   THEN cVarValue = STRING(v-pric,"->,>>>,>>9.99<<") .
                          WHEN "uom"  THEN cVarValue = STRING(v-uom,"x(4)") .
