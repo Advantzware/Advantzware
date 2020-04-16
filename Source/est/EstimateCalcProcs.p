@@ -37,7 +37,7 @@ DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS".
-DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "CT".
+DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "PR,CT".
 
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
@@ -2486,31 +2486,30 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
         FOR EACH bf-estCostMaterial NO-LOCK 
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
             AND bf-estCostMaterial.estCostFormID EQ bf-estCostBlank.estCostFormID
-            AND (bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare):
+            AND (bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare)
+            AND (bf-estCostMaterial.estCostBlankID EQ bf-estCostBlank.estCostBlankID OR bf-estCostMaterial.estCostBlankID EQ 0):
+            
+            dWeightInDefaultUOM = 0.
+            
             IF bf-estCostMaterial.estCostBlankID EQ 0 THEN 
             DO: /*Form level material - calc based on basis-weight and blank area*/
                 IF bf-estCostMaterial.isPrimarySubstrate THEN 
                 DO:   /*Board and adders*/
-                    
-                    dBasisWeightInDefaultUOM = bf-estCostMaterial.basisWeight.
-                    IF bf-estCostMaterial.basisWeightUOM NE gcDefaultBasisWeightUOM THEN 
-                    DO:
-                        //REFACTOR: convert basisweight
-                    END.
-                    ASSIGN         
-                        bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dBasisWeightInDefaultUOM * dBlankAreaTotalInDefaultUOM
-                        bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + bf-estCostItem.weightNet
-                        .
+                    /*refactor - basis assumed to be LBs/MSF*/
+                    dWeightInDefaultUOM = bf-estCostMaterial.basisWeight * dBlankAreaTotalInDefaultUOM.
                     
                 END. /*Primary substrate calculations - board and adders*/
+                ELSE /*non-board/substrate form level material - pro-rate weight*/
+                    dWeightInDefaultUOM = bf-estCostMaterial.weightTotal * bf-estCostBlank.pctOfForm.
             END.
-            ELSE 
-            DO:
+            ELSE /*Blank specific material - get all weight*/
                 dWeightInDefaultUOM = bf-estCostMaterial.weightTotal.
-                IF bf-estCostMaterial.weightUOM NE gcDefaultWeightUOM THEN 
-                DO:
+
+            IF bf-estCostMaterial.weightUOM NE gcDefaultWeightUOM THEN 
+            DO:
                     //REFACTOR: Convert to default weight UOM
-                END.
+            END.
+            IF bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare THEN DO:
                 IF bf-estCostMaterial.addToWeightNet THEN 
                     bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dWeightInDefaultUOM.
                 IF bf-estCostMaterial.addToWeightTare THEN 
