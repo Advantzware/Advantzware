@@ -170,7 +170,7 @@ PROCEDURE pBusinessLogic:
         cLogFile = cLogFolder + "/" + "r-bolpst.errs".
         IF lUseLogs THEN DO:
           OUTPUT TO VALUE(cLogFile) APPEND.
-          PUT STRING(TODAY,"99999999") + " " + STRING(TIME).
+          PUT STRING(TODAY,"99999999") + " " + STRING(TIME) SKIP.
         END.            
         DELETE OBJECT hdFileSysProcs.            
     END. /* If luseLogs */ 
@@ -370,14 +370,14 @@ PROCEDURE pAutoSelectTags:
             AND oe-rel.line    EQ oe-ordl.line
             AND oe-rel.stat    EQ "P"
             NO-ERROR.
-    fDebugMsg("avail oerel " + STRING(AVAILABLE(oe-rel))).
+    fDebugMsg("avail oe-rel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
     FIND FIRST oe-relh NO-LOCK
         WHERE oe-relh.r-no EQ xoe-boll.r-no 
         NO-ERROR.
 
-    fDebugMsg("avail oe-relh" + STRING(AVAILABLE(oe-relh))).        
+    fDebugMsg("avail oe-relh " + STRING(AVAILABLE(oe-relh))).        
     IF NOT AVAILABLE oe-relh THEN
       RETURN.
       
@@ -389,9 +389,9 @@ PROCEDURE pAutoSelectTags:
            lSelectTags = FALSE.
     EMPTY TEMP-TABLE w-bin.
 
-    fDebugMsg("start fifoloop").     
+    fDebugMsg("start fifoloop " + STRING(TIME,"hh:mm:ss am")).     
     RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
-    fDebugMsg("end fifoloop").     
+    fDebugMsg("end fifoloop " + STRING(TIME,"hh:mm:ss am")).     
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
     hBufOeRell = hTToe-rel:DEFAULT-BUFFER-HANDLE.
     CREATE QUERY hQueryOeRell.
@@ -412,7 +412,7 @@ PROCEDURE pAutoSelectTags:
         
         IF hQueryOeRell:QUERY-OFF-END THEN LEAVE.
         CREATE ttSelectedOeRell.
-        fDebugMsg("get-next hqueiryoe-rell").            
+        fDebugMsg("get-next hquery oe-rell").            
         hBufDynmicOeRell:BUFFER-COPY(hBufOeRell).
         fDebugMsg( "auto bin returned " + STRING(ttSelectedOeRell.tag)).
         /* In case duplicate w-bin's were created, check first if exists */
@@ -743,8 +743,8 @@ PROCEDURE pPostBols :
                   BY bf-oe-bolh.rel-no
             :
             /* Create tt-fg-bin */
-            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN
-                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).                
+/*            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN*/
+/*                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).                         */
             /* Find out if autoSelectingTags for this customer */
             RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
                 OUTPUT cAutoSelectShipFrom, OUTPUT lRecordFound).
@@ -1206,7 +1206,9 @@ FUNCTION fDebugMsg RETURNS CHARACTER
 ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE result AS CHARACTER NO-UNDO.
     IF lUseLogs THEN DO:
-        OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+        OUTPUT STREAM sDebug CLOSE.
+        PROCESS EVENTS.
+        OUTPUT STREAM sDebug TO VALUE(cDebugLog) APPEND.
         PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
     END.
     RETURN result.
