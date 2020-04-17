@@ -418,8 +418,8 @@ oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] ~
 oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
 oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
 oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
-oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
-oe-ordl.spare-char-2 
+oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1  ~
+oe-ordl.spare-char-2 oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-TABLES-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define QUERY-STRING-d-oeitem FOR EACH oe-ordl SHARE-LOCK, ~
@@ -444,7 +444,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
@@ -879,7 +880,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
-   NO-ENABLE                                                            */   
+   EXP-FORMAT                                                            */   
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
@@ -2906,7 +2907,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
        oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
-        
+    oe-ordl.SourceEstimateID:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.    
  END.
 
   IF fgsecurity-log THEN
@@ -5246,6 +5247,7 @@ PROCEDURE display-item :
             fi_sname-1
             fi_s-pct-lbl
             fi_s-comm-lbl
+            oe-ordl.SourceEstimateID            
           WITH FRAME {&frame-name}.
 
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -5315,8 +5317,8 @@ PROCEDURE enable_UI :
          oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct 
          oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
          Btn_OK Btn_Done Btn_Cancel Btn_hist oe-ordl.spare-char-1 
-         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 fi_jobStartDate btn-quotes 
-         RECT-31 RECT-39 RECT-40 RECT-41 
+         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 oe-ordl.SourceEstimateID  
+         fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41  
       WITH FRAME d-oeitem.
   VIEW FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
