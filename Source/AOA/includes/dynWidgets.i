@@ -263,6 +263,7 @@ PROCEDURE pCreateDynParameters :
                 lSensitive = NO
                 cInitItems = REPLACE(cInitItems,":DISABLE","")
                 .
+            IF dynParam.viewAs NE "COMBO-BOX" THEN
             cParamValue = cInitItems.
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
