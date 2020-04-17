@@ -158,7 +158,7 @@ PROCEDURE pGenerateLog:
     OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportData
-        WHERE (NOT ttImportData.lValid EQ iplErrorsOnly):
+        WHERE (NOT ttImportData.lValid AND iplErrorsOnly) OR NOT iplErrorsOnly:
         EXPORT STREAM sLog DELIMITER "," 
             ttImportData.lValid
             ttImportData.cImportNote
