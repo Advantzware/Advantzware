@@ -183,9 +183,9 @@ ASSIGN
  str-init[91] = "MSF,PO UOM"  /*appaper*/
  str-init[92] = "FluteMtx,AUTOCALC"  /*appaper*/
  str-init[93] = ",Before,After,Both"  /*fgpost*/
- str-init[94] = ",CSC,Southpak,TrePaper"  /* corsuply */
+ str-init[94] = ",CSC,SouthpHak,TrePaper"  /* corsuply */
  str-init[95] = "Blank,GrossSH"  /* fgitemsf */
- str-init[96] = ",Michcor,Trilakes,Woodland,PremierPkg,St.Clair,NStock,Blue,Freedman"  /* GP */
+ str-init[96] = ",Michcor,Trilakes,Woodland,PremierPkg,St.Clair,NStock,Blue,Freedman,Shamrock"  /* GP */
  str-init[97] = "DC Only,OE & DC"   /* oeprep */
  str-init[98] = "None,1/8,1/8Up,1/4,1/4Up,1/2,1/2Up,1,1Up"  /* celayout */
  str-init[99] = "Fibre"

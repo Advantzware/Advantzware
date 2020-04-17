@@ -390,6 +390,8 @@ FOR EACH report NO-LOCK WHERE
         /* END ORDERED SF */
 
         /* SCORE */
+        ASSIGN 
+            vScore = "".
         DO i = 1 TO 9:
             IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN ASSIGN 
                     vScore = vScore + STRING(TRUNC(b-ref1.val[i],0), ">>>") +
@@ -403,6 +405,8 @@ FOR EACH report NO-LOCK WHERE
         /* END SCORE */
         
         /* Additional Scores */
+        ASSIGN 
+            vscore2 = "".
         DO i = 10 TO 12:
             IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN ASSIGN 
                     vScore2 = vScore2 + STRING(TRUNC(b-ref1.val[i],0), ">>>") +
