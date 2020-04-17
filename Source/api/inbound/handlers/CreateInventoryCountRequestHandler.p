@@ -455,7 +455,7 @@
                 ) NO-ERROR.
 
             /* Validate Post flag */
-            IF lRecFound AND cPOID NE "" THEN DO:
+            IF lRecFound AND cPost NE "" THEN DO:
                 RUN spCommon_ValidateValueByDataType (
                     INPUT  cPost,
                     INPUT  "LOGICAL",
@@ -471,8 +471,16 @@
                 END.
             END.
 
-            /* Validate Post flag */
-            IF lRecFound AND cPOID NE "" THEN DO:
+            /* Fetch Zero Out flag */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "ZeroOutCount",
+                INPUT  iCountsFieldOrder,
+                OUTPUT lRecFound,
+                OUTPUT cZeroOutCount
+                ) NO-ERROR.
+
+            /* Validate Zero Out Count flag */
+            IF lRecFound AND cZeroOutCount NE "" THEN DO:
                 RUN spCommon_ValidateValueByDataType (
                     INPUT  cZeroOutCount,
                     INPUT  "LOGICAL",
@@ -487,15 +495,7 @@
                     RETURN.
                 END.
             END.
-            
-            /* Fetch Zero Out flag */
-            RUN JSON_GetFieldValueByNameAndParent (
-                INPUT  "ZeroOutCount",
-                INPUT  iCountsFieldOrder,
-                OUTPUT lRecFound,
-                OUTPUT cZeroOutCount
-                ) NO-ERROR.
-                
+                            
             CREATE ttCounts.
             ASSIGN
                 ttCounts.company            = cCompany
