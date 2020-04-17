@@ -407,7 +407,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.qty ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
@@ -458,7 +459,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.SourceEstimateID
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
@@ -642,6 +644,9 @@ DEFINE FRAME d-oeitem
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     oe-ordl.SourceEstimateID AT ROW 1.24 COL 60.6 COLON-ALIGNED FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1    
      oe-ordl.job-no AT ROW 1.14 COL 95 COLON-ALIGNED FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
@@ -873,6 +878,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
@@ -4282,8 +4289,11 @@ PROCEDURE display-est-detail :
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
+                            
+  RUN pGetMiscEst(INPUT-OUTPUT ip-recid) .                          
 
-  FIND FIRST eb WHERE RECID(eb) = ip-recid NO-LOCK NO-ERROR.
+  FIND FIRST eb WHERE RECID(eb) = ip-recid NO-LOCK NO-ERROR.       
+                        
   IF AVAIL eb THEN DO WITH FRAME {&Frame-name}:
      IF eb.stock-no NE "" THEN
      FIND FIRST itemfg
@@ -5293,6 +5303,7 @@ PROCEDURE enable_UI :
           oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
           oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+          oe-ordl.SourceEstimateID
       WITH FRAME d-oeitem.
   ENABLE oe-ordl.est-no oe-ordl.qty fi_qty-uom oe-ordl.i-no oe-ordl.part-no 
          oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 
@@ -9957,6 +9968,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst d-oeitem 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT-OUTPUT PARAMETER ipo-Recid AS RECID NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+   
+     FIND FIRST bff-eb WHERE RECID(bff-eb) = ipo-Recid NO-LOCK NO-ERROR.
+     IF AVAIL bff-eb THEN
+     FIND FIRST bff-est WHERE bff-est.company = bff-eb.company
+                AND bff-est.est-no = bff-eb.est-no NO-LOCK NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ bff-eb.company
+               AND trim(eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL eb THEN do:
+                 ipo-Recid = RECID(eb) .                 
+                 oe-ordl.SourceEstimateID:SCREEN-VALUE = bff-eb.est-no .
+                 oe-ordl.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
 
 /* ************************  Function Implementations ***************** */
 
