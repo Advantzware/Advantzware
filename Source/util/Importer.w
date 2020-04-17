@@ -582,7 +582,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     fiLogFolder:SCREEN-VALUE = fGetLogFolder(ipcCompany).
     RUN pInitializeTypes(cbType:HANDLE, ipcTypes).
-    
+    APPLY "VALUE-CHANGED":U TO cbtype.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
     DELETE OBJECT ghdImportProcs.
