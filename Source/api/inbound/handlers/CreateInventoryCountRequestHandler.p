@@ -48,6 +48,7 @@
         FIELD poLine             AS INTEGER
         FIELD post               AS LOGICAL
         FIELD sequenceID         AS INT64
+        FIELD ZeroOutCount       AS LOGICAL
         .
 
     /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's
@@ -156,7 +157,8 @@
         DEFINE VARIABLE cPOID               AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPOLine             AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPost               AS CHARACTER NO-UNDO.
-
+        DEFINE VARIABLE cZeroOutCount       AS CHARACTER NO-UNDO.
+        
         DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
         DEFINE VARIABLE lValidValue       AS LOGICAL NO-UNDO.
         DEFINE VARIABLE iCountsCounter    AS INTEGER NO-UNDO.
@@ -469,6 +471,31 @@
                 END.
             END.
 
+            /* Validate Post flag */
+            IF lRecFound AND cPOID NE "" THEN DO:
+                RUN spCommon_ValidateValueByDataType (
+                    INPUT  cZeroOutCount,
+                    INPUT  "LOGICAL",
+                    OUTPUT lValidValue
+                    ) NO-ERROR.
+
+                IF NOT lValidValue THEN DO:
+                    ASSIGN
+                        opcMessage = "Invalid Zero Out Count flag"
+                        oplSuccess = NO
+                        .
+                    RETURN.
+                END.
+            END.
+            
+            /* Fetch Zero Out flag */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "ZeroOutCount",
+                INPUT  iCountsFieldOrder,
+                OUTPUT lRecFound,
+                OUTPUT cZeroOutCount
+                ) NO-ERROR.
+                
             CREATE ttCounts.
             ASSIGN
                 ttCounts.company            = cCompany
@@ -486,6 +513,7 @@
                 ttCounts.poID               = INTEGER(cPOID)
                 ttCounts.poLine             = INTEGER(cPOLine)
                 ttCounts.post               = LOGICAL(cPost)
+                ttCounts.ZeroOutCount       = LOGICAL(cZeroOutCount)
                 .
         END.
 
@@ -511,24 +539,25 @@
                     .
 
                 RUN api\inbound\CreateInventoryCount.p (
-                    INPUT  ttCounts.company,
-                    INPUT  ttCounts.warehouseID,
-                    INPUT  ttCounts.locationID,
-                    INPUT  ttCounts.custID,
-                    INPUT  ttCounts.poID,
-                    INPUT  ttCounts.poLine,
-                    INPUT  ttCounts.jobID,
-                    INPUT  ttCounts.jobID2,
-                    INPUT  ttCounts.itemID,
-                    INPUT  ttCounts.itemType,
-                    INPUT  ttCounts.inventoryStockID,
-                    INPUT  ttCounts.quantity,
-                    INPUT  ttCounts.quantityPerSubUnit,
-                    INPUT  ttCounts.quantityPartial,
-                    INPUT  ttCounts.post,
-                    OUTPUT ttCounts.sequenceID,
-                    OUTPUT oplSuccess,
-                    OUTPUT opcMessage
+                    INPUT        ttCounts.company,
+                    INPUT        ttCounts.warehouseID,
+                    INPUT        ttCounts.locationID,
+                    INPUT        ttCounts.custID,
+                    INPUT        ttCounts.poID,
+                    INPUT        ttCounts.poLine,
+                    INPUT-OUTPUT ttCounts.jobID,
+                    INPUT-OUTPUT ttCounts.jobID2,
+                    INPUT        ttCounts.itemID,
+                    INPUT        ttCounts.itemType,
+                    INPUT        ttCounts.inventoryStockID,
+                    INPUT        ttCounts.quantity,
+                    INPUT        ttCounts.quantityPerSubUnit,
+                    INPUT        ttCounts.quantityPartial,
+                    INPUT        ttCounts.post,
+                    INPUT        ttCounts.ZeroOutCount,
+                    OUTPUT       ttCounts.sequenceID,
+                    OUTPUT       oplSuccess,
+                    OUTPUT       opcMessage
                     ) NO-ERROR.
 
                 IF ERROR-STATUS:ERROR THEN
