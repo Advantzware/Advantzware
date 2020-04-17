@@ -1388,11 +1388,12 @@ PROCEDURE local-assign-record :
   DEF VAR ld-t-qty LIKE fg-rctd.t-qty NO-UNDO.
   DEF VAR ld-cost AS DEC NO-UNDO.
   DEF VAR lv-uom AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE cPoNo LIKE fg-rctd.po-no NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     ld-t-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}).
+    cPoNo = STRING(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}).
   END.
 
   IF length(fg-rctd.job-no:SCREEN-VALUE) < 6 THEN
@@ -1408,6 +1409,7 @@ PROCEDURE local-assign-record :
         .
   /* Code placed here will execute AFTER standard behavior.    */
   fg-rctd.t-qty = ld-t-qty.
+  fg-rctd.po-no = cPoNo.
 
   FIND FIRST fg-bin 
       WHERE fg-bin.company EQ fg-rctd.company
