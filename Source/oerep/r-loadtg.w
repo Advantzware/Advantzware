@@ -35,6 +35,7 @@ DEFINE VARIABLE lv-got-shipto AS LOGICAL NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 {sys/inc/var.i new shared}
 {custom/xprint.i}
@@ -117,10 +118,12 @@ DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hLoadtagProcs AS HANDLE NO-UNDO.
 
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
+RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
@@ -286,6 +289,10 @@ DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE cFGDefWhse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGDefBin  AS CHARACTER NO-UNDO.
+
+
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
     INPUT "FGReceiptRules", /* sys-ctrl name */
@@ -299,6 +306,16 @@ RUN sys/ref/nk1look.p (
     ). 
 
 glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
+
+RUN Inventory_GetDefaultWhse IN hdInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefWhse
+    ).
+RUN Inventory_GetDefaultBin IN hdInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefBin
+    ).   
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3832,8 +3849,8 @@ PROCEDURE create-loadtag :
        fg-rctd.partial    = loadtag.partial
        fg-rctd.cases      = IF loadtag.qty-case NE 0 THEN TRUNC(fg-rctd.t-qty / loadtag.qty-case,0) ELSE 0
        fg-rctd.cases-unit = loadtag.case-bundle
-       fg-rctd.loc        = loadtag.loc
-       fg-rctd.loc-bin    = loadtag.loc-bin
+       fg-rctd.loc        = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE loadtag.loc
+       fg-rctd.loc-bin    = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE loadtag.loc-bin
        fg-rctd.tag        = loadtag.tag-no
        fg-rctd.stack-code = loadtag.misc-char[2]
        fg-rctd.tot-wt     = loadtag.misc-dec[1] .
@@ -7809,8 +7826,8 @@ PROCEDURE post-return :
        bf-fg-rctd.partial    = loadtag.partial
        bf-fg-rctd.cases      = TRUNC(bf-fg-rctd.t-qty / bf-fg-rctd.qty-case,0)
        bf-fg-rctd.cases-unit = loadtag.case-bundle
-       bf-fg-rctd.loc        = loadtag.loc
-       bf-fg-rctd.loc-bin    = loadtag.loc-bin
+       bf-fg-rctd.loc        = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE loadtag.loc
+       bf-fg-rctd.loc-bin    = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE loadtag.loc-bin
        bf-fg-rctd.tag        = loadtag.tag-no
        bf-fg-rctd.loc2        = ""
        bf-fg-rctd.loc-bin2    = ""

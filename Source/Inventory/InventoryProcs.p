@@ -93,6 +93,44 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Inventory_GetDefaultBin:
+/*------------------------------------------------------------------------------
+ Purpose: To get the default bin defined for a user in reftable
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFGDefBin AS CHARACTER NO-UNDO.
+    
+    FIND FIRST reftable NO-LOCK
+         WHERE reftable.company  EQ ipcCompany 
+           AND reftable.code     EQ USERID("ASI")
+           AND reftable.loc      EQ "FGDefBin"
+          NO-ERROR.
+
+    IF AVAILABLE reftable THEN
+        opcFGDefBin = reftable.code2.
+
+END PROCEDURE.
+
+PROCEDURE Inventory_GetDefaultWhse:
+/*------------------------------------------------------------------------------
+ Purpose: To get the default location defined for a user in reftable
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFGDefBin      AS CHARACTER NO-UNDO.
+    
+    FIND FIRST reftable NO-LOCK
+         WHERE reftable.company  EQ ipcCompany 
+           AND reftable.code     EQ USERID("ASI")
+           AND reftable.loc      EQ "FGDefWhse"
+          NO-ERROR.
+
+    IF AVAILABLE reftable THEN
+            opcFGDefBin = reftable.code2.
+    
+END PROCEDURE.
+
 PROCEDURE Inventory_GetStatusDescription:
 /*------------------------------------------------------------------------------
  Purpose: To get the status description based on status ID
