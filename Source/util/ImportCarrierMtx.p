@@ -99,6 +99,25 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    
+    IF oplValid THEN DO:
+        FIND FIRST carr-mtx NO-LOCK
+             WHERE carr-mtx.company  EQ ttImportCarrierMtx.Company
+               AND carr-mtx.carrier  EQ ttImportCarrierMtx.carrier
+               AND carr-mtx.del-zone EQ ttImportCarrierMtx.del-zone
+             NO-ERROR. 
+        IF AVAILABLE carr-mtx THEN DO:
+            IF NOT iplUpdateDuplicates THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote = "Duplicate Exists - Will be skipped"
+                    .
+            ELSE 
+                opcNote = "Update record - All fields to be overwritten".        
+        END. 
+        ELSE 
+            opcNote = "Add Record".             
+    END.    
         
 END PROCEDURE.
   
