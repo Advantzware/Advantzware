@@ -154,7 +154,6 @@ END PROCEDURE.
 PROCEDURE pAddJobItem PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Given inputs, adds a temp-table record for 
- Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomerID       AS CHARACTER NO-UNDO.
@@ -174,7 +173,7 @@ PROCEDURE pAddJobItem PRIVATE:
     DEFINE INPUT PARAMETER iplHasOrder         AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdtOrderDate       AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER ipdtDueDate         AS DATE      NO-UNDO.
-    
+    DEFINE INPUT PARAMETER ipdOverPct          AS DECIMAL   NO-UNDO.
     DEFINE PARAMETER BUFFER opbf-ttJobItem FOR ttJobItem.
     
     &IF {&subjectID} EQ 94 &THEN
@@ -191,7 +190,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.xxiJobID2               = ipiJobID2
         opbf-ttJobItem.cProductCategory        = CAPS(ipcProductCategory)
         opbf-ttJobItem.cProductDescription     = fProductDescription (ipcCompany, ipcProductCategory)
-        opbf-ttJobItem.dQuantityOrdered        = ipdQuantityOrdered
+        opbf-ttJobItem.dQuantityOrdered        = INTEGER(ipdQuantityOrdered / ipdOverPct)
         opbf-ttJobItem.dQuantityProduced       = ipdQuantityProduced
         opbf-ttJobItem.dQuantityShipped        = ipdQuantityShipped
         opbf-ttJobItem.dQuantityInvoiced       = ipdQuantityInvoiced
@@ -207,7 +206,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.dPriceTotalProduced     = opbf-ttJobItem.dPricePerEA      * opbf-ttJobItem.dQuantityProduced
         opbf-ttJobItem.dPriceTotalShipped      = opbf-ttJobItem.dPricePerEA      * opbf-ttJobItem.dQuantityShipped
         opbf-ttJobItem.dPriceTotalBalanceToRun = opbf-ttJobItem.dPricePerEA      * opbf-ttJobItem.dQuantityBalanceToRun
-        opbf-ttJobItem.cJob                    = IF ipcJobID NE "" THEN ipcJobID + "-" + STRING(ipiJobID2,"99") ELSE ""
+        opbf-ttJobItem.cJob                    = ipcJobID + (IF ipiJobID2 NE ? THEN "-" + STRING(ipiJobID2,"99") ELSE "")
         opbf-ttJobItem.dtOrderDate             = ipdtOrderDate
         opbf-ttJobItem.dtDueDate               = ipdtDueDate
         opbf-ttJobItem.dtAsOfDate              = dtAsOfDate
@@ -247,8 +246,7 @@ PROCEDURE pAnalyzeItem PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Given a Set Header temp-table buffer, increment counts and quantities
  based on product category
- Notes:
-------------------------------------------------------------------------------*/
+ ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttJobItem FOR ttJobItem.
     DEFINE INPUT PARAMETER ipcProductCategory AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiQuantityPerSet  AS INTEGER   NO-UNDO.
@@ -315,7 +313,6 @@ END PROCEDURE.
 PROCEDURE pBuildJobItem PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
- Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtAsOf       AS DATE      NO-UNDO.
@@ -329,19 +326,20 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE BUFFER bf-ttJobItem      FOR ttJobItem.
     DEFINE BUFFER bf-comp-ttJobItem FOR ttJobItem.
     
-    DEFINE VARIABLE cSource       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtOrderDate   AS DATE      NO-UNDO.
-    DEFINE VARIABLE dtDueDate     AS DATE      NO-UNDO.
-    DEFINE VARIABLE dQtyOrd       AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQtyProd      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQtyShip      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQtyInv       AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQtyOnHand    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dPricePer     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lHasOrder     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lNoMake       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lIsComp       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE dInvAmt       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSource     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dInvAmt     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dOverPct    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPricePer   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyOrd     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyProd    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyShip    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyInv     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyOnHand  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dtOrderDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtDueDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE lHasOrder   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsComp     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNoMake     AS LOGICAL   NO-UNDO.
     
     EMPTY TEMP-TABLE ttJobItem.
     FOR EACH job-hdr NO-LOCK  /*Go through all job-hdrs*/
@@ -350,24 +348,25 @@ PROCEDURE pBuildJobItem PRIVATE:
           AND job-hdr.cust-no LE ipcCustEnd
           AND job-hdr.i-no    GE ipcFGItemStart
           AND job-hdr.i-no    LE ipcFGItemEnd,
-        FIRST job OF job-hdr NO-LOCK
+        FIRST job OF job-hdr  NO-LOCK
         WHERE job.create-date LE ipdtAsOf,
         FIRST itemfg NO-LOCK
-        WHERE itemfg.company EQ job-hdr.company
-          AND itemfg.i-no    EQ job-hdr.i-no
+        WHERE itemfg.company  EQ job-hdr.company
+          AND itemfg.i-no     EQ job-hdr.i-no
         :
         ASSIGN 
-            dQtyOrd       = job-hdr.qty
-            dQtyProd      = 0
-            dQtyShip      = 0
-            dQtyInv       = 0
-            dQtyOnHand    = 0
-            dPricePer     = 0
-            lHasOrder     = NO
-            lIsComp       = NO
-            lNoMake       = NO
-            dtOrderDate   = ?
-            dtDueDate     = ?
+            dQtyOrd     = job-hdr.qty
+            dQtyProd    = 0
+            dQtyShip    = 0
+            dQtyInv     = 0
+            dQtyOnHand  = 0
+            dPricePer   = 0
+            lHasOrder   = NO
+            lIsComp     = NO
+            lNoMake     = NO
+            dtOrderDate = ?
+            dtDueDate   = ?
+            dOverPct    = 1
             .
         RUN pGetQuantityMadeAsOf (
             job-hdr.company,
@@ -402,8 +401,9 @@ PROCEDURE pBuildJobItem PRIVATE:
                  NO-ERROR.
             IF AVAILABLE oe-ord THEN
             ASSIGN
-                dtOrderDate   = oe-ord.ord-date
-                dtDueDate     = oe-ord.due-date
+                dtOrderDate = oe-ord.ord-date
+                dtDueDate   = oe-ord.due-date
+                dOverPct    = 1 + oe-ord.over-pct / 100
                 .
         END.
         ELSE DO:
@@ -422,12 +422,11 @@ PROCEDURE pBuildJobItem PRIVATE:
                 .
         END.
         
-        IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN 
-            cSource = "Job Header - Set".
-        ELSE 
-            cSource = "Job Header - Single".
+        cSource = "Job Header - "
+                + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
+                  ELSE "Single".
               
-        IF dQtyInv GE dQtyOrd THEN NEXT.  /*No Backlog at time of "as of" */
+        IF dQtyInv GE dQtyOrd THEN NEXT. /* No Backlog at time of "as of" */
         
         RUN pAddJobItem (
             job-hdr.company,
@@ -448,6 +447,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
+            dOverPct,
             BUFFER bf-ttJobItem
             ).
         IF itemfg.isaset THEN DO:
@@ -459,12 +459,12 @@ PROCEDURE pBuildJobItem PRIVATE:
                   AND bf-comp-itemfg.i-no    EQ fg-set.part-no
                 :
                 ASSIGN 
-                    dQtyInv       = 0
-                    dQtyShip      = 0
-                    dQtyProd      = 0
-                    dQtyOnHand    = 0
-                    dPricePer     = 0
-                    lNoMake       = fg-set.noReceipt
+                    dQtyInv    = 0
+                    dQtyShip   = 0
+                    dQtyProd   = 0
+                    dQtyOnHand = 0
+                    dPricePer  = 0
+                    lNoMake    = fg-set.noReceipt
                     .
                 IF AVAILABLE bf-ttJobItem THEN 
                 RUN pAnalyzeItem (
@@ -507,6 +507,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                     NO,
                     dtOrderDate,
                     dtDueDate,
+                    dOverPct,
                     BUFFER bf-comp-ttJobItem
                     ).
             END.            
@@ -518,6 +519,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                     1
                     ).
     END.
+
     FOR EACH oe-ord NO-LOCK 
         WHERE oe-ord.company EQ ipcCompany
         AND oe-ord.cust-no   GE ipcCustStart
@@ -527,7 +529,8 @@ PROCEDURE pBuildJobItem PRIVATE:
         WHERE oe-ordm.company EQ oe-ord.company
           AND oe-ordm.ord-no  EQ oe-ord.ord-no
           AND oe-ordm.charge  GE ipcFGItemStart
-          AND oe-ordm.charge  LE ipcFGItemEnd,
+          AND oe-ordm.charge  LE ipcFGItemEnd
+          AND oe-ordm.bill    EQ "Y",
         FIRST prep NO-LOCK 
         WHERE prep.company EQ oe-ordm.company
           AND prep.code    EQ oe-ordm.charge
@@ -545,43 +548,47 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake       = NO
             dtOrderDate   = oe-ord.ord-date
             dtDueDate     = oe-ord.due-date
+            dOverPct      = 1 + oe-ord.over-pct / 100
             .
-            RUN pGetInvoicedAmountForMiscAsOf (
-                oe-ord.company,
-                oe-ord.ord-no,
-                oe-ordm.charge,
-                ipdtAsOf,
-                OUTPUT dInvAmt
-                ).
-            IF dPricePer LT dInvAmt THEN NEXT.  /*already invoiced at time of "as of"*/
-            RUN pAddJobItem (
-                oe-ord.company,
-                oe-ord.cust-no,
-                oe-ordm.charge,
-                "",
-                0,
-                prep.fgcat,
-                dQtyOrd,
-                dQtyProd,
-                dQtyShip,
-                dQtyInv,
-                dQtyOnHand, 
-                "Misc/Prep",
-                dPricePer,
-                NO,
-                NO,
-                lHasOrder,
-                dtOrderDate,
-                dtDueDate,
-                BUFFER bf-ttJobItem
-                ).
+        RUN pGetInvoicedAmountForMiscAsOf (
+            oe-ord.company,
+            oe-ord.ord-no,
+            oe-ordm.charge,
+            ipdtAsOf,
+            OUTPUT dInvAmt
+            ).
+        
+        IF dPricePer LT dInvAmt THEN NEXT.  /* already invoiced at time of "as of" */
+        
+        RUN pAddJobItem (
+            oe-ord.company,
+            oe-ord.cust-no,
+            oe-ordm.charge,
+            STRING(oe-ord.ord-no),
+            ?,
+            prep.fgcat,
+            dQtyOrd,
+            dQtyProd,
+            dQtyShip,
+            dQtyInv,
+            dQtyOnHand, 
+            "Misc/Prep",
+            dPricePer,
+            NO,
+            NO,
+            lHasOrder,
+            dtOrderDate,
+            dtDueDate,
+            dOverPct,
+            BUFFER bf-ttJobItem
+            ).
     END.
     
 END PROCEDURE.
 
 PROCEDURE pGetInvoicedAmountForMiscAsOf PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:  Given an prep charge from an order, find the quantity invoiced for that charge
+ Purpose: Given a prep charge from an order, find the quantity invoiced for that charge
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiOrdNo   AS INTEGER   NO-UNDO.
@@ -610,8 +617,8 @@ END PROCEDURE.
 
 PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:  Given an order line and as of date, output invoiced and shipped quantities
- Notes:From ordlsqty.p
+ Purpose: Given an order line and as of date, output invoiced and shipped quantities
+ Notes: From ordlsqty.p
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriOeOrdl AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER ipdtAsOf   AS DATE  NO-UNDO.
@@ -623,8 +630,7 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
 
     FIND oe-ordl WHERE ROWID(oe-ordl) EQ ipriOeOrdl NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ordl THEN 
-    DO:
+    IF AVAIL oe-ordl THEN DO:
         lInvQty = NO.
         FOR EACH ar-invl NO-LOCK
             WHERE ar-invl.company  EQ oe-ordl.company
@@ -640,21 +646,24 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
                 .
         END.
    
+        /* if client only wants posted, remove this for each block */
         FOR EACH inv-head NO-LOCK 
             WHERE inv-head.company  EQ oe-ordl.company
               AND inv-head.cust-no  EQ oe-ordl.cust-no
-              AND inv-head.inv-date LE ipdtAsOf,
+              AND inv-head.inv-date LE ipdtAsOf
+              AND inv-head.printed  EQ YES,
             EACH inv-line NO-LOCK 
             WHERE inv-line.r-no   EQ inv-head.r-no
               AND inv-line.ord-no EQ oe-ordl.ord-no
               AND inv-line.i-no   EQ oe-ordl.i-no
-              AND inv-line.line   EQ oe-ordl.LINE
+              AND inv-line.line   EQ oe-ordl.line
             :
             ASSIGN 
                 lInvQty             = YES
                 opdQuantityInvoiced = opdQuantityInvoiced + inv-line.inv-qty
                 .
         END.
+
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-ordl.company
               AND oe-boll.ord-no  EQ oe-ordl.ord-no
@@ -684,8 +693,7 @@ END PROCEDURE.
 
 PROCEDURE pGetQuantityMadeAsOf PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:  Given Job inputs, determine the production quantity as of a particular date
- Notes:
+ Purpose: Given Job inputs, determine the production quantity as of a particular date
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
@@ -714,8 +722,7 @@ END PROCEDURE.
 
 PROCEDURE pGetQuantityOnHandAsOf PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:  Given Job inputs, determine the production quantity as of a particular date
- Notes:
+ Purpose: Given Job inputs, determine the production quantity as of a particular date
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
