@@ -718,6 +718,19 @@ PROCEDURE ipChangeDatabase :
         RETURN NO-APPLY.
     END.
 
+    /* Highlight for new password */    
+
+    ASSIGN
+        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
+        iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
+        iPos = LOOKUP(cbDatabase:screen-value,cDbList)
+        iDbLevel = intVer(ENTRY(iPos,cDbVerList)).
+    IF iDbLevel GT 20010000 
+    AND fiUserID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ASI" THEN ASSIGN 
+        fiPassword:BGCOLOR = 14.
+    ELSE ASSIGN 
+        fiPassword:BGCOLOR = ?.
+
     ASSIGN
         connectStatement = ""
         xdbName = cbDatabase
@@ -761,7 +774,7 @@ PROCEDURE ipChangeEnvironment :
     DEF VAR iEnvLevelM AS INT NO-UNDO.
     
     ASSIGN
-        iPos = LOOKUP(cbEnvironment,cEnvironmentList)
+        iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
         iPos = LOOKUP(cbDatabase,cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
@@ -808,68 +821,11 @@ PROCEDURE ipChangeEnvironment :
             END.
             OTHERWISE DO:
                 ASSIGN 
-                    cTestList = "".
-                /* Highlight for new password */    
-                IF iEnvLevel GT 20010000 
-                AND fiUserID:SCREEN-VALUE EQ "ASI" THEN ASSIGN 
-                    fiPassword:BGCOLOR = 14.
-                ELSE ASSIGN 
-                    fiPassword:BGCOLOR = ?.
+                    cTestList = ""
+                    cbDatabase:list-items = cDbList.
                 DO iCtr = 1 TO NUM-ENTRIES(cDbList):
-                    IF iEnvLevel EQ 99999900 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 99999900 THEN ASSIGN
+                    IF intVer(ENTRY(iCtr,cDbVerList)) EQ iEnvLevel THEN ASSIGN
                             cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16150300 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150300 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16150200 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150200 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16150100 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150100 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16150000 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16150000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16140300 
-                    OR iEnvLevel EQ 16140200 
-                    OR iEnvLevel EQ 16140100 
-                    OR iEnvLevel EQ 16140000 
-                    THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16140000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16130000 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16130000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16120000 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16120000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16110200 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16110200 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16110000 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16110000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16100100 
-                    OR iEnvLevel EQ 16100000 
-                    THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16100000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
-                    ELSE IF iEnvLevel EQ 16089000 THEN DO:
-                        IF intVer(ENTRY(iCtr,cDbVerList)) EQ 16089000 THEN ASSIGN
-                            cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".
-                    END.
                 END.
                 IF cSessionParam EQ "" THEN ASSIGN 
                     cTestList = TRIM(cTestList,",")
