@@ -959,6 +959,7 @@ DO:
     END.
     ELSE
        RUN spec-image-proc(INPUT "", INPUT NO).
+    RUN setFarmTab.   
   END.
 END.
 
@@ -2052,9 +2053,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
-  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(NO)"}
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
 
 END PROCEDURE.
 
@@ -2504,6 +2503,21 @@ PROCEDURE spec-image-proc :
   
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setFarmTab B-table-Win 
+PROCEDURE setFarmTab :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

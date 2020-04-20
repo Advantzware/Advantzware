@@ -1094,6 +1094,7 @@ DO:
                 {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-layout" "(yes)"}
                 {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-BoxDesign" "(yes)"}
         END.
+       RUN setFarmTab. 
   END.
 END.
 
@@ -2202,9 +2203,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
-  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(NO)"}
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
 
 END PROCEDURE.
 
@@ -2705,6 +2704,21 @@ PROCEDURE value-changed-proc :
    DO WITH FRAME {&FRAME-NAME}:
       APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setFarmTab B-table-Win 
+PROCEDURE setFarmTab :
+/*------------------------------------------------------------------------------
+  Purpose:     disable/enable FARM tab
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF NOT AVAILABLE eb THEN RETURN.      
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
