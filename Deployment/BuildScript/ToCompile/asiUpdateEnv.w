@@ -6165,12 +6165,12 @@ PROCEDURE ipUpdateNK1s :
     FOR EACH sys-ctrl WHERE
         sys-ctrl.name EQ "AsiHelpService":
         ASSIGN
-            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+            sys-ctrl.char-fld = "-WSDL 'http:\\helpsvr.advantzware.com/asihelpServices/helpmaintenance.asmx?WSDL'".
     END. 
     FOR EACH sys-ctrl WHERE
         sys-ctrl.name EQ "UpdateService":
         ASSIGN
-            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+            sys-ctrl.char-fld = "-WSDL 'http:\\helpsvr.advantzware.com/updatehelpServices/helpupdate.asmx?WSDL'".
     END.
     
     /* Reports - set LV = true */
@@ -6204,7 +6204,7 @@ PROCEDURE ipUpdateNK1s :
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkUpgrade":
         ASSIGN
-            sys-ctrl.descrip = "https://34.203.15.64/patches/asiUpdate.html"
+            sys-ctrl.descrip = "https://helpsvr.advantzware.com/patches/asiUpdate.html"
             sys-ctrl.char-fld = "Graphics\32x32\question_and_answer.ico"
             sys-ctrl.log-fld = TRUE
             sys-ctrl.securityLevelUser = 1000.
