@@ -85,6 +85,8 @@ DEFINE TEMP-TABLE w-rowid
 {fg/fullset.i NEW}
 {fg/d-selpos.i NEW}
 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
+    
 DEFINE VARIABLE char-hdl            AS cha       NO-UNDO.   
 
 /*&SCOPED-DEFINE item-key-phrase TRUE
@@ -139,6 +141,9 @@ DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE cFGDefWhse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGDefBin  AS CHARACTER NO-UNDO.
+
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
     INPUT "FGReceiptRules", /* sys-ctrl name */
@@ -150,7 +155,16 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
-glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.             
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.  
+
+RUN Inventory_GetDefaultWhse IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefWhse
+    ).
+RUN Inventory_GetDefaultBin IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefBin
+    ).            
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -776,8 +790,8 @@ DO:
                             DO :
                                 ASSIGN 
                                     fg-rctd.tag:SCREEN-VALUE     = ENTRY(1,char-val)
-                                    fg-rctd.loc:SCREEN-VALUE     = ENTRY(2,char-val)
-                                    fg-rctd.loc-bin:SCREEN-VALUE = ENTRY(3,char-val) .
+                                    fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGdefWhse ELSE ENTRY(2,char-val)
+                                    fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE ENTRY(3,char-val) .
                             END.
                         END. /* If ip-parts-set */
                         ELSE 
@@ -1708,8 +1722,8 @@ DO:
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE shipto AND shipto.loc GT "" THEN
                     ASSIGN
-                    fg-rctd.loc:SCREEN-VALUE     = shipto.loc
-                    fg-rctd.loc-bin:SCREEN-VALUE = shipto.loc-bin.
+                    fg-rctd.loc:SCREEN-VALUE     = IF cFGdefWhse NE "" THEN cFGDefWhse ELSE shipto.loc
+                    fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE shipto.loc-bin.
                 END.
         END.
 END.
@@ -1887,9 +1901,7 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-        
-    RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
-    
+            
     IF ip-type EQ "copy" THEN ASSIGN 
         lv-item-recid = ip-recid.
     IF ip-type EQ "add" THEN ASSIGN 
@@ -3219,8 +3231,8 @@ PROCEDURE get-values :
             RUN new-tag.
         IF fg-rctd.loc:SCREEN-VALUE      EQ "" THEN
             ASSIGN
-                fg-rctd.loc:SCREEN-VALUE     = lv-loc
-                fg-rctd.loc-bin:SCREEN-VALUE = lv-loc-bin.
+                fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lv-loc
+                fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lv-loc-bin.
 
         IF INT(fg-rctd.qty-case:SCREEN-VALUE ) EQ 0 THEN
             fg-rctd.qty-case:SCREEN-VALUE  = lv-qty-case.
@@ -3510,8 +3522,8 @@ PROCEDURE pDisplayFG PRIVATE :
             fg-rctd.i-name:SCREEN-VALUE   = ipbf-itemfg.i-name .
         IF iplGetLocBin EQ YES  THEN
             ASSIGN
-            fg-rctd.loc:SCREEN-VALUE      = ipbf-itemfg.def-loc
-            fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin .
+            fg-rctd.loc:SCREEN-VALUE      = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE ipbf-itemfg.def-loc
+            fg-rctd.loc-bin:SCREEN-VALUE  = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE ipbf-itemfg.def-loc-bin .
         ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
             fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
@@ -3608,8 +3620,8 @@ DO WITH FRAME {&FRAME-NAME}:
     IF AVAILABLE itemfg THEN
         ASSIGN
         fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
-        fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
-        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
+        fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE itemfg.def-loc
+        fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE itemfg.def-loc-bin .
 END.
 
 END PROCEDURE.
@@ -4525,8 +4537,8 @@ PROCEDURE valid-tag :
                 ASSIGN 
                     fg-rctd.job-no:SCREEN-VALUE  = lcJobNo
                     fg-rctd.job-no2:SCREEN-VALUE = lcJobNo2
-                    fg-rctd.loc:SCREEN-VALUE     = lcLoc
-                    fg-rctd.loc-bin:SCREEN-VALUE = lcLocBin.
+                    fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lcLoc
+                    fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lcLocBin.
             /*           AND int(fg-rctd.t-qty:SCREEN-VALUE ) < 0 THEN DO:                */
             /*             iTotalQty = 0.                                                                         */
             /*         FOR EACH b-fg-rctd                                                                         */
