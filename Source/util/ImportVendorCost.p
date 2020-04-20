@@ -141,6 +141,36 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    
+    IF oplValid THEN DO:
+        FIND FIRST e-itemfg NO-LOCK
+             WHERE e-itemfg.company EQ ttImportVendCost.Company
+               AND e-itemfg.i-no    EQ ttImportVendCost.FGItemID
+             NO-ERROR.
+        IF AVAILABLE e-itemfg THEN 
+            FIND FIRST e-itemfg-vend NO-LOCK  
+                 WHERE e-itemfg-vend.company EQ ttImportVendCost.Company
+                   AND e-itemfg-vend.i-no    EQ ttImportVendCost.FGItemID
+                   AND e-itemfg-vend.vend-no EQ ttImportVendCost.VendorID
+                   AND e-itemfg-vend.cust-no EQ ttImportVendCost.CustomerID 
+                 NO-ERROR.
+                 
+        IF AVAILABLE e-itemfg AND AVAILABLE e-itemfg-vend THEN DO:
+            IF NOT iplUpdateDuplicates THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNOte  = "Duplicate Exists:  Will be skipped"
+                    .
+            ELSE 
+                opcNote = "Update record - All fields to be overwritten".        
+        END.  
+        
+        IF AVAILABLE e-itemfg AND NOT AVAILABLE e-itemfg-vend THEN 
+            opcNote = "Add record - New line to existing record".
+        ELSE 
+            opcNote = "Add Record"  .  
+                           
+    END.    
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
