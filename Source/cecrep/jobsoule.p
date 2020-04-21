@@ -614,7 +614,7 @@ do v-local-loop = 1 to v-local-copies:
             v-spec-note[4] FORM "x(122)" AT 2 SKIP
             v-spec-note[5] FORM "x(122)" AT 2 SKIP
             v-spec-note[6] FORM "x(122)" AT 2 SKIP
-            "<C1><R48>F-850-001-A".
+            "<C1><R48>F-850-001-A<R15>".
         if print-box and avail xest then do:
             
            run cec/desprntLa.p (recid(xef),
