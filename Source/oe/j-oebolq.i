@@ -101,7 +101,7 @@ END.
 
 ELSE IF fi_cust-no NE "" THEN DO:
     {&for-each41}
-        AND oe-bolh.cust-no GE fi_cust-no
+        AND oe-bolh.cust-no BEGINS fi_cust-no
         AND CAN-FIND(FIRST oe-boll
                      WHERE oe-boll.company EQ oe-bolh.company
                        AND oe-boll.b-no    EQ oe-bolh.b-no
