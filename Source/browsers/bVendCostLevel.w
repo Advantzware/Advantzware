@@ -134,6 +134,7 @@ DEFINE BROWSE Browser-Table
       vendItemCostLevel.costSetup COLUMN-LABEL "Setup" FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.costDeviation COLUMN-LABEL "Devi" FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.leadTimeDays COLUMN-LABEL "Lead" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.useForBestCost COLUMN-LABEL "Sel" FORMAT "Y/N":U WIDTH 5
   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

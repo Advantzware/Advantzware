@@ -828,9 +828,10 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         IF estCostMaterial.isPrimarySubstrate AND NOT fTypePrintsBoard(ipbf-estCostHeader.estType) THEN NEXT.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMaterial.formNo,2, 0, YES) + "-" + fFormatNumber(estCostMaterial.blankNo,2, 0, YES), NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName, 30, NO, NO, NO).
+        
         IF estCostMaterial.isPrimarySubstrate THEN 
         DO:
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName + IF estCostMaterial.vendorID NE "" THEN " (" + estCostMaterial.vendorID + ")" ELSE "", 30, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostMaterial.quantityRequiredNoWasteInCUOM, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[4] + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
@@ -864,6 +865,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         END.
         ELSE 
         DO:
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName, 30, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostMaterial.quantityRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[4] + 1, estCostMaterial.quantityUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
