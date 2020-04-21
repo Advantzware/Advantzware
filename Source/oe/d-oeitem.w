@@ -646,6 +646,7 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-ordl.SourceEstimateID AT ROW 1.24 COL 60.6 COLON-ALIGNED FORMAT "x(8)"
+          LABEL "Source Est. ID"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1    
      oe-ordl.job-no AT ROW 1.14 COL 95 COLON-ALIGNED FORMAT "x(6)"
@@ -880,7 +881,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
-   EXP-FORMAT                                                            */   
+   EXP-FORMAT EXP-LABEL                                                 */   
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
@@ -4282,6 +4283,7 @@ PROCEDURE display-est-detail :
   DEF VAR v-price-per-1000 AS DEC NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO .
   
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -4514,7 +4516,7 @@ PROCEDURE display-est-detail :
    lv-price  = dec(oe-ordl.price:SCREEN-VALUE)
    lv-pr-uom = oe-ordl.pr-uom:SCREEN-VALUE
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
-
+   cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
   IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
       NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4522,7 +4524,7 @@ PROCEDURE display-est-detail :
           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN DO:
      ll-got-qtprice = YES.
         
-     RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
+     RUN pGetQuoteRec(cQuoteEst /*xest.est-no*/,oe-ordl.part-no:SCREEN-VALUE,
                       oe-ordl.i-no:SCREEN-VALUE,
                       INPUT-OUTPUT lv-price ,
                       INPUT-OUTPUT lv-pr-uom,

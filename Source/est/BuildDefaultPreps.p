@@ -101,7 +101,7 @@ FOR EACH bf-prep
         est-prep.b-num  = ipiBlank
         est-prep.code   = bf-prep.code
         est-prep.dscr   = bf-prep.dscr
-        est-prep.cost   = bf-prep.cost
+        est-prep.cost   = (IF ipbf-est.estimateTypeID EQ "MISC" THEN 0 ELSE bf-prep.cost)
         est-prep.ml     = bf-prep.ml
         est-prep.simon  = bf-prep.simon
         est-prep.mkup   = bf-prep.mkup

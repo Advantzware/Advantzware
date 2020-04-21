@@ -1516,7 +1516,7 @@ PROCEDURE pDisplayValue :
                     AND probe.probe-date ne ? NO-ERROR .
                        
                IF AVAIL probe THEN               
-               dEaCost1:SCREEN-VALUE = string(probe.sell-price / 1000) .               
+               dEaCost1:SCREEN-VALUE = string(probe.sell-price) .               
         END.
 
         FIND FIRST ef EXCLUSIVE-LOCK
