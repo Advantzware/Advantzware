@@ -19,7 +19,8 @@ DEFINE TEMP-TABLE ttVendItemCost LIKE vendItemCost
     FIELD quantityTarget AS DECIMAL 
     FIELD quantityTargetUOM AS CHARACTER
     FIELD quantityTargetInVendorUOM AS DECIMAL 
-    FIELD costPerVendorUOM AS DECIMAL 
+    FIELD costPerVendorUOM AS DECIMAL
+    FIELD costPerVendorUOMBase AS DECIMAL 
     FIELD costPerVendorUOMUpcharge AS DECIMAL
     FIELD costSetup AS DECIMAL
     FIELD costTotal AS DECIMAL

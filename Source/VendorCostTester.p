@@ -68,11 +68,13 @@ RUN pSetGlobalSettings(gcCompany).
 
 //RUN pTestSampleFG.
 //RUN pTestSampleRM.
-//RUN pGetVendorCostList(gcCompany).
+RUN pGetVendorCostList(gcCompany).
 
 //RUN pPOVendCostCalc.
 
-RUN pBestVendTest.
+//RUN pBestVendTest.
+
+//RUN pGetBestCost (gcCompany).
 
 DELETE OBJECT ghSession.
 DELETE OBJECT ghOutput.
@@ -334,9 +336,10 @@ PROCEDURE pGetVendorCostList PRIVATE:
     DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
     
         
-    cValidScopes = DYNAMIC-FUNCTION("GetValidScopes").
+    cValidScopes = DYNAMIC-FUNCTION("VendCost_GetValidScopes","").
     cScope = ENTRY(iScopeEntry, cValidScopes).
     RUN BuildVendItemCosts(ipcCompany, cItemID, cItemType, cScope, lIncludeBlankVendor,
+        "",0,0,
         10000, "EA", 
         dDimLength, dDimWidth, dDimDepth, "IN",
         dBasisWeight, "LBS/MSF", 
@@ -344,11 +347,59 @@ PROCEDURE pGetVendorCostList PRIVATE:
         OUTPUT lError, OUTPUT cMessage).
     FOR EACH ttVendItemCost
         BY ttVendItemCost.costTotal:
-        DISPLAY ttVendItemCost.quantityTargetInVendorUOM ttVendItemCost.isValid ttVendItemCost.vendorID ttVendItemCost.costTotal ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM.
+        DISPLAY ttVendItemCost.quantityTargetInVendorUOM ttVendItemCost.isValid ttVendItemCost.vendorID ttVendItemCost.costTotal ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM 
+            ttVendItemCost.reasonNotValid FORMAT "x(50)".
     END.        
 
 END PROCEDURE.
 
+PROCEDURE pGetBestCost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cItemID             AS CHARACTER NO-UNDO INITIAL "200 C".
+    DEFINE VARIABLE cItemType           AS CHARACTER NO-UNDO INITIAL "RM".
+    DEFINE VARIABLE cValidScopes        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iScopeEntry         AS INTEGER   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE cScope              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dDimLength          AS DECIMAL   NO-UNDO INITIAL 56.
+    DEFINE VARIABLE dDimWidth           AS DECIMAL   NO-UNDO INITIAL 36.
+    DEFINE VARIABLE dDimDepth           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBasisWeight        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dBestCostPerUOM     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBestCostSetup      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cBestVendorID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantity           AS DECIMAL   NO-UNDO INITIAL 10000.
+    
+    cValidScopes = DYNAMIC-FUNCTION("VendCost_GetValidScopes","").
+    cScope = ENTRY(iScopeEntry, cValidScopes).
+    RUN VendCost_GetBestCost(ipcCompany, cItemID, cItemType, cScope, lIncludeBlankVendor,
+        "",0,0, 
+        dQuantity, "EA", dDimLength, dDimWidth, dDimDepth, "IN", dBasisWeight, "LBS/MSF",
+        OUTPUT dBestCostPerUOM, OUTPUT dBestCostSetup, OUTPUT cBestVendorID, OUTPUT lError, OUTPUT cMessage).
+    MESSAGE "Best" SKIP  
+        "Qty in MSF: " dDimLength * dDimWidth / 144000 * dQuantity SKIP 
+        "Vendor: " cBestVendorID SKIP 
+        "PerUOM: " dBestCostPerUOM SKIP 
+        "Setup: " dBestCostSetup
+    VIEW-AS ALERT-BOX.
+    RUN VendCost_GetWorstCost(ipcCompany, cItemID, cItemType, cScope, lIncludeBlankVendor, 
+        "",0,0,
+        dQuantity, "EA", dDimLength, dDimWidth, dDimDepth, "IN", dBasisWeight, "LBS/MSF",
+        OUTPUT dBestCostPerUOM, OUTPUT dBestCostSetup, OUTPUT cBestVendorID, OUTPUT lError, OUTPUT cMessage).
+    MESSAGE "Worst" SKIP  
+        "Qty in MSF: " dDimLength * dDimWidth / 144000 * dQuantity SKIP 
+        "Vendor: " cBestVendorID SKIP 
+        "PerUOM: " dBestCostPerUOM SKIP 
+        "Setup: " dBestCostSetup
+    VIEW-AS ALERT-BOX.
+END PROCEDURE.
 PROCEDURE pPOVendCostCalc PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
