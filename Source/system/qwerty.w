@@ -43,12 +43,18 @@ DEFINE INPUT PARAMETER h_touchfrm AS HANDLE NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+
+/* This NK1 setting disables keyboards on WIP modules if set to YES.
+   Below code has been commeneted User do not use the NK1 to drive 
+   the functionality but can select them on demand */ 
+/*
 DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
 
 IF NOT tskey-log THEN
    RETURN.
+*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
