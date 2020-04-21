@@ -1,4 +1,0 @@
-
-FOR EACH prgrms WHERE prgrms.prgtitle BEGINS "Print OE Invoices" NO-LOCK:
-    DISPLAY prgrms.DIR_group prgrms.prgmname .
-END.
