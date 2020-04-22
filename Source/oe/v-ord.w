@@ -125,6 +125,7 @@ DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -995,6 +996,7 @@ DO:
                    APPLY "value-changed" TO oe-ord.est-no.
                    RUN valid-cust-user("est") NO-ERROR.
                    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+                   RUN pGetMiscEst(INPUT eb.est-no) . 
                    RUN get-from-est.
                  END.
               END.  
@@ -1422,6 +1424,7 @@ DO:
   ASSIGN
    ll-est-no-mod            = YES
    oe-ord.cust-no:SENSITIVE = TRIM({&self-name}:SCREEN-VALUE) EQ "".
+   RUN pGetMiscEst( INPUT TRIM(oe-ord.est-no:SCREEN-VALUE)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5155,7 +5158,7 @@ PROCEDURE local-create-record :
      oe-ctrl.n-ord = oe-ord.ord-no + 1.
      RELEASE oe-ctrl.
    END.
-
+   cMisEstimate = "" .
 
 END PROCEDURE.
 
@@ -5914,6 +5917,7 @@ nufile = YES.
 RUN oe/ordfrest.p 
 (INPUT THIS-PROCEDURE,
  INPUT        v-ord-rec,
+ INPUT        cMisEstimate,
  INPUT-OUTPUT ip-new-ord,
  INPUT-OUTPUT v-qty-mod,
  INPUT-OUTPUT v-inactive,
@@ -7406,6 +7410,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst V-table-Win 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipoEstNo AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+     DEFINE BUFFER b-eb FOR eb.
+     cMisEstimate = "" .     
+     FIND FIRST bff-est WHERE bff-est.company EQ cocode
+                AND trim(bff-est.est-no) EQ trim(ipoEstNo)
+                AND bff-est.estimateTypeID EQ "MISC" NO-LOCK NO-ERROR. 
+     IF AVAIL bff-est THEN             
+     FIND FIRST bff-eb NO-LOCK
+          WHERE bff-eb.company EQ cocode 
+            AND bff-eb.est-no EQ bff-est.est-no NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST b-eb NO-LOCK
+             WHERE b-eb.company EQ bff-eb.company
+               AND trim(b-eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND b-eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL b-eb THEN do:                                  
+                 cMisEstimate = bff-eb.est-no .
+                 oe-ord.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
 
 /* ************************  Function Implementations ***************** */
 

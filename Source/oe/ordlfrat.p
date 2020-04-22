@@ -74,7 +74,7 @@ END.
 RETURN.
 
 PROCEDURE get-freight.
-
+  DEFINE VARIABLE cFreightEst AS CHARACTER NO-UNDO .
   FOR EACH carrier OF shipto NO-LOCK:
 
     FIND FIRST fg-bin
@@ -83,11 +83,11 @@ PROCEDURE get-freight.
           AND fg-bin.loc     EQ itemfg.def-loc
           AND fg-bin.loc-bin EQ itemfg.def-loc-bin
         NO-LOCK NO-ERROR.
-
-    IF oe-ordl.est-no NE "" THEN
+    cFreightEst =  IF oe-ordl.SourceEstimateID NE "" THEN oe-ordl.SourceEstimateID ELSE oe-ordl.est-no .
+    IF cFreightEst NE "" THEN    
     FIND FIRST eb
         WHERE eb.company  EQ oe-ordl.company
-          AND eb.est-no   EQ oe-ordl.est-no
+          AND eb.est-no   EQ cFreightEst
           AND eb.stock-no EQ oe-ordl.i-no
         NO-LOCK NO-ERROR.
 

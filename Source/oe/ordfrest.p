@@ -3,6 +3,7 @@
 /* include file so avoids the transaction warnings in the calling proc      */
 DEF INPUT        PARAM ip-callproc AS HANDLE NO-UNDO.
 DEF INPUT        PARAM ip-ord-rec AS ROWID NO-UNDO.
+DEF INPUT        PARAM ip-MiscEst AS CHARACTER NO-UNDO.
 DEF INPUT-OUTPUT PARAM ip-new-ord AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAM v-qty-mod AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAM v-inactive AS LOG NO-UNDO.
@@ -427,6 +428,7 @@ PROCEDURE create-order-lines.
     
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE lcChoice AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cPriceEst AS CHARACTER NO-UNDO .
   /* dependencies ...
     cocode
     xoe-ord buffer
@@ -507,9 +509,11 @@ PROCEDURE create-order-lines.
                    oe-ordl.s-pct[i] = xoe-ord.s-pct[i]
                    oe-ordl.s-comm[i] = xoe-ord.s-comm[i].
           END.
-         
+               
           oe-ordl.q-qty = xoe-ord.t-fuel.
-         
+          oe-ordl.SourceEstimateID = FILL(" ",8 - LENGTH(TRIM(ip-MiscEst))) + TRIM(ip-MiscEst) .
+          cPriceEst = IF oe-ordl.SourceEstimateID NE "" THEN oe-ordl.SourceEstimateID ELSE  oe-ordl.est-no .
+          
           IF v-foamdate-log                                         AND
              CAN-FIND(FIRST style WHERE style.company EQ eb.company
                                     AND style.style   EQ eb.style
@@ -849,7 +853,7 @@ PROCEDURE create-order-lines.
        FOR EACH quotehd
             WHERE quotehd.company EQ cocode
             AND quotehd.loc     EQ locode
-            AND quotehd.est-no  EQ xest.est-no
+            AND quotehd.est-no  EQ cPriceEst
             AND quotehd.quo-date LE TODAY 
             AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
             USE-INDEX quote NO-LOCK,
@@ -876,7 +880,7 @@ PROCEDURE create-order-lines.
        IF j GT 1 THEN
            RUN oe/d-quotedprices.w("",cocode,
                           locode,
-                          oe-ordl.est-no,
+                          cPriceEst,
                           oe-ordl.cust-no,
                           oe-ordl.part-no,
                           oe-ordl.i-no,
