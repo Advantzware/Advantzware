@@ -16,6 +16,7 @@ PROCEDURE pDynBrowserParam:
     
     FIND FIRST dynSubject NO-LOCK
          WHERE dynSubject.subjectAltID EQ ipcSubjectAltID
+           AND dynSubject.isActive     EQ YES
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
         ASSIGN
