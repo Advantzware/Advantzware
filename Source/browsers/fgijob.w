@@ -35,14 +35,15 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 
 assign
- cocode = g_company
- locode = g_loc.
+    cocode = g_company
+    locode = g_loc.
 
 DEF VAR ll-show-zero-bins AS LOG NO-UNDO.
 DEF VAR lShowRecalcFields AS LOG NO-UNDO.
 DEFINE VARIABLE lcReturn   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE llRecFound AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ll-secure  AS LOGICAL   NO-UNDO.
+DEF VAR iConsumeThisTag AS INT NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "FgItemHideCalcFields", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -58,7 +59,13 @@ DEFINE TEMP-TABLE w-jobs LIKE w-job.
 
 DEFINE TEMP-TABLE hold-job LIKE w-job.
 
-DEF TEMP-TABLE tt-ids FIELD tt-rowid AS ROWID.
+/* Tkt 66887 - old code had single field TT.  Expanded to hold additional data to prevent re-reading tables */
+DEF TEMP-TABLE tt-ids 
+    FIELD tt-type AS CHAR 
+    FIELD tt-rowid AS ROWID
+    FIELD tt-jobno LIKE oe-boll.job-no
+    FIELD tt-jobno2 LIKE oe-boll.job-no2
+    FIELD tt-qty LIKE oe-boll.qty.
 
 DEF VAR lv-sort-by AS CHAR INIT "tag" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
@@ -77,14 +84,14 @@ DEFINE VARIABLE hdInventoryProcs   AS HANDLE    NO-UNDO.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryprocs.
 
 RUN methods/prgsecur.p
-	    (INPUT "fgijob.",
-	     INPUT "ALL", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAccessPro, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+    (INPUT "fgijob.",
+    INPUT "ALL", /* based on run, create, update, delete or all */
+    INPUT NO,    /* use the directory in addition to the program */
+    INPUT NO,    /* Show a message if not authorized */
+    INPUT NO,    /* Group overrides user security? */
+    OUTPUT lAccessPro, /* Allowed? Yes/NO */
+    OUTPUT lAccessClose, /* used in template/windows.i  */
+    OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 /*-sort-by = NOT oeinq.*/
 
 &SCOPED-DEFINE for-each1    ~
@@ -139,7 +146,7 @@ RUN methods/prgsecur.p
     {&sortby}
 
 DO TRANSACTION:
-   {sys\inc\fgsecur.i}
+    {sys\inc\fgsecur.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -264,47 +271,47 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnBinDetails 
-     LABEL "View Bin Details" 
-     SIZE 24 BY 1.
+    LABEL "View Bin Details" 
+    SIZE 24 BY 1.
 
 DEFINE BUTTON btnLocationDetails 
-     LABEL "View Location Details" 
-     SIZE 24 BY 1 TOOLTIP "Click to View Location Details".
+    LABEL "View Location Details" 
+    SIZE 24 BY 1 TOOLTIP "Click to View Location Details".
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      w-job SCROLLING.
+    w-job SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
-  QUERY br_table NO-LOCK DISPLAY
-      w-job.job-no-disp          LABEL "Job#"                   FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
-      w-job.po-no                LABEL "PO#"                    FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
-      w-job.loc                  LABEL "Whse"                                        WIDTH 10   LABEL-BGCOLOR 14
-      w-job.loc-bin              LABEL "Bin"                                         WIDTH 14   LABEL-BGCOLOR 14
-      w-job.tag                  LABEL "Tag"                    FORMAT "x(20)"       WIDTH 28   LABEL-BGCOLOR 14
-      w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
-      w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
-      w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
-      w-job.partial-count        LABEL "Partial"                FORMAT "->>,>>9"                LABEL-BGCOLOR 14
-      w-job.qty                  LABEL "Total Qty"              FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-      w-job.rel-qty              LABEL "Releases"               FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-      w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-      w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-      w-job.std-tot-cost         COLUMN-LABEL "Standard!Cost"                                   LABEL-BGCOLOR 14
-      w-job.sell-uom             LABEL "UOM"                                                    LABEL-BGCOLOR 14
-      w-job.std-mat-cost         LABEL "Material"               FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
-      w-job.std-lab-cost         LABEL "Labor"                  FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
-      w-job.std-var-cost         LABEL "Variable O/H"           FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
-      w-job.std-fix-cost         LABEL "Fixed O/H"              FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
-      w-job.cust-no              LABEL "Cust#"                  FORMAT "x(8)"        WIDTH 13   LABEL-BGCOLOR 14  
-      w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
-      w-job.tagStatusID          LABEL "Tag Status ID "         FORMAT "X(4)"        WIDTH 18.3 LABEL-BGCOLOR 14
-      w-job.tagStatusDescription LABEL "Tag Status Description" FORMAT "X(32)"                  LABEL-BGCOLOR 14
-      w-job.onHold               LABEL "On Hold"                FORMAT "Yes/No"                 LABEL-BGCOLOR 14
+    QUERY br_table NO-LOCK DISPLAY
+    w-job.job-no-disp          LABEL "Job#"                   FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
+    w-job.po-no                LABEL "PO#"                    FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
+    w-job.loc                  LABEL "Whse"                                        WIDTH 10   LABEL-BGCOLOR 14
+    w-job.loc-bin              LABEL "Bin"                                         WIDTH 14   LABEL-BGCOLOR 14
+    w-job.tag                  LABEL "Tag"                    FORMAT "x(20)"       WIDTH 28   LABEL-BGCOLOR 14
+    w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
+    w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
+    w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
+    w-job.partial-count        LABEL "Partial"                FORMAT "->>,>>9"                LABEL-BGCOLOR 14
+    w-job.qty                  LABEL "Total Qty"              FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+    w-job.rel-qty              LABEL "Releases"               FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+    w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+    w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+    w-job.std-tot-cost         COLUMN-LABEL "Standard!Cost"                                   LABEL-BGCOLOR 14
+    w-job.sell-uom             LABEL "UOM"                                                    LABEL-BGCOLOR 14
+    w-job.std-mat-cost         LABEL "Material"               FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+    w-job.std-lab-cost         LABEL "Labor"                  FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+    w-job.std-var-cost         LABEL "Variable O/H"           FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+    w-job.std-fix-cost         LABEL "Fixed O/H"              FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
+    w-job.cust-no              LABEL "Cust#"                  FORMAT "x(8)"        WIDTH 13   LABEL-BGCOLOR 14  
+    w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
+    w-job.tagStatusID          LABEL "Tag Status ID "         FORMAT "X(4)"        WIDTH 18.3 LABEL-BGCOLOR 14
+    w-job.tagStatusDescription LABEL "Tag Status Description" FORMAT "X(32)"                  LABEL-BGCOLOR 14
+    w-job.onHold               LABEL "On Hold"                FORMAT "Yes/No"                 LABEL-BGCOLOR 14
 ENABLE w-job.job-no-disp
        w-job.po-no
        w-job.loc 
@@ -336,15 +343,15 @@ ENABLE w-job.job-no-disp
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnLocationDetails AT ROW 1 COL 1 HELP
-          "View Location Details" WIDGET-ID 10
-     btnBinDetails AT ROW 1 COL 25 HELP
-          "View Bin Details" WIDGET-ID 12
-     br_table AT ROW 1.95 COL 1
+    btnLocationDetails AT ROW 1 COL 1 HELP
+    "View Location Details" WIDGET-ID 10
+    btnBinDetails AT ROW 1 COL 25 HELP
+    "View Bin Details" WIDGET-ID 12
+    br_table AT ROW 1.95 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1 SCROLLABLE 
+    BGCOLOR 8 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -361,10 +368,11 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
+    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+    RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -400,8 +408,8 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table btnBinDetails F-Main */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+    FRAME F-Main:SCROLLABLE       = FALSE
+    FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR BUTTON btnBinDetails IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -448,9 +456,9 @@ OPEN QUERY {&SELF-NAME}
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Bin Details */
-DO:
-    RUN update-cost.
-END.
+    DO:
+        RUN update-cost.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -458,10 +466,10 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main /* Bin Details */
-DO:
+    DO:
   /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}  
-END.
+    {src/adm/template/brsentry.i}  
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -469,11 +477,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main /* Bin Details */
-DO:
+    DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
+        {src/adm/template/brsleave.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -481,35 +489,36 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main /* Bin Details */
-DO:
-  DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+    DO:
+        DEF VAR lh-column AS HANDLE NO-UNDO.
+        DEF VAR lv-column-nam AS CHAR NO-UNDO.
+        DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
 
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
+        ASSIGN
+            lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+            lv-column-nam = lh-column:NAME
+            lv-column-lab = lh-column:LABEL.
 
-  IF lv-column-nam BEGINS "li-" THEN DO:
-    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-    RETURN NO-APPLY.
-  END.
+        IF lv-column-nam BEGINS "li-" THEN 
+        DO:
+            APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+            RETURN NO-APPLY.
+        END.
 
  
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+        IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
 
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
+        ELSE
+            ASSIGN
+                lv-sort-by     = lv-column-nam
+                lv-sort-by-lab = lv-column-lab.
 
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+        APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
-  RUN resort-query.
+        RUN resort-query.
  
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -517,12 +526,12 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main /* Bin Details */
-DO:
+    DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
+    {src/adm/template/brschnge.i}
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -531,12 +540,12 @@ END.
 &Scoped-define SELF-NAME btnLocationDetails
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLocationDetails B-table-Win
 ON CHOOSE OF btnLocationDetails IN FRAME F-Main /* View Location Details */
-DO:
-    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    DO:
+        DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
-    {methods/run_link.i "ViewDetail-TARGET" "pViewDetail" "(5)"}
-END.
+        {methods/run_link.i "ViewDetail-TARGET" "pViewDetail" "(5)"}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -552,21 +561,22 @@ END.
 
 RUN set-read-only(YES).
 
-IF fgsecurity-log THEN DO:
+IF fgsecurity-log THEN 
+DO:
     FIND FIRST usergrps NO-LOCK
-         WHERE usergrps.usergrps EQ fgsecurity-char
-         NO-ERROR.
+        WHERE usergrps.usergrps EQ fgsecurity-char
+        NO-ERROR.
     IF AVAILABLE usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
-       TRIM(usergrps.users) NE "*") THEN
-    ASSIGN
-        w-job.std-tot-cost:VISIBLE IN BROWSE {&browse-name} = NO
-        w-job.sell-uom:VISIBLE IN BROWSE {&browse-name} = NO
-        w-job.std-mat-cost:VISIBLE IN BROWSE {&browse-name} = NO
-        w-job.std-lab-cost:VISIBLE IN BROWSE {&browse-name} = NO
-        w-job.std-var-cost:VISIBLE IN BROWSE {&browse-name} = NO
-        w-job.std-fix-cost:VISIBLE IN BROWSE {&browse-name} = NO
-        .
+        (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+        TRIM(usergrps.users) NE "*") THEN
+        ASSIGN
+            w-job.std-tot-cost:VISIBLE IN BROWSE {&browse-name} = NO
+            w-job.sell-uom:VISIBLE IN BROWSE {&browse-name} = NO
+            w-job.std-mat-cost:VISIBLE IN BROWSE {&browse-name} = NO
+            w-job.std-lab-cost:VISIBLE IN BROWSE {&browse-name} = NO
+            w-job.std-var-cost:VISIBLE IN BROWSE {&browse-name} = NO
+            w-job.std-fix-cost:VISIBLE IN BROWSE {&browse-name} = NO
+            .
 END.
 ASSIGN 
     w-job.avl-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields 
@@ -597,20 +607,20 @@ PROCEDURE adm-row-available :
 ------------------------------------------------------------------------------*/
 
   /* Define variables needed by this internal procedure.             */
-  {src/adm/template/row-head.i}
+    {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "itemfg"}
+    {src/adm/template/row-list.i "itemfg"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
+    {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "itemfg"}
+    {src/adm/template/row-find.i "itemfg"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
-  {src/adm/template/row-end.i}
+    {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -624,205 +634,203 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  EMPTY TEMP-TABLE w-jobs.
-  EMPTY TEMP-TABLE w-job.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-  FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ itemfg.company NO-LOCK NO-ERROR.
+    EMPTY TEMP-TABLE w-jobs.
+    EMPTY TEMP-TABLE w-job.
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ itemfg.company NO-LOCK NO-ERROR.
 
-IF lv-show-tag-no EQ "" THEN DO:
-    FOR EACH fg-bin
-        WHERE fg-bin.company eq itemfg.company
-        AND  fg-bin.i-no    eq itemfg.i-no
-        NO-LOCK:
-            
-        RUN createwjobs.
-    
-     END. /* each fg-bin */
- END.
- ELSE IF INDEX(lv-show-tag-no, '*') EQ 0 THEN DO:
-      FOR EACH fg-bin
-          WHERE fg-bin.company eq itemfg.company
-             AND  fg-bin.i-no    eq itemfg.i-no
-             AND fg-bin.tag     BEGINS lv-show-tag-no 
-        NO-LOCK:
-            
-          IF  fg-bin.i-no    eq itemfg.i-no THEN 
-             RUN createwjobs.
-    
+    IF lv-show-tag-no EQ "" THEN DO:
+        FOR EACH fg-bin
+            WHERE fg-bin.company eq itemfg.company
+            AND  fg-bin.i-no    eq itemfg.i-no
+            NO-LOCK:
+            RUN createwjobs.
         END. /* each fg-bin */
-   END.
-   ELSE DO:
-      FOR EACH fg-bin
-          WHERE fg-bin.company eq itemfg.company         
-              AND  fg-bin.tag MATCHES lv-show-tag-no
-           NO-LOCK:
-                IF  fg-bin.i-no    eq itemfg.i-no THEN 
-                     RUN createwjobs.
-    
-      END. /* each fg-bin */
-  END.
-  
-  IF ll-show-zero-bins THEN DO:
-    FOR EACH job-hdr FIELDS(std-lab-cost std-mat-cost std-var-cost  std-fix-cost) NO-LOCK
-        WHERE job-hdr.company EQ itemfg.company
-          AND job-hdr.i-no    EQ itemfg.i-no
-          AND job-hdr.opened  EQ YES
-        USE-INDEX i-no,
-        FIRST  job FIELDS(job-no job-no2 loc) NO-LOCK
-        WHERE job.company EQ job-hdr.company
-          AND job.job     EQ job-hdr.job
-          AND job.job-no  EQ job-hdr.job-no
-          AND job.job-no2 EQ job-hdr.job-no2:
-      
-    IF lv-show-tag-no = ""  THEN
-      RUN create-table (job-hdr.std-lab-cost,
-                        job-hdr.std-mat-cost,
-                        job-hdr.std-var-cost,
-                        job-hdr.std-fix-cost).
-
-      RELEASE w-jobs.
     END.
-
-    FOR EACH reftable FIELDS(val) NO-LOCK
-        WHERE reftable.reftable EQ "jc/jc-calc.p"
-          AND reftable.code2    EQ itemfg.i-no
-          AND reftable.company  EQ itemfg.company
-          AND reftable.loc      EQ ""
-        USE-INDEX code2,
-        FIRST job FIELDS(job-no job-no2 loc) NO-LOCK
-        WHERE job.company EQ reftable.company
-          AND job.job     EQ INT(reftable.code)
-          AND job.opened  EQ YES
-          AND NOT CAN-FIND(FIRST job-hdr
-                           WHERE job-hdr.company EQ job.company
-                             AND job-hdr.job     EQ job.job
-                             AND job-hdr.job-no  EQ job.job-no
-                             AND job-hdr.job-no2 EQ job.job-no2
-                             AND job-hdr.i-no    EQ reftable.code2):
-     IF lv-show-tag-no = ""  THEN
-      RUN create-table (reftable.val[1],
-                        reftable.val[2],
-                        reftable.val[3],
-                        reftable.val[4]).
-
-      RELEASE w-jobs.
+    ELSE IF INDEX(lv-show-tag-no, '*') EQ 0 THEN DO:
+        FOR EACH fg-bin
+            WHERE fg-bin.company eq itemfg.company
+            AND  fg-bin.i-no    eq itemfg.i-no
+            AND fg-bin.tag     BEGINS lv-show-tag-no 
+            NO-LOCK:
+            IF  fg-bin.i-no    eq itemfg.i-no THEN 
+                RUN createwjobs.
+        END. /* each fg-bin */
     END.
-  END. /* ll-show-zero-bins */
-
-  EMPTY TEMP-TABLE tt-ids.
-  IF lShowRecalcFields THEN DO:
-    FOR EACH oe-rell FIELDS() NO-LOCK
-        WHERE oe-rell.company EQ itemfg.company          
-          AND oe-rell.i-no    EQ itemfg.i-no
-          AND oe-rell.posted  EQ NO 
-      ,
-      EACH oe-relh FIELDS() NO-LOCK
-        WHERE oe-relh.r-no EQ oe-rell.r-no
-          AND oe-relh.deleted EQ NO
-          AND oe-relh.posted  EQ NO
-        :
-      CREATE tt-ids.
-      tt-rowid = ROWID(oe-rell).
-    END.
-    
-    FOR EACH oe-boll FIELDS() NO-LOCK
-        WHERE oe-boll.company EQ itemfg.company          
-          AND oe-boll.i-no    EQ itemfg.i-no
-          AND oe-boll.posted  EQ NO
-          ,
-        FIRST oe-bolh FIELDS() NO-LOCK
-            WHERE oe-bolh.company EQ oe-boll.company
-              AND oe-bolh.b-no    EQ oe-boll.b-no
-              AND oe-bolh.deleted EQ NO
-              AND oe-bolh.posted  EQ NO            
-        
-        :
-      CREATE tt-ids.
-      tt-rowid = ROWID(oe-boll).
+    ELSE DO:
+        FOR EACH fg-bin
+            WHERE fg-bin.company eq itemfg.company         
+            AND  fg-bin.tag MATCHES lv-show-tag-no
+            NO-LOCK:
+            IF  fg-bin.i-no    eq itemfg.i-no THEN 
+                RUN createwjobs. 
+        END. /* each fg-bin */
     END.
   
-    IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
-    FOR EACH inv-line FIELDS() NO-LOCK
-        WHERE inv-line.company EQ itemfg.company
-          AND inv-line.i-no    EQ itemfg.i-no,
-        EACH oe-boll FIELDS() NO-LOCK
-        WHERE oe-boll.company EQ inv-line.company
-          AND oe-boll.b-no    EQ inv-line.b-no
-          AND oe-boll.ord-no  EQ inv-line.ord-no
-          AND oe-boll.i-no    EQ inv-line.i-no
-          AND oe-boll.po-no   EQ inv-line.po-no:
-      CREATE tt-ids.
-      tt-rowid = ROWID(oe-boll).
-    END.
-  END.
+    /* This is true UNLESS NK1 FgItemHideCalcFields exists and has logical TRUE */
+    IF ll-show-zero-bins THEN DO:
+        FOR EACH job-hdr FIELDS(std-lab-cost std-mat-cost std-var-cost  std-fix-cost) NO-LOCK
+            WHERE job-hdr.company EQ itemfg.company
+            AND job-hdr.i-no    EQ itemfg.i-no
+            AND job-hdr.opened  EQ YES
+            USE-INDEX i-no,
+            FIRST  job FIELDS(job-no job-no2 loc) NO-LOCK
+                WHERE job.company EQ job-hdr.company
+                AND job.job     EQ job-hdr.job
+                AND job.job-no  EQ job-hdr.job-no
+                AND job.job-no2 EQ job-hdr.job-no2:
   
-  FOR EACH w-jobs BREAK BY w-jobs.job-no BY w-jobs.job-no2:
-      CREATE w-job.
-      ASSIGN w-job.job-no               = w-jobs.job-no
-             w-job.job-no2              = w-jobs.job-no2
-             w-job.job-no-disp          = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"99")
-             w-job.po-no                = w-jobs.po-no
-             w-job.i-no                 = w-jobs.i-no
-             w-job.j-no                 = w-jobs.j-no
-             w-job.loc                  = w-jobs.loc
-             w-job.loc-bin              = w-jobs.loc-bin
-             w-job.tag                  = w-jobs.tag
-             w-job.cust-no              = w-jobs.cust-no
-             w-job.cases                = w-jobs.cases
-             w-job.case-count           = w-jobs.case-count
-             w-job.cases-unit           = w-jobs.cases-unit
-             w-job.partial-count        = w-jobs.partial-count
-             w-job.qty                  = w-jobs.qty
-             w-job.std-tot-cost         = w-jobs.std-tot-cost
-             w-job.std-mat-cost         = w-jobs.std-mat-cost
-             w-job.std-lab-cost         = w-jobs.std-lab-cost
-             w-job.std-var-cost         = w-jobs.std-var-cost
-             w-job.std-fix-cost         = w-jobs.std-fix-cost
-             w-job.last-cost            = w-jobs.last-cost
-             w-job.sell-uom             = w-jobs.sell-uom
-             w-job.tot-wt               = w-jobs.tot-wt
-             w-job.tagStatusID          = w-jobs.tagStatusID
-             w-job.tagStatusDescription = w-jobs.tagStatusDescription
-             w-job.onHold               = w-jobs.onHold
-             .
+            IF lv-show-tag-no = ""  THEN
+                RUN create-table (job-hdr.std-lab-cost,
+                    job-hdr.std-mat-cost,
+                    job-hdr.std-var-cost,
+                    job-hdr.std-fix-cost).
 
-      IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
-               
-      DELETE w-jobs.
-
-      FOR EACH tt-ids:
-        RELEASE oe-rell.
-        RELEASE oe-boll.
-        RELEASE inv-line.
-        lRecFound = NO.
-        FOR EACH  oe-rell FIELDS(qty) NO-LOCK
-            WHERE ROWID(oe-rell)  EQ tt-rowid
-              AND oe-rell.job-no  EQ w-job.job-no
-              AND oe-rell.job-no2 EQ w-job.job-no2
-              AND oe-rell.loc     EQ w-job.loc
-              AND oe-rell.loc-bin EQ w-job.loc-bin
-              AND oe-rell.tag     EQ w-job.tag
-              AND oe-rell.cust-no EQ w-job.cust-no:
-                  
-           w-job.rel-qty = w-job.rel-qty + oe-rell.qty.
-           lRecFound = YES.
+            RELEASE w-jobs.
         END.
 
-        IF NOT lRecFound THEN DO:
-           FOR EACH oe-boll FIELDS(qty) NO-LOCK
-              WHERE ROWID(oe-boll)  EQ tt-rowid
-                AND oe-boll.job-no  EQ w-job.job-no
-                AND oe-boll.job-no2 EQ w-job.job-no2
-                AND oe-boll.loc     EQ w-job.loc
-                AND oe-boll.loc-bin EQ w-job.loc-bin
-                AND oe-boll.tag     EQ w-job.tag
-                AND oe-boll.cust-no EQ w-job.cust-no:
-              IF AVAIL oe-boll THEN w-job.bol-qty = w-job.bol-qty + oe-boll.qty.
-           END. /* each oe-boll */
-        END.  /* If not lRecFound */
-       END. /* each tt-ids */
-      w-job.avl-qty = w-job.qty - w-job.rel-qty - w-job.bol-qty.
-  END. /* each w-jobs */
+        FOR EACH reftable FIELDS(val) NO-LOCK
+            WHERE reftable.reftable EQ "jc/jc-calc.p"
+            AND reftable.code2    EQ itemfg.i-no
+            AND reftable.company  EQ itemfg.company
+            AND reftable.loc      EQ ""
+            USE-INDEX code2,
+            FIRST job FIELDS(job-no job-no2 loc) NO-LOCK
+            WHERE job.company EQ reftable.company
+            AND job.job     EQ INT(reftable.code)
+            AND job.opened  EQ YES
+            AND NOT CAN-FIND(FIRST job-hdr
+            WHERE job-hdr.company EQ job.company
+            AND job-hdr.job     EQ job.job
+            AND job-hdr.job-no  EQ job.job-no
+            AND job-hdr.job-no2 EQ job.job-no2
+            AND job-hdr.i-no    EQ reftable.code2):
+            IF lv-show-tag-no = ""  THEN
+                RUN create-table (reftable.val[1],
+                    reftable.val[2],
+                    reftable.val[3],
+                    reftable.val[4]).
+
+            RELEASE w-jobs.
+        END.
+    END. /* ll-show-zero-bins */
+
+    EMPTY TEMP-TABLE tt-ids.
+    IF lShowRecalcFields THEN DO:
+        FOR EACH oe-rell NO-LOCK
+            WHERE oe-rell.company EQ itemfg.company          
+            AND oe-rell.i-no    EQ itemfg.i-no
+            AND oe-rell.posted  EQ NO 
+            ,
+            EACH oe-relh FIELDS() NO-LOCK
+            WHERE oe-relh.r-no EQ oe-rell.r-no
+            AND oe-relh.deleted EQ NO
+            AND oe-relh.posted  EQ NO
+            :
+            CREATE tt-ids.
+            /* Ticket 66887 - we're reading the oe-rell, oe-relh, oe-boll and oe-bolh tables here
+                Improvement is to assign more detail in the temp-table so we don't have to read the
+                tables again to calculate line-level values */
+            ASSIGN 
+                tt-type = "REL"
+                tt-rowid = ROWID(oe-rell)
+                tt-jobno = oe-rell.job-no
+                tt-jobno2 = oe-rell.job-no2
+                tt-qty = oe-rell.qty.
+        END.
+
+        FOR EACH oe-boll NO-LOCK
+            WHERE oe-boll.company EQ itemfg.company
+            AND oe-boll.posted  EQ NO
+            AND oe-boll.i-no    EQ itemfg.i-no
+            ,
+            FIRST oe-bolh FIELDS() NO-LOCK
+            WHERE oe-bolh.b-no    EQ oe-boll.b-no AND 
+            oe-bolh.deleted EQ NO AND  
+            oe-bolh.posted EQ NO:
+            CREATE tt-ids.
+                ASSIGN 
+                    tt-type = "BOL"
+                    tt-rowid = ROWID(oe-boll)
+                    tt-jobno = oe-boll.job-no
+                    tt-jobno2 = oe-boll.job-no2
+                    tt-qty = oe-boll.qty.
+        END.
+  
+        IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
+        FOR EACH inv-line NO-LOCK
+            WHERE inv-line.company EQ itemfg.company
+            AND inv-line.i-no    EQ itemfg.i-no,
+            EACH oe-boll NO-LOCK
+            WHERE oe-boll.company EQ inv-line.company
+            AND oe-boll.b-no    EQ inv-line.b-no
+            AND oe-boll.ord-no  EQ inv-line.ord-no
+            AND oe-boll.i-no    EQ inv-line.i-no
+            AND oe-boll.po-no   EQ inv-line.po-no:
+            CREATE tt-ids.
+            ASSIGN 
+                tt-type = "BOL"
+                tt-rowid = ROWID(oe-boll)
+                tt-jobno = oe-boll.job-no
+                tt-jobno2 = oe-boll.job-no2
+                tt-qty = oe-boll.qty.
+        END.
+    END.
+  
+    FOR EACH w-jobs BREAK BY w-jobs.job-no BY w-jobs.job-no2:
+        CREATE w-job.
+        ASSIGN 
+            w-job.job-no               = w-jobs.job-no
+            w-job.job-no2              = w-jobs.job-no2
+            w-job.job-no-disp          = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"99")
+            w-job.po-no                = w-jobs.po-no
+            w-job.i-no                 = w-jobs.i-no
+            w-job.j-no                 = w-jobs.j-no
+            w-job.loc                  = w-jobs.loc
+            w-job.loc-bin              = w-jobs.loc-bin
+            w-job.tag                  = w-jobs.tag
+            w-job.cust-no              = w-jobs.cust-no
+            w-job.cases                = w-jobs.cases
+            w-job.case-count           = w-jobs.case-count
+            w-job.cases-unit           = w-jobs.cases-unit
+            w-job.partial-count        = w-jobs.partial-count
+            w-job.qty                  = w-jobs.qty
+            w-job.std-tot-cost         = w-jobs.std-tot-cost
+            w-job.std-mat-cost         = w-jobs.std-mat-cost
+            w-job.std-lab-cost         = w-jobs.std-lab-cost
+            w-job.std-var-cost         = w-jobs.std-var-cost
+            w-job.std-fix-cost         = w-jobs.std-fix-cost
+            w-job.last-cost            = w-jobs.last-cost
+            w-job.sell-uom             = w-jobs.sell-uom
+            w-job.tot-wt               = w-jobs.tot-wt
+            w-job.tagStatusID          = w-jobs.tagStatusID
+            w-job.tagStatusDescription = w-jobs.tagStatusDescription
+            w-job.onHold               = w-jobs.onHold
+            .
+
+        IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
+       
+        DELETE w-jobs.
+
+        /* Ticket 66887 - and here, in the old code, we re-read the oe-relx and oe-bolx tables again, once per tag-line
+            Now, since we have the qty info in the temp-table, we just use that instead.  For Premier DB, this saves
+            about 500,000 reads */
+        FOR EACH tt-ids WHERE 
+            tt-jobno EQ w-job.job-no AND 
+            tt-jobno2 EQ w-job.job-no2
+            BY tt-ids.tt-type
+            BY tt-ids.tt-jobno 
+            BY tt-ids.tt-jobno2:
+            IF tt-ids.tt-type EQ "REL" THEN ASSIGN 
+                w-job.rel-qty = w-job.rel-qty + tt-ids.tt-qty.
+            ELSE ASSIGN 
+                w-job.bol-qty = w-job.bol-qty + tt-ids.tt-qty.
+        END. /* each tt-ids */
+        
+        ASSIGN 
+            w-job.avl-qty = w-job.qty - w-job.rel-qty - w-job.bol-qty.
+
+    END. /* each w-jobs */
 
 END PROCEDURE.
 
@@ -831,34 +839,35 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-table B-table-Win 
 PROCEDURE create-table :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-lab LIKE job-hdr.std-lab-cost NO-UNDO.
-  DEF INPUT PARAM ip-mat LIKE job-hdr.std-mat-cost NO-UNDO.
-  DEF INPUT PARAM ip-var LIKE job-hdr.std-var-cost NO-UNDO.
-  DEF INPUT PARAM ip-fix LIKE job-hdr.std-fix-cost NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ip-lab LIKE job-hdr.std-lab-cost NO-UNDO.
+    DEF INPUT PARAM ip-mat LIKE job-hdr.std-mat-cost NO-UNDO.
+    DEF INPUT PARAM ip-var LIKE job-hdr.std-var-cost NO-UNDO.
+    DEF INPUT PARAM ip-fix LIKE job-hdr.std-fix-cost NO-UNDO.
 
-  IF NOT CAN-FIND(FIRST w-jobs
-                  WHERE w-jobs.job-no  EQ job.job-no
-                    AND w-jobs.job-no2 EQ job.job-no2) THEN DO:
+    IF NOT CAN-FIND(FIRST w-jobs
+        WHERE w-jobs.job-no  EQ job.job-no
+        AND w-jobs.job-no2 EQ job.job-no2) THEN 
+    DO:
     
-    CREATE w-jobs.
-    ASSIGN
-     w-jobs.job-no       = job.job-no
-     w-jobs.job-no2      = job.job-no2
-     w-jobs.i-no         = itemfg.i-no
-     w-jobs.loc          = job.loc
-     w-jobs.std-lab-cost = ip-lab
-     w-jobs.std-mat-cost = ip-mat
-     w-jobs.std-var-cost = ip-var
-     w-jobs.std-fix-cost = ip-fix
-     w-jobs.std-tot-cost = w-jobs.std-lab-cost + w-jobs.std-mat-cost +
+        CREATE w-jobs.
+        ASSIGN
+            w-jobs.job-no       = job.job-no
+            w-jobs.job-no2      = job.job-no2
+            w-jobs.i-no         = itemfg.i-no
+            w-jobs.loc          = job.loc
+            w-jobs.std-lab-cost = ip-lab
+            w-jobs.std-mat-cost = ip-mat
+            w-jobs.std-var-cost = ip-var
+            w-jobs.std-fix-cost = ip-fix
+            w-jobs.std-tot-cost = w-jobs.std-lab-cost + w-jobs.std-mat-cost +
                            w-jobs.std-var-cost + w-jobs.std-fix-cost
-     w-jobs.sell-uom     = "M"  .
-  END.
+            w-jobs.sell-uom     = "M"  .
+    END.
 
 END PROCEDURE.
 
@@ -867,10 +876,10 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWJobs B-table-Win 
 PROCEDURE createWJobs :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
     
     IF lv-show-tag-no <> ""  THEN
         IF fg-bin.tag = "" THEN RETURN .
@@ -882,9 +891,9 @@ PROCEDURE createWJobs :
     
     IF fg-bin.StatusID NE "" THEN
         RUN Inventory_GetStatusDescription IN hdInventoryProcs (
-             INPUT  fg-bin.StatusID,
-             OUTPUT cStatusDescription
-             ).
+            INPUT  fg-bin.StatusID,
+            OUTPUT cStatusDescription
+            ).
     
     CREATE w-jobs.
     ASSIGN 
@@ -915,11 +924,11 @@ PROCEDURE createWJobs :
         .
       
     FIND FIRST job-hdr NO-LOCK
-         WHERE job-hdr.company EQ fg-bin.company
-           AND job-hdr.i-no    EQ fg-bin.i-no
-           AND job-hdr.job-no  EQ fg-bin.job-no
-           AND job-hdr.job-no2 EQ fg-bin.job-no2
-         USE-INDEX i-no NO-ERROR.
+        WHERE job-hdr.company EQ fg-bin.company
+        AND job-hdr.i-no    EQ fg-bin.i-no
+        AND job-hdr.job-no  EQ fg-bin.job-no
+        AND job-hdr.job-no2 EQ fg-bin.job-no2
+        USE-INDEX i-no NO-ERROR.
     IF AVAILABLE job-hdr THEN 
         w-jobs.j-no = job-hdr.j-no.
 
@@ -932,17 +941,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME F-Main.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Hide all frames. */
+    HIDE FRAME F-Main.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -950,11 +959,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterTagBins B-table-Win 
 PROCEDURE filterTagBins :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplTagBins      AS CHARACTER NO-UNDO.
     
@@ -971,11 +980,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterZeroBins B-table-Win 
 PROCEDURE filterZeroBins :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL NO-UNDO.
     
     lv-show-zero-bins = iplShowZeroBins.
@@ -988,40 +997,41 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    /* Code placed here will execute AFTER standard behavior.    */
   
-  ASSIGN w-job.job-no-disp:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.loc:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.loc-bin:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.tag:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.cases:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.case-count:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.cases-unit:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.partial-count:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.qty:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.rel-qty:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.bol-qty:READ-ONLY IN BROWSE {&browse-name} = YES
-         w-job.avl-qty:READ-ONLY IN BROWSE {&browse-name} = YES  
-         w-job.std-tot-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.sell-uom:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.std-mat-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.std-lab-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.std-var-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
-         w-job.std-fix-cost:READ-ONLY IN BROWSE {&browse-name} = YES.
+    ASSIGN 
+        w-job.job-no-disp:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.loc:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.loc-bin:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.tag:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.cases:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.case-count:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.cases-unit:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.partial-count:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.qty:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.rel-qty:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.bol-qty:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.avl-qty:READ-ONLY IN BROWSE {&browse-name} = YES  
+        w-job.std-tot-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.sell-uom:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.std-mat-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.std-lab-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.std-var-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
+        w-job.std-fix-cost:READ-ONLY IN BROWSE {&browse-name} = YES.
 
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  {methods/winReSizeLocInit.i}
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    {methods/winReSizeLocInit.i}
 
 END PROCEDURE.
 
@@ -1030,29 +1040,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF VAR ll-zero AS LOG INIT YES NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF VAR char-hdl AS CHAR NO-UNDO.
+    DEF VAR lv-rowid AS ROWID NO-UNDO.
+    DEF VAR ll-zero AS LOG INIT YES NO-UNDO.
 
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiry-source",OUTPUT char-hdl).
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiry-source",OUTPUT char-hdl).
 
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    RUN get-ip-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid, OUTPUT ll-zero).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN get-ip-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid, OUTPUT ll-zero).
 
-  ll-show-zero-bins = lv-rowid NE ROWID(itemfg) OR ll-zero.
+    ll-show-zero-bins = lv-rowid NE ROWID(itemfg) OR ll-zero.
 
-  RUN build-table.
+    RUN build-table.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+/* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -1074,10 +1084,10 @@ PROCEDURE resort-query :
           {&for-each1}               
              
   
-  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query} {&sortby-phrase-desc}.
+    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+    ELSE {&open-query} {&sortby-phrase-desc}.
 
-  RUN dispatch ("row-changed").
+    RUN dispatch ("row-changed").
 
 END PROCEDURE.
 
@@ -1093,7 +1103,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
+    {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "itemfg"}
@@ -1109,11 +1119,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-pass-loc B-table-Win 
 PROCEDURE set-pass-loc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ip-pass-loc AS CHAR NO-UNDO.
     
     lc-pass-loc = ip-pass-loc.
@@ -1125,18 +1135,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-read-only B-table-Win 
 PROCEDURE set-read-only :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-log AS LOG NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ip-log AS LOG NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
-     w-job.sell-uom:READ-ONLY IN BROWSE {&browse-name} = ip-log.
-     w-job.cust-no:READ-ONLY IN BROWSE {&browse-name} = ip-log.
-     w-job.tot-wt:READ-ONLY IN BROWSE {&browse-name} = ip-log.
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        w-job.sell-uom:READ-ONLY IN BROWSE {&browse-name} = ip-log.
+        w-job.cust-no:READ-ONLY IN BROWSE {&browse-name} = ip-log.
+        w-job.tot-wt:READ-ONLY IN BROWSE {&browse-name} = ip-log.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1144,19 +1154,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+    /* -----------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-  CASE p-state:
+    CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/bstates.i}
-  END CASE.
+    {src/adm/template/bstates.i}
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1164,13 +1174,13 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-cost B-table-Win 
 PROCEDURE update-cost :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF BUFFER bf-w-job FOR w-job.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF VAR lv-rowid AS ROWID NO-UNDO.
+    DEF BUFFER bf-w-job FOR w-job.
 
     DEFINE VARIABLE char-hdl     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hPgmSecurity AS HANDLE    NO-UNDO.
@@ -1191,35 +1201,36 @@ PROCEDURE update-cost :
 
     IF NOT lAccessPro THEN RETURN .
  
-  FOR EACH hold-job:
-    DELETE hold-job.
-  END.
+    FOR EACH hold-job:
+        DELETE hold-job.
+    END.
 
-  CREATE hold-job.
-  BUFFER-COPY w-job TO hold-job.
+    CREATE hold-job.
+    BUFFER-COPY w-job TO hold-job.
   
-  RUN fg/fgbjobu.w (RECID(w-job)).
+    RUN fg/fgbjobu.w (RECID(w-job)).
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
   
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
 
-  RUN dispatch ("open-query").
+    RUN dispatch ("open-query").
 
-  IF AVAIL hold-job THEN
-  FIND FIRST bf-w-job 
-      WHERE bf-w-job.job-no  EQ hold-job.job-no
-        AND bf-w-job.job-no2 EQ hold-job.job-no2
-        AND bf-w-job.loc     EQ hold-job.loc
-        AND bf-w-job.loc-bin EQ hold-job.loc-bin
-        AND bf-w-job.tag     EQ hold-job.tag
-      NO-ERROR.
+    IF AVAIL hold-job THEN
+        FIND FIRST bf-w-job 
+            WHERE bf-w-job.job-no  EQ hold-job.job-no
+            AND bf-w-job.job-no2 EQ hold-job.job-no2
+            AND bf-w-job.loc     EQ hold-job.loc
+            AND bf-w-job.loc-bin EQ hold-job.loc-bin
+            AND bf-w-job.tag     EQ hold-job.tag
+            NO-ERROR.
 
-  IF AVAIL bf-w-job THEN DO:
-    lv-rowid = ROWID(bf-w-job).
-    REPOSITION {&browse-name} TO ROWID lv-rowid NO-ERROR.
-  END.
+    IF AVAIL bf-w-job THEN 
+    DO:
+        lv-rowid = ROWID(bf-w-job).
+        REPOSITION {&browse-name} TO ROWID lv-rowid NO-ERROR.
+    END.
 
 END PROCEDURE.
 
@@ -1228,60 +1239,65 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-record B-table-Win 
 PROCEDURE update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplResort AS LOGICAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplResort AS LOGICAL NO-UNDO.
 
-  DEF BUFFER b-w-job FOR w-job.
-  DEF BUFFER bf-fg-bin FOR fg-bin.
+    DEF BUFFER b-w-job FOR w-job.
+    DEF BUFFER bf-fg-bin FOR fg-bin.
   
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND b-w-job WHERE ROWID(b-w-job) EQ ROWID(w-job).
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND b-w-job WHERE ROWID(b-w-job) EQ ROWID(w-job).
     
-    b-w-job.cust-no = w-job.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
-    b-w-job.sell-uom = w-job.sell-uom:SCREEN-VALUE IN BROWSE {&browse-name}.
-    b-w-job.tot-wt = DEC(w-job.tot-wt:SCREEN-VALUE IN BROWSE {&browse-name}).
+        b-w-job.cust-no = w-job.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
+        b-w-job.sell-uom = w-job.sell-uom:SCREEN-VALUE IN BROWSE {&browse-name}.
+        b-w-job.tot-wt = DEC(w-job.tot-wt:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    FIND b-w-job WHERE ROWID(b-w-job) EQ ROWID(w-job) NO-LOCK NO-ERROR.
-    FIND FIRST bf-fg-bin 
-        WHERE bf-fg-bin.company EQ cocode
-          AND bf-fg-bin.i-no EQ b-w-job.i-no
-          AND bf-fg-bin.loc EQ b-w-job.loc
-          AND bf-fg-bin.loc-bin EQ b-w-job.loc-bin
-          AND bf-fg-bin.tag EQ b-w-job.tag
-          AND bf-fg-bin.job-no EQ b-w-job.job-no
-          AND bf-fg-bin.job-no2 EQ b-w-job.job-no2
-          AND bf-fg-bin.cust-no EQ b-w-job.cust-no
-        EXCLUSIVE-LOCK NO-ERROR.
-    IF AVAIL bf-fg-bin THEN DO:
-        ASSIGN 
-            bf-fg-bin.tot-wt = b-w-job.tot-wt.
-        RELEASE bf-fg-bin.
-    END.
-    IF w-job.tot-wt:MODIFIED THEN DO:
-       FIND FIRST loadtag EXCLUSIVE-LOCK
-          WHERE loadtag.company EQ cocode
-          AND loadtag.i-no      EQ b-w-job.i-no
-          AND loadtag.job-no    EQ b-w-job.job-no
-          AND loadtag.job-no2   EQ b-w-job.job-no2 
-          AND loadtag.tag-no    EQ b-w-job.tag 
-       NO-ERROR.
+        FIND b-w-job WHERE ROWID(b-w-job) EQ ROWID(w-job) NO-LOCK NO-ERROR.
+        FIND FIRST bf-fg-bin 
+            WHERE bf-fg-bin.company EQ cocode
+            AND bf-fg-bin.i-no EQ b-w-job.i-no
+            AND bf-fg-bin.loc EQ b-w-job.loc
+            AND bf-fg-bin.loc-bin EQ b-w-job.loc-bin
+            AND bf-fg-bin.tag EQ b-w-job.tag
+            AND bf-fg-bin.job-no EQ b-w-job.job-no
+            AND bf-fg-bin.job-no2 EQ b-w-job.job-no2
+            AND bf-fg-bin.cust-no EQ b-w-job.cust-no
+            EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAIL bf-fg-bin THEN 
+        DO:
+            ASSIGN 
+                bf-fg-bin.tot-wt = b-w-job.tot-wt.
+            RELEASE bf-fg-bin.
+        END.
+        IF w-job.tot-wt:MODIFIED THEN 
+        DO:
+            FIND FIRST loadtag EXCLUSIVE-LOCK
+                WHERE loadtag.company EQ cocode
+                AND loadtag.i-no      EQ b-w-job.i-no
+                AND loadtag.job-no    EQ b-w-job.job-no
+                AND loadtag.job-no2   EQ b-w-job.job-no2 
+                AND loadtag.tag-no    EQ b-w-job.tag 
+                NO-ERROR.
 
-       IF AVAIL loadtag THEN DO:
-           ASSIGN loadtag.misc-dec[1] = (b-w-job.case-count * b-w-job.tot-wt) / 100
-                  loadtag.misc-dec[2] = loadtag.misc-dec[1] * loadtag.qty-case. 
-       END.
-       FIND CURRENT loadtag NO-LOCK NO-ERROR.
-    END.
+            IF AVAIL loadtag THEN 
+            DO:
+                ASSIGN 
+                    loadtag.misc-dec[1] = (b-w-job.case-count * b-w-job.tot-wt) / 100
+                    loadtag.misc-dec[2] = loadtag.misc-dec[1] * loadtag.qty-case. 
+            END.
+            FIND CURRENT loadtag NO-LOCK NO-ERROR.
+        END.
 
-    IF iplResort THEN DO:
-        RUN set-read-only (YES).
-        RUN resort-query.
+        IF iplResort THEN 
+        DO:
+            RUN set-read-only (YES).
+            RUN resort-query.
+        END.
     END.
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1289,15 +1305,15 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-spec B-table-Win 
 PROCEDURE update-spec :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    def var char-hdl as cha no-undo.
   
-  run get-link-handle in adm-broker-hdl (this-procedure,"container-source",output char-hdl).
-  if valid-handle(widget-handle(char-hdl)) then run select-page in widget-handle(char-hdl) (7).
+    run get-link-handle in adm-broker-hdl (this-procedure,"container-source",output char-hdl).
+    if valid-handle(widget-handle(char-hdl)) then run select-page in widget-handle(char-hdl) (7).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
