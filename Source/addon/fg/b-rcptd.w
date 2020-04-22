@@ -1513,28 +1513,28 @@ PROCEDURE get-first-r-no :
 
   lv-frst-rno = 999999999.
 
-  FOR EACH bq-fg-rctd FIELDS(r-no)
+  FOR EACH bq-fg-rctd FIELDS(r-no)NO-LOCK
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "R"
-        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
-             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
-        AND fg-rctd.SetHeaderRno EQ 0      
-        AND bq-fg-rctd.r-no      LT lv-frst-rno
-      USE-INDEX rita-code NO-LOCK
+        AND ((lv-do-what EQ "delete" AND bq-fg-rctd.t-qty LT 0) OR
+             (lv-do-what NE "delete" AND bq-fg-rctd.t-qty GE 0))
+        AND bq-fg-rctd.SetHeaderRno EQ 0      
+        AND bq-fg-rctd.r-no         LT lv-frst-rno
+      USE-INDEX rita-code
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
     LEAVE.
   END.
   /*RELEASE bq-fg-rctd.*/
 
-  FOR EACH bq-fg-rctd FIELDS(r-no)
+  FOR EACH bq-fg-rctd FIELDS(r-no)NO-LOCK
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "E"
-        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
-             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
-        AND fg-rctd.SetHeaderRno EQ 0        
-        AND bq-fg-rctd.r-no      LT lv-frst-rno
-      USE-INDEX rita-code NO-LOCK
+        AND ((lv-do-what EQ "delete" AND bq-fg-rctd.t-qty LT 0) OR
+             (lv-do-what NE "delete" AND bq-fg-rctd.t-qty GE 0))
+        AND bq-fg-rctd.SetHeaderRno EQ 0        
+        AND bq-fg-rctd.r-no         LT lv-frst-rno
+      USE-INDEX rita-code 
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
     LEAVE.
