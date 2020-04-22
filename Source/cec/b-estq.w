@@ -2097,6 +2097,13 @@ PROCEDURE local-initialize :
       iStartEstType   = INTEGER(fGetDynParamValue ("StartEstTypeCorr"))
       iEndEstType     = INTEGER(fGetDynParamValue ("EndEstTypeCorr"))
       .
+  ELSE
+  ASSIGN
+      cStartEstTypeID = CHR(32)
+      cEndEstTypeID   = CHR(254)
+      iStartEstType   = 5
+      iEndEstType     = 9
+      .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
