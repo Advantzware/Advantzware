@@ -103,6 +103,7 @@ PROCEDURE Inventory_GetDefaultBin:
     
     FIND FIRST reftable NO-LOCK
          WHERE reftable.company  EQ ipcCompany 
+           AND reftable.reftable EQ "Xref"
            AND reftable.code     EQ USERID("ASI")
            AND reftable.loc      EQ "FGDefBin"
           NO-ERROR.
@@ -122,6 +123,7 @@ PROCEDURE Inventory_GetDefaultWhse:
     
     FIND FIRST reftable NO-LOCK
          WHERE reftable.company  EQ ipcCompany 
+           AND reftable.reftable EQ "Xref"
            AND reftable.code     EQ USERID("ASI")
            AND reftable.loc      EQ "FGDefWhse"
           NO-ERROR.
