@@ -2408,6 +2408,7 @@ nufile = YES.
 RUN oe/ordfrest.p 
 (INPUT THIS-PROCEDURE,
  INPUT        v-ord-rec,
+ INPUT        "",
  INPUT-OUTPUT ip-new-ord,
  INPUT-OUTPUT v-qty-mod,
  INPUT-OUTPUT v-inactive,

@@ -646,7 +646,7 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-ordl.SourceEstimateID AT ROW 1.24 COL 60.6 COLON-ALIGNED FORMAT "x(8)"
-          LABEL "Source Est. ID"
+          LABEL "Pricing Est ID"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1    
      oe-ordl.job-no AT ROW 1.14 COL 95 COLON-ALIGNED FORMAT "x(6)"
@@ -7518,7 +7518,7 @@ DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
        IF j GT 1 THEN
            RUN oe/d-quotedprices.w("",cocode,
                           locode,
-                          oe-ordl.est-no:SCREEN-VALUE,
+                          ipcEstNo,
                           oe-ordl.cust-no,
                           oe-ordl.part-no:SCREEN-VALUE,
                           oe-ordl.i-no:SCREEN-VALUE,
