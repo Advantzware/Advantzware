@@ -171,11 +171,7 @@ ELSE IF ipType begins 'SalesRep' THEN DO:
    ELSE ls-to-list = ''.
 END.
 
-ELSE IF ipType begins 'Loc' THEN DO:
-
-   FIND FIRST loc NO-LOCK
-        WHERE loc.company EQ g_company
-          AND loc.loc EQ ipIdxKey NO-ERROR.
+ELSE IF ipType begins 'Loc' THEN DO:   
    ls-to-list = ''.       
    FOR EACH loc NO-LOCK
       WHERE loc.company EQ g_company
