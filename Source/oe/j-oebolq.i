@@ -117,7 +117,7 @@ ELSE IF fi_cust-no NE "" THEN DO:
     &SCOPED-DEFINE open-query             ~
         OPEN QUERY {&browse-name}         ~
           {&for-each1}                    ~
-              AND oe-boll.b-no GT lv-b-no ~
+              AND oe-boll.b-no GE lv-b-no ~
               USE-INDEX b-no NO-LOCK,     ~
               {&for-each2},               ~
               {&for-each3} 
