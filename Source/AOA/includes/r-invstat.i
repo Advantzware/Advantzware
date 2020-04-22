@@ -173,7 +173,6 @@ PROCEDURE pAddJobItem PRIVATE:
     DEFINE INPUT PARAMETER iplHasOrder         AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdtOrderDate       AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER ipdtDueDate         AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipdOverPct          AS DECIMAL   NO-UNDO.
     DEFINE PARAMETER BUFFER opbf-ttJobItem FOR ttJobItem.
     
     &IF {&subjectID} EQ 94 &THEN
@@ -190,7 +189,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.xxiJobID2               = ipiJobID2
         opbf-ttJobItem.cProductCategory        = CAPS(ipcProductCategory)
         opbf-ttJobItem.cProductDescription     = fProductDescription (ipcCompany, ipcProductCategory)
-        opbf-ttJobItem.dQuantityOrdered        = INTEGER(ipdQuantityOrdered / ipdOverPct)
+        opbf-ttJobItem.dQuantityOrdered        = ipdQuantityOrdered
         opbf-ttJobItem.dQuantityProduced       = ipdQuantityProduced
         opbf-ttJobItem.dQuantityShipped        = ipdQuantityShipped
         opbf-ttJobItem.dQuantityInvoiced       = ipdQuantityInvoiced
@@ -328,7 +327,6 @@ PROCEDURE pBuildJobItem PRIVATE:
     
     DEFINE VARIABLE cSource     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dInvAmt     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dOverPct    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dPricePer   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dQtyOrd     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dQtyProd    AS DECIMAL   NO-UNDO.
@@ -366,7 +364,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake     = NO
             dtOrderDate = ?
             dtDueDate   = ?
-            dOverPct    = 1
             .
         RUN pGetQuantityMadeAsOf (
             job-hdr.company,
@@ -393,6 +390,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                     dQtyOnHand = dQtyProd - dQtyShip
                     dPricePer  = IF oe-ordl.pr-uom EQ "M" THEN oe-ordl.price / 1000 ELSE oe-ordl.price
                     lHasOrder  = YES
+                    dQtyOrd    = oe-ordl.qty
                     .
             END.
             FIND FIRST oe-ord NO-LOCK
@@ -403,7 +401,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             ASSIGN
                 dtOrderDate = oe-ord.ord-date
                 dtDueDate   = oe-ord.due-date
-                dOverPct    = 1 + oe-ord.over-pct / 100
                 .
         END.
         ELSE DO:
@@ -447,7 +444,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
-            dOverPct,
             BUFFER bf-ttJobItem
             ).
         IF itemfg.isaset THEN DO:
@@ -457,6 +453,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                 FIRST bf-comp-itemfg NO-LOCK 
                 WHERE bf-comp-itemfg.company EQ fg-set.company
                   AND bf-comp-itemfg.i-no    EQ fg-set.part-no
+                BY fg-set.line
                 :
                 ASSIGN 
                     dQtyInv    = 0
@@ -495,7 +492,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                     job-hdr.job-no,
                     job-hdr.job-no2,
                     bf-comp-itemfg.procat, 
-                    dQtyOrd * fg-set.part-qty,
+                    dQtyOrd * fg-set.qtyPerSet,
                     dQtyProd,
                     dQtyProd - dQtyOnHand,
                     dQtyProd - dQtyOnHand,
@@ -507,7 +504,6 @@ PROCEDURE pBuildJobItem PRIVATE:
                     NO,
                     dtOrderDate,
                     dtDueDate,
-                    dOverPct,
                     BUFFER bf-comp-ttJobItem
                     ).
             END.            
@@ -548,7 +544,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lNoMake       = NO
             dtOrderDate   = oe-ord.ord-date
             dtDueDate     = oe-ord.due-date
-            dOverPct      = 1 + oe-ord.over-pct / 100
             .
         RUN pGetInvoicedAmountForMiscAsOf (
             oe-ord.company,
@@ -579,7 +574,6 @@ PROCEDURE pBuildJobItem PRIVATE:
             lHasOrder,
             dtOrderDate,
             dtDueDate,
-            dOverPct,
             BUFFER bf-ttJobItem
             ).
     END.
