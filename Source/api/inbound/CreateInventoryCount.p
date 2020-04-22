@@ -283,18 +283,18 @@
                 RETURN.
         END.
         
-        IF ipiQuantity LE 0 THEN DO:
+        IF ipiQuantity LT 0 THEN DO:
             ASSIGN
                 oplSuccess = FALSE
-                opcMessage = "Quantity cannot be less than or equal to zero"
+                opcMessage = "Quantity cannot be less than zero"
                 .
             RETURN.        
         END.
 
-        IF ipiQuantityPerSubUnit LE 0 THEN DO:
+        IF ipiQuantityPerSubUnit LT 0 THEN DO:
             ASSIGN
                 oplSuccess = FALSE
-                opcMessage = "QuantityPerSubUnit cannot be less than or equal to zero"
+                opcMessage = "QuantityPerSubUnit cannot be less than zero"
                 .
             RETURN.        
         END.
