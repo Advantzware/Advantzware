@@ -44,31 +44,17 @@ ELSE IF fi_ord-no NE 0 THEN DO:
 END.
 
 ELSE IF fi_po-no NE "" THEN DO:
-    {&for-each41}
-        AND CAN-FIND(FIRST oe-boll
-                     WHERE oe-boll.company EQ oe-bolh.company
-                       AND oe-boll.b-no    EQ oe-bolh.b-no
-                       AND oe-boll.po-no   GE fi_po-no)
-        USE-INDEX b-no 
-        BREAK BY oe-bolh.b-no DESCENDING:
-        IF FIRST-OF(oe-bolh.b-no) THEN
-            iCount = iCount + 1.
-        lv-b-no = oe-bolh.b-no.
-        IF iCount GE 100 THEN 
-            LEAVE.
-    END.
   &SCOPED-DEFINE open-query              ~
       OPEN QUERY {&browse-name}          ~
         {&for-each1}                     ~
-            AND oe-boll.b-no GT lv-b-no  ~
-            USE-INDEX b-no  NO-LOCK,    ~
+            USE-INDEX po-no NO-LOCK,     ~
             {&for-each2},                ~
             {&for-each3}
   
     IF ll-sort-asc THEN 
-        {&open-query} {&sortby-phrase-asc}.
+        {&open-query} {&sortby-phrase-asc} MAX-ROWS 500. 
     ELSE    
-        {&open-query} {&sortby-phrase-desc}. 
+        {&open-query} {&sortby-phrase-desc} MAX-ROWS 500. 
 END.
 
 ELSE IF fi_i-no NE "" THEN DO:
@@ -88,7 +74,7 @@ ELSE IF fi_i-no NE "" THEN DO:
     &SCOPED-DEFINE open-query               ~
         OPEN QUERY {&browse-name}           ~
           {&for-each1}                      ~
-              AND oe-boll.b-no GT lv-b-no   ~
+              AND oe-boll.b-no GE lv-b-no   ~
               USE-INDEX b-no NO-LOCK,       ~
               {&for-each2},                 ~
               {&for-each3}
@@ -148,7 +134,7 @@ ELSE IF fi_part-no NE "" THEN DO:
     &SCOPED-DEFINE open-query       ~
     OPEN QUERY {&browse-name}       ~
     {&for-each11}                   ~
-        AND oe-boll.b-no GT lv-b-no ~
+        AND oe-boll.b-no GE lv-b-no ~
         USE-INDEX b-no NO-LOCK ,     ~
         {&for-each21},              ~
         {&for-each31} 
@@ -183,7 +169,7 @@ ELSE DO:
         &SCOPED-DEFINE open-query           ~
             OPEN QUERY {&browse-name}       ~
             {&for-each11}                   ~
-                AND oe-boll.b-no GT lv-b-no ~
+                AND oe-boll.b-no GE lv-b-no ~
                 USE-INDEX b-no NO-LOCK,     ~
                 {&for-each21},              ~
                 {&for-each3} 
