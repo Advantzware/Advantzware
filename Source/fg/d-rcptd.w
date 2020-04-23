@@ -85,6 +85,8 @@ DEFINE TEMP-TABLE w-rowid
 {fg/fullset.i NEW}
 {fg/d-selpos.i NEW}
 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
+    
 DEFINE VARIABLE char-hdl            AS cha       NO-UNDO.   
 
 /*&SCOPED-DEFINE item-key-phrase TRUE
@@ -139,6 +141,9 @@ DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE cFGDefWhse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGDefBin  AS CHARACTER NO-UNDO.
+
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
     INPUT "FGReceiptRules", /* sys-ctrl name */
@@ -150,7 +155,16 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
-glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.             
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.  
+
+RUN Inventory_GetDefaultWhse IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefWhse
+    ).
+RUN Inventory_GetDefaultBin IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefBin
+    ).            
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -776,8 +790,8 @@ DO:
                             DO :
                                 ASSIGN 
                                     fg-rctd.tag:SCREEN-VALUE     = ENTRY(1,char-val)
-                                    fg-rctd.loc:SCREEN-VALUE     = ENTRY(2,char-val)
-                                    fg-rctd.loc-bin:SCREEN-VALUE = ENTRY(3,char-val) .
+                                    fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGdefWhse ELSE ENTRY(2,char-val)
+                                    fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE ENTRY(3,char-val) .
                             END.
                         END. /* If ip-parts-set */
                         ELSE 
@@ -1708,8 +1722,8 @@ DO:
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE shipto AND shipto.loc GT "" THEN
                     ASSIGN
-                    fg-rctd.loc:SCREEN-VALUE     = shipto.loc
-                    fg-rctd.loc-bin:SCREEN-VALUE = shipto.loc-bin.
+                    fg-rctd.loc:SCREEN-VALUE     = IF cFGdefWhse NE "" THEN cFGDefWhse ELSE shipto.loc
+                    fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE shipto.loc-bin.
                 END.
         END.
 END.
@@ -1887,9 +1901,7 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-        
-    RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
-    
+            
     IF ip-type EQ "copy" THEN ASSIGN 
         lv-item-recid = ip-recid.
     IF ip-type EQ "add" THEN ASSIGN 
@@ -2004,6 +2016,9 @@ PROCEDURE create-from-po :
     DEFINE VARIABLE lv-rno             LIKE fg-rctd.r-no NO-UNDO.
     DEFINE VARIABLE rwRowid              AS ROWID     NO-UNDO.
     DEFINE VARIABLE v-next-tag           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cConsCostUOM         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
 
@@ -2024,6 +2039,7 @@ PROCEDURE create-from-po :
                 tt-fg-rctd.cases-unit   = 1
                 tt-fg-rctd.qty-case     = 1
                 ld                      = po-ordl.ord-qty
+                cConsCostUOM            = po-ordl.cons-uom
                 .
             IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
                 RUN sys/ref/convquom.p (po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
@@ -2081,8 +2097,16 @@ PROCEDURE create-from-po :
                 .   
             RUN pGetCostsFromPO (g_company, fg-rctd.po-no, fg-rctd.po-line, fg-rctd.i-no, fg-rctd.t-qty,
                 OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
+            
+            RUN Conv_ValueFromUOMtoUOM(g_company, 
+                fg-rctd.i-no, "FG", 
+                dCostPerUOM, cCostUOM, cConsCostUOM, 
+                0, 0, 0, 0, 0, 
+                OUTPUT dCostPerUOM, OUTPUT lError, OUTPUT cMessage).    
+            
             ASSIGN                                                                             
-                fg-rctd.cost-uom = cCostUOM
+            
+                fg-rctd.cost-uom = cConsCostUOM
                 fg-rctd.std-cost = dCostPerUOM
                 fg-rctd.ext-cost = dCostExtended
                 fg-rctd.frt-cost = dCostExtendedFreight
@@ -3219,8 +3243,8 @@ PROCEDURE get-values :
             RUN new-tag.
         IF fg-rctd.loc:SCREEN-VALUE      EQ "" THEN
             ASSIGN
-                fg-rctd.loc:SCREEN-VALUE     = lv-loc
-                fg-rctd.loc-bin:SCREEN-VALUE = lv-loc-bin.
+                fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lv-loc
+                fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lv-loc-bin.
 
         IF INT(fg-rctd.qty-case:SCREEN-VALUE ) EQ 0 THEN
             fg-rctd.qty-case:SCREEN-VALUE  = lv-qty-case.
@@ -3510,8 +3534,8 @@ PROCEDURE pDisplayFG PRIVATE :
             fg-rctd.i-name:SCREEN-VALUE   = ipbf-itemfg.i-name .
         IF iplGetLocBin EQ YES  THEN
             ASSIGN
-            fg-rctd.loc:SCREEN-VALUE      = ipbf-itemfg.def-loc
-            fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin .
+            fg-rctd.loc:SCREEN-VALUE      = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE ipbf-itemfg.def-loc
+            fg-rctd.loc-bin:SCREEN-VALUE  = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE ipbf-itemfg.def-loc-bin .
         ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
             fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
@@ -3535,21 +3559,38 @@ PROCEDURE pDisplayPO PRIVATE :
     DEFINE VARIABLE dCostPerUOM          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostExtended        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostExtendedFreight AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cConsUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO. 
     
     DO WITH FRAME {&FRAME-NAME}:
         IF fg-rctd.po-line:SCREEN-VALUE  EQ "" OR fg-rctd.po-line:SCREEN-VALUE  EQ "0" THEN 
             fg-rctd.po-line:SCREEN-VALUE  = "1".
-        RUN pGetCostsFromPO(cocode, INTEGER(fg-rctd.po-no:SCREEN-VALUE ), INTEGER(fg-rctd.po-line:SCREEN-VALUE ), 
-            fg-rctd.i-no:SCREEN-VALUE , DECIMAL(fg-rctd.t-qty:SCREEN-VALUE ),
-            OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
-        ASSIGN                                                                             
-            fg-rctd.cost-uom:SCREEN-VALUE = cCostUOM
-            fg-rctd.std-cost:SCREEN-VALUE = STRING(dCostPerUOM)
-            fg-rctd.ext-cost:SCREEN-VALUE = STRING(dCostExtended).
-        IF iplUpdateFreight THEN 
-            fg-rctd.frt-cost:SCREEN-VALUE  = STRING(dCostExtendedFreight).
+        FIND FIRST po-ordl NO-LOCK 
+            WHERE po-ordl.company EQ cocode
+            AND po-ordl.po-no EQ INTEGER(fg-rctd.po-no:SCREEN-VALUE )
+            AND po-ordl.line EQ INTEGER(fg-rctd.po-line:SCREEN-VALUE )
+            NO-ERROR.
+        IF AVAILABLE po-ordl THEN DO:
+            cConsUOM = po-ordl.cons-uom.
+            RUN pGetCostsFromPO(cocode, po-ordl.po-no, po-ordl.line, 
+                po-ordl.i-no , DECIMAL(fg-rctd.t-qty:SCREEN-VALUE ),
+                OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
+            RUN Conv_ValueFromUOMtoUOM(cocode, 
+                    fg-rctd.i-no:SCREEN-VALUE, "FG", 
+                    dCostPerUOM, cCostUOM, cConsUOM, 
+                    0, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep, 0, 
+                    OUTPUT dCostPerUOM, OUTPUT lError, OUTPUT cMessage).                
+            ASSIGN                                                                             
+                fg-rctd.cost-uom:SCREEN-VALUE = cConsUOM
+                fg-rctd.std-cost:SCREEN-VALUE = STRING(dCostPerUOM)
+                fg-rctd.ext-cost:SCREEN-VALUE = STRING(dCostExtended).
+            IF iplUpdateFreight THEN 
+                fg-rctd.frt-cost:SCREEN-VALUE  = STRING(dCostExtendedFreight).
+        END.
     END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3608,8 +3649,8 @@ DO WITH FRAME {&FRAME-NAME}:
     IF AVAILABLE itemfg THEN
         ASSIGN
         fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
-        fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
-        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
+        fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE itemfg.def-loc
+        fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE itemfg.def-loc-bin .
 END.
 
 END PROCEDURE.
@@ -4525,8 +4566,8 @@ PROCEDURE valid-tag :
                 ASSIGN 
                     fg-rctd.job-no:SCREEN-VALUE  = lcJobNo
                     fg-rctd.job-no2:SCREEN-VALUE = lcJobNo2
-                    fg-rctd.loc:SCREEN-VALUE     = lcLoc
-                    fg-rctd.loc-bin:SCREEN-VALUE = lcLocBin.
+                    fg-rctd.loc:SCREEN-VALUE     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lcLoc
+                    fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lcLocBin.
             /*           AND int(fg-rctd.t-qty:SCREEN-VALUE ) < 0 THEN DO:                */
             /*             iTotalQty = 0.                                                                         */
             /*         FOR EACH b-fg-rctd                                                                         */

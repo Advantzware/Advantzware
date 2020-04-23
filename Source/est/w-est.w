@@ -1355,7 +1355,7 @@ PROCEDURE local-change-page :
   DO: /* farm */
       DEF VAR opEbRowid AS ROWID NO-UNDO.
       DEF BUFFER bf-eb FOR eb.
-      
+      RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
       RUN get-eb-rowid IN h_b-estitm (OUTPUT opEbRowID).
       FIND bf-eb NO-LOCK WHERE rowid(bf-eb) = opEbRowID NO-ERROR.
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).   

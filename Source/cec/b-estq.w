@@ -79,10 +79,10 @@ DO TRANSACTION:
     {sys/inc/custlistform.i ""EC"" }
 END.
 
-DEFINE VARIABLE cStartEstimateTypeID AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cEndEstimateTypeID   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iStartEstimateType   AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iEndEstimateType     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cStartEstTypeID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndEstTypeID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStartEstType   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iEndEstType     AS INTEGER   NO-UNDO.
 
 &SCOPED-DEFINE key-phrase  YES
 /*
@@ -147,10 +147,10 @@ DEFINE VARIABLE iEndEstimateType     AS INTEGER   NO-UNDO.
          EACH ASI.est WHERE ~{&KEY-PHRASE}      ~
                      AND est.company EQ g_company    ~
                      AND est.est-no EQ eb.est-no ~
-                     AND ASI.est.est-type GE iStartEstimateType ~
-                     AND ASI.est.est-type LE iEndEstimateType ~
-                     AND ASI.est.estimateTypeID GE cStartEstimateTypeID ~
-                     AND ASI.est.estimateTypeID LE cEndEstimateTypeID ~
+                     AND ASI.est.est-type GE iStartEstType ~
+                     AND ASI.est.est-type LE iEndEstType ~
+                     AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+                     AND ASI.est.estimateTypeID LE cEndEstTypeID ~
                      AND ((est.est-type EQ 5 AND tb_single) OR ~
                           (est.est-type EQ 6 AND tb_set)    OR ~
                           (est.est-type GT 6 AND tb_tancom))  
@@ -161,8 +161,8 @@ DEFINE VARIABLE iEndEstimateType     AS INTEGER   NO-UNDO.
                              AND ASI.est-qty.eqty = eb.eqty 
 
 &SCOPED-DEFINE for-ef                     ~
-           each ASI.ef  WHERE ASI.ef.company = ASI.est.company ~
-                          AND ASI.ef.est-no = ASI.est.est-no AND ef.form-no = eb.form-no  
+           each ASI.ef WHERE ASI.ef.company = ASI.est.company ~
+                         AND ASI.ef.est-no = ASI.est.est-no AND ef.form-no = eb.form-no  
 
 &SCOPED-DEFINE for-eb                     ~
        FOR EACH ASI.eb WHERE ASI.eb.company = g_company  ~
@@ -272,10 +272,10 @@ eb.plate-no est.est-date
 eb.est-no = lv-last-est-no NO-LOCK, ~
       FIRST est WHERE est.company = eb.company ~
   AND est.est-no = eb.est-no ~
-  AND ASI.est.est-type GE iStartEstimateType ~
-  AND ASI.est.est-type LE iEndEstimateType ~
-  AND ASI.est.estimateTypeID GE cStartEstimateTypeID ~
-  AND ASI.est.estimateTypeID LE cEndEstimateTypeID NO-LOCK, ~
+  AND ASI.est.est-type GE iStartEstType ~
+  AND ASI.est.est-type LE iEndEstType ~
+  AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+  AND ASI.est.estimateTypeID LE cEndEstTypeID NO-LOCK, ~
       FIRST est-qty WHERE est-qty.company = eb.company and est-qty.est-no = eb.est-no ~
 and est-qty.eqty = eb.eqty  ~
  NO-LOCK, ~
@@ -288,10 +288,10 @@ and est-qty.eqty = eb.eqty  ~
 eb.est-no = lv-last-est-no NO-LOCK, ~
       FIRST est WHERE est.company = eb.company ~
   AND est.est-no = eb.est-no ~
-  AND ASI.est.est-type GE iStartEstimateType ~
-  AND ASI.est.est-type LE iEndEstimateType ~
-  AND ASI.est.estimateTypeID GE cStartEstimateTypeID ~
-  AND ASI.est.estimateTypeID LE cEndEstimateTypeID NO-LOCK, ~
+  AND ASI.est.est-type GE iStartEstType ~
+  AND ASI.est.est-type LE iEndEstType ~
+  AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+  AND ASI.est.estimateTypeID LE cEndEstTypeID NO-LOCK, ~
       FIRST est-qty WHERE est-qty.company = eb.company and est-qty.est-no = eb.est-no ~
 and est-qty.eqty = eb.eqty  ~
  NO-LOCK, ~
@@ -756,10 +756,10 @@ ASSIGN
 eb.est-no = lv-last-est-no"
      _JoinCode[2]      = "ASI.est.company = ASI.eb.company
   AND ASI.est.est-no = ASI.eb.est-no
-  AND ASI.est.est-type GE iStartEstimateType
-  AND ASI.est.est-type LE iEndEstimateType
-  AND ASI.est.estimateTypeID GE cStartEstimateTypeID
-  AND ASI.est.estimateTypeID LE cEndEstimateTypeID"
+  AND ASI.est.est-type GE iStartEstType
+  AND ASI.est.est-type LE iEndEstType
+  AND ASI.est.estimateTypeID GE cStartEstTypeID
+  AND ASI.est.estimateTypeID LE cEndEstTypeID"
      _JoinCode[3]      = "est-qty.company = eb.company and est-qty.est-no = eb.est-no
 and est-qty.eqty = eb.eqty 
 "
@@ -1094,6 +1094,7 @@ DO:
                 {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-layout" "(yes)"}
                 {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-BoxDesign" "(yes)"}
         END.
+       RUN setFarmTab. 
   END.
 END.
 
@@ -1923,10 +1924,10 @@ DEF VAR lv-est-no AS CHAR INIT "" NO-UNDO.
 
 &SCOPED-DEFINE where-first1 ~
       WHERE est.company  EQ g_company ~
-        AND ASI.est.est-type GE iStartEstimateType ~
-        AND ASI.est.est-type LE iEndEstimateType ~
-        AND ASI.est.estimateTypeID GE cStartEstimateTypeID ~
-        AND ASI.est.estimateTypeID LE cEndEstimateTypeID ~
+        AND ASI.est.est-type GE iStartEstType ~
+        AND ASI.est.est-type LE iEndEstType ~
+        AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+        AND ASI.est.estimateTypeID LE cEndEstTypeID ~
       USE-INDEX est-no2
 
 RUN set-defaults.
@@ -2091,10 +2092,17 @@ PROCEDURE local-initialize :
   RUN pDynBrowserParam ("cec/b-estq").
   IF AVAILABLE dynParamValue THEN
   ASSIGN
-      cStartEstimateTypeID = fGetDynParamValue ("StartEstimateTypeID")
-      cEndEstimateTypeID   = fGetDynParamValue ("EndEstimateTypeID")
-      iStartEstimateType   = INTEGER(fGetDynParamValue ("StartEstimateType"))
-      iEndEstimateType     = INTEGER(fGetDynParamValue ("EndEstimateType"))
+      cStartEstTypeID = fGetDynParamValue ("StartEstTypeID")
+      cEndEstTypeID   = fGetDynParamValue ("EndEstTypeID")
+      iStartEstType   = INTEGER(fGetDynParamValue ("StartEstTypeCorr"))
+      iEndEstType     = INTEGER(fGetDynParamValue ("EndEstTypeCorr"))
+      .
+  ELSE
+  ASSIGN
+      cStartEstTypeID = CHR(32)
+      cEndEstTypeID   = CHR(254)
+      iStartEstType   = 5
+      iEndEstType     = 9
       .
 
   /* Dispatch standard ADM method.                             */
@@ -2202,9 +2210,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
-  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(NO)"}
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
 
 END PROCEDURE.
 
@@ -2567,10 +2573,10 @@ IF lv-show-prev THEN DO:
   FOR EACH est NO-LOCK
       WHERE est.company = g_company      
         AND est.est-no <= lv-last-show-est-no
-        AND ASI.est.est-type GE iStartEstimateType
-        AND ASI.est.est-type LE iEndEstimateType
-        AND ASI.est.estimateTypeID GE cStartEstimateTypeID
-        AND ASI.est.estimateTypeID LE cEndEstimateTypeID,
+        AND ASI.est.est-type GE iStartEstType
+        AND ASI.est.est-type LE iEndEstType
+        AND ASI.est.estimateTypeID GE cStartEstTypeID
+        AND ASI.est.estimateTypeID LE cEndEstTypeID,
       FIRST eb NO-LOCK
       WHERE eb.company = g_company
         AND eb.est-no = est.est-no 
@@ -2608,10 +2614,10 @@ ELSE IF lv-show-next THEN DO:
     FOR EACH est NO-LOCK
         WHERE est.company = g_company
           AND est.est-no >= lv-first-show-est-no
-          AND ASI.est.est-type GE iStartEstimateType
-          AND ASI.est.est-type LE iEndEstimateType
-          AND ASI.est.estimateTypeID GE cStartEstimateTypeID
-          AND ASI.est.estimateTypeID LE cEndEstimateTypeID,
+          AND ASI.est.est-type GE iStartEstType
+          AND ASI.est.est-type LE iEndEstType
+          AND ASI.est.estimateTypeID GE cStartEstTypeID
+          AND ASI.est.estimateTypeID LE cEndEstTypeID,
         FIRST eb NO-LOCK
         WHERE eb.company = g_company
           AND eb.est-no = est.est-no 
@@ -2705,6 +2711,21 @@ PROCEDURE value-changed-proc :
    DO WITH FRAME {&FRAME-NAME}:
       APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setFarmTab B-table-Win 
+PROCEDURE setFarmTab :
+/*------------------------------------------------------------------------------
+  Purpose:     disable/enable FARM tab
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF NOT AVAILABLE eb THEN RETURN.      
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

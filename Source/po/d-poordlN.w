@@ -5417,6 +5417,7 @@ PROCEDURE update-shipto :
                 FOR EACH oe-rel FIELDS(company ord-no i-no ship-id)  NO-LOCK WHERE
                     oe-rel.company EQ g_company AND
                     oe-rel.ord-no = INT(po-ordl.ord-no:SCREEN-VALUE) AND
+                    oe-rel.ord-no NE 0 AND
                     oe-rel.i-no = po-ordl.i-no:SCREEN-VALUE
                     :
      
@@ -6563,7 +6564,7 @@ PROCEDURE vend-cost :
                 OUTPUT cMessage).        
             RUN Conv_ValueFromUOMtoUOM(cocode, 
                 po-ordl.i-no:SCREEN-VALUE, "FG", 
-                dCostPerUOM, cCostUOM, "M", 
+                dCostPerUOM, cCostUOM, po-ordl.cons-uom:SCREEN-VALUE, 
                 0, DECIMAL(po-ordl.s-len:SCREEN-VALUE),DECIMAL(po-ordl.s-wid:SCREEN-VALUE),DECIMAL(v-po-dep:SCREEN-VALUE),0, 
                 OUTPUT dCostPerUOMCons, OUTPUT lError, OUTPUT cMessage).
              
@@ -6625,12 +6626,14 @@ PROCEDURE writeJobFarmInfo :
       
                 FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ g_company
                     AND oe-ordl.ord-no EQ INTEGER(po-ordl.ord-no:SCREEN-VALUE)
+                    AND oe-ordl.ord-no NE 0
                     AND oe-ordl.i-no   EQ  po-ordl.i-no:SCREEN-VALUE
                     NO-ERROR.
                 /* assumption is that for farm jobs, order and job are always the same */
                 IF NOT AVAILABLE oe-ordl THEN
                     FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ g_company
                         AND oe-ordl.ord-no EQ INTEGER(po-ordl.ord-no:SCREEN-VALUE)
+                        AND oe-ordl.ord-no NE 0
                         AND oe-ordl.job-no   EQ  po-ordl.ord-no:SCREEN-VALUE
                         NO-ERROR.
                 lFromOrd = TRUE.

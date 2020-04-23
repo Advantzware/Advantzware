@@ -51,7 +51,7 @@ DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
 DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
-DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
+DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 
 
 
@@ -81,6 +81,40 @@ PROCEDURE Outbound_GetAPIID:
             oplValid         = TRUE
             opcMessage       = "Success"
             opiAPIOutboundID = APIOutbound.apiOutboundID
+            .
+    ELSE
+        ASSIGN
+            oplValid   = FALSE
+            opcMessage = "Outbound configuration for API ID ["
+                       + ipcAPIID + "] is not available or inactive"
+            .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIRequestType:
+/*------------------------------------------------------------------------------
+ Purpose: Returns request type of an API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRequestType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+          WHERE bf-APIOutbound.company  EQ ipcCompany
+            AND bf-APIOutbound.apiID    EQ ipcAPIID
+            AND bf-APIOutbound.clientID EQ ipcClientID
+          NO-ERROR.
+    IF AVAILABLE bf-APIOutbound AND
+        NOT bf-APIOutbound.Inactive THEN
+        ASSIGN
+            oplValid       = TRUE
+            opcMessage     = "Success"
+            opcRequestType = bf-APIOutbound.requestType
             .
     ELSE
         ASSIGN
@@ -819,7 +853,13 @@ PROCEDURE pExecute PRIVATE:
                 OUTPUT ttRequestData.success,
                 OUTPUT ttRequestData.requestMessage
                 ) NO-ERROR.
-
+        ELSE
+            ASSIGN
+                lcResponseData               = "Success"
+                ttRequestData.success        = TRUE
+                ttRequestData.requestMessage = "Success"
+                .
+                
         ttRequestData.requestStatus = cRequestStatusSuccess.
 
         IF NOT ttRequestData.success THEN

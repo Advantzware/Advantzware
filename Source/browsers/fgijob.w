@@ -53,6 +53,7 @@ IF llRecFound THEN
 {sys/inc/oeinq.i}
  
 {fg/w-jobs.i "NEW SHARED"}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE TEMP-TABLE w-jobs LIKE w-job.
 

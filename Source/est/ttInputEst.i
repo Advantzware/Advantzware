@@ -64,6 +64,7 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD cFreightChargeMethod AS CHARACTER /*Optional - default "P"*/
     FIELD iPartial AS INTEGER /* Optional*/
     FIELD copy-runship as CHARACTER extent 20  /* Optional */
+    FIELD cSourceEst AS CHARACTER /* Optional*/
     .
 
 

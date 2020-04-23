@@ -667,6 +667,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DEFINE VARIABLE lNotPrintLoadtag AS LOGICAL  NO-UNDO .
     DEFINE BUFFER bff-po-ord FOR po-ord .
     SESSION:SET-WAIT-STATE ("general").
 
@@ -785,9 +786,18 @@ DO:
                            RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
                            RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
                            RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                           
+                           IF tb_print-loadtag AND iPOLoadtagInt EQ 2 THEN do:
+                             FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
+                                 IF FIRST-OF (tt-report.key-02) THEN DO: 
+                                   RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
+                                   RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
+                                 END.
+                             END.     
+                           END.  /* tb_print-loadtag AND iPOLoadtagInt EQ 2*/                             
                     END. /* first-of(po-no) */
                     IF LAST-OF (b1-po-ord.vend-no) THEN
-                       RUN GenerateMail(NO) .
+                       RUN GenerateMail(NO,"") .
                 END.  /* rd-dest EQ 5 */
             END. /* FIRST-OF (b1-po-ord.vend-no) */
         END. /* FOR EACH b1-po-ord */
@@ -840,9 +850,18 @@ DO:
                     RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
                     RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
                     RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                    
+                    IF tb_print-loadtag AND iPOLoadtagInt EQ 2 THEN do:
+                        FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
+                             IF FIRST-OF (tt-report.key-02) THEN DO: 
+                               RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
+                               RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
+                             END.
+                        END.     
+                    END.  /* tb_print-loadtag AND iPOLoadtagInt EQ 2*/                       
                 END. /* first-of(po-no) */
                 IF LAST-OF (b1-po-ord.vend-no) THEN
-                   RUN GenerateMail(NO) .
+                   RUN GenerateMail(NO,"") .
             END.  /* rd-dest EQ 5 */
         END. /* FOR EACH b1-po-ord */
         ELSE do:
@@ -855,15 +874,17 @@ DO:
     IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2) THEN
     DO:
         PAUSE 1.
+        IF rd-dest EQ 5 AND iPOLoadtagInt EQ 2 THEN lNotPrintLoadtag = YES .
         FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:           
-        IF rd-dest EQ 2 THEN do:
+            IF NOT lNotPrintLoadtag THEN do:
+                cPdfFilesAttach = "" .
                 IF FIRST-OF (tt-report.key-02) THEN DO:                      
                     RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
                     RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
                 END. /* first-of(po-no) */
-                IF LAST-OF (tt-report.key-01) AND iPOLoadtagInt EQ 2 THEN
-                   RUN GenerateMail(YES) .
-            END.  /* rd-dest EQ 5 */
+                IF LAST-OF (tt-report.key-01) AND iPOLoadtagInt EQ 1 THEN
+                   RUN GenerateMail(YES,tt-report.key-03) .
+            END.  /* not lNotPrintLoadtag */
             DELETE tt-report .
         END. /* FOR EACH tt-report */        
         
@@ -1393,12 +1414,14 @@ PROCEDURE GenerateMail :
 ------------------------------------------------------------------------------*/
 
   DEFINE INPUT PARAMETER iplLoadtagMail AS LOGICAL NO-UNDO.
+  DEFINE INPUT PARAMETER ipcShipLoc AS CHARACTER NO-UNDO.
   
   /* gdm - 11190804 */
   DEFINE VARIABLE v-outfile AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lcSubject AS CHARACTER   NO-UNDO.
   DEFINE BUFFER bf-po-ord FOR po-ord.
   DEFINE VARIABLE llAttachExists AS LOG NO-UNDO.
+  DEFINE VARIABLE cMailId AS CHARACTER NO-UNDO .
   SESSION:SET-WAIT-STATE ("").
   llAttachExists = NO.
 
@@ -1477,15 +1500,16 @@ PROCEDURE GenerateMail :
               cPoMailList = TRIM(cPoMailList,",")
               lcSubject = "Purchase Orders: " + STRING(cPoMailList) 
               . 
+       cMailId = "Vendor" .       
        IF iplLoadtagMail THEN
-             ASSIGN
-              cPdfFilesAttach = cPdfFilesAttach 
-              lcSubject = "PO Load Tag(s) Attached" .
+             ASSIGN                 
+              lcSubject = "PO Load Tag(s) Attached"
+              cMailId = "Loc" .
          
-      RUN custom/xpmail2.p   (INPUT   "Vendor",
+      RUN custom/xpmail2.p   (INPUT   cMailId,
                               INPUT   'R-POPRT.',
                               INPUT   cPdfFilesAttach,
-                              INPUT   begin_vend-no,
+                              INPUT   (IF iplLoadtagMail THEN ipcShipLoc ELSE begin_vend-no),
                               INPUT   lcSubject,
                               INPUT   "Purchase Orders",
                               OUTPUT  vcErrorMsg).
@@ -1997,7 +2021,16 @@ PROCEDURE run-report :
      report.term-id = v-term
      report.key-01  = po-ord.vend-no
      report.key-02  = STRING(po-ord.po-no,"9999999999")
+     report.key-03  = po-ord.loc
      report.rec-id  = RECID(po-ord).
+     
+     FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ cocode
+            AND shipto.cust-no EQ po-ord.cust-no
+            AND shipto.ship-id EQ po-ord.ship-id
+            NO-ERROR.
+      IF avail shipto THEN  
+      report.key-03  = shipto.loc .
   END.
 
   {sys/inc/print1.i}
@@ -2332,22 +2365,37 @@ PROCEDURE run-report-loadtag :
 
   v-lines-per-page = lines-per-page.
 
-  lv-pdf-file = init-dir + "\POLoadtag_" + string(icPoNo) + "_1" NO-ERROR. 
-
-      CASE iPOLoadtagInt:
+  lv-pdf-file = init-dir + "\POLoadtag_" + string(icPoNo) + "_1" NO-ERROR.     
+      
+      CASE rd-dest:
           WHEN 1 THEN do:
+            IF iPOLoadtagInt EQ 1 THEN
+               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
+            ELSE IF iPOLoadtagInt EQ 2 THEN  
+            PUT  "<PRINTER?></PROGRESS>".
+          END.
+          WHEN 2 THEN do:
+            IF iPOLoadtagInt EQ 1 THEN
+               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
+            ELSE IF iPOLoadtagInt EQ 2 THEN do:
               IF NOT lBussFormModle THEN
                 PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
               ELSE
-                PUT "<PREVIEW></PROGRESS>".     
-          END.                    
-          WHEN 2 THEN DO:
-             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
+                PUT "<PREVIEW></PROGRESS>".
+            END.    
+          END.          
+          WHEN 4 THEN DO:
+              ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
+                    /*(IF is-xprint-form THEN ".xpr" ELSE ".txt").*/
+              PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
           END.
-
+          WHEN 5 OR WHEN 6 THEN DO:
+              IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 THEN
+              PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
+          END.
       END CASE.
-    
-  RUN SetLoadTagForm(icPoNo,icVendNo,cPOLoadtagFormat) .                                                             
+      
+      RUN SetLoadTagForm(icPoNo,icVendNo,cPOLoadtagFormat) .                                                             
     
 
   OUTPUT CLOSE.
@@ -2379,30 +2427,63 @@ PROCEDURE GenerateReportTag :
   is-xprint-form = TRUE .
 
   IF v-print-fmt <> "southpak-xl" THEN
-  DO WITH FRAME {&FRAME-NAME}:  
-    CASE iPOLoadtagInt:          
-       WHEN 1 THEN RUN output-to-screen.
+  DO WITH FRAME {&FRAME-NAME}: 
+     CASE rd-dest:
+       WHEN 1 THEN do:
+         IF iPOLoadtagInt EQ 1 THEN DO:
+           RUN pRunxPrint.         
+         END.
+         ELSE IF iPOLoadtagInt EQ 2 THEN
+         RUN output-to-printer.
+       END.
        WHEN 2 THEN do:
-         IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
-         
-             IF v-print-fmt <> "southpak-xl" THEN DO:
-             
-                RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                
-                IF NOT AttachmentExists() THEN RETURN.
-             END.
-             ELSE 
-             ASSIGN lv-pdf-file = init-dir + "\PO.pdf".
-             
-             cPdfFilesAttach = cPdfFilesAttach + lv-pdf-file + "," .
-          
-            END.  
-        ELSE DO:  
-          IF NOT AttachmentExists() THEN RETURN.
-      
-        END.
-     END.
-    END CASE. 
+          IF iPOLoadtagInt EQ 1 THEN DO:
+            RUN pRunxPrint. 
+          END.
+          ELSE IF iPOLoadtagInt EQ 2 THEN
+          RUN output-to-screen.
+       END.
+       WHEN 3 THEN do:
+          IF iPOLoadtagInt EQ 1 THEN DO:
+            RUN pRunxPrint. 
+          END.
+          ELSE IF iPOLoadtagInt EQ 2 THEN
+          RUN output-to-file.
+       END.
+       WHEN 4 THEN DO:
+
+           IF lv-fax-type = "MULTI" THEN DO:
+              RUN output-to-fax-prt. /* create tif file */              
+              {custom/asifaxm3.i &TYPE         = "MULTI"
+                                &begin_cust   = ip-begin-vend-no
+                                &end_cust     = ip-end-vend-no
+                                &fax-subject  = "Purchase Orders"
+                                &fax-body     = "Purchase Orders"
+                                &fax-file     = lv-fax-image
+                                &end-widget   = end_vend-no }      
+           END.
+           ELSE DO:
+           {custom/asifax.i     &type         = "Vendor"
+                                &begin_cust   = begin_vend-no
+                                &END_cust     = begin_vend-no
+                                &fax-subject  = "Purchase Orders"
+                                &fax-body     = "Purchase Orders"
+                                &fax-file     = list-name}
+           END.
+       END. 
+       WHEN 5 THEN do:           
+          RUN pRunxPrint.           
+       END.
+
+       WHEN 6 THEN do:
+          IF iPOLoadtagInt EQ 1 THEN DO:
+            RUN pRunxPrint. 
+          END.
+          ELSE IF iPOLoadtagInt EQ 2 THEN
+          RUN output-to-port.
+       END.
+    END CASE.     
+    
   END.  
   
   is-xprint-form = lXprintValue.
@@ -2423,18 +2504,37 @@ PROCEDURE SetLoadTagForm :
   DEFINE INPUT PARAMETER ipcVendorNO    AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipcPrintFormat AS CHARACTER NO-UNDO.
        
-  RUN po/poloadTagPrint.p(INPUT ipiPoNo,ipcPrintFormat) .
-  /*IF ipcPrintFormat EQ "POLoadtag1" THEN DO:
-             RUN  po/poLoadtagNoLogo.p(ipiPoNo,ipcVendorNO,ipcPrintFormat) .
-   END.
-   ELSE IF ipcPrintFormat EQ "POLoadtag2" THEN DO:
-               {po/poLoadtagLogo.i } (ipiPoNo,ipcVendorNO,ipcPrintFormat) 
-   END.*/      
+  RUN po/poloadTagPrint.p(INPUT ipiPoNo,ipcPrintFormat) .          
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunxPrint C-Win 
+PROCEDURE pRunxPrint :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+      IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:          
+          IF v-print-fmt <> "southpak-xl" THEN DO:                           
+             RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").                
+             IF NOT AttachmentExists() THEN RETURN.
+          END.
+          ELSE 
+             ASSIGN lv-pdf-file = init-dir + "\PO.pdf".              
+          cPdfFilesAttach = cPdfFilesAttach + lv-pdf-file + "," .           
+      END.  
+      ELSE DO:  
+          IF NOT AttachmentExists() THEN RETURN.      
+      END.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME        
 
 /* ************************  Function Implementations ***************** */
 

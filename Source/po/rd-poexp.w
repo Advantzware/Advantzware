@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "Vendor Name,Vendor Address 1,Vendor Address 2,Vendor City,Vendor State,Vendor Zip," +
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
-                            "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID"
+                            "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line"
        cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -92,7 +92,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "vend.name,vend.add1,vend.add2,vend.city,vend.state,vend.zip," +
                             "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
                             "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
-                            "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id"
+                            "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line"
     .
 
 /*vend.name
@@ -103,7 +103,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
        lv_vend-zip:SCREEN-VALUE   = vend.zip.*/
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault  = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
+    ASSIGN cTextListToDefault  = "PO #,Po Line,Vendor #,Due Date,Ship ID,Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +

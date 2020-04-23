@@ -1103,7 +1103,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2,7':U) NO-ERROR.
 
        /* Links to SmartViewer h_vi-est2-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vi-est2-2 ).
@@ -1395,8 +1395,8 @@ PROCEDURE local-change-page :
   IF li-page[1] = 11 AND lNewVendorItemCost THEN 
   DO: /* farm */
       DEF VAR opEbRowid AS ROWID NO-UNDO.
-      DEF BUFFER bf-eb FOR eb.
-      
+      DEF BUFFER bf-eb FOR eb.       
+      RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
       RUN get-eb-rowid IN h_b-estitm (OUTPUT opEbRowID).
       FIND bf-eb NO-LOCK WHERE rowid(bf-eb) = opEbRowID NO-ERROR.
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).

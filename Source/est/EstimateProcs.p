@@ -29,7 +29,6 @@ PROCEDURE Estimate_LoadEstToTT:
     DEFINE OUTPUT PARAMETER TABLE FOR ttGoto. 
    
     DEFINE VARIABLE dReqQty  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dYldQty  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartQty AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER bf-eb  FOR eb.
@@ -94,19 +93,19 @@ PROCEDURE Estimate_LoadEstToTT:
         IF ttGoto.estType EQ 2 OR ttGoto.estType EQ 6 THEN DO:
             IF ttGoto.estType EQ 2 THEN
                 ASSIGN
-                    dReqQty = bf-eb.bl-qty
-                    dYldQty = bf-eb.cust-%
+                    dReqQty  = bf-eb.bl-qty
+                    dPartQty = bf-eb.cust-%
                     .
             ELSE
                 ASSIGN
-                    dReqQty = bf-est.est-qty[1]
-                    dYldQty = bf-eb.yld-qty
+                    dReqQty  = bf-est.est-qty[1]
+                    dPartQty = bf-eb.quantityPerSet
                     .
     
-            dPartQty = IF dYldQty LT 0 THEN
-                           (1 / (dYldQty * -1))
+            dPartQty = IF dPartQty LT 0 THEN
+                           (1 / (dPartQty * -1))
                        ELSE
-                           dYldQty.
+                           dPartQty.
     
             ttGoto.reqQty = dReqQty * dPartQty.
         END.
@@ -355,14 +354,11 @@ PROCEDURE Estimate_UpdateEstFromTT:
                     bf-eb.num-len = ttGoto.numWid
                     .
 
-            IF ttGoto.estType NE 2 THEN
-                bf-eb.yld-qty = IF ttGoto.yldQty GT 0 THEN 
-                                     ttGoto.yldQty
-                                 ELSE
-                                     ttGoto.calcYldQty.
-
             IF NOT (ttGoto.estType EQ 2 OR ttGoto.estType EQ 6) THEN
-                bf-eb.bl-qty = ttGoto.reqQty.                                    
+                ASSIGN
+                    bf-eb.bl-qty  = ttGoto.reqQty
+                    bf-eb.yld-qty = ttGoto.calcYldQty
+                    .                                    
 
             IF iOldNumUp NE ttGoto.numUp THEN          
                 ASSIGN 

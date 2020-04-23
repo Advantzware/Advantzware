@@ -37,7 +37,7 @@ DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS".
-DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "CT".
+DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "PR,CT".
 
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
@@ -64,7 +64,7 @@ DEFINE VARIABLE gcMarginMatrixLookup                  AS CHARACTER NO-UNDO.    /
 DEFINE VARIABLE glOpRatesSeparate                     AS LOGICAL   NO-UNDO INIT YES.    /*CEOpRates - log val*/
 
 DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
-DEFINE VARIABLE glVendItemCost AS LOGICAL NO-UNDO INIT YES.    /*VendItemCost - log val*/
+DEFINE VARIABLE glVendItemCost                        AS LOGICAL   NO-UNDO INIT YES.    /*VendItemCost - log val*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -82,7 +82,7 @@ FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     ipcPercentType AS CHARACTER) FORWARD.
 
 FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
-	(BUFFER ipbf-eb FOR eb) FORWARD.
+    (BUFFER ipbf-eb FOR eb) FORWARD.
 
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER,
@@ -560,11 +560,11 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.quantityPerSubUnit        = ipbf-eb.cas-cnt
         opbf-estCostItem.quantitySubUnitsPerUnit   = ipbf-eb.cas-pal
         /*Refactor - Calculate Windowing*/
-        opbf-estCostItem.blankAreaNetWindow      = opbf-estCostItem.blankArea                
+        opbf-estCostItem.blankAreaNetWindow        = opbf-estCostItem.blankArea                
         /*Refactor - Hardcoded*/
-        opbf-estCostItem.areaUOM                 = "SQIN"
-        opbf-estCostItem.dimUOM                  = "IN"
-        opbf-estCostItem.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-estCostItem.areaUOM                   = "SQIN"
+        opbf-estCostItem.dimUOM                    = "IN"
+        opbf-estCostItem.quantityPerSet            = fGetQuantityPerSet(BUFFER ipbf-eb)
         .
     
 
@@ -858,7 +858,7 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
     
     RUN pAddEstMisc(BUFFER ipbf-estCostForm, BUFFER bf-estCostMisc).
     
-     ASSIGN 
+    ASSIGN 
         bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
         bf-estCostMisc.formNo                = ipbf-est-prep.s-num  
         bf-estCostMisc.blankNo               = ipbf-est-prep.b-num
@@ -884,20 +884,20 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pAddEstOperation PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Create estCostOperation for estCostForm
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
+    /*------------------------------------------------------------------------------
+     Purpose:  Create estCostOperation for estCostForm
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
     DEFINE PARAMETER BUFFER opbf-estCostOperation FOR estCostOperation.
     
     CREATE opbf-estCostOperation.
     ASSIGN 
-        opbf-estCostOperation.estCostFormID = ipbf-estCostForm.estCostFormID
+        opbf-estCostOperation.estCostFormID   = ipbf-estCostForm.estCostFormID
         opbf-estCostOperation.estCostHeaderID = ipbf-estCostForm.estCostHeaderID
-        opbf-estCostOperation.company       = ipbf-estCostForm.company
-        opbf-estCostOperation.estimateNo    = ipbf-estCostForm.estimateNo
-        opbf-estCostOperation.formNo        = ipbf-estCostForm.formNo
+        opbf-estCostOperation.company         = ipbf-estCostForm.company
+        opbf-estCostOperation.estimateNo      = ipbf-estCostForm.estimateNo
+        opbf-estCostOperation.formNo          = ipbf-estCostForm.formNo
         .
         
 END PROCEDURE.
@@ -1717,7 +1717,7 @@ PROCEDURE pBuildProbe PRIVATE:
             :
             
             ASSIGN 
-                bf-probe.gsh-qty  = bf-probe.gsh-qty + estCostForm.grossQtyRequiredTotal
+                bf-probe.gsh-qty = bf-probe.gsh-qty + estCostForm.grossQtyRequiredTotal
                 .
             /*.tot-lbs is actually the MSF field but only for corrugated*/
             IF ipbf-estCostHeader.industry EQ gcIndustryCorrugated THEN 
@@ -1734,17 +1734,17 @@ PROCEDURE pBuildProbe PRIVATE:
         END.
     END.
     ASSIGN 
-        bf-probe.fact-cost    = ipbf-estCostHeader.costTotalFactory / dQtyInM
-        bf-probe.full-cost    = ipbf-estCostHeader.costTotalFull / dQtyInM
-        bf-probe.gross-profit = ipbf-estCostHeader.profitPctGross
-        bf-probe.net-profit   = ipbf-estCostHeader.profitPctNet 
-        bf-probe.sell-price   = ipbf-estCostHeader.sellPrice / dQtyInM
-        bf-probe.spare-dec-1  = ipbf-estCostHeader.costTotalMaterial / dQtyInM
+        bf-probe.fact-cost      = ipbf-estCostHeader.costTotalFactory / dQtyInM
+        bf-probe.full-cost      = ipbf-estCostHeader.costTotalFull / dQtyInM
+        bf-probe.gross-profit   = ipbf-estCostHeader.profitPctGross
+        bf-probe.net-profit     = ipbf-estCostHeader.profitPctNet 
+        bf-probe.sell-price     = ipbf-estCostHeader.sellPrice / dQtyInM
+        bf-probe.spare-dec-1    = ipbf-estCostHeader.costTotalMaterial / dQtyInM
         bf-probe.boardCostTotal = ipbf-estCostHeader.costTotalBoard
-        bf-probe.boardCostPerM = ipbf-estCostHeader.costTotalBoard / dQtyInM
+        bf-probe.boardCostPerM  = ipbf-estCostHeader.costTotalBoard / dQtyInM
         .
-        IF ipbf-estCostHeader.sellPrice GT 0 THEN 
-            bf-probe.boardCostPct  = ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100.
+    IF ipbf-estCostHeader.sellPrice GT 0 THEN 
+        bf-probe.boardCostPct  = ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100.
                     
     FOR EACH estCostItem NO-LOCK
         WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
@@ -1799,7 +1799,7 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
     DEFINE BUFFER bf-eb                     FOR eb.
     
     DEFINE BUFFER bfFirstBlank-estCostBlank FOR estCostBlank.
-    DEFINE BUFFER bfComp-estCostBlank FOR estCostBlank.
+    DEFINE BUFFER bfComp-estCostBlank       FOR estCostBlank.
     
     FIND FIRST bf-estCostHeader NO-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
@@ -2022,29 +2022,29 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
         AND bf-ce-ctrl.loc EQ bf-estCostHeader.warehouseID:
             
         /*Finished Goods Handling*/
-/*        IF bf-estCostHeader.handlingCostPerCWTFG NE 0 THEN DO:                                                                                    */
-/*            RUN pAddEstMisc(BUFFER estCostForm, BUFFER bf-estCostMisc).                                                                           */
-/*            ASSIGN                                                                                                                                */
-/*                bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/                                                 */
-/*                bf-estCostMisc.formNo                = estCostForm.formNo                                                                         */
-/*                bf-estCostMisc.blankNo               = 0                                                                                          */
-/*                bf-estCostMisc.costDescription       = "Finished Goods Handling"                                                                  */
-/*                bf-estCostMisc.costType              = "Lab"                                                                                      */
-/*                bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")                          */
-/*                bf-estCostMisc.SIMON                 = "I"                                                                                        */
-/*                bf-estCostMisc.profitPercent         = 0                                                                                          */
-/*                bf-estCostMisc.sourcequantity        = 1 /*Shipping weight of blanks on this form*/                                               */
-/*                bf-estCostMisc.quantityPerSourceQty  = 1                                                                                          */
-/*                bf-estCostMisc.quantityRequiredTotal = bf-estCostMisc.sourceQuantity * bf-estCostMisc.quantityPerSourceQty                        */
-/*                bf-estCostMisc.quantityUOM           = "CWT"                                                                                      */
-/*                bf-estCostMisc.costUOM               = "CWT"                                                                                      */
-/*                bf-estCostMisc.costPerUOM            = bf-estCostHeader.handlingCostPerCWTFG                                                      */
-/*                bf-estCostMisc.costSetup             = 0                                                                                          */
-/*                bf-estCostMisc.costTotalBeforeProfit = bf-estCostMisc.costPerUOM * bf-estCostMisc.quantityRequiredTotal + bf-estCostMisc.costSetup*/
-/*                bf-estCostMisc.isPrep                = NO                                                                                         */
-/*                .                                                                                                                                 */
-/*            RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER estCostForm).                                                                          */
-/*        END.                                                                                                                                      */
+        /*        IF bf-estCostHeader.handlingCostPerCWTFG NE 0 THEN DO:                                                                                    */
+        /*            RUN pAddEstMisc(BUFFER estCostForm, BUFFER bf-estCostMisc).                                                                           */
+        /*            ASSIGN                                                                                                                                */
+        /*                bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/                                                 */
+        /*                bf-estCostMisc.formNo                = estCostForm.formNo                                                                         */
+        /*                bf-estCostMisc.blankNo               = 0                                                                                          */
+        /*                bf-estCostMisc.costDescription       = "Finished Goods Handling"                                                                  */
+        /*                bf-estCostMisc.costType              = "Lab"                                                                                      */
+        /*                bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")                          */
+        /*                bf-estCostMisc.SIMON                 = "I"                                                                                        */
+        /*                bf-estCostMisc.profitPercent         = 0                                                                                          */
+        /*                bf-estCostMisc.sourcequantity        = 1 /*Shipping weight of blanks on this form*/                                               */
+        /*                bf-estCostMisc.quantityPerSourceQty  = 1                                                                                          */
+        /*                bf-estCostMisc.quantityRequiredTotal = bf-estCostMisc.sourceQuantity * bf-estCostMisc.quantityPerSourceQty                        */
+        /*                bf-estCostMisc.quantityUOM           = "CWT"                                                                                      */
+        /*                bf-estCostMisc.costUOM               = "CWT"                                                                                      */
+        /*                bf-estCostMisc.costPerUOM            = bf-estCostHeader.handlingCostPerCWTFG                                                      */
+        /*                bf-estCostMisc.costSetup             = 0                                                                                          */
+        /*                bf-estCostMisc.costTotalBeforeProfit = bf-estCostMisc.costPerUOM * bf-estCostMisc.quantityRequiredTotal + bf-estCostMisc.costSetup*/
+        /*                bf-estCostMisc.isPrep                = NO                                                                                         */
+        /*                .                                                                                                                                 */
+        /*            RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER estCostForm).                                                                          */
+        /*        END.                                                                                                                                      */
         
         IF bf-estCostHeader.directMaterialPct NE 0 THEN 
             RUN pAddCostDetail(estCostForm.estCostHeaderID, estCostForm.estCostFormID, "", estCostForm.estCostFormID, 
@@ -2177,11 +2177,11 @@ PROCEDURE pBuildPackingForEb PRIVATE:
     DEFINE           BUFFER bf-ttPack          FOR ttPack.
     DEFINE           BUFFER bf-ce-ctrl         FOR ce-ctrl.
     
-    DEFINE VARIABLE dLayerDepth   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dDividerDepth AS DECIMAL NO-UNDO.        
-    DEFINE VARIABLE dPackQty      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLayerDepth   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dDividerDepth AS DECIMAL   NO-UNDO.        
+    DEFINE VARIABLE dPackQty      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cStrapID      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dStrapQty     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dStrapQty     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cStrapQtyUOM  AS CHARACTER NO-UNDO.
     
     FIND FIRST bf-ce-ctrl NO-LOCK 
@@ -2255,15 +2255,16 @@ PROCEDURE pBuildPackingForEb PRIVATE:
     RELEASE bf-ttPack.           
     
     RUN pGetStrapping(BUFFER ipbf-eb, OUTPUT cStrapID, OUTPUT dStrapQty, OUTPUT cStrapQtyUOM).
-    IF cStrapID NE "" THEN DO:
+    IF cStrapID NE "" THEN 
+    DO:
         /*Strapping*/
         RUN pAddPacking(BUFFER ipbf-estCostBlank, cStrapID, BUFFER bf-ttPack).
         IF AVAILABLE bf-ttPack THEN 
             ASSIGN 
-                bf-ttPack.dQtyMultiplier        = dStrapQty
-                bf-ttPack.cQtyUOM               = cStrapQtyUOM
-                bf-ttPack.cQtyMultiplierPer     = "P"
-                bf-ttPack.lNoCharge             = ipbf-eb.trNoCharge
+                bf-ttPack.dQtyMultiplier    = dStrapQty
+                bf-ttPack.cQtyUOM           = cStrapQtyUOM
+                bf-ttPack.cQtyMultiplierPer = "P"
+                bf-ttPack.lNoCharge         = ipbf-eb.trNoCharge
                 .      
         RELEASE bf-ttPack.           
     END.
@@ -2375,12 +2376,12 @@ PROCEDURE pBuildItems PRIVATE:
                     RUN pProcessPacking(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm).
                 END.
                 ASSIGN 
-                    bf-estCostItem.isSet = YES
-                    bf-estCostItem.quantityPerSet = 0
-                    bf-estCostItem.blankArea = 0
+                    bf-estCostItem.isSet              = YES
+                    bf-estCostItem.quantityPerSet     = 0
+                    bf-estCostItem.blankArea          = 0
                     bf-estCostItem.blankAreaNetWindow = 0
-                    bf-estCostItem.blankAreaWindow = 0
-                    iEstItemIDSetHeader  = bf-estCostItem.estCostItemID
+                    bf-estCostItem.blankAreaWindow    = 0
+                    iEstItemIDSetHeader               = bf-estCostItem.estCostItemID
                     .
                 RELEASE bf-estCostForm.
                 RELEASE bf-estCostBlank.
@@ -2393,7 +2394,7 @@ PROCEDURE pBuildItems PRIVATE:
                 bf-estCostItem.quantityRequired = bf-estCostItem.quantityRequired + eb.bl-qty
                 bf-estCostItem.quantityYielded  = bf-estCostItem.quantityYielded + eb.yld-qty
                 bf-estCostItem.quantityPerSet   = IF IsSetType(ipbf-estCostHeader.estType) THEN bf-estCostItem.quantityPerSet + fGetQuantityPerSet(BUFFER eb) ELSE 1.
-                .      
+            .      
         RELEASE bf-estCostItem.
     END. /*Build EstItems*/
 
@@ -2486,31 +2487,31 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
         FOR EACH bf-estCostMaterial NO-LOCK 
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
             AND bf-estCostMaterial.estCostFormID EQ bf-estCostBlank.estCostFormID
-            AND (bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare):
+            AND (bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare)
+            AND (bf-estCostMaterial.estCostBlankID EQ bf-estCostBlank.estCostBlankID OR bf-estCostMaterial.estCostBlankID EQ 0):
+            
+            dWeightInDefaultUOM = 0.
+            
             IF bf-estCostMaterial.estCostBlankID EQ 0 THEN 
             DO: /*Form level material - calc based on basis-weight and blank area*/
                 IF bf-estCostMaterial.isPrimarySubstrate THEN 
                 DO:   /*Board and adders*/
-                    
-                    dBasisWeightInDefaultUOM = bf-estCostMaterial.basisWeight.
-                    IF bf-estCostMaterial.basisWeightUOM NE gcDefaultBasisWeightUOM THEN 
-                    DO:
-                        //REFACTOR: convert basisweight
-                    END.
-                    ASSIGN         
-                        bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dBasisWeightInDefaultUOM * dBlankAreaTotalInDefaultUOM
-                        bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + bf-estCostItem.weightNet
-                        .
+                    /*refactor - basis assumed to be LBs/MSF*/
+                    dWeightInDefaultUOM = bf-estCostMaterial.basisWeight * dBlankAreaTotalInDefaultUOM.
                     
                 END. /*Primary substrate calculations - board and adders*/
+                ELSE /*non-board/substrate form level material - pro-rate weight*/
+                    dWeightInDefaultUOM = bf-estCostMaterial.weightTotal * bf-estCostBlank.pctOfForm.
             END.
-            ELSE 
-            DO:
+            ELSE /*Blank specific material - get all weight*/
                 dWeightInDefaultUOM = bf-estCostMaterial.weightTotal.
-                IF bf-estCostMaterial.weightUOM NE gcDefaultWeightUOM THEN 
-                DO:
+
+            IF bf-estCostMaterial.weightUOM NE gcDefaultWeightUOM THEN 
+            DO:
                     //REFACTOR: Convert to default weight UOM
-                END.
+            END.
+            IF bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare THEN 
+            DO:
                 IF bf-estCostMaterial.addToWeightNet THEN 
                     bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dWeightInDefaultUOM.
                 IF bf-estCostMaterial.addToWeightTare THEN 
@@ -2555,11 +2556,11 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
         AND bfSet-estCostItem.isSet,
         EACH bf-estCostItem NO-LOCK
         WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHEader.estCostHeaderID:
-            ASSIGN 
-                bfSet-estCostItem.blankArea = bfSet-estCostItem.blankArea + bf-estCostItem.blankArea * bf-estCostItem.quantityPerSet
-                bfSet-estCostItem.blankAreaNetWindow = bfSet-estCostItem.blankAreaNetWindow + bf-estCostItem.blankAreaNetWindow * bf-estCostItem.quantityPerSet
-                bfSet-estCostItem.blankAreaWindow = bfSet-estCostItem.blankAreaWindow + bf-estCostItem.blankAreaWindow * bf-estCostItem.quantityPerSet
-                .
+        ASSIGN 
+            bfSet-estCostItem.blankArea          = bfSet-estCostItem.blankArea + bf-estCostItem.blankArea * bf-estCostItem.quantityPerSet
+            bfSet-estCostItem.blankAreaNetWindow = bfSet-estCostItem.blankAreaNetWindow + bf-estCostItem.blankAreaNetWindow * bf-estCostItem.quantityPerSet
+            bfSet-estCostItem.blankAreaWindow    = bfSet-estCostItem.blankAreaWindow + bf-estCostItem.blankAreaWindow * bf-estCostItem.quantityPerSet
+            .
     END.
     RELEASE bfSet-estCostItem.
     RELEASE bf-estCostItem.
@@ -2568,31 +2569,31 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pConvertQuantityFromUOMToUOM PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Wrapper procedure for conversion programs.
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipdQuantityInFromUOM AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opdQuantityInToUOM AS DECIMAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose:  Wrapper procedure for conversion programs.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityInFromUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityInToUOM AS DECIMAL NO-UNDO.
 
-DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 
-/*RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType,                      */
-/*                            ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,                */
-/*                            ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 0,          */
-/*                            OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).*/
-/*IF lError THEN                                                                         */
+    /*RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType,                      */
+    /*                            ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,                */
+    /*                            ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 0,          */
+    /*                            OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).*/
+    /*IF lError THEN                                                                         */
     RUN custom/convquom.p (ipcCompany, ipcFromUOM, ipcToUOM, ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, ipdQuantityInFromUOM, OUTPUT opdQuantityInToUOM).
     
 END PROCEDURE.
@@ -2760,10 +2761,10 @@ PROCEDURE pGetStrapping PRIVATE:
     DEFINE OUTPUT PARAMETER opdQuantityRequiredPerPallet AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cFormula AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iStrapCount AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dStrapQty AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE cStrapUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormula    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStrapCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dStrapQty   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cStrapUOM   AS CHARACTER NO-UNDO.
     
 
     FIND FIRST stackPattern NO-LOCK
@@ -2773,10 +2774,10 @@ PROCEDURE pGetStrapping PRIVATE:
     IF AVAILABLE stackPattern THEN 
     DO:
         ASSIGN 
-            opcItemID = stackPattern.strapCode
-            cFormula  = stackPattern.strapFormula
+            opcItemID   = stackPattern.strapCode
+            cFormula    = stackPattern.strapFormula
             iStrapCount = MAXIMUM(stackPattern.strapCount, 1)
-            cStrapUOM = IF stackPattern.strapUOM NE "" THEN stackPattern.strapUOM ELSE "MLI" /*Refactor to use stackPattern.strapUOM*/
+            cStrapUOM   = IF stackPattern.strapUOM NE "" THEN stackPattern.strapUOM ELSE "MLI" /*Refactor to use stackPattern.strapUOM*/
             .
             
         RUN ProcessStyleFormula (ipbf-eb.company,  /*Company*/
@@ -2797,7 +2798,7 @@ PROCEDURE pGetStrapping PRIVATE:
         IF cStrapUOM = "MLI" THEN dStrapQty = dStrapQty / 1000.
         ASSIGN 
             opdQuantityRequiredPerPallet = dStrapQty /* * iStrapCount*/
-            opcQuantityUOM = cStrapUOM.
+            opcQuantityUOM               = cStrapUOM.
         
             
     END.
@@ -3107,10 +3108,10 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     DO:
         IF ipbf-estCostMaterial.isPurchasedFG THEN
             RUN pGetEstFarmCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial, ipbf-estCostMaterial.quantityRequiredTotal, ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, 
-                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup ).
+                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID).
         ELSE 
             RUN pGetEstMaterialCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial,ipbf-estCostMaterial.quantityRequiredTotal,ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, 
-                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup ).
+                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID).
             
     END.
     ELSE 
@@ -3165,7 +3166,7 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     ELSE 
         ASSIGN 
             ipbf-estCostMaterial.costPerUOM = 0
-            ipbf-estCostMaterial.costSetup = 0
+            ipbf-estCostMaterial.costSetup  = 0
             .        
     
 END PROCEDURE.
@@ -3609,11 +3610,11 @@ PROCEDURE pProcessPacking PRIVATE:
     DEFINE           BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE           BUFFER bf-estCostBlank    FOR estCostBlank.
     
-    DEFINE VARIABLE iCaseCount   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iCases       AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iPalletCount AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iPallets     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCaseCount      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCases          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCasesProRata   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iPalletCount    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPallets        AS INTEGER NO-UNDO.
     DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
     
     
@@ -3648,9 +3649,9 @@ PROCEDURE pProcessPacking PRIVATE:
         
         IF ttPack.iCountPerSubUnit NE 0 THEN
             ASSIGN
-                iCaseCount = ttPack.iCountPerSubUnit  
+                iCaseCount    = ttPack.iCountPerSubUnit  
                 dCasesProRata = bf-estCostBlank.quantityRequired / ttPack.iCountPerSubUnit
-                iCases     = fRoundUp(dCasesProRata * ttPack.dQtyMultiplier).
+                iCases        = fRoundUp(dCasesProRata * ttPack.dQtyMultiplier).
         ELSE 
             ASSIGN /*Calc cases based on weight - REFACTOR since assumes weight is in LB/M */
                 iCases     = fRoundUp(bf-estCostBlank.quantityRequired * (bf-estCostBlank.weightPerBlank) / ttPack.dWeightCapacity) * ttPack.dQtyMultiplier
@@ -3719,12 +3720,12 @@ PROCEDURE pProcessPacking PRIVATE:
         IF ttPack.dQtyMultiplier GT 1 THEN /*If there are multiple packers per case/pallet, only add a packer if necessary*/
             ASSIGN 
                 dPalletsProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit * bf-estCostBlank.quantitySubUnitsPerUnit)
-                dCasesProRata = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit)
+                dCasesProRata   = bf-estCostBlank.quantityRequired / MAX(1, bf-estCostBlank.quantityPerSubUnit)
                 .
         ELSE 
             ASSIGN 
                 dPalletsProRata = bf-estCostBlank.quantityOfUnits
-                dCasesProRata = bf-estCostBlank.quantityOfSubUnits
+                dCasesProRata   = bf-estCostBlank.quantityOfSubUnits
                 .
          
         CASE ttPack.cQtyMultiplier:
@@ -3766,48 +3767,65 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSetup AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorID AS CHARACTER NO-UNDO.
        
-    DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lCostFound AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cScope              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iIndex              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lCostFound          AS LOGICAL   NO-UNDO.
     
-    DEFINE VARIABLE dRunQty    AS DECIMAL   EXTENT 20.
-    DEFINE VARIABLE dRunCost   AS DECIMAL   EXTENT 20.
-    DEFINE VARIABLE dSetups    AS DECIMAL   EXTENT 20.
-    DEFINE VARIABLE dQtyInCUOM AS DECIMAL.
-    DEFINE VARIABLE dCostTotal AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dRunQty             AS DECIMAL   EXTENT 20.
+    DEFINE VARIABLE dRunCost            AS DECIMAL   EXTENT 20.
+    DEFINE VARIABLE dSetups             AS DECIMAL   EXTENT 20.
+    DEFINE VARIABLE dQtyInCUOM          AS DECIMAL.
+    DEFINE VARIABLE dCostTotal          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
 
     ASSIGN
         lCostFound = NO
         opdCost    = 0
         opdSetup   = 0.
     
-    IF glVendItemCost THEN
-        RUN GetVendorCost(ipbf-estCostMaterial.company,
-                      ipbf-estCostMaterial.itemID,
-                      "FG",
-                      ipcVendNo,
-                      "",
-                      ipbf-estCostMaterial.estimateNo,
-                      ipbf-estCostMaterial.formNo,
-                      ipbf-estCostMaterial.blankNo,
-                      ipdQty,
-                      ipcQtyUOM,
-                      ipbf-estCostMaterial.dimLength,
-                      ipbf-estCostMaterial.dimWidth,
-                      ipbf-estCostMaterial.dimDepth,
-                      ipbf-estCostMaterial.dimUOM,
-                      ipbf-estCostMaterial.basisWeight,
-                      ipbf-estCostMaterial.basisWeightUOM,
-                      NO,
-                      OUTPUT opdCost,
-                      OUTPUT opdSetup,
-                      OUTPUT opcCostUOM,
-                      OUTPUT dCostTotal,
-                      OUTPUT lError,
-                      OUTPUT cMessage).
-
+    IF glVendItemCost THEN 
+    DO:
+        ASSIGN 
+            cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-FG")
+            lIncludeBlankVendor = YES
+            .
+        RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
+            ipbf-estCostMaterial.itemID, "FG", 
+            cScope, lIncludeBlankVendor, 
+            ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
+            ipdQty, ipcQtyUOM, 
+            ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+            ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
+            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, 
+            OUTPUT lError, OUTPUT cMessage).
+/*        RUN GetVendorCost(ipbf-estCostMaterial.company,   */
+/*                      ipbf-estCostMaterial.itemID,        */
+/*                      "FG",                               */
+/*                      ipcVendNo,                          */
+/*                      "",                                 */
+/*                      ipbf-estCostMaterial.estimateNo,    */
+/*                      ipbf-estCostMaterial.formNo,        */
+/*                      ipbf-estCostMaterial.blankNo,       */
+/*                      ipdQty,                             */
+/*                      ipcQtyUOM,                          */
+/*                      ipbf-estCostMaterial.dimLength,     */
+/*                      ipbf-estCostMaterial.dimWidth,      */
+/*                      ipbf-estCostMaterial.dimDepth,      */
+/*                      ipbf-estCostMaterial.dimUOM,        */
+/*                      ipbf-estCostMaterial.basisWeight,   */
+/*                      ipbf-estCostMaterial.basisWeightUOM,*/
+/*                      NO,                                 */
+/*                      OUTPUT opdCost,                     */
+/*                      OUTPUT opdSetup,                    */
+/*                      OUTPUT opcCostUOM,                  */
+/*                      OUTPUT dCostTotal,                  */
+/*                      OUTPUT lError,                      */
+/*                      OUTPUT cMessage).                   */
+    END.
     ELSE DO:
         FIND FIRST e-itemfg NO-LOCK
             WHERE e-itemfg.company EQ ipbf-estCostHeader.company
@@ -3893,7 +3911,10 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSetup AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorID AS CHARACTER NO-UNDO.
        
+    DEFINE VARIABLE cScope              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lCostFound AS LOGICAL   NO-UNDO.
     
@@ -3913,29 +3934,42 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
   
     IF glVendItemCost THEN 
     DO:
-       RUN GetVendorCost(ipbf-estCostMaterial.company,
-                      ipbf-estCostMaterial.itemID,
-                      "RM",
-                      ipcVendNo,
-                      "",
-                      ipbf-estCostMaterial.estimateNo,
-                      ipbf-estCostMaterial.formNo,
-                      ipbf-estCostMaterial.blankNo,
-                      ipdQty,
-                      ipcQtyUOM,
-                      ipbf-estCostMaterial.dimLength,
-                      ipbf-estCostMaterial.dimWidth,
-                      ipbf-estCostMaterial.dimDepth,
-                      ipbf-estCostMaterial.dimUOM,
-                      ipbf-estCostMaterial.basisWeight,
-                      ipbf-estCostMaterial.basisWeightUOM,
-                      NO,
-                      OUTPUT opdCost,
-                      OUTPUT opdSetup,
-                      OUTPUT opcCostUOM,
-                      OUTPUT dCostTotal,
-                      OUTPUT lError,
-                      OUTPUT cMessage).
+       ASSIGN 
+            cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM")
+            lIncludeBlankVendor = YES
+            .
+       RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
+            ipbf-estCostMaterial.itemID, "RM", 
+            cScope, lIncludeBlankVendor, 
+            ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
+            ipdQty, ipcQtyUOM, 
+            ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+            ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
+            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, 
+            OUTPUT lError, OUTPUT cMessage).
+/*         RUN GetVendorCost(ipbf-estCostMaterial.company,  */
+/*                      ipbf-estCostMaterial.itemID,        */
+/*                      "RM",                               */
+/*                      ipcVendNo,                          */
+/*                      "",                                 */
+/*                      ipbf-estCostMaterial.estimateNo,    */
+/*                      ipbf-estCostMaterial.formNo,        */
+/*                      ipbf-estCostMaterial.blankNo,       */
+/*                      ipdQty,                             */
+/*                      ipcQtyUOM,                          */
+/*                      ipbf-estCostMaterial.dimLength,     */
+/*                      ipbf-estCostMaterial.dimWidth,      */
+/*                      ipbf-estCostMaterial.dimDepth,      */
+/*                      ipbf-estCostMaterial.dimUOM,        */
+/*                      ipbf-estCostMaterial.basisWeight,   */
+/*                      ipbf-estCostMaterial.basisWeightUOM,*/
+/*                      NO,                                 */
+/*                      OUTPUT opdCost,                     */
+/*                      OUTPUT opdSetup,                    */
+/*                      OUTPUT opcCostUOM,                  */
+/*                      OUTPUT dCostTotal,                  */
+/*                      OUTPUT lError,                      */
+/*                      OUTPUT cMessage).                   */
 
        RETURN.
     END.
