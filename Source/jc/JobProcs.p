@@ -50,6 +50,52 @@ PROCEDURE CheckJobStatus:
 
 END PROCEDURE.
 
+PROCEDURE Job_GetNextOperation:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPassNo        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachineID     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNextMachineID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lMachineFound AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
+    Main-Loop-Mach:
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2,
+        EACH bf-job-mch NO-LOCK
+        WHERE bf-job-mch.company EQ bf-job.company
+          AND bf-job-mch.job     EQ bf-job.job
+          AND bf-job-mch.job-no  EQ bf-job.job-no
+          AND bf-job-mch.job-no2 EQ bf-job.job-no2
+          AND bf-job-mch.frm     EQ ipiFormNo
+          USE-INDEX line-idx:
+        /* Set the lMachineFound to true only if the given machine and pass is found. */
+        IF bf-job-mch.pass EQ ipiPassNo AND bf-job-mch.m-code EQ ipcMachineID THEN
+            lMachineFound = TRUE.
+
+        /* As the records are iterated with line-idx index, we should find the next 
+           machine which is not the input machine in the next iterations if available*/
+        IF lMachineFound AND bf-job-mch.m-code NE ipcMachineID THEN DO:              
+            opcNextMachineID = bf-job-mch.m-code.
+            LEAVE.
+        END.
+    END.
+
+    RELEASE bf-job.
+    RELEASE bf-job-mch.
+END PROCEDURE.
+
 PROCEDURE GetSecondaryJobForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns all available secondary job list for a given jobID
