@@ -1034,7 +1034,48 @@ PROCEDURE local-open-query :
   IF ll-first THEN RUN first-query.
 
   ELSE DO:
+    IF fi_cust-no NE "" AND NOT CAN-FIND(FIRST oe-bolh 
+                                         WHERE oe-bolh.company EQ cocode 
+                                           AND oe-bolh.posted  EQ tb_posted 
+                                           AND oe-bolh.deleted EQ NO 
+                                           AND oe-bolh.cust-no BEGINS fi_cust-no 
+                                         USE-INDEX cust)THEN DO:
+        MESSAGE "Invalid search criteria - Customer doesn't exist."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO fi_cust-no IN FRAME {&FRAME-NAME}.
+        RETURN.
+
+    END.
+    IF fi_i-no NE "" AND NOT CAN-FIND(FIRST itemfg 
+                                      WHERE itemfg.company EQ cocode 
+                                        AND itemfg.i-no BEGINS fi_i-no
+                                      )THEN DO:
+        MESSAGE "Invalid search criteria - item number doesn't exist"
+            VIEW-AS ALERT-BOX ERROR .
+        APPLY "ENTRY":U TO fi_i-no IN FRAME {&FRAME-NAME}.
+        RETURN.
+    END.
+    IF fi_i-name NE "" AND NOT CAN-FIND(FIRST itemfg 
+                                        WHERE itemfg.company EQ cocode 
+                                          AND itemfg.i-name  BEGINS fi_i-name
+                                        )THEN DO:
+        MESSAGE "Invalid search criteria - item name doesn't exist"
+            VIEW-AS ALERT-BOX ERROR .
+        APPLY "ENTRY":U TO fi_i-name IN FRAME {&FRAME-NAME}.
+        RETURN.
+    END.
+    IF fi_part-no NE "" AND NOT CAN-FIND(FIRST itemfg 
+                                         WHERE itemfg.company EQ cocode 
+                                           AND itemfg.part-no BEGINS fi_part-no
+                                         ) THEN DO:
+        MESSAGE "Invalid search criteria - Part number doesn't exist"
+            VIEW-AS ALERT-BOX ERROR .
+        APPLY "ENTRY":U TO fi_part-no IN FRAME {&FRAME-NAME}.
+        RETURN. 
+    END.  
+    
     {oe/j-oebolq.i}
+  
   END.
 
   IF AVAIL oe-bolh THEN DO:
