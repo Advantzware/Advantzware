@@ -4078,7 +4078,7 @@ PROCEDURE pGetMiscCostPerM PRIVATE:
         END.
     END.
     IF AVAILABLE reftable THEN
-        FIND FIRST reftable
+        FIND FIRST reftable NO-LOCK
             WHERE reftable.reftable EQ "EST-MISC"
             AND reftable.company  EQ ipbf-ef.company
             AND reftable.loc      EQ ipbf-ef.loc
