@@ -36,9 +36,11 @@ CREATE WIDGET-POOL.
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 DEFINE VARIABLE h_calling_window AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_touchfrm AS HANDLE NO-UNDO.
+DEFINE VARIABLE lAlwaysShow AS LOGICAL NO-UNDO.
 &ELSE
 DEFINE INPUT PARAMETER h_calling_window AS HANDLE NO-UNDO.
 DEFINE INPUT PARAMETER h_touchfrm AS HANDLE NO-UNDO.
+DEFINE INPUT PARAMETER lAlwaysShow AS LOGICAL NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -46,6 +48,9 @@ DEFINE INPUT PARAMETER h_touchfrm AS HANDLE NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
+
+IF lAlwaysShow THEN
+tskey-log = YES.
 
 IF NOT tskey-log THEN
    RETURN.

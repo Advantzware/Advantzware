@@ -19,7 +19,8 @@ PROCEDURE pKeyboard:
     IF NOT VALID-HANDLE(hKeyboard) THEN
     RUN VALUE(ipcKeyboard) PERSISTENT SET hKeyboard (
         THIS-PROCEDURE:HANDLE,
-        FRAME {&FRAME-NAME}:HANDLE
+        FRAME {&FRAME-NAME}:HANDLE,
+        YES
         ).
     ASSIGN
         hFocusField = iphFocusField
