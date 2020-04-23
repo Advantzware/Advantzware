@@ -6564,7 +6564,7 @@ PROCEDURE vend-cost :
                 OUTPUT cMessage).        
             RUN Conv_ValueFromUOMtoUOM(cocode, 
                 po-ordl.i-no:SCREEN-VALUE, "FG", 
-                dCostPerUOM, cCostUOM, "M", 
+                dCostPerUOM, cCostUOM, po-ordl.cons-uom:SCREEN-VALUE, 
                 0, DECIMAL(po-ordl.s-len:SCREEN-VALUE),DECIMAL(po-ordl.s-wid:SCREEN-VALUE),DECIMAL(v-po-dep:SCREEN-VALUE),0, 
                 OUTPUT dCostPerUOMCons, OUTPUT lError, OUTPUT cMessage).
              

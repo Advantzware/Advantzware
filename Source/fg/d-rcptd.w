@@ -2016,6 +2016,9 @@ PROCEDURE create-from-po :
     DEFINE VARIABLE lv-rno             LIKE fg-rctd.r-no NO-UNDO.
     DEFINE VARIABLE rwRowid              AS ROWID     NO-UNDO.
     DEFINE VARIABLE v-next-tag           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cConsCostUOM         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
 
@@ -2036,6 +2039,7 @@ PROCEDURE create-from-po :
                 tt-fg-rctd.cases-unit   = 1
                 tt-fg-rctd.qty-case     = 1
                 ld                      = po-ordl.ord-qty
+                cConsCostUOM            = po-ordl.cons-uom
                 .
             IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
                 RUN sys/ref/convquom.p (po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
@@ -2093,8 +2097,16 @@ PROCEDURE create-from-po :
                 .   
             RUN pGetCostsFromPO (g_company, fg-rctd.po-no, fg-rctd.po-line, fg-rctd.i-no, fg-rctd.t-qty,
                 OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
+            
+            RUN Conv_ValueFromUOMtoUOM(g_company, 
+                fg-rctd.i-no, "FG", 
+                dCostPerUOM, cCostUOM, cConsCostUOM, 
+                0, 0, 0, 0, 0, 
+                OUTPUT dCostPerUOM, OUTPUT lError, OUTPUT cMessage).    
+            
             ASSIGN                                                                             
-                fg-rctd.cost-uom = cCostUOM
+            
+                fg-rctd.cost-uom = cConsCostUOM
                 fg-rctd.std-cost = dCostPerUOM
                 fg-rctd.ext-cost = dCostExtended
                 fg-rctd.frt-cost = dCostExtendedFreight
@@ -3547,21 +3559,38 @@ PROCEDURE pDisplayPO PRIVATE :
     DEFINE VARIABLE dCostPerUOM          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostExtended        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostExtendedFreight AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cConsUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO. 
     
     DO WITH FRAME {&FRAME-NAME}:
         IF fg-rctd.po-line:SCREEN-VALUE  EQ "" OR fg-rctd.po-line:SCREEN-VALUE  EQ "0" THEN 
             fg-rctd.po-line:SCREEN-VALUE  = "1".
-        RUN pGetCostsFromPO(cocode, INTEGER(fg-rctd.po-no:SCREEN-VALUE ), INTEGER(fg-rctd.po-line:SCREEN-VALUE ), 
-            fg-rctd.i-no:SCREEN-VALUE , DECIMAL(fg-rctd.t-qty:SCREEN-VALUE ),
-            OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
-        ASSIGN                                                                             
-            fg-rctd.cost-uom:SCREEN-VALUE = cCostUOM
-            fg-rctd.std-cost:SCREEN-VALUE = STRING(dCostPerUOM)
-            fg-rctd.ext-cost:SCREEN-VALUE = STRING(dCostExtended).
-        IF iplUpdateFreight THEN 
-            fg-rctd.frt-cost:SCREEN-VALUE  = STRING(dCostExtendedFreight).
+        FIND FIRST po-ordl NO-LOCK 
+            WHERE po-ordl.company EQ cocode
+            AND po-ordl.po-no EQ INTEGER(fg-rctd.po-no:SCREEN-VALUE )
+            AND po-ordl.line EQ INTEGER(fg-rctd.po-line:SCREEN-VALUE )
+            NO-ERROR.
+        IF AVAILABLE po-ordl THEN DO:
+            cConsUOM = po-ordl.cons-uom.
+            RUN pGetCostsFromPO(cocode, po-ordl.po-no, po-ordl.line, 
+                po-ordl.i-no , DECIMAL(fg-rctd.t-qty:SCREEN-VALUE ),
+                OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostExtended, OUTPUT dCostExtendedFreight). 
+            RUN Conv_ValueFromUOMtoUOM(cocode, 
+                    fg-rctd.i-no:SCREEN-VALUE, "FG", 
+                    dCostPerUOM, cCostUOM, cConsUOM, 
+                    0, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep, 0, 
+                    OUTPUT dCostPerUOM, OUTPUT lError, OUTPUT cMessage).                
+            ASSIGN                                                                             
+                fg-rctd.cost-uom:SCREEN-VALUE = cConsUOM
+                fg-rctd.std-cost:SCREEN-VALUE = STRING(dCostPerUOM)
+                fg-rctd.ext-cost:SCREEN-VALUE = STRING(dCostExtended).
+            IF iplUpdateFreight THEN 
+                fg-rctd.frt-cost:SCREEN-VALUE  = STRING(dCostExtendedFreight).
+        END.
     END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
