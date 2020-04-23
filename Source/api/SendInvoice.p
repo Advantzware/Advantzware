@@ -48,6 +48,7 @@
     DEFINE VARIABLE cStControlSeq    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBigDate         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBigDocID        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtInvoiceDate    AS DATE NO-UNDO.
            
     DEFINE VARIABLE cTotalAmount     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dInvoiceTotalAmt AS DECIMAL NO-UNDO.
@@ -61,7 +62,6 @@
     DEFINE VARIABLE cItemPrice     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemBuyerPart AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShortBuyerPart AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDesc      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustCountry   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCode    AS CHARACTER NO-UNDO.
@@ -129,7 +129,11 @@
         FIELD Zip          LIKE shipto.ship-zip 
         FIELD Country      LIKE shipto.country 
         INDEX iOrder AddressOrder.
-
+        
+    DEFINE TEMP-TABLE ttLines
+        FIELD rLineDetailRow AS ROWID 
+        FIELD iLine          AS INTEGER
+        .
 /* ************************  Function Prototypes ********************** */
 
 FUNCTION fnGetGSControl RETURNS INTEGER 
@@ -278,9 +282,17 @@ FUNCTION fnGetISAControl RETURNS INTEGER
             RUN format_date IN hFormatProcs (inv-head.inv-date, "YYYYMMDD", OUTPUT cBigDate).
             ASSIGN                 
              cBigDocID        = STRING(inv-head.inv-no)
-             cTotalAmount     = STRING(inv-head.t-inv-rev)
+             cTotalAmount     = TRIM(STRING(inv-head.t-inv-rev, ">>>>>>>>.99"))
              cTotalAmount     = REPLACE(ctotalAmount, ".", "")
+             dtInvoiceDate    = inv-head.inv-date
              .
+             /*
+             IF AVAIL cust THEN 
+                 RUN pCreateAddress("BT", 1, cust.cust-no, cust.name, cust.addr[1], 
+                        cust.addr[2], cust.city, cust.state, cust.zip, 
+                        cCustCountry).
+             ELSE 
+             */
              RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
                                 inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
                                 cCustCountry).
@@ -326,24 +338,32 @@ FUNCTION fnGetISAControl RETURNS INTEGER
             ASSIGN 
                 cBigDocID        = STRING(ar-inv.inv-no)
                 dInvoiceTotalAmt = dLineTotalAmt + ar-inv.tax-amt + (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
-                cTotalAmount     = STRING(dInvoiceTotalAmt)
+                cTotalAmount     = TRIM(STRING(dInvoiceTotalAmt, ">>>>>>>>.99"))
                 cTotalAmount     = REPLACE(ctotalAmount, ".", "")
+                dtInvoiceDate    = ar-inv.inv-date
                 .
-             RUN pCreateAddress("BT", 1, ar-inv.bill-to, ar-inv.cust-name, ar-inv.addr[1], 
-                                ar-inv.addr[2], ar-inv.city, ar-inv.state, ar-inv.zip, 
-                                cCustCountry).            
+             /*
+             IF AVAIL cust THEN 
+                 RUN pCreateAddress("BT", 1, cust.cust-no, cust.name, cust.addr[1], 
+                        cust.addr[2], cust.city, cust.state, cust.zip, 
+                        cCustCountry).
+             ELSE
+             */                
+                 RUN pCreateAddress("BT", 1, ar-inv.bill-to, ar-inv.cust-name, ar-inv.addr[1], 
+                                    ar-inv.addr[2], ar-inv.city, ar-inv.state, ar-inv.zip, 
+                                    cCustCountry).            
             /* Fetch invoice notes from notes table */    
             FOR EACH notes NO-LOCK
                WHERE notes.rec_key EQ ar-inv.rec_key:
                 cInvNotes = cInvNotes + STRING(notes.note_text).
             END.
         END.
-        RUN format_date IN hFormatProcs (TODAY, "YYYYMMDD", OUTPUT cBigDate).
+        RUN format_date IN hFormatProcs (dtInvoiceDate, "YYYYMMDD", OUTPUT cBigDate).
         RUN format_date IN hFormatProcs (TODAY, "YYMMDD", OUTPUT cISADate).
         RUN format_time IN hFormatProcs (time, "hhmm", OUTPUT cIsaTime).
         
         ASSIGN 
-             cIsaControlSeq   = STRING(fnGetISAControl(), "999999999")   /* TBD */
+             cIsaControlSeq   = STRING(fnGetISAControl())  /* TBD */
              cGsControlSeq    = STRING(fnGetGSControl())  /* TBD Have been using the same number with no problem */
              cStControlSeq    = STRING(1, "9999")   /* TBD */
              .
@@ -382,7 +402,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 RUN updateRequestData(INPUT-OUTPUT lcAddress2Data, "N3Address2", cAddress2).
             ELSE 
                 lcAddress2Data = "".
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2", lcAddress2Data). 
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2nd", lcAddress2Data). 
             lcConcatAddressData = lcConcatAddressData + "" + lcAddressData.
         END.
         
@@ -390,92 +410,60 @@ FUNCTION fnGetISAControl RETURNS INTEGER
         IF AVAIL inv-head THEN DO:
             
             lcConcatLineData = "".
+            EMPTY TEMP-TABLE ttLines.
             FOR EACH inv-line
-                WHERE inv-line.r-no   EQ inv-head.r-no:    
+                WHERE inv-line.r-no   EQ inv-head.r-no
+                  AND inv-line.inv-qty GT 0
+                BY inv-line.line:    
                 
                 /* find order line for line number */
                 FIND FIRST oe-ordl NO-LOCK 
-                    WHERE oe-ordl.company EQ inv-head.company
+                    WHERE oe-ordl.company EQ inv-line.company
                       AND oe-ordl.po-no EQ inv-line.po-no
+                      AND oe-ordl.i-no EQ inv-line.i-no 
+                      USE-INDEX po-no
                       NO-ERROR.
-                ASSIGN 
+                ASSIGN iLineCounter = iLineCounter + 1.
+                CREATE ttLines.
+                ASSIGN ttLines.rLineDetailRow = ROWID(ar-invl)
+                       ttLines.iLine = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
+                       .                       
+            END.             
+            FOR EACH ttLines,
+              FIRST inv-line
+                WHERE ROWID(inv-line) EQ ttLines.rLineDetailRow
+                BY ttLines.iLine:    
+                
+                 ASSIGN 
                       iLineCounter = iLineCounter + 1
                       iBolNum = INTEGER(inv-line.b-no)               
-                      cUomCode =  (IF inv-line.pr-qty-uom > "" THEN
-                                inv-line.pr-qty-uom
-                                ELSE "EA")
                       dQtyShipped = (IF inv-line.inv-qty NE 0 OR iBolNum GT 0 THEN inv-line.inv-qty ELSE 1)
                       dUnitPrice       = inv-line.price
                       cCustPart        = inv-line.part-no
-                      // edivline.unit-price       = ar-invl.unit-pr
                       cUomCode =
                         (IF inv-line.pr-qty-uom > "" THEN
                         inv-line.pr-qty-uom
                         ELSE "EA"
                         )                      
                       .
-                      
-                CASE cUomCode :
-                    WHEN 'CS' THEN 
-                        DO:
-                            cUomCode = "CT". 
-                            IF inv-line.cas-cnt > 0 THEN
-                                dQtyShipped = inv-line.inv-qty / inv-line.cas-cnt.
-                        END.
-                    WHEN "M" THEN 
-                        DO:
-                            ASSIGN 
-                                cUomCode      = "EA"
-                                dUnitPrice    = dUnitprice / 1000
-                                .
-                        END.
-                    OTHERWISE 
-                    DO:
-                    END. 
-                END CASE.
-                    
-/*                IF cCustPart GT "" THEN                                  */
-/*                   ASSIGN                                                */
-/*                      second_product_type    = "BP"                      */
-/*                      second_description     = SUBSTRING(cCustPart, 1, 8)*/
-/*                      .                                                  */
-/*                                                                         */
-/*                 ASSIGN                                                  */
-/*                   item_product_qualifier = "PO"                         */
-/*                   product_id             = purchase_order_number        */
-/*                   .                                                     */
-                       
-                IF inv-line.pr-uom = "CS" AND inv-line.cas-cnt > 0 THEN
-                DO:  /* scale qty by case count */
-                    dQtyShipped = inv-line.inv-qty / inv-line.cas-cnt.
-                    
-                END.
-                ELSE
-                DO:
-                    /* quantity unit */
-                    cUomCode =
-                        (IF inv-line.pr-qty-uom > "" THEN
-                        inv-line.pr-qty-uom
-                        ELSE "EA"
-                        ).
-        
-       
-                END.
-                
-                IF cUomCode = "CS"
-                    THEN
-                    cUomCode = "CT".    /* 9705 CAH */            
-                         
+                RUN pConvQtyPriceUOM (                                         
+                     inv-line.inv-qty,
+                     inv-line.cas-cnt,
+                     inv-line.pr-uom,
+                     inv-line.pr-qty-uom,
+                    INPUT-OUTPUT cUomCode,
+                    INPUT-OUTPUT dQtyShipped,
+                    INPUT-OUTPUT dUnitprice). 
+                                          
                 /* Line number from inbound 850 if available, otherwise incremented */
                 ASSIGN
                     lcLineData            = STRING(APIOutboundDetail.data)
-                    cItemLineNum          = STRING(IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter)                     
+                    cItemLineNum          = STRING(ttLInes.iLine)                     
                     cItemQty              = STRING(dQtyShipped)
                     cItemUom              = string(cUomCode)
                     cItemPrice            = STRING(dUnitPrice)
                     cItemID               = STRING(inv-line.i-no)
                     cItemBuyerPart        = STRING(inv-line.part-no)
-                    cShortBuyerPart       = SUBSTRING(inv-line.part-no, 1, 8)
                     cItemDesc             = STRING(inv-line.i-name)
                     cPoNum                = STRING(inv-line.po-no)
                     .
@@ -487,25 +475,41 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShortBuyerPart", cShortBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").  
-                lcConcatLineData = lcConcatLineData + "" + lcLineData + "~n". 
+                lcConcatLineData = lcConcatLineData +  lcLineData + "~n". 
 
             END.      
         END. /* Process lines if using inv-head */
         ELSE DO:
             /* Process lines if using ar-inv */
             lcConcatLineData = "".
+
+            EMPTY TEMP-TABLE ttLines.
             FOR EACH ar-invl
-                WHERE ar-invl.x-no   EQ ar-inv.x-no:    
+                WHERE ar-invl.x-no   EQ ar-inv.x-no
+                  AND ar-invl.inv-qty GT 0
+                BY ar-invl.line:    
                 
                 /* find order line for line number */
                 FIND FIRST oe-ordl NO-LOCK 
                     WHERE oe-ordl.company EQ ar-inv.company
                       AND oe-ordl.po-no EQ ar-invl.po-no
+                      AND oe-ordl.i-no EQ ar-invl.i-no 
+                      USE-INDEX po-no
                       NO-ERROR.
+                ASSIGN iLineCounter = iLineCounter + 1.
+                CREATE ttLines.
+                ASSIGN ttLines.rLineDetailRow = ROWID(ar-invl)
+                       ttLines.iLine = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
+                       .                       
+            END.            
+            FOR EACH ttLines,
+                FIRST ar-invl
+                  WHERE ROWID(ar-invl) EQ ttLines.rLineDetailrow                    
+                BY ttLines.iLine:    
+                
                 ASSIGN 
                       iLineCounter = iLineCounter + 1
                       iBolNum = INTEGER(ar-invl.b-no)               
@@ -522,55 +526,25 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                         ELSE "EA"
                         )                      
                       .
-                      
-                CASE cUomCode :
-                    WHEN 'CS' THEN 
-                        DO:
-                            cUomCode = "CT". 
-                            IF ar-invl.cas-cnt > 0 THEN
-                                dQtyShipped = ar-invl.inv-qty / ar-invl.cas-cnt.
-                        END.
-                    WHEN "M" THEN 
-                        DO:
-                            ASSIGN 
-                                cUomCode      = "EA"
-                                dUnitPrice    = dUnitprice / 1000
-                                .
-                        END.
-                    OTHERWISE 
-                    DO:
-                    END. 
-                END CASE.
-                       
-                IF ar-invl.pr-uom = "CS" AND ar-invl.cas-cnt > 0 THEN
-                DO:  /* scale qty by case count */
-                    dQtyShipped = ar-invl.inv-qty / ar-invl.cas-cnt.
-                    cUomCode = "CT".   /* carton is correct code for EDI */
-                END.
-                ELSE
-                DO:
-                    /* quantity unit */
-                    cUomCode =
-                        (IF ar-invl.pr-qty-uom > "" THEN
-                        ar-invl.pr-qty-uom
-                        ELSE "EA"
-                        ).
-        
-                    IF cUomCode = "CS"
-                        THEN
-                        cUomCode = "CT".    /* 9705 CAH */        
-                END.
+                RUN pConvQtyPriceUOM (                                         
+                     ar-invl.inv-qty,
+                     ar-invl.cas-cnt,
+                     ar-invl.pr-uom,
+                     ar-invl.pr-qty-uom,
+                    INPUT-OUTPUT cUomCode,
+                    INPUT-OUTPUT dQtyShipped,
+                    INPUT-OUTPUT dUnitprice). 
+                          
                 
                 /* Line number from inbound 850 if available, otherwise incremented */
                 ASSIGN
                     lcLineData            = STRING(APIOutboundDetail.data)
-                    cItemLineNum          = STRING(IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter)                     
+                    cItemLineNum          = STRING(ttLines.iLine)                     
                     cItemQty              = STRING(dQtyShipped)
                     cItemUom              = string(cUomCode)
                     cItemPrice            = STRING(dUnitPrice)
                     cItemID               = STRING(ar-invl.i-no)
                     cItemBuyerPart        = STRING(ar-invl.part-no)
-                    cShortBuyerPart       = SUBSTRING(ar-invl.part-no, 1, 8)
                     cItemDesc             = STRING(ar-invl.i-name)
                     cPoNum                = STRING(ar-invl.po-no)
                     .
@@ -583,7 +557,6 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShortBuyerPart", cShortBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").
                 
@@ -770,8 +743,8 @@ FUNCTION fnGetISAControl RETURNS INTEGER
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BigDocID", cBigDocID ). 
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD" ).
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount ).
-          /* Add one for TDS segment - total amount */
-          dSELineCount = dSELineCount + 1.          
+          /* Add one for TDS segment - total amount, one for SE */
+          dSELineCount = dSELineCount + 2.          
           cSELineCount = STRING(dSELineCount).
           RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SECount", cSELineCount ).
           
@@ -809,13 +782,68 @@ FUNCTION fnGetISAControl RETURNS INTEGER
     /* End of Main Code */
     
 
-
-
-
-
-
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE pConvQtyPriceUOM:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT  PARAMETER ipdInvoiceQty AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCaseCount AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPriceUom AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPriceqtyUom AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER iopcUomCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER iopdQtyShipped LIKE dQtyShipped NO-UNDO.
+    DEFINE OUTPUT PARAMETER iopdUnitPrice AS DECIMAL NO-UNDO.
+   
+
+                        
+                CASE iopcUomCode :
+                    WHEN 'CS' THEN 
+                        DO:
+                            iopcUomCode = "CT". 
+                            IF ipiCaseCount > 0 THEN
+                                iopdQtyShipped = ipdInvoiceQty / ipiCaseCount.
+                        END.
+                    WHEN "M" THEN 
+                        DO:
+                            ASSIGN 
+                                iopcUomCode      = "EA"
+                                iopdUnitPrice     = iopdUnitPrice  / 1000
+                                .
+                        END.
+                    OTHERWISE 
+                    DO:
+                    END. 
+                END CASE.
+                    
+
+                       
+                IF inv-line.pr-uom = "CS" AND ipiCaseCount > 0 THEN
+                DO:  /* scale qty by case count */
+                    iopdQtyShipped = ipdInvoiceQty / ipiCaseCount.
+                    
+                END.
+                ELSE
+                DO:
+                    /* quantity unit */
+                    iopcUomCode =
+                        (IF ipcPriceqtyUom > "" THEN
+                        ipcPriceqtyUom
+                        ELSE "EA"
+                        ).
+        
+       
+                END.
+                
+                IF iopcUomCode = "CS"
+                    THEN
+                    iopcUomCode = "CT".    /* 9705 CAH */   
+
+END PROCEDURE.
 
     PROCEDURE pCreateAddonRecord:
     DEFINE INPUT PARAMETER rInvRecid AS RECID NO-UNDO.
