@@ -560,9 +560,12 @@ DO:
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
-        END.
-
+        END.        
+        
         RUN valid-vend-no(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY .
+        
+        RUN valid-item-desc(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY .
          
         SESSION:SET-WAIT-STATE("general").
@@ -1446,7 +1449,8 @@ PROCEDURE pDisplayValue :
           Purpose:     
           Parameters:  <none>
           Notes:       
-        ------------------------------------------------------------------------------*/
+   ------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-eb FOR eb .     
    DO WITH FRAME {&frame-name}:
       
         APPLY "entry" TO cVendor IN FRAME {&FRAME-NAME}.
@@ -1504,8 +1508,7 @@ PROCEDURE pDisplayValue :
         
         IF NOT lButtonLabel AND AVAIL eb THEN do:
            ASSIGN
-                cVendor:SCREEN-VALUE     = "Premier"   
-                cVendorItem:SCREEN-VALUE = "Estimate #########" 
+                cVendorItem:SCREEN-VALUE = eb.est-no  
                 cCostUom:SCREEN-VALUE    = "M" NO-ERROR  .                       
                 cItemDscr1:SCREEN-VALUE = eb.part-dscr2.
                 IF eb.part-dscr2 NE "" THEN
@@ -1516,7 +1519,22 @@ PROCEDURE pDisplayValue :
                     AND probe.probe-date ne ? NO-ERROR .
                        
                IF AVAIL probe THEN               
-               dEaCost1:SCREEN-VALUE = STRING(probe.sell-price / 1000) .               
+               dEaCost1:SCREEN-VALUE = STRING(probe.sell-price) . 
+               
+               FIND FIRST cust NO-LOCK
+                    WHERE cust.company EQ eb.company
+                    AND cust.active = "X" NO-ERROR.
+               cVendor:SCREEN-VALUE = IF AVAIL cust THEN cust.cust-no ELSE "Premier" .
+               
+               FIND LAST bf-eb NO-LOCK
+                    WHERE bf-eb.company EQ eb.company
+                    AND trim(bf-eb.est-no) EQ trim(eb.sourceEstimate)
+                    AND bf-eb.stock-no EQ eb.stock-no 
+                    AND bf-eb.form-no NE 0 NO-ERROR .  
+               IF AVAIL bf-eb THEN     
+               iQtyPer1:SCREEN-VALUE = IF bf-eb.est-type GE 7 THEN "1"
+                                       ELSE
+                                       IF bf-eb.quantityPerSet LT 0 THEN string( -1 / bf-eb.quantityPerSet) ELSE string(bf-eb.quantityPerSet) .
         END.
 
         FIND FIRST ef EXCLUSIVE-LOCK
@@ -1705,6 +1723,29 @@ PROCEDURE valid-vend-no :
         DO:
             MESSAGE "Invalid Vendor, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO cVendor .
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-item-desc D-Dialog 
+PROCEDURE valid-item-desc :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF cItemDscr1:SCREEN-VALUE EQ "" THEN 
+        DO:
+            MESSAGE "Item Description is blank. Please enter.." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cItemDscr1 .
             oplOutError = YES .
         END.
     END.

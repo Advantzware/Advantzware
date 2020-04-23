@@ -3346,11 +3346,13 @@ DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
 DEF VAR lcChoice AS CHAR NO-UNDO.
 DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO.
 
 DO WITH FRAME {&FRAME-NAME}:
+    cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
     RUN oe/d-quotedprices.w("Button",cocode,
                         locode,
-                        oe-ordl.est-no:SCREEN-VALUE,
+                        cQuoteEst,
                         oe-ordl.cust-no,
                         oe-ordl.part-no:SCREEN-VALUE,
                         oe-ordl.i-no:SCREEN-VALUE,

@@ -719,23 +719,11 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cSEst D-Dialog
 ON HELP OF cSEst IN FRAME D-Dialog /* Source Est */
 DO:
-        DEFINE VARIABLE char-val   AS cha   NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-        DEFINE VARIABLE cLookupField  AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.          
-        DEFINE VARIABLE rRecID        AS RECID     NO-UNDO.
+        DEFINE VARIABLE char-val   AS CHARACTER   NO-UNDO.
                 
-        RUN system/openLookup.p (
-        gcompany,
-        "",
-        100,
-        "",
-        0,
-        OUTPUT cReturnFields,
-        OUTPUT cLookupField,
-        OUTPUT rRecID
-        ).
-        cSEst:SCREEN-VALUE = cLookupField .
+        RUN windows/l-esttyp.w (g_company,g_loc,"568","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val <> "" THEN cSEst:SCREEN-VALUE = ENTRY(1,char-val).
+        
         APPLY "entry" TO cSEst IN FRAME {&FRAME-NAME}.
     END.
 
@@ -1886,7 +1874,7 @@ PROCEDURE pDisplayValue :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-   
+    DEFINE BUFFER bf-eb FOR eb .
     DO WITH FRAME {&FRAME-NAME}:
 
         FIND FIRST eb NO-LOCK 
@@ -1925,6 +1913,15 @@ PROCEDURE pDisplayValue :
              
              IF ipType EQ "Edit" THEN
                 cSEst:SCREEN-VALUE = STRING(eb.sourceEstimate) .
+             ELSE IF ipType EQ "" THEN DO:   
+                item-dscr:SCREEN-VALUE = IF eb.pur-man THEN "Purchased Item" ELSE "Inhouse Manufacture" .
+                FIND FIRST bf-eb NO-LOCK
+                     WHERE bf-eb.company EQ eb.company 
+                     AND bf-eb.est-no EQ eb.est-no 
+                     AND bf-eb.form-no EQ 0 NO-ERROR .
+                IF avail bf-eb THEN 
+                cCustPart:SCREEN-VALUE  = bf-eb.part-no .
+             END.
              
         IF eb.stackHeight GT 0 THEN 
             ASSIGN iStackHeight:SCREEN-VALUE = string(eb.stackHeight) .
