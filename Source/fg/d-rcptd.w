@@ -619,9 +619,7 @@ DO:
                             ASSIGN 
                                 fg-rctd.po-no:SCREEN-VALUE   = ENTRY(1,char-val)
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(2,char-val)
-                                fg-rctd.i-name:SCREEN-VALUE  = ENTRY(3,char-val)
-                                fg-rctd.job-no:SCREEN-VALUE  = ENTRY(4,char-val)
-                                fg-rctd.job-no2:SCREEN-VALUE = ENTRY(5,char-val)
+                                fg-rctd.i-name:SCREEN-VALUE  = ENTRY(3,char-val)                                 
                                 fg-rctd.po-line:SCREEN-VALUE = ENTRY(6,char-val)
                                 .
                             RUN pDisplayPO(YES).
@@ -641,9 +639,7 @@ DO:
                             DO :
                                 ASSIGN 
                                     FOCUS:SCREEN-VALUE           = ENTRY(1,char-val)
-                                    fg-rctd.i-name:screen-value  = ENTRY(2,char-val)
-                                    fg-rctd.job-no:screen-value  = ENTRY(3,char-val)
-                                    fg-rctd.job-no2:screen-value = ENTRY(4,char-val)
+                                    fg-rctd.i-name:screen-value  = ENTRY(2,char-val)                                    
                                     fg-rctd.po-line:screen-value = ENTRY(6,char-val)
                                     .
                                 RUN pDisplayPO(YES).
@@ -1612,9 +1608,7 @@ DO:
               ASSIGN 
                 
                 fg-rctd.i-no:SCREEN-VALUE    = po-ordl.i-no  
-                fg-rctd.i-name:SCREEN-VALUE  = po-ordl.i-name
-                fg-rctd.job-no:SCREEN-VALUE  = po-ordl.job-no
-                fg-rctd.job-no2:SCREEN-VALUE = string(po-ordl.job-no2) .
+                fg-rctd.i-name:SCREEN-VALUE  = po-ordl.i-name.
                RUN pDisplayPO(YES).   
                RUN pGetLocBin .
              END.
