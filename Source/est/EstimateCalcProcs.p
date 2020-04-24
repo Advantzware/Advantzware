@@ -642,13 +642,14 @@ PROCEDURE pAddEstFarm PRIVATE:
     DEFINE PARAMETER BUFFER opbf-estCostMaterial FOR estCostMaterial.
     
     DEFINE           BUFFER bf-estCostItem       FOR estCostItem.
-    DEFINE           BUFFER bf-e-itemfg-vend     FOR e-itemfg-vend.
     
     FIND FIRST bf-estCostItem NO-LOCK 
         WHERE bf-estCostItem.estCostItemID EQ ipbf-estCostBlank.estCostItemID
         NO-ERROR.
+    
     IF AVAILABLE bf-estCostItem THEN 
     DO:
+        
         CREATE opbf-estCostMaterial.
         ASSIGN 
             opbf-estCostMaterial.estCostFormID      = ipbf-estCostBlank.estCostFormID
@@ -663,6 +664,10 @@ PROCEDURE pAddEstFarm PRIVATE:
             opbf-estCostMaterial.quantityUOM        = "EA"
             opbf-estCostMaterial.quantityUOMWaste   = opbf-estCostMaterial.quantityUOM
             opbf-estCostMaterial.sequenceOfMaterial = 1
+            opbf-estCostMaterial.dimLength          = ipbf-estCostBlank.blankLength
+            opbf-estCostMaterial.dimWidth           = ipbf-estCostBlank.blankWidth
+            opbf-estCostMaterial.dimDepth           = ipbf-estCostBlank.blankDepth
+            opbf-estCostMaterial.dimUOM             = ipbf-estCostBlank.dimUOM
             .
             
     END. /*available estCostItem*/        
@@ -3802,29 +3807,6 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
             ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
             OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, 
             OUTPUT lError, OUTPUT cMessage).
-/*        RUN GetVendorCost(ipbf-estCostMaterial.company,   */
-/*                      ipbf-estCostMaterial.itemID,        */
-/*                      "FG",                               */
-/*                      ipcVendNo,                          */
-/*                      "",                                 */
-/*                      ipbf-estCostMaterial.estimateNo,    */
-/*                      ipbf-estCostMaterial.formNo,        */
-/*                      ipbf-estCostMaterial.blankNo,       */
-/*                      ipdQty,                             */
-/*                      ipcQtyUOM,                          */
-/*                      ipbf-estCostMaterial.dimLength,     */
-/*                      ipbf-estCostMaterial.dimWidth,      */
-/*                      ipbf-estCostMaterial.dimDepth,      */
-/*                      ipbf-estCostMaterial.dimUOM,        */
-/*                      ipbf-estCostMaterial.basisWeight,   */
-/*                      ipbf-estCostMaterial.basisWeightUOM,*/
-/*                      NO,                                 */
-/*                      OUTPUT opdCost,                     */
-/*                      OUTPUT opdSetup,                    */
-/*                      OUTPUT opcCostUOM,                  */
-/*                      OUTPUT dCostTotal,                  */
-/*                      OUTPUT lError,                      */
-/*                      OUTPUT cMessage).                   */
     END.
     ELSE DO:
         FIND FIRST e-itemfg NO-LOCK
@@ -3947,29 +3929,6 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
             OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, 
             OUTPUT lError, OUTPUT cMessage).
-/*         RUN GetVendorCost(ipbf-estCostMaterial.company,  */
-/*                      ipbf-estCostMaterial.itemID,        */
-/*                      "RM",                               */
-/*                      ipcVendNo,                          */
-/*                      "",                                 */
-/*                      ipbf-estCostMaterial.estimateNo,    */
-/*                      ipbf-estCostMaterial.formNo,        */
-/*                      ipbf-estCostMaterial.blankNo,       */
-/*                      ipdQty,                             */
-/*                      ipcQtyUOM,                          */
-/*                      ipbf-estCostMaterial.dimLength,     */
-/*                      ipbf-estCostMaterial.dimWidth,      */
-/*                      ipbf-estCostMaterial.dimDepth,      */
-/*                      ipbf-estCostMaterial.dimUOM,        */
-/*                      ipbf-estCostMaterial.basisWeight,   */
-/*                      ipbf-estCostMaterial.basisWeightUOM,*/
-/*                      NO,                                 */
-/*                      OUTPUT opdCost,                     */
-/*                      OUTPUT opdSetup,                    */
-/*                      OUTPUT opcCostUOM,                  */
-/*                      OUTPUT dCostTotal,                  */
-/*                      OUTPUT lError,                      */
-/*                      OUTPUT cMessage).                   */
 
        RETURN.
     END.
@@ -4078,7 +4037,7 @@ PROCEDURE pGetMiscCostPerM PRIVATE:
         END.
     END.
     IF AVAILABLE reftable THEN
-        FIND FIRST reftable
+        FIND FIRST reftable NO-LOCK
             WHERE reftable.reftable EQ "EST-MISC"
             AND reftable.company  EQ ipbf-ef.company
             AND reftable.loc      EQ ipbf-ef.loc

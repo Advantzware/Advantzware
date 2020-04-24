@@ -72,6 +72,9 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     (ipcString AS CHARACTER,
     ipiCharacters AS INTEGER) FORWARD.
 
+FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
+	(ipiFormID AS INT64) FORWARD.
+
 FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -825,7 +828,11 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         BY estCostMaterial.blankNo
         BY estCostMaterial.sequenceOfMaterial:
         
-        IF estCostMaterial.isPrimarySubstrate AND NOT fTypePrintsBoard(ipbf-estCostHeader.estType) THEN NEXT.
+        IF estCostMaterial.isPrimarySubstrate 
+            AND (NOT fTypePrintsBoard(ipbf-estCostHeader.estType) 
+            OR fFormIsPurchasedFG(ipbf-estCostForm.estCostFormID)) THEN 
+            NEXT.
+        
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMaterial.formNo,2, 0, YES) + "-" + fFormatNumber(estCostMaterial.blankNo,2, 0, YES), NO, NO, YES).
         
@@ -865,7 +872,10 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         END.
         ELSE 
         DO:
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName, 30, NO, NO, NO).
+            IF estCostMaterial.isPurchasedFG THEN
+                RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName + IF estCostMaterial.vendorID NE "" THEN " (" + estCostMaterial.vendorID + ")" ELSE "", 30, NO, NO, NO).
+            ELSE  
+                RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName, 30, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostMaterial.quantityRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[4] + 1, estCostMaterial.quantityUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
@@ -1218,6 +1228,23 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     
     RETURN DYNAMIC-FUNCTION("FormatString", ipcString, ipiCharacters).
     
+		
+END FUNCTION.
+
+FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
+	( ipiFormID AS INT64 ):
+/*------------------------------------------------------------------------------
+ Purpose: REturns yes, if the form has a purchased FG as a material
+ Notes:
+------------------------------------------------------------------------------*/	
+    
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    
+    FIND FIRST bf-estCostMaterial NO-LOCK 
+        WHERE bf-estCostMaterial.estCostFormID EQ ipiFormID
+        AND bf-estCostMaterial.isPurchasedFG
+        NO-ERROR.
+    RETURN AVAILABLE bf-estCostMaterial.
 		
 END FUNCTION.
 

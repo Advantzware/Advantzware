@@ -1337,6 +1337,9 @@ PROCEDURE CreatePrintInventory:
     DEFINE VARIABLE cMachName LIKE mach.m-dscr      NO-UNDO.
     DEFINE VARIABLE cItemName LIKE item.i-name      NO-UNDO.
     
+    DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
+    
     FIND FIRST inventoryStock NO-LOCK
          WHERE inventoryStock.inventoryStockID = ipcinventoryStockID
          NO-ERROR.
@@ -1369,7 +1372,28 @@ PROCEDURE CreatePrintInventory:
                    item.i-no    = inventoryStock.rmItemID NO-ERROR.
         IF AVAILABLE item THEN
             ASSIGN cItemName = item.i-name.
-            
+
+        /* Get Next machine ID for the given machine */
+        RUN Job_GetNextOperation IN hdJobProcs (
+            INPUT  inventoryStock.company, 
+            INPUT  inventoryStock.jobID, 
+            INPUT  inventoryStock.jobID2,
+            INPUT  inventoryStock.formNo,
+            INPUT  inventoryStock.pass,
+            INPUT  inventoryStock.machineID,
+            OUTPUT ttPrintInventoryStock.nextMachineID            
+            ).
+
+        /* Get description of the next machine */
+        IF ttPrintInventoryStock.nextMachineID NE "" THEN DO:
+            FIND FIRST mach NO-LOCK
+                 WHERE mach.company EQ inventoryStock.company 
+                   AND mach.m-code  EQ ttPrintInventoryStock.nextMachineID
+                 NO-ERROR.
+            IF AVAILABLE mach THEN
+                ttPrintInventoryStock.nextMachineName = mach.m-dscr.        
+        END.
+
         ASSIGN
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
             ttPrintInventoryStock.jobNumber    = FILL(" ",6 - LENGTH(ttPrintInventoryStock.jobNumber)) + ttPrintInventoryStock.jobNumber
@@ -1382,6 +1406,9 @@ PROCEDURE CreatePrintInventory:
             ttPrintInventoryStock.machineName  = cMachName
             ttPrintInventoryStock.rmItemName   = cItemName.
     END.
+    
+    IF VALID-HANDLE(hdJobProcs) THEN
+        DELETE PROCEDURE hdJobProcs.
 END PROCEDURE.
 
 PROCEDURE CreatePrintInventoryForRM:

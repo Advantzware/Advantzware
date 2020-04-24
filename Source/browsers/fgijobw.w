@@ -74,7 +74,12 @@ def temp-table w-jobs LIKE w-job.
 
 def temp-table hold-job LIKE w-job.
 
-DEF TEMP-TABLE tt-ids FIELD tt-rowid AS ROWID.
+DEF TEMP-TABLE tt-ids 
+    FIELD tt-type AS CHAR 
+    FIELD tt-rowid AS ROWID
+    FIELD tt-jobno LIKE oe-boll.job-no
+    FIELD tt-jobno2 LIKE oe-boll.job-no2
+    FIELD tt-qty LIKE oe-boll.qty.
 
 DEF VAR lv-sort-by AS CHAR INIT "tag" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
@@ -580,46 +585,62 @@ PROCEDURE build-table :
 
   EMPTY TEMP-TABLE tt-ids.
 
-  FOR EACH oe-relh NO-LOCK
-      WHERE oe-relh.company EQ itemfg.company
+    FOR EACH oe-rell NO-LOCK
+        WHERE oe-rell.company EQ itemfg.company          
+        AND oe-rell.i-no    EQ itemfg.i-no
+        AND oe-rell.posted  EQ NO 
+        ,
+        EACH oe-relh FIELDS() NO-LOCK
+        WHERE oe-relh.r-no EQ oe-rell.r-no
         AND oe-relh.deleted EQ NO
         AND oe-relh.posted  EQ NO
-      USE-INDEX delpost,
-      EACH oe-rell NO-LOCK
-      WHERE oe-rell.company EQ oe-relh.company
-        AND oe-rell.r-no    EQ oe-relh.r-no
-        AND oe-rell.i-no    EQ itemfg.i-no:
-    CREATE tt-ids.
-    tt-rowid = ROWID(oe-rell).
-  END.
-
-  FOR EACH oe-bolh NO-LOCK
-      WHERE oe-bolh.company EQ itemfg.company
-        AND oe-bolh.deleted EQ NO
-        AND oe-bolh.posted  EQ NO
-      USE-INDEX post,
-      EACH oe-boll NO-LOCK
-      WHERE oe-boll.company EQ oe-bolh.company
-        AND oe-boll.b-no    EQ oe-bolh.b-no
-        AND oe-boll.i-no    EQ itemfg.i-no:
-    CREATE tt-ids.
-    tt-rowid = ROWID(oe-boll).
-  END.
-
-  IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
-  FOR EACH inv-line NO-LOCK
-      WHERE inv-line.company EQ itemfg.company
-        AND inv-line.i-no    EQ itemfg.i-no,
-      EACH oe-boll NO-LOCK
-      WHERE oe-boll.company EQ inv-line.company
-        AND oe-boll.b-no    EQ inv-line.b-no
-        AND oe-boll.ord-no  EQ inv-line.ord-no
-        AND oe-boll.i-no    EQ inv-line.i-no
-        AND oe-boll.po-no   EQ inv-line.po-no:
-    CREATE tt-ids.
-    tt-rowid = ROWID(oe-boll).
-  END.
-
+        :
+        CREATE tt-ids.
+        ASSIGN 
+            tt-type = "REL"
+            tt-rowid = ROWID(oe-rell)
+            tt-jobno = oe-rell.job-no
+            tt-jobno2 = oe-rell.job-no2
+            tt-qty = oe-rell.qty.
+    END.
+    
+    FOR EACH oe-boll NO-LOCK
+        WHERE oe-boll.company EQ itemfg.company
+        AND oe-boll.posted  EQ NO
+        AND oe-boll.i-no    EQ itemfg.i-no
+        ,
+        FIRST oe-bolh FIELDS() NO-LOCK
+        WHERE oe-bolh.b-no    EQ oe-boll.b-no AND 
+        oe-bolh.deleted EQ NO AND  
+        oe-bolh.posted EQ NO:
+        CREATE tt-ids.
+        ASSIGN 
+            tt-type = "BOL"
+            tt-rowid = ROWID(oe-boll)
+            tt-jobno = oe-boll.job-no
+            tt-jobno2 = oe-boll.job-no2
+            tt-qty = oe-boll.qty.
+    END.
+    
+    IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
+        FOR EACH inv-line NO-LOCK
+            WHERE inv-line.company EQ itemfg.company
+            AND inv-line.i-no    EQ itemfg.i-no,
+            EACH oe-boll NO-LOCK
+            WHERE oe-boll.company EQ inv-line.company
+            AND oe-boll.b-no    EQ inv-line.b-no
+            AND oe-boll.ord-no  EQ inv-line.ord-no
+            AND oe-boll.i-no    EQ inv-line.i-no
+            AND oe-boll.po-no   EQ inv-line.po-no:
+            CREATE tt-ids.
+            ASSIGN 
+                tt-type = "BOL"
+                tt-rowid = ROWID(oe-boll)
+                tt-jobno = oe-boll.job-no
+                tt-jobno2 = oe-boll.job-no2
+                tt-qty = oe-boll.qty.
+        END.
+  
   FOR EACH w-jobs BREAK BY w-jobs.job-no BY w-jobs.job-no2:
       CREATE w-job.
       ASSIGN w-job.job-no = w-jobs.job-no
@@ -650,36 +671,20 @@ PROCEDURE build-table :
                
       DELETE w-jobs.
 
-      FOR EACH tt-ids:
-        RELEASE oe-rell.
-        RELEASE oe-boll.
-        RELEASE inv-line.
-
-        FIND FIRST oe-rell NO-LOCK
-            WHERE ROWID(oe-rell)  EQ tt-rowid
-              AND oe-rell.job-no  EQ w-job.job-no
-              AND oe-rell.job-no2 EQ w-job.job-no2
-              AND oe-rell.loc     EQ w-job.loc
-              AND oe-rell.loc-bin EQ w-job.loc-bin
-              AND oe-rell.tag     EQ w-job.tag
-              AND oe-rell.cust-no EQ w-job.cust-no
-            NO-ERROR.
-        IF AVAIL oe-rell THEN w-job.rel-qty = w-job.rel-qty + oe-rell.qty.
-
-        ELSE
-        FIND FIRST oe-boll NO-LOCK
-            WHERE ROWID(oe-boll)  EQ tt-rowid
-              AND oe-boll.job-no  EQ w-job.job-no
-              AND oe-boll.job-no2 EQ w-job.job-no2
-              AND oe-boll.loc     EQ w-job.loc
-              AND oe-boll.loc-bin EQ w-job.loc-bin
-              AND oe-boll.tag     EQ w-job.tag
-              AND oe-boll.cust-no EQ w-job.cust-no
-            NO-ERROR.
-        IF AVAIL oe-boll THEN w-job.bol-qty = w-job.bol-qty + oe-boll.qty.
-      END.
-
-      w-job.avl-qty = w-job.qty - w-job.rel-qty - w-job.bol-qty.
+      FOR EACH tt-ids WHERE 
+          tt-jobno EQ w-job.job-no AND 
+          tt-jobno2 EQ w-job.job-no2
+          BY tt-ids.tt-type
+          BY tt-ids.tt-jobno 
+          BY tt-ids.tt-jobno2:
+          IF tt-ids.tt-type EQ "REL" THEN ASSIGN 
+                  w-job.rel-qty = w-job.rel-qty + tt-ids.tt-qty.
+          ELSE ASSIGN 
+                  w-job.bol-qty = w-job.bol-qty + tt-ids.tt-qty.
+      END. /* each tt-ids */
+        
+      ASSIGN 
+          w-job.avl-qty = w-job.qty - w-job.rel-qty - w-job.bol-qty.
   END. /* each w-jobs */
 
 END PROCEDURE.

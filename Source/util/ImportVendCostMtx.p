@@ -269,7 +269,7 @@ PROCEDURE pValidate PRIVATE:
 
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportVendCostMtx.itemType NE  "FG" OR ipbf-ttImportVendCostMtx.itemType EQ "RM" THEN 
+        IF ipbf-ttImportVendCostMtx.itemType NE "FG" AND ipbf-ttImportVendCostMtx.itemType NE "RM" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Item Type must be FG or RM".
