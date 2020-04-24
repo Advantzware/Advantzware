@@ -109,7 +109,9 @@ PROCEDURE GetSecondaryJobForJob:
 
     FOR EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
-          AND bf-job-hdr.job-no  EQ ipcJobno:
+          AND bf-job-hdr.job-no  EQ ipcJobno
+          AND bf-job-hdr.opened  EQ TRUE
+           BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
                             STRING(bf-job-hdr.job-no2,"99")
                         ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"99")) GT 0 THEN 

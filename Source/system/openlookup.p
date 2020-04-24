@@ -381,7 +381,7 @@ PROCEDURE job-no:
            /* List of fields for which sorting is enabled */
            INPUT "job-no,i-no,est-no,ord-no,cust-no",
            /* Where clause to select specific records */
-           INPUT "job-hdr.company EQ '" + ipcCompany + "'",
+           INPUT "job-hdr.company EQ '" + ipcCompany + "'" + " AND job-hdr.opened",
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
            INPUT "company,job-no,job-no2,frm,blank-no,i-no,est-no,ord-no,cust-no,opened,due-date",
            /* Max record limit to prevent run away query */
