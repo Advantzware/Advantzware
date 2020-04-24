@@ -1667,7 +1667,7 @@ PROCEDURE add-estimate :
   ASSIGN
   ll-is-add-from-tool = YES  /* add from option button not from add button */
   ls-add-what = "est" .   /* new estimate */
-  RUN est/d-addfol.w (INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+  RUN est/d-addfol.w (INPUT NO,INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
 
   IF ls-add-what EQ "est" THEN DO:
@@ -3437,7 +3437,7 @@ PROCEDURE local-add-record :
   
   IF NOT ll-is-add-from-tool THEN DO:
     ls-add-what = "est" .   /* new estimate */
-    RUN est/d-addfol.w (INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+    RUN est/d-addfol.w (INPUT NO,INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
     IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
   END.
 
