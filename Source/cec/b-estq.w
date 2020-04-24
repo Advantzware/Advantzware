@@ -2731,6 +2731,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscType B-table-Win 
+PROCEDURE pGetMiscType :
+/*------------------------------------------------------------------------------
+  Purpose:     disable/enable FARM tab
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplMiscType AS LOGICAL NO-UNDO.   
+  ASSIGN 
+     oplMiscType =  cStartEstTypeID  EQ "MISC" AND cEndEstTypeID EQ "MISC" .
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-combo-qty B-table-Win 

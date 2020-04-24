@@ -2221,14 +2221,18 @@ PROCEDURE add-estimate :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+  DEFINE VARIABLE lMiscType AS LOGICAL NO-UNDO.
   ASSIGN                
   ll-is-add-from-tool = YES  /* add from option button not from add button */
   ls-add-what = "est" .   /* new estimate */
   /*run est/d-addwh2.w  (output ls-add-what).*/
   /*if ls-add-what = "est"    /* new estimate */
      then run est/d-addset.w (output ls-add-what). /* one item or set cec/est-add.p */*/
-  RUN est/d-addfol.w (INPUT YES, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN pGetMiscType IN WIDGET-HANDLE(char-hdl) ( OUTPUT lMiscType).
+    
+  RUN est/d-addfol.w (INPUT YES,INPUT lMiscType, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
 
   IF ls-add-what EQ "est" THEN DO:
@@ -5158,6 +5162,8 @@ PROCEDURE local-add-record :
   DEF BUFFER b-eb FOR eb.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
   DEFINE VARIABLE riRowidEbNew AS ROWID NO-UNDO .
+  DEFINE VARIABLE lMiscType AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO. 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    ll-add-set = NO
@@ -5166,7 +5172,12 @@ PROCEDURE local-add-record :
    lv-die-no  = "".
 
   IF NOT ll-is-add-from-tool THEN DO:
-    RUN est/d-addfol.w (INPUT YES, OUTPUT ls-add-what).
+   
+    RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN pGetMiscType IN WIDGET-HANDLE(char-hdl) ( OUTPUT lMiscType).
+       
+    RUN est/d-addfol.w (INPUT YES,INPUT lMiscType, OUTPUT ls-add-what).
      /*run est/d-addwh2.w  (output ls-add-what).*/
      /*if ls-add-what = "set"    /* new estimate */
         then run est/d-addset.w (output ls-add-what). /* one item or set cec/est-add.p */*/

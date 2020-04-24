@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEF INPUT PARAM ip-corr AS LOG NO-UNDO.
+DEF INPUT PARAM ip-misc AS LOG NO-UNDO.
 def output param ls-add-what as cha no-undo.
 
 def SHARED var cocode     as   char  format "x(3)"  no-undo.
@@ -517,6 +518,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize D-Dialog 
+PROCEDURE local-initialize :
+/*--------------------------------------------------------------------------
+  Purpose     : If the SmartPanel is type COMMIT, enable all the fields of
+                the TABLEIO-TARGETS since they are defaulted to disabled.
+  Notes       :
+  ------------------------------------------------------------------------*/
+
+  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
+  
+  
+  RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
+  
+  IF ip-misc THEN DO:       
+    assign
+    Btn_itm:SENSITIVE IN FRAME {&FRAME-NAME}  = NO 
+    Btn_itm-cad:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+    Btn_tandem:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
+    Btn_set:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+    Btn_frm-out:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
+    Btn_est:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
+    Btn-Copy:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
+    Btn_est-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+    Btn_part:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+    btnImportForm:SENSITIVE IN FRAME {&FRAME-NAME} = NO.          
+  END.
+    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed D-Dialog 
 PROCEDURE state-changed :
