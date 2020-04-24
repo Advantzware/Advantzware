@@ -34,6 +34,11 @@ DEFINE TEMP-TABLE ttOrder NO-UNDO
         INDEX ttOrder IS PRIMARY
             orderNo
             .
+DEFINE TEMP-TABLE ttPost NO-UNDO
+    FIELD tableName  AS CHARACTER
+    FIELD tableRowID AS ROWID
+    FIELD fieldDate  AS DATE
+    .
 
 /* Parameters Definitions ---                                           */
 
@@ -57,12 +62,15 @@ PROCEDURE pBusinessLogic:
         WHERE cust.company EQ cCompany
           AND cust.cust-no GE cStartCustNo
           AND cust.cust-no LE cEndCustNo
+          AND cust.active  NE "I"
         :
-        FOR EACH oe-ord EXCLUSIVE-LOCK
+        FOR EACH oe-ord NO-LOCK
             WHERE oe-ord.company EQ cust.company
               AND oe-ord.cust-no EQ cust.cust-no
               AND oe-ord.ord-no  GE iStartOrderNo
               AND oe-ord.ord-no  LE iEndOrderNo
+              AND oe-ord.opened  EQ YES
+              AND oe-ord.deleted EQ NO
             :
             idx = 0.
             IF CAN-FIND(FIRST ttOrder) THEN DO:
@@ -88,11 +96,11 @@ PROCEDURE pBusinessLogic:
                     idx
                     ).
                 IF lPost THEN
-                oe-ord.due-date = dtAsOfDate.
+                RUN pCreatePost ("oe-ord", ROWID(oe-ord), dtAsOfDate).
             END. /* if lorderheadduedate */
             IF lOrderLineDueDate THEN DO:
                 idx = 0.
-                FOR EACH oe-ordl EXCLUSIVE-LOCK
+                FOR EACH oe-ordl NO-LOCK
                     WHERE oe-ordl.company EQ oe-ord.company
                       AND oe-ordl.ord-no  EQ oe-ord.ord-no
                     :
@@ -111,61 +119,83 @@ PROCEDURE pBusinessLogic:
                         idx
                         ).
                     IF lPost THEN
-                    oe-ordl.req-date = dtAsOfDate.
+                    RUN pCreatePost ("oe-ordl", ROWID(oe-ordl), dtAsOfDate).
                 END. /* each oe-ordl */
             END. /* if lorderduedate */
             idx = 0.
-            IF lActualReleaseDate OR lScheduledReleaseDate THEN
-            FOR EACH oe-rel EXCLUSIVE-LOCK
+            IF lScheduledReleaseDate THEN
+            FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company EQ oe-ord.company
                   AND oe-rel.ord-no  EQ oe-ord.ord-no
+                  AND oe-rel.deleted EQ NO
                 :
-                IF lActualReleaseDate THEN DO:
-                    FIND FIRST oe-relh EXCLUSIVE-LOCK
-                         WHERE oe-relh.r-no     EQ oe-rel.r-no
-                           AND oe-relh.release# GE iStartRelease
-                           AND oe-relh.release# LE iEndRelease
-                         NO-ERROR.
-                    IF AVAILABLE oe-relh THEN DO:
-                        jdx = jdx + 1.
-                        RUN pUpdateTempRecord (
-                            "Actual",
-                            oe-ord.ord-no,
-                            ?,
-                            0,
-                            "",
-                            ?,
-                            oe-relh.release#,
-                            oe-relh.rel-date,
-                            ?,
-                            dtAsOfDate,
-                            jdx
-                            ).
-                        IF lPost THEN
-                        oe-relh.rel-date = dtAsOfDate.
-                    END. /* if avail */
-                END. /* lactualreleasedate */
-                IF lScheduledReleaseDate THEN DO:
-                    idx = idx + 1.
+                idx = idx + 1.
+                RUN pUpdateTempRecord (
+                    "Scheduled",
+                    oe-ord.ord-no,
+                    ?,
+                    0,
+                    oe-rel.i-no,
+                    oe-rel.line,
+                    IF AVAILABLE oe-relh THEN oe-relh.release# ELSE ?,
+                    ?,
+                    oe-rel.rel-date,
+                    dtAsOfDate,
+                    idx
+                    ).
+                IF lPost THEN
+                RUN pCreatePost ("oe-rel", ROWID(oe-rel), dtAsOfDate).
+            END. /* each oe-rel */
+            IF lActualReleaseDate THEN
+            FOR EACH oe-rell NO-LOCK
+                WHERE oe-rell.company EQ oe-ord.company
+                  AND oe-rell.ord-no  EQ oe-ord.ord-no
+                  AND oe-rell.deleted EQ NO
+                  AND oe-rell.posted  EQ NO
+                :
+                FIND FIRST oe-relh NO-LOCK
+                     WHERE oe-relh.r-no     EQ oe-rell.r-no
+                       AND oe-relh.release# GE iStartRelease
+                       AND oe-relh.release# LE iEndRelease
+                       AND oe-relh.deleted  EQ NO
+                       AND oe-relh.posted   EQ NO
+                     NO-ERROR.
+                IF AVAILABLE oe-relh THEN DO:
+                    jdx = jdx + 1.
                     RUN pUpdateTempRecord (
-                        "Scheduled",
+                        "Actual",
                         oe-ord.ord-no,
                         ?,
                         0,
-                        oe-rel.i-no,
-                        oe-rel.line,
-                        IF AVAILABLE oe-relh THEN oe-relh.release# ELSE ?,
+                        "",
                         ?,
-                        oe-rel.rel-date,
+                        oe-relh.release#,
+                        oe-relh.rel-date,
+                        ?,
                         dtAsOfDate,
-                        idx
+                        jdx
                         ).
                     IF lPost THEN
-                    oe-rel.rel-date  = dtAsOfDate.
-                END. /* lscheduledreleasedate */
-            END. /* each oe-rel */
+                    RUN pCreatePost ("oe-relh", ROWID(oe-relh), dtAsOfDate).
+                END. /* if avail */
+            END. /* each oe-rell */
         END. /* each oe-ord */
     END. /* each cust */
+    IF lPost THEN
+    RUN pPostDates.
+END PROCEDURE.
+
+PROCEDURE pCreatePost:
+    DEFINE INPUT PARAMETER ipcTableName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprTableRowID AS ROWID     NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtFieldDate AS DATE      NO-UNDO.
+    
+    CREATE ttPost.
+    ASSIGN
+        ttPost.tableName  = ipcTableName
+        ttPost.tableRowID = iprTableRowID
+        ttPost.fieldDate  = ipdtFieldDate
+        .
 END PROCEDURE.
 
 PROCEDURE pFindOrdersFromReleases:
@@ -173,19 +203,23 @@ PROCEDURE pFindOrdersFromReleases:
         WHERE oe-relh.company  EQ cCompany
           AND oe-relh.release# GE iStartRelease
           AND oe-relh.release# LE iEndRelease
+          AND oe-relh.deleted  EQ NO
+          AND oe-relh.posted   EQ NO
         :
-        FIND FIRST oe-rel NO-LOCK
-             WHERE oe-rel.company EQ oe-relh.company
-               AND oe-rel.r-no    EQ oe-relh.r-no
-               AND oe-rel.ord-no  GT 0
+        FIND FIRST oe-rell NO-LOCK
+             WHERE oe-rell.company EQ oe-relh.company
+               AND oe-rell.r-no    EQ oe-relh.r-no
+               AND oe-rell.ord-no  GT 0
+               AND oe-rell.deleted EQ NO
+               AND oe-rell.posted  EQ NO
              NO-ERROR.
-        IF NOT AVAILABLE oe-rel THEN NEXT.
+        IF NOT AVAILABLE oe-rell THEN NEXT.
         IF CAN-FIND(FIRST ttOrder
-                    WHERE ttOrder.orderNo EQ oe-rel.ord-no) THEN
+                    WHERE ttOrder.orderNo EQ oe-rell.ord-no) THEN
         NEXT.
         CREATE ttOrder.
         ASSIGN
-            ttOrder.orderNo = oe-rel.ord-no
+            ttOrder.orderNo = oe-rell.ord-no
             ttOrder.newDate = dtAsOfDate
             .
     END. /* each oe-relh */
@@ -211,17 +245,19 @@ PROCEDURE pLoadImportFile:
                        AND oe-relh.release# EQ iKey
                      NO-ERROR.
                 IF NOT AVAILABLE oe-relh THEN NEXT.
-                FIND FIRST oe-rel NO-LOCK
-                     WHERE oe-rel.company EQ oe-relh.company
-                       AND oe-rel.r-no    EQ oe-relh.r-no
-                       AND oe-rel.ord-no  GT 0
+                FIND FIRST oe-rell NO-LOCK
+                     WHERE oe-rell.company EQ oe-relh.company
+                       AND oe-rell.r-no    EQ oe-relh.r-no
+                       AND oe-rell.ord-no  GT 0
+                       AND oe-rell.deleted EQ NO
+                       AND oe-rell.posted  EQ NO
                      NO-ERROR.
-                IF NOT AVAILABLE oe-rel THEN NEXT.
+                IF NOT AVAILABLE oe-rell THEN NEXT.
                 IF iStartRelease GT iKey THEN
                 iStartRelease = iKey.
                 IF iEndRelease LT iKey THEN
                 iEndRelease = iKey.
-                iKey = oe-rel.ord-no.
+                iKey = oe-rell.ord-no.
             END. /* if releases */
             IF iStartOrderNo GT iKey THEN
             iStartOrderNo = iKey.
@@ -235,6 +271,41 @@ PROCEDURE pLoadImportFile:
         END. /* repeat */
         INPUT CLOSE.
     END. /* if search */
+END PROCEDURE.
+
+PROCEDURE pPostDates:
+    FOR EACH ttPost:
+        CASE ttPost.tableName:
+            WHEN "oe-ord" THEN DO:
+                FIND FIRST oe-ord EXCLUSIVE-LOCK
+                     WHERE ROWID(oe-ord) EQ ttPost.tableRowID
+                     NO-ERROR.
+                IF AVAILABLE oe-ord THEN
+                oe-ord.due-date = ttPost.fieldDate.
+            END. /* oe-ord */
+            WHEN "oe-ordl" THEN DO:
+                FIND FIRST oe-ordl EXCLUSIVE-LOCK
+                     WHERE ROWID(oe-ordl) EQ ttPost.tableRowID
+                     NO-ERROR.
+                IF AVAILABLE oe-ordl THEN
+                oe-ordl.req-date = ttPost.fieldDate.
+            END. /* oe-ordl */
+            WHEN "oe-rel" THEN DO:
+                FIND FIRST oe-rel EXCLUSIVE-LOCK
+                     WHERE ROWID(oe-rel) EQ ttPost.tableRowID
+                     NO-ERROR.
+                IF AVAILABLE oe-rel THEN
+                oe-rel.rel-date = ttPost.fieldDate.
+            END. /* oe-rel */
+            WHEN "oe-relh" THEN DO:
+                FIND FIRST oe-relh EXCLUSIVE-LOCK
+                     WHERE ROWID(oe-relh) EQ ttPost.tableRowID
+                     NO-ERROR.
+                IF AVAILABLE oe-relh THEN
+                oe-relh.rel-date = ttPost.fieldDate.
+            END. /* oe-relh */
+        END CASE.
+    END. /* each ttpost */
 END PROCEDURE.
 
 PROCEDURE pUpdateTempRecord:
