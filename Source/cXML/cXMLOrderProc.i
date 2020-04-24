@@ -490,13 +490,32 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
   
+  DEFINE VARIABLE lOEImportConsol AS LOGICAL NO-UNDO.
+  
+  DEFINE BUFFER bf-ttOrdLines FOR ttOrdLines.
+  
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
   
   RUN sys/ref/nk1look.p (INPUT oe-ord.company, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
             OUTPUT cRtnChar, OUTPUT lRecFound).
   cCaseUomList = cRtnChar.  
+
+  RUN sys/ref/nk1look.p (
+      INPUT  oe-ord.company, 
+      INPUT  "OEImportConsol", 
+      INPUT  "L",  /* LOGICAL */
+      INPUT  YES,  /* check by cust */
+      INPUT  YES,  /* use cust not vendor */
+      INPUT  oe-ord.cust-no, /* cust */
+      INPUT  oe-ord.ship-id, /* ship-to*/
+      OUTPUT cRtnChar,
+      OUTPUT lRecFound
+      ).
   
+  IF lRecFound THEN
+      lOEImportConsol = LOGICAL(cRtnChar).
+
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
     AND cust.company EQ oe-ord.company NO-LOCK NO-ERROR.
   FIND FIRST ttordlines NO-LOCK NO-ERROR.
@@ -504,6 +523,22 @@ PROCEDURE genOrderLines:
   IF NOT AVAILABLE ttOrdHead THEN 
     FIND FIRST ttOrdHead
       WHERE ttOrdHead.ttOrderID EQ oe-ord.po-no NO-ERROR.
+  
+  /* Code to delete duplicates order line. Applicable only for the customers
+     in NK1 OEImportConsol configuration */
+  IF lOEImportConsol THEN DO:
+      FOR EACH ttOrdLines 
+          WHERE ttOrdLines.ttpayLoadID EQ ttOrdHead.ttpayLoadID
+          BY ttOrdLines.ttItemLineNumber:
+          FOR EACH bf-ttOrdLines
+              WHERE bf-ttOrdLines.ttpayLoadID              EQ ttOrdHead.ttpayLoadID
+                AND bf-ttOrdLines.ttItemManufacturerPartID EQ ttOrdLines.ttItemManufacturerPartID
+                AND bf-ttOrdLines.ttItemLineNumber         NE ttOrdLines.ttItemLineNumber:
+              ttOrdLines.ttItemQuantity = STRING(DECIMAL(ttOrdLines.ttItemQuantity) + DECIMAL(bf-ttOrdLines.ttItemQuantity)).
+              DELETE bf-ttOrdLines.
+          END.
+      END.
+  END.
 
   FOR EACH ttOrdLines WHERE 
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
