@@ -150,29 +150,29 @@ DEFINE BUTTON bExit AUTO-END-KEY
      FONT 6.
 
 DEFINE BUTTON bExport 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/export.ico":U
+     IMAGE-UP FILE "Graphics/32x32/export.ico":U
      LABEL "Export" 
      SIZE 8 BY 1.67 TOOLTIP "Export to a CSV file"
      FONT 6.
 
 DEFINE BUTTON bGetFile 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/elements_tree.ico":U
+     IMAGE-UP FILE "Graphics/32x32/elements_tree.ico":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Select a file for export".
 
 DEFINE BUTTON bInstructions 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/book_open.ico":U
+     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Show/Hide Instructions".
 
 DEFINE BUTTON bRefresh 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/refresh.ico":U
+     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Refresh the list"
      FONT 6.
 
 DEFINE BUTTON bStartStop 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/calendar_clock.ico":U
+     IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U
      LABEL "Stop Monitor" 
      SIZE 8 BY 1.67 TOOLTIP "Start/Stop Monitor"
      FONT 6.

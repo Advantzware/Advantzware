@@ -63,20 +63,20 @@ bNext bExit
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bExit 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Exit"
      BGCOLOR 8 .
 
 DEFINE BUTTON bNext 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/import.ico":U
-     IMAGE-INSENSITIVE FILE "N:/Repository/Resources/Graphics/32x32/import_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/import.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Next".
 
 DEFINE BUTTON bPrev 
-     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/export.ico":U
-     IMAGE-INSENSITIVE FILE "N:/Repository/Resources/Graphics/32x32/export_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/export.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U
      LABEL "" 
      SIZE 8 BY 1.67 TOOLTIP "Previous".
 
