@@ -268,7 +268,7 @@ DO:
         WHEN "btQueryBuilder" THEN 
             RUN queryBuilder/wMyQueries.w.
         WHEN "btLockMon" THEN
-            RUN util/wLockTransMonitor.w.
+            RUN util/wLockMonitor.w.
         WHEN "btProTools" THEN
             RUN protools/_protool.r.
         WHEN "btMonitorUsers" THEN DO:

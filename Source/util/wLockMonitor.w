@@ -44,7 +44,6 @@ DEF VAR hbhRecKey1 AS HANDLE NO-UNDO.
 DEF VAR hbhRecKey2 AS HANDLE NO-UNDO.
 DEF VAR cName AS CHAR NO-UNDO.
 DEF VAR cKeyString AS CHAR NO-UNDO.
-DEF VAR lMonitorRunning AS LOG NO-UNDO.
 DEF VAR iLockCountSel AS INT NO-UNDO.
 DEF VAR iLockCountAll AS INT NO-UNDO.
 DEF VAR iTransCountSel AS INT NO-UNDO.
@@ -53,16 +52,22 @@ DEF VAR hQuery AS HANDLE NO-UNDO.
 DEF VAR hBuffer AS HANDLE NO-UNDO.
 DEF VAR hBufField AS HANDLE NO-UNDO EXTENT 17.
 DEF VAR hBrowse AS HANDLE NO-UNDO.
-DEF VAR cExportFile AS CHAR NO-UNDO.
+DEF VAR cExportFile AS CHAR NO-UNDO FORMAT "x(60)".
 DEF VAR cRecKey AS CHAR NO-UNDO.
+DEF VAR lShowInstructions AS LOG NO-UNDO INITIAL TRUE.
+DEF VAR hThisUser AS HANDLE NO-UNDO.
+DEF VAR cThisUser AS CHAR NO-UNDO.
+DEF VAR lExclusive AS LOG NO-UNDO.
+DEF VAR cMyUser AS CHAR NO-UNDO.
+DEF VAR iMyLevel AS INT NO-UNDO.
 
 {src/adm2/widgetprto.i}
 
 DEF TEMP-TABLE ttLocks
     FIELD ttfFlags AS CHAR LABEL "Type"
     FIELD ttfLock-userid AS CHAR LABEL "User ID" FORMAT "x(12)"
-    FIELD ttfLock-name AS CHAR LABEL "Name" FORMAT "x(24)"
-    FIELD ttfLock-Tty AS CHAR LABEL "Terminal" FORMAT "x(12)"
+    FIELD ttfLock-name AS CHAR LABEL "Name" FORMAT "x(25)"
+    FIELD ttfLock-Tty AS CHAR LABEL "Terminal" FORMAT "x(13)"
     FIELD ttfTable AS CHAR LABEL "Table" FORMAT "x(12)"
     FIELD ttfDispTime AS CHAR LABEL "Duration" FORMAT "x(10)"
     FIELD ttfFields AS CHAR  LABEL "Fields" FORMAT "x(32)"
@@ -72,7 +77,7 @@ DEF TEMP-TABLE ttLocks
     FIELD ttfLock-Id AS INT64 LABEL "Lock ID"
     FIELD ttfLock-Usr AS INT LABEL "Lock User#"
     FIELD ttfLock-Table AS INT LABEL "Table#"
-    FIELD ttfLock-RecId AS RECID LABEL "Recid"
+    FIELD ttfLock-RecId AS RECID LABEL "Recid" FORMAT ">>>>>>>>>>>9"
     FIELD ttfLockTime AS DATETIME-TZ LABEL "Lock Time"
     FIELD ttfDuration AS INT LABEL "Duration"
     FIELD ttfLock-Type AS CHAR LABEL "Lk Type"
@@ -108,9 +113,12 @@ DEF TEMP-TABLE ttLockUsers
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiInstructions eInstructions bRefresh bExit ~
-fiExportFile bGetFile bExport 
-&Scoped-Define DISPLAYED-OBJECTS fiInstructions eInstructions fiExportFile 
+&Scoped-Define ENABLED-OBJECTS rLocks rTrans rStatus bStartStop bRefresh ~
+bGetFile bExport bInstructions bExit fiLK fiTX fiST eInstructions fiUserID ~
+fiDuration fiTable tbExclusive fiRefresh fiExportFile tbAutoRun 
+&Scoped-Define DISPLAYED-OBJECTS fiLK fiTX fiST fiLockCount fiTxnCount ~
+fiStatus fiInstructions eInstructions fiUserID fiDuration fiTable ~
+tbExclusive fiRefresh fiExportFile tbAutoRun 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -125,31 +133,58 @@ fiExportFile bGetFile bExport
 /* Define the widget handle for the window                              */
 DEFINE VAR wWin AS WIDGET-HANDLE NO-UNDO.
 
+/* Menu Definitions                                                     */
+DEFINE MENU POPUP-MENU-fMain 
+       MENU-ITEM m_Show_User_Stack_Trace LABEL "Show User Stack Trace".
+
+
+/* Definitions of handles for OCX Containers                            */
+DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
+
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bExit AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
-     SIZE 7 BY 1.67 TOOLTIP "Exit"
+     SIZE 8 BY 1.67 TOOLTIP "Exit"
      FONT 6.
 
 DEFINE BUTTON bExport 
+     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/export.ico":U
      LABEL "Export" 
-     SIZE 27 BY 1.43 TOOLTIP "Export to a CSV file"
+     SIZE 8 BY 1.67 TOOLTIP "Export to a CSV file"
      FONT 6.
 
 DEFINE BUTTON bGetFile 
-     IMAGE-UP FILE "graphics/16x16/folder.png":U
+     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/elements_tree.ico":U
      LABEL "" 
-     SIZE 6 BY 1.19 TOOLTIP "Select a file for export".
+     SIZE 8 BY 1.67 TOOLTIP "Select a file for export".
+
+DEFINE BUTTON bInstructions 
+     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/book_open.ico":U
+     LABEL "" 
+     SIZE 8 BY 1.67 TOOLTIP "Show/Hide Instructions".
 
 DEFINE BUTTON bRefresh 
-     LABEL "Refresh" 
-     SIZE 27 BY 1.43 TOOLTIP "Refresh the list"
+     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/refresh.ico":U
+     LABEL "" 
+     SIZE 8 BY 1.67 TOOLTIP "Refresh the list"
+     FONT 6.
+
+DEFINE BUTTON bStartStop 
+     IMAGE-UP FILE "N:/Repository/Resources/Graphics/32x32/calendar_clock.ico":U
+     LABEL "Stop Monitor" 
+     SIZE 8 BY 1.67 TOOLTIP "Start/Stop Monitor"
      FONT 6.
 
 DEFINE VARIABLE eInstructions AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 143 BY 7.14 NO-UNDO.
+     SIZE 154 BY 7.14 NO-UNDO.
+
+DEFINE VARIABLE fiDuration AS INTEGER FORMAT ">>>>>9":U INITIAL 0 
+     LABEL "Duration GT (secs)" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiExportFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "Export File Location" 
@@ -158,24 +193,107 @@ DEFINE VARIABLE fiExportFile AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiInstructions AS CHARACTER FORMAT "X(256)":U INITIAL "Instructions:" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 15 BY .81 NO-UNDO.
+
+DEFINE VARIABLE fiLK AS CHARACTER FORMAT "X(256)":U INITIAL "LKS" 
+     VIEW-AS FILL-IN 
+     SIZE 6 BY .81 TOOLTIP "Locks"
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiLockCount AS INTEGER FORMAT ">>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY .81 NO-UNDO.
+
+DEFINE VARIABLE fiRefresh AS INTEGER FORMAT ">>>>9":U INITIAL 60 
+     LABEL "Refresh Interval (secs)" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiST AS CHARACTER FORMAT "X(256)":U INITIAL "STS" 
+     VIEW-AS FILL-IN 
+     SIZE 6 BY .81 TOOLTIP "Status"
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Stopped" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY .81 TOOLTIP "Status" NO-UNDO.
+
+DEFINE VARIABLE fiTable AS CHARACTER FORMAT "X(256)":U 
+     LABEL "TableName Matches" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiTX AS CHARACTER FORMAT "X(256)":U INITIAL "TXN" 
+     VIEW-AS FILL-IN 
+     SIZE 6 BY .81 TOOLTIP "Transactions"
+     FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiTxnCount AS INTEGER FORMAT ">>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY .81 TOOLTIP "Transactions" NO-UNDO.
+
+DEFINE VARIABLE fiUserID AS CHARACTER FORMAT "X(256)":U 
+     LABEL "User ID Matches" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE rLocks
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 8 BY 1.67 TOOLTIP "Locks"
+     BGCOLOR 10 .
+
+DEFINE RECTANGLE rStatus
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 8 BY 1.67 TOOLTIP "Status"
+     BGCOLOR 12 .
+
+DEFINE RECTANGLE rTrans
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 8 BY 1.67 TOOLTIP "Transactions"
+     BGCOLOR 10 .
+
+DEFINE VARIABLE tbAutoRun AS LOGICAL INITIAL yes 
+     LABEL "AutoRun" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.2 BY 1 TOOLTIP "Autorun  Excel when exported" NO-UNDO.
+
+DEFINE VARIABLE tbExclusive AS LOGICAL INITIAL no 
+     LABEL "Exclusive locks only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
-     fiInstructions AT ROW 1.24 COL 4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     eInstructions AT ROW 2.43 COL 11 NO-LABEL NO-TAB-STOP 
-     bRefresh AT ROW 9.81 COL 11
-     bExit AT ROW 27.43 COL 149
-     fiExportFile AT ROW 27.67 COL 29 COLON-ALIGNED
-     bGetFile AT ROW 27.67 COL 108
-     bExport AT ROW 27.67 COL 116
+     bStartStop AT ROW 1.48 COL 104
+     bRefresh AT ROW 1.48 COL 113
+     bGetFile AT ROW 1.48 COL 122
+     bExport AT ROW 1.48 COL 131
+     bInstructions AT ROW 1.48 COL 140
+     bExit AT ROW 1.48 COL 149
+     fiLK AT ROW 1.95 COL 64 COLON-ALIGNED NO-LABEL
+     fiTX AT ROW 1.95 COL 73 COLON-ALIGNED NO-LABEL
+     fiST AT ROW 1.95 COL 82 COLON-ALIGNED NO-LABEL
+     fiLockCount AT ROW 3.14 COL 72 RIGHT-ALIGNED NO-LABEL
+     fiTxnCount AT ROW 3.14 COL 72 COLON-ALIGNED NO-LABEL
+     fiStatus AT ROW 3.14 COL 81 COLON-ALIGNED NO-LABEL
+     fiInstructions AT ROW 3.57 COL 2 COLON-ALIGNED NO-LABEL
+     eInstructions AT ROW 4.33 COL 4 NO-LABEL NO-TAB-STOP 
+     fiUserID AT ROW 11.95 COL 20 COLON-ALIGNED
+     fiDuration AT ROW 11.95 COL 59 COLON-ALIGNED
+     fiTable AT ROW 11.95 COL 93 COLON-ALIGNED
+     tbExclusive AT ROW 11.95 COL 117
+     fiRefresh AT ROW 30.05 COL 27 COLON-ALIGNED
+     fiExportFile AT ROW 30.05 COL 63 COLON-ALIGNED
+     tbAutoRun AT ROW 30.05 COL 142
+     rLocks AT ROW 1.48 COL 65
+     rTrans AT ROW 1.48 COL 74
+     rStatus AT ROW 1.48 COL 83.2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 159.8 BY 28.52
-         DEFAULT-BUTTON bRefresh.
+         SIZE 159.8 BY 30.95.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -196,11 +314,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Lock Monitor"
-         HEIGHT             = 28.52
+         HEIGHT             = 30.95
          WIDTH              = 159.8
-         MAX-HEIGHT         = 30.48
+         MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 159.8
-         VIRTUAL-HEIGHT     = 30.48
+         VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 159.8
          RESIZE             = no
          SCROLL-BARS        = no
@@ -233,10 +351,30 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
 ASSIGN 
-       eInstructions:READ-ONLY IN FRAME fMain        = TRUE.
+       FRAME fMain:POPUP-MENU       = MENU POPUP-MENU-fMain:HANDLE.
 
 ASSIGN 
+       eInstructions:READ-ONLY IN FRAME fMain        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiInstructions IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
        fiInstructions:READ-ONLY IN FRAME fMain        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiLockCount IN FRAME fMain
+   NO-ENABLE ALIGN-R                                                    */
+ASSIGN 
+       fiLockCount:READ-ONLY IN FRAME fMain        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiStatus IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiStatus:READ-ONLY IN FRAME fMain        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiTxnCount IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiTxnCount:READ-ONLY IN FRAME fMain        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
@@ -246,6 +384,32 @@ THEN wWin:HIDDEN = yes.
 
  
 
+
+/* **********************  Create OCX Containers  ********************** */
+
+&ANALYZE-SUSPEND _CREATE-DYNAMIC
+
+&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
+
+CREATE CONTROL-FRAME CtrlFrame ASSIGN
+       FRAME           = FRAME fMain:HANDLE
+       ROW             = 1.71
+       COLUMN          = 5
+       HEIGHT          = 1.43
+       WIDTH           = 7
+       HIDDEN          = yes
+       SENSITIVE       = yes.
+
+PROCEDURE adm-create-controls:
+      CtrlFrame:NAME = "CtrlFrame":U .
+/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
+      CtrlFrame:MOVE-AFTER(bExit:HANDLE IN FRAME fMain).
+
+END PROCEDURE.
+
+&ENDIF
+
+&ANALYZE-RESUME /* End of _CREATE-DYNAMIC */
 
 
 /* ************************  Control Triggers  ************************ */
@@ -288,11 +452,13 @@ DO:
         EXPORT DELIMITER "," ttLocks2.
     END.
     OUTPUT CLOSE.
+    IF tbAutoRun:CHECKED IN FRAME {&frame-name} THEN DO:
+        OS-COMMAND SILENT VALUE (cExportFile).
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME bGetFile
@@ -314,15 +480,137 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME bInstructions
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bInstructions wWin
+ON CHOOSE OF bInstructions IN FRAME fMain
+DO:
+    DEF VAR hLabel1 AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR hLabel2 AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR hLabel3 AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR hLabel4 AS WIDGET-HANDLE NO-UNDO.
+
+    ASSIGN 
+        hLabel1 = fiUserID:SIDE-LABEL-HANDLE  
+        hLabel2 = fiDuration:SIDE-LABEL-HANDLE 
+        hLabel3 = fiTable:SIDE-LABEL-HANDLE
+        .
+         
+    ASSIGN 
+        lShowInstructions = NOT lShowInstructions.
+    IF NOT lShowInstructions THEN ASSIGN
+        hLabel1:ROW = 4.36
+        hLabel2:ROW = 4.36
+        hLabel3:ROW = 4.36
+        fiInstructions:VISIBLE = FALSE 
+        eInstructions:VISIBLE = FALSE
+        fiUserID:ROW = 4.36
+        fiDuration:ROW = 4.36
+        fiTable:ROW = 4.36
+        tbExclusive:ROW = 4.36
+        .
+    ELSE ASSIGN
+        hLabel1:ROW = 11.95
+        hLabel2:ROW = 11.95
+        hLabel3:ROW = 11.95
+        fiUserID:ROW = 11.95
+        fiDuration:ROW = 11.95
+        fiTable:ROW = 11.95
+        tbExclusive:ROW = 11.95 
+        fiInstructions:VISIBLE = TRUE  
+        eInstructions:VISIBLE = TRUE
+        . 
+        
+    RUN pRefresh.
+            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME bRefresh
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bRefresh wWin
-ON CHOOSE OF bRefresh IN FRAME fMain /* Refresh */
+ON CHOOSE OF bRefresh IN FRAME fMain
+DO:
+        RUN pRefresh.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bStartStop
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bStartStop wWin
+ON CHOOSE OF bStartStop IN FRAME fMain /* Stop Monitor */
+DO:
+    IF lMonitor THEN ASSIGN 
+        lMonitor = FALSE 
+        fiStatus:SCREEN-VALUE = "Stopped"
+        rStatus:BGCOLOR = 12
+        fiRefresh:SENSITIVE = TRUE.
+    ELSE ASSIGN 
+        lMonitor = TRUE 
+        fiStatus:SCREEN-VALUE = "Running"
+        rStatus:BGCOLOR = 10
+        fiRefresh:SENSITIVE = FALSE.
+    IF lMonitor THEN 
+        RUN pRunMonitor. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME CtrlFrame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame wWin OCX.Tick
+PROCEDURE CtrlFrame.PSTimer.Tick .
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  None required for OCX.
+  Notes:       
+------------------------------------------------------------------------------*/
+PROCESS EVENTS.
+IF lMonitor THEN 
+    RUN pRefresh.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiRefresh
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRefresh wWin
+ON VALUE-CHANGED OF fiRefresh IN FRAME fMain /* Refresh Interval (secs) */
+DO:
+        chCtrlFrame:PSTimer:Interval = (INTEGER(SELF:SCREEN-VALUE) * 1000).  
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME m_Show_User_Stack_Trace
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Show_User_Stack_Trace wWin
+ON CHOOSE OF MENU-ITEM m_Show_User_Stack_Trace /* Show User Stack Trace */
+DO:
+    RUN util/dStackTrace.w (cThisUser).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbExclusive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbExclusive wWin
+ON VALUE-CHANGED OF tbExclusive IN FRAME fMain /* Exclusive locks only */
 DO:
     RUN pRefresh.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -348,6 +636,43 @@ PROCEDURE adm-create-objects :
                After SmartObjects are initialized, then SmartLinks are added.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE control_load wWin  _CONTROL-LOAD
+PROCEDURE control_load :
+/*------------------------------------------------------------------------------
+  Purpose:     Load the OCXs    
+  Parameters:  <none>
+  Notes:       Here we load, initialize and make visible the 
+               OCXs in the interface.                        
+------------------------------------------------------------------------------*/
+
+&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
+DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
+DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
+
+OCXFile = SEARCH( "wLockMonitor.wrx":U ).
+IF OCXFile = ? THEN
+  OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
+                     R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
+
+IF OCXFile <> ? THEN
+DO:
+  ASSIGN
+    chCtrlFrame = CtrlFrame:COM-HANDLE
+    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
+  .
+  RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
+END.
+ELSE MESSAGE "wLockMonitor.wrx":U SKIP(1)
+             "The binary control file could not be found. The controls cannot be loaded."
+             VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
+
+&ENDIF
 
 END PROCEDURE.
 
@@ -384,10 +709,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiInstructions eInstructions fiExportFile 
+  DISPLAY fiLK fiTX fiST fiLockCount fiTxnCount fiStatus fiInstructions 
+          eInstructions fiUserID fiDuration fiTable tbExclusive fiRefresh 
+          fiExportFile tbAutoRun 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE fiInstructions eInstructions bRefresh bExit fiExportFile bGetFile 
-         bExport 
+  ENABLE rLocks rTrans rStatus bStartStop bRefresh bGetFile bExport 
+         bInstructions bExit fiLK fiTX fiST eInstructions fiUserID fiDuration 
+         fiTable tbExclusive fiRefresh fiExportFile tbAutoRun 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -415,14 +743,27 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wWin 
 PROCEDURE initializeObject :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
 
   RUN SUPER.
 
+    /* Non-admin users can only see their own locks */
+    ASSIGN 
+        cMyUser = USERID(LDBNAME(1)).
+    IF cMyUser NE "" THEN DO:
+        FIND users NO-LOCK WHERE 
+            users.user_id EQ cMyUser
+            NO-ERROR.
+        IF NOT AVAIL users THEN APPLY 'choose' TO bExit IN FRAME {&frame-name}.
+        ASSIGN 
+            iMyLevel = INTEGER(users.securityLevel).
+        IF iMyLevel LT 900 THEN ASSIGN 
+                fiUserID:SCREEN-VALUE IN FRAME {&frame-name} = cMyUser
+                fiUserID:SENSITIVE = FALSE.       
+    END.
+  
     ASSIGN 
         fiExportFile:SCREEN-VALUE IN FRAME {&frame-name} = 
             "c:\tmp\lockmonitor-" + 
@@ -445,17 +786,18 @@ PROCEDURE initializeObject :
             "    (Note: the duration will be the lesser of the total lock time or the time since you started this program)"  + CHR(10) +
             "'Fields/Values' - information describing the specific record held by this lock" + CHR(10) +
             "You can EXPORT the contents of this list to a CSV file by entering a file name in the box below and pressing the Export button.". 
+    
+    APPLY 'value-changed' TO fiRefresh.
     APPLY 'entry' TO bRefresh.            
-            
-    RUN pRefresh.
+    APPLY 'choose' TO bRefresh.            
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetLockData wWin 
-PROCEDURE ipGetLockData :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetLockData wWin 
+PROCEDURE pGetLockData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -468,6 +810,12 @@ PROCEDURE ipGetLockData :
     DEF VAR hTestName AS HANDLE NO-UNDO.
     DEF VAR cTestName AS CHAR NO-UNDO.
     DEF VAR cDisp AS CHAR NO-UNDO.
+    DEF VAR cUserMatch AS CHAR NO-UNDO.
+    DEF VAR cTableMatch AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cUserMatch = IF fiUserID:SCREEN-VALUE IN FRAME {&frame-name} EQ "" THEN "*" ELSE fiUserID:SCREEN-VALUE + "*"
+        cTableMatch = IF fiTable:SCREEN-VALUE IN FRAME {&frame-name} EQ "" THEN "*" ELSE fiTable:SCREEN-VALUE + "*".
     
     ASSIGN 
         iLockCountAll = 0
@@ -526,7 +874,7 @@ PROCEDURE ipGetLockData :
                                     hIdxFld[iIdxCt] = hbRecKey:BUFFER-FIELD(jCtr) 
                                     cFieldString = cFieldString + hIdxFld[iIdxCt]:NAME  + "|" 
                                     cKeyString = cKeyString + 
-                                                    (IF hIdxFld[iIdxCt]:BUFFER-VALUE EQ "" THEN "N/A" ELSE STRING(hIdxFld[iIdxCt]:BUFFER-VALUE)) + "|" 
+                                                    (IF hIdxFld[iIdxCt]:BUFFER-VALUE EQ "" THEN "' '" ELSE STRING(hIdxFld[iIdxCt]:BUFFER-VALUE)) + "|" 
                                     NO-ERROR.
                                 LEAVE checkname.
                             END.
@@ -588,13 +936,24 @@ PROCEDURE ipGetLockData :
         DELETE ttLocks2.
     END.
 
+    ASSIGN 
+        lExclusive = FALSE.
+    FOR EACH ttLocks2 WHERE 
+        ttLocks2.ttfLock-userid MATCHES cUserMatch AND 
+        ttLocks2.ttfTable MATCHES cTableMatch AND
+        ttLocks2.ttfDuration GE INTEGER(fiDuration:SCREEN-VALUE) AND 
+        ttLocks2.ttfFlags = "EXCL":
+        ASSIGN 
+            lExclusive = TRUE.
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetTransData wWin 
-PROCEDURE ipGetTransData :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTransData wWin 
+PROCEDURE pGetTransData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -615,6 +974,23 @@ PROCEDURE ipGetTransData :
             iTransCountAll = iTransCountAll + 1
             iTransCountSel = IF CAN-DO(cUserList,_user._userid) THEN iTransCountSel + 1 ELSE iTransCountSel.
     END.
+    ASSIGN 
+        fiTxnCount:SCREEN-VALUE IN FRAME {&frame-name} = STRING(iTransCountAll)
+        rTrans:BGCOLOR = IF iTransCountAll NE 0 THEN 12 ELSE 10.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUser wWin 
+PROCEDURE pGetUser :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    hThisUser = hBrowse:GET-BROWSE-COLUMN (2).
+    cThisUser = hThisUser:SCREEN-VALUE.
 
 END PROCEDURE.
 
@@ -627,33 +1003,74 @@ PROCEDURE pRefresh :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEF VAR cUserMatch AS CHAR NO-UNDO.
+    DEF VAR cTableMatch AS CHAR NO-UNDO.
+    DEF VAR iOldStatusColor AS INT NO-UNDO.
+    DEF VAR iLockColor AS INT NO-UNDO.
+    DEF VAR cFlagMatch AS CHAR NO-UNDO.
+    
+    ASSIGN
+        cFlagMatch = IF tbExclusive:CHECKED IN FRAME {&frame-name} THEN "EXCL" ELSE "*"
+        lExclusive = FALSE 
+        iOldStatusColor = rStatus:BGCOLOR IN FRAME {&frame-name} 
+        rStatus:BGCOLOR = 14 
+        cUserMatch = IF fiUserID:SCREEN-VALUE IN FRAME {&frame-name} EQ "" THEN "*" ELSE fiUserID:SCREEN-VALUE + "*"
+        cTableMatch = IF fiTable:SCREEN-VALUE IN FRAME {&frame-name} EQ "" THEN "*" ELSE fiTable:SCREEN-VALUE + "*".
+    
     RUN pRunMonitor.
+    
     IF VALID-HANDLE(hBuffer) THEN DELETE OBJECT hBuffer.
-    IF VALID-HANDLE(hQuery) THEN DELETE OBJECT hBuffer.
-    IF VALID-HANDLE(hBrowse) THEN DELETE OBJECT hBuffer.
+    IF VALID-HANDLE(hQuery) THEN DELETE OBJECT hQuery.
+    IF VALID-HANDLE(hBrowse) THEN DELETE OBJECT hBrowse.
     DO iCtr = 1 TO 17:
         IF VALID-HANDLE(hBufField[iCtr]) THEN DELETE OBJECT hBufField[iCtr].
     END.    
     hBuffer = TEMP-TABLE ttLocks2:HANDLE.
     CREATE QUERY hQuery.
     hQuery:ADD-BUFFER (BUFFER ttLocks2:HANDLE).
-    hQuery:QUERY-PREPARE ("FOR EACH ttLocks2").
-    hQuery:QUERY-OPEN.
+
+    hQuery:QUERY-PREPARE ("FOR EACH ttLocks2 WHERE " +
+                           "ttLocks2.ttfLock-userid MATCHES '" +
+                            STRING(cUserMatch) + 
+                           "' AND ttLocks2.ttfTable MATCHES '" + 
+                            STRING(cTableMatch) +
+                           "' AND ttLocks2.ttfDuration GE " +
+                           fiDuration:SCREEN-VALUE +
+                           " AND CAN-DO('" +
+                            STRING(cFlagMatch) +                           
+                           "',ttLocks2.ttfFlags)" +
+                           " BY ttLocks2.ttfDuration DESCENDING"
+                          ).
+    hQuery:QUERY-OPEN().
+    
     CREATE BROWSE hBrowse
         ASSIGN 
             FRAME = FRAME {&frame-name}:HANDLE 
-            QUERY = hQuery:handle
+            QUERY = hQuery:HANDLE 
             ROW-MARKERS = FALSE
-            ROW = 11.48
-            COLUMN = 11.00
-            WIDTH = 143.00
-            HEIGHT = 15.71
+            ROW = IF lShowInstructions THEN 13.47 ELSE 5.79
+            COLUMN = 5.00
+            WIDTH = 154.00
+            HEIGHT = IF lShowInstructions THEN 16.03 ELSE 23.78
             VISIBLE = TRUE 
             READ-ONLY = TRUE 
             SENSITIVE = TRUE
             SEPARATORS = TRUE
-            . 
+        TRIGGERS:
+            ON VALUE-CHANGED PERSISTENT RUN pGetUser.
+        END TRIGGERS.
+
     hBrowse:ADD-COLUMNS-FROM (BUFFER ttLocks2:HANDLE).
+    hBrowse:NUM-LOCKED-COLUMNS = 2.
+
+    APPLY 'value-changed' TO hBrowse.
+
+    ASSIGN
+        iLockColor = IF NOT lExclusive THEN 14 ELSE 12
+        iLockColor = IF hQuery:NUM-RESULTS > 0 THEN iLockColor ELSE 10
+        rStatus:BGCOLOR = iOldStatusColor
+        fiLockCount:SCREEN-VALUE = STRING(hQuery:NUM-RESULTS)
+        rLocks:BGCOLOR = iLockColor. 
         
 END PROCEDURE.
 
@@ -666,8 +1083,8 @@ PROCEDURE pRunMonitor :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipGetTransData.
-    RUN ipGetLockData.
+    RUN pGetTransData.
+    RUN pGetLockData.
 
 END PROCEDURE.
 
