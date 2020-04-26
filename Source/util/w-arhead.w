@@ -985,7 +985,10 @@ PROCEDURE build-ar-lines :
            ar-invl.cost       = inv-line.cost
            ar-invl.dscr[1]    = "M"
            ar-invl.t-cost     = inv-line.inv-qty * inv-line.cost /* not sure */
-
+           ar-invl.costStdFreight = inv-line.costStdFreight
+           ar-invl.costStdWarehouse = inv-line.costStdWarehouse
+           ar-invl.costStdDeviation = inv-line.costStdDeviation
+               
            ar-invl.std-tot-cost = inv-line.cost
            ar-invl.std-lab-cost = IF AVAIL itemfg THEN itemfg.std-lab-cost
                                   ELSE 0

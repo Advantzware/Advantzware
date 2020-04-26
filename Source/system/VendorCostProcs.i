@@ -27,6 +27,7 @@ DEFINE TEMP-TABLE ttVendItemCost LIKE vendItemCost
     FIELD dimLengthInVendorDimUOM AS DECIMAL
     FIELD dimWidthInVendorDimUOM AS DECIMAL
     FIELD dimDepthInVendorDimUOM AS DECIMAL
+    FIELD costDeviation AS DECIMAL
     FIELD isValid AS LOGICAL
     FIELD isSelected AS LOGICAL 
     FIELD reasonNotValid AS CHARACTER

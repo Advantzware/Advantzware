@@ -214,6 +214,81 @@ PROCEDURE ChangeSellPrice:
 
 END PROCEDURE.
 
+PROCEDURE EstCost_GetHeaderCostDeviation:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for freight
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+
+    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "deviation", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+
+END PROCEDURE.
+
+PROCEDURE EstCost_GetHeaderCostFreight:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for freight
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfFreight", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE EstCost_GetHeaderCostWarehouse:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for warehousing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfWarehouse", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE EstCost_GetHeaderCostForCategory:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for a given category
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+
+    FIND FIRST estCostHeader NO-LOCK 
+        WHERE estCostHeader.company EQ ipcCompany
+        AND estCostHeader.estimateNo EQ ipcEstimateNo
+        AND estCostHeader.quantityMaster GE ipdQuantity
+        NO-ERROR. 
+    IF AVAILABLE estCostHeader THEN DO:
+        FOR EACH estCostDetail NO-LOCK
+            WHERE estCostDetail.estCostHeaderID EQ estCostHeader.estCostHeaderID
+            AND estCostDetail.estCostCategoryID EQ ipcCategory:
+            opdCostTotal = opdCostTotal + estCostDetail.costTotal.    
+        END.
+        IF estCostHeader.quantityMaster NE 0 THEN 
+            opdCostPerM = opdCostTotal / (estCostHeader.quantityMaster / 1000).
+        
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pAddCostDetail PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an EstOperation buffer, create a unique cost detail record
@@ -1519,7 +1594,9 @@ PROCEDURE pBuildCostDetailForMaterial PRIVATE:
         RUN pAddCostDetailForMaterial(BUFFER ipbf-estCostMaterial, "matMinDiff","Material Cost - Minimum Diff",
             ipbf-estCostMaterial.costTotalMinDiff,0).
     END.    
-    
+    IF ipbf-estCostMaterial.costTotalDeviation NE 0 THEN 
+        RUN pAddCostDetailForMaterial(BUFFER ipbf-estCostMaterial, "deviation","Deviation Cost",
+            ipbf-estCostMaterial.costTotalDeviation,0).
         
 END PROCEDURE.
 
@@ -3105,6 +3182,8 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader   FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostMaterial FOR estCostMaterial.
     DEFINE PARAMETER BUFFER ipbf-estCostForm     FOR estCostForm.
+    
+    DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
 
     ipbf-estCostMaterial.quantityRequiredTotal    = ipbf-estCostMaterial.quantityRequiredNoWaste + ipbf-estCostMaterial.quantityRequiredSetupWaste + 
         ipbf-estCostMaterial.quantityRequiredRunWaste + ipbf-estCostMaterial.quantityRequiredMinDiff.
@@ -3113,10 +3192,10 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     DO:
         IF ipbf-estCostMaterial.isPurchasedFG THEN
             RUN pGetEstFarmCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial, ipbf-estCostMaterial.quantityRequiredTotal, ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, 
-                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID).
+                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID, OUTPUT ipbf-estCostMaterial.costPerUOMDeviation).
         ELSE 
             RUN pGetEstMaterialCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial,ipbf-estCostMaterial.quantityRequiredTotal,ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, 
-                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID).
+                OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID, OUTPUT ipbf-estCostMaterial.costPerUOMDeviation).
             
     END.
     ELSE 
@@ -3156,7 +3235,8 @@ PROCEDURE pCalcEstMaterial PRIVATE:
                
     IF NOT ipbf-estCostMaterial.noCharge THEN 
         ASSIGN 
-            ipbf-estCostMaterial.costTotalNoWaste                = ipbf-estCostMaterial.quantityRequiredNoWasteInCUOM * ipbf-estCostMaterial.costPerUOM 
+            ipbf-estCostMaterial.costTotalNoWaste                = ipbf-estCostMaterial.quantityRequiredNoWasteInCUOM * ipbf-estCostMaterial.costPerUOM
+            ipbf-estCostMaterial.costTotalDeviation              = ipbf-estCostMaterial.quantityRequiredTotalInCUOM * ipbf-estCostMaterial.costPerUOMDeviation
             ipbf-estCostMaterial.costTotalSetupWaste             = ipbf-estCostMaterial.quantityRequiredSetupWasteInCUOM * ipbf-estCostMaterial.costPerUOM
             ipbf-estCostMaterial.costTotalRunWaste               = ipbf-estCostMaterial.quantityRequiredRunWasteInCUOM * ipbf-estCostMaterial.costPerUOM
             ipbf-estCostMaterial.costTotalMinDiff                = ipbf-estCostMaterial.quantityRequiredMinDiffInCUOM * ipbf-estCostMaterial.costPerUOM
@@ -3773,6 +3853,7 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcVendorID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostDeviation AS DECIMAL NO-UNDO.
        
     DEFINE VARIABLE cScope              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
@@ -3798,6 +3879,7 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
             cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-FG")
             lIncludeBlankVendor = YES
             .
+
         RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
             ipbf-estCostMaterial.itemID, "FG", 
             cScope, lIncludeBlankVendor, 
@@ -3805,7 +3887,7 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
             ipdQty, ipcQtyUOM, 
             ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
             ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, 
+            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
             OUTPUT lError, OUTPUT cMessage).
     END.
     ELSE DO:
@@ -3894,7 +3976,8 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcVendorID AS CHARACTER NO-UNDO.
-       
+    DEFINE OUTPUT PARAMETER opdCostDeviation AS DECIMAL NO-UNDO.
+           
     DEFINE VARIABLE cScope              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
@@ -3927,7 +4010,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             ipdQty, ipcQtyUOM, 
             ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
             ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, 
+            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
             OUTPUT lError, OUTPUT cMessage).
 
        RETURN.

@@ -49,6 +49,10 @@ def new shared var v-ar-sales like ar-ctrl.sales.
 def new shared var v-ar-disc like ar-ctrl.discount.
 def new shared var v-return as log init no.
 
+DEFINE VARIABLE dCostFreight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostWarehouse AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -579,7 +583,8 @@ FOR EACH ar-inv
                              output v-cost[1], output v-cost[2],
                              output v-cost[3], output v-cost[4],
                              output v-u-cost, OUTPUT cCostUOM, 
-                             output v-t-cost, OUTPUT cCostSource).
+                             output v-t-cost, OUTPUT cCostSource,
+                             OUTPUT dCostFreight, OUTPUT dCostWarehouse, OUTPUT dCostDeviation).
 
           run oe/invposty.p (ar-inv.inv-no, ar-invl.i-no, ar-invl.inv-qty,
                              "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4]).

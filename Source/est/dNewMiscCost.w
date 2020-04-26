@@ -1519,7 +1519,7 @@ PROCEDURE pDisplayValue :
                     AND probe.probe-date ne ? NO-ERROR .
                        
                IF AVAIL probe THEN               
-               dEaCost1:SCREEN-VALUE = STRING(probe.sell-price) . 
+               dEaCost1:SCREEN-VALUE = STRING(probe.sell-price / 1000). 
                
                FIND FIRST cust NO-LOCK
                     WHERE cust.company EQ eb.company
