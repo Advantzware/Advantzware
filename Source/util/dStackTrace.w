@@ -1,5 +1,9 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+          asi              PROGRESS
+          audit            PROGRESS
+*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
@@ -29,6 +33,7 @@ DEF INPUT PARAMETER ipcUserID AS CHAR NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEF VAR iCtr AS INT NO-UNDO.
+/*DEF VAR ipcUserID AS CHAR INITIAL "mark" NO-UNDO.*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -43,11 +48,39 @@ DEF VAR iCtr AS INT NO-UNDO.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
+&Scoped-define BROWSE-NAME BROWSE-2
+
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES AuditHdr prgrms
+
+/* Definitions for BROWSE BROWSE-2                                      */
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 AuditHdr.AuditUser ~
+AuditHdr.AuditDateTime AuditHdr.AuditKey prgrms.prgtitle 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH AuditHdr ~
+      WHERE AuditHdr.AuditUser = ipcUserID and  ~
+date(auditHdr.auditDateTime) GT (today - 7) and ~
+auditHdr.auditKey ne "" NO-LOCK, ~
+      EACH prgrms WHERE prgrms.prgmname = AuditHdr.AuditTable NO-LOCK ~
+    BY AuditHdr.AuditDateTime DESCENDING INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY BROWSE-2 FOR EACH AuditHdr ~
+      WHERE AuditHdr.AuditUser = ipcUserID and  ~
+date(auditHdr.auditDateTime) GT (today - 7) and ~
+auditHdr.auditKey ne "" NO-LOCK, ~
+      EACH prgrms WHERE prgrms.prgmname = AuditHdr.AuditTable NO-LOCK ~
+    BY AuditHdr.AuditDateTime DESCENDING INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-BROWSE-2 AuditHdr prgrms
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 AuditHdr
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-2 prgrms
+
+
+/* Definitions for DIALOG-BOX Dialog-Frame                              */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
+    ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS eInstructions fiTxnDtTm eStackTrace bPrev ~
-bNext bExit 
-&Scoped-Define DISPLAYED-OBJECTS eInstructions fiTxnDtTm eStackTrace 
+&Scoped-Define ENABLED-OBJECTS eInstructions bExit BROWSE-2 
+&Scoped-Define DISPLAYED-OBJECTS eInstructions 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -68,42 +101,39 @@ DEFINE BUTTON bExit
      SIZE 8 BY 1.67 TOOLTIP "Exit"
      BGCOLOR 8 .
 
-DEFINE BUTTON bNext 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U
-     LABEL "" 
-     SIZE 8 BY 1.67 TOOLTIP "Next".
-
-DEFINE BUTTON bPrev 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U
-     LABEL "" 
-     SIZE 8 BY 1.67 TOOLTIP "Previous".
-
 DEFINE VARIABLE eInstructions AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 86 BY 4 NO-UNDO.
+     SIZE 86 BY 2.14 NO-UNDO.
 
-DEFINE VARIABLE eStackTrace AS CHARACTER 
-     VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 75 BY 16.19 NO-UNDO.
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY BROWSE-2 FOR 
+      AuditHdr, 
+      prgrms SCROLLING.
+&ANALYZE-RESUME
 
-DEFINE VARIABLE fiTxnDtTm AS DATETIME FORMAT "99/99/99 HH:MM:SS":U 
-     LABEL "Date/Time of Transaction" 
-     VIEW-AS FILL-IN NATIVE 
-     SIZE 38 BY 1 NO-UNDO.
+/* Browse definitions                                                   */
+DEFINE BROWSE BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 Dialog-Frame _STRUCTURED
+  QUERY BROWSE-2 NO-LOCK DISPLAY
+      AuditHdr.AuditUser FORMAT "x(16)":U WIDTH 16.2
+      AuditHdr.AuditDateTime COLUMN-LABEL "Date/Time" FORMAT "99/99/9999 HH:MM:SS":U
+      AuditHdr.AuditKey COLUMN-LABEL "Menu Item" FORMAT "x(16)":U
+            WIDTH 11.4
+      prgrms.prgtitle COLUMN-LABEL "Function" FORMAT "X(30)":U
+            WIDTH 56.4
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 113 BY 18.81 ROW-HEIGHT-CHARS .62 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
      eInstructions AT ROW 1.48 COL 4 NO-LABEL
-     fiTxnDtTm AT ROW 5.76 COL 28 COLON-ALIGNED NO-TAB-STOP 
-     eStackTrace AT ROW 6.95 COL 4 NO-LABEL
-     bPrev AT ROW 11.95 COL 82
-     bNext AT ROW 14.33 COL 82
-     bExit AT ROW 21.48 COL 82
-     SPACE(3.59) SKIP(0.51)
+     bExit AT ROW 1.71 COL 108
+     BROWSE-2 AT ROW 4.1 COL 4
+     SPACE(2.39) SKIP(0.41)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Stack Trace for User".
@@ -126,6 +156,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
+/* BROWSE-TAB BROWSE-2 bExit Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -133,10 +164,31 @@ ASSIGN
 ASSIGN 
        eInstructions:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
-ASSIGN 
-       fiTxnDtTm:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
-
 /* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
+/* Query rebuild information for BROWSE BROWSE-2
+     _TblList          = "audit.AuditHdr,asi.prgrms WHERE audit.AuditHdr ..."
+     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _OrdList          = "audit.AuditHdr.AuditDateTime|no"
+     _Where[1]         = "audit.AuditHdr.AuditUser = ipcUserID and 
+date(auditHdr.auditDateTime) GT (today - 7) and
+auditHdr.auditKey ne """""
+     _JoinCode[2]      = "asi.prgrms.prgmname = audit.AuditHdr.AuditTable"
+     _FldNameList[1]   > audit.AuditHdr.AuditUser
+"audit.AuditHdr.AuditUser" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > audit.AuditHdr.AuditDateTime
+"audit.AuditHdr.AuditDateTime" "Date/Time" "99/99/9999 HH:MM:SS" "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > audit.AuditHdr.AuditKey
+"audit.AuditHdr.AuditKey" "Menu Item" ? "character" ? ? ? ? ? ? no ? no no "11.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > asi.prgrms.prgtitle
+"asi.prgrms.prgtitle" "Function" ? "character" ? ? ? ? ? ? no ? no no "56.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Query            is OPENED
+*/  /* BROWSE BROWSE-2 */
 &ANALYZE-RESUME
 
  
@@ -159,70 +211,10 @@ END.
 &Scoped-define SELF-NAME bExit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bExit Dialog-Frame
 ON CHOOSE OF bExit IN FRAME Dialog-Frame
-OR CHOOSE OF bNext 
-OR CHOOSE OF bPrev
 DO:
     CASE SELF:NAME:
         WHEN "bExit" THEN DO: 
             APPLY 'go' TO FRAME dialog-frame.
-        END.
-        WHEN "bPrev" THEN DO:
-            /* This is counter-intuitive, but index is ASCENDING and we want the next MOST recent */
-            FIND NEXT audithdr NO-LOCK 
-            USE-INDEX auditdatetime WHERE 
-                audituser = ipcUserID AND 
-                audithdr.auditstackid NE 0 
-                NO-ERROR. 
-            IF NOT AVAIL audithdr THEN DO:
-                ASSIGN 
-                    SELF:SENSITIVE = FALSE.
-                RETURN NO-APPLY.
-            END.
-            ELSE DO:
-                ASSIGN
-                    SELF:SENSITIVE = TRUE 
-                    bPrev:SENSITIVE = TRUE  
-                    fiTxnDtTm:SCREEN-VALUE = STRING(auditHdr.auditdatetime)
-                    eStackTrace:SCREEN-VALUE = "".
-                FIND auditstack NO-LOCK WHERE  
-                    auditStack.auditstackid EQ  audithdr.auditstackid
-                    NO-ERROR.
-                IF NOT AVAIL auditstack THEN RETURN.
-                ELSE DO ictr = 1 TO NUM-ENTRIES(auditstack.auditstack):    
-                    ASSIGN  
-                        eStackTrace:SCREEN-VALUE = eStackTrace:SCREEN-VALUE + ENTRY(iCtr,auditstack.auditstack) + CHR(10).
-                END.
-            END.
-            RETURN NO-APPLY.
-        END.
-        WHEN "bNext" THEN DO:
-            /* This is counter-intuitive, but index is ASCENDING and we want the next MOST recent */
-            FIND PREV audithdr NO-LOCK 
-                USE-INDEX auditdatetime WHERE 
-                audituser = ipcUserID AND 
-                audithdr.auditstackid NE 0 
-                NO-ERROR. 
-            IF NOT AVAIL audithdr THEN DO:
-                ASSIGN 
-                    SELF:SENSITIVE = FALSE.
-                RETURN NO-APPLY.
-            END.
-            ELSE DO:
-                ASSIGN
-                    SELF:SENSITIVE = TRUE 
-                    bPrev:SENSITIVE = TRUE  
-                    fiTxnDtTm:SCREEN-VALUE = STRING(auditHdr.auditdatetime)
-                    eStackTrace:SCREEN-VALUE = "".
-                FIND auditstack NO-LOCK WHERE  
-                    auditStack.auditstackid EQ  audithdr.auditstackid
-                    NO-ERROR.
-                IF NOT AVAIL auditstack THEN RETURN.
-                ELSE DO ictr = 1 TO NUM-ENTRIES(auditstack.auditstack):    
-                    ASSIGN 
-                        eStackTrace:SCREEN-VALUE = eStackTrace:SCREEN-VALUE + ENTRY(iCtr,auditstack.auditstack) + CHR(10).
-                END.
-            END.
-            RETURN NO-APPLY.
         END.
     END CASE.  
 END.
@@ -231,6 +223,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME BROWSE-2
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -250,53 +243,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   
-    FIND LAST audithdr NO-LOCK 
-    USE-INDEX auditdatetime WHERE 
-        audituser = ipcUserID AND 
-        audithdr.auditstackid NE 0 
-        NO-ERROR. 
-    IF NOT AVAIL audithdr THEN RETURN.
-    ELSE DO:
-        FIND auditstack NO-LOCK WHERE  
-            auditStack.auditstackid EQ  audithdr.auditstackid
-            NO-ERROR.
-        IF NOT AVAIL auditstack THEN RETURN.
-        ELSE DO ictr = 1 TO NUM-ENTRIES(auditstack.auditstack):    
-            ASSIGN 
-                eStackTrace:SCREEN-VALUE = eStackTrace:SCREEN-VALUE + ENTRY(iCtr,auditstack.auditstack) + CHR(10).
-        END.
-    END.
-  
     ASSIGN 
-        bPrev:SENSITIVE = FALSE 
-        FRAME dialog-frame:TITLE = "Stack Trace for User " + ipcUserID
-        bPrev:SENSITIVE = FALSE 
-        eInstructions:SCREEN-VALUE = 
-            "The list below displays the programs that were in use the last time user " + CAPS(ipcUserID) + " initiated a system transaction. " +
-            "System transactions include ADD, CHANGE, and DELETE actions.  If your site allows multiple users to use the same ASI " +
-            "login, or if a user has a LOCK on an uncommitted transaction, this list might be deceptive." + CHR(10) +
-            "You can use the UP/DOWN arrows to search for other transactions for this user.".
-    
-    FIND LAST audithdr NO-LOCK 
-        USE-INDEX auditdatetime WHERE 
-        audituser = ipcUserID AND 
-        audithdr.auditstackid NE 0 
-        NO-ERROR. 
-    IF NOT AVAIL audithdr THEN RETURN.
-    ELSE 
-    DO:
-        ASSIGN 
-            fiTxnDtTm:SCREEN-VALUE = STRING(audithdr.auditDateTime).
-        FIND auditstack NO-LOCK WHERE  
-            auditStack.auditstackid EQ  audithdr.auditstackid
-            NO-ERROR.
-        IF NOT AVAIL auditstack THEN RETURN.
-        ELSE 
-        DO ictr = 1 TO NUM-ENTRIES(auditstack.auditstack):    
-            ASSIGN 
-                eStackTrace:SCREEN-VALUE = eStackTrace:SCREEN-VALUE + ENTRY(iCtr,auditstack.auditstack) + CHR(10).
-        END.
-    END.
+        FRAME dialog-frame:TITLE = "Function History for User: " + CAPS(ipcUserID)
+        eInstructions:SCREEN-VALUE IN FRAME {&frame-name} =
+            "This table lists the menu choices made by the selected user (beginning with the most recent) in the last seven days."
+        .
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -336,9 +287,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY eInstructions fiTxnDtTm eStackTrace 
+  DISPLAY eInstructions 
       WITH FRAME Dialog-Frame.
-  ENABLE eInstructions fiTxnDtTm eStackTrace bPrev bNext bExit 
+  ENABLE eInstructions bExit BROWSE-2 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

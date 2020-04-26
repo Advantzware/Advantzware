@@ -60,6 +60,8 @@ DEF VAR cThisUser AS CHAR NO-UNDO.
 DEF VAR lExclusive AS LOG NO-UNDO.
 DEF VAR cMyUser AS CHAR NO-UNDO.
 DEF VAR iMyLevel AS INT NO-UNDO.
+DEF VAR lTraceOn AS LOG NO-UNDO.
+
 
 {src/adm2/widgetprto.i}
 
@@ -594,7 +596,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Show_User_Stack_Trace wWin
 ON CHOOSE OF MENU-ITEM m_Show_User_Stack_Trace /* Show User Stack Trace */
 DO:
-    RUN util/dStackTrace.w (cThisUser).
+    IF lTraceOn THEN 
+        RUN util/dStackTrace.w (cThisUser).
+    ELSE MESSAGE 
+        "This function is not available for this user." SKIP 
+        "To correct, turn on the Track Usage option in" SKIP 
+        "User Maintenance (NU3)."
+        VIEW-AS ALERT-BOX ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -991,6 +999,14 @@ PROCEDURE pGetUser :
 ------------------------------------------------------------------------------*/
     hThisUser = hBrowse:GET-BROWSE-COLUMN (2).
     cThisUser = hThisUser:SCREEN-VALUE.
+    
+    FIND FIRST users NO-LOCK WHERE 
+        users.user_id = cThisUser
+        NO-ERROR.
+    IF AVAIL users 
+    AND users.track_usage THEN ASSIGN 
+        lTraceOn = TRUE.
+    ELSE ASSIGN lTraceOn = FALSE.
 
 END PROCEDURE.
 
