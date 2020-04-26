@@ -1,4 +1,6 @@
-
+DEFINE VARIABLE iNumRecords AS INTEGER NO-UNDO.
+DEFINE VARIABLE iInvoiceXNo AS INTEGER NO-UNDO.
+  
 IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
 
 IF fi_inv-no NE 0 THEN DO:
