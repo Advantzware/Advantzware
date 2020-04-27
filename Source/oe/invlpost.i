@@ -86,6 +86,7 @@ assign
  ar-invl.costStdFreight = inv-line.costStdFreight
  ar-invl.costStdWarehouse = inv-line.costStdWarehouse
  ar-invl.costStdDeviation = inv-line.costStdDeviation
+ ar-invl.costStdManufacture = inv-line.costStdManufacture
  .
 
  

@@ -27,6 +27,7 @@ DEFINE OUTPUT PARAMETER opcCostSource                   AS   CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostFreight                  AS   DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostWarehouse                AS   DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostDeviation                AS   DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdCostManufacture              AS   DECIMAL NO-UNDO.
 
 DEFINE VARIABLE hdCostProcs         AS HANDLE.
 
@@ -47,4 +48,5 @@ RUN GetCostForInvoiceLine IN hdCostProcs (ipriInvl,
     OUTPUT opcCostSource,
     OUTPUT opdCostFreight,
     OUTPUT opdCostWarehouse,
-    OUTPUT opdCostDeviation).
+    OUTPUT opdCostDeviation,
+    OUTPUT opdCostManufacture).

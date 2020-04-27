@@ -244,6 +244,21 @@ PROCEDURE EstCost_GetHeaderCostFreight:
     
 END PROCEDURE.
 
+PROCEDURE EstCost_GetHeaderCostFarm:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for warehousing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "matNoWaste", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
 PROCEDURE EstCost_GetHeaderCostWarehouse:
     /*------------------------------------------------------------------------------
      Purpose:  Given an estimate number, get the total cost for warehousing

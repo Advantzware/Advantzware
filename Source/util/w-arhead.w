@@ -988,6 +988,7 @@ PROCEDURE build-ar-lines :
            ar-invl.costStdFreight = inv-line.costStdFreight
            ar-invl.costStdWarehouse = inv-line.costStdWarehouse
            ar-invl.costStdDeviation = inv-line.costStdDeviation
+           ar-invl.costStdManufacture = inv-line.costStdManufacture
                
            ar-invl.std-tot-cost = inv-line.cost
            ar-invl.std-lab-cost = IF AVAIL itemfg THEN itemfg.std-lab-cost

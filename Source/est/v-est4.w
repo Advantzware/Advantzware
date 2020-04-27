@@ -2178,7 +2178,7 @@ PROCEDURE pUpdateRecord :
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
 
-   IF AVAIL est AND  est.estimateTypeID = "MISC" AND AVAIL eb  THEN do:
+   IF AVAIL est AND  est.estimateTypeID = "MISC" AND AVAIL eb AND eb.sourceEstimate EQ "" THEN do:
        RUN est/dNewMiscCost.w(INPUT ROWID(eb)) .
        RUN local-display-fields.
        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"upd-farm-target",OUTPUT char-hdl).

@@ -113,11 +113,15 @@ PROCEDURE pBuildQuantitiesAndCosts PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
     
     DEFINE VARIABLE iCount AS INTEGER.
+    DEFINE VARIABLE cEstNo AS CHARACTER.
     
     EMPTY TEMP-TABLE ttQuantityCost.
+    cEstNo = ipbf-eb.sourceEstimate.
+    RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
+ 
     FIND FIRST est NO-LOCK 
         WHERE est.company EQ ipbf-eb.company
-        AND TRIM(est.est-no) EQ TRIM(ipbf-eb.sourceEstimate)
+        AND est.est-no EQ cEstNo
         NO-ERROR.
     IF AVAILABLE est THEN 
     DO iCount = 1 TO EXTENT(est.est-qty):
@@ -130,19 +134,19 @@ PROCEDURE pBuildQuantitiesAndCosts PRIVATE:
     FOR EACH ttQuantityCost:
         FIND FIRST probe NO-LOCK 
             WHERE probe.company EQ ipbf-eb.company
-            AND TRIM(probe.est-no) EQ TRIM(ipbf-eb.sourceEstimate)
+            AND probe.est-no EQ cEstNo
             AND probe.est-qty EQ ttQuantityCost.iQty
             NO-ERROR.
         IF NOT AVAILABLE probe THEN 
             FIND FIRST probe NO-LOCK 
                 WHERE probe.company EQ ipbf-eb.company
-                AND TRIM(probe.est-no) EQ TRIM(ipbf-eb.sourceEstimate)
+                AND probe.est-no EQ cEstNo
                 AND probe.est-qty GT ttQuantityCost.iQty
                 NO-ERROR.
         IF NOT AVAILABLE probe THEN 
             FIND FIRST probe NO-LOCK 
                 WHERE probe.company EQ ipbf-eb.company
-                AND TRIM(probe.est-no) EQ TRIM(ipbf-eb.sourceEstimate)
+                AND probe.est-no EQ cEstNo
                 NO-ERROR.
         IF AVAILABLE probe THEN 
             ttQuantityCost.dCost = probe.sell-price / 1000.

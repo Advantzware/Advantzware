@@ -468,7 +468,7 @@ FOR EACH ar-inv
                      OUTPUT v-cost[3], OUTPUT v-cost[4],
                      OUTPUT ar-invl.cost, OUTPUT ar-invl.spare-char-2, 
                      OUTPUT ar-invl.t-cost, OUTPUT ar-invl.spare-char-1,
-                     OUTPUT ar-invl.costStdFreight, OUTPUT ar-invl.costStdWarehouse, OUTPUT ar-invl.costStdDeviation).
+                     OUTPUT ar-invl.costStdFreight, OUTPUT ar-invl.costStdWarehouse, OUTPUT ar-invl.costStdDeviation, OUTPUT ar-invl.costStdManufacture).
 
   ASSIGN
    ar-invl.dscr[1] = "M"
@@ -504,7 +504,7 @@ FOR EACH inv-head
                      OUTPUT v-cost[3], OUTPUT v-cost[4],
                      OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
                      OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1,
-                     OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation).
+                     OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation, OUTPUT inv-line.costStdManufacture).
 
   inv-head.t-inv-cost = inv-head.t-inv-cost + inv-line.t-cost.
 END.

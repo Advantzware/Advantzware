@@ -1121,7 +1121,7 @@ PROCEDURE list-post-inv :
                 OUTPUT v-cost[3], OUTPUT v-cost[4],
                 OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
                 OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1,
-                OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation).
+                OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation, OUTPUT inv-line.costStdManufacture).
                 
             w-inv-line.t-cost = inv-line.t-cost.
             IF inv-line.inv-qty NE 0 AND
