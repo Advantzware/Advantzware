@@ -64,7 +64,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "Level Quantity 3,Level Quantity 4," + /*2*/
                             "Level Quantity 5,Level Quantity 6," + /*2*/
                             "Level Quantity 7,Level Quantity 8," + /*2*/
-                            "Level Quantity 9,Level Quantity 10,Product Category"  /*2*/
+                            "Level Quantity 9,Level Quantity 10,Product Category,Update Linked Estimate"  /*3*/
                             
        cFieldListToSelect = "itemType,itemID,vendorID,customerID,estimateNo,formNo,blankNo," +
                             "vendorItemID,effectiveDate,expirationDate,vendorUOM," +
@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "levelQuantity3,levelQuantity4," +
                             "levelQuantity5,levelQuantity6," +
                             "levelQuantity7,levelQuantity8," +
-                            "levelQuantity9,levelQuantity10,pro-cat".
+                            "levelQuantity9,levelQuantity10,pro-cat,update-link-est".
 
 {sys/inc/ttRptSel.i}
 
@@ -86,7 +86,7 @@ ASSIGN cTextListToSelect = "Item Type,Item Id,Vendor,Customer,Estimate,Form,Blan
                             "Level Quantity 3,Level Quantity 4,"  + /*2*/
                             "Level Quantity 5,Level Quantity 6,"  + /*2*/
                             "Level Quantity 7,Level Quantity 8,"  + /*2*/
-                            "Level Quantity 9,Level Quantity 10"  /*2*/ .
+                            "Level Quantity 9,Level Quantity 10,Update Linked Estimate"  /*3*/ .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1167,7 +1167,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
 
     FOR EACH ttRptSelected:
 
-        IF lookup(ttRptSelected.FieldList,"levelQuantity1,levelQuantity2,levelQuantity3,levelQuantity4,levelQuantity5,levelQuantity6,levelQuantity7,levelQuantity8,levelQuantity9,levelQuantity10,effectiveDate") EQ 0 THEN do:
+        IF lookup(ttRptSelected.FieldList,"levelQuantity1,levelQuantity2,levelQuantity3,levelQuantity4,levelQuantity5,levelQuantity6,levelQuantity7,levelQuantity8,levelQuantity9,levelQuantity10,effectiveDate,update-link-est") EQ 0 THEN do:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue(BUFFER vendItemCost,ttRptSelected.FieldList)).
         END.
@@ -1175,6 +1175,14 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
             IF vendItemCost.effectiveDate LE 01/01/1900 THEN
              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string("01/01/1900")).
             ELSE v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCost.effectiveDate,"99/99/9999")).
+        END.
+         ELSE IF ttRptSelected.FieldList EQ "update-link-est" THEN do:
+          FIND FIRST eb NO-LOCK
+               WHERE eb.company EQ cocode
+               AND trim(eb.est-no) EQ TRIM(vendItemCost.estimateNo) NO-ERROR.
+               IF AVAIL eb AND eb.sourceEstimate NE "" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(YES)).
+               ELSE v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string("Yes")).
         END.
         ELSE do:
            i = 1 .
@@ -1186,7 +1194,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity1"  THEN do:
                          IF i EQ 1 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1196,7 +1204,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity2" THEN DO:
                          IF i EQ 2 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1206,7 +1214,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity3"  THEN DO:
                          IF i EQ 3 THEN do:
                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1216,7 +1224,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity4" THEN DO:
                          IF i EQ 4 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1226,7 +1234,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity5"  THEN DO:
                          IF i EQ 5 THEN do:
                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1236,7 +1244,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity6" THEN do:
                          IF i EQ 6 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1246,7 +1254,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity7" THEN DO:
                          IF i EQ 7 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1256,7 +1264,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity8" THEN DO:
                          IF i EQ 8 THEN do:
                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1266,7 +1274,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity9"  THEN DO:
                          IF i EQ 9 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
@@ -1276,7 +1284,7 @@ FOR EACH vendItemCost WHERE vendItemCost.company = cocode
                        WHEN "levelQuantity10" THEN DO:
                          IF i EQ 10 THEN do:
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.quantityBase,">>>>>>9.9<<")).
-                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>9.9999")).
+                           v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costPerUOM,">>>>>>9.9999")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costSetup,"->>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.costDeviation,"->>>>>>9.99")).
                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(vendItemCostLevel.leadTimeDays,">>>>>>9")).
