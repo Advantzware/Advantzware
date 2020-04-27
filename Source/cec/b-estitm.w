@@ -6966,9 +6966,12 @@ PROCEDURE pCreateMiscEstimate :
         AND ROWID(bff-eb) EQ riEb NO-ERROR .
 
 
-  IF AVAIL bff-eb THEN
-      RUN est/dNewMiscCost.w( INPUT riEb ) .
-
+  IF AVAIL bff-eb THEN DO:
+      IF bff-eb.sourceEstimate NE "" THEN 
+        RUN est/BuildFarmForLogistics.p (INPUT riEb).
+      ELSE 
+        RUN est/dNewMiscCost.w( INPUT riEb ) .
+  END.
   IF iCount > 0 AND AVAIL bff-eb THEN do:
       
       RUN CreateEstReleaseForEstBlank(INPUT riEb, OUTPUT iEstReleaseID ,
