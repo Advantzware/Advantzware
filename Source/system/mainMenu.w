@@ -1572,7 +1572,10 @@ PROCEDURE pCheckUpgradeAdvantzware :
                     OUTPUT upgradeLink,OUTPUT lFound
                     ).
                 OS-COMMAND NO-WAIT START VALUE(upgradeLink).
-                APPLY 'window-close' TO {&window-name}.
+                /* Same as window close, without the Exit? dialog box */
+                RUN pSetUserSettings (NO).
+                RUN system/userLogOut.p (NO, 0).
+                QUIT. /* kills all processes */
             END. /* different version */
             ELSE
             RUN displayMessage ("24").
