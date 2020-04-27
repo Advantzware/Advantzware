@@ -2515,7 +2515,7 @@ PROCEDURE setFarmTab :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+  DEFINE VARIABLE phandle  AS HANDLE NO-UNDO. 
   {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
 
 END PROCEDURE.

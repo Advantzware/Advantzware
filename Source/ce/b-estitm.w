@@ -4598,8 +4598,9 @@ PROCEDURE mass-delete :
                AND bf-ef.est-no  EQ tt-eb.est-no 
                AND bf-ef.form-no EQ tt-eb.form-no NO-ERROR .
         RUN repo-query (ROWID(bf-ef), tt-eb.row-id).
-        IF AVAILABLE eb THEN 
+        IF AVAILABLE eb AND eb.est-no EQ tt-eb.est-no THEN 
             RUN dispatch ("delete-record").
+            
     END.
   END.
 
