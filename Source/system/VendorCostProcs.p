@@ -483,6 +483,8 @@ PROCEDURE GetVendorCost:
     DEFINE VARIABLE dCostPerUOMUpcharge  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCostPerUOMBase      AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lIsSelected          AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dCostDeviation       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iLeadDays            AS INTEGER NO-UNDO.
     
     RUN pSetGlobalSettings(ipcCompany).
     RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
@@ -503,6 +505,7 @@ PROCEDURE GetVendorCost:
         RUN pGetVendorCosts(BUFFER bf-vendItemCost, dQuantityInVendorUOM, ipdDimLength, ipdDimWidth, ipcDimUOM, 
             OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT dCostPerUOMUpcharge, OUTPUT dCostPerUOMBase,
             OUTPUT opdCostTotal, OUTPUT lIsSelected, 
+            OUTPUT iLeadDays, OUTPUT dCostDeviation,
             OUTPUT oplError, INPUT-OUTPUT opcMessage).
         opdCostPerUOM = opdCostPerUOM + dCostPerUOMUpcharge.
         
@@ -739,6 +742,7 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
             ttVendItemCost.dimLengthInVendorDimUOM, ttVendItemCost.dimWidthInVendorDimUOM, ttVendItemCost.dimUOM, 
             OUTPUT ttVendItemCost.costPerVendorUOM, OUTPUT ttVendItemCost.costSetup, OUTPUT ttVendItemCost.costPerVendorUOMUpcharge, OUTPUT ttVendItemCost.costPerVendorUOMBase, 
             OUTPUT ttVendItemCost.costTotal, OUTPUT ttVendItemCost.isSelected,
+            OUTPUT ttVendItemCost.leadDays, OUTPUT ttVendItemCost.costDeviation,
             OUTPUT oplError, INPUT-OUTPUT opcMessage).
         IF oplError THEN 
             ASSIGN 
@@ -1416,6 +1420,8 @@ PROCEDURE pGetCostsForVendItemCost PRIVATE:
     DEFINE OUTPUT PARAMETER opdCostPerUOM AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplIsSelected AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiLeadTime AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostDeviation AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
  
@@ -1431,11 +1437,13 @@ PROCEDURE pGetCostsForVendItemCost PRIVATE:
             NO-ERROR.
     IF AVAILABLE bf-vendItemCostLevel THEN 
         ASSIGN
-            opdCostPerUOM = bf-vendItemCostLevel.costPerUOM
-            opdCostSetup  = bf-vendItemCostLevel.costSetup
-            oplIsSelected = bf-vendItemCostLevel.useForBestCost
-            oplError      = NO
-            iopcMessage   = iopcMessage + " in range." 
+            opdCostPerUOM    = bf-vendItemCostLevel.costPerUOM
+            opdCostSetup     = bf-vendItemCostLevel.costSetup
+            oplIsSelected    = bf-vendItemCostLevel.useForBestCost
+            opiLeadTime      = bf-vendItemCostLevel.leadTimeDays
+            opdCostDeviation = bf-vendItemCostLevel.costDeviation
+            oplError         = NO
+            iopcMessage      = iopcMessage + " in range." 
             .  
     ELSE 
         ASSIGN 
@@ -1794,9 +1802,11 @@ PROCEDURE pGetVendorCosts PRIVATE:
      converted to the vendorUOM.
      Notes:
      Syntax: 
-         RUN pGetVendorCosts(BUFFER ipbf-vendItemCost, dQuantityInVendorUOM, ipdDimLength, ipdDimWidth, ipdDimUOM, 
-                OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT opdCostPerUOMUpcharge, OUTPUT opdCostTotal,
-                OUTPUT oplError, INPUT-OUTPUT iopcMessage).
+         RUN pGetVendorCosts(BUFFER bf-vendItemCost, dQuantityInVendorUOM, ipdDimLength, ipdDimWidth, ipcDimUOM, 
+            OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT dCostPerUOMUpcharge, OUTPUT dCostPerUOMBase,
+            OUTPUT opdCostTotal, OUTPUT lIsSelected, 
+            OUTPUT iLeadDays, OUTPUT dCostDeviation,
+            OUTPUT oplError, INPUT-OUTPUT opcMessage).
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
     DEFINE INPUT PARAMETER ipdQuantityInVendorUOM AS DECIMAL NO-UNDO.
@@ -1809,12 +1819,14 @@ PROCEDURE pGetVendorCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opdCostPerUOMBase AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplIsSelected AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiLeadDays AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostDeviation AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
 
 
     RUN pGetCostsForVendItemCost(BUFFER ipbf-vendItemCost, ipdQuantityInVendorUOM,
-        OUTPUT opdCostPerUOMBase, OUTPUT opdCostSetup, OUTPUT oplIsSelected, OUTPUT oplError, INPUT-OUTPUT iopcMessage).   
+        OUTPUT opdCostPerUOMBase, OUTPUT opdCostSetup, OUTPUT oplIsSelected, OUTPUT opiLeadDays, OUTPUT opdCostDeviation, OUTPUT oplError, INPUT-OUTPUT iopcMessage).   
     IF NOT oplError THEN 
     DO:
         RUN pGetUpchargeCostsForVendItemCost(BUFFER ipbf-vendItemCost, ipdDimLength, ipdDimWidth, ipcDimUOM, 
@@ -1940,6 +1952,7 @@ PROCEDURE VendCost_GetBestCost:
     DEFINE OUTPUT PARAMETER opcBestCostVendorUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdBestCostSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBestCostVendorID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdBestCostDeviation AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -1961,6 +1974,7 @@ PROCEDURE VendCost_GetBestCost:
             opdBestCostSetup    = ttVendItemCost.costSetup
             opcBestCostVendorID = ttVendItemCost.vendorID 
             opcBestCostVendorUOM    = ttVendItemCost.vendorUOM
+            opdBestCostDeviation    = ttVendItemCost.costDeviation
             .
         LEAVE.
     END. 
@@ -1975,6 +1989,7 @@ PROCEDURE VendCost_GetBestCost:
                 opdBestCostSetup    = ttVendItemCost.costSetup
                 opcBestCostVendorID = ttVendItemCost.vendorID 
                 opcBestCostVendorUOM    = ttVendItemCost.vendorUOM
+                opdBestCostDeviation    = ttVendItemCost.costDeviation
                 .
             LEAVE.
         END.         
@@ -2005,6 +2020,7 @@ PROCEDURE VendCost_GetWorstCost:
     DEFINE OUTPUT PARAMETER opcBestCostVendorUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdBestCostSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBestCostVendorID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdBestCostDeviation AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -2024,6 +2040,7 @@ PROCEDURE VendCost_GetWorstCost:
             opcBestCostVendorUOM    = ttVendItemCost.vendorUOM
             opdBestCostSetup    = ttVendItemCost.costSetup
             opcBestCostVendorID = ttVendItemCost.vendorID 
+            opdBestCostDeviation    = ttVendItemCost.costDeviation
             .
         RETURN.
     END. 

@@ -83,6 +83,9 @@ assign
  ar-invl.lot-no       = inv-line.lot-no
  ar-invl.e-num        = inv-line.e-num
  ar-invl.inv-date   = inv-head.inv-date
+ ar-invl.costStdFreight = inv-line.costStdFreight
+ ar-invl.costStdWarehouse = inv-line.costStdWarehouse
+ ar-invl.costStdDeviation = inv-line.costStdDeviation
  .
 
  
