@@ -1,7 +1,9 @@
 /* oe/j-oebolq.i */
 
-DEFINE VARIABLE lv-b-no LIKE oe-bolh.bol-no NO-UNDO.
-DEFINE VARIABLE iCount  AS INTEGER          NO-UNDO.
+DEFINE VARIABLE lv-b-no   LIKE oe-bolh.bol-no NO-UNDO.
+DEFINE VARIABLE iCount    AS INTEGER          NO-UNDO.
+DEFINE VARIABLE lFirst    AS LOGICAL INIT YES NO-UNDO.
+DEFINE VARIABLE iFirstBNo AS INTEGER          NO-UNDO.
 
 IF fi_bol-no NE 0 THEN DO:
     FIND FIRST oe-bolh NO-LOCK
@@ -67,6 +69,11 @@ ELSE IF fi_i-no NE "" THEN DO:
         BREAK BY oe-bolh.b-no DESCENDING:
         IF FIRST-OF(oe-bolh.b-no) THEN 
             iCount = iCount + 1.
+        IF lFirst THEN 
+            ASSIGN 
+                iFirstBNo = oe-bolh.b-no
+                lFirst    = NO
+                .    
         lv-b-no = oe-bolh.b-no.
         IF iCount GE 100 THEN 
             LEAVE.
@@ -75,6 +82,7 @@ ELSE IF fi_i-no NE "" THEN DO:
         OPEN QUERY {&browse-name}           ~
           {&for-each1}                      ~
               AND oe-boll.b-no GE lv-b-no   ~
+              AND oe-boll.b-no LE iFirstBNo ~
               USE-INDEX b-no NO-LOCK,       ~
               {&for-each2},                 ~
               {&for-each3}
@@ -96,16 +104,23 @@ ELSE IF fi_cust-no NE "" THEN DO:
         BREAK BY oe-bolh.b-no DESCENDING:
         IF FIRST-OF(oe-bolh.b-no) THEN 
             iCount = iCount + 1.
+        IF lFirst THEN 
+            ASSIGN 
+                iFirstBNo = oe-bolh.b-no
+                lFirst    = NO
+                .    
         lv-b-no = oe-bolh.b-no.
         IF iCount GE 100 THEN 
             LEAVE.
     END. 
-    &SCOPED-DEFINE open-query             ~
-        OPEN QUERY {&browse-name}         ~
-          {&for-each1}                    ~
-              AND oe-boll.b-no GE lv-b-no ~
-              USE-INDEX b-no NO-LOCK,     ~
-              {&for-each2},               ~
+
+    &SCOPED-DEFINE open-query               ~
+        OPEN QUERY {&browse-name}           ~
+          {&for-each1}                      ~
+              AND oe-boll.b-no GE lv-b-no   ~
+              AND oe-boll.b-no LE iFirstBNo ~
+              USE-INDEX b-no NO-LOCK,       ~
+              {&for-each2},                 ~
               {&for-each3} 
     
     IF ll-sort-asc THEN 
@@ -127,16 +142,22 @@ ELSE IF fi_part-no NE "" THEN DO:
          BREAK BY oe-bolh.b-no DESCENDING:
         IF FIRST-OF(oe-bolh.b-no) THEN 
             icount = icount + 1.
+        IF lFirst THEN 
+            ASSIGN 
+                iFirstBNo = oe-bolh.b-no
+                lFirst    = NO
+                .
         lv-b-no = oe-bolh.b-no.
         IF icount GE 100 THEN 
             LEAVE.
     END.
-    &SCOPED-DEFINE open-query       ~
-    OPEN QUERY {&browse-name}       ~
-    {&for-each11}                   ~
-        AND oe-boll.b-no GE lv-b-no ~
-        USE-INDEX b-no NO-LOCK ,     ~
-        {&for-each21},              ~
+    &SCOPED-DEFINE open-query         ~
+    OPEN QUERY {&browse-name}         ~
+    {&for-each11}                     ~
+        AND oe-boll.b-no GE lv-b-no   ~
+        AND oe-boll.b-no LE iFirstBNo ~
+        USE-INDEX b-no NO-LOCK ,      ~
+        {&for-each21},                ~
         {&for-each31} 
         
 IF ll-sort-asc THEN
@@ -162,16 +183,22 @@ ELSE DO:
             BREAK BY oe-bolh.b-no DESCENDING:
             IF FIRST-OF(oe-bolh.b-no) THEN 
                 icount = icount + 1.
+            IF lFirst THEN
+                ASSIGN 
+                    iFirstBNo = oe-bolh.b-no
+                    lFirst    = NO
+                    .                
             lv-b-no = oe-bolh.b-no.
             IF icount GE 100 THEN
                  LEAVE.
         END.
-        &SCOPED-DEFINE open-query           ~
-            OPEN QUERY {&browse-name}       ~
-            {&for-each11}                   ~
-                AND oe-boll.b-no GE lv-b-no ~
-                USE-INDEX b-no NO-LOCK,     ~
-                {&for-each21},              ~
+        &SCOPED-DEFINE open-query             ~
+            OPEN QUERY {&browse-name}         ~
+            {&for-each11}                     ~
+                AND oe-boll.b-no GE lv-b-no   ~
+                AND oe-bolh.b-no LE iFirstBNo ~
+                USE-INDEX b-no NO-LOCK,       ~
+                {&for-each21},                ~
                 {&for-each3} 
         IF ll-sort-asc THEN 
             {&open-query} {&sortby-phrase-asc}.
