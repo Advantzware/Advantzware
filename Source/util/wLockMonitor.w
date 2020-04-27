@@ -183,7 +183,7 @@ DEFINE VARIABLE eInstructions AS CHARACTER
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 154 BY 7.14 NO-UNDO.
 
-DEFINE VARIABLE fiDuration AS INTEGER FORMAT ">>>>>9":U INITIAL 0 
+DEFINE VARIABLE fiDuration AS INTEGER FORMAT ">>>>>9":U INITIAL 30 
      LABEL "Duration GT (secs)" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
@@ -796,6 +796,7 @@ PROCEDURE initializeObject :
             "You can EXPORT the contents of this list to a CSV file by entering a file name in the box below and pressing the Export button.". 
     
     APPLY 'value-changed' TO fiRefresh.
+    APPLY 'choose' TO bInstructions.
     APPLY 'entry' TO bRefresh.            
     APPLY 'choose' TO bRefresh.            
 
