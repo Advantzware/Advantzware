@@ -663,10 +663,17 @@ PROCEDURE local-enable-fields :
             DO WITH FRAME {&FRAME-NAME}:
             DISABLE  zMessage.msgID zMessage.module 
                 zMessage.hotKey zMessage.msgName zMessage.currSecLevel 
-                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType 
-                zMessage.rtnValue.
+                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType .
             END.
         END.
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/message.w", "Admin", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN DO:
+            DO WITH FRAME {&FRAME-NAME}:
+            DISABLE  zMessage.rtnValue.
+            END.
+        END.      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
