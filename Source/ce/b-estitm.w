@@ -4887,6 +4887,7 @@ PROCEDURE pEstimateCleanUp:
     
     DEFINE BUFFER bf-eb     FOR eb.
     DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-ef     FOR ef.
     
     IF cegoto-log OR (est.est-type EQ 4 AND old-bl-qty NE eb.bl-qty AND NOT ll-new-record AND NOT ll-tandem) THEN
         RUN run-goto.
@@ -5013,7 +5014,13 @@ PROCEDURE pEstimateCleanUp:
         END.
     END.
 
-    IF eb.pur-man THEN ef.nc = NO.
+    IF eb.pur-man THEN DO:
+        FIND FIRST bf-ef EXCLUSIVE-LOCK
+             WHERE ROWID(bf-ef) EQ ROWID(ef)
+             NO-ERROR.
+        IF AVAILABLE bf-ef THEN
+            bf-ef.nc = NO.
+    END.
     
     IF lCheckPurMan THEN DO:
         FIND FIRST bf-itemfg EXCLUSIVE-LOCK
