@@ -304,6 +304,7 @@ PROCEDURE pCalculateCostsFromEstimate PRIVATE:
     DEFINE OUTPUT PARAMETER opdFreight AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdWarehouse AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDeviation AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdManufacture AS DECIMAL NO-UNDO.
 
     DEFINE VARIABLE dFreightTotal AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dFreightPerM AS DECIMAL NO-UNDO.
@@ -311,6 +312,8 @@ PROCEDURE pCalculateCostsFromEstimate PRIVATE:
     DEFINE VARIABLE dWarehousePerM AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dDeviationTotal AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dDeviationPerM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dManufactureTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dManufacturePerM AS DECIMAL NO-UNDO.
     
     FIND FIRST oe-ordl NO-LOCK 
         WHERE oe-ordl.company EQ ipcCompany
@@ -321,11 +324,13 @@ PROCEDURE pCalculateCostsFromEstimate PRIVATE:
         RUN EstCost_GetHeaderCostFreight(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dFreightTotal, OUTPUT dFreightPerM).
         RUN EstCost_GetHeaderCostWarehouse(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dWarehouseTotal, OUTPUT dWarehousePerM).
         RUN EstCost_GetHeaderCostDeviation(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dDeviationTotal, OUTPUT dDeviationPerM).
+        RUN EstCost_GetHeaderCostFarm(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dManufactureTotal, OUTPUT dManufacturePerM).
     END.
     ASSIGN 
         opdFreight = dFreightPerM
         opdWarehouse = dWarehousePerM
         opdDeviation = dDeviationPerM
+        opdManufacture = dManufacturePerM
         .
 END PROCEDURE.
 
@@ -1037,6 +1042,7 @@ PROCEDURE GetCostForInvoiceLine:
     DEFINE OUTPUT PARAMETER opdCostFreight          AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostWarehouse        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostDeviation        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostManufacture      AS DECIMAL   NO-UNDO.
 
     DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iBNo          AS INTEGER   NO-UNDO.
@@ -1103,7 +1109,7 @@ PROCEDURE GetCostForInvoiceLine:
         IF opdCostPerUOMDM EQ ? THEN opdCostPerUOMDM = 0.
         opdCostTotalExtended = opdCostPerUOMTotal * dQtyInvoiced / 1000.
         
-        RUN pCalculateCostsFromEstimate(cCompany, iOrderNo, cFGItemID, OUTPUT opdCostFreight, OUTPUT opdCostWarehouse, OUTPUT opdCostDeviation).
+        RUN pCalculateCostsFromEstimate(cCompany, iOrderNo, cFGItemID, OUTPUT opdCostFreight, OUTPUT opdCostWarehouse, OUTPUT opdCostDeviation, OUTPUT opdCostManufacture).
     
     END.
     ELSE 

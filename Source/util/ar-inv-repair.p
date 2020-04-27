@@ -341,6 +341,7 @@ PROCEDURE CREATE-ar-invl.
                ar-invl.costStdFreight = inv-line.costStdFreight
                ar-invl.costStdWarehouse = inv-line.costStdWarehouse
                ar-invl.costStdDeviation = inv-line.costStdDeviation
+               ar-invl.costStdManufacture = inv-line.costStdManufacture
                .
 
                if ar-invl.ord-no eq 0 then ar-invl.s-pct[1] = 100. 

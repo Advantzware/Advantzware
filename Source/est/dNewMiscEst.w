@@ -735,9 +735,13 @@ DO:
 ON LEAVE OF cSEst IN FRAME D-Dialog /* Source Est */
 DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-   
+        DEFINE VARIABLE cEstNo AS CHARACTER NO-UNDO.
+        
         IF LASTKEY NE -1 THEN 
         DO:
+            cEstNo = cSEst:SCREEN-VALUE.
+            RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
+            cSEst:SCREEN-VALUE = cEstNo.
             RUN valid-est-no(OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.
         END.
@@ -2029,7 +2033,7 @@ PROCEDURE pGetEstDetail :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST bf-eb NO-LOCK
              WHERE bf-eb.company EQ cocode
-               AND trim(bf-eb.est-no) EQ trim(cSEst:SCREEN-VALUE)
+               AND bf-eb.est-no EQ cSEst:SCREEN-VALUE
                AND bf-eb.form-no NE 0 NO-ERROR.
                   
         IF AVAILABLE bf-eb THEN do:           
@@ -2412,7 +2416,7 @@ PROCEDURE valid-est-no :
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT CAN-FIND(FIRST b-eb
             WHERE b-eb.company  EQ gcompany
-            AND trim(b-eb.est-no)    EQ trim(cSEst:SCREEN-VALUE) )  THEN 
+            AND b-eb.est-no    EQ cSEst:SCREEN-VALUE)  THEN 
         DO:
             MESSAGE "Invalid Estimate, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO cSEst .
@@ -2420,7 +2424,7 @@ PROCEDURE valid-est-no :
         END.
         IF CAN-FIND(FIRST b-est
             WHERE b-est.company  EQ gcompany
-            AND trim(b-est.est-no)    EQ trim(cSEst:SCREEN-VALUE)
+            AND b-est.est-no    EQ cSEst:SCREEN-VALUE
             AND b-est.estimateTypeID EQ "MISC")  THEN 
         DO:
             MESSAGE "Estimate is already Misc estimate , try help..." VIEW-AS ALERT-BOX ERROR.

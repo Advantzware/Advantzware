@@ -131,7 +131,7 @@
                              output v-cost[3], output v-cost[4],
                              output inv-line.cost, OUTPUT inv-line.spare-char-2, 
                              OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1,
-                             OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation).
+                             OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation, OUTPUT inv-line.costStdManufacture).
                              
           w-inv-line.t-cost = inv-line.t-cost.
           if inv-line.inv-qty ne 0 and
