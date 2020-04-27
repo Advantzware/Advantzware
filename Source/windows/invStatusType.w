@@ -41,7 +41,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -90,14 +89,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-massdel AS HANDLE NO-UNDO.
 
-DEFINE VARIABLE h_p-updsav2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_invStatusTypeRes AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsavRes AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navicoRes AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -233,7 +225,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Price Matrix */
+ON END-ERROR OF W-Win /* Inventory Status Type */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -246,7 +238,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Price Matrix */
+ON WINDOW-CLOSE OF W-Win /* Inventory Status Type */
 DO:
     /* This ADM code must be left here in order for the SmartWindow
        and its descendents to terminate properly on exit. */
@@ -292,7 +284,7 @@ PROCEDURE adm-create-objects :
   Purpose:     Create handles for all SmartObjects used in this procedure.
                After SmartObjects are initialized, then SmartLinks are added.
   Parameters:  <none>
---------------------------------------------------- ---------------------------*/
+------------------------------------------------------------------------------*/
   DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
 
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
@@ -301,7 +293,6 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
-       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -346,11 +337,11 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_invStatusType , 'spec':U , h_options ).
+
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-       
-        /* Links to SmartObject h_options. */
-       RUN add-link IN adm-broker-hdl ( h_invStatusType , 'spec':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
@@ -361,22 +352,20 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
-       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/invStatusType.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_invStatusType ).
        RUN set-position IN h_invStatusType ( 4.57 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_invStatusType ( 19.52 , 150.00 ) NO-ERROR.
+       /* Size in UIB:  ( 19.81 , 143.00 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.         
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_invStatusType. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_invStatusType ).
        RUN add-link IN adm-broker-hdl ( h_invStatusType , 'Record':U , THIS-PROCEDURE ).
-      
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_invStatusType ,
@@ -394,7 +383,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_invStatusType-2 ).
        RUN set-position IN h_invStatusType-2 ( 5.00 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.19 , 142.00 ) */         
+       /* Size in UIB:  ( 9.05 , 100.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -403,7 +392,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 15.20 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 15.19 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -413,20 +402,17 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 15.20 , 47 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.        
+       RUN set-position IN h_p-updsav ( 15.19 , 47.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
-      
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_invStatusType-2. */
        RUN add-link IN adm-broker-hdl ( h_invStatusType , 'Record':U , h_invStatusType-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_invStatusType-2 ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_invStatusType-2 ).
-       
-             
-       
+      RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_invStatusType-2 ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_invStatusType-2 ,
              h_folder , 'AFTER':U ).
@@ -435,8 +421,6 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
-
-    
 
   END CASE.
   /* Select a Startup page. */
@@ -521,8 +505,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
@@ -584,7 +566,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
 PROCEDURE Select_Add :
 /*------------------------------------------------------------------------------
@@ -625,10 +606,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win
-PROCEDURE setUserExit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserExit W-Win 
+PROCEDURE setUserExit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -639,11 +618,9 @@ PROCEDURE setUserExit:
   
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
