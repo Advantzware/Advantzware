@@ -43,9 +43,7 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN system/Session.p     PERSISTENT SET hdSession.
 
 /* This is to get temporary path */
-RUN GetBarDirFilePath IN hdOutputProcs (
-    INPUT cCompany,
-    INPUT "temp", 
+RUN Output_GetTempFilePath IN hdOutputProcs (
     OUTPUT cPathDataFile
     ).
 
