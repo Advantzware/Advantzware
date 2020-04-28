@@ -517,13 +517,36 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate Dialog-Frame
 ON CHOOSE OF btUpdate IN FRAME Dialog-Frame /* Update */
 DO: 
-    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSets        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMultiBlanks AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-ttGoto FOR ttGoto.
+    
     lSaveUpdate = NOT lSaveUpdate.
+
+    IF (ttGoto.estType EQ 2 OR ttGoto.estType EQ 5 OR ttGoto.estType EQ 6) THEN
+        lSets = TRUE.
+     
+    IF lSets AND 
+       CAN-FIND(FIRST bf-ttGoto
+                WHERE bf-ttGoto.company  EQ ttGoto.company
+                  AND bf-ttGoto.location EQ ttGoto.location
+                  AND bf-ttGoto.estNo    EQ ttGoto.estNo 
+                  AND bf-ttGoto.formNo   EQ ttGoto.formNo
+                  AND ROWID(bf-ttGoto)   NE ROWID(ttGoto)) THEN
+        lMultiBlanks = TRUE.
 
     IF lSaveUpdate THEN DO:
         ENABLE {&ENABLE-FIELDS} WITH FRAME {&FRAME-NAME}.
+
+        IF lSets THEN
+            DISABLE fiReqQty WITH FRAME {&FRAME-NAME}.
+
+        IF lSets AND NOT lMultiBlanks THEN
+            DISABLE fiNumWid fiNumLen WITH FRAME {&FRAME-NAME}.
+        
         SELF:LABEL = "Calc".
         APPLY "ENTRY" TO fiFormNo.
     END.

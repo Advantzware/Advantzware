@@ -52,6 +52,7 @@ PROCEDURE Estimate_LoadEstToTT:
         CREATE ttGoto.
         ASSIGN
             ttGoto.company      = bf-eb.company
+            ttGoto.location     = bf-eb.loc
             ttGoto.estNo        = bf-eb.est-no
             ttGoto.formNo       = bf-eb.form-no
             ttGoto.blankNo      = bf-eb.blank-no
@@ -66,6 +67,7 @@ PROCEDURE Estimate_LoadEstToTT:
             ttGoto.numUp        = bf-eb.num-up
             ttGoto.yieldRequest = bf-eb.yrprice
             ttGoto.yldQty       = bf-eb.yld-qty            
+            ttGoto.eQty         = bf-eb.eqty
             ttGoto.ebRowid      = ROWID(bf-eb)
             .
         
@@ -99,7 +101,9 @@ PROCEDURE Estimate_LoadEstToTT:
             ELSE
                 ASSIGN
                     dReqQty  = bf-est.est-qty[1]
-                    dPartQty = bf-eb.quantityPerSet
+/*                  dPartQty = bf-eb.quantityPerSet*/ /* May have to assign dPartQty with new field eb.quantityPerSet. 
+                                                         Reverting back to eb.yld-qty due incosistency between legacy and new goto screen */ 
+                    dPartQty = bf-eb.yld-qty
                     .
     
             dPartQty = IF dPartQty LT 0 THEN

@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE TEMP-TABLE ttGoto NO-UNDO 
     FIELD company          AS CHARACTER 
+    FIELD location         AS CHARACTER
     FIELD estNo            AS CHARACTER
     FIELD eQty             AS DECIMAL
     FIELD formNo           AS INTEGER   FORMAT ">9":U            LABEL "Form"
