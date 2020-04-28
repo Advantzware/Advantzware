@@ -54,7 +54,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -72,7 +72,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.rm-i-no job-mat.qty job-mat.sc-uom job-mat.wid job-mat.len job-mat.n-up job-mat.qty-iss   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.rm-i-no job-mat.qty job-mat.qty-uom job-mat.wid job-mat.len job-mat.n-up job-mat.qty-iss   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK     ~{&SORTBY-PHRASE}
@@ -152,7 +152,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       job-mat.rm-i-no FORMAT "x(10)":U WIDTH 40
       job-mat.qty FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 30
-      job-mat.sc-uom FORMAT "x(3)":U WIDTH 18
+      job-mat.qty-uom FORMAT "x(3)":U WIDTH 18
       job-mat.wid FORMAT ">>9.99<<":U WIDTH 18
       job-mat.len FORMAT ">>9.99<<":U WIDTH 18
       job-mat.n-up COLUMN-LABEL "#  Up" FORMAT ">>9":U WIDTH 18
@@ -223,7 +223,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
