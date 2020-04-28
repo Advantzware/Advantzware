@@ -29,6 +29,7 @@ DEFINE VARIABLE lLogMeIn        AS LOG NO-UNDO.
 DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
 DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
 DEFINE VARIABLE lStrongDisconnect AS LOG NO-UNDO.
+DEFINE VARIABLE iUserLevel AS INT NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
@@ -128,7 +129,8 @@ ASSIGN
 /*        RETURN.                                                  */
 /*    END.                                                         */
     ELSE ASSIGN  
-        cUserName = users.user_name.
+        cUserName = users.user_name
+        iUserLevel = users.securityLevel.
 
 /* Verify user has "signed" the EULA agreement */
     cEulaFile = SEARCH("{&EulaFile}").
@@ -178,7 +180,7 @@ ASSIGN
     AND lPromptMultiSession THEN DO:
         /* user 'monitor' gets a free pass for multiple connections; everybody else counts */
         IF cCurrentUserID NE "monitor" 
-        AND cCurrentUserID NE "asi" THEN 
+        OR iUserLevel LT 1000 THEN 
             RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
         ELSE ASSIGN 
             cResponse = "".
