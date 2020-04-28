@@ -5496,11 +5496,14 @@ PROCEDURE final-steps2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER bf-oe-ordl FOR oe-ordl.
-DEF BUFFER bf-itemfg FOR itemfg.
-DEF BUFFER temp-itemfg FOR itemfg.
-DEF VAR v-q-back AS INT NO-UNDO.
-DEF VAR v-q-backl AS INT NO-UNDO.
+DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
+DEFINE BUFFER bf-itemfg   FOR itemfg.
+DEFINE BUFFER temp-itemfg FOR itemfg.
+
+DEFINE VARIABLE v-q-back     AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-q-backl    AS INTEGER NO-UNDO.
+DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
+
   IF NOT AVAIL oe-ord THEN
       FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                             AND oe-ord.ord-no  EQ oe-ordl.ord-no
@@ -5534,15 +5537,22 @@ DEF VAR v-q-backl AS INT NO-UNDO.
   END.
 
   DO TRANSACTION:     
-
-    IF oe-ord.type NE "T"                                                 AND
-       (lv-add-mode                                                   OR
+    IF oe-ord.type NE "T" AND
+       (lv-add-mode OR
         (NOT ip-type BEGINS "update-" AND
          (v-qty-mod OR oe-ordl.po-no-po EQ 0 OR lv-new-tandem NE ? OR
           NOT CAN-FIND(FIRST po-ord
                        WHERE po-ord.company EQ oe-ordl.company
-                         AND po-ord.po-no   EQ oe-ordl.po-no-po))))       THEN
-      RUN po/doPo.p (YES).
+                         AND po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
+        IF oe-ord.Pricehold THEN
+            RUN displayMessageQuestionLog(
+                INPUT "33",
+                OUTPUT lMsgResponse 
+                ).
+                           
+        IF lMsgResponse THEN
+            RUN po/doPo.p(YES).
+    END.
 
     FIND CURRENT oe-ordl.    
 

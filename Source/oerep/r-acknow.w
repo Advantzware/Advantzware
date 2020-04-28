@@ -2938,17 +2938,26 @@ FOR EACH oe-ord
       AND oe-ord.ord-date GE fdate
       AND oe-ord.ord-date LE tdate
       AND oe-ord.ack-prnt EQ v-reprint
-    NO-LOCK:    
-
-  CREATE report.
-  ASSIGN
-   report.term-id = v-term
-   report.rec-id  = RECID(oe-ord)
-   report.key-01 = STRING(oe-ord.ack-prnt).
+    NO-LOCK:     
+    IF oe-ord.priceHold THEN DO:
+        RUN DisplayMessage(
+            INPUT "32"
+            ).
+        NEXT.       
+    END.
+    
+    CREATE report.
+    ASSIGN
+        report.term-id = v-term
+        report.rec-id  = RECID(oe-ord)
+        report.key-01  = STRING(oe-ord.ack-prnt).
 
 END.
 
-{sys/inc/outprint.i VALUE(lines-per-page)}
+IF NOT AVAILABLE report THEN
+    RETURN.
+    
+ {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
 
