@@ -180,7 +180,7 @@ ASSIGN
     AND lPromptMultiSession THEN DO:
         /* user 'monitor' gets a free pass for multiple connections; everybody else counts */
         IF cCurrentUserID NE "monitor" 
-        OR iUserLevel LT 1000 THEN 
+        AND iUserLevel LT 1000 THEN 
             RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
         ELSE ASSIGN 
             cResponse = "".
