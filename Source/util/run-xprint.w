@@ -473,8 +473,8 @@ DO:
         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hOutputProcs).
          
            RUN run-report("",NO).
-
-        /*RUN GenerateReport("",NO).*/
+        IF rd-dest EQ 3 THEN
+        RUN GenerateReport("",YES).
         THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hOutputProcs). 
 
     END.
@@ -882,13 +882,13 @@ PROCEDURE run-report :
   
         CASE rd-dest:
             WHEN 1 THEN 
-                RUN Output_WriteToXprint(1,1,"<PRINTER?>",YES,NO,NO) .
+                RUN Output_WriteToXprint(1,1,"<PRINTER?>",YES,NO,NO,NO) .
             WHEN 2 THEN 
                 DO:
                 END.
             WHEN 3 THEN 
                 DO:
-                 RUN Output_WriteToXprint(1,1,"<PDF-OUTPUT=" + lv-pdf-file + ">",YES,NO,NO) .
+                 RUN Output_WriteToXprint(1,1,"<PDF-OUTPUT=" + lv-pdf-file + ">",YES,NO,NO,NO) .
                 END.
         END CASE.
     END.
@@ -896,6 +896,8 @@ PROCEDURE run-report :
     RUN pProgram . 
     
     RUN Output_Close.
+    
+    IF rd-dest NE 3 THEN
     RUN Output_PrintXprintFile(list-name).
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
