@@ -6,7 +6,7 @@
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
-{sys/inc/var.i SHARED}
+{-c/inc/var.i SHARED}
 {sys/form/s-top.f}
 
 DEFINE BUFFER xjob-mat FOR job-mat.
@@ -34,6 +34,7 @@ DEFINE VARIABLE ll-scored AS LOG NO-UNDO.
 DEFINE STREAM sOut.
 DEFINE VARIABLE cInLn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseNew AS LOG NO-UNDO.
+DEFINE VARIABLE cShipToChar AS CHAR NO-UNDO.
 
 DEFINE TEMP-TABLE tt-score NO-UNDO 
     FIELD tt-seq  AS INTEGER
@@ -177,7 +178,8 @@ IF gp-log AND gp-dir NE "" THEN
             CREATE ttPartnerValue.
             ASSIGN
                 ttPartnerValue.partnervalue = ENTRY(1,sys-ctrl-shipto.char-fld,"|")
-                lUseNew = TRUE.
+                lUseNew = TRUE
+                cShipToChar = sys-ctrl-shipto.char-fld.
         END.
  
          IF FIRST(po-ord.po-no) THEN DO:
@@ -215,10 +217,10 @@ IF gp-log AND gp-dir NE "" THEN
         ASSIGN
             sheetorder.customerpo = po-ord.po-no
             /* sheetorder.canonicalfile = " " */
-            sheetorder.purchasedby = IF lUseNew THEN CAPS(ENTRY(1, sys-ctrl-shipto.char-fld,"|")) ELSE po-ord.buyer
-            sheetorder.plantid = IF lUseNew THEN ENTRY(2, sys-ctrl-shipto.char-fld,"|") ELSE vend.name
-            sheetorder.billto = IF lUseNew THEN ENTRY(1, sys-ctrl-shipto.char-fld,"|") + " " + 
-                                ENTRY(2, sys-ctrl-shipto.char-fld,"|") ELSE company.name.
+            sheetorder.purchasedby = IF lUseNew THEN CAPS(ENTRY(1, cShipToChar,"|")) ELSE po-ord.buyer
+            sheetorder.plantid = IF lUseNew THEN ENTRY(2, cShipToChar,"|") ELSE vend.name
+            sheetorder.billto = IF lUseNew THEN ENTRY(1, cShipToChar,"|") + " " + 
+                                ENTRY(2, cShipToChar,"|") ELSE company.name.
 
         v-instr = "".
         FOR EACH notes WHERE notes.rec_key EQ po-ord.rec_key NO-LOCK:
@@ -512,7 +514,7 @@ IF gp-log AND gp-dir NE "" THEN
                 AND cInLn EQ "<sheetorder>" THEN
                     PUT STREAM sOut UNFORMATTED 
                          "<partnervalue>" +
-                         CAPS(ENTRY(1, sys-ctrl-shipto.char-fld,"|")) + 
+                         CAPS(ENTRY(1, cShipToChar,"|")) + 
                          "</partnervalue>" + CHR(10).
                          
                 PUT STREAM sOut UNFORMATTED cInln SKIP.
