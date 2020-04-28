@@ -310,7 +310,7 @@ FOR EACH report
 /*                           ELSE IF cBoard EQ ".012 ABC" THEN*/
 /*                            ASSIGN cBoard = "12PT/ABC/C1S". */
 /*                           ELSE                             */
-                            ASSIGN cBoard = cBoard + "/C1S".  
+                            ASSIGN cBoard = bf-item.est-dscr + "/C1S".
 /*                       END.  */
                        IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:
                         /*    IF AVAIL eb THEN                                  */
