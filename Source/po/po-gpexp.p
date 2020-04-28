@@ -9,7 +9,7 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 {-c/inc/var.i SHARED}
 {sys/form/s-top.f}
 
-DEFINE BUFFER xjob-mat FOR job-mat.
+DEFINE BUFFER xjob-mat FOR job-mat. 
 DEFINE BUFFER xitem    FOR item.
 DEFINE BUFFER b-ref1   FOR reftable.
 DEFINE BUFFER b-ref2   FOR reftable.
