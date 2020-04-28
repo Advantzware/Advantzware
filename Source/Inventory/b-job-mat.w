@@ -152,7 +152,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       job-mat.rm-i-no FORMAT "x(10)":U WIDTH 40
       job-mat.qty FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 30
-      job-mat.qty-uom FORMAT "x(3)":U WIDTH 18
+      job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
       job-mat.wid FORMAT ">>9.99<<":U WIDTH 18
       job-mat.len FORMAT ">>9.99<<":U WIDTH 18
       job-mat.n-up COLUMN-LABEL "#  Up" FORMAT ">>9":U WIDTH 18
