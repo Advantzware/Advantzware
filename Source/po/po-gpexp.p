@@ -6,7 +6,7 @@
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
-{-c/inc/var.i SHARED}
+{sys/inc/var.i SHARED}
 {sys/form/s-top.f}
 
 DEFINE BUFFER xjob-mat FOR job-mat. 
