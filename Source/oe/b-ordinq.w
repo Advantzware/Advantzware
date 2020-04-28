@@ -84,6 +84,7 @@ DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEFINE VARIABLE lActive AS LOG NO-UNDO.
 DEFINE VARIABLE lSwitchToWeb AS LOG NO-UNDO.
 DEFINE VARIABLE iPreOrder AS INTEGER NO-UNDO .
+DEFINE VARIABLE iInvQty AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
     FIELD lot-no AS CHARACTER
@@ -222,7 +223,7 @@ getRS() @ lc-rs getMI() @ lc-mi getstat() @ cstatus oe-ord.ord-date oe-ordl.req-
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no ~
 oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
 get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-xfer-qty () @ ld-xfer-qty ~
-oe-ordl.inv-qty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
+get-inv-qty() @ iInvQty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
 get-wip() @ li-wip get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem ~
 oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
@@ -397,6 +398,13 @@ FUNCTION fnPrevOrder RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-inv-qty B-table-Win 
+FUNCTION get-inv-qty RETURNS INT
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -495,7 +503,9 @@ DEFINE VARIABLE tb_web AS LOGICAL INITIAL no
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       oe-ordl
-    FIELDS(oe-ordl.ord-no
+
+    FIELDS(oe-ordl.company
+      oe-ordl.ord-no
       oe-ordl.cust-no
       oe-ordl.req-date
       oe-ordl.i-no
@@ -547,7 +557,7 @@ DEFINE BROWSE Browser-Table
       get-prod(li-bal) @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
       oe-ordl.ship-qty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
       get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
-      oe-ordl.inv-qty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
+      get-inv-qty() @ iInvQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
       get-bal(li-qoh) @ li-bal COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
       get-act-rel-qty() @ li-act-rel-qty COLUMN-LABEL "Act. Rel.!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 12.4
@@ -773,8 +783,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.oe-ordl.inv-qty
-"oe-ordl.inv-qty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > "_<CALC>"
+"get-inv-qty() @ iInvQty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "get-bal(li-qoh) @ li-bal" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
@@ -2938,6 +2948,27 @@ FUNCTION fnPrevOrder RETURNS INTEGER
                 iResult = (bf-oe-ordl.ord-no).
         END.
 	    RETURN iResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-inv-qty B-table-Win 
+FUNCTION get-inv-qty RETURNS INT
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/  
+
+  DEF VAR lp-inv-qty AS INT NO-UNDO.
+
+  ASSIGN lp-inv-qty = oe-ordl.inv-qty - int(getReturned("ReturnedInv")) NO-ERROR .   
+
+  RETURN lp-inv-qty.
+
+  /* Function return value. */
 
 END FUNCTION.
 

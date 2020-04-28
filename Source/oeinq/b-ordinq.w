@@ -96,6 +96,7 @@ DEF VAR v-last-shipto LIKE oe-ordl.ship-id NO-UNDO.
 DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
+DEFINE VARIABLE iInvQty AS CHARACTER NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
 
  DO TRANSACTION:
@@ -233,7 +234,7 @@ get-price-disc () @ ld-price get-pr-uom() @ ld-uom ~
 get-extended-price() @ ld-t-price oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.po-no get-ord-po-no() @ lc-ord-po oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date ~
 oe-ord.stat get-ord-qty () @ lv-ord-qty get-ship-qty() @ li-ship-qty ~
-oe-ordl.inv-qty get-prod (li-bal) @ li-prod get-bal (li-qoh) @ li-bal ~
+get-inv-qty() @ iInvQty get-prod (li-bal) @ li-prod get-bal (li-qoh) @ li-bal ~
 get-act-rel-qty() @ li-act-rel-qty get-wip() @ li-wip ~
 get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem oe-ordl.i-name ~
 oe-ordl.line oe-ordl.cost get-cost-uom() @ ld-cost-uom ~
@@ -242,7 +243,7 @@ get-last-shipto() @ v-last-shipto ~
 get-act-bol-qty() @ li-act-bol-qty  ~
 oe-ordl.cust-no oe-ord.cust-name oe-ordl.qty oe-ordl.ship-qty ~
 oe-ordl.req-date oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
-oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date oe-ord.stat oe-ordl.inv-qty ~
+oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date oe-ord.stat get-inv-qty() @ iInvQty ~
 oe-ordl.i-name getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
@@ -628,7 +629,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       get-ship-qty() @ li-ship-qty COLUMN-LABEL "Shipped!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 14
-      oe-ordl.inv-qty COLUMN-LABEL "Invoice!Quantity" FORMAT "->>,>>>,>>>":U
+      get-inv-qty() @ iInvQty COLUMN-LABEL "Invoice!Quantity" FORMAT "->>,>>>,>>>":U
             LABEL-BGCOLOR 14
       get-prod (li-bal) @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
             WIDTH 14
@@ -669,8 +670,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no
       oe-ordl.job-no2
       oe-ord.ord-date
-      oe-ord.stat
-      oe-ordl.inv-qty
+      oe-ord.stat      
       oe-ordl.i-name
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -870,8 +870,8 @@ oe-ordl.ord-no eq 999999999"
 "get-ord-qty () @ lv-ord-qty" "Order!Quantity" "->>,>>>,>>>" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
 "get-ship-qty() @ li-ship-qty" "Shipped!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no "Billable Quantity Shipped." no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.oe-ordl.inv-qty
-"oe-ordl.inv-qty" "Invoice!Quantity" "->>,>>>,>>>" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[21]   > "_<CALC>"
+"get-inv-qty () @ iInvQty" "Invoice!Quantity" "->>,>>>,>>>" ? ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
 "get-prod (li-bal) @ li-prod" "Prod. Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
@@ -3585,23 +3585,11 @@ FUNCTION get-inv-qty RETURNS INT
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-oe-ordl FOR oe-ordl.
+------------------------------------------------------------------------------*/  
 
   DEF VAR lp-inv-qty AS INT NO-UNDO.
 
-  ASSIGN lp-inv-qty = 0.
-
-  FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK.
-
-  FOR EACH ar-invl  WHERE
-      ar-invl.company EQ cocode AND
-      ar-invl.ord-no EQ oe-ordl.ord-no AND
-      ar-invl.i-no EQ oe-ordl.i-no
-      NO-LOCK:
-
-      lp-inv-qty = lp-inv-qty + ar-invl.inv-qty.
-  END.
+  ASSIGN lp-inv-qty = oe-ordl.inv-qty - getReturned("ReturnedInv") .   
 
   RETURN lp-inv-qty.
 
