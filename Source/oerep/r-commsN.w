@@ -90,7 +90,7 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
                             "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To,MSF," +
-                            "Freight Cost,Warehouse Cost,Manufacture Cost,Deviation Cost"
+                            "Est. Freight,Est. Warehouse,Est. Inhouse,Est. Deviation"
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
                             "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id,msf," +
                             "fre-cost,ware-cost,manu-cost,devi-cost"
