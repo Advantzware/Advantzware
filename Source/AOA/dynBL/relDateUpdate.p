@@ -122,7 +122,10 @@ PROCEDURE pBusinessLogic:
                     RUN pCreatePost ("oe-ordl", ROWID(oe-ordl), dtAsOfDate).
                 END. /* each oe-ordl */
             END. /* if lorderduedate */
-            idx = 0.
+            ASSIGN
+                idx = 0
+                jdx = 0
+                .
             IF lScheduledReleaseDate THEN
             FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company EQ oe-ord.company
@@ -237,8 +240,9 @@ PROCEDURE pLoadImportFile:
             iEndRelease   = IF cImportType EQ "Releases" THEN 0 ELSE 9999999
             .
         INPUT FROM VALUE(SEARCH(cImportFile)) NO-ECHO.
+        IMPORT ^. /* skip header line */
         REPEAT:
-            IMPORT iKey dtDate.
+            IMPORT DELIMITER "," iKey dtDate.
             IF cImportType EQ "Releases" THEN DO:
                 FIND FIRST oe-relh NO-LOCK
                      WHERE oe-relh.company  EQ cCompany
@@ -271,6 +275,17 @@ PROCEDURE pLoadImportFile:
         END. /* repeat */
         INPUT CLOSE.
     END. /* if search */
+    ELSE
+    DO:
+        CREATE ttTempTable.
+        ASSIGN
+            ttTempTable.itemNo = "Missing: " + cImportFile
+            iStartOrderNo = 1
+            iEndOrderNo   = 0
+            iStartRelease = 1
+            iEndRelease   = 0
+            .
+    END. /* else */
 END PROCEDURE.
 
 PROCEDURE pPostDates:
