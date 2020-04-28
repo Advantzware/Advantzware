@@ -1,0 +1,29 @@
+<JobHeader>			
+	<AverageCost>$AverageCost$</AverageCost>
+	<Blank>$Blank$</Blank>
+	<Customer>$Customer$</Customer>
+	<DueDate>$DueDate$</DueDate>
+	<DueTime>$DueTime$</DueTime>
+	<Estimate>$Estimate$</Estimate>
+	<FreezeNotes>$FreezeNotes$</FreezeNotes>
+	<FreezeNotesDate>$FreezeNotesDate$</FreezeNotesDate>
+	<Form>$Form$</Form>
+	<Printed>$Printed$</Printed>
+	<Item>$Item$</Item>
+	<LastPurchaseCost>$LastPurchaseCost$</LastPurchaseCost>
+	<Location>$Location$</Location>
+	<Opened>$Opened$</Opened>
+	<Order>$Order$</Order>
+	<CustomerPO>$CustomerPO$</CustomerPO>
+	<Quantity>$Quantity$</Quantity>
+	<SplitShip>$SplitShip$</SplitShip>
+	<SquareInchPercentage>$SquareInchPercentage$</SquareInchPercentage>
+	<StartDate>$StartDate$</StartDate>
+	<FixedOverheadCost>$FixedOverheadCost$</FixedOverheadCost>
+	<StandardLaborCost>$StandardLaborCost$</StandardLaborCost>
+	<StandardMaterialCost>$StandardMaterialCost$</StandardMaterialCost>
+	<StandardItemCost>$StandardItemCost$</StandardItemCost>
+	<StandardVariableOverHeadCost>$StandardVariableOverHeadCost$</StandardVariableOverHeadCost>
+	<Warehoused>$Warehoused$</Warehoused>
+	<CSRID>$CSRID$</CSRID>
+</JobHeader>

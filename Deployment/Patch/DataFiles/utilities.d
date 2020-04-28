@@ -12,6 +12,8 @@ Note that this function does NOT create summary transactions; use with EXTREME c
 "wJobPurge" "JC" "JU1" "Job Purge Program" "This program will purge jobs from the system." 900
 "LoadTagReport.r" "" "" "report comparing Item units per pallet to" "Report comparing Item units per pallet to actual load tags created" 900
 "ImportMachine.r" "CE" "EB1" "Import Machines" "Import of machines for estimating.  This imports machines into the machine file." 900
+"resendASN.r" "" "" "Resend ASN" "" 900
+"wLockMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900
@@ -225,7 +227,6 @@ Prompt for customer range, a default tax group which if entered, will default al
 "fghispur.r" "UTIL" "IF1" "FG History Purge by Job" "This utility will delete all FG detail records for a given range of item number, date, type, and job number.
 
 Note that this function does NOT create summary transactions; use with EXTREME caution." 900
-"wLockTransMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
 "recalcJobs.r" "SA" "NR" "Recalc Jobs" "Utility to recalculate job standard costs with updates to the estimated rates in the machine files for jobs that have not started production (No production quantity)." 900
 "VendorCostConv.r" "FG" "" "Vendor Cost Table Conversion" "This program converts RM Vendor costs, FG Vendor costs as well as Estimating Farm costs to the new cost table format.
 

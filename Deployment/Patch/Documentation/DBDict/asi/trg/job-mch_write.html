@@ -166,8 +166,10 @@ ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
     <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> cFGItem           <span class="src-keyword">AS CHARACTER NO-UNDO</span><!--src-keyword-->.
     <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> cJobCompleteEmail <span class="src-keyword">AS CHARACTER NO-UNDO</span><!--src-keyword-->.
     <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> cMachine          <span class="src-keyword">AS CHARACTER NO-UNDO</span><!--src-keyword-->.
+    <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> cMessage          <span class="src-keyword">AS CHARACTER NO-UNDO</span><!--src-keyword-->.
     <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> iConfigID         <span class="src-keyword">AS INTEGER   NO-UNDO</span><!--src-keyword-->.
     <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> lJobCompleteEmail <span class="src-keyword">AS LOGICAL   NO-UNDO</span><!--src-keyword-->.
+    <span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> lSuccess          <span class="src-keyword">AS LOGICAL   NO-UNDO</span><!--src-keyword-->.
  
     <span class="src-keyword">DEFINE BUFFER</span><!--src-keyword--> bJobMch <span class="src-keyword">FOR</span><!--src-keyword--> job-mch.
  
@@ -209,14 +211,16 @@ ll-error = <span class="src-keyword">YES NO-ERROR</span><!--src-keyword-->.
                   + cFGItem + <span class="src-char">")"</span><!--src-char-->
                   .
             <span class="src-keyword">RUN</span><!--src-keyword--> spSendEmail (
-                <span class="src-keyword">INPUT</span><!--src-keyword--> iConfigID, <span class="src-comment">/* emailConfig.ConfigID */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->,        <span class="src-comment">/* Override for Email RecipientsinTo */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->,        <span class="src-comment">/* Override for Email RecipientsinReplyTo */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->,        <span class="src-comment">/* Override for Email RecipientsinCC */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->,        <span class="src-comment">/* Override for Email RecipientsinBCC */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->,        <span class="src-comment">/* Override for Email Subject */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> cBody,     <span class="src-comment">/* Override for Email Body */</span><!--src-comment-->
-                <span class="src-keyword">INPUT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char-->         <span class="src-comment">/* Email Attachment */</span><!--src-comment-->
+                iConfigID,       <span class="src-comment">/* emailConfig.ConfigID */</span><!--src-comment-->
+                <span class="src-char">""</span><!--src-char-->,              <span class="src-comment">/* Override for Email RecipientsinTo */</span><!--src-comment-->
+                <span class="src-char">""</span><!--src-char-->,              <span class="src-comment">/* Override for Email RecipientsinReplyTo */</span><!--src-comment-->
+                <span class="src-char">""</span><!--src-char-->,              <span class="src-comment">/* Override for Email RecipientsinCC */</span><!--src-comment-->
+                <span class="src-char">""</span><!--src-char-->,              <span class="src-comment">/* Override for Email RecipientsinBCC */</span><!--src-comment-->
+                <span class="src-char">""</span><!--src-char-->,              <span class="src-comment">/* Override for Email Subject */</span><!--src-comment-->
+                cBody,           <span class="src-comment">/* Override for Email Body */</span><!--src-comment-->
+                <span class="src-char">""</span><!--src-char-->,              <span class="src-comment">/* Email Attachment */</span><!--src-comment-->
+                <span class="src-keyword">OUTPUT</span><!--src-keyword--> lSuccess, <span class="src-comment">/* Email success or not */</span><!--src-comment-->
+                <span class="src-keyword">OUTPUT</span><!--src-keyword--> cMessage  <span class="src-comment">/* Reason for failure in case email is not sent */</span><!--src-comment-->
                 ).
         <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* if ljobcompleteemail */</span><!--src-comment-->
     <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* if avail */</span><!--src-comment-->

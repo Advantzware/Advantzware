@@ -38,6 +38,10 @@
 <span class="src-keyword">TRIGGER PROCEDURE FOR CREATE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
  
 <span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">create</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">ASSIGN</span><!--src-keyword-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.createdBy   = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-keyword">LDBNAME</span><!--src-keyword-->(<span class="src-number">1</span><!--src-number-->))
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.createdDate = <span class="src-keyword">today</span><!--src-keyword--> .
 </div><!--progresscode-->
 </body>
 </html>

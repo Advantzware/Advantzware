@@ -217,3 +217,56 @@ FOR EACH {&cFile}:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiInbound
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiInboundDetail
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiOutbound
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiOutboundDetail
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiOutboundTrigger
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile emailConfig
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile serverResource
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+
+
+

@@ -58,13 +58,6 @@
   <span class="src-keyword">RETURN ERROR</span><!--src-keyword-->.
 <span class="src-keyword">END</span><!--src-keyword-->.
  
-<span class="src-keyword">IF</span><!--src-keyword--> apsecure-log <span class="src-keyword">AND</span><!--src-keyword--> ap-inv.<span class="src-keyword">user-id NE USERID</span><!--src-keyword-->(<span class="src-char">"nosweat"</span><!--src-char-->) <span class="src-keyword">THEN DO</span><!--src-keyword-->:
-  <span class="src-keyword">MESSAGE</span><!--src-keyword--> <span class="src-char">"This invoice may only be deleted by UserID: "</span><!--src-char--> +
-          <span class="src-keyword">TRIM</span><!--src-keyword-->(ap-inv.<span class="src-keyword">user-id</span><!--src-keyword-->) + <span class="src-char">"..."</span><!--src-char-->
-       <span class="src-keyword">VIEW-AS ALERT-BOX ERROR</span><!--src-keyword-->.
-  <span class="src-keyword">RETURN ERROR</span><!--src-keyword-->.
-<span class="src-keyword">END</span><!--src-keyword-->.
- 
 <span class="src-keyword">for each</span><!--src-keyword--> ap-invl <span class="src-keyword">exclusive-lock where</span><!--src-keyword--> ap-invl.i-no = ap-inv.i-no:
       <span class="src-keyword">find first</span><!--src-keyword--> po-ordl
           <span class="src-keyword">where</span><!--src-keyword--> po-ordl.company   <span class="src-keyword">eq</span><!--src-keyword--> ap-inv.company

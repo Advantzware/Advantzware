@@ -81,7 +81,7 @@
   <span class="src-keyword">IF</span><!--src-keyword--> v-fin-qty <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">THEN DO</span><!--src-keyword-->:
     v-fin-qty = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty <span class="src-keyword">-</span><!--src-keyword--> v-fin-qty.
  
-    <span class="src-keyword">IF NOT</span><!--src-keyword--> itemfg.pur-man <span class="src-keyword">THEN</span><!--src-keyword-->
+    <span class="src-keyword">IF AVAILABLE</span><!--src-keyword--> itemfg <span class="src-keyword">AND NOT</span><!--src-keyword--> itemfg.pur-man <span class="src-keyword">THEN</span><!--src-keyword-->
       itemfg-loc.q-ono = itemfg-loc.q-ono <span class="src-keyword">-</span><!--src-keyword--> v-fin-qty.
  
   <span class="src-keyword">END</span><!--src-keyword-->.
