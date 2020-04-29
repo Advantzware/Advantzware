@@ -55,6 +55,7 @@
     DEFINE VARIABLE dLineTotalAmt    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE cSELineCount     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dSELineCount     AS INTEGER NO-UNDO.
+    
     /* Invoice Line Variables */
     DEFINE VARIABLE cItemLineNum   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemQty       AS CHARACTER NO-UNDO.
@@ -62,6 +63,7 @@
     DEFINE VARIABLE cItemPrice     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemBuyerPart AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPartQualifier AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDesc      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustCountry   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCode    AS CHARACTER NO-UNDO.
@@ -263,13 +265,13 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 AND shipto.cust-no EQ inv-head.cust-no
                 AND shipto.ship-id EQ IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to
                 NO-ERROR.
-                
+            /*
             IF AVAILABLE shipto THEN 
                     RUN pCreateAddress("ST", 4, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
                                         shipto.ship-name, shipto.ship-addr[1], shipto.ship-addr[2], 
                                         shipto.ship-city, shipto.ship-state,
                                         shipto.ship-zip, shipto.country).
-            ELSE DO:
+            ELSE */ DO:
                 RUN pCreateAddress("ST", 4, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
                                     inv-head.sold-name, inv-head.sold-addr[1], inv-head.sold-addr[2], inv-head.sold-city,
                                     inv-head.sold-state,inv-head.sold-zip, cCustCountry ).
@@ -282,17 +284,11 @@ FUNCTION fnGetISAControl RETURNS INTEGER
             RUN format_date IN hFormatProcs (inv-head.inv-date, "YYYYMMDD", OUTPUT cBigDate).
             ASSIGN                 
              cBigDocID        = STRING(inv-head.inv-no)
-             cTotalAmount     = TRIM(STRING(inv-head.t-inv-rev, ">>>>>>>>.99"))
+             cTotalAmount     = TRIM(IF inv-head.t-inv-rev GT 0 THEN STRING(inv-head.t-inv-rev, ">>>>>>>>.99") ELSE "0")
              cTotalAmount     = REPLACE(ctotalAmount, ".", "")
              dtInvoiceDate    = inv-head.inv-date
              .
-             /*
-             IF AVAIL cust THEN 
-                 RUN pCreateAddress("BT", 1, cust.cust-no, cust.name, cust.addr[1], 
-                        cust.addr[2], cust.city, cust.state, cust.zip, 
-                        cCustCountry).
-             ELSE 
-             */
+
              RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
                                 inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
                                 cCustCountry).
@@ -312,7 +308,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
               cCustCountry = cust.country.
             ELSE 
               cCustCountry = "US".
-              
+              /*
             FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
                 AND shipto.cust-no EQ ar-inv.cust-no
                 AND shipto.ship-id EQ IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id
@@ -322,7 +318,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                                         shipto.ship-name, shipto.ship-addr[1], shipto.ship-addr[2], 
                                         shipto.ship-city, shipto.ship-state,
                                         shipto.ship-zip, shipto.country).
-            ELSE DO:
+            ELSE */ DO:
                 RUN pCreateAddress("ST", 4, IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.bill-to,
                                     ar-inv.sold-name, ar-inv.sold-addr[1], ar-inv.sold-addr[2], ar-inv.sold-city,
                                     ar-inv.sold-state,ar-inv.sold-zip, cCustCountry ).
@@ -338,7 +334,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
             ASSIGN 
                 cBigDocID        = STRING(ar-inv.inv-no)
                 dInvoiceTotalAmt = dLineTotalAmt + ar-inv.tax-amt + (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
-                cTotalAmount     = TRIM(STRING(dInvoiceTotalAmt, ">>>>>>>>.99"))
+                cTotalAmount     = TRIM(IF dInvoiceTotalAmt GT 0 THEN STRING(dInvoiceTotalAmt, ">>>>>>>>.99") ELSE "0")
                 cTotalAmount     = REPLACE(ctotalAmount, ".", "")
                 dtInvoiceDate    = ar-inv.inv-date
                 .
@@ -348,9 +344,18 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                         cust.addr[2], cust.city, cust.state, cust.zip, 
                         cCustCountry).
              ELSE
-             */                
-                 RUN pCreateAddress("BT", 1, ar-inv.bill-to, ar-inv.cust-name, ar-inv.addr[1], 
-                                    ar-inv.addr[2], ar-inv.city, ar-inv.state, ar-inv.zip, 
+             */         
+                /* Testing */       
+                FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
+                    AND shipto.cust-no EQ ar-inv.cust-no
+                    AND shipto.ship-id EQ ar-inv.cust-no
+                    NO-ERROR.
+                 RUN pCreateAddress("BT", 1, ar-inv.bill-to, IF AVAIL shipto THEN shipto.ship-name ELSE ar-inv.cust-name, 
+                    IF AVAIL shipto THEN shipto.ship-addr[1] ELSE ar-inv.addr[1], 
+                                    IF AVAIL shipto THEN shipto.ship-addr[2] ELSE ar-inv.addr[2], 
+                                    IF AVAIL shipto THEN shipto.ship-city ELSE ar-inv.city, 
+                                    IF AVAIL shipto THEN shipto.ship-state ELSE ar-inv.state, 
+                                    IF AVAIL shipto THEN shipto.ship-zip ELSE ar-inv.zip, 
                                     cCustCountry).            
             /* Fetch invoice notes from notes table */    
             FOR EACH notes NO-LOCK
@@ -388,6 +393,10 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 cZip          = ttN1Address.zip         
                 cCountry      = ttN1Address.country
                 .    
+              IF cAddress1 EQ "" AND cAddress2 GT "" THEN 
+                ASSIGN cAddress1 = cAddress2
+                       cAddress2 = ""
+                       . 
             IF AVAILABLE bf-APIOutboundDetail4 THEN 
                 lcAddress2Data = STRING(bf-APIOutboundDetail4.data).
             RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Qual", cN1Code).
@@ -419,13 +428,19 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 /* find order line for line number */
                 FIND FIRST oe-ordl NO-LOCK 
                     WHERE oe-ordl.company EQ inv-line.company
+                    AND oe-ordl.ord-no  EQ inv-line.ord-no 
+                    AND oe-ordl.i-no EQ inv-line.i-no
+                    NO-ERROR.
+                IF NOT AVAIL oe-ordl THEN                 
+                FIND FIRST oe-ordl NO-LOCK 
+                    WHERE oe-ordl.company EQ inv-line.company
                       AND oe-ordl.po-no EQ inv-line.po-no
                       AND oe-ordl.i-no EQ inv-line.i-no 
                       USE-INDEX po-no
                       NO-ERROR.
                 ASSIGN iLineCounter = iLineCounter + 1.
                 CREATE ttLines.
-                ASSIGN ttLines.rLineDetailRow = ROWID(ar-invl)
+                ASSIGN ttLines.rLineDetailRow = ROWID(inv-line)
                        ttLines.iLine = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
                        .                       
             END.             
@@ -463,9 +478,10 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                     cItemUom              = string(cUomCode)
                     cItemPrice            = STRING(dUnitPrice)
                     cItemID               = STRING(inv-line.i-no)
-                    cItemBuyerPart        = STRING(inv-line.part-no)
+                    cItemBuyerPart        = STRING(TRIM(inv-line.part-no))
                     cItemDesc             = STRING(inv-line.i-name)
                     cPoNum                = STRING(inv-line.po-no)
+                    cPartQualifier        = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
                     .
                 /* Detail section has 2 lines per iteration */
                 dSELineCount = dSELineCount + 2.
@@ -474,6 +490,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
@@ -493,6 +510,12 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 BY ar-invl.line:    
                 
                 /* find order line for line number */
+                FIND FIRST oe-ordl NO-LOCK 
+                    WHERE oe-ordl.company EQ ar-invl.company
+                    AND oe-ordl.ord-no  EQ ar-invl.ord-no 
+                    AND oe-ordl.i-no EQ ar-invl.i-no
+                    NO-ERROR.
+                IF NOT AVAIL oe-ordl THEN                 
                 FIND FIRST oe-ordl NO-LOCK 
                     WHERE oe-ordl.company EQ ar-inv.company
                       AND oe-ordl.po-no EQ ar-invl.po-no
@@ -547,6 +570,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                     cItemBuyerPart        = STRING(ar-invl.part-no)
                     cItemDesc             = STRING(ar-invl.i-name)
                     cPoNum                = STRING(ar-invl.po-no)
+                    cPartQualifier        = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
                     .
                 /* Detail section has 2 lines per iteration */
                 dSELineCount = dSELineCount + 2.
@@ -555,6 +579,7 @@ FUNCTION fnGetISAControl RETURNS INTEGER
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
@@ -795,9 +820,9 @@ PROCEDURE pConvQtyPriceUOM:
     DEFINE INPUT  PARAMETER ipiCaseCount AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcPriceUom AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcPriceqtyUom AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER iopcUomCode AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER iopdQtyShipped LIKE dQtyShipped NO-UNDO.
-    DEFINE OUTPUT PARAMETER iopdUnitPrice AS DECIMAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcUomCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdQtyShipped LIKE dQtyShipped NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdUnitPrice AS DECIMAL NO-UNDO.
    
 
                         
@@ -822,7 +847,7 @@ PROCEDURE pConvQtyPriceUOM:
                     
 
                        
-                IF inv-line.pr-uom = "CS" AND ipiCaseCount > 0 THEN
+                IF ipcPriceUom = "CS" AND ipiCaseCount > 0 THEN
                 DO:  /* scale qty by case count */
                     iopdQtyShipped = ipdInvoiceQty / ipiCaseCount.
                     
