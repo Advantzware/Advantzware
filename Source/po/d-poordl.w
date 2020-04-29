@@ -146,7 +146,7 @@ DEFINE            VARIABLE lv-recid           AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
-
+DEFINE            VARIABLE lCheckFGCustHold   AS LOGICAL NO-UNDO.
 /* gdm - 06040918 */
 DEFINE BUFFER bf-itemfg        FOR itemfg.  
 DEFINE BUFFER bf-e-itemfg      FOR e-itemfg.  
@@ -787,7 +787,8 @@ DO:
                 IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).
-                  RUN display-fgitem (look-recid) .                 
+                  RUN display-fgitem (look-recid) .
+                  lCheckFGCustHold = NO.
                 END.                           
               END.
             END.
@@ -1023,7 +1024,7 @@ DO:
   END.
 
   RUN check-cust-hold(OUTPUT op-error) NO-ERROR.
-  IF op-error THEN do: 
+  IF NOT op-error THEN do: 
       APPLY 'choose' TO btn_Cancel.
       RETURN NO-APPLY .
   END.
@@ -1368,7 +1369,7 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
             RUN check-cust-hold(OUTPUT lReturnError) NO-ERROR.
-            IF lReturnError THEN do:
+            IF NOT lReturnError THEN do:
                  APPLY 'choose' TO btn_Cancel.
                  RETURN NO-APPLY .
             END.
@@ -1408,6 +1409,7 @@ ON VALUE-CHANGED OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
             ll-item-validated = NO
             ll-poord-warned   = NO
             ll-pojob-warned   = NO.
+            lCheckFGCustHold  = NO.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2201,6 +2203,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         FIND po-ordl NO-LOCK WHERE RECID(po-ordl) = lv-item-recid NO-ERROR.
         ll-poord-warned = NO.
+        lCheckFGCustHold = NO.
     END.
     ELSE FIND po-ordl WHERE RECID(po-ordl) = ip-recid NO-LOCK NO-ERROR.
     FIND po-ord NO-LOCK WHERE
@@ -5269,6 +5272,7 @@ PROCEDURE update-shipto :
                 FOR EACH oe-rel FIELDS(company ord-no i-no ship-id)  NO-LOCK WHERE
                     oe-rel.company EQ g_company AND
                     oe-rel.ord-no = INT(po-ordl.ord-no:SCREEN-VALUE) AND
+                    oe-rel.ord-no NE 0 AND
                     oe-rel.i-no = po-ordl.i-no:SCREEN-VALUE
                     :
      
@@ -6733,12 +6737,14 @@ PROCEDURE writeJobFarmInfo :
       
                 FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ g_company
                     AND oe-ordl.ord-no EQ INTEGER(po-ordl.ord-no:SCREEN-VALUE)
+                    AND oe-ordl.ord-no NE 0
                     AND oe-ordl.i-no   EQ  po-ordl.i-no:SCREEN-VALUE
                     NO-ERROR.
                 /* assumption is that for farm jobs, order and job are always the same */
                 IF NOT AVAILABLE oe-ordl THEN
                     FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ g_company
                         AND oe-ordl.ord-no EQ INTEGER(po-ordl.ord-no:SCREEN-VALUE)
+                        AND oe-ordl.ord-no NE 0 
                         AND oe-ordl.job-no   EQ  po-ordl.ord-no:SCREEN-VALUE
                         NO-ERROR.
                 lFromOrd = TRUE.
@@ -6918,20 +6924,20 @@ PROCEDURE check-cust-hold :
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lGetOutPutValue AS LOGICAL NO-UNDO.
-    
+    oplReturnError = YES .
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST bf-itemfg NO-LOCK
             WHERE bf-itemfg.company EQ cocode
             AND bf-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE NO-ERROR.
         
-        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND
+        IF AVAIL bf-itemfg AND bf-itemfg.cust-no NE "" AND ip-type EQ "add" AND NOT lCheckFGCustHold AND
             po-ordl.item-type:SCREEN-VALUE EQ "FG"  THEN DO:
             FIND FIRST cust NO-LOCK 
                 WHERE cust.company EQ cocode 
                 AND cust.cust-no EQ bf-itemfg.cust-no NO-ERROR.
             IF AVAIL cust AND cust.cr-hold THEN DO:
-                RUN displayMessage ("12").                    
-               oplReturnError = TRUE .
+                RUN displayMessageQuestionLOG ("12", OUTPUT oplReturnError). 
+                lCheckFGCustHold = YES.
             END. 
         END.
     END.

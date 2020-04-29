@@ -66,6 +66,8 @@ DEF VAR ll-set-parts AS LOG NO-UNDO.
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
+
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
@@ -185,6 +187,9 @@ DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE cFGDefWhse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGDefBin  AS CHARACTER NO-UNDO.
+
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
     INPUT "FGReceiptRules", /* sys-ctrl name */
@@ -198,7 +203,15 @@ RUN sys/ref/nk1look.p (
     ). 
  
  glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
-
+ 
+RUN Inventory_GetDefaultWhse IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefWhse
+    ).
+RUN Inventory_GetDefaultBin IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefBin
+    ).  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -745,6 +758,12 @@ DO:
               
               {addon/loadtags/disptgf2.i "FGItem" fg-rctd.tag:SCREEN-VALUE}
               
+              IF cFGDefWhse NE "" THEN 
+                  fg-rctd.loc:SCREEN-VALUE = cFGDefWhse.
+         
+              IF cFGDefBin NE "" THEN 
+                  fg-rctd.loc-bin:SCREEN-VALUE = cFGDefBin. 
+                       
               RUN get-def-values.
               ASSIGN
               lv-prev-job2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -864,6 +883,10 @@ DO:
         END.
         IF AVAIL fg-rctd AND fg-rctd.tag <> SELF:SCREEN-VALUE THEN DO:
           {addon/loadtags/disptgf2.i "FGItem" fg-rctd.tag:SCREEN-VALUE}
+          IF cFGDefWhse NE "" THEN 
+              fg-rctd.loc:SCREEN-VALUE = cFGDefWhse.      
+          IF cFGDefBin NE "" THEN 
+              fg-rctd.loc-bin:SCREEN-VALUE = cFGDefBin. 
         END.
         /*IF fg-rctd.loc:SCREEN-VALUE = "" THEN*/
             
@@ -908,10 +931,13 @@ DO:
 
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
-          DEF VAR v-locbin AS cha NO-UNDO.
+          DEFINE VARIABLE v-locbin AS CHARACTER NO-UNDO.
+          
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN 
+              fg-rctd.loc:SCREEN-VALUE     IN BROWSE {&BROWSE-NAME} = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE SUBSTRING(v-locbin,1,5)
+              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE SUBSTRING(v-locbin,6,8)
+              .
        END.
 
        RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
@@ -1261,10 +1287,12 @@ DO:
            FIND FIRST itemfg {sys/look/itemfgrlW.i}
                      AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                      NO-LOCK NO-ERROR.
-           IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
-                                       fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
-                                       fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
-                                        .
+           IF AVAIL itemfg THEN 
+           ASSIGN 
+               fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
+               fg-rctd.loc:SCREEN-VALUE     = IF cFGdefWhse NE "" THEN cFGDefWhse ELSE itemfg.def-loc
+               fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE itemfg.def-loc-bin
+               .
        END.
      END.
   END.
@@ -1313,7 +1341,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1404,8 +1431,15 @@ PROCEDURE display-item :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}: 
-  {addon/loadtags/disptgf2.i "FGItem" 
-    "fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}"}
+        {addon/loadtags/disptgf2.i "FGItem" 
+        "fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}"}
+        
+        IF cFGDefWhse NE "" THEN 
+            fg-rctd.loc:SCREEN-VALUE = cFGDefWhse.
+         
+        IF cFGDefBin NE "" THEN 
+            fg-rctd.loc-bin:SCREEN-VALUE = cFGDefBin.   
+     
     END.
 END PROCEDURE.
 
@@ -1479,28 +1513,28 @@ PROCEDURE get-first-r-no :
 
   lv-frst-rno = 999999999.
 
-  FOR EACH bq-fg-rctd FIELDS(r-no)
+  FOR EACH bq-fg-rctd FIELDS(r-no)NO-LOCK
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "R"
-        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
-             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
-        AND fg-rctd.SetHeaderRno EQ 0      
-        AND bq-fg-rctd.r-no      LT lv-frst-rno
-      USE-INDEX rita-code NO-LOCK
+        AND ((lv-do-what EQ "delete" AND bq-fg-rctd.t-qty LT 0) OR
+             (lv-do-what NE "delete" AND bq-fg-rctd.t-qty GE 0))
+        AND bq-fg-rctd.SetHeaderRno EQ 0      
+        AND bq-fg-rctd.r-no         LT lv-frst-rno
+      USE-INDEX rita-code
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
     LEAVE.
   END.
   /*RELEASE bq-fg-rctd.*/
 
-  FOR EACH bq-fg-rctd FIELDS(r-no)
+  FOR EACH bq-fg-rctd FIELDS(r-no)NO-LOCK
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "E"
-        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
-             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
-        AND fg-rctd.SetHeaderRno EQ 0        
-        AND bq-fg-rctd.r-no      LT lv-frst-rno
-      USE-INDEX rita-code NO-LOCK
+        AND ((lv-do-what EQ "delete" AND bq-fg-rctd.t-qty LT 0) OR
+             (lv-do-what NE "delete" AND bq-fg-rctd.t-qty GE 0))
+        AND bq-fg-rctd.SetHeaderRno EQ 0        
+        AND bq-fg-rctd.r-no         LT lv-frst-rno
+      USE-INDEX rita-code 
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
     LEAVE.
@@ -2018,8 +2052,8 @@ PROCEDURE get-values :
     IF fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
       ASSIGN
-       fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = lv-loc
-       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = lv-loc-bin.
+       fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lv-loc
+       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lv-loc-bin.
 
     IF INT(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
       fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = lv-qty-case.
@@ -3442,10 +3476,11 @@ PROCEDURE valid-tag :
                                     ).
           IF llValid AND (adm-new-record OR ip-focus:MODIFIED) THEN
             ASSIGN 
-                fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcJobNo
+                fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-NAME}  = lcJobNo
                 fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcJobNo2
-                fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcLoc
-                fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcLocBin.
+                fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-NAME}     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lcLoc
+                fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-NAME} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lcLocBin
+                .
 /*       IF lv-msg EQ "" AND ll-set-parts                                                             */
 /*           AND int(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-NAME}) < 0 THEN DO:                */
 /*             iTotalQty = 0.                                                                         */

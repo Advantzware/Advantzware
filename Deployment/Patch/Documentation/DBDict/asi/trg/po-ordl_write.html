@@ -55,16 +55,12 @@
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> v-wid <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-wid <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> v-dep <span class="src-keyword">LIKE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-len <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
-<span class="src-keyword">DEF VAR</span><!--src-keyword--> fg-uom-list <span class="src-keyword">AS CHAR NO-UNDO</span><!--src-keyword-->.
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> llRecFound <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
-<span class="src-keyword">DEF VAR</span><!--src-keyword--> cReturn <span class="src-keyword">AS CHAR NO-UNDO</span><!--src-keyword-->.
+<span class="src-comment">/*DEF VAR cReturn AS CHAR NO-UNDO.*/</span><!--src-comment-->
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> poPaperClip-int <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
- 
-<span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/uom-fg.p (<span class="src-number">?</span><!--src-number-->, <span class="src-keyword">OUTPUT</span><!--src-keyword--> fg-uom-list).
+<span class="src-prep">{sys/inc/venditemcost.i}</span><!--src-prep-->
  
 <span class="src-keyword">RUN</span><!--src-keyword--> po/updordpo.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->).
- 
- 
  
 <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.job-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.s-num = <span class="src-number">0</span><!--src-number-->.
  
@@ -74,8 +70,10 @@
          <span class="src-keyword">WHERE item</span><!--src-keyword-->.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
            <span class="src-keyword">AND item</span><!--src-keyword-->.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
     <span class="src-keyword">IF AVAIL item THEN</span><!--src-keyword-->
-    <span class="src-keyword">FIND FIRST</span><!--src-keyword--> e-item <span class="src-keyword">OF item NO-LOCK NO-ERROR</span><!--src-keyword-->.
+    <span class="src-keyword">IF</span><!--src-keyword--> lNewVendorItemCost <span class="src-keyword">THEN FIND FIRST</span><!--src-keyword--> vendItemCost <span class="src-keyword">OF ITEM NO-LOCK NO-ERROR</span><!--src-keyword-->. 
+    <span class="src-keyword">ELSE FIND FIRST</span><!--src-keyword--> e-item <span class="src-keyword">OF item NO-LOCK NO-ERROR</span><!--src-keyword-->.     
     <span class="src-keyword">IF AVAIL</span><!--src-keyword--> e-item <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = e-item.std-uom.
+    <span class="src-keyword">IF AVAIL</span><!--src-keyword--> vendItemCost <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = vendItemCost.VendorUOM.
     <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = <span class="src-keyword">item</span><!--src-keyword-->.pur-uom.
     <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom = <span class="src-keyword">item</span><!--src-keyword-->.cons-uom.
   <span class="src-keyword">END</span><!--src-keyword-->.
@@ -115,8 +113,8 @@
  
     <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom       <span class="src-keyword">AND</span><!--src-keyword-->
        (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.item-type                           <span class="src-keyword">OR</span><!--src-keyword-->
-        <span class="src-keyword">LOOKUP</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom,fg-uom-list) <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">OR</span><!--src-keyword-->
-        <span class="src-keyword">LOOKUP</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,fg-uom-list)     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->)   <span class="src-keyword">THEN</span><!--src-keyword-->
+        <span class="src-keyword">NOT DYNAMIC-FUNCTION</span><!--src-keyword-->(<span class="src-char">"Conv_IsEAUOM"</span><!--src-char-->,po-ordl.company, po-ordl.i-no, <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom) <span class="src-keyword">OR</span><!--src-keyword-->
+        <span class="src-keyword">NOT DYNAMIC-FUNCTION</span><!--src-keyword-->(<span class="src-char">"Conv_IsEAUOM"</span><!--src-char-->,po-ordl.company, po-ordl.i-no, <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom))   <span class="src-keyword">THEN</span><!--src-keyword-->
       <span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/convquom.p(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-qty-uom, <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,
                              v-basis-w, v-len, v-wid, v-dep,
                              ld-qty, <span class="src-keyword">OUTPUT</span><!--src-keyword--> ld-qty).

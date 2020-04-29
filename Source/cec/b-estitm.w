@@ -143,6 +143,16 @@ DEFINE VARIABLE lCEGOTOCALC AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE li-est-type  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lv-hld-board AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is2PieceBox  AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE lv-hld-eqty  LIKE est-qty.eqty NO-UNDO.
+DEFINE VARIABLE lv-hld-wid   LIKE eb.wid       NO-UNDO.
+DEFINE VARIABLE lv-hld-len   LIKE eb.len       NO-UNDO.
+DEFINE VARIABLE lv-hld-dep   LIKE eb.dep       NO-UNDO.
+DEFINE VARIABLE lv-hld-style LIKE eb.style     NO-UNDO.
+
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
 {ce/tt-eb.i}
@@ -2221,14 +2231,18 @@ PROCEDURE add-estimate :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+  DEFINE VARIABLE lMiscType AS LOGICAL NO-UNDO.
   ASSIGN                
   ll-is-add-from-tool = YES  /* add from option button not from add button */
   ls-add-what = "est" .   /* new estimate */
   /*run est/d-addwh2.w  (output ls-add-what).*/
   /*if ls-add-what = "est"    /* new estimate */
      then run est/d-addset.w (output ls-add-what). /* one item or set cec/est-add.p */*/
-  RUN est/d-addfol.w (INPUT YES, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN pGetMiscType IN WIDGET-HANDLE(char-hdl) ( OUTPUT lMiscType).
+    
+  RUN est/d-addfol.w (INPUT YES,INPUT lMiscType, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
 
   IF ls-add-what EQ "est" THEN DO:
@@ -4846,7 +4860,7 @@ DEFINE INPUT-OUTPUT PARAMETER lv-hld-eqty AS DECIMAL     NO-UNDO.
 DEF VAR xx AS INT NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
-
+   FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR.
    IF NOT ll-is-copy-record AND ceroute-log AND 
       li-est-type GE 5 AND li-est-type LE 6 THEN DO:
       
@@ -5104,6 +5118,289 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEstimateCleanUp B-table-Win
+PROCEDURE pEstimateCleanUp PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-box-des  AS CHARACTER NO-UNDO INITIAL "S".
+    DEFINE VARIABLE v-dec       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-dec2      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-count     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-w-array   AS DECIMAL   NO-UNDO EXTENT 30.  
+    DEFINE VARIABLE li          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-cad-path AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-cad-ext  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-eb      FOR eb.
+    DEFINE BUFFER b-eb       FOR eb.
+    DEFINE BUFFER bff-itemfg FOR itemfg.
+    DEFINE BUFFER bf-ef      FOR ef.
+
+    IF cegoto-log               OR
+       (est.est-type EQ 8       AND
+        old-bl-qty NE eb.bl-qty AND
+        NOT ll-new-record       AND
+        NOT ll-tandem) THEN 
+        RUN run-goto.
+
+    RUN estOpDim (
+        INPUT-OUTPUT li-est-type, 
+        INPUT-OUTPUT lv-hld-eqty
+        ).
+
+    EMPTY TEMP-TABLE tt-eb-set.
+    EMPTY TEMP-TABLE tt-eb-set-part.
+  
+    IF est.est-type NE 8 THEN DO:
+        FOR EACH bf-eb
+            WHERE bf-eb.company EQ eb.company
+              AND bf-eb.est-no  EQ eb.est-no
+              AND ROWID(bf-eb)  NE ROWID(eb):
+            ASSIGN
+                bf-eb.cust-no      = eb.cust-no
+                bf-eb.ship-id      = eb.ship-id
+                bf-eb.ship-no      = eb.ship-no
+                bf-eb.ship-name    = eb.ship-name
+                bf-eb.ship-addr[1] = eb.ship-addr[1]
+                bf-eb.ship-addr[2] = eb.ship-addr[2]
+                bf-eb.ship-city    = eb.ship-city
+                bf-eb.ship-state   = eb.ship-state
+                bf-eb.ship-zip     = eb.ship-zip
+                bf-eb.sman         = eb.sman
+                bf-eb.comm         = eb.comm
+                .
+        END.
+    END.
+    
+    IF cestyle-log AND
+       (adm-adding-record        OR
+        lv-hld-wid   NE eb.wid   OR
+        lv-hld-len   NE eb.len   OR
+        lv-hld-dep   NE eb.dep   OR
+        lv-hld-style NE eb.style) THEN DO:
+        IF NOT adm-new-record THEN
+            MESSAGE "Do you wish to reset box design?"
+                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
+        ELSE
+            ll-ans2 = YES.
+
+        IF ll-ans2 THEN 
+            lv-box-des = "B".
+        ELSE 
+            lv-box-des = "N".    
+    END.
+    ELSE DO:
+        FOR FIRST box-design-hdr NO-LOCK 
+            WHERE box-design-hdr.design-no EQ 0 
+              AND box-design-hdr.company   EQ eb.company 
+              AND box-design-hdr.est-no    EQ eb.est-no 
+              AND box-design-hdr.form-no   EQ eb.form-no 
+              AND box-design-hdr.blank-no  EQ eb.blank-no:
+            FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
+                NO-LOCK:
+                v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
+                IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
+                    ASSIGN
+                        v-count            = v-count + 1
+                        v-w-array[v-count] = v-dec
+                        .
+            END.
+
+            RUN tokenize-proc(
+                INPUT box-design-hdr.lscore
+                ).
+
+            DO v-count = 1 TO 30:
+                ASSIGN
+                    v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                    v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                    .
+               
+                IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
+                    MESSAGE "Do you wish to reset box design?"
+                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2.
+                    IF ll-ans2 THEN
+                        lv-box-des = "B".
+                    ELSE
+                        lv-box-des = "N".
+                    LEAVE.
+                END.
+            END.
+        END.
+    END.
+    
+    DO li = 1 TO 2:
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
+            RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) (
+                lv-box-des
+                ).
+            li = 2.
+        END.
+        ELSE IF li EQ 1 THEN DO:
+            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+                RUN init-box-design IN WIDGET-HANDLE(char-hdl) (
+                    THIS-PROCEDURE
+                    ).
+            ELSE 
+                li = 2.
+        END.
+    END.
+      
+    IF cestyle-log               AND
+        (adm-adding-record       OR
+        lv-hld-wid   NE eb.wid   OR
+        lv-hld-len   NE eb.len   OR
+        lv-hld-dep   NE eb.dep   OR
+        lv-hld-style NE eb.style) THEN DO:
+        FIND FIRST sys-ctrl NO-LOCK 
+             WHERE sys-ctrl.company EQ cocode
+               AND sys-ctrl.name    EQ "CADFILE"
+             NO-ERROR.
+        IF NOT AVAILABLE sys-ctrl THEN DO:
+            CREATE sys-ctrl.
+            ASSIGN 
+                sys-ctrl.company  = cocode
+                sys-ctrl.name     = "CADFILE"
+                sys-ctrl.descrip  = "Dictate the location of the cad image to search."
+                sys-ctrl.char-fld = "R:\rcode\cadimage\"
+                .
+        END.
+        
+        lv-cad-path = IF AVAILABLE sys-ctrl THEN 
+                          sys-ctrl.char-fld
+                      ELSE 
+                          "".
+        IF lv-cad-path <> "" THEN DO:
+            IF lv-cad-ext = "" THEN 
+                lv-cad-ext = ".jpg".
+            IF SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) = ? THEN 
+                lv-cad-ext = "".
+        END.
+        IF SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? THEN DO:
+            FIND FIRST box-design-hdr 
+                 WHERE box-design-hdr.design-no EQ 0 
+                   AND box-design-hdr.company   EQ eb.company 
+                   AND box-design-hdr.est-no    EQ eb.est-no     
+                   AND box-design-hdr.form-no   EQ eb.form-no
+                   AND box-design-hdr.blank-no  EQ eb.blank-no
+                 NO-ERROR.
+            IF AVAILABLE box-design-hdr THEN 
+                box-design-hdr.box-image = lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
+        END.
+    END.
+  
+    IF eb.pur-man THEN DO:
+        FIND FIRST bf-ef EXCLUSIVE-LOCK
+             WHERE ROWID(bf-ef) EQ ROWID(ef)
+             NO-ERROR.
+        IF AVAILABLE bf-ef THEN
+            bf-ef.nc = NO.
+    END.
+
+    IF lCheckPurMan THEN DO:
+        FIND FIRST bff-itemfg EXCLUSIVE-LOCK
+             WHERE bff-itemfg.company EQ cocode
+               AND bff-itemfg.i-no    EQ eb.stock-no 
+             NO-ERROR.
+        IF AVAILABLE bff-itemfg THEN
+            bff-itemfg.pur-man = eb.pur-man.
+        FIND CURRENT bff-itemfg NO-LOCK NO-ERROR .
+    END.
+
+    lCheckPurMan = NO .
+
+    ll-new-shipto = NO.
+
+    RUN valid-eb-reckey.
+
+    IF adm-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
+        IF est.est-type NE 8 THEN
+            FOR EACH bf-eb 
+                WHERE bf-eb.company EQ eb.company
+                  AND bf-eb.est-no  EQ eb.est-no,
+                FIRST bf-ef 
+                WHERE bf-ef.company EQ eb.company
+                  AND bf-ef.est-no  EQ eb.est-no
+                  AND bf-ef.eqty EQ eb.eqty
+                  AND bf-ef.form-no EQ eb.form-no:
+                RUN upd-fg-frt-class (
+                    INPUT ROWID(bf-eb), 
+                    INPUT bf-ef.board
+                    ).
+            END.
+
+    END.
+
+    IF adm-new-record AND eb.pur-man THEN DO:
+        RUN create-e-itemfg-vend.
+        RUN CreateVendItemCost(
+            INPUT cocode,    
+            INPUT eb.stock-no,      
+            INPUT eb.est-no,    
+            INPUT eb.form-no,    
+            INPUT eb.blank-no
+            ).
+    END.        
+
+    ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:      
+        IF cOldFGItem NE eb.stock-no THEN DO:
+      
+            RUN update-e-itemfg-vend.
+               
+            IF CAN-FIND(FIRST vendItemCost
+                        WHERE vendItemCost.company    EQ cocode
+                          AND vendItemCost.ItemID     EQ cOldFGItem
+                          AND vendItemCost.estimateNo EQ eb.est-no
+                          AND vendItemCost.formNo     EQ eb.form-no
+                          AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
+                RUN VendCost_UpdateVendItemCost(
+                    INPUT cocode,
+                    INPUT eb.est-no,
+                    INPUT eb.form-no,
+                    INPUT eb.blank-no,
+                    INPUT cOldFGItem, /* Old FG Item */
+                    INPUT eb.stock-no /* New FG Item */
+                    ).    
+        END.      
+        ELSE IF eb.eqty NE viEQtyPrev THEN 
+            RUN update-e-itemfg-vend.                         
+    END.
+
+    /* If unitized and form 1, blank 1, copy to form zero record. */
+    IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
+        RUN copy-2-form-zero.     
+
+    IF is2PieceBox THEN DO:
+        FIND FIRST b-eb EXCLUSIVE-LOCK
+             WHERE b-eb.company  EQ est.company 
+               AND b-eb.est-no   EQ est.est-no 
+               AND b-eb.form-no  EQ 0 
+               AND b-eb.blank-no EQ 0
+             NO-ERROR.
+        ASSIGN 
+            b-eb.stock-no   = eb.stock-no
+            b-eb.part-no    = eb.part-no
+            b-eb.part-dscr1 = eb.part-dscr1
+            b-eb.part-dscr2 = eb.part-dscr2
+            b-eb.procat     = eb.procat
+            b-eb.len        = eb.len
+            b-eb.wid        = eb.wid
+            b-eb.dep        = eb.dep
+            .         
+        RELEASE b-eb.       
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win
 PROCEDURE pGetDefaultShipID:
     /*------------------------------------------------------------------------------
@@ -5158,6 +5455,8 @@ PROCEDURE local-add-record :
   DEF BUFFER b-eb FOR eb.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
   DEFINE VARIABLE riRowidEbNew AS ROWID NO-UNDO .
+  DEFINE VARIABLE lMiscType AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO. 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    ll-add-set = NO
@@ -5166,7 +5465,12 @@ PROCEDURE local-add-record :
    lv-die-no  = "".
 
   IF NOT ll-is-add-from-tool THEN DO:
-    RUN est/d-addfol.w (INPUT YES, OUTPUT ls-add-what).
+   
+    RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN pGetMiscType IN WIDGET-HANDLE(char-hdl) ( OUTPUT lMiscType).
+       
+    RUN est/d-addfol.w (INPUT YES,INPUT lMiscType, OUTPUT ls-add-what).
      /*run est/d-addwh2.w  (output ls-add-what).*/
      /*if ls-add-what = "set"    /* new estimate */
         then run est/d-addset.w (output ls-add-what). /* one item or set cec/est-add.p */*/
@@ -5266,30 +5570,15 @@ PROCEDURE local-assign-record :
   DEF VAR xx AS DEC NO-UNDO.
   DEF VAR lv-hld-cust LIKE eb.cust-no NO-UNDO.
   DEF VAR lv-hld-ship LIKE eb.ship-id NO-UNDO.
-  DEF VAR li-est-type AS INT NO-UNDO.
-  DEF VAR lv-hld-eqty LIKE est-qty.eqty NO-UNDO.
   DEF VAR lv-hld-fcol LIKE ef.f-col NO-UNDO.
   DEF VAR lv-hld-fpas LIKE ef.f-pass NO-UNDO.
   DEF VAR lv-hld-fcot LIKE ef.f-coat NO-UNDO.
   DEF VAR lv-hld-fctp LIKE ef.f-coat-p NO-UNDO.
-  DEF VAR lv-hld-wid LIKE eb.wid NO-UNDO.
-  DEF VAR lv-hld-len LIKE eb.len NO-UNDO.
-  DEF VAR lv-hld-dep LIKE eb.dep NO-UNDO.
-  DEF VAR lv-hld-style LIKE eb.style NO-UNDO.
-  DEF VAR lv-hld-board AS cha NO-UNDO.
   DEF VAR lv-layers AS DEC NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
-  DEF VAR lv-cad-path AS cha NO-UNDO.
-  DEF VAR lv-cad-ext AS cha NO-UNDO.
   DEF VAR ll-2pc AS LOG NO-UNDO.
-  DEF VAR lv-box-des AS CHAR INIT "S" NO-UNDO.
-  DEF VAR v-dec AS DEC NO-UNDO.
-  DEF VAR v-dec2 AS DEC NO-UNDO.
   DEF VAR v-count AS INT NO-UNDO.
-  DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.  
   DEF VAR cNewRep AS CHAR NO-UNDO.
-  DEFINE VARIABLE is2PieceBox AS LOG NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
   
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -5570,232 +5859,17 @@ PROCEDURE local-assign-record :
      END.
 
    END.
+
+   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
     
    IF est.est-type GT 6                           AND
-      (adm-new-record OR eb.yld-qty LT eb.bl-qty) THEN
-     RUN set-yld-qty (ROWID(eb)).
-
-  RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
-
-  IF cegoto-log                     OR
-     (est.est-type EQ 8       AND
-      old-bl-qty NE eb.bl-qty AND
-      NOT ll-new-record       AND
-      NOT ll-tandem) THEN RUN run-goto.
-
-  RUN estOpDim (INPUT-OUTPUT li-est-type, INPUT-OUTPUT lv-hld-eqty).
-
-  EMPTY TEMP-TABLE tt-eb-set.
-  EMPTY TEMP-TABLE tt-eb-set-part.
-  
-  IF est.est-type NE 8 THEN
-  FOR EACH bf-eb
-      WHERE bf-eb.company EQ eb.company
-        AND bf-eb.est-no  EQ eb.est-no
-        AND ROWID(bf-eb)  NE ROWID(eb):
-    ASSIGN
-     bf-eb.cust-no      = eb.cust-no
-     bf-eb.ship-id      = eb.ship-id
-     bf-eb.ship-no      = eb.ship-no
-     bf-eb.ship-name    = eb.ship-name
-     bf-eb.ship-addr[1] = eb.ship-addr[1]
-     bf-eb.ship-addr[2] = eb.ship-addr[2]
-     bf-eb.ship-city    = eb.ship-city
-     bf-eb.ship-state   = eb.ship-state
-     bf-eb.ship-zip     = eb.ship-zip
-     bf-eb.sman         = eb.sman
-     bf-eb.comm         = eb.comm.
-  END.
-
-  IF cestyle-log                    AND
-     (adm-adding-record        OR
-      lv-hld-wid   NE eb.wid   OR
-      lv-hld-len   NE eb.len   OR
-      lv-hld-dep   NE eb.dep   OR
-      lv-hld-style NE eb.style)     THEN DO:
-
-    IF NOT adm-new-record THEN
-       MESSAGE "Do you wish to reset box design?"
-          VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
-    ELSE ll-ans2 = YES.
-
-    IF ll-ans2 THEN lv-box-des = "B".
-    ELSE lv-box-des = "N".
-    
-  END.
-  ELSE
-     FOR FIRST box-design-hdr WHERE
-         box-design-hdr.design-no = 0 AND
-         box-design-hdr.company = eb.company AND
-         box-design-hdr.est-no = eb.est-no AND
-         box-design-hdr.form-no = eb.form-no AND
-         box-design-hdr.blank-no = eb.blank-no
-         NO-LOCK:
-
-         FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
-             NO-LOCK:
-             v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
-             IF NOT ERROR-STATUS:ERROR AND
-                TRIM(box-design-line.wscore) NE "" THEN
-                ASSIGN
-                   v-count = v-count + 1
-                   v-w-array[v-count] = v-dec.
-         END.
-
-         RUN tokenize-proc(box-design-hdr.lscore).
-
-         DO v-count = 1 TO 30:
-            ASSIGN
-               v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-               v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
-               
-            IF v-l-array[v-count] NE v-dec OR
-               v-w-array[v-count] NE v-dec2 THEN
-               DO:
-                  MESSAGE "Do you wish to reset box design?"
-                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2.
-                  IF ll-ans2 THEN
-                     lv-box-des = "B".
-                  ELSE
-                     lv-box-des = "N".
-                  LEAVE.
-               END.
-         END.
-     END.
-  
-  DO li = 1 TO 2:
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
-    IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
-      RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) (lv-box-des).
-      li = 2.
-    END.
-    ELSE
-    IF li EQ 1 THEN DO:
-      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
-      ELSE li = 2.
-    END.
-  END.
-      
-  IF cestyle-log                    AND
-     (adm-adding-record        OR
-      lv-hld-wid   NE eb.wid   OR
-      lv-hld-len   NE eb.len   OR
-      lv-hld-dep   NE eb.dep   OR
-      lv-hld-style NE eb.style)     THEN DO:
-    FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                        AND sys-ctrl.name    EQ "CADFILE"
-                        NO-LOCK NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO :
-      CREATE sys-ctrl.
-      ASSIGN sys-ctrl.company = cocode
-             sys-ctrl.name    = "CADFILE"
-             sys-ctrl.descrip = "Dictate the location of the cad image to search."
-             sys-ctrl.char-fld = "R:\rcode\cadimage\".      
-
-    END.
-    lv-cad-path = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-    IF lv-cad-path <> "" THEN DO:
-      IF lv-cad-ext = "" THEN lv-cad-ext = ".jpg".
-      IF SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) = ? THEN lv-cad-ext = "".
-    END.
-    IF SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? THEN DO:
-        FIND FIRST box-design-hdr WHERE box-design-hdr.design-no = 0 AND
-                                     box-design-hdr.company = eb.company 
-                                 AND box-design-hdr.est-no = eb.est-no     
-                                 AND box-design-hdr.form-no   EQ eb.form-no
-                                 AND box-design-hdr.blank-no  EQ eb.blank-no NO-ERROR.
-
-        IF AVAIL box-design-hdr THEN 
-           ASSIGN box-design-hdr.box-image = lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
-     END.
-  END.
-  
-  IF eb.pur-man THEN
-  	assign ef.nc = NO.
-  IF lCheckPurMan THEN DO:
-      FIND FIRST bff-itemfg EXCLUSIVE-LOCK
-           WHERE bff-itemfg.company EQ cocode
-             AND bff-itemfg.i-no EQ eb.stock-no NO-ERROR .
-      IF AVAIL bff-itemfg THEN
-          ASSIGN bff-itemfg.pur-man = eb.pur-man .
-      FIND CURRENT bff-itemfg NO-LOCK NO-ERROR .
-  END.
-  ASSIGN lCheckPurMan = NO .
-
-  ll-new-shipto = NO.
-  RUN valid-eb-reckey.
-
-  IF adm-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
-      IF est.est-type NE 8 THEN
-        FOR EACH bf-eb WHERE bf-eb.company EQ eb.company
-                         AND bf-eb.est-no  EQ eb.est-no,
-           FIRST bf-ef WHERE bf-ef.company EQ eb.company
-                         AND bf-ef.est-no  EQ eb.est-no
-                         AND bf-ef.eqty EQ eb.eqty
-                         AND bf-ef.form-no EQ eb.form-no:
-          RUN upd-fg-frt-class (INPUT ROWID(bf-eb), bf-ef.board).
-        END.
-
-  END.
-
-  IF adm-new-record AND eb.pur-man THEN DO:
-      RUN create-e-itemfg-vend.
-      RUN CreateVendItemCost(
-          INPUT cocode,    
-          INPUT eb.stock-no,      
-          INPUT eb.est-no,    
-          INPUT eb.form-no,    
-          INPUT eb.blank-no
-          ).
-  END.        
-
-  ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:
-      
-      IF cOldFGItem NE eb.stock-no THEN DO:
-          
-          RUN update-e-itemfg-vend.
-                   
-          IF CAN-FIND(FIRST vendItemCost
-                      WHERE vendItemCost.company    EQ cocode
-                        AND vendItemCost.ItemID     EQ cOldFGItem
-                        AND vendItemCost.estimateNo EQ eb.est-no
-                        AND vendItemCost.formNo     EQ eb.form-no
-                        AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
-                        
-              RUN VendCost_UpdateVendItemCost(
-                  INPUT cocode,
-                  INPUT eb.est-no,
-                  INPUT eb.form-no,
-                  INPUT eb.blank-no,
-                  INPUT cOldFGItem, /* Old FG Item */
-                  INPUT eb.stock-no /* New FG Item */
-                  ).    
-      END.      
-      ELSE IF eb.eqty NE viEQtyPrev THEN 
-          RUN update-e-itemfg-vend.                         
-  END.    
-
-
-  /* If unitized and form 1, blank 1, copy to form zero record. */
-  IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
-      RUN copy-2-form-zero.     
-
-  IF is2PieceBox THEN DO:
-     FIND b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 AND b-eb.blank-no = 0 EXCLUSIVE-LOCK.
-     ASSIGN b-eb.stock-no = eb.stock-no
-            b-eb.part-no = eb.part-no
-            b-eb.part-dscr1 = eb.part-dscr1
-            b-eb.part-dscr2 = eb.part-dscr2
-            b-eb.procat = eb.procat
-            b-eb.len = eb.len
-            b-eb.wid = eb.wid
-            b-eb.dep = eb.dep
-            .         
-     RELEASE b-eb.       
-  END.
-      
+      (adm-new-record OR eb.yld-qty LT eb.bl-qty) AND 
+      NOT (cegoto-log OR
+          (est.est-type EQ 8 AND
+           old-bl-qty NE eb.bl-qty AND
+           NOT ll-new-record       AND
+           NOT ll-tandem))THEN
+       RUN set-yld-qty (ROWID(eb)).      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6533,7 +6607,9 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
+  RUN pEstimateCleanUp.
+  
   IF old-cat-no NE eb.procat THEN DO:
        FIND FIRST itemfg WHERE itemfg.company = cocode AND
                             itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
@@ -6955,9 +7031,12 @@ PROCEDURE pCreateMiscEstimate :
         AND ROWID(bff-eb) EQ riEb NO-ERROR .
 
 
-  IF AVAIL bff-eb THEN
-      RUN est/dNewMiscCost.w( INPUT riEb ) .
-
+  IF AVAIL bff-eb THEN DO:
+      IF bff-eb.sourceEstimate NE "" THEN 
+        RUN est/BuildFarmForLogistics.p (INPUT riEb).
+      ELSE 
+        RUN est/dNewMiscCost.w( INPUT riEb ) .
+  END.
   IF iCount > 0 AND AVAIL bff-eb THEN do:
       
       RUN CreateEstReleaseForEstBlank(INPUT riEb, OUTPUT iEstReleaseID ,

@@ -58,6 +58,10 @@ ASSIGN
                     + "system/TagProcs.p,"
                     + "system/VendorCostProcs.p,"
                     + "system/ConversionProcs.p,"
+                    + "system/FileSysProcs.p,"
+                    + "system/OSProcs.p,"
+                    + "system/FormatProcs.p,"
+                    + "est/EstimateProcs.p,"                                                                
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
@@ -449,7 +453,7 @@ PROCEDURE displayMessageQuestion:
                        
     END. 
     
-    ELSE IF zMessage.msgType NE "QUESTION-YN" AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN DO:
+    ELSE IF zMessage.msgType NE "QUESTION-YN" AND zMessage.msgType NE "Message-Action" AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN DO:
         IF zMessage.userSuppress THEN 
             opcOutput = zMessage.rtnValue.
         ELSE DO:
@@ -473,7 +477,23 @@ PROCEDURE displayMessageQuestion:
                 opcOutput = STRING(lMessage).
             END.
             /* Deal with these options in next phase */
-            WHEN "QUESTION-CHAR" THEN DO:
+            WHEN "Message-Action" THEN DO:                      
+              IF zMessage.rtnValue EQ "ASK" THEN
+              DO:
+                 MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage.
+                opcOutput = STRING(lMessage).                  
+              END.
+              ELSE do:
+                 MESSAGE 
+                    fMessageText(ipcMessageID)
+                  VIEW-AS ALERT-BOX MESSAGE 
+                  TITLE fMessageTitle().
+                  opcOutput = STRING(zMessage.rtnValue).
+              END.            
             END.
             WHEN "QUESTION-INT" THEN DO:
             END.

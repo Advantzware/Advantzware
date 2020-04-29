@@ -337,7 +337,12 @@ PROCEDURE CREATE-ar-invl.
                ar-invl.std-fix-cost = itemfg.std-fix-cost
                ar-invl.std-var-cost = itemfg.std-var-cost 
                ar-invl.std-mat-cost = itemfg.std-mat-cost
-               ar-invl.inv-date     = inv-head.inv-date.
+               ar-invl.inv-date     = inv-head.inv-date
+               ar-invl.costStdFreight = inv-line.costStdFreight
+               ar-invl.costStdWarehouse = inv-line.costStdWarehouse
+               ar-invl.costStdDeviation = inv-line.costStdDeviation
+               ar-invl.costStdManufacture = inv-line.costStdManufacture
+               .
 
                if ar-invl.ord-no eq 0 then ar-invl.s-pct[1] = 100. 
 

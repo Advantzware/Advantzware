@@ -170,7 +170,7 @@
                                  + STRING(oe-relh.ship-i[2]) + " "
                                  + STRING(oe-relh.ship-i[3]) + " "
                                  + STRING(oe-relh.ship-i[4])
-            cReleaseStatus       = IF oe-relh.printed THEN "Update" ELSE "New"
+            cReleaseStatus       = IF oe-relh.w-ord THEN "On Hold" ELSE "Approved"
             .
         
         RUN oe/custxship.p (

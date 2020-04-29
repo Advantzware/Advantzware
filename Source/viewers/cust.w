@@ -2494,15 +2494,6 @@ PROCEDURE reftable-values :
 
   IF AVAIL cust THEN DO:
 
-    FIND FIRST reftable {&where-flat-comm} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.flat-comm"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no.
-    END.
     IF ip-display THEN
       fi_flat-comm = cust.flatCommPct.
     ELSE

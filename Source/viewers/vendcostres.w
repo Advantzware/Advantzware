@@ -80,44 +80,44 @@ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
 DEFINE QUERY external_tables FOR vendItemCost.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS vendItemCost.dimWidthMinimum ~
-vendItemCost.dimWidthMaximum vendItemCost.validWidth[1] ~
-vendItemCost.validWidth[11] vendItemCost.dimLengthMinimum ~
-vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
-vendItemCost.validWidth[12] vendItemCost.validWidth[3] ~
-vendItemCost.validWidth[13] vendItemCost.validWidth[4] ~
-vendItemCost.validWidth[14] vendItemCost.dimWidthUnder ~
-vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
-vendItemCost.validWidth[15] vendItemCost.dimLengthUnder ~
-vendItemCost.dimLengthOver vendItemCost.validWidth[6] ~
-vendItemCost.validWidth[16] vendItemCost.validWidth[7] ~
-vendItemCost.validWidth[17] vendItemCost.quantityMinimumOrder ~
-vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
-vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
-vendItemCost.validWidth[19] vendItemCost.validWidth[10] ~
+vendItemCost.dimWidthMaximum vendItemCost.dimLengthMinimum ~
+vendItemCost.dimLengthMaximum vendItemCost.dimWidthUnder ~
+vendItemCost.dimWidthUnderCharge vendItemCost.dimLengthUnder ~
+vendItemCost.dimLengthUnderCharge vendItemCost.quantityMinimumOrder ~
+vendItemCost.quantityMaximumOrder vendItemCost.validWidth[1] ~
+vendItemCost.validWidth[2] vendItemCost.validWidth[3] ~
+vendItemCost.validWidth[4] vendItemCost.validWidth[5] ~
+vendItemCost.validWidth[6] vendItemCost.validWidth[7] ~
+vendItemCost.validWidth[8] vendItemCost.validWidth[9] ~
+vendItemCost.validWidth[10] vendItemCost.validWidth[11] ~
+vendItemCost.validWidth[12] vendItemCost.validWidth[13] ~
+vendItemCost.validWidth[14] vendItemCost.validWidth[15] ~
+vendItemCost.validWidth[16] vendItemCost.validWidth[17] ~
+vendItemCost.validWidth[18] vendItemCost.validWidth[19] ~
 vendItemCost.validWidth[20] 
 &Scoped-define ENABLED-TABLES vendItemCost
 &Scoped-define FIRST-ENABLED-TABLE vendItemCost
 &Scoped-Define DISPLAYED-FIELDS vendItemCost.itemType vendItemCost.itemID ~
-vendItemCost.dimWidthMinimum vendItemCost.dimWidthMaximum ~
-vendItemCost.validWidth[1] vendItemCost.validWidth[11] ~
-vendItemCost.vendorID vendItemCost.dimLengthMinimum ~
-vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
-vendItemCost.validWidth[12] vendItemCost.customerID ~
-vendItemCost.validWidth[3] vendItemCost.validWidth[13] ~
-vendItemCost.estimateNo vendItemCost.formNo vendItemCost.blankNo ~
-vendItemCost.validWidth[4] vendItemCost.validWidth[14] ~
-vendItemCost.vendorItemID vendItemCost.dimWidthUnder ~
-vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
-vendItemCost.validWidth[15] vendItemCost.effectiveDate ~
-vendItemCost.dimLengthUnder vendItemCost.dimLengthOver ~
-vendItemCost.validWidth[6] vendItemCost.validWidth[16] ~
-vendItemCost.expirationDate vendItemCost.validWidth[7] ~
-vendItemCost.validWidth[17] vendItemCost.quantityMinimumOrder ~
-vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
-vendItemCost.createdDate vendItemCost.createdID ~
-vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
-vendItemCost.validWidth[19] vendItemCost.updatedID vendItemCost.updatedDate ~
-vendItemCost.validWidth[10] vendItemCost.validWidth[20] vendItemCost.vendorUOM
+vendItemCost.vendorID vendItemCost.customerID vendItemCost.estimateNo ~
+vendItemCost.formNo vendItemCost.blankNo vendItemCost.vendorItemID ~
+vendItemCost.effectiveDate vendItemCost.expirationDate ~
+vendItemCost.createdDate vendItemCost.createdID vendItemCost.updatedDate ~
+vendItemCost.updatedID vendItemCost.vendorUOM vendItemCost.dimWidthMinimum ~
+vendItemCost.dimWidthMaximum vendItemCost.dimLengthMinimum ~
+vendItemCost.dimLengthMaximum vendItemCost.dimWidthUnder ~
+vendItemCost.dimWidthUnderCharge vendItemCost.dimLengthUnder ~
+vendItemCost.dimLengthUnderCharge vendItemCost.quantityMinimumOrder ~
+vendItemCost.quantityMaximumOrder vendItemCost.validWidth[1] ~
+vendItemCost.validWidth[2] vendItemCost.validWidth[3] ~
+vendItemCost.validWidth[4] vendItemCost.validWidth[5] ~
+vendItemCost.validWidth[6] vendItemCost.validWidth[7] ~
+vendItemCost.validWidth[8] vendItemCost.validWidth[9] ~
+vendItemCost.validWidth[10] vendItemCost.validWidth[11] ~
+vendItemCost.validWidth[12] vendItemCost.validWidth[13] ~
+vendItemCost.validWidth[14] vendItemCost.validWidth[15] ~
+vendItemCost.validWidth[16] vendItemCost.validWidth[17] ~
+vendItemCost.validWidth[18] vendItemCost.validWidth[19] ~
+vendItemCost.validWidth[20] 
 &Scoped-define DISPLAYED-TABLES vendItemCost
 &Scoped-define FIRST-DISPLAYED-TABLE vendItemCost
 
@@ -130,8 +130,8 @@ vendItemCost.customerID vendItemCost.estimateNo
 vendItemCost.customerID vendItemCost.estimateNo vendItemCost.formNo ~
 vendItemCost.blankNo vendItemCost.vendorItemID vendItemCost.effectiveDate ~
 vendItemCost.expirationDate vendItemCost.createdDate vendItemCost.createdID ~
-vendItemCost.quantityMaximumOrder vendItemCost.updatedID ~
-vendItemCost.updatedDate vendItemCost.vendorUOM
+vendItemCost.updatedDate vendItemCost.updatedID vendItemCost.vendorUOM ~
+vendItemCost.quantityMaximumOrder 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,98 +186,22 @@ DEFINE FRAME F-Main
                      "RM","RM"
           DROP-DOWN-LIST
           SIZE 9 BY 1
-     vendItemCost.vendorUOM AT ROW 2.22 COL 95.2 COLON-ALIGNED
-          LABEL "Cost and Quantity UOM"
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-          BGCOLOR 15 
      vendItemCost.itemID AT ROW 3.43 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimWidthMinimum AT ROW 4.19 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 38 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimWidthMaximum AT ROW 4.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 36 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[11] AT ROW 4.29 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[1] AT ROW 4.33 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[11] AT ROW 4.33 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[1] AT ROW 4.33 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
           BGCOLOR 15 
      vendItemCost.vendorID AT ROW 4.57 COL 14.2 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthMinimum AT ROW 5.38 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 30 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimLengthMaximum AT ROW 5.38 COL 69.2 COLON-ALIGNED NO-LABEL WIDGET-ID 28 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[2] AT ROW 5.38 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[12] AT ROW 5.38 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[2] AT ROW 5.38 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[12] AT ROW 5.38 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
      vendItemCost.customerID AT ROW 5.71 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[3] AT ROW 6.43 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[13] AT ROW 6.43 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[3] AT ROW 6.43 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[13] AT ROW 6.43 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
           BGCOLOR 15 
      vendItemCost.estimateNo AT ROW 6.95 COL 14.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FGCOLOR 1 FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      vendItemCost.formNo AT ROW 6.95 COL 31.4 COLON-ALIGNED
           LABEL "F"
           VIEW-AS FILL-IN 
@@ -288,127 +212,20 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 
-     vendItemCost.validWidth[4] AT ROW 7.48 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[14] AT ROW 7.48 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[4] AT ROW 7.48 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[14] AT ROW 7.48 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
      vendItemCost.vendorItemID AT ROW 8.14 COL 14.2 COLON-ALIGNED
           LABEL "vend Item"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimWidthUnder AT ROW 8.43 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimWidthOver AT ROW 8.43 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 40 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[5] AT ROW 8.52 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[15] AT ROW 8.52 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[5] AT ROW 8.52 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[15] AT ROW 8.52 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
           BGCOLOR 15 
      vendItemCost.effectiveDate AT ROW 9.33 COL 14.2 COLON-ALIGNED
           LABEL "Effective"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthUnder AT ROW 9.52 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimLengthOver AT ROW 9.52 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 32 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[6] AT ROW 9.57 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[16] AT ROW 9.57 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[6] AT ROW 9.57 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FGCOLOR 1 FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     vendItemCost.validLength[16] AT ROW 9.57 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
      vendItemCost.expirationDate AT ROW 10.57 COL 14.2 COLON-ALIGNED
           LABEL "Expires"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[7] AT ROW 10.62 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[17] AT ROW 10.62 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[7] AT ROW 10.62 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[17] AT ROW 10.62 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.quantityMinimumOrder AT ROW 11.29 COL 68 COLON-ALIGNED WIDGET-ID 46
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[8] AT ROW 11.67 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[18] AT ROW 11.67 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[8] AT ROW 11.67 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[18] AT ROW 11.67 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
           BGCOLOR 15 
      vendItemCost.createdDate AT ROW 11.81 COL 14.2 COLON-ALIGNED
           LABEL "Created"
@@ -420,36 +237,40 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     vendItemCost.quantityMaximumOrder AT ROW 12.71 COL 68 COLON-ALIGNED WIDGET-ID 44
-          LABEL "Max Order Qty"
+     vendItemCost.updatedDate AT ROW 13.14 COL 14.2 COLON-ALIGNED
+          LABEL "Updated"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[9] AT ROW 12.71 COL 84.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validWidth[19] AT ROW 12.71 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[9] AT ROW 12.71 COL 112.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
-     vendItemCost.validLength[19] AT ROW 12.71 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
           BGCOLOR 15 
      vendItemCost.updatedID AT ROW 13.1 COL 35 COLON-ALIGNED
           LABEL "By"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     vendItemCost.updatedDate AT ROW 13.14 COL 14.2 COLON-ALIGNED
-          LABEL "Updated"
+     vendItemCost.vendorUOM AT ROW 2.24 COL 95.2 COLON-ALIGNED
+          LABEL "Cost and Quantity UOM"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
+          SIZE 7 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimWidthMinimum AT ROW 4.19 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 38 FORMAT ">>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimWidthMaximum AT ROW 4.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 36 FORMAT ">>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimLengthMinimum AT ROW 5.38 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 30 FORMAT ">>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimLengthMaximum AT ROW 5.38 COL 69.2 COLON-ALIGNED NO-LABEL WIDGET-ID 28 FORMAT ">>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimWidthUnder AT ROW 8.43 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
           BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -458,7 +279,107 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     vendItemCost.dimWidthUnderCharge AT ROW 8.4 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 54 FORMAT "->>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimLengthUnder AT ROW 9.52 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.dimLengthUnderCharge AT ROW 9.52 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 52 FORMAT "->>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.quantityMinimumOrder AT ROW 11.29 COL 68 COLON-ALIGNED WIDGET-ID 46
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 
+     vendItemCost.quantityMaximumOrder AT ROW 12.71 COL 68 COLON-ALIGNED WIDGET-ID 44
+          LABEL "Max Order Qty"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[1] AT ROW 4.33 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[2] AT ROW 5.38 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[3] AT ROW 6.43 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[4] AT ROW 7.48 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[5] AT ROW 8.52 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[6] AT ROW 9.57 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[7] AT ROW 10.62 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[8] AT ROW 11.67 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[9] AT ROW 12.71 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
      vendItemCost.validWidth[10] AT ROW 13.76 COL 84.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[11] AT ROW 4.33 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[12] AT ROW 5.38 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[13] AT ROW 6.43 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[14] AT ROW 7.48 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     vendItemCost.validWidth[15] AT ROW 8.52 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[16] AT ROW 9.57 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[17] AT ROW 10.62 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[18] AT ROW 11.67 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validWidth[19] AT ROW 12.71 COL 98.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
@@ -466,7 +387,86 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
+     vendItemCost.validLength[1] AT ROW 4.33 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[2] AT ROW 5.38 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[3] AT ROW 6.43 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[4] AT ROW 7.48 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[5] AT ROW 8.52 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[6] AT ROW 9.57 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[7] AT ROW 10.62 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[8] AT ROW 11.67 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[9] AT ROW 12.71 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
      vendItemCost.validLength[10] AT ROW 13.76 COL 112.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[11] AT ROW 4.29 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[12] AT ROW 5.38 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[13] AT ROW 6.43 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[14] AT ROW 7.48 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     vendItemCost.validLength[15] AT ROW 8.52 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[16] AT ROW 9.57 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[17] AT ROW 10.62 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[18] AT ROW 11.67 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     vendItemCost.validLength[19] AT ROW 12.71 COL 126.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
@@ -474,28 +474,28 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
+     "Upcharge" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 7.62 COL 71.2 WIDGET-ID 14
      "Valid Roll Widths" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 3.57 COL 90 WIDGET-ID 50
-     "Under" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
-     "Upcharge" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 7.62 COL 72 WIDGET-ID 14
      " Restrictions" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.71 COL 51 WIDGET-ID 8
      " Vendor Item Cost Details" VIEW-AS TEXT
           SIZE 29.8 BY .62 AT ROW 1.33 COL 4.2
-     "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
-     "W:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 4.52 COL 52.8 WIDGET-ID 20
-     "Max" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.57 COL 72 WIDGET-ID 26
-     "Min" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.57 COL 58.2 WIDGET-ID 24
-     "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 9.52 COL 53 WIDGET-ID 18
      "W:" VIEW-AS TEXT
           SIZE 4 BY .62 AT ROW 8.57 COL 53 WIDGET-ID 16
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 9.52 COL 53 WIDGET-ID 18
+     "Min" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.57 COL 58.2 WIDGET-ID 24
+     "Max" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.57 COL 72 WIDGET-ID 26
+     "W:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 4.52 COL 52.8 WIDGET-ID 20
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
+     "Under" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 2
      RECT-6 AT ROW 2.05 COL 49.2 WIDGET-ID 4
@@ -556,7 +556,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -573,18 +573,18 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthMinimum IN FRAME F-Main
    EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN vendItemCost.dimLengthOver IN FRAME F-Main
-   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimLengthUnder IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN vendItemCost.dimLengthUnderCharge IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthMaximum IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthMinimum IN FRAME F-Main
    EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN vendItemCost.dimWidthOver IN FRAME F-Main
-   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN vendItemCost.dimWidthUnder IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN vendItemCost.dimWidthUnderCharge IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vendItemCost.effectiveDate IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.estimateNo IN FRAME F-Main
@@ -611,8 +611,6 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.validLength[10] IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
-/* SETTINGS FOR FILL-IN vendItemCost.vendorUOM IN FRAME F-Main
- NO-ENABLE 2 EXP-LABEL                                                  */
 ASSIGN 
        vendItemCost.validLength[10]:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -714,6 +712,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN vendItemCost.vendorID IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.vendorItemID IN FRAME F-Main
+   NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN vendItemCost.vendorUOM IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

@@ -1547,6 +1547,7 @@ PROCEDURE pCheckUpgradeAdvantzware :
     DEFINE VARIABLE cVersion      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hSalesSoap    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hWebService   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lContinue     AS LOGICAL   NO-UNDO.
 
     IF lAdmin THEN DO:
         RUN sys/ref/nk1look.p (
@@ -1564,12 +1565,17 @@ PROCEDURE pCheckUpgradeAdvantzware :
                 iLastVersion = fIntVer(cVersion)
                 .
             IF iLastVersion GT iThisVersion THEN DO:
+                RUN displayMessageQuestion ("31", OUTPUT lContinue).
+                IF NOT lContinue THEN RETURN.
                 RUN sys/ref/nk1look.p (
                     g_company,"MENULINKUPGRADE","DS",NO,NO,"","",
                     OUTPUT upgradeLink,OUTPUT lFound
                     ).
                 OS-COMMAND NO-WAIT START VALUE(upgradeLink).
-                QUIT.
+                /* Same as window close, without the Exit? dialog box */
+                RUN pSetUserSettings (NO).
+                RUN system/userLogOut.p (NO, 0).
+                QUIT. /* kills all processes */
             END. /* different version */
             ELSE
             RUN displayMessage ("24").

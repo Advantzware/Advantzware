@@ -407,7 +407,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.qty ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
@@ -417,8 +418,8 @@ oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] ~
 oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
 oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
 oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
-oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
-oe-ordl.spare-char-2 
+oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1  ~
+oe-ordl.spare-char-2 oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-TABLES-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define QUERY-STRING-d-oeitem FOR EACH oe-ordl SHARE-LOCK, ~
@@ -443,7 +444,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.SourceEstimateID
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
@@ -458,7 +460,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.SourceEstimateID
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
@@ -642,6 +645,10 @@ DEFINE FRAME d-oeitem
      oe-ordl.est-no AT ROW 1.24 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     oe-ordl.SourceEstimateID AT ROW 1.24 COL 60.6 COLON-ALIGNED FORMAT "x(8)"
+          LABEL "Pricing Est ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1    
      oe-ordl.job-no AT ROW 1.14 COL 95 COLON-ALIGNED FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
@@ -873,6 +880,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
+   EXP-FORMAT EXP-LABEL                                                 */   
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPromDtLabel IN FRAME d-oeitem
@@ -2899,7 +2908,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
        oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
-        
+    oe-ordl.SourceEstimateID:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.    
  END.
 
   IF fgsecurity-log THEN
@@ -3337,11 +3346,13 @@ DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
 DEF VAR lcChoice AS CHAR NO-UNDO.
 DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO.
 
 DO WITH FRAME {&FRAME-NAME}:
+    cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
     RUN oe/d-quotedprices.w("Button",cocode,
                         locode,
-                        oe-ordl.est-no:SCREEN-VALUE,
+                        cQuoteEst,
                         oe-ordl.cust-no,
                         oe-ordl.part-no:SCREEN-VALUE,
                         oe-ordl.i-no:SCREEN-VALUE,
@@ -4274,6 +4285,7 @@ PROCEDURE display-est-detail :
   DEF VAR v-price-per-1000 AS DEC NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO .
   
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -4282,8 +4294,11 @@ PROCEDURE display-est-detail :
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
+                            
+  RUN pGetMiscEst(INPUT-OUTPUT ip-recid) .                          
 
-  FIND FIRST eb WHERE RECID(eb) = ip-recid NO-LOCK NO-ERROR.
+  FIND FIRST eb WHERE RECID(eb) = ip-recid NO-LOCK NO-ERROR.       
+                        
   IF AVAIL eb THEN DO WITH FRAME {&Frame-name}:
      IF eb.stock-no NE "" THEN
      FIND FIRST itemfg
@@ -4503,7 +4518,7 @@ PROCEDURE display-est-detail :
    lv-price  = dec(oe-ordl.price:SCREEN-VALUE)
    lv-pr-uom = oe-ordl.pr-uom:SCREEN-VALUE
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
-
+   cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
   IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
       NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4511,7 +4526,7 @@ PROCEDURE display-est-detail :
           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN DO:
      ll-got-qtprice = YES.
         
-     RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
+     RUN pGetQuoteRec(cQuoteEst /*xest.est-no*/,oe-ordl.part-no:SCREEN-VALUE,
                       oe-ordl.i-no:SCREEN-VALUE,
                       INPUT-OUTPUT lv-price ,
                       INPUT-OUTPUT lv-pr-uom,
@@ -5236,6 +5251,7 @@ PROCEDURE display-item :
             fi_sname-1
             fi_s-pct-lbl
             fi_s-comm-lbl
+            oe-ordl.SourceEstimateID            
           WITH FRAME {&frame-name}.
 
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -5293,6 +5309,7 @@ PROCEDURE enable_UI :
           oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
           oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+          oe-ordl.SourceEstimateID
       WITH FRAME d-oeitem.
   ENABLE oe-ordl.est-no oe-ordl.qty fi_qty-uom oe-ordl.i-no oe-ordl.part-no 
          oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 
@@ -5304,8 +5321,8 @@ PROCEDURE enable_UI :
          oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct 
          oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
          Btn_OK Btn_Done Btn_Cancel Btn_hist oe-ordl.spare-char-1 
-         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 fi_jobStartDate btn-quotes 
-         RECT-31 RECT-39 RECT-40 RECT-41 
+         oe-ordl.spare-dec-1 oe-ordl.spare-char-2 oe-ordl.SourceEstimateID  
+         fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41  
       WITH FRAME d-oeitem.
   VIEW FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
@@ -7503,7 +7520,7 @@ DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
        IF j GT 1 THEN
            RUN oe/d-quotedprices.w("",cocode,
                           locode,
-                          oe-ordl.est-no:SCREEN-VALUE,
+                          ipcEstNo,
                           oe-ordl.cust-no,
                           oe-ordl.part-no:SCREEN-VALUE,
                           oe-ordl.i-no:SCREEN-VALUE,
@@ -9640,15 +9657,17 @@ PROCEDURE validate-all :
        APPLY "entry" TO oe-ordl.prom-date.
        RETURN ERROR.
     END.
-    IF INDEX(v-duelist,oe-ordl.req-code:screen-value) <= 0 THEN DO:
-       MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO oe-ordl.req-code.
-       RETURN ERROR.
+    IF oe-ordl.req-code:SCREEN-VALUE NE "" AND 
+        LOOKUP(oe-ordl.req-code:SCREEN-VALUE ,v-duelist) EQ 0 THEN DO:
+        MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO oe-ordl.req-code.
+        RETURN ERROR.
     END.
-    IF INDEX(v-duelist,oe-ordl.prom-code:screen-value) <= 0 THEN DO:
-       MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO oe-ordl.prom-code.
-       RETURN ERROR.
+    IF oe-ordl.prom-code:SCREEN-VALUE NE "" AND 
+        LOOKUP(oe-ordl.prom-code:SCREEN-VALUE ,v-duelist) EQ 0 THEN DO:
+        MESSAGE "Invalid Priority Code. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO oe-ordl.prom-code.
+        RETURN ERROR.
     END. 
     
     RUN valid-po-no NO-ERROR.
@@ -9955,6 +9974,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst d-oeitem 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT-OUTPUT PARAMETER ipo-Recid AS RECID NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+   
+     FIND FIRST bff-eb WHERE RECID(bff-eb) = ipo-Recid NO-LOCK NO-ERROR.
+     IF AVAIL bff-eb THEN
+     FIND FIRST bff-est WHERE bff-est.company = bff-eb.company
+                AND bff-est.est-no = bff-eb.est-no NO-LOCK NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ bff-eb.company
+               AND trim(eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL eb THEN do:
+                 ipo-Recid = RECID(eb) .                 
+                 oe-ordl.SourceEstimateID:SCREEN-VALUE = bff-eb.est-no .
+                 oe-ordl.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
 
 /* ************************  Function Implementations ***************** */
 

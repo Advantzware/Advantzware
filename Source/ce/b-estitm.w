@@ -107,6 +107,10 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lCEGOTOCALC AS LOG NO-UNDO.
 DEFINE VARIABLE cNK1Value AS CHAR NO-UNDO.
 
+DEFINE VARIABLE li-est-type  AS INTEGER      NO-UNDO.
+DEFINE VARIABLE lv-hld-cust  LIKE eb.cust-no NO-UNDO.
+DEFINE VARIABLE lv-hld-style LIKE eb.style   NO-UNDO.
+
 /*DEF BUFFER bf-ef FOR ef.
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-est FOR est.*/
@@ -1663,7 +1667,7 @@ PROCEDURE add-estimate :
   ASSIGN
   ll-is-add-from-tool = YES  /* add from option button not from add button */
   ls-add-what = "est" .   /* new estimate */
-  RUN est/d-addfol.w (INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+  RUN est/d-addfol.w (INPUT NO,INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
 
   IF ls-add-what EQ "est" THEN DO:
@@ -3433,7 +3437,7 @@ PROCEDURE local-add-record :
   
   IF NOT ll-is-add-from-tool THEN DO:
     ls-add-what = "est" .   /* new estimate */
-    RUN est/d-addfol.w (INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+    RUN est/d-addfol.w (INPUT NO,INPUT NO, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
     IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
   END.
 
@@ -3515,10 +3519,7 @@ PROCEDURE local-assign-record :
 
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
-  DEF VAR xx AS DEC NO-UNDO.
-  DEF VAR lv-hld-cust LIKE eb.cust-no NO-UNDO.
   DEF VAR lv-hld-ship LIKE eb.ship-id NO-UNDO.
-  DEF VAR li-est-type AS INT NO-UNDO.
   DEF VAR lv-hld-bl-qty LIKE eb.bl-qty NO-UNDO.
   DEF VAR lv-hld-icol LIKE eb.i-col NO-UNDO.
   DEF VAR lv-hld-icot LIKE eb.i-coat NO-UNDO.
@@ -3530,14 +3531,12 @@ PROCEDURE local-assign-record :
   DEF VAR lv-hld-wid LIKE eb.wid NO-UNDO.
   DEF VAR lv-hld-len LIKE eb.len NO-UNDO.
   DEF VAR lv-hld-dep LIKE eb.dep NO-UNDO.
-  DEF VAR lv-hld-style LIKE eb.style NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR uom-list AS cha NO-UNDO.
   DEF VAR lv-hld-board AS cha NO-UNDO.
   DEF VAR ld-markup AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-  DEF VAR lv-box-des AS CHAR INIT "S" NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -3818,179 +3817,13 @@ PROCEDURE local-assign-record :
     {ce/updunit#.i eb}
   END.
 
-  IF est.est-type GT 1                           AND
-     (adm-new-record OR eb.yld-qty NE eb.bl-qty) THEN
-    RUN set-yld-qty (ROWID(eb)).
-
   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
 
-  IF cegoto-log                     OR
-     (est.est-type EQ 4       AND
-      old-bl-qty NE eb.bl-qty AND
-      NOT ll-new-record       AND
-      NOT ll-tandem)                THEN RUN run-goto
-    .
-
-  IF NOT ll-is-copy-record AND ceroute-log AND li-est-type EQ 1 THEN DO:
-     FIND xest WHERE RECID(xest) = recid(est).
-     FIND xef WHERE RECID(xef) = recid(ef).
-     FIND xeb WHERE RECID(xeb) = recid(eb).
-
-     FOR EACH est-op
-         WHERE est-op.company EQ xest.company
-           AND est-op.est-no  EQ xest.est-no
-           AND est-op.line    GE 500:
-       DELETE est-op.
-     END.
-    
-     IF CAN-FIND(FIRST est-op WHERE est-op.company EQ xest.company
-                                AND est-op.est-no  EQ xest.est-no
-                                AND est-op.s-num   EQ xef.form-no) THEN
-     FOR EACH est-op
-         WHERE est-op.company EQ xest.company
-           AND est-op.est-no  EQ xest.est-no
-           AND est-op.s-num   EQ xef.form-no
-         NO-LOCK:
-     END.
-  
-     ELSE DO:
-       /* Protect existing est-op records */
-       FOR EACH tt-est-op:
-         DELETE tt-est-op.
-       END.
-
-       FOR EACH est-op
-           WHERE est-op.company EQ xest.company
-             AND est-op.est-no  EQ xest.est-no:
-         CREATE tt-est-op.
-         BUFFER-COPY est-op TO tt-est-op.
-         DELETE est-op.
-       END.
-                                
-       xx = dec(xef.form-no).
-
-       RUN ce/mach-seq.p (est-qty.eqty).
-
-       FOR EACH est-op
-           WHERE est-op.company EQ xest.company
-             AND est-op.est-no  EQ xest.est-no
-             AND est-op.s-num   NE int(xx):
-         DELETE est-op.
-       END.
-
-       FOR EACH tt-est-op:
-         CREATE est-op.
-         BUFFER-COPY tt-est-op TO est-op.
-         DELETE tt-est-op.
-       END.
-     END.
-  END.
-      
-  IF est.est-type NE 4 THEN
-  FOR EACH bf-eb
-      WHERE bf-eb.company EQ eb.company
-        AND bf-eb.est-no  EQ eb.est-no
-        AND ROWID(bf-eb)  NE ROWID(eb):
-    ASSIGN
-     bf-eb.cust-no      = eb.cust-no
-     bf-eb.ship-id      = eb.ship-id
-     bf-eb.ship-no      = eb.ship-no
-     bf-eb.ship-name    = eb.ship-name
-     bf-eb.ship-addr[1] = eb.ship-addr[1]
-     bf-eb.ship-addr[2] = eb.ship-addr[2]
-     bf-eb.ship-city    = eb.ship-city
-     bf-eb.ship-state   = eb.ship-state
-     bf-eb.ship-zip     = eb.ship-zip
-     bf-eb.sman         = eb.sman
-     bf-eb.comm         = eb.comm.
-  END. 
-  IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
-       FIND FIRST cust NO-LOCK
-            WHERE cust.company = gcompany
-              AND cust.cust-no = eb.cust-no NO-ERROR.
-       IF AVAIL cust THEN
-           est.csrUser_id = cust.csrUser_id .
-  END.
-
-  IF cestyle-log                                     AND
-     (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
-
-    IF NOT adm-new-record THEN
-      MESSAGE "Do you wish to reset box design?"
-          VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
-    ELSE ll-ans2 = YES.
-
-    IF ll-ans2 THEN
-       lv-box-des = "B".
-    ELSE
-       lv-box-des = "N".
-  END.
- 
-  DO li = 1 TO 2:
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
-    IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
-      RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) (lv-box-des).
-      li = 2.
-    END.
-    ELSE
-    IF li EQ 1 THEN DO:
-      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
-      ELSE li = 2.
-    END.
-  END.
-
-  IF eb.pur-man THEN ef.nc = NO.
-  IF lCheckPurMan THEN DO:
-      FIND FIRST bff-itemfg EXCLUSIVE-LOCK
-           WHERE bff-itemfg.company EQ cocode
-             AND bff-itemfg.i-no EQ eb.stock-no NO-ERROR .
-      IF AVAIL bff-itemfg THEN
-          ASSIGN bff-itemfg.pur-man = eb.pur-man .
-      FIND CURRENT bff-itemfg NO-LOCK NO-ERROR .
-  END.
-  ASSIGN lCheckPurMan = NO .
-  
-  IF adm-new-record AND eb.pur-man THEN DO:
-      RUN create-e-itemfg-vend.
-      RUN CreateVendItemCost(
-          INPUT cocode,    
-          INPUT eb.stock-no,      
-          INPUT eb.est-no,    
-          INPUT eb.form-no,    
-          INPUT eb.blank-no
-          ).
-  END.        
-
-  ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:
-     
-      IF cOldFGItem NE eb.stock-no THEN DO:
-          
-          RUN update-e-itemfg-vend.
-                   
-          IF CAN-FIND(FIRST vendItemCost
-                      WHERE vendItemCost.company    EQ cocode
-                        AND vendItemCost.ItemID     EQ cOldFGItem
-                        AND vendItemCost.estimateNo EQ eb.est-no
-                        AND vendItemCost.formNo     EQ eb.form-no
-                        AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
-                        
-              RUN VendCost_UpdateVendItemCost(
-                  INPUT cocode,
-                  INPUT eb.est-no,
-                  INPUT eb.form-no,
-                  INPUT eb.blank-no,
-                  INPUT cOldFGItem, /* Old FG Item */
-                  INPUT eb.stock-no /* New FG Item */
-                  ).    
-      END.      
-      ELSE IF eb.eqty NE viEQtyPrev THEN 
-          RUN update-e-itemfg-vend.                         
-  END.    
-
-  ll-new-shipto = NO.
-  RUN valid-eb-reckey.
+  IF est.est-type GT 1 AND (adm-new-record OR eb.yld-qty NE eb.bl-qty) AND 
+     NOT (cegoto-log OR (est.est-type EQ 4 AND old-bl-qty NE eb.bl-qty AND NOT ll-new-record AND NOT ll-tandem)) THEN
+        RUN set-yld-qty (
+            INPUT ROWID(eb)
+            ).
 
 END PROCEDURE.
 
@@ -4599,6 +4432,8 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
   
+  RUN pEstimateCleanUp.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   RUN release-shared-buffers.
 
@@ -4763,8 +4598,9 @@ PROCEDURE mass-delete :
                AND bf-ef.est-no  EQ tt-eb.est-no 
                AND bf-ef.form-no EQ tt-eb.form-no NO-ERROR .
         RUN repo-query (ROWID(bf-ef), tt-eb.row-id).
-        IF AVAILABLE eb THEN 
+        IF AVAILABLE eb AND eb.est-no EQ tt-eb.est-no THEN 
             RUN dispatch ("delete-record").
+            
     END.
   END.
 
@@ -5037,6 +4873,212 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOperation1 B-table-Win
+PROCEDURE pEstimateCleanUp:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE li           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-box-des   AS CHARACTER NO-UNDO INITIAL "S".
+    DEFINE VARIABLE xx           AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-eb     FOR eb.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-ef     FOR ef.
+    
+    IF cegoto-log OR (est.est-type EQ 4 AND old-bl-qty NE eb.bl-qty AND NOT ll-new-record AND NOT ll-tandem) THEN
+        RUN run-goto.
+
+    IF NOT ll-is-copy-record AND ceroute-log AND li-est-type EQ 1 THEN 
+    DO:
+        FIND FIRST xest 
+            WHERE RECID(xest) EQ RECID(est)
+            NO-ERROR.
+
+        FIND FIRST xef 
+             WHERE RECID(xef) EQ RECID(ef)
+             NO-ERROR.
+             
+        FIND FIRST xeb 
+             WHERE RECID(xeb) EQ RECID(eb)
+             NO-ERROR.
+
+        FOR EACH est-op
+            WHERE est-op.company EQ xest.company
+              AND est-op.est-no  EQ xest.est-no
+              AND est-op.line    GE 500:
+            DELETE est-op.
+        END.
+    
+        IF CAN-FIND(FIRST est-op 
+                    WHERE est-op.company EQ xest.company
+                      AND est-op.est-no  EQ xest.est-no
+                      AND est-op.s-num   EQ xef.form-no) THEN
+            FOR EACH est-op NO-LOCK
+                WHERE est-op.company EQ xest.company
+                  AND est-op.est-no  EQ xest.est-no
+                  AND est-op.s-num   EQ xef.form-no:
+            END.  
+        ELSE DO:
+            /* Protect existing est-op records */
+            FOR EACH tt-est-op:
+                DELETE tt-est-op.
+            END.
+
+            FOR EACH est-op
+                WHERE est-op.company EQ xest.company
+                  AND est-op.est-no  EQ xest.est-no:
+                CREATE tt-est-op.
+                BUFFER-COPY est-op TO tt-est-op.
+                DELETE est-op.
+            END.
+                                
+            xx = DECIMAL(xef.form-no).
+
+            RUN ce/mach-seq.p (
+                INPUT est-qty.eqty
+                ).
+
+            FOR EACH est-op
+                WHERE est-op.company EQ xest.company
+                  AND est-op.est-no  EQ xest.est-no
+                  AND est-op.s-num   NE INTEGER(xx):
+                DELETE est-op.
+            END.
+
+            FOR EACH tt-est-op:
+                CREATE est-op.
+                BUFFER-COPY tt-est-op TO est-op.
+                DELETE tt-est-op.
+            END.
+        END.
+    END.
+      
+    IF est.est-type NE 4 THEN
+        FOR EACH bf-eb
+            WHERE bf-eb.company EQ eb.company
+              AND bf-eb.est-no  EQ eb.est-no
+              AND ROWID(bf-eb)  NE ROWID(eb):
+            ASSIGN
+                bf-eb.cust-no      = eb.cust-no
+                bf-eb.ship-id      = eb.ship-id
+                bf-eb.ship-no      = eb.ship-no
+                bf-eb.ship-name    = eb.ship-name
+                bf-eb.ship-addr[1] = eb.ship-addr[1]
+                bf-eb.ship-addr[2] = eb.ship-addr[2]
+                bf-eb.ship-city    = eb.ship-city
+                bf-eb.ship-state   = eb.ship-state
+                bf-eb.ship-zip     = eb.ship-zip
+                bf-eb.sman         = eb.sman
+                bf-eb.comm         = eb.comm
+                .
+        END. 
+
+    IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ gcompany
+               AND cust.cust-no EQ eb.cust-no
+             NO-ERROR.
+        IF AVAILABLE cust THEN
+            est.csrUser_id = cust.csrUser_id.
+    END.
+
+    IF cestyle-log AND (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
+        IF NOT adm-new-record THEN
+            MESSAGE "Do you wish to reset box design?"
+                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+        ELSE 
+            ll-ans2 = YES.
+
+        IF ll-ans2 THEN
+            lv-box-des = "B".
+        ELSE
+            lv-box-des = "N".
+    END.
+ 
+    DO li = 1 TO 2:
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
+            RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) (lv-box-des).
+            li = 2.
+        END.
+        ELSE IF li EQ 1 THEN DO:
+            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+                RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
+            ELSE 
+                li = 2.
+        END.
+    END.
+
+    IF eb.pur-man THEN DO:
+        FIND FIRST bf-ef EXCLUSIVE-LOCK
+             WHERE ROWID(bf-ef) EQ ROWID(ef)
+             NO-ERROR.
+        IF AVAILABLE bf-ef THEN
+            bf-ef.nc = NO.
+    END.
+    
+    IF lCheckPurMan THEN DO:
+        FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+             WHERE bf-itemfg.company EQ cocode
+               AND bf-itemfg.i-no EQ eb.stock-no 
+             NO-ERROR .
+        IF AVAILABLE bf-itemfg THEN
+            bf-itemfg.pur-man = eb.pur-man.
+        
+        FIND CURRENT bf-itemfg NO-LOCK NO-ERROR.
+    END.
+        
+    lCheckPurMan = NO.
+  
+    IF adm-new-record AND eb.pur-man THEN DO:
+        RUN create-e-itemfg-vend.
+        RUN CreateVendItemCost(
+            INPUT cocode,    
+            INPUT eb.stock-no,      
+            INPUT eb.est-no,    
+            INPUT eb.form-no,    
+            INPUT eb.blank-no
+            ).
+    END.        
+    ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:     
+        IF cOldFGItem NE eb.stock-no THEN DO:
+      
+            RUN update-e-itemfg-vend.
+               
+            IF CAN-FIND(FIRST vendItemCost
+                        WHERE vendItemCost.company    EQ cocode
+                          AND vendItemCost.ItemID     EQ cOldFGItem
+                          AND vendItemCost.estimateNo EQ eb.est-no
+                          AND vendItemCost.formNo     EQ eb.form-no
+                          AND vendItemCost.blankNo    EQ eb.blank-no) THEN                    
+                RUN VendCost_UpdateVendItemCost(
+                    INPUT cocode,
+                    INPUT eb.est-no,
+                    INPUT eb.form-no,
+                    INPUT eb.blank-no,
+                    INPUT cOldFGItem, /* Old FG Item */
+                    INPUT eb.stock-no /* New FG Item */
+                    ).    
+        END.      
+        ELSE IF eb.eqty NE viEQtyPrev THEN 
+            RUN update-e-itemfg-vend.                         
+    END.    
+
+    ll-new-shipto = NO.
+
+    RUN valid-eb-reckey.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :

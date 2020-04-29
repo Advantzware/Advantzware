@@ -33,6 +33,7 @@ DEF VAR v-ship-name AS CHAR NO-UNDO .
 DEF VAR v-fg-cat AS CHAR INIT "" NO-UNDO .
 DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cRelDueDate AS CHARACTER NO-UNDO.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -549,6 +550,8 @@ form header
        v-po-no   = oe-rel.po-no
        v-ship-id = oe-rel.ship-id
        v-carrier = oe-rel.carrier.
+       
+       cRelDueDate = IF AVAIL oe-rel THEN STRING(ENTRY(1, oe-rel.spare-char-4)) ELSE "".
 
     create w-ord.
 
@@ -598,7 +601,9 @@ form header
        w-ord.ord-date     = string(oe-ord.ord-date)
        w-ord.prom-date         = oe-ordl.prom-date
        w-ord.csrUser_id        = oe-ord.csrUser_id
-       w-ord.entered-id        = oe-ord.entered-id .
+       w-ord.entered-id        = oe-ord.entered-id 
+       w-ord.ord-due-date      = IF oe-ord.due-date NE ? THEN string(oe-ord.due-date) ELSE ""  
+       w-ord.rel-due-date      = IF cRelDueDate NE ? THEN cRelDueDate ELSE "" .
 
       {sys/inc/roundup.i ld-palls}
 

@@ -21,6 +21,11 @@ DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcJobNo            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiJobNo2           AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCustNo           AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiPoID             AS INTEGER   NO-UNDO.             
+DEFINE INPUT  PARAMETER iplIncludeZeroQty   AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER iplIncludeEmptyTag  AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcStatus           AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplOnHold           AS LOGICAL   NO-UNDO. /* Send ? as input to ignore onHold in query filter */
 DEFINE INPUT  PARAMETER ipcItemType         AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
@@ -43,6 +48,9 @@ DEFINE VARIABLE cTableFG         AS CHARACTER NO-UNDO INITIAL "fg-bin".
 DEFINE VARIABLE cTableRM         AS CHARACTER NO-UNDO INITIAL "rm-bin".
 DEFINE VARIABLE lValidJobNo      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidCustNo     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidPoID       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidStatus     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidOnHold     AS LOGICAL   NO-UNDO.
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -54,6 +62,9 @@ ASSIGN
     lValidItem    = ipcPrimaryID NE "" 
     lValidJobNo   = ipcJobNo NE "" 
     lValidCustNo  = ipcCustNo NE "" 
+    lValidPoID    = ipiPoID NE 0
+    lValidStatus  = ipcStatus NE ""
+    lValidOnHold  = iplOnHold NE ?
     lValidCompany = YES
     ipcItemType   = IF ipcItemType EQ "" THEN
                         cItemTypeFG
@@ -77,7 +88,7 @@ IF NOT lValidLoc AND
    NOT lValidTag AND
    NOT lValidItem THEN DO:
     ASSIGN 
-        opcMessage = "Enter value for loc&bin / tag / item to get inventory details"
+        opcMessage = "Enter value for warehouse & location / tag / item to get inventory details"
         oplSuccess = NO 
         .
         
@@ -193,14 +204,18 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     
     cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
            + (IF lValidTag    THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF iplIncludeEmptyTag THEN " AND fg-bin.tag NE ''" ELSE "")
            + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc    THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
            + (IF lValidBin    THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
            + (IF lValidJobNo  THEN " AND fg-bin.job-no EQ '" + ipcJobNo + "'" ELSE "")
-           + (IF lValidJobNo  THEN " AND fg-bin.job-no2 EQ ' + STRING(ipiJobNo2) + '" ELSE "")
+           + (IF lValidJobNo  THEN " AND fg-bin.job-no2 EQ " + STRING(ipiJobNo2) ELSE "")
            + (IF lValidCustNo THEN " AND fg-bin.cust-no EQ '" + ipcCustNo + "'" ELSE "")
-           + "AND fg-bin.qty NE 0 "
-           + "AND fg-bin.qty NE ?".
+           + (IF lValidPoID   THEN " AND fg-bin.po-no EQ '" + STRING(ipiPoID) + "'" ELSE "")
+           + (IF lValidStatus THEN " AND fg-bin.statusID EQ '" + ipcStatus + "'" ELSE "")
+           + (IF lValidOnHold THEN " AND fg-bin.onHold EQ " + STRING(iplOnHold) ELSE "") 
+           + (IF iplIncludeZeroQty THEN " AND fg-bin.qty NE 0 " + " AND fg-bin.qty NE ?" ELSE "")
+           .
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
@@ -210,9 +225,12 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     REPEAT:
         iCount = iCount + 1.
         
-        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN
+        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN DO:
+            IF iCount GT 1000 THEN
+                opcMessage = "Large number of records available for this search. Limiting to 1000 records".
             LEAVE.
-    
+        END.
+        
         FIND FIRST loadtag NO-LOCK
              WHERE loadtag.company   EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
                AND loadtag.item-type EQ NO
@@ -223,11 +241,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
              WHERE itemfg.company EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
                AND itemfg.i-no    EQ hdBuffer:BUFFER-FIELD("i-no"):BUFFER-VALUE
              NO-ERROR.
-        
-        FIND FIRST inventoryStatusType NO-LOCK
-             WHERE inventoryStatusType.statusID EQ hdBuffer:BUFFER-FIELD("statusId"):BUFFER-VALUE 
-             NO-ERROR.
-              
+
         CREATE ttItem.
         ASSIGN
             ttItem.WarehouseID             = hdBuffer:BUFFER-FIELD("loc"):BUFFER-VALUE
@@ -248,29 +262,26 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
             ttItem.JobNo                   = hdBuffer:BUFFER-FIELD("job-no"):BUFFER-VALUE
             ttItem.JobNo2                  = hdBuffer:BUFFER-FIELD("job-no2"):BUFFER-VALUE
             ttItem.POID                    = hdBuffer:BUFFER-FIELD("po-no"):BUFFER-VALUE
-            ttItem.UnitLength              = IF AVAILABLE itemfg THEN
-                                                  itemfg.unitlength
-                                              ELSE
-                                                  0
-            ttItem.UnitHeight              = IF AVAILABLE itemfg THEN
-                                                  itemfg.unitHeight
-                                              ELSE
-                                                  0
-            ttItem.UnitWidth               = IF AVAILABLE itemfg THEN
-                                                  itemfg.unitWidth
-                                              ELSE
-                                                  0
-            ttItem.StackHeight             = IF AVAILABLE itemfg THEN
-                                                  itemfg.stackHeight
-                                              ELSE
-                                                  0
+            ttItem.customerID              = hdBuffer:BUFFER-FIELD("cust-no"):BUFFER-VALUE
             ttItem.TagStatus               = hdBuffer:BUFFER-FIELD("statusId"):BUFFER-VALUE
             ttItem.OnHold                  = hdBuffer:BUFFER-FIELD("onHold"):BUFFER-VALUE
-            ttItem.StatusDescription       = IF AVAILABLE inventorystatusType THEN
-                                                 inventoryStatusType.description
-                                             ELSE
-                                                 ""
+            ttItem.sourceRowID             = hdBuffer:ROWID 
             .
+            
+            IF ttItem.TagStatus NE "" THEN
+                RUN Inventory_GetStatusDescription IN hdInventoryProcs (
+                    INPUT  ttItem.TagStatus,
+                    OUTPUT ttItem.StatusDescription 
+                    ).
+                
+            IF AVAILABLE itemfg THEN
+                ASSIGN
+                    ttItem.UnitLength  = itemfg.unitlength
+                    ttItem.UnitHeight  = itemfg.unitHeight
+                    ttItem.UnitWidth   = itemfg.unitWidth
+                    ttItem.StackHeight = itemfg.stackHeight
+                    ttItem.itemDesc    = itemfg.i-dscr
+                    .
         
         hdQuery:GET-NEXT().
     END.
@@ -285,8 +296,9 @@ ELSE DO:
            + (IF lValidItem THEN " AND rm-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc  THEN " AND rm-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
            + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
-           + "AND rm-bin.qty NE 0 " 
-           + "AND rm-bin.qty NE ?".
+           + (IF lValidPoID THEN " AND rm-bin.po-no EQ " + STRING(ipiPoID) ELSE "")
+           + (IF iplIncludeZeroQty THEN "AND rm-bin.qty NE 0 " + "AND rm-bin.qty NE ?" ELSE "")
+           .
        
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
@@ -296,8 +308,11 @@ ELSE DO:
     REPEAT:
         iCount = iCount + 1.
         
-        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN
+        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN DO:
+            IF iCount GT 1000 THEN
+                opcMessage = "Large number of records available for this search. Limiting to 1000 records".
             LEAVE.
+        END.
     
         FIND FIRST loadtag NO-LOCK
              WHERE loadtag.company   EQ hdBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
@@ -330,6 +345,7 @@ ELSE DO:
             ttItem.QuantitySubUnitsPerUnit = 0
             ttItem.QuantityPartial         = 0
             ttItem.POID                    = hdBuffer:BUFFER-FIELD("po-no"):BUFFER-VALUE
+            ttItem.sourceRowID             = hdBuffer:ROWID
             .
         
         hdQuery:GET-NEXT().

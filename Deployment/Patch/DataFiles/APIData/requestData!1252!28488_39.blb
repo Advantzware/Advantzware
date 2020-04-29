@@ -1,0 +1,9 @@
+ISA*00*          *00*          *ZZ*PREMIER        *ZZ*AMAZON         *$ISADate$*$ISATime$*U*00401*$ISAControlNum$*0*I*>~
+GS*IN*PREMIER*AMAZON*$GSDate$*$GSTime$*$GSControlNum$*X*004010~
+ST*810*$STControlNum$~
+BIG*$BIGDate$*$BIGDocID$~
+CUR*BT*$Currency$~[$N1Addresses$][$Detail$][$Addons$][$Tax$]
+TDS*$TotalAmount$~
+SE*$SECount$*$STControlNum$~
+GE*1*$GSControlNum$~
+IEA*1*$ISAControlNum$~

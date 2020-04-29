@@ -168,32 +168,13 @@ DO:
                   
                   AND ((fg-bin.qty      GT 0 AND iFifoLoopCount EQ 2) OR
                         (fg-bin.qty     GE iRelQtyToAssign AND iFifoLoopCount EQ 1))
-                  USE-INDEX i-no,
-
-                FIRST fg-rcpth NO-LOCK
-                WHERE fg-rcpth.company EQ cocode
-                    AND fg-rcpth.i-no    EQ fg-bin.i-no
-                    AND fg-rcpth.job-no  EQ fg-bin.job-no
-                    AND fg-rcpth.job-no2 EQ fg-bin.job-no2
-                    
-                    AND CAN-FIND(FIRST fg-rdtlh 
-                                    WHERE fg-rdtlh.r-no    EQ fg-rcpth.r-no
-                                      AND fg-rdtlh.loc     EQ fg-bin.loc
-                                      AND fg-rdtlh.loc-bin EQ fg-bin.loc-bin
-                                      AND fg-rdtlh.tag     EQ fg-bin.tag
-                                      AND fg-rdtlh.cust-no EQ fg-bin.cust-no
-                                      USE-INDEX rm-rdtl)
-                    BY fg-rcpth.trans-date
-                    BY fg-rcpth.r-no
+                  USE-INDEX i-no
+                    BY fg-bin.rec_key
                     BY fg-bin.job-no
                     BY fg-bin.job-no2
                     BY fg-bin.qty:
                      
-                RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
-
-
-        
-                RUN pCreateTempOeRell (INPUT ROWID(fg-bin), INPUT ROWID(fg-rcpth)).
+                RUN pCreateTempOeRell (INPUT ROWID(fg-bin)).
  
                 IF iRelQtyToAssign LE 0 THEN LEAVE fifo-loop-csc.
             END. /* end for each fg-bin */
@@ -246,25 +227,8 @@ DO:
 /*                                                   and ttoe-rell.po-no          eq            fg-bin.po-no   */
 /*                                                   and ttoe-rell.ord-no         eq            fg-bin.ord-no  */
                                           ) 
-                        USE-INDEX i-no,
-        
-                        FIRST fg-rcpth NO-LOCK
-                          WHERE fg-rcpth.company EQ cocode
-                            AND fg-rcpth.i-no    EQ fg-bin.i-no
-                            AND fg-rcpth.job-no  EQ fg-bin.job-no
-                            AND fg-rcpth.job-no2 EQ fg-bin.job-no2
-                        
-                        AND CAN-FIND(FIRST fg-rdtlh 
-                                        WHERE fg-rdtlh.r-no    EQ fg-rcpth.r-no
-                                          AND fg-rdtlh.loc     EQ fg-bin.loc
-                                          AND fg-rdtlh.loc-bin EQ fg-bin.loc-bin
-                                          AND fg-rdtlh.tag     EQ fg-bin.tag
-                                          AND fg-rdtlh.cust-no EQ fg-bin.cust-no
-                                          USE-INDEX rm-rdtl)
-                        USE-INDEX i-no 
-        
-                        BY fg-rcpth.trans-date
-                        BY fg-rcpth.r-no
+                        USE-INDEX i-no
+                        BY fg-bin.rec_key
                         BY fg-bin.job-no
                         BY fg-bin.job-no2
                         BY fg-bin.qty:
@@ -301,7 +265,7 @@ DO:
                             NEXT.
                     END.
                     fDebugLog("run pcreatetempoerell " + fg-bin.tag).
-                    RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
+                    RUN pCreateTempOeRell (INPUT ROWID(fg-bin)).
     
 
             
@@ -399,12 +363,9 @@ END PROCEDURE.
 
 PROCEDURE pCreateTempOeRell:
     DEFINE INPUT  PARAMETER iprFgBin AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER iprFgRcpth AS ROWID NO-UNDO.
+
     FIND FIRST fg-bin NO-LOCK 
         WHERE ROWID(fg-bin) EQ iprFgBin
-        NO-ERROR.
-    FIND FIRST fg-rcpth NO-LOCK 
-        WHERE ROWID(fg-rcpth) EQ iprFgRcpth
         NO-ERROR.
  
      fDebugLog("create ttOe-rell " + fg-bin.tag).

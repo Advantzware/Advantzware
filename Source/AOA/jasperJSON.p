@@ -4,12 +4,14 @@ DEFINE INPUT  PARAMETER iprRowID       AS ROWID     NO-UNDO.
 DEFINE INPUT  PARAMETER iphQuery       AS HANDLE    NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUserID      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcSubjectName AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTaskRecKey  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcJasperFile  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cBufferValue  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFullName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJasonName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
@@ -29,10 +31,12 @@ OS-CREATE-DIR "users".
 OS-CREATE-DIR "users\_default".
 OS-CREATE-DIR VALUE("users\" + ipcUserID).
 OS-CREATE-DIR VALUE("users\" + ipcUserID + "\Jasper").
-opcJasperFile = "users\" + ipcUserID + "\"
-              + REPLACE(ipcSubjectName," ","")
-              + ".json"
-              .
+ASSIGN
+    cJasonName    = REPLACE(ipcSubjectName," ","") + "." + ipcTaskRecKey
+    opcJasperFile = "users\" + ipcUserID + "\"
+                  + cJasonName
+                  + ".json"
+                  .
 OUTPUT TO VALUE(opcJasperFile).
 PUT UNFORMATTED
     "~{" SKIP

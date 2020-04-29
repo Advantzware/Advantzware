@@ -74,6 +74,68 @@ ASSIGN
 {AOA/includes/cQueryStr.i cWhereClause}
 cWhereClause = cQueryStr.
 
+/*FOR EACH dynValueColumn NO-LOCK                                                                             */
+/*    WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID                                            */
+/*      AND dynValueColumn.user-id      EQ dynParamValue.user-id                                              */
+/*      AND dynValueColumn.prgmName     EQ dynParamValue.prgmName                                             */
+/*      AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID                                         */
+/*    BY dynValueColumn.sortOrder                                                                             */
+/*    :                                                                                                       */
+/*    IF dynValueColumn.isCalcField THEN DO:                                                                  */
+/*        /* dynamic lookups cannot handle calculated fields */                                               */
+/*        /* future development logic to resolve added here  */                                               */
+/*/*        RUN spDynCalcField IN hDynCalcField (*/                                                           */
+/*/*            ?,                               */                                                           */
+/*/*            dynParamValue.calcProc[idx],     */                                                           */
+/*/*            dynParamValue.calcParam[idx],    */                                                           */
+/*/*            dynParamValue.dataType[idx],     */                                                           */
+/*/*            dynParamValue.colFormat[idx],    */                                                           */
+/*/*            OUTPUT cCalcFieldValue           */                                                           */
+/*/*            ).                               */                                                           */
+/*        NEXT.                                                                                               */
+/*    END. /* if iscalcfield */                                                                               */
+/*    ELSE                                                                                                    */
+/*    ASSIGN                                                                                                  */
+/*        cTableName      = ENTRY(1,dynValueColumn.colName,".")                                               */
+/*        cFieldName      = ENTRY(2,dynValueColumn.colName,".")                                               */
+/*        cRequiredFields = cRequiredFields + cFieldName + ","                                                */
+/*        .                                                                                                   */
+/*    IF dynValueColumn.sortOrder EQ 1 THEN                                                                   */
+/*    ASSIGN                                                                                                  */
+/*        cSourceTable = cTableName                                                                           */
+/*        cSourceField = cFieldName                                                                           */
+/*        .                                                                                                   */
+/*    IF dynParamValue.isActive[idx] THEN DO:                                                                 */
+/*        ASSIGN                                                                                              */
+/*            cDisplayFields = cDisplayFields + cFieldName + ","                                              */
+/*            cFormats       = cFormats       + REPLACE(dynValueColumn.colFormat,",","") + ","                */
+/*            cLabels        = cLabels        + dynValueColumn.colLabel + ","                                 */
+/*            cWidths        = cWidths        + (IF dynValueColumn.dataType EQ "Date" THEN "20" ELSE "") + ","*/
+/*            .                                                                                               */
+/*        IF dynValueColumn.isReturnValue THEN                                                                */
+/*        cReturnFields = cReturnFields + cFieldName + ",".                                                   */
+/*        IF dynValueColumn.isSearchable THEN                                                                 */
+/*        cSearchFields = cSearchFields + cFieldName + ",".                                                   */
+/*        IF dynValueColumn.isSortable THEN                                                                   */
+/*        cSortFields   = cSortFields   + cFieldName + ",".                                                   */
+/*    END. /* if isactive */                                                                                  */
+/*END. /* each dynvaluecolumn */                                                                              */
+
+/* rstark - remove when depricated */
+ASSIGN
+    cTableName = ""
+    cFieldName = ""
+    cRequiredFields = ""
+    cSourceTable = ""
+    cSourceField = ""
+    cDisplayFields = ""
+    cFormats = ""
+    cLabels = ""
+    cWidths = ""
+    cReturnFields = ""
+    cSearchFields = ""
+    cSortFields = ""
+    .
 DO idx = 1 TO EXTENT(dynParamValue.colName):
     IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
     IF dynParamValue.isCalcField[idx] THEN DO:
@@ -115,6 +177,7 @@ DO idx = 1 TO EXTENT(dynParamValue.colName):
         cSortFields   = cSortFields   + cFieldName + ",".
     END. /* if isactive */
 END. /* do idx */
+
 ASSIGN
     cDisplayFields  = TRIM(cDisplayFields,",")
     cFormats        = TRIM(cFormats,",")

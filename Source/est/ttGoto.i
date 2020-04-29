@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE TEMP-TABLE ttGoto NO-UNDO 
     FIELD company          AS CHARACTER 
+    FIELD location         AS CHARACTER
     FIELD estNo            AS CHARACTER
     FIELD eQty             AS DECIMAL
     FIELD formNo           AS INTEGER   FORMAT ">9":U            LABEL "Form"
@@ -22,6 +23,7 @@ DEFINE TEMP-TABLE ttGoto NO-UNDO
     FIELD formNoOrig       AS INTEGER   FORMAT ">9":U            LABEL "Original Form"
     FIELD blankNoOrig      AS INTEGER   FORMAT ">9":U            LABEL "Original Blank"
     FIELD partNo           AS CHARACTER FORMAT "X(20)":U         LABEL "Cust Part#"
+    FIELD partDesc         AS CHARACTER FORMAT "X(50)":U         LABEL "Item Description"
     FIELD numWid           AS INTEGER   FORMAT "->>>,>>>,>>>":U  LABEL "#On Width"
     FIELD numLen           AS INTEGER   FORMAT "->>>,>>>,>>>":U  LABEL "#On Length"
     FIELD numUp            AS INTEGER   FORMAT "->>>,>>>,>>>":U  LABEL "#Up"

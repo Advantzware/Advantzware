@@ -265,7 +265,12 @@
        v-amt       = 0
        v-cost      = 0
        v-qty       = 0
-       v-ship-id   = "".
+       v-ship-id   = ""
+       dFreightCost = 0
+       dWarehouseCost = 0
+       dManufactureCost = 0
+       dDeviationCost = 0.
+       
 
       RUN custom/combasis.p (cocode, tt-report.key-01, cust.type, "", 0,
                              cust.cust-no,
@@ -319,7 +324,11 @@
          v-i-no      = ar-invl.i-no
          v-bol-no    = ar-invl.bol-no
          v-cost      = 0
-         v-ship-id   = ar-inv.ship-id .
+         v-ship-id   = ar-inv.ship-id 
+         dFreightCost     = ar-invl.costStdFreight
+         dWarehouseCost   = ar-invl.costStdWarehouse
+         dManufactureCost = ar-invl.costStdManufacture
+         dDeviationCost   = ar-invl.costStdDeviation .
 
         IF ar-invl.loc NE "" THEN cWhse = ar-invl.loc.
         ELSE DO:
@@ -417,7 +426,11 @@
             v-job-no2   = ar-invl.job-no2
             v-ord-no    = ar-invl.ord-no
             v-i-no      = ar-invl.i-no
-            v-ship-id   = ar-inv.ship-id .
+            v-ship-id   = ar-inv.ship-id
+            dFreightCost     = ar-invl.costStdFreight
+            dWarehouseCost   = ar-invl.costStdWarehouse
+            dManufactureCost = ar-invl.costStdManufacture
+            dDeviationCost   = ar-invl.costStdDeviation.
 
 
            IF AVAIL oe-retl THEN
@@ -704,6 +717,11 @@
                  WHEN "ware-house" THEN cVarValue = IF cWhse NE "" THEN cWhse ELSE "".
                  WHEN "ship-id" THEN cVarValue = STRING(v-ship-id).
                  WHEN "msf" THEN cVarValue = STRING(dMsfCalc,"->>>>>9.99<<<").
+                 WHEN "fre-cost" THEN cVarValue = string(dFreightCost,"->>>>,>>9.99") .
+                 WHEN "ware-cost" THEN cVarValue = string(dWarehouseCost,"->>,>>>,>>9.99") .
+                 WHEN "manu-cost" THEN cVarValue = string(dManufactureCost,"->>>>,>>>,>>9.99") .
+                 WHEN "devi-cost" THEN cVarValue = string(dDeviationCost,"->>,>>>,>>9.99") .
+                  
             END CASE.
             IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -822,6 +840,10 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".   
                  WHEN "msf" THEN cVarValue = "".
+                 WHEN "fre-cost" THEN cVarValue = "" .
+                 WHEN "ware-cost" THEN cVarValue = "" .
+                 WHEN "manu-cost" THEN cVarValue = "" .
+                 WHEN "devi-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -987,6 +1009,10 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".
                  WHEN "msf" THEN cVarValue = "".
+                 WHEN "fre-cost" THEN cVarValue = "" .
+                 WHEN "ware-cost" THEN cVarValue = "" .
+                 WHEN "manu-cost" THEN cVarValue = "" .
+                 WHEN "devi-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1077,6 +1103,10 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "". 
                  WHEN "msf" THEN cVarValue = "".
+                 WHEN "fre-cost" THEN cVarValue = "" .
+                 WHEN "ware-cost" THEN cVarValue = "" .
+                 WHEN "manu-cost" THEN cVarValue = "" .
+                 WHEN "devi-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1215,6 +1245,10 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "". 
                  WHEN "msf" THEN cVarValue = "".
+                 WHEN "fre-cost" THEN cVarValue = "" .
+                 WHEN "ware-cost" THEN cVarValue = "" .
+                 WHEN "manu-cost" THEN cVarValue = "" .
+                 WHEN "devi-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.

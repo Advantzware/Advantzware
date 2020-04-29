@@ -62,6 +62,17 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Discount' THEN STRING( 1000000 / (9999999.99 - tt-sel.disc-amt),'-9.999999999') ELSE ~
   STRING( 1000000 / (9999999.99 - tt-sel.amt-paid),'-9.999999999') ~{&SORTED}
   
+  
+&ELSEIF '{&yellowColumnsName}' EQ 'w-selven' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Invoice Num' THEN tt-sel.inv-no                                                   ELSE ~
+  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(tt-sel.due-date),'9999') + ~
+  STRING(MONTH(tt-sel.due-date),'99') + ~STRING(DAY(tt-sel.due-date),'99')                            ELSE ~
+  IF sortColumn EQ 'Invoice Amt' THEN STRING( 1000000 / (9999999.99 - tt-sel.inv-bal),'-9.999999999') ELSE ~
+  IF sortColumn EQ 'Balance Due' THEN STRING( 1000000 / (9999999.99 - tt-sel.amt-due),'-9.999999999') ELSE ~
+  IF sortColumn EQ 'Discount' THEN STRING( 1000000 / (9999999.99 - tt-sel.disc-amt),'-9.999999999')   ELSE ~
+  STRING( 1000000 / (9999999.99 - tt-sel.amt-paid),'-9.999999999') ~{&SORTED}
+  
 &ELSEIF '{&yellowColumnsName}' EQ 'account2' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Account No' THEN account.actnum ELSE ~

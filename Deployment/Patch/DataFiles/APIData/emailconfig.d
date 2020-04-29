@@ -24,15 +24,3 @@ Rel XML Monitor is stopped" "clay.horsley@advantzware.com" "" "" "Attention!!! R
 RFID Monitor is stopped" "clay.horsley@advantzware.com" "" "" "Attention!!! RFID Monitor is stopped" "" "201912131144404519036" "user1" 2019-12-13T03:10:44.034 no 11 "" 587 "RFID Monitor stopped" no
 "smtp.office365.com" "ron.stark@advantzware.com" "Chester1!" "(Ignore this email, testing in progress)
 Esko Monitor is stopped" "clay.horsley@advantzware.com" "" "" "Attention!!! Esko Monitor is stopped" "" "201912131161904519037" "user1" 2019-12-13T03:13:39.284 no 12 "" 587 "Esko Monitor stopped" no
-.
-PSC
-filename=emailConfig
-records=0000000000011
-ldbname=ASI
-timestamp=2020/03/27-11:55:49
-numformat=44,46
-dateformat=mdy-1950
-map=NO-MAP
-cpstream=IBM850
-.
-0000004849

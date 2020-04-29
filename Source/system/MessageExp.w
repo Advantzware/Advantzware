@@ -172,7 +172,7 @@ DEFINE VARIABLE begin_mod  AS CHARACTER FORMAT "x(3)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_msg-id AS CHARACTER FORMAT "x(16)" 
+DEFINE VARIABLE begin_msg-id AS INTEGER FORMAT ">>>>>>>>" 
     LABEL "From Message" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
@@ -182,7 +182,7 @@ DEFINE VARIABLE end_mod    AS CHARACTER FORMAT "X(3)" INITIAL "zzzzzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
 
-DEFINE VARIABLE end_msg-id   AS CHARACTER FORMAT "X(16)" INITIAL "zzzzzzzzzzz" 
+DEFINE VARIABLE end_msg-id   AS INTEGER FORMAT ">>>>>>>>" INITIAL "99999999" 
     LABEL "To Message" 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.

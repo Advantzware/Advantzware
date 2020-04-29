@@ -102,7 +102,10 @@ DEFINE VARIABLE h_vend AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend-tot AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_apiClientXref AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apiClientXref-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-cstsld AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -115,7 +118,7 @@ DEFINE FRAME F-Main
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 67 ROW 2.91
+         AT COL 90 ROW 2.91
          SIZE 84 BY 1.43
          BGCOLOR 15 .
 
@@ -313,7 +316,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'BrowseVendors|View Vendor|Totals' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'BrowseVendors|View Vendor|Totals|API/EDI' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -522,6 +525,69 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-vndtot ,
              h_vend-tot , 'AFTER':U ).
     END. /* Page 3 */
+     WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 37.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+    
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 30.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/apiClientXref.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apiClientXref ).
+       RUN set-position IN h_apiClientXref ( 4.71 , 23.00 ) NO-ERROR.
+       RUN set-size IN h_apiClientXref ( 11.19 , 107.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/apiClientXref.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
+             OUTPUT h_apiClientXref-2 ).
+       RUN set-position IN h_apiClientXref-2 ( 16.14 , 23.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.19 , 71.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-cstsld.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-cstsld ).
+       RUN set-position IN h_p-cstsld ( 16.14 , 110.00 ) NO-ERROR.
+       RUN set-size IN h_p-cstsld ( 6.29 , 20.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.  
+       
+       /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
+       
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_apiClientXref , 'export-xl':U , h_export ).
+
+       /* Links to SmartViewer h_apiClientXref-2. */
+       RUN add-link IN adm-broker-hdl ( h_p-cstsld , 'TableIO':U , h_apiClientXref-2 ).
+       RUN add-link IN adm-broker-hdl ( h_apiClientXref , 'Record':U , h_apiClientXref-2 ).
+
+       /*RUN add-link IN adm-broker-hdl ( h_apiClientXref , 'attachcustsold':U , h_options ). */
+       
+    END. /* Page 8 */
+    
 
   END CASE.
   /* Select a Startup page. */
@@ -845,3 +911,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/ImpApiClientXref.p .
+ RUN local-open-query IN h_apiClientXref .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

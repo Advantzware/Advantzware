@@ -785,6 +785,8 @@ PROCEDURE pViewAs :
         lIsVisible = YES
         lShowLabel = YES
         .
+    IF CAN-DO(cAction,"LIST-ITEM-PAIRS") AND cInitialItems EQ "" THEN
+    cInitialItems = ",". 
     CASE dynParam.viewAs:
         WHEN "COMBO-BOX" THEN
         RUN pComboBox (

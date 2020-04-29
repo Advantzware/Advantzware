@@ -2211,6 +2211,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
 
     {custom/usrprint.i}
+    
+    ASSIGN 
+        begin_ord#:SCREEN-VALUE = "0"
+        end_ord#:SCREEN-VALUE   ="999999"
+        .
 
     APPLY "entry" TO begin_cust.
 

@@ -112,23 +112,23 @@
      <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no  = <span class="src-keyword">FILL</span><!--src-keyword-->(<span class="src-char">" "</span><!--src-char-->,<span class="src-number">8</span><!--src-number--> <span class="src-keyword">- LENGTH</span><!--src-keyword-->(<span class="src-keyword">TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no))) +
                             <span class="src-keyword">TRIM</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no).
  
-    <span class="src-keyword">FOR EACH</span><!--src-keyword--> itemfg-loc <span class="src-keyword">WHERE</span><!--src-keyword--> itemfg-loc.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
-                          <span class="src-keyword">AND</span><!--src-keyword--> itemfg-loc.i-no    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
-                        <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->:
-      <span class="src-comment">/* Set component q-ono is dependent on the set header */</span><!--src-comment-->
- 
-      <span class="src-keyword">IF</span><!--src-keyword--> itemfg.isaset <span class="src-keyword">OR NOT AVAIL</span><!--src-keyword-->(fg-set) <span class="src-keyword">THEN</span><!--src-keyword-->
-        <span class="src-keyword">RUN</span><!--src-keyword--> fg/calcqool.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(itemfg), itemfg-loc.loc, <span class="src-keyword">OUTPUT</span><!--src-keyword--> itemfg-loc.q-ono).
- 
- 
-      <span class="src-keyword">RUN</span><!--src-keyword--> fg/calcqabl.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(itemfg), itemfg-loc.loc, <span class="src-keyword">OUTPUT</span><!--src-keyword--> itemfg-loc.q-alloc,
-                                              <span class="src-keyword">OUTPUT</span><!--src-keyword--> itemfg-loc.q-back).  
- 
-      <span class="src-keyword">ASSIGN</span><!--src-keyword-->
-       itemfg-loc.q-avail = itemfg-loc.q-onh +
-                              (<span class="src-keyword">IF</span><!--src-keyword--> oereordr-cha <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"XOnOrder"</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">ELSE</span><!--src-keyword--> itemfg-loc.q-ono) <span class="src-keyword">-</span><!--src-keyword-->
-                              itemfg-loc.q-alloc.
-    <span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* Each Itemfg-loc */</span><!--src-comment-->
+<span class="src-comment">/*    FOR EACH itemfg-loc WHERE itemfg-loc.company EQ {&amp;TABLENAME}.company                    */</span><!--src-comment-->
+<span class="src-comment">/*                          AND itemfg-loc.i-no    EQ {&amp;TABLENAME}.i-no                       */</span><!--src-comment-->
+<span class="src-comment">/*                        EXCLUSIVE-LOCK:                                                     */</span><!--src-comment-->
+<span class="src-comment">/*      /* Set component q-ono is dependent on the set header */                              */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                            */</span><!--src-comment-->
+<span class="src-comment">/*      IF itemfg.isaset OR NOT AVAIL(fg-set) THEN                                            */</span><!--src-comment-->
+<span class="src-comment">/*        RUN fg/calcqool.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT itemfg-loc.q-ono).         */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                            */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                            */</span><!--src-comment-->
+<span class="src-comment">/*      RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT itemfg-loc.q-alloc,          */</span><!--src-comment-->
+<span class="src-comment">/*                                              OUTPUT itemfg-loc.q-back).                    */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                            */</span><!--src-comment-->
+<span class="src-comment">/*      ASSIGN                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*       itemfg-loc.q-avail = itemfg-loc.q-onh +                                              */</span><!--src-comment-->
+<span class="src-comment">/*                              (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg-loc.q-ono) -*/</span><!--src-comment-->
+<span class="src-comment">/*                              itemfg-loc.q-alloc.                                           */</span><!--src-comment-->
+<span class="src-comment">/*    END. /* Each Itemfg-loc */                                                              */</span><!--src-comment-->
  
  
     <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cust-no <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cust-no <span class="src-keyword">THEN</span><!--src-keyword-->

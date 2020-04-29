@@ -21,6 +21,10 @@ def var v-invl-pric as dec.
 def var v-tax-rate as dec extent 4.
 DEFINE VARIABLE cCostUOM AS CHARACTER.
 DEFINE VARIABLE cCostSource AS CHARACTER.
+DEFINE VARIABLE dCostFreight AS DECIMAL.
+DEFINE VARIABLE dCostWarehouse AS DECIMAL.
+DEFINE VARIABLE dCostDeviation AS DECIMAL.
+DEFINE VARIABLE dCostManufacture AS DECIMAL.
 
 
 FOR EACH ar-ledger
@@ -97,7 +101,8 @@ FOR EACH ar-ledger
                              output v-cost[1], output v-cost[2],
                              output v-cost[3], output v-cost[4],
                              output v-u-cost, OUTPUT cCostUOM, 
-                             output v-t-cost, OUTPUT cCostSource).
+                             output v-t-cost, OUTPUT cCostSource,
+                             OUTPUT dCostFreight, OUTPUT dCostWarehouse, OUTPUT dCostDeviation, OUTPUT dCostManufacture).
 
           run oe/invposty.p (ar-inv.inv-no, ar-invl.i-no, ar-invl.inv-qty,
                              "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4]).

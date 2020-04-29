@@ -106,9 +106,9 @@ DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-exit btnKeyboard-2 btnNumPad btnKeyboard ~
-RECT-26 RECT-29 bt-change ls-jobno cb-jobno2 cb-formno cb-blankno btnFirst ~
-ls-tag br-table btnLast btnNext btnPrevious 
+&Scoped-Define ENABLED-OBJECTS btnKeyboard RECT-26 RECT-29 bt-exit ~
+bt-change ls-jobno cb-jobno2 btnNumPad cb-formno cb-blankno ls-tag ~
+btnKeyboard-2 br-table btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS ls-jobno cb-jobno2 ls-order ls-cust ~
 cb-formno cb-blankno ls-item ls-wipitemid ls-tag ls-lastop ls-message 
 
@@ -128,7 +128,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-change 
      LABEL "Change" 
-     SIZE 24 BY 2.91
+     SIZE 19 BY 2.91
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
@@ -287,33 +287,30 @@ DEFINE BROWSE br-table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnKeyboard AT ROW 1.95 COL 22 WIDGET-ID 136
      bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     btnKeyboard-2 AT ROW 7.19 COL 99 WIDGET-ID 142
-     btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
-     btnKeyboard AT ROW 3.38 COL 32 WIDGET-ID 136
      bt-change AT ROW 1.95 COL 2 WIDGET-ID 8
      ls-jobno AT ROW 1.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cb-jobno2 AT ROW 1.95 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
      ls-order AT ROW 2.67 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 62
      ls-cust AT ROW 2.67 COL 163.2 COLON-ALIGNED NO-LABEL WIDGET-ID 68
      cb-formno AT ROW 3.38 COL 54.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      cb-blankno AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      ls-item AT ROW 3.86 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     btnFirst AT ROW 10.76 COL 192 WIDGET-ID 128
      ls-wipitemid AT ROW 6.95 COL 133.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      ls-tag AT ROW 7.19 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     btnKeyboard-2 AT ROW 7.19 COL 99 WIDGET-ID 142
      ls-lastop AT ROW 8.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 80
      br-table AT ROW 10.52 COL 2 WIDGET-ID 200
-     bt-post AT ROW 31.05 COL 151 WIDGET-ID 38
-     btnLast AT ROW 27.76 COL 192 WIDGET-ID 130
-     ls-message AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
-     btnNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
+     btnFirst AT ROW 10.76 COL 192 WIDGET-ID 128
      btnPrevious AT ROW 14.81 COL 192.2 WIDGET-ID 134
+     btnNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
+     btnLast AT ROW 27.76 COL 192 WIDGET-ID 130
+     bt-post AT ROW 31.05 COL 151 WIDGET-ID 38
+     ls-message AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
      "Cust #:" VIEW-AS TEXT
           SIZE 11.6 BY .81 AT ROW 2.71 COL 153 WIDGET-ID 66
-          FONT 34
-     "WIP ID:" VIEW-AS TEXT
-          SIZE 11.6 BY .81 AT ROW 6.95 COL 124 WIDGET-ID 74
           FONT 34
      "Tag:" VIEW-AS TEXT
           SIZE 8.2 BY 1.19 AT ROW 7.29 COL 10 WIDGET-ID 22
@@ -333,14 +330,17 @@ DEFINE FRAME F-Main
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY .95 AT ROW 3.67 COL 68 WIDGET-ID 58
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 14.6 BY .95 AT ROW 3.52 COL 42 WIDGET-ID 48
-          FONT 36
+     "Item #:" VIEW-AS TEXT
+          SIZE 12 BY .81 AT ROW 3.95 COL 113 WIDGET-ID 70
+          FONT 34
      "Tag Details" VIEW-AS TEXT
           SIZE 19.2 BY .76 AT ROW 5.91 COL 113.8 WIDGET-ID 28
           FONT 35
-     "Item #:" VIEW-AS TEXT
-          SIZE 12 BY .81 AT ROW 3.95 COL 113 WIDGET-ID 70
+     "Form #:" VIEW-AS TEXT
+          SIZE 14.6 BY .95 AT ROW 3.52 COL 42 WIDGET-ID 48
+          FONT 36
+     "WIP ID:" VIEW-AS TEXT
+          SIZE 11.6 BY .81 AT ROW 6.95 COL 124 WIDGET-ID 74
           FONT 34
      RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
@@ -1058,9 +1058,9 @@ PROCEDURE enable_UI :
   DISPLAY ls-jobno cb-jobno2 ls-order ls-cust cb-formno cb-blankno ls-item 
           ls-wipitemid ls-tag ls-lastop ls-message 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE bt-exit btnKeyboard-2 btnNumPad btnKeyboard RECT-26 RECT-29 bt-change 
-         ls-jobno cb-jobno2 cb-formno cb-blankno btnFirst ls-tag br-table 
-         btnLast btnNext btnPrevious 
+  ENABLE btnKeyboard RECT-26 RECT-29 bt-exit bt-change ls-jobno cb-jobno2 
+         btnNumPad cb-formno cb-blankno ls-tag btnKeyboard-2 br-table btnFirst 
+         btnPrevious btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1391,7 +1391,7 @@ PROCEDURE tagScan :
              WHERE ttBrowseInventory.company         EQ ipcCompany
                AND ttBrowseInventory.tag             EQ ipcTag
                AND ttBrowseInventory.inventoryStatus NE gcStatusStockInitial
-			 NO-ERROR.
+                         NO-ERROR.
         IF AVAILABLE ttBrowseInventory THEN DO:       
             ASSIGN
                 ls-wipitemid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ttBrowseInventory.wipItemID

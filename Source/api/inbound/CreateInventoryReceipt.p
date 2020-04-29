@@ -13,23 +13,23 @@
 {inventory/ttinventory.i "NEW SHARED"}.
 {jc/jcgl-sh.i  NEW}
 
-DEFINE INPUT  PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
-DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipiPONo                    AS INTEGER   NO-UNDO.
-DEFINE INPUT  PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
-DEFINE INPUT  PARAMETER ipcJobID                   AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
-DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
-DEFINE INPUT  PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opdFinalQuantity           AS DECIMAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiPONo                   AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
+DEFINE INPUT-OUTPUT PARAMETER iopcJobID                  AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER opdFinalQuantity           AS DECIMAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
 
 {api\inbound\ttRctd.i}
 
@@ -100,17 +100,17 @@ IF ipcInventoryStockID EQ "" THEN DO:
         opcMessage = "Tag can not be empty"                   
         oplSuccess = NO
         .
-		
+        
     RETURN.
 END.
 
 /* Validate Job Number and PO Number */
-IF ipiPONo NE 0 AND ipcJobID NE "" THEN DO:
+IF iopiPONo NE 0 AND iopcJobID NE "" THEN DO:
     ASSIGN 
         opcMessage = "Enter either PO Number or Job Number for Tag  (" + ipcInventoryStockID + ")".                    
         oplSuccess = NO
         .
-		
+        
     RETURN.
 END.
 
@@ -136,12 +136,12 @@ IF NOT AVAILABLE loadtag THEN DO:
 END.
 
 IF NOT AVAILABLE fg-bin AND NOT AVAILABLE loadtag THEN DO:
-    IF ipiPONo EQ 0 AND ipcJobID EQ "" THEN DO:
+    IF iopiPONo EQ 0 AND iopcJobID EQ "" THEN DO:
         ASSIGN 
             opcMessage = "Tag  (" + ipcInventoryStockID + ") is not registered. Please provide valid PO Number / Job Number"                    
             oplSuccess = NO
             .
-					
+                    
         RETURN.
     END.
     
@@ -201,10 +201,10 @@ ASSIGN
     . 
     
 /* Validate PO Number */
-IF ipiPONo NE 0 THEN DO:
+IF iopiPONo NE 0 THEN DO:
     FIND FIRST po-ord NO-LOCK
          WHERE po-ord.company EQ ipcCompany
-           AND po-ord.po-no   EQ ipiPONo
+           AND po-ord.po-no   EQ iopiPONo
          NO-ERROR.
     IF NOT AVAILABLE po-ord THEN DO:
         ASSIGN 
@@ -219,14 +219,14 @@ IF ipiPONo NE 0 THEN DO:
     IF lRegTag THEN
         FIND FIRST po-ordl NO-LOCK
              WHERE po-ordl.company EQ ipcCompany
-               AND po-ordl.po-no   EQ ipiPONo
+               AND po-ordl.po-no   EQ iopiPONo
                AND po-ordl.line    EQ ipiPOLine
                AND po-ordl.i-no    EQ cPrimaryID 
              NO-ERROR.
     ELSE
         FIND FIRST po-ordl NO-LOCK
              WHERE po-ordl.company EQ ipcCompany
-               AND po-ordl.po-no   EQ ipiPONo
+               AND po-ordl.po-no   EQ iopiPONo
                AND po-ordl.line    EQ ipiPOLine
              NO-ERROR.
 
@@ -247,7 +247,7 @@ IF ipiPONo NE 0 THEN DO:
             
     RUN InventoryReceipt_GetCostsFromPO IN hdInventoryReceipt (
         INPUT  ipcCompany, 
-        INPUT  ipiPONo,
+        INPUT  iopiPONo,
         INPUT  ipiPOLine,
         INPUT  cPrimaryID,
         INPUT  ipdQuantity,
@@ -268,18 +268,18 @@ IF ipiPONo NE 0 THEN DO:
 END.
 
 /* Validate non-blank JobID & JobID2 */
-IF ipcJobID NE "" THEN DO:
+IF iopcJobID NE "" THEN DO:
     FIND FIRST job-hdr NO-LOCK 
          WHERE job-hdr.company EQ ipcCompany
-           AND job-hdr.job-no  EQ ipcJobID
+           AND job-hdr.job-no  EQ iopcJobID
         NO-ERROR.    
     IF NOT AVAILABLE job-hdr THEN DO:
         /* Assigns 0 to JobID & JobID2 if JobID is invalid for registered tags */
         IF lRegTag THEN
             ASSIGN
-                ipcJobID  = "0"                     
-                ipcJobID2 = "0"
-              .
+                iopcJobID  = "0"                     
+                ipcJobID2  = "0"
+                .
         /* Throws error if JobID is invalid for un-registered tags */
         ELSE DO: 
             ASSIGN
@@ -294,7 +294,7 @@ IF ipcJobID NE "" THEN DO:
     IF AVAILABLE job-hdr THEN DO:
         FOR EACH  job-hdr
             WHERE job-hdr.company EQ ipcCompany
-              AND job-hdr.job-no  EQ ipcJobID
+              AND job-hdr.job-no  EQ iopcJobID
               AND job-hdr.job-no2 EQ INT(ipcJobID2)
             NO-LOCK,
             FIRST job
@@ -309,7 +309,7 @@ IF ipcJobID NE "" THEN DO:
         IF NOT AVAILABLE job-hdr THEN
             FOR EACH job
                 WHERE job.company EQ ipcCompany
-                  AND job.job-no  EQ ipcJobID
+                  AND job.job-no  EQ iopcJobID
                   AND job.job-no2 EQ INT(ipcJobID2)
                 NO-LOCK,
                 FIRST job-hdr
@@ -466,18 +466,18 @@ IF NOT lItemType THEN DO:
     
     /* Creates receipts  */ 
     RUN pFGRecordCreation (
-        INPUT ipcCompany,
-        INPUT ipcInventoryStockID,
-        INPUT ipdQuantity,
-        INPUT ipcQuantityUOM,
-        INPUT ipiPONo,
-        INPUT ipiPOLine,
-        INPUT ipcJobID,
-        INPUT ipcJobID2,
-        INPUT ipiQuantityPerSubUnit,
-        INPUT ipiQuantitySubUnitsPerUnit,
-        INPUT ipcWarehouseID,
-        INPUT ipcLocationID
+        INPUT        ipcCompany,
+        INPUT        ipcInventoryStockID,
+        INPUT        ipdQuantity,
+        INPUT        ipcQuantityUOM,
+        INPUT-OUTPUT iopiPONo,
+        INPUT        ipiPOLine,
+        INPUT-OUTPUT iopcJobID,
+        INPUT        ipcJobID2,
+        INPUT        ipiQuantityPerSubUnit,
+        INPUT        ipiQuantitySubUnitsPerUnit,
+        INPUT        ipcWarehouseID,
+        INPUT        ipcLocationID
         ) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN DO:
         ASSIGN
@@ -560,18 +560,18 @@ ELSE DO:
     
     /* Creates receipts  */ 
     RUN pRMRecordCreation (
-        INPUT ipcCompany,
-        INPUT ipcInventoryStockID,
-        INPUT ipdQuantity,
-        INPUT ipcQuantityUOM,
-        INPUT ipiPONo,
-        INPUT ipiPOLine,
-        INPUT ipcJobID,
-        INPUT ipcJobID2,
-        INPUT ipiQuantityPerSubUnit,
-        INPUT ipiQuantitySubUnitsPerUnit,
-        INPUT ipcWarehouseID,
-        INPUT ipcLocationID
+        INPUT        ipcCompany,
+        INPUT        ipcInventoryStockID,
+        INPUT        ipdQuantity,
+        INPUT        ipcQuantityUOM,
+        INPUT-OUTPUT iopiPONo,
+        INPUT        ipiPOLine,
+        INPUT-OUTPUT iopcJobID,
+        INPUT        ipcJobID2,
+        INPUT        ipiQuantityPerSubUnit,
+        INPUT        ipiQuantitySubUnitsPerUnit,
+        INPUT        ipcWarehouseID,
+        INPUT        ipcLocationID
         ) NO-ERROR.
         
     IF ERROR-STATUS:ERROR THEN DO:
@@ -623,7 +623,7 @@ ELSE DO:
     RUN InventoryReceipt_PostRMItems IN hdInventoryReceipt (
         INPUT-OUTPUT TABLE ttRctd BY-REFERENCE, /* Just need to pass handle */
         INPUT        ipcCompany,
-        INPUT        ipiPONo,
+        INPUT        iopiPONo,
         INPUT-OUTPUT oplSuccess,
         OUTPUT       opcMessage
         ) NO-ERROR.
@@ -643,18 +643,18 @@ PROCEDURE pFGRecordCreation PRIVATE :
  Purpose: Creates new fg-rctd record
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPONo                    AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
-    DEFINE INPUT  PARAMETER ipcJobID                   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPONo                   AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER iopcJobID                  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lAverageCost AS LOGICAL NO-UNDO.
     
@@ -690,8 +690,6 @@ PROCEDURE pFGRecordCreation PRIVATE :
         bf-fg-rctd.loc-bin    = ipcLocationID
         bf-fg-rctd.created-by = ipcUserName
         bf-fg-rctd.updated-by = ipcUserName
-        bf-fg-rctd.po-no      = STRING(ipiPONo)
-        bf-fg-rctd.po-line    = ipiPOLine
         bf-fg-rctd.qty-case   = ipiQuantityPerSubUnit
         bf-fg-rctd.cases-unit = ipiQuantitySubUnitsPerUnit
         bf-fg-rctd.cases      = IF ipiQuantityPerSubUnit EQ 0 THEN
@@ -736,54 +734,56 @@ PROCEDURE pFGRecordCreation PRIVATE :
                                       itemfg.last-cost.
     END.
 
-    /* Validates whether Tag is registered or not */
+    /* Validates whether Tag is registered in loadtag or not */
     FIND FIRST loadtag NO-LOCK
          WHERE loadtag.company   EQ ipcCompany
            AND loadtag.item-type EQ NO
            AND loadtag.tag-no    EQ ipcInventoryStockID
          NO-ERROR.
     IF NOT AVAILABLE loadtag THEN DO:
-    
+        
+        /* Validates whether Tag is registered in bin or not */
         FIND FIRST fg-bin NO-LOCK
              WHERE fg-bin.company EQ ipcCompany
                AND fg-bin.tag     EQ ipcInventoryStockID
              NO-ERROR. 
-        IF NOT AVAILABLE fg-bin THEN DO:
+        IF AVAILABLE fg-bin THEN DO:
             ASSIGN
-                bf-fg-rctd.job-no  = ipcJobID
-                bf-fg-rctd.job-no2 = INT(ipcJobID2)
+                ipcJobID2             = STRING(fg-bin.job-no2)
+                iopcJobID             = fg-bin.job-no
+                iopiPONo              = INT(fg-bin.po-no)
                 .
-            RELEASE bf-fg-rctd.
-            RETURN.
+                
         END.
-  
-        ASSIGN
-            bf-fg-rctd.job-no     = IF ipcJobID NE "" THEN
-                                       ipcJobID
-                                    ELSE
-                                       fg-bin.job-no
-            bf-fg-rctd.job-no2    = IF ipcJobID2 NE "" THEN
-                                        INT(ipcJobID2)
-                                    ELSE
-                                        fg-bin.job-no2
-            .
-
-        RELEASE bf-fg-rctd.
-        RETURN.
     END.
-  
+    ELSE DO:
+        ASSIGN
+            bf-fg-rctd.stack-code = loadtag.misc-char[2]
+            ipcJobID2             = IF ipcJobID2 EQ "" THEN
+                                        STRING(loadtag.job-no2)
+                                    ELSE
+                                        ipcJobID2
+            iopcJobID             = IF iopcJobID EQ "" THEN
+                                        loadtag.job-no
+                                    ELSE
+                                        iopcJobID
+            iopiPONo              = IF iopiPONo EQ 0 THEN
+                                        loadtag.po-no
+                                    ELSE
+                                        iopiPONo
+            ipiPOLine             = IF ipiPOLine EQ 0 THEN
+                                        loadtag.line
+                                     ELSE
+                                        ipiPOLine
+            .
+    END.
     ASSIGN
-        bf-fg-rctd.stack-code = loadtag.misc-char[2]
-        bf-fg-rctd.job-no     = IF ipcJobID NE "" THEN
-                                    ipcJobID
-                                ELSE
-                                    loadtag.job-no
-        bf-fg-rctd.job-no2    = IF ipcJobID2 NE "" THEN
-                                    INT(ipcJobID2)
-                                ELSE
-                                    loadtag.job-no2
+        bf-fg-rctd.job-no  = iopcJobID
+        bf-fg-rctd.job-no2 = INT(ipcJobID2)
+        bf-fg-rctd.po-no   = STRING(iopiPONo)
+        bf-fg-rctd.po-line = ipiPOLine
         .
-    
+        
     RELEASE bf-fg-rctd.
 END PROCEDURE.
 
@@ -792,18 +792,18 @@ PROCEDURE pRMRecordCreation PRIVATE :
  Purpose: Creates new rm-rctd record
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPONo                    AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
-    DEFINE INPUT  PARAMETER ipcJobID                   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPONo                   AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER iopcJobID                  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQty  AS DECIMAL NO-UNDO.
@@ -858,12 +858,12 @@ PROCEDURE pRMRecordCreation PRIVATE :
          NO-ERROR.
     
     /* If input PO number is null then retrive PO number and line from loadtag */ 
-    IF AVAILABLE loadtag AND (ipiPONo EQ 0 AND ipiPOLine EQ 0) THEN
+    IF AVAILABLE loadtag AND (iopiPONo EQ 0 AND ipiPOLine EQ 0) THEN
         ASSIGN
-            ipiPONo     = IF ipiPONo EQ 0 THEN 
+            iopiPONo     = IF iopiPONo EQ 0 THEN 
                               loadtag.po-no
                           ELSE
-                              ipiPONo
+                              iopiPONo
             ipiPOline   = IF ipiPOLine EQ 0 THEN
                               loadtag.line
                           ELSE
@@ -871,7 +871,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
             .
 
     RUN pGetQtyFrm (
-        INPUT  ipiPONo,
+        INPUT  iopiPONo,
         INPUT  ipiPOline,
         INPUT  ipdQuantity,
         OUTPUT dQty,
@@ -887,15 +887,15 @@ PROCEDURE pRMRecordCreation PRIVATE :
         RETURN.
     END.
     ASSIGN
-         bf-rm-rctd.po-no   = STRING(ipiPONo)
+         bf-rm-rctd.po-no   = STRING(iopiPONo)
          bf-rm-rctd.po-line = ipiPOLine
          bf-rm-rctd.s-num   = iFrm
          bf-rm-rctd.qty     = dQty
          .
-		 
+         
     FIND FIRST po-ordl NO-LOCK
          WHERE po-ordl.company   EQ ipcCompany
-           AND po-ordl.po-no     EQ ipiPONo
+           AND po-ordl.po-no     EQ iopiPONo
            AND po-ordl.line      EQ ipiPOLine
            AND po-ordl.item-type EQ YES
          NO-ERROR.
@@ -956,8 +956,8 @@ PROCEDURE pRMRecordCreation PRIVATE :
       
     ASSIGN
         bf-rm-rctd.i-name    = loadtag.i-name
-        bf-rm-rctd.job-no    = IF ipcJobID NE "" THEN
-                                   ipcJobID
+        bf-rm-rctd.job-no    = IF iopcJobID NE "" THEN
+                                   iopcJobID
                                ELSE
                                    loadtag.job-no
         bf-rm-rctd.job-no2   = IF ipcJobID2 NE "" THEN
@@ -975,7 +975,7 @@ PROCEDURE pGetQtyFrm PRIVATE:
  Purpose: Gets quantity and frm 
  Notes:
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT  PARAMETER ipiPONo     AS INTEGER NO-UNDO.
+   DEFINE INPUT  PARAMETER iopiPONo     AS INTEGER NO-UNDO.
    DEFINE INPUT  PARAMETER ipiPOLine   AS INTEGER NO-UNDO.
    DEFINE INPUT  PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
    DEFINE OUTPUT PARAMETER opdQty      AS DECIMAL NO-UNDO.
@@ -985,7 +985,7 @@ PROCEDURE pGetQtyFrm PRIVATE:
 
    FIND FIRST po-ordl NO-LOCK
         WHERE po-ordl.company   EQ ipcCompany
-          AND po-ordl.po-no     EQ ipiPONo
+          AND po-ordl.po-no     EQ iopiPONo
           AND po-ordl.line      EQ ipiPOLine
           AND po-ordl.item-type EQ YES
         NO-ERROR.

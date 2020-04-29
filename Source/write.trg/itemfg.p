@@ -77,23 +77,23 @@ DO TRANSACTION:
      {&TABLENAME}.est-no  = FILL(" ",8 - LENGTH(TRIM({&TABLENAME}.est-no))) +
                             TRIM({&TABLENAME}.est-no).
   
-    FOR EACH itemfg-loc WHERE itemfg-loc.company EQ {&TABLENAME}.company
-                          AND itemfg-loc.i-no    EQ {&TABLENAME}.i-no
-                        EXCLUSIVE-LOCK:
-      /* Set component q-ono is dependent on the set header */
-        
-      IF itemfg.isaset OR NOT AVAIL(fg-set) THEN
-        RUN fg/calcqool.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT itemfg-loc.q-ono).
-          
-    
-      RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT itemfg-loc.q-alloc,
-                                              OUTPUT itemfg-loc.q-back).  
-    
-      ASSIGN
-       itemfg-loc.q-avail = itemfg-loc.q-onh +
-                              (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg-loc.q-ono) -
-                              itemfg-loc.q-alloc.
-    END. /* Each Itemfg-loc */
+/*    FOR EACH itemfg-loc WHERE itemfg-loc.company EQ {&TABLENAME}.company                    */
+/*                          AND itemfg-loc.i-no    EQ {&TABLENAME}.i-no                       */
+/*                        EXCLUSIVE-LOCK:                                                     */
+/*      /* Set component q-ono is dependent on the set header */                              */
+/*                                                                                            */
+/*      IF itemfg.isaset OR NOT AVAIL(fg-set) THEN                                            */
+/*        RUN fg/calcqool.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT itemfg-loc.q-ono).         */
+/*                                                                                            */
+/*                                                                                            */
+/*      RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT itemfg-loc.q-alloc,          */
+/*                                              OUTPUT itemfg-loc.q-back).                    */
+/*                                                                                            */
+/*      ASSIGN                                                                                */
+/*       itemfg-loc.q-avail = itemfg-loc.q-onh +                                              */
+/*                              (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg-loc.q-ono) -*/
+/*                              itemfg-loc.q-alloc.                                           */
+/*    END. /* Each Itemfg-loc */                                                              */
        
      
     IF {&TABLENAME}.cust-no NE old-{&TABLENAME}.cust-no THEN

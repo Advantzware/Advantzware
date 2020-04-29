@@ -41,6 +41,9 @@
  
 <span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">write</span><!--src-keyword-->.i}</span><!--src-prep-->
  
+<span class="src-keyword">IF length</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estimateNo) <span class="src-keyword">&lt;</span><!--src-keyword--> <span class="src-number">8</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword--> 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estimateNo = <span class="src-keyword">fill</span><!--src-keyword-->(<span class="src-char">" "</span><!--src-char-->, <span class="src-number">8</span><!--src-number--> <span class="src-keyword">- length</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estimateNo)) + <span class="src-keyword">trim</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estimateNo) . 
+ 
 <span class="src-keyword">ASSIGN</span><!--src-keyword--> 
     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.updatedID = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">'ASI'</span><!--src-char-->)
     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.updatedDate = <span class="src-keyword">DATE</span><!--src-keyword-->(<span class="src-keyword">TODAY</span><!--src-keyword-->)

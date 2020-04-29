@@ -74,6 +74,21 @@ PROCEDURE dynInitCompanyList:
     RETURN cCompanyList.
 END PROCEDURE.
 
+PROCEDURE dynInitEstTypeCorr:
+    cSessionValue = "5 - Single,5,6 - Set,6,7 - Combo/Tandem,7,8 - Combo/Tandem,8,9 - Other,9".
+    RETURN cSessionValue.
+END PROCEDURE.
+
+PROCEDURE dynInitEstTypeFolding:
+    cSessionValue = "1 - Single,1,2 - Set,2,3 - Combo/Tandem,3,4 - Combo/Tandem,4".
+    RETURN cSessionValue.
+END PROCEDURE.
+
+PROCEDURE dynInitEstTypeID:
+    cSessionValue = ",,MISC,MISC".
+    RETURN cSessionValue.
+END PROCEDURE.
+
 PROCEDURE dynInitItemType:
     RUN spGetSessionParam ("ItemType", OUTPUT cSessionValue).
     IF cSessionValue EQ "" THEN

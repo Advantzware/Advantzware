@@ -240,29 +240,31 @@ PROCEDURE pProcessInputs:
                  
             /* This is to fetch response data*/ 
             RUN api\inbound\CreateInventoryReceipt.p (
-                INPUT  cCompany, 
-                INPUT  cInventoryStockID,
-                INPUT  dQuantity,
-                INPUT  cQuantityUOM,
-                INPUT  iPONo,
-                INPUT  iPOLine,
-                INPUT  cJobID,                  
-                INPUT  cJobID2,                 
-                INPUT  iQuantityPerSubUnit,     
-                INPUT  iQuantitySubUnitsPerUnit,
-                INPUT  cWarehouseID,            
-                INPUT  cLocationID, 
-                INPUT  cSSPostFG,            
-                INPUT  ipcUsername,
-                OUTPUT dNewQuantity,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
+                INPUT        cCompany, 
+                INPUT        cInventoryStockID,
+                INPUT        dQuantity,
+                INPUT        cQuantityUOM,
+                INPUT-OUTPUT iPONo,
+                INPUT        iPOLine,
+                INPUT-OUTPUT cJobID,                  
+                INPUT        cJobID2,                 
+                INPUT        iQuantityPerSubUnit,     
+                INPUT        iQuantitySubUnitsPerUnit,
+                INPUT        cWarehouseID,            
+                INPUT        cLocationID, 
+                INPUT        cSSPostFG,            
+                INPUT        ipcUsername,
+                OUTPUT       dNewQuantity,
+                OUTPUT       oplSuccess,
+                OUTPUT       opcMessage
                 )NO-ERROR.
            
            oplcResponseData = iplcResponseDataStructure.
            
            RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "Tag",cInventoryStockID) NO-ERROR.
            RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "NewQuantity", STRING(dNewQuantity)) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "PONumber", STRING(iPONo)) NO-ERROR.
+           RUN JSON_UpdateFieldValue (INPUT-OUTPUT oplcResponseData, "JobNumber", cJobID) NO-ERROR.
            
            oplcNewQuantity = IF oplcNewQuantity EQ "" THEN
                                  oplcResponseData 

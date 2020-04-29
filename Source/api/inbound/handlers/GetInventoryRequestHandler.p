@@ -157,6 +157,11 @@ PROCEDURE pProcessInputs:
         INPUT  cJobNo,
         INPUT  iJobNo2,
         INPUT  cCustNo,
+        INPUT  0,            /* Po # */
+        INPUT  YES,          /* Include Zero qty bins */
+        INPUT  YES,          /* Include empty tag bins */
+        INPUT  "",           /* status id */
+        INPUT  ?,            /* On Hold status. Send ? for both yes and no */      
         INPUT  cItemType,
         OUTPUT oplSuccess,
         OUTPUT opcMessage,

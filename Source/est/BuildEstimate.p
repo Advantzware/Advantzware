@@ -307,19 +307,15 @@ FOR EACH ttInputEst NO-LOCK:
         ROWID(eb),
         YES,  /*New Layout vs. Recalculation*/
         NO, /*Prompt to Reset*/
-        YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).
-        
-    RUN est/BuildDefaultPreps.p (BUFFER est,
-        BUFFER ef,
-        INPUT eb.form-no,
-        INPUT 0).
+        YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
     
     RUN pCalcPacking(ROWID(eb)).
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
-            eb.pur-man         = YES .
-
+            eb.pur-man         = YES 
+            eb.sourceEstimate  = ttInputEst.cSourceEst.
+             
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
 
@@ -330,6 +326,11 @@ FOR EACH ttInputEst NO-LOCK:
       END.
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
     END.
+    
+    RUN est/BuildDefaultPreps.p (BUFFER est,
+        BUFFER ef,
+        INPUT eb.form-no,
+        INPUT 0).
     
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */

@@ -602,14 +602,13 @@ PROCEDURE pAddUOMsFromWeight PRIVATE:
     DEFINE INPUT PARAMETER ipcWeightUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
     
-    IF ipdWeightPerEA GT 0 THEN DO:
-        CASE ipcWeightUOM:
-            WHEN "LB" THEN DO: 
-                RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
-                RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
-            END.
-        END CASE.
-    END.            
+    IF ipdWeightPerEA EQ 0 THEN ipdWeightPerEA = 1.
+    CASE ipcWeightUOM:
+        WHEN "LB" THEN DO: 
+            RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+            RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+        END.
+    END CASE.
     
 
 END PROCEDURE.
@@ -677,7 +676,22 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
     DO:   
         /*Add UOMs from item Master*/
         RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster).
-        dLbsPerEA = ipbf-item.basis-w * (fGetSqft(ipbf-item.s-len, ipbf-item.s-wid,"IN") / 1000).
+        
+        IF ipbf-item.cons-uom EQ "LB" THEN DO:
+            dLbsPerEA = 1.
+        END.
+        ELSE DO:
+            CASE ipbf-item.mat-type:
+                WHEN "D" OR WHEN "C" OR WHEN "5" OR WHEN "6" THEN /*packing is per EA weight*/ 
+                    dLbsPerEA = IF ipbf-item.basis-w NE 0 THEN ipbf-item.basis-w ELSE ipbf-item.weight-100 / 100.
+                WHEN "B" OR WHEN "P" OR WHEN "A" OR WHEN "1" OR WHEN "2" OR WHEN "3" OR WHEN "4" OR WHEN "R" THEN /*Board/Paper is Lbs per MSF basis-w*/         
+                    dLbsPerEA = ipbf-item.basis-w * (fGetSqft(ipbf-item.s-len, ipbf-item.s-wid,"IN") / 1000).
+                WHEN "G" OR WHEN "I" OR WHEN "V" THEN  /*Glue cons uom assumed to be LB*/
+                    dLbsPerEA = 1. 
+                OTHERWISE 
+                    dLbsPerEA = ipbf-item.weight-100 / 100.
+            END CASE.
+        END.
         RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster).    
         
         /*Add UOMs from itemUOM table*/

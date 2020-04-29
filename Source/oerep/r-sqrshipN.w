@@ -1402,7 +1402,7 @@ PROCEDURE run-report :
         STATUS DEFAULT "Processing Order#: " +
             TRIM(STRING(oe-boll.ord-no,">>>>>>>>")) .
 
-        IF FIRST-OF (oe-bolh.bol-no) THEN
+        IF FIRST-OF (oe-boll.i-no) THEN
             ASSIGN iShipQty = 0
                    iOrdQty = 0
                    dTtlSqFt = 0 .
@@ -1459,7 +1459,7 @@ PROCEDURE run-report :
         iOrdQty = iOrdQty + (IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0).
         
         dTtlSqFt = dTtlSqFt + dTotalSqft.
-      IF LAST-OF(oe-bolh.bol-no) THEN DO:
+      IF LAST-OF(oe-boll.i-no) THEN DO:
             
         ASSIGN 
             cDisplay       = ""

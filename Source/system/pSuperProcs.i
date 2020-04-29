@@ -90,6 +90,10 @@ PROCEDURE pSuperProcs:
                 + "util/updQuoteProcs.p,"
                 + "util/Validate.p,"
                 + "system/ConversionProcs.p,"
+                + "system/FileSysProcs.p,"
+                + "system/OSProcs.p,"
+                + "system/FormatProcs.p,"
+                + "est/EstimateProcs.p,"     
                 .
     cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):

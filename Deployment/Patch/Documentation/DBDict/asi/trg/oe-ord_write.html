@@ -51,6 +51,9 @@
  
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> li <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> li-next-ordno <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> cFreightCalculationValue <span class="src-keyword">AS CHARACTER NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> cRtnChar  <span class="src-keyword">AS CHARACTER NO-UNDO</span><!--src-keyword-->.
+<span class="src-keyword">DEFINE VARIABLE</span><!--src-keyword--> lRecFound <span class="src-keyword">AS LOGICAL NO-UNDO</span><!--src-keyword-->.
  
 <span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> oe-rel.
 <span class="src-keyword">DISABLE TRIGGERS FOR LOAD OF</span><!--src-keyword--> b-oe-ordl.
@@ -60,6 +63,13 @@
  locode = g_loc.
  
 <span class="src-prep">{sys/inc/oeuserid.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/nk1look.p (<span class="src-keyword">INPUT</span><!--src-keyword--> cocode, <span class="src-char">"FreightCalculation"</span><!--src-char-->, <span class="src-char">"C"</span><!--src-char--> <span class="src-comment">/* Logical */</span><!--src-comment-->, <span class="src-keyword">NO</span><!--src-keyword--> <span class="src-comment">/* check by cust */</span><!--src-comment-->, 
+    <span class="src-keyword">INPUT YES</span><!--src-keyword--> <span class="src-comment">/* use cust not vendor */</span><!--src-comment-->, <span class="src-char">""</span><!--src-char--> <span class="src-comment">/* cust */</span><!--src-comment-->, <span class="src-char">""</span><!--src-char--> <span class="src-comment">/* ship-to*/</span><!--src-comment-->,
+    <span class="src-keyword">OUTPUT</span><!--src-keyword--> cRtnChar, <span class="src-keyword">OUTPUT</span><!--src-keyword--> lRecFound).
+<span class="src-keyword">IF</span><!--src-keyword--> lRecFound <span class="src-keyword">THEN</span><!--src-keyword-->
+    cFreightCalculationValue = cRtnChar <span class="src-keyword">NO-ERROR</span><!--src-keyword-->.
+ 
 <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">AND USERID</span><!--src-keyword-->(<span class="src-char">"ASI"</span><!--src-char-->) <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"ASI"</span><!--src-char--> <span class="src-keyword">THEN DO</span><!--src-keyword-->:
     <span class="src-keyword">MESSAGE</span><!--src-keyword--> <span class="src-char">"Internal Error - Please Call ASI"</span><!--src-char--> <span class="src-keyword">SKIP</span><!--src-keyword-->
         <span class="src-char">"An order with order number 0 was created."</span><!--src-char--> <span class="src-keyword">SKIP</span><!--src-keyword-->
@@ -142,7 +152,8 @@
   <span class="src-keyword">END</span><!--src-keyword-->.
 <span class="src-keyword">END</span><!--src-keyword-->.
  
-<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-freight <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-freight <span class="src-keyword">THEN</span><!--src-keyword-->
+<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-freight <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-freight 
+  <span class="src-keyword">AND</span><!--src-keyword--> (cFreightCalculationValue <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"ALL"</span><!--src-char--> <span class="src-keyword">OR</span><!--src-keyword--> cFreightCalculationValue <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"Order processing"</span><!--src-char-->) <span class="src-keyword">THEN</span><!--src-keyword-->
   <span class="src-keyword">RUN</span><!--src-keyword--> oe/ordfrate.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)).
  
 <span class="src-keyword">RUN</span><!--src-keyword--> oe/calcordt.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->)).

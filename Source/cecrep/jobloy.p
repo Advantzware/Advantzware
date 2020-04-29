@@ -687,50 +687,12 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                                    ELSE "".
 
         END.
-
-        IF v-ship-id NE "" AND AVAIL b1-shipto THEN
-           FIND bf-shipto WHERE RECID(bf-shipto) = RECID(b1-shipto) 
-                NO-LOCK NO-ERROR.
-        ELSE IF v-ship-id NE "" THEN
-           FIND FIRST bf-shipto WHERE
-                      bf-shipto.company EQ cust.company AND
-                      bf-shipto.cust-no EQ cust.cust-no AND
-                      bf-shipto.ship-id EQ v-ship-id
-                      NO-LOCK NO-ERROR.
-
-        /*IF AVAIL bf-shipto THEN
-           ASSIGN v-shpnote[1] = bf-shipto.notes[1]
-                  v-shpnote[2] = bf-shipto.notes[2]
-                  v-shpnote[3] = bf-shipto.notes[3] 
-                  v-shpnote[4] = bf-shipto.notes[4].
-        */
+                
+        
         /* this is for in house shipto WHSE */
         if AVAIL b1-shipto AND v-whs-ship-id NE ""  then do:
-           assign
-              i     = 0
-              v-shp = ""
-              v-ship = "".
-              
-           if bf-shipto.ship-name ne "" then
-             assign
-              i        = i + 1
-              v-shp[i] = bf-shipto.ship-name.
-                
-           if bf-shipto.ship-addr[1] ne "" then
-             assign
-              i        = i + 1
-              v-shp[i] = bf-shipto.ship-addr[1].
-                
-           if bf-shipto.ship-addr[2] ne "" then
-             assign
-              i        = i + 1
-              v-shp[i] = bf-shipto.ship-addr[2].
-           
-           assign
-            i        = i + 1
-            v-shp[i] = trim(bf-shipto.ship-city) + ", " +
-                       bf-shipto.ship-state + "  " + bf-shipto.ship-zip.
-          
+           ASSIGN               
+              v-ship = "".              
            do i = 1 to 4:
               if AVAIL oe-rel-whse AND oe-rel-whse.ship-i[i] ne "" then do:
                  if v-ship eq "" then
@@ -739,51 +701,48 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                  v-ship = trim(v-ship) + " " + oe-rel-whse.ship-i[i].
               end.
            end.
-        end.
-        /* this is for oe-rel shipto */
-        ELSE
-        if v-whs-ship-id NE "" then do:
-           assign
+        end.         
+       
+        v-ship-id = IF AVAIL xoe-ord THEN xoe-ord.ship-id 
+                    ELSE IF AVAIL xeb AND TRIM(xeb.ship-id) NE "" THEN  xeb.ship-id 
+                    ELSE "" .
+           FIND FIRST bf-shipto WHERE
+                      bf-shipto.company EQ cust.company AND
+                      bf-shipto.cust-no EQ cust.cust-no AND
+                      bf-shipto.ship-id EQ v-ship-id
+                      NO-LOCK NO-ERROR.
+          IF AVAIL bf-shipto THEN
+          DO:             
+            assign
               i     = 0
-              v-shp = ""
-              v-ship = "".
-              
-           if avail bf-shipto and bf-shipto.ship-name ne "" then
-             assign
-              i        = i + 1
-              v-shp[i] = bf-shipto.ship-name.
-                
-           if oe-rel-whse.ship-addr[1] ne "" then
-             assign
-              i        = i + 1
-              v-shp[i] = oe-rel-whse.ship-addr[1].
-                
-           IF oe-rel-whse.ship-addr[2] ne "" then
-             assign
-              i        = i + 1
-              v-shp[i] = oe-rel-whse.ship-addr[2].
-           
-           assign
-            i        = i + 1
-            v-shp[i] = trim(oe-rel-whse.ship-city) + ", " +
-                       oe-rel-whse.ship-state + "  " + oe-rel-whse.ship-zip.
-          
-           do i = 1 to 4:
-              if oe-rel-whse.ship-i[i] ne "" then do:
-                 if v-ship eq "" then
-                    v-ship = "Shipping:".
-
-                 v-ship = trim(v-ship) + " " + oe-rel-whse.ship-i[i].
-              end.
-           end.
-        end.
+              v-shp = ""  .
+        
+             if bf-shipto.ship-name ne "" then
+                 assign
+                  i        = i + 1
+                  v-shp[i] = bf-shipto.ship-name.
+                    
+               if bf-shipto.ship-addr[1] ne "" then
+                 assign
+                  i        = i + 1
+                  v-shp[i] = bf-shipto.ship-addr[1].
+                    
+               if bf-shipto.ship-addr[2] ne "" then
+                 assign
+                  i        = i + 1
+                  v-shp[i] = bf-shipto.ship-addr[2].
+               
+               assign
+                i        = i + 1
+                v-shp[i] = trim(bf-shipto.ship-city) + ", " +
+                           bf-shipto.ship-state + "  " + bf-shipto.ship-zip.
+          END.             
         
         DISPLAY "<=7><C30><B> SHIP NOTES / COMMENTS </B>" AT 2
                 "<B>Shipping Info: </B><P10>" AT 79 SKIP
-                "Ship To #:" AT 90
-                xoe-ord.sold-id when avail xoe-ord
+                "Ship To #:" AT 90                 
                 xeb.ship-id when avail xeb @ xoe-ord.sold-id
-                xoe-rel.ship-id when avail xoe-rel @ xoe-ord.sold-id
+                xoe-ord.ship-id when avail xoe-ord @ xoe-ord.sold-id
                 v-whs-ship-id WHEN v-whs-ship-id NE "" @ xoe-ord.sold-id SKIP
                 v-shpnote[1] FORMAT 'x(50)' AT 35 v-shp[1] AT 90 SKIP
                 v-shpnote[2] FORMAT 'x(50)' AT 35 v-shp[2] AT 90 SKIP

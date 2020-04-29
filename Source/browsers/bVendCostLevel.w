@@ -129,11 +129,12 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
       vendItemCostLevel.quantityFrom COLUMN-LABEL "From" FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.quantityTo COLUMN-LABEL "To*" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.quantityTo COLUMN-LABEL "Up To*" FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.costPerUom COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
       vendItemCostLevel.costSetup COLUMN-LABEL "Setup" FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.costDeviation COLUMN-LABEL "Devi" FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.leadTimeDays COLUMN-LABEL "Lead" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.useForBestCost COLUMN-LABEL "Sel" FORMAT "Y/N":U WIDTH 5
   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

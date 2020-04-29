@@ -73,13 +73,15 @@ PROCEDURE pCalcNextRun:
     
     DO TRANSACTION:
         FIND CURRENT Task EXCLUSIVE-LOCK.
-        IF iplLastDate THEN
-        ASSIGN
-            Task.lastDate  = TODAY
-            Task.lastTime  = TIME
-            Task.cLastTime = fTimeConvert(Task.lastTime)
-            Task.isRunning = NO
-            .
+        IF iplLastDate THEN DO:
+            ASSIGN
+                Task.lastDate  = TODAY
+                Task.lastTime  = TIME
+                Task.cLastTime = fTimeConvert(Task.lastTime)
+                Task.isRunning = NO
+                .
+            PAUSE 2 NO-MESSAGE.
+        END. /* if ipllastdate */
         IF Task.runNow THEN DO:
             IF Task.taskName EQ "Run Now Task" THEN
             DELETE Task.

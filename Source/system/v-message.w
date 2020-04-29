@@ -145,9 +145,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 56 BY 1
           BGCOLOR 15 
-     zMessage.msgType AT ROW 2.67 COL 19 COLON-ALIGNED FORMAT "x(12)"
+     zMessage.msgType AT ROW 2.67 COL 19 COLON-ALIGNED FORMAT "x(14)"
           VIEW-AS COMBO-BOX INNER-LINES 10
-          LIST-ITEMS "","ERROR","INFO","MESSAGE","WARNING","QUESTION-YN" 
+          LIST-ITEMS "","ERROR","INFO","MESSAGE","WARNING","QUESTION-YN","MESSAGE-ACTION" 
           DROP-DOWN-LIST
           SIZE 24.6 BY 1
           BGCOLOR 15 
@@ -313,7 +313,8 @@ ON CHOOSE OF Btn_Test IN FRAME F-Main /* Test */
 DO:
     DEF VAR cOutput AS CHAR NO-UNDO.  
     RUN local-update-record.
-    IF zMessage.msgType:SCREEN-VALUE BEGINS "Question" THEN DO:
+    
+    IF zMessage.msgType:SCREEN-VALUE EQ "Question-YN" OR zMessage.msgType:SCREEN-VALUE EQ "Message-Action" THEN DO:
         RUN displayMessageQuestion (zMessage.msgID, OUTPUT cOutput).
         MESSAGE 
             "Output value returned = '" + cOUtput + "'"
@@ -662,10 +663,17 @@ PROCEDURE local-enable-fields :
             DO WITH FRAME {&FRAME-NAME}:
             DISABLE  zMessage.msgID zMessage.module 
                 zMessage.hotKey zMessage.msgName zMessage.currSecLevel 
-                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType 
-                zMessage.rtnValue.
+                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType .
             END.
         END.
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/message.w", "Admin", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN DO:
+            DO WITH FRAME {&FRAME-NAME}:
+            DISABLE  zMessage.rtnValue.
+            END.
+        END.      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,7 +707,7 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
     END.
     
-    IF userSuppress:CHECKED AND zMessage.msgType:SCREEN-VALUE EQ "Question-YN" THEN DO:
+    IF userSuppress:CHECKED AND (zMessage.msgType:SCREEN-VALUE EQ "Question-YN" OR zMessage.msgType:SCREEN-VALUE EQ "Message-Action") THEN DO:
         IF zMessage.rtnValue:SCREEN-VALUE EQ "" THEN DO:
             MESSAGE "Default answer cannot be blank for message type question"
                 VIEW-AS ALERT-BOX ERROR.
@@ -710,9 +718,13 @@ PROCEDURE local-update-record :
                 MESSAGE "Default answer should be either yes or no"
                     VIEW-AS ALERT-BOX ERROR.
                 RETURN ERROR.    
-        END.        
-              
+        END.              
     END.    
+    IF NOT userSuppress:CHECKED AND zMessage.msgType:SCREEN-VALUE EQ "Message-Action" AND LOOKUP(zMessage.rtnValue:SCREEN-VALUE,"YES,NO,ASK") EQ 0 THEN DO:
+                MESSAGE "Default answer should be yes,no or ask"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN ERROR.    
+    END.
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
     ASSIGN

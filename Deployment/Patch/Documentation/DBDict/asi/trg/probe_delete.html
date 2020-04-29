@@ -122,6 +122,13 @@ tmp-dir = <span class="src-keyword">REPLACE</span><!--src-keyword-->(tmp-dir,<sp
   <span class="src-keyword">DELETE</span><!--src-keyword--> reftable.
 <span class="src-keyword">END</span><!--src-keyword-->.
  
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostHeader
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostHeader.company <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company
+    <span class="src-keyword">AND</span><!--src-keyword--> estCostHeader.estimateNo <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.est-no
+    <span class="src-keyword">AND</span><!--src-keyword--> estCostHeader.estCostHeaderID <span class="src-keyword">EQ INT64</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.spare-char-2):
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostHeader.    
+<span class="src-keyword">END</span><!--src-keyword-->.
+ 
  
 </div><!--progresscode-->
 </body>
